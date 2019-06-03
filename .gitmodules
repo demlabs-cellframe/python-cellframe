@@ -1,0 +1,3 @@
+[submodule "libdap"]
+	path = libdap
+	url = https://github.com/cellframe/libdap.git
