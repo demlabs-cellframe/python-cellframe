@@ -19,14 +19,14 @@ static PyMethodDef DapMethods[] = {
 
 static struct PyModuleDef dapmodule = {
         PyModuleDef_HEAD_INIT,
-        "dap",   /* name of module */
+        "libdap_python_module",   /* name of module */
         NULL, /* module documentation, may be NULL */
         -1,       /* size of per-interpreter state of the module,
                  or -1 if the module keeps state in global variables. */
         DapMethods
 };
 
-PyMODINIT_FUNC PyInit_dap(void);
+PyMODINIT_FUNC PyInit_libdap_python_module(void);
 
 #ifdef  __cplusplus
 }

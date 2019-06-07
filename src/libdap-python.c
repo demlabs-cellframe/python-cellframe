@@ -12,7 +12,7 @@ static PyObject *dap_init(PyObject *self, PyObject *args)
     int lenDapAppName=0;
     int countSeparators=0;
     int lenMassives = 0;
-    while (*(data+lenMassives) != '\0' ||*(data+lenMassives) != NULL)
+    while (*(data+lenMassives) != '\0')
     {
         if (*(data+lenMassives)=='\n')
         {
@@ -47,7 +47,7 @@ static PyObject *dap_deinit(PyObject *self)
     return PyLong_FromLong(0);
 }
 
-PyMODINIT_FUNC PyInit_dap(void)
+PyMODINIT_FUNC PyInit_libdap_python_module(void)
 {
     return PyModule_Create(&dapmodule);
 }
@@ -60,7 +60,7 @@ int main(int argc, char **argv) {
     }
 
     /* Add a built-in module, before Py_Initialize */
-    PyImport_AppendInittab("dap", PyInit_dap);
+    PyImport_AppendInittab("libdap_python_module", PyInit_libdap_python_module);
 
     /* Pass argv[0] to the Python interpreter */
     Py_SetProgramName(program);
@@ -71,7 +71,7 @@ int main(int argc, char **argv) {
     /* Optionally import the module; alternatively,
        import can be deferred until the embedded script
        imports it. */
-    PyImport_ImportModule("dap");
+    PyImport_ImportModule("libdap_python_module");
 
     PyMem_RawFree(program);
     return 0;
