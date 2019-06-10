@@ -7,13 +7,18 @@
 extern "C" {
 #endif
 
+#define LOG_TAG "libdap-python"
+
 static PyObject *dap_init(PyObject *self, PyObject *args);
 
 static PyObject *dap_deinit(PyObject *self);
 
+static PyObject *dap_set_log_level(PyObject *self, PyObject *args);
+
 static PyMethodDef DapMethods[] = {
         {"init", dap_init, METH_VARARGS, "Initialization of the DAP (Deus Applicaions Prototypes) library"},
         {"deinit", dap_deinit, METH_NOARGS, "Deinitialization of the DAP (Deus Applicaions Prototypes) library"},
+        {"setLogLevel", dap_set_log_level, METH_VARARGS, "Setting the logging level"},
         {NULL, NULL, 0, NULL}
 };
 

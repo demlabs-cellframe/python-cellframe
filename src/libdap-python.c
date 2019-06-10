@@ -1,7 +1,6 @@
 #include "libdap-python.h"
 
-static PyObject *dap_init(PyObject *self, PyObject *args)
-{
+static PyObject *dap_init(PyObject *self, PyObject *args){
     const char *data;
     char *system_configs_dir;
     char *dap_app_name;
@@ -12,13 +11,10 @@ static PyObject *dap_init(PyObject *self, PyObject *args)
     int lenDapAppName=0;
     int countSeparators=0;
     int lenMassives = 0;
-    while (*(data+lenMassives) != '\0')
-    {
-        if (*(data+lenMassives)=='\n')
-        {
+    while (*(data+lenMassives) != '\0'){
+        if (*(data+lenMassives)=='\n'){
             countSeparators += 1;
-        }
-        else {
+        }else {
             if (countSeparators == 0)
                 lenSystemConfigDir++;
             if (countSeparators == 1)
@@ -35,20 +31,56 @@ static PyObject *dap_init(PyObject *self, PyObject *args)
     const char* log = "_logs.txt";
     memcpy(dap_app_name_logs+lenDapAppName, log,9);
     dap_config_init(system_configs_dir);
-    dap_config_open(dap_app_name);
-    dap_common_init(dap_app_name_logs);
+    if ((g_config = dap_config_open(dap_app_name) ) == NULL){
+        log_it(L_CRITICAL, "Can't init general configurations");
+        return PyLong_FromLong(-1);
+    }
+    if (dap_common_init(dap_app_name_logs)!=0){
+        log_it(L_CRITICAL, "Can't init common functions module");
+        return PyLong_FromLong(-2);
+    }
+    dap_log_level_set( dap_config_get_item_bool_default(g_config,"general","debug_mode", false)? L_DEBUG: L_NOTICE );
     return PyLong_FromLong(0);
 }
 
-static PyObject *dap_deinit(PyObject *self)
-{
+static PyObject *dap_deinit(PyObject *self){
     dap_config_deinit();
     dap_common_deinit();
     return PyLong_FromLong(0);
 }
 
-PyMODINIT_FUNC PyInit_libdap_python_module(void)
-{
+static PyObject *dap_set_log_level(PyObject *self, PyObject *args){
+    const char *data;
+    if (!PyArg_ParseTuple(args, "s", &data))
+        return NULL;
+    if (strcmp(data,"DEBUG") == 0){
+        dap_log_level_set(L_DEBUG);
+        return PyLong_FromLong(0);
+    }
+    if (strcmp(data, "INFO") == 0){
+        dap_log_level_set(L_INFO);
+        return PyLong_FromLong(0);
+    }
+    if (strcmp(data, "NOTICE") == 0){
+        dap_log_level_set(L_NOTICE);
+        return PyLong_FromLong(0);
+    }
+    if (strcmp(data, "WARNING") == 0){
+        dap_log_level_set(L_WARNING);
+        return PyLong_FromLong(0);
+    }
+    if (strcmp(data, "ERROR") == 0){
+        dap_log_level_set(L_ERROR);
+        return PyLong_FromLong(0);
+    }
+    if (strcmp(data, "CRITICAL") == 0){
+        dap_log_level_set(L_CRITICAL);
+        return PyLong_FromLong(0);
+    }
+    return PyLong_FromLong(-1);
+}
+
+PyMODINIT_FUNC PyInit_libdap_python_module(void){
     return PyModule_Create(&dapmodule);
 }
 
