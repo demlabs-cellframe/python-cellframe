@@ -14,18 +14,11 @@ file(GLOB CORE_HEADERS src/*.h)
 
 set(Python_ADDITIONAL_VERSIONS 3.7)
 find_package (PythonLibs REQUIRED)
-find_package(PkgConfig)
-pkg_check_modules(PC_JSON-C REQUIRED json-c)
+#find_package(PkgConfig)
+#pkg_check_modules(PC_JSON-C REQUIRED json-c)
 include_directories(${PYTHON_INCLUDE_DIR})
 
-#set(CMAKE_C_FLAGS "-fpic")
-#set_property(GLOBAL PROPERTY CMAKE_C_FLAGS "-std=c11 -Wall -Wextra -fpic")
-
-#target_link_libraries(${PROJECT_NAME} dap_core)
-
-#add_executable(${PROJECT_NAME} ${CORE_SRCS} ${CORE_UNIX_SRCS})
 add_library(${PROJECT_NAME} SHARED ${CORE_SRCS} ${CORE_UNIX_SRCS})
-#add_library(${PROJECT_NAME} STATIC ${CORE_SRCS} ${CORE_UNIX_SRCS})
 
 target_link_libraries(${PROJECT_NAME} ${PYTHON_LIBRARIES})
 
@@ -39,8 +32,13 @@ target_link_libraries(${PROJECT_NAME} dap_core dap_crypto)
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/src/libdapConnector.py
         DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/)
 
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/test/main_test.py
+            DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/)
+
 if(BUILD_DAP_TESTS)
+    file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/test/main_test.py
+            DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/)
     enable_testing()
-    add_subdirectory(test)
+    #add_subdirectory(test)
 endif()
 
