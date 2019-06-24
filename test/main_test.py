@@ -13,3 +13,8 @@ daptest = libdapConnector.Dap(json_string)
 print("Initialization of the DAP")
 daptest.setLogLevel("DEBUG")
 print("Level logging ""DEBUG"" done")
+daptest.logIt("""{
+    "level": "DEBUG",
+    "data": "Test. Outputting a string using the log_it function in the libdap library"
+}""")
+print("Outputting a string using the log_it function done")

@@ -15,10 +15,15 @@ static PyObject *dap_deinit(PyObject *self);
 
 static PyObject *dap_set_log_level(PyObject *self, PyObject *args);
 
+static PyObject* dap_log_it(PyObject* self, PyObject* args);
+
+static dap_log_level_t convert_const_char_to_dap_log_level(const char* string);
+
 static PyMethodDef DapMethods[] = {
         {"init", dap_init, METH_VARARGS, "Initialization of the DAP (Deus Applicaions Prototypes) library"},
         {"deinit", dap_deinit, METH_NOARGS, "Deinitialization of the DAP (Deus Applicaions Prototypes) library"},
         {"setLogLevel", dap_set_log_level, METH_VARARGS, "Setting the logging level"},
+        {"logIt", dap_log_it, METH_VARARGS, "The wrapper of the log_it function for the libdap library"},
         {NULL, NULL, 0, NULL}
 };
 

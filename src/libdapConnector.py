@@ -20,5 +20,11 @@ class Dap:
         self.log_level=data
         res_setLogLevel = libdap_python_module.setLogLevel(data)
         if res_setLogLevel == -1:
-            raise DapIniException("Failed to set the logging level, perhaps you did correctly specify the name of the level")
+            raise DapIniException("Failed to set the logging level, perhaps you did not correctly specify the name of the level")
+    def logIt(self, data):
+        parse_data = json.loads(data)
+        res_log_it = libdap_python_module.logIt(parse_data['level']+"\n"+parse_data['data'])
+        if res_log_it == -1:
+            raise DapIniException("Could not execute log_it function. Perhaps you did not correctly specify the name of the logging level or did not leave the information that needs to be displayed")
+
 

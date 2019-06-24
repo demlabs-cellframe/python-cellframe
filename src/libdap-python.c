@@ -53,31 +53,70 @@ static PyObject *dap_set_log_level(PyObject *self, PyObject *args){
     const char *data;
     if (!PyArg_ParseTuple(args, "s", &data))
         return NULL;
-    if (strcmp(data,"DEBUG") == 0){
-        dap_log_level_set(L_DEBUG);
+    dap_log_level_t new_log_level = convert_const_char_to_dap_log_level(data);
+    if (new_log_level == -1) {
+        return PyLong_FromLong(-1);
+    } else {
+        dap_log_level_set(new_log_level);
         return PyLong_FromLong(0);
     }
-    if (strcmp(data, "INFO") == 0){
-        dap_log_level_set(L_INFO);
-        return PyLong_FromLong(0);
+}
+
+static dap_log_level_t convert_const_char_to_dap_log_level(const char* string){
+    if (strcmp(string,"DEBUG") == 0){
+        return L_DEBUG;
     }
-    if (strcmp(data, "NOTICE") == 0){
-        dap_log_level_set(L_NOTICE);
-        return PyLong_FromLong(0);
+    if (strcmp(string, "INFO") == 0){
+        return L_INFO;
     }
-    if (strcmp(data, "WARNING") == 0){
-        dap_log_level_set(L_WARNING);
-        return PyLong_FromLong(0);
+    if (strcmp(string, "NOTICE") == 0){
+        return L_NOTICE;
     }
-    if (strcmp(data, "ERROR") == 0){
-        dap_log_level_set(L_ERROR);
-        return PyLong_FromLong(0);
+    if (strcmp(string, "WARNING") == 0){
+        return L_WARNING;
     }
-    if (strcmp(data, "CRITICAL") == 0){
-        dap_log_level_set(L_CRITICAL);
-        return PyLong_FromLong(0);
+    if (strcmp(string, "ERROR") == 0){
+        return L_ERROR;
     }
-    return PyLong_FromLong(-1);
+    if (strcmp(string, "CRITICAL") == 0){
+        return L_CRITICAL;
+    }
+    return -1;
+}
+
+static PyObject* dap_log_it(PyObject* self, PyObject* args){
+    const char *data;
+    if (!PyArg_ParseTuple(args, "s", &data))
+        return NULL;
+    char* dap_log_leve_char;
+    char* string_output;
+    int len_log_level_char=0;
+    int len_string_output=0;
+    int countSeparators=0;
+    int lenMassives = 0;
+    while (*(data+lenMassives) != '\0'){
+        if (*(data+lenMassives)=='\n'){
+            countSeparators += 1;
+        }else {
+            if (countSeparators == 0)
+                len_log_level_char++;
+            if (countSeparators == 1)
+                len_string_output++;
+        }
+        lenMassives++;
+    }
+    if (len_log_level_char == 0 || len_string_output == 0)
+        return PyLong_FromLong(-1);
+    dap_log_leve_char = calloc(len_log_level_char, sizeof(char));
+    string_output = calloc(len_string_output, sizeof(char));
+    memcpy(dap_log_leve_char, data, len_log_level_char);
+    memcpy(string_output, data+len_log_level_char+1, len_string_output);
+    dap_log_level_t log_level = convert_const_char_to_dap_log_level(dap_log_leve_char);
+    if (log_level == -1)
+        return PyLong_FromLong(-1);
+    log_it(log_level, string_output);
+
+    return PyLong_FromLong(0);
 }
 
 PyMODINIT_FUNC PyInit_libdap_python_module(void){
