@@ -26,5 +26,11 @@ class Dap:
         res_log_it = libdap_python_module.logIt(parse_data['level']+"\n"+parse_data['data'])
         if res_log_it == -1:
             raise DapIniException("Could not execute log_it function. Perhaps you did not correctly specify the name of the logging level or did not leave the information that needs to be displayed")
+    def configGetItem(self, section_path, item_name):
+        res = libdap_python_module.configGetItem(section_path, item_name)
+        return res
+    def configGetItemDefault(self, section_path, item_name, default):
+        return libdap_python_module.configGetItemDefault(section_path, item_name, default)
+
 
 

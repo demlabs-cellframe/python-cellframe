@@ -119,6 +119,29 @@ static PyObject* dap_log_it(PyObject* self, PyObject* args){
     return PyLong_FromLong(0);
 }
 
+static PyObject* py_m_dap_config_get_item(PyObject *self, PyObject *args){
+    const char *section_path;
+    const char *item_name;
+    if (!PyArg_ParseTuple(args, "s|s", &section_path, &item_name))
+        return NULL;
+    const char *res = dap_config_get_item_str(g_config, section_path, item_name);
+    if (res == NULL){
+        PyErr_SetString(PyExc_ValueError, "The value could not be obtained. Or there is no section. Or missing key in the section.");
+        return NULL;
+    }
+    return Py_BuildValue("s", res);
+}
+
+static PyObject* py_m_dap_config_get_item_default(PyObject *self, PyObject *args){
+    const char *section_path;
+    const char *item_name;
+    const char *def;
+    if (!PyArg_ParseTuple(args, "s|s|s", &section_path, &item_name, &def))
+        return NULL;
+    const char *res = dap_config_get_item_str_default(g_config, section_path, item_name, def);
+    return Py_BuildValue("s", res);
+}
+
 PyMODINIT_FUNC PyInit_libdap_python_module(void){
     return PyModule_Create(&dapmodule);
 }
