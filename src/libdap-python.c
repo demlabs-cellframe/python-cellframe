@@ -1,35 +1,17 @@
 #include "libdap-python.h"
 
 static PyObject *dap_init(PyObject *self, PyObject *args){
-    const char *data;
-    char *system_configs_dir;
-    char *dap_app_name;
+    //const char *data;
+    const char *system_configs_dir;
+    const char *dap_app_name;
     char *dap_app_name_logs;
-    if (!PyArg_ParseTuple(args, "s", &data))
+    if (!PyArg_ParseTuple(args, "s|s", &system_configs_dir, &dap_app_name))
         return NULL;
-    int lenSystemConfigDir=0;
-    int lenDapAppName=0;
-    int countSeparators=0;
-    int lenMassives = 0;
-    while (*(data+lenMassives) != '\0'){
-        if (*(data+lenMassives)=='\n'){
-            countSeparators += 1;
-        }else {
-            if (countSeparators == 0)
-                lenSystemConfigDir++;
-            if (countSeparators == 1)
-                lenDapAppName++;
-        }
-        lenMassives++;
-    }
-    system_configs_dir = calloc(lenSystemConfigDir, sizeof(char));
-    dap_app_name = calloc(lenDapAppName, sizeof(char));
-    dap_app_name_logs = calloc((lenDapAppName+9), sizeof(char));
-    memcpy(system_configs_dir,data,lenSystemConfigDir);
-    memcpy(dap_app_name, data+lenSystemConfigDir+1, lenDapAppName);
-    memcpy(dap_app_name_logs, dap_app_name, lenDapAppName);
+    int len_dap_app_name = strlen(dap_app_name);
+    dap_app_name_logs = calloc((len_dap_app_name+9), sizeof(char));
+    memcpy(dap_app_name_logs, dap_app_name, len_dap_app_name);
     const char* log = "_logs.txt";
-    memcpy(dap_app_name_logs+lenDapAppName, log,9);
+    memcpy(dap_app_name_logs+len_dap_app_name, log,9);
     dap_config_init(system_configs_dir);
     if ((g_config = dap_config_open(dap_app_name) ) == NULL){
         log_it(L_CRITICAL, "Can't init general configurations");
@@ -85,32 +67,10 @@ static dap_log_level_t convert_const_char_to_dap_log_level(const char* string){
 }
 
 static PyObject* dap_log_it(PyObject* self, PyObject* args){
-    const char *data;
-    if (!PyArg_ParseTuple(args, "s", &data))
+    const char* dap_log_leve_char;
+    const char* string_output;
+    if (!PyArg_ParseTuple(args, "s|s", &dap_log_leve_char, &string_output))
         return NULL;
-    char* dap_log_leve_char;
-    char* string_output;
-    int len_log_level_char=0;
-    int len_string_output=0;
-    int countSeparators=0;
-    int lenMassives = 0;
-    while (*(data+lenMassives) != '\0'){
-        if (*(data+lenMassives)=='\n'){
-            countSeparators += 1;
-        }else {
-            if (countSeparators == 0)
-                len_log_level_char++;
-            if (countSeparators == 1)
-                len_string_output++;
-        }
-        lenMassives++;
-    }
-    if (len_log_level_char == 0 || len_string_output == 0)
-        return PyLong_FromLong(-1);
-    dap_log_leve_char = calloc(len_log_level_char, sizeof(char));
-    string_output = calloc(len_string_output, sizeof(char));
-    memcpy(dap_log_leve_char, data, len_log_level_char);
-    memcpy(string_output, data+len_log_level_char+1, len_string_output);
     dap_log_level_t log_level = convert_const_char_to_dap_log_level(dap_log_leve_char);
     if (log_level == -1)
         return PyLong_FromLong(-1);

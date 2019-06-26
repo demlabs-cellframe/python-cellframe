@@ -3,7 +3,7 @@ import libdapConnector
 json_string = """{
     "modules": "libdap",
     "dap": {
-       "config_dir": "/opt/dap/etc/",
+       "config_dir": "/opt/dap/etc",
        "log_level": "Debug",
        "application_name": "TestAPP"
     }
