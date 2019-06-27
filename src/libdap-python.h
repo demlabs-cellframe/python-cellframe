@@ -11,7 +11,7 @@ extern "C" {
 
 static PyObject *dap_init(PyObject *self, PyObject *args);
 
-static PyObject *dap_deinit(PyObject *self);
+static PyObject *dap_deinit();
 
 static PyObject *dap_set_log_level(PyObject *self, PyObject *args);
 
