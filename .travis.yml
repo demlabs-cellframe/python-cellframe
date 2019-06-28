@@ -9,7 +9,8 @@ before_install:
     - git submodule init
     - git submodule update
 
-install: python3.7 python3.7-dev
+install: 
+    - sudo apt-get install python3.7 python3.7-dev
 
 script:
     - sudo service network-manager start
