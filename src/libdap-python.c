@@ -26,6 +26,7 @@ static PyObject *dap_init(PyObject *self, PyObject *args){
 }
 
 static PyObject *dap_deinit(){
+    dap_config_close(g_config);
     dap_config_deinit();
     dap_common_deinit();
     return PyLong_FromLong(0);
