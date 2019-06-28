@@ -43,28 +43,6 @@ static PyObject *dap_set_log_level(PyObject *self, PyObject *args){
     }
 }
 
-static dap_log_level_t convert_const_char_to_dap_log_level(const char* string){
-    if (strcmp(string,"DEBUG") == 0){
-        return L_DEBUG;
-    }
-    if (strcmp(string, "INFO") == 0){
-        return L_INFO;
-    }
-    if (strcmp(string, "NOTICE") == 0){
-        return L_NOTICE;
-    }
-    if (strcmp(string, "WARNING") == 0){
-        return L_WARNING;
-    }
-    if (strcmp(string, "ERROR") == 0){
-        return L_ERROR;
-    }
-    if (strcmp(string, "CRITICAL") == 0){
-        return L_CRITICAL;
-    }
-    return -1;
-}
-
 static PyObject* dap_log_it(PyObject* self, PyObject* args){
     short int log_level;
     const char* string_output;
@@ -73,7 +51,7 @@ static PyObject* dap_log_it(PyObject* self, PyObject* args){
     if (log_level < 0 || log_level > 5 ) {
         return PyLong_FromLong(-1);
     } else {
-        dap_log_level_set(log_level);
+        log_it(log_level, string_output);
         return PyLong_FromLong(0);
     }
 }
