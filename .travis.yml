@@ -1,5 +1,7 @@
 sudo: required
-language: cpp
+language: python
+python:
+  - "3.7-dev"
 compiler: gcc
 dist: xenial
 notifications:
@@ -10,7 +12,7 @@ before_install:
     - git submodule update
 
 install: 
-    - sudo apt-get install python3.7 python3.7-dev
+    - sudo apt-get install gcc make
 
 script:
     - sudo service network-manager start
