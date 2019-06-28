@@ -1,5 +1,5 @@
 #define PY_SSIZE_T_CLEAN
-#include <python3.7/Python.h>
+#include <Python.h>
 #include "dap_config.h"
 #include "dap_common.h"
 
