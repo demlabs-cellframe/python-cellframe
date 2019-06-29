@@ -31,8 +31,6 @@ static PyObject *dap_deinit(){
     log_it(L_DEBUG, "Config file closed.");
     dap_config_deinit();
     log_it(L_DEBUG, "Function dap_config_deinit done.");
-    dap_common_deinit();
-    log_it(L_DEBUG, "Function dap_common_deinit done.");
     log_it(L_DEBUG, "Function dap_deinit done.");
     return PyLong_FromLong(0);
 }
