@@ -25,18 +25,21 @@ static PyObject *dap_init(PyObject *self, PyObject *args){
     return PyLong_FromLong(0);
 }
 
-static PyObject *dap_deinit(PyObject *self){
+static PyObject *dap_deinit(){
+    log_it(L_DEBUG, "Running function dap_deinit");
+    dap_config_close(g_config);
+    log_it(L_DEBUG, "Config file closed.");
     dap_config_deinit();
-    dap_common_deinit();
+    log_it(L_DEBUG, "Function dap_config_deinit done.");
+    log_it(L_DEBUG, "Function dap_deinit done.");
     return PyLong_FromLong(0);
 }
 
 static PyObject *dap_set_log_level(PyObject *self, PyObject *args){
-    const char *data;
-    if (!PyArg_ParseTuple(args, "s", &data))
+    short int new_log_level;
+    if (!PyArg_ParseTuple(args, "h", &new_log_level))
         return NULL;
-    dap_log_level_t new_log_level = convert_const_char_to_dap_log_level(data);
-    if (new_log_level == -1) {
+    if (new_log_level < 0 || new_log_level > 5 ) {
         return PyLong_FromLong(-1);
     } else {
         dap_log_level_set(new_log_level);
@@ -44,39 +47,17 @@ static PyObject *dap_set_log_level(PyObject *self, PyObject *args){
     }
 }
 
-static dap_log_level_t convert_const_char_to_dap_log_level(const char* string){
-    if (strcmp(string,"DEBUG") == 0){
-        return L_DEBUG;
-    }
-    if (strcmp(string, "INFO") == 0){
-        return L_INFO;
-    }
-    if (strcmp(string, "NOTICE") == 0){
-        return L_NOTICE;
-    }
-    if (strcmp(string, "WARNING") == 0){
-        return L_WARNING;
-    }
-    if (strcmp(string, "ERROR") == 0){
-        return L_ERROR;
-    }
-    if (strcmp(string, "CRITICAL") == 0){
-        return L_CRITICAL;
-    }
-    return -1;
-}
-
 static PyObject* dap_log_it(PyObject* self, PyObject* args){
-    const char* dap_log_leve_char;
+    short int log_level;
     const char* string_output;
-    if (!PyArg_ParseTuple(args, "s|s", &dap_log_leve_char, &string_output))
+    if (!PyArg_ParseTuple(args, "h|s", &log_level, &string_output))
         return NULL;
-    dap_log_level_t log_level = convert_const_char_to_dap_log_level(dap_log_leve_char);
-    if (log_level == -1)
+    if (log_level < 0 || log_level > 5 ) {
         return PyLong_FromLong(-1);
-    log_it(log_level, string_output);
-
-    return PyLong_FromLong(0);
+    } else {
+        log_it(log_level, string_output);
+        return PyLong_FromLong(0);
+    }
 }
 
 static PyObject* py_m_dap_config_get_item(PyObject *self, PyObject *args){

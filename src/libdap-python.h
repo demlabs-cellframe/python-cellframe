@@ -1,5 +1,5 @@
 #define PY_SSIZE_T_CLEAN
-#include <python3.7/Python.h>
+#include <Python.h>
 #include "dap_config.h"
 #include "dap_common.h"
 
@@ -11,13 +11,11 @@ extern "C" {
 
 static PyObject *dap_init(PyObject *self, PyObject *args);
 
-static PyObject *dap_deinit(PyObject *self);
+static PyObject *dap_deinit();
 
 static PyObject *dap_set_log_level(PyObject *self, PyObject *args);
 
 static PyObject* dap_log_it(PyObject* self, PyObject* args);
-
-static dap_log_level_t convert_const_char_to_dap_log_level(const char* string);
 
 static PyObject* py_m_dap_config_get_item(PyObject *self, PyObject *args);
 
