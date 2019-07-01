@@ -14,7 +14,7 @@ create_config_file(app_name)
 
 
 json_string = """{
-    "modules": "libdap",
+    "modules": "",
     "dap": {
        "config_dir": \""""+os.getcwd()+"""\",
        "log_level": \""""+LogLevel.L_DEBUG.name+"""\",
