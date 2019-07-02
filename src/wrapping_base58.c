@@ -1,21 +1,23 @@
 #include "wrapping_base58.h"
 
-static PyObject *dap_encode_base58_py(PyObject *self, PyObject *args){
+PyObject *dap_encode_base58_py(PyObject *self, PyObject *args){
     const char* data;
-    if (!PyArg_ParseTuple(self, "s", &data)){
+    if (!PyArg_ParseTuple(args, "s", &data)){
         return NULL;
     }
-    char* res;
+    size_t encode_result_size = DAP_ENC_BASE58_ENCODE_SIZE(strlen(data));
+    char res[encode_result_size];
     dap_enc_base58_encode(data, strlen(data), res);
     return Py_BuildValue("s", res);
 }
 
-static PyObject *dap_decode_base58_py(PyObject *self, PyObject *args){
+PyObject *dap_decode_base58_py(PyObject *self, PyObject *args){
     const char* data;
-    if (!PyArg_ParseTuple(self, "s", &data)){
+    if (!PyArg_ParseTuple(args, "s", &data)){
         return NULL;
     }
-    char* res;
+    size_t decode_result_size = DAP_ENC_BASE58_DECODE_SIZE(strlen(data));
+    char res[decode_result_size];
     dap_enc_base58_decode(data, res);
     return Py_BuildValue("s", res);
 }
