@@ -37,13 +37,12 @@ target_link_libraries(${PROJECT_NAME} dap_core dap_crypto)
 #file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/src/libdapConnector.py
 #        DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/)
 
-#file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/test/main_test.py
-#            DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/)
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/test/test.py
+            DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/)
 
-if(BUILD_DAP_TESTS)
+if(BUILD_DAP__TESTS)
 #    file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/test/main_test.py
 #            DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/)
     enable_testing()
-    #add_subdirectory(test)
 endif()
 
