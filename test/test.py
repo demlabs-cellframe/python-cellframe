@@ -13,9 +13,9 @@ class TestLibdapCryptoPythonModule(unittest.TestCase):
         self.assertTrue(s == decrypt, "Encoding and decoded information using the base58 algorithm does not match the original")
     def test_b64(self):
         s = "LindyfekrngFHJFGR23356fer"
-        crypt = crypto.encodeBase64(s)
-        decrypt = crypto.decodeBase64(crypt, len(s))
-        self.assertTrue(s == decrypt, "Encoding and decoded information using the base64 algorithm does not match the original")
+        crypt = crypto.encodeBase64(bytes(s, "utf-8"), 1)
+        decrypt = crypto.decodeBase64(crypt, 1)
+        self.assertTrue(bytes(s, "utf-8") == decrypt, "Encoding and decoded information using the base64 algorithm does not match the original")
 
 if __name__ == '__main__':
     unittest.main()
