@@ -1,6 +1,7 @@
 #include "libdap-crypto-python.h"
 
 static PyObject* dap_crypto_init(PyObject *self, PyObject *args){
+    dap_common_init("libdap-crypto","libdap-crypto-python-module.txt");
     if(dap_enc_init()!=0){
         log_it(L_CRITICAL,"Can't init encryption module");
         return PyLong_FromLong(-1);
@@ -9,14 +10,31 @@ static PyObject* dap_crypto_init(PyObject *self, PyObject *args){
         log_it(L_CRITICAL,"Can't init encryption key module");
         return PyLong_FromLong(-2);
     }
+    keys = key_list_init();
     return PyLong_FromLong(0);
 }
 
 static PyObject* dap_crypto_deinit(){
     dap_enc_key_deinit();
     dap_enc_deinit();
+    key_list_free(keys);
     return PyLong_FromLong(0);
 }
+
+/*      Information                         */
+static PyObject *dap_log_it_debug(PyObject *self, PyObject *args){
+    const char *data;
+    if (!PyArg_ParseTuple(args,"s", &data)){
+        return NULL;
+    }
+    log_it(L_DEBUG, data);
+    return PyLong_FromLong(0);
+}
+
+static PyObject *dap_log_it_info(PyObject *self, PyObject *args){
+    return PyLong_FromLong(0);
+}
+/*==========================================*/
 
 PyMODINIT_FUNC PyInit_libdap_crypto_python_module(void){
     return PyModule_Create(&dapcryptomodule);
