@@ -33,7 +33,3 @@ PyObject *dap_enc_gen_key_public_py(PyObject *self, PyObject *args);//dap_enc_ke
 
 PyObject *dap_enc_key_signature_delete_py(PyObject *self, PyObject *args);//dap_enc_key_type_t a_key_type, uint8_t *a_sig_buf);     ->void
 PyObject *dap_enc_key_delete_py(PyObject *self, PyObject *args);//dap_enc_key_t * a_key);       ->void
-
-//void init_wrapping_dap_enc_key();
-
-//dap_enc_key_t* get_dap_enc_key(PyBytesObject *object);
