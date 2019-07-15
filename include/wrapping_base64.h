@@ -1,6 +1,6 @@
 #include "Python.h"
 #include "dap_enc_base64.h"
-#include "py_bytes_object_worker.h"
+#include "dap_common.h"
 
 #ifdef __cplusplus
 extern "C" {
