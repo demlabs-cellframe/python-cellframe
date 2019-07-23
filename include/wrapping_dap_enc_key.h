@@ -3,6 +3,10 @@
 #include "dap_common.h"
 #include "key_list.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #undef LOG_TAG
 #define LOG_TAG "wrapping-dap-enc-key"
 
@@ -33,3 +37,7 @@ PyObject *dap_enc_gen_key_public_py(PyObject *self, PyObject *args);//dap_enc_ke
 
 PyObject *dap_enc_key_signature_delete_py(PyObject *self, PyObject *args);//dap_enc_key_type_t a_key_type, uint8_t *a_sig_buf);     ->void
 PyObject *dap_enc_key_delete_py(PyObject *self, PyObject *args);//dap_enc_key_t * a_key);       ->void
+
+#ifdef __cplusplus
+}
+#endif

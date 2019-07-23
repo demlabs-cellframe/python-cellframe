@@ -33,6 +33,8 @@ static PyMethodDef DapCryptoMethods[] = {
         {"logItInfo", dap_log_it_info, METH_VARARGS, ""},
         {"newKey", dap_enc_key_new_py, METH_VARARGS, "The function creates a new key, and returns it with PyObject."},
         {"delKey", dap_enc_key_delete_py, METH_VARARGS, ""},
+        {"getEncSizeKey", dap_enc_key_get_enc_size_py, METH_VARARGS, ""},
+        {"getDecSizeKey", dap_enc_key_get_dec_size_py, METH_VARARGS, ""},
         {NULL, NULL, 0, NULL}
 };
 
