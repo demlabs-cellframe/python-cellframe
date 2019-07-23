@@ -1,23 +1,25 @@
 #include "wrapping_base58.h"
 
 PyObject *dap_encode_base58_py(PyObject *self, PyObject *args){
-    const char* data;
-    if (!PyArg_ParseTuple(args, "s", &data)){
+    PyBytesObject *obj;
+    if (!PyArg_ParseTuple(args, "S", &obj)){
         return NULL;
     }
-    size_t encode_result_size = DAP_ENC_BASE58_ENCODE_SIZE(strlen(data));
-    char res[encode_result_size];
-    dap_enc_base58_encode(data, strlen(data), res);
-    return Py_BuildValue("s", res);
+    void *in_void = PyBytes_AsString((PyObject*)obj);
+    size_t pySize = (size_t)PyBytes_GET_SIZE(obj);
+    char result[DAP_ENC_BASE58_ENCODE_SIZE(pySize)];
+    dap_enc_base58_encode(in_void, pySize, result);
+    dap_common_init("libdap-crypto-test", "LBS.txt");
+    return Py_BuildValue("s", result);
 }
 
 PyObject *dap_decode_base58_py(PyObject *self, PyObject *args){
-    const char* data;
-    if (!PyArg_ParseTuple(args, "s", &data)){
+    const char *in_str;
+    if (!PyArg_ParseTuple(args, "s", &in_str)){
         return NULL;
     }
-    size_t decode_result_size = DAP_ENC_BASE58_DECODE_SIZE(strlen(data));
-    char res[decode_result_size];
-    dap_enc_base58_decode(data, res);
-    return Py_BuildValue("s", res);
+    void *res = DAP_NEW_SIZE(void*, 36);
+    size_t decrypted_size = dap_enc_base58_decode(in_str, res);
+    PyBytesObject *return_object = (PyBytesObject*)PyBytes_FromStringAndSize(res, decrypted_size);
+    return Py_BuildValue("O", return_object);
 }
