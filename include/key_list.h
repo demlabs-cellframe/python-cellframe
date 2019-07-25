@@ -1,3 +1,7 @@
+#ifndef KEY_LIST_H
+#define KEY_LIST_H
+
+
 #include "dap_common.h"
 #include "dap_enc_key.h"
 #include <stdint.h>
@@ -23,4 +27,6 @@ dap_enc_key_t *key_list_get_key(key_list_t *list, uint8_t key);
 
 #ifdef __cplusplus
 }
+#endif
+
 #endif

@@ -32,11 +32,11 @@ PyObject* dap_enc_key_get_dec_size_py(PyObject *self, PyObject *args){
 
 // allocate memory for key struct
 PyObject* dap_enc_key_new_py(PyObject *self, PyObject *args){
-    int type_key;
-    if(!PyArg_ParseTuple(args, "i", &type_key)){
+    uint8_t type_key;
+    if(!PyArg_ParseTuple(args, "h", &type_key)){
         return NULL;
     }
-    if (type_key < 0 || type_key > 16){
+    if (type_key > 16){
         return PyLong_FromLong(-1);
     }
     dap_enc_key_t *new_key = dap_enc_key_new(type_key);
@@ -45,18 +45,25 @@ PyObject* dap_enc_key_new_py(PyObject *self, PyObject *args){
 }
 
 /// default gen key
-PyObject *dap_enc_key_new_generate_py(PyObject *self, PyObject *args){ ///!!!!!!! ERR
-    /*int type_key;
-    PyObject *kex_buf;
-    size_t kex_size;
-    PyObject* seed,
-    size_t seed_size;
-    size_t key_size
-    if (PyArg_ParseTuple(args, "i|O|n|O|n|n", &type_key, &kex_buf, &kex_size, &seed, &seed_size, &key_size)){
+PyObject *dap_enc_key_new_generate_py(PyObject *self, PyObject *args){
+    uint8_t in_type_key;
+    PyBytesObject *in_kex_buf;
+    size_t in_kex_size;
+    PyBytesObject *in_seed;
+    size_t in_seed_size;
+    size_t in_key_size;
+    if (!PyArg_ParseTuple(args, "h|S|n|S|n|n", &in_type_key, &in_kex_buf, &in_kex_size, &in_seed,
+                         &in_seed_size, &in_key_size)){
         return NULL;
     }
-    //dap_enc_key_new_generate - restart*/
-    return PyLong_FromLong(0);
+    if (in_type_key > 16){
+        return PyLong_FromLong(-1);
+    }
+    void *kex_buf = PyBytes_AsString((PyObject*)in_kex_buf);
+    void *seed = PyBytes_AsString((PyObject*)in_seed);
+    dap_enc_key_t *new_key = dap_enc_key_new_generate(in_type_key, kex_buf, in_kex_size, seed, in_seed_size, in_key_size);
+    uint8_t new_key_id = key_list_add_element(keys, new_key);
+    return PyLong_FromLong(new_key_id);
 }
 
 // update struct dap_enc_key_t after insert foreign keys
