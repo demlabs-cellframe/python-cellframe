@@ -6,6 +6,7 @@
 #include "wrapping_base58.h"
 #include "wrapping_base64.h"
 #include "wrapping_dap_enc_key.h"
+#include "wrapping_dap_enc_iaes.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -33,8 +34,16 @@ static PyMethodDef DapCryptoMethods[] = {
         {"logItInfo", dap_log_it_info, METH_VARARGS, ""},
         {"newKey", dap_enc_key_new_py, METH_VARARGS, "The function creates a new key, and returns it with PyObject."},
         {"delKey", dap_enc_key_delete_py, METH_VARARGS, ""},
+        {"generateNewKey", dap_enc_key_new_generate_py, METH_VARARGS, ""},
         {"getEncSizeKey", dap_enc_key_get_enc_size_py, METH_VARARGS, ""},
         {"getDecSizeKey", dap_enc_key_get_dec_size_py, METH_VARARGS, ""},
+        /*IAES256*/
+        {"newKeyIAES", dap_enc_iaes_key_new_py, METH_VARARGS, ""},
+        {"deleteKeyIAES", dap_enc_iaes_key_delete_py, METH_VARARGS, ""},
+        {"encodeSizeIAES256", dap_enc_iaes256_calc_encode_size_py, METH_VARARGS, ""},
+        {"decodeSizeIAES256", dap_enc_iaes256_calc_decode_size_py, METH_VARARGS, ""},
+        {"encryptIAES256CBCFast", dap_enc_iaes256_cbc_encrypt_fast_py, METH_VARARGS, ""},
+        {"decryptIAES256CBCFast", dap_enc_iaes256_cbc_decrypt_fast_py, METH_VARARGS, ""},
         {NULL, NULL, 0, NULL}
 };
 

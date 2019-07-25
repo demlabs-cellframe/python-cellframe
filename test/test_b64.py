@@ -1,4 +1,5 @@
 import libdap_crypto_python_module as crypto
+import sys
 
 print ("Start test crypto b64")
 s = "Test! I will crush Base64!"
@@ -22,3 +23,6 @@ if bytes(u, "utf-8") == decrypt_u:
      print ("TEST 2. Encode/Decode base64 urlsafe done")
 else:
      print ("TEST 2. Encode/Decode base64 urlsafe faild")
+
+sys.exit(0)
+
