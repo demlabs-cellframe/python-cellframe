@@ -12,6 +12,7 @@ static PyObject* dap_crypto_init(PyObject *self, PyObject *args){
     }
     keys = key_list_init();
     keys_iaes = keys;
+    keys_oaes = keys;
     return PyLong_FromLong(0);
 }
 

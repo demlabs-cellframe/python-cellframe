@@ -7,6 +7,7 @@
 #include "wrapping_base64.h"
 #include "wrapping_dap_enc_key.h"
 #include "wrapping_dap_enc_iaes.h"
+#include "wrapping_dap_enc_oaes.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -40,10 +41,19 @@ static PyMethodDef DapCryptoMethods[] = {
         /*IAES256*/
         {"newKeyIAES", dap_enc_iaes_key_new_py, METH_VARARGS, ""},
         {"deleteKeyIAES", dap_enc_iaes_key_delete_py, METH_VARARGS, ""},
+        {"generateKeyIAES", dap_enc_iaes_key_generate_py, METH_VARARGS, ""},
         {"encodeSizeIAES256", dap_enc_iaes256_calc_encode_size_py, METH_VARARGS, ""},
         {"decodeSizeIAES256", dap_enc_iaes256_calc_decode_size_py, METH_VARARGS, ""},
         {"encryptIAES256CBCFast", dap_enc_iaes256_cbc_encrypt_fast_py, METH_VARARGS, ""},
         {"decryptIAES256CBCFast", dap_enc_iaes256_cbc_decrypt_fast_py, METH_VARARGS, ""},
+        /*OAES*/
+        {"newKeyOAES", dap_enc_oaes_key_new_py, METH_VARARGS, ""},
+        {"deleteKeyOAES", dap_enc_oaes_key_delete_py, METH_VARARGS, ""},
+        {"generateKeyOAES", dap_enc_oaes_key_generate_py, METH_VARARGS, ""},
+        {"encodeSizeOAES", dap_enc_oaes_calc_encode_size_py, METH_VARARGS, ""},
+        {"decodeSizeOAES", dap_enc_oaes_calc_decode_size_py, METH_VARARGS, ""},
+        {"encryptOAESFast", dap_enc_oaes_encrypt_fast_py, METH_VARARGS, ""},
+        {"decryptOAESFast", dap_enc_oaes_decrypt_fast_py, METH_VARARGS, ""},
         {NULL, NULL, 0, NULL}
 };
 
