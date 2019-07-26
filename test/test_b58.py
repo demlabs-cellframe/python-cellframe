@@ -15,8 +15,9 @@ print ("Decoded data: \t")
 print(decrypt)
 out_data = pickle.loads(decrypt)
 if s == out_data:
-    print ("TEST 1. Encode/Decode base64 done")
+    print ("TEST 1. Encode/Decode base58 done")
 else:
-    print ("TEST 1. Encode/Decode base64 faild")
+    print ("TEST 1. Encode/Decode base58 faild")
+    sys.exit(1)
 
 sys.exit(0)

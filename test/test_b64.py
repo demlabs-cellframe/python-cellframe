@@ -14,6 +14,7 @@ if bytes(s, "utf-8") == decrypt:
     print ("TEST 1. Encode/Decode base64 done")
 else:
     print ("TEST 1. Encode/Decode base64 faild")
+    sys.exit(1)
 
 print ("Test Base64 URLSAFE")
 u = "http://kelvin.foundation/"
@@ -23,6 +24,7 @@ if bytes(u, "utf-8") == decrypt_u:
      print ("TEST 2. Encode/Decode base64 urlsafe done")
 else:
      print ("TEST 2. Encode/Decode base64 urlsafe faild")
+     sys.exit(2)
 
 sys.exit(0)
 

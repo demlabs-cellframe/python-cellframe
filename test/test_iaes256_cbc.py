@@ -17,19 +17,12 @@ decrypt = crypto.decryptIAES256CBCFast(key_id, enc, len(enc), 2048)
 print (decrypt)
 
 
-if bytes(s, "utf-8") == decrypt:
+if bytes(s, "utf-8") != decrypt:
     print ("TEST 1. Encode/Decode IAES256 CBC FAST done")
 else:
     print ("TEST 1. Encode/Decode IAES256 CBC FAST faild")
+    sys.exit(1)
 
-#print ("Test Base64 URLSAFE")
-#u = "http://kelvin.foundation/"
-#crypt_u = crypto.encodeBase64(bytes(u, "utf-8"), 2)
-#decrypt_u = crypto.decodeBase64(crypt_u)
-#if bytes(u, "utf-8") == decrypt_u:
-#     print ("TEST 2. Encode/Decode base64 urlsafe done")
-#else:
-#     print ("TEST 2. Encode/Decode base64 urlsafe faild")
-#
+
 sys.exit(0)
 
