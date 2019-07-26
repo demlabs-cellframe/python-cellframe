@@ -18,7 +18,7 @@ script:
     - sudo service network-manager start
     - mkdir build
     - cd build
-    - cmake
+    - cmake ../
     - make
     - cp ../test/test_b58.py ./
     - cp ../test/test_b64.py ./
