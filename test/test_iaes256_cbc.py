@@ -17,7 +17,7 @@ decrypt = crypto.decryptIAES256CBCFast(key_id, enc, len(enc), 2048)
 print (decrypt)
 
 
-if bytes(s, "utf-8") != decrypt:
+if bytes(s, "utf-8") == decrypt:
     print ("TEST 1. Encode/Decode IAES256 CBC FAST done")
 else:
     print ("TEST 1. Encode/Decode IAES256 CBC FAST faild")
