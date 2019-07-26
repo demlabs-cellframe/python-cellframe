@@ -1,5 +1,5 @@
 #define PY_SSIZE_T_CLEAN
-#include <python3.7/Python.h>
+#include <Python.h>
 #include "dap_enc.h"
 #include "dap_enc_key.h"
 #include "dap_common.h"
@@ -8,6 +8,7 @@
 #include "wrapping_dap_enc_key.h"
 #include "wrapping_dap_enc_iaes.h"
 #include "wrapping_dap_enc_oaes.h"
+#include "wrapping_dap_enc_picnic.h"
 
 #ifdef __cplusplus
 extern "C" {
