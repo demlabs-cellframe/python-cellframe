@@ -20,8 +20,10 @@ script:
     - cd build
     - cmake
     - make
-    - cp ../test/* ./
-    - python3.7 main_test.py
+    - cp ../test/test_b58.py ./
+    - cp ../test/test_b64.py ./
+    - cp ../test/test_iaes256_cbc.py ./
+    - cp ../test/test_oaes.py ./
     - python3.7 test_b58.py
     - python3.7 test_b64.py
     - python3.7 test_iaes256_cbc.py
