@@ -59,8 +59,12 @@ PyObject *dap_enc_key_new_generate_py(PyObject *self, PyObject *args){
     if (in_type_key > 16){
         return PyLong_FromLong(-1);
     }
-    void *kex_buf = PyBytes_AsString((PyObject*)in_kex_buf);
-    void *seed = PyBytes_AsString((PyObject*)in_seed);
+    void *kex_buf = NULL;
+    void *seed = NULL;
+    if (in_kex_size != 0)
+        kex_buf = PyBytes_AsString((PyObject*)in_kex_buf);
+    if (in_seed_size != 0)
+        seed = PyBytes_AsString((PyObject*)in_seed);
     dap_enc_key_t *new_key = dap_enc_key_new_generate(in_type_key, kex_buf, in_kex_size, seed, in_seed_size, in_key_size);
     uint8_t new_key_id = key_list_add_element(keys, new_key);
     return PyLong_FromLong(new_key_id);
