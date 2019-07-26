@@ -8,7 +8,6 @@
 #include "wrapping_dap_enc_key.h"
 #include "wrapping_dap_enc_iaes.h"
 #include "wrapping_dap_enc_oaes.h"
-#include "wrapping_dap_enc_picnic.h"
 
 #ifdef __cplusplus
 extern "C" {
