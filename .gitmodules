@@ -1,0 +1,9 @@
+[submodule "libdap-crypto"]
+	path = libdap-crypto
+	url = https://github.com/cellframe/libdap-crypto.git
+[submodule "libdap"]
+	path = libdap
+	url = https://github.com/cellframe/libdap.git
+[submodule "test/libdap-python"]
+	path = test/libdap-python
+	url = https://github.com/cellframe/libdap-python.git

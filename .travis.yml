@@ -1,0 +1,38 @@
+sudo: required
+language: python
+python:
+  - "3.7-dev"
+compiler: gcc
+dist: xenial
+notifications:
+  email: false
+
+before_install:
+    - git submodule init
+    - git submodule update
+
+install: 
+    - sudo apt-get install gcc make
+
+script:
+    - sudo service network-manager start
+    - mkdir build
+    - cd build
+    - cmake ../
+    - make
+    - cp ../test/test_b58.py ./
+    - cp ../test/test_b64.py ./
+    - cp ../test/test_iaes256_cbc.py ./
+    - cp ../test/test_oaes.py ./
+    - python3.7 test_b58.py
+    - python3.7 test_b64.py
+    - python3.7 test_iaes256_cbc.py
+    - python3.7 test_oaes.py
+
+
+addons:
+  apt:
+    sources:
+    - ubuntu-toolchain-r-test
+    packages:
+    - network-manager
