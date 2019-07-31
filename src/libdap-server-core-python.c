@@ -2,9 +2,41 @@
 
 
 static PyObject *dap_server_core_init(PyObject *self, PyObject *args){
-    return PyLong_FromLong(0);
+    uint32_t l_thread_cnt;
+    size_t conn_t;
+    if (!PyArg_ParseTuple(args, "I|n", &l_thread_cnt, &conn_t)){
+        return NULL;
+    }
+    int32_t result = dap_server_init(l_thread_cnt);
+    if ( result != 0 ) {
+       log_it( L_CRITICAL, "Can't init socket server module" );
+     }
+    dap_events_init(l_thread_cnt, conn_t);
+    dap_client_remote_init();
+    return PyLong_FromLong(result);
 }
 static PyObject *dap_server_core_deinit(){
+    dap_client_remote_deinit();
+    dap_server_deinit();
+    dap_events_deinit();
+    return PyLong_FromLong(0);
+}
+
+static PyObject *dap_server_core_loop(PyObject *self, PyObject *args){
+    int32_t result = dap_server_loop(t_server);
+    return PyLong_FromLong(result);
+}
+
+static PyObject *dap_server_core_listen(PyObject *self, PyObject *args){
+    const char *addr;
+    uint16_t port;
+    uint16_t type;
+    if (!PyArg_ParseTuple(args, "s|H|H", &addr, &port, &type)){
+        return NULL;
+    }
+    if (type > 1)
+        return  NULL;
+    t_server = dap_server_listen(addr, port, type);
     return PyLong_FromLong(0);
 }
 
