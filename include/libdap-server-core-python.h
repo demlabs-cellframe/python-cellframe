@@ -11,7 +11,34 @@ extern "C" {
 
 dap_server_t *t_server;
 
+typedef struct PyDapServer {
+    PyObject_HEAD
+    dap_server_t *t_server;
+}PyDapServerObject;
 
+static PyTypeObject dapServer_dapServerType = {
+    PyVarObject_HEAD_INIT(NULL, 0)
+    "libdap_server_core_python_module.DapServer",             /* tp_name */
+    sizeof(PyDapServerObject), /* tp_basicsize */
+    0,                         /* tp_itemsize */
+    0,                         /* tp_dealloc */
+    0,                         /* tp_print */
+    0,                         /* tp_getattr */
+    0,                         /* tp_setattr */
+    0,                         /* tp_compare */
+    0,                         /* tp_repr */
+    0,                         /* tp_as_number */
+    0,                         /* tp_as_sequence */
+    0,                         /* tp_as_mapping */
+    0,                         /* tp_hash */
+    0,                         /* tp_call */
+    0,                         /* tp_str */
+    0,                         /* tp_getattro */
+    0,                         /* tp_setattro */
+    0,                         /* tp_as_buffer */
+    Py_TPFLAGS_DEFAULT,        /* tp_flags */
+    "DapServer objects",           /* tp_doc */
+};
 
 #define LOG_TAG "libdap-server-core-python"
 
@@ -31,7 +58,7 @@ static PyMethodDef DapServerCorePythonMethods[] = {
 
 static struct PyModuleDef dapservercorepythonmodule = {
         PyModuleDef_HEAD_INIT,
-        "libdap_python_module",   /* name of module */
+        "libdap_server_core_python_module",   /* name of module */
         NULL, /* module documentation, may be NULL */
         -1,       /* size of per-interpreter state of the module,
                  or -1 if the module keeps state in global variables. */
