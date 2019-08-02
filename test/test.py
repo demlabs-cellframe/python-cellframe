@@ -1,4 +1,4 @@
-import libdap_server_core_python_module as server
+import libDapServerCore as server
 
 print ("Start wrapping libdap server core python module")
 res_i = server.init(1, 0)

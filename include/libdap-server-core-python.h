@@ -9,8 +9,6 @@
 extern "C" {
 #endif
 
-dap_server_t *t_server;
-
 typedef struct PyDapServer {
     PyObject_HEAD
     dap_server_t *t_server;
@@ -58,14 +56,14 @@ static PyMethodDef DapServerCorePythonMethods[] = {
 
 static struct PyModuleDef dapservercorepythonmodule = {
         PyModuleDef_HEAD_INIT,
-        "libdap_server_core_python_module",   /* name of module */
+        "libDapServerCore",   /* name of module */
         NULL, /* module documentation, may be NULL */
         -1,       /* size of per-interpreter state of the module,
                  or -1 if the module keeps state in global variables. */
         DapServerCorePythonMethods
 };
 
-PyMODINIT_FUNC PyInit_libdap_server_core_python_module(void);
+PyMODINIT_FUNC PyInit_libDapServerCore(void);
 
 
 

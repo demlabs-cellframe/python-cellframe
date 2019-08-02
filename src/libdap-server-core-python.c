@@ -47,7 +47,7 @@ static PyObject *dap_server_core_listen(PyObject *self, PyObject *args){
     return Py_BuildValue("O", obj);
 }
 
-PyMODINIT_FUNC PyInit_libdap_server_core_python_module(void){
+PyMODINIT_FUNC PyInit_libDapServerCore(void){
     dapServer_dapServerType.tp_new = PyType_GenericNew;
     if (PyType_Ready(&dapServer_dapServerType) < 0)
             return NULL;
@@ -62,7 +62,7 @@ int main(int argc, char **argv) {
     }
 
     /* Add a built-in module, before Py_Initialize */
-    PyImport_AppendInittab("libdap_server_core_python_module", PyInit_libdap_server_core_python_module);
+    PyImport_AppendInittab("libDapServerCore", PyInit_libDapServerCore);
 
     /* Pass argv[0] to the Python interpreter */
     Py_SetProgramName(program);
@@ -73,7 +73,7 @@ int main(int argc, char **argv) {
     /* Optionally import the module; alternatively,
        import can be deferred until the embedded script
        imports it. */
-    PyImport_ImportModule("libdap_server_core_python_module");
+    PyImport_ImportModule("libDapServerCore");
 
     PyMem_RawFree(program);
     return 0;
