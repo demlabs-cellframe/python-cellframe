@@ -1,6 +1,10 @@
 #include "Python.h"
 #include "dap_events.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct PyDapEvents{
     PyObject_HEAD
     dap_events_t *t_events;
@@ -43,3 +47,6 @@ PyObject *dap_events_kill_socket_py(PyObject *self, PyObject *args); //dap_event
 PyObject *dap_events_start_py(PyObject *self, PyObject *args); //dap_events_t *sh );
 PyObject *dap_events_wait_py(PyObject *self, PyObject *args); //dap_events_t *sh );
 
+#ifdef __cplusplus
+}
+#endif
