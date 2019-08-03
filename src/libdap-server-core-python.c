@@ -49,7 +49,8 @@ static PyObject *dap_server_core_listen(PyObject *self, PyObject *args){
 
 PyMODINIT_FUNC PyInit_libDapServerCore(void){
     dapServer_dapServerType.tp_new = PyType_GenericNew;
-    if (PyType_Ready(&dapServer_dapServerType) < 0)
+    dapEvents_dapEventsType.tp_new = PyType_GenericNew;
+    if (PyType_Ready(&dapServer_dapServerType) < 0 || PyType_Ready(&dapEvents_dapEventsType) < 0)
             return NULL;
     return PyModule_Create(&dapservercorepythonmodule);
 }

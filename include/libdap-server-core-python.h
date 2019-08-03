@@ -4,6 +4,7 @@
 #include "dap_client_remote.h"
 #include "dap_events.h"
 #include "dap_common.h"
+#include "dap_events_python.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -14,9 +15,9 @@ typedef struct PyDapServer {
     dap_server_t *t_server;
 }PyDapServerObject;
 
-static PyTypeObject dapServer_dapServerType = {
+PyTypeObject dapServer_dapServerType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "libdap_server_core_python_module.DapServer",             /* tp_name */
+    "libDapServerCore.DapServer",             /* tp_name */
     sizeof(PyDapServerObject), /* tp_basicsize */
     0,                         /* tp_itemsize */
     0,                         /* tp_dealloc */
@@ -41,7 +42,7 @@ static PyTypeObject dapServer_dapServerType = {
 #define LOG_TAG "libdap-server-core-python"
 
 static PyObject *dap_server_core_init(PyObject *self, PyObject *args);
-static PyObject *dap_server_core_deinit(void);
+static PyObject *dap_server_core_deinit();
 
 static PyObject *dap_server_core_loop(PyObject *self, PyObject *args);
 static PyObject *dap_server_core_listen(PyObject *self, PyObject *args);
@@ -51,6 +52,13 @@ static PyMethodDef DapServerCorePythonMethods[] = {
         {"deinit", dap_server_core_deinit, METH_NOARGS, "Deinitialization of the DAP (Deus Applicaions Prototypes) server core library"},
         {"loop", dap_server_core_loop, METH_VARARGS, ""},
         {"listen", dap_server_core_listen, METH_VARARGS, ""},
+        /* Wrapping Events */
+        {"eventsInit", dap_events_init_py, METH_VARARGS, ""},
+        {"eventsDeinit", dap_events_deinit_py, METH_NOARGS, ""},
+        {"eventsNew", dap_events_new_py, METH_NOARGS, ""},
+        {"eventsDellete", dap_events_delete_py, METH_VARARGS, ""},
+        {"eventsStart", dap_events_start_py, METH_VARARGS, ""},
+        {"eventsWait", dap_events_wait_py, METH_VARARGS, ""},
         {NULL, NULL, 0, NULL}
 };
 
