@@ -5,6 +5,7 @@
 #include "dap_events.h"
 #include "dap_common.h"
 #include "dap_events_python.h"
+#include "dap_events_socket_python.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -59,6 +60,20 @@ static PyMethodDef DapServerCorePythonMethods[] = {
         {"eventsDellete", dap_events_delete_py, METH_VARARGS, ""},
         {"eventsStart", dap_events_start_py, METH_VARARGS, ""},
         {"eventsWait", dap_events_wait_py, METH_VARARGS, ""},
+        /* Events Socket */
+        {"eventsSocketInit", dap_events_socket_init_py, METH_NOARGS, ""},
+        {"eventsSocketDeinit", dap_events_socket_deinit_py, METH_NOARGS, ""},
+        {"eventsSocketCreateAfter", dap_events_socket_create_after_py, METH_VARARGS, ""},
+        {"eventsSocketFind", dap_events_socket_find_py, METH_VARARGS, ""},
+        {"eventsSocketIsReadyToRead", dap_events_socket_is_ready_to_read_py, METH_VARARGS, ""},
+        {"eventsSocketIsReadyToWrite", dap_events_socket_is_ready_to_write_py, METH_VARARGS, ""},
+        {"eventsSocketSetReadable", dap_events_socket_set_readable_py, METH_VARARGS, ""},
+        {"eventsSocketSetWritable", dap_events_socket_set_writable_py, METH_VARARGS, ""},
+        {"eventsSocketWrite", dap_events_socket_write_py, METH_VARARGS, ""},
+        {"eventsSocketWriteF", dap_events_socket_write_f_py, METH_VARARGS, ""},
+        {"eventsSocketRead", dap_events_socket_read_py, METH_VARARGS, ""},
+        {"eventsSocketDelete", dap_events_socket_delete_py, METH_VARARGS, ""},
+        {"eventsSocketShrinkBufIn", dap_events_socket_shrink_buf_in_py, METH_VARARGS, ""},
         {NULL, NULL, 0, NULL}
 };
 
@@ -72,10 +87,6 @@ static struct PyModuleDef dapservercorepythonmodule = {
 };
 
 PyMODINIT_FUNC PyInit_libDapServerCore(void);
-
-
-
-
 
 
 #ifdef __cplusplus
