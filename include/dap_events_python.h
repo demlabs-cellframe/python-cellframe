@@ -1,10 +1,8 @@
-#ifndef _DAP_EVENTS_PYTHON_H
-#define _DAP_EVENTS_PYTHON_H
-
+#pragma once
 
 #include "Python.h"
 #include "dap_events.h"
-//#include "dap_events_socket_python.h"
+#include "dap_events_socket_python.h"
 
 
 #ifdef __cplusplus
@@ -55,6 +53,4 @@ PyObject *dap_events_wait_py(PyObject *self, PyObject *args); //dap_events_t *sh
 
 #ifdef __cplusplus
 }
-#endif
-
 #endif

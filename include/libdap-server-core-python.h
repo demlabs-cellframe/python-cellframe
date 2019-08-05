@@ -60,6 +60,8 @@ static PyMethodDef DapServerCorePythonMethods[] = {
         {"eventsDellete", dap_events_delete_py, METH_VARARGS, ""},
         {"eventsStart", dap_events_start_py, METH_VARARGS, ""},
         {"eventsWait", dap_events_wait_py, METH_VARARGS, ""},
+        {"eventsSocketRemoveAndDelete", dap_events_socket_remove_and_delete_py, METH_VARARGS, ""},
+        {"eventsKillSocket", dap_events_kill_socket_py, METH_VARARGS, ""},
         /* Events Socket */
         {"eventsSocketInit", dap_events_socket_init_py, METH_NOARGS, ""},
         {"eventsSocketDeinit", dap_events_socket_deinit_py, METH_NOARGS, ""},

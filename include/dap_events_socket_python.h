@@ -1,10 +1,13 @@
-#ifndef _DAP_EVENTS_SOCKET_PYTHON_H_
-#define _DAP_EVENTS_SOCKET_PYTHON_H_
+#pragma once
 
 #include "Python.h"
 #include "dap_events_socket.h"
 #include "dap_events_python.h"
 #include "dap_common.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 typedef struct PyDapEventsSocket{
     PyObject_HEAD
@@ -62,6 +65,4 @@ PyObject *dap_events_socket_shrink_buf_in_py(PyObject *self, PyObject *args);//d
 
 #ifdef __cplusplus
 }
-#endif
-
 #endif
