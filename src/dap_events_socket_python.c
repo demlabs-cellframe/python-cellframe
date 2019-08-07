@@ -40,10 +40,10 @@ PyObject *dap_events_socket_is_ready_to_read_py(PyObject *self, PyObject *args){
     if (!PyArg_ParseTuple(args, "O", &in_obj)){
         return NULL;
     }
-    bool result = dap_events_socket_is_ready_to_read(((PyDapEventsSocketObject*)in_obj)->t_events_socket);
-    if (result)
-        return Py_BuildValue("O", Py_True);
-    else
+//    bool result = dap_events_socket_is_ready_to_read(((PyDapEventsSocketObject*)in_obj)->t_events_socket);
+//    if (result)
+//        return Py_BuildValue("O", Py_True);
+//    else
         return Py_BuildValue("O", Py_False);
 }
 PyObject *dap_events_socket_is_ready_to_write_py(PyObject *self, PyObject *args){
@@ -51,10 +51,10 @@ PyObject *dap_events_socket_is_ready_to_write_py(PyObject *self, PyObject *args)
     if (!PyArg_ParseTuple(args, "O", &in_obj)){
         return NULL;
     }
-    bool result = dap_events_socket_is_ready_to_write(((PyDapEventsSocketObject*)in_obj)->t_events_socket);
-    if (result)
-        return Py_BuildValue("O", Py_True);
-    else
+    //bool result = dap_events_socket_is_ready_to_write(((PyDapEventsSocketObject*)in_obj)->t_events_socket);
+    //if (result)
+//        return Py_BuildValue("O", Py_True);
+//    else
         return Py_BuildValue("O", Py_False);
 }
 PyObject *dap_events_socket_set_readable_py(PyObject *self, PyObject *args){
