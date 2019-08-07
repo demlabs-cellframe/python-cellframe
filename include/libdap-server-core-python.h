@@ -53,15 +53,6 @@ static PyMethodDef DapServerCorePythonMethods[] = {
         {"deinit", dap_server_core_deinit, METH_NOARGS, "Deinitialization of the DAP (Deus Applicaions Prototypes) server core library"},
         {"loop", dap_server_core_loop, METH_VARARGS, ""},
         {"listen", dap_server_core_listen, METH_VARARGS, ""},
-        /* Wrapping Events */
-        {"eventsInit", dap_events_init_py, METH_VARARGS, ""},
-        {"eventsDeinit", dap_events_deinit_py, METH_NOARGS, ""},
-        {"eventsNew", dap_events_new_py, METH_NOARGS, ""},
-        {"eventsDellete", dap_events_delete_py, METH_VARARGS, ""},
-        {"eventsStart", dap_events_start_py, METH_VARARGS, ""},
-        {"eventsWait", dap_events_wait_py, METH_VARARGS, ""},
-        {"eventsSocketRemoveAndDelete", dap_events_socket_remove_and_delete_py, METH_VARARGS, ""},
-        {"eventsKillSocket", dap_events_kill_socket_py, METH_VARARGS, ""},
         /* Events Socket */
         {"eventsSocketInit", dap_events_socket_init_py, METH_NOARGS, ""},
         {"eventsSocketDeinit", dap_events_socket_deinit_py, METH_NOARGS, ""},

@@ -14,22 +14,19 @@ PyObject *dap_events_deinit_py(void){
     return PyLong_FromLong(0);
 }
 
-PyObject *dap_events_new_py(void){
-    PyObject *new_dap_events_obj = _PyObject_New(&dapEvents_dapEventsType);
-    ((PyDapEventsObject*)new_dap_events_obj)->t_events = dap_events_new();
-    return Py_BuildValue("O", new_dap_events_obj);
+PyObject *PyDapEventsObject_new(PyTypeObject *type_object, PyObject *args, PyObject *kwds){
+    PyDapEventsObject *new_EO = (PyDapEventsObject*)PyType_GenericNew(type_object, args, kwds);
+    new_EO->t_events = dap_events_new();
+    return (PyObject *)new_EO;
 }
-PyObject *dap_events_delete_py(PyObject *self, PyObject *args){
-    PyObject *in_obj;
-    if (PyArg_ParseTuple(args, "O", &in_obj)){
-        return NULL;
-    }
-    dap_events_delete(((PyDapEventsObject*)in_obj)->t_events);
-    PyObject_Del(in_obj);
-    return PyLong_FromLong(0);
+
+void PyDapEventsObject_dealloc(PyDapEventsObject *eventsObject){
+    dap_events_delete(eventsObject->t_events);
+    Py_TYPE(eventsObject)->tp_free((PyObject*)eventsObject);
 }
+
 //void dap_events_socket_remove_and_delete( dap_events_socket_t* a_es );
-PyObject *dap_events_socket_remove_and_delete_py(PyObject *self, PyObject *args){
+PyObject *dap_events_socket_remove_and_delete_py(PyDapEventsObject *self, PyObject *args){
     PyObject *in_obj;
     PyObject *in_bool;
     if (!PyArg_ParseTuple(args, "O|O", &in_obj, &in_bool)){
@@ -42,7 +39,7 @@ PyObject *dap_events_socket_remove_and_delete_py(PyObject *self, PyObject *args)
     return PyLong_FromLong(0);
 }
 
-PyObject *dap_events_kill_socket_py(PyObject *self, PyObject *args){
+PyObject *dap_events_kill_socket_py(PyDapEventsObject *self, PyObject *args){
     PyObject *in_obj;
     if (!PyArg_ParseTuple(args, "O", &in_obj)){
         return NULL;
@@ -51,19 +48,11 @@ PyObject *dap_events_kill_socket_py(PyObject *self, PyObject *args){
     return PyLong_FromLong(0);
 }
 
-PyObject *dap_events_start_py(PyObject *self, PyObject *args){
-    PyObject *in_object;
-    if (!PyArg_ParseTuple(args, "O", &in_object)){
-        return NULL;
-    }
-    int32_t result = dap_events_start(((PyDapEventsObject*)in_object)->t_events);
+PyObject *dap_events_start_py(PyDapEventsObject *self){
+    int32_t result = dap_events_start(self->t_events);
     return PyLong_FromLong(result);
 }
-PyObject *dap_events_wait_py(PyObject *self, PyObject *args){
-    PyObject *in_object;
-    if (!PyArg_ParseTuple(args, "O", &in_object)){
-        return NULL;
-    }
-    int32_t result = dap_events_wait(((PyDapEventsObject*)in_object)->t_events);
+PyObject *dap_events_wait_py(PyDapEventsObject *self){
+    int32_t result = dap_events_wait(self->t_events);
     return PyLong_FromLong(result);
 }
