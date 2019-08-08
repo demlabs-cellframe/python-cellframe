@@ -18,9 +18,6 @@ void PyDapEventsObject_dealloc(PyDapEventsObject *eventsObject);
 
 PyObject *PyDapEventsObject_new(PyTypeObject *type_object, PyObject *args, PyObject *kwds);
 
-PyObject *dap_events_init_py(PyObject *self, PyObject *args); //uint32_t a_threads_count, size_t conn_t ); // Init server module
-PyObject *dap_events_deinit_py(); // Deinit server module
-
 //PyObject *dap_events_new_py();
 //PyObject *dap_events_delete_py(PyObject *self, PyObject *args); //dap_events_t * sh );
 //void dap_events_socket_remove_and_delete( dap_events_socket_t* a_es );

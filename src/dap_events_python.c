@@ -1,19 +1,5 @@
 #include "dap_events_python.h"
 
-PyObject *dap_events_init_py(PyObject *self, PyObject *args){
-    uint32_t a_threads_count;
-    size_t conn_t;
-    if (!PyArg_ParseTuple(args, "I|n", &a_threads_count, &conn_t)){
-        return NULL;
-    }
-    int32_t result = dap_events_init(a_threads_count, conn_t);
-    return PyLong_FromLong(result);
-}
-PyObject *dap_events_deinit_py(void){
-    dap_events_deinit();
-    return PyLong_FromLong(0);
-}
-
 PyObject *PyDapEventsObject_new(PyTypeObject *type_object, PyObject *args, PyObject *kwds){
     PyDapEventsObject *new_EO = (PyDapEventsObject*)PyType_GenericNew(type_object, args, kwds);
     new_EO->t_events = dap_events_new();
