@@ -53,20 +53,6 @@ static PyMethodDef DapServerCorePythonMethods[] = {
         {"deinit", dap_server_core_deinit, METH_NOARGS, "Deinitialization of the DAP (Deus Applicaions Prototypes) server core library"},
         {"loop", dap_server_core_loop, METH_VARARGS, ""},
         {"listen", dap_server_core_listen, METH_VARARGS, ""},
-        /* Events Socket */
-        {"eventsSocketInit", dap_events_socket_init_py, METH_NOARGS, ""},
-        {"eventsSocketDeinit", dap_events_socket_deinit_py, METH_NOARGS, ""},
-        {"eventsSocketCreateAfter", dap_events_socket_create_after_py, METH_VARARGS, ""},
-        {"eventsSocketFind", dap_events_socket_find_py, METH_VARARGS, ""},
-        {"eventsSocketIsReadyToRead", dap_events_socket_is_ready_to_read_py, METH_VARARGS, ""},
-        {"eventsSocketIsReadyToWrite", dap_events_socket_is_ready_to_write_py, METH_VARARGS, ""},
-        {"eventsSocketSetReadable", dap_events_socket_set_readable_py, METH_VARARGS, ""},
-        {"eventsSocketSetWritable", dap_events_socket_set_writable_py, METH_VARARGS, ""},
-        {"eventsSocketWrite", dap_events_socket_write_py, METH_VARARGS, ""},
-        {"eventsSocketWriteF", dap_events_socket_write_f_py, METH_VARARGS, ""},
-        {"eventsSocketRead", dap_events_socket_read_py, METH_VARARGS, ""},
-        {"eventsSocketDelete", dap_events_socket_delete_py, METH_VARARGS, ""},
-        {"eventsSocketShrinkBufIn", dap_events_socket_shrink_buf_in_py, METH_VARARGS, ""},
         {NULL, NULL, 0, NULL}
 };
 

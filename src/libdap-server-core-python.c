@@ -58,6 +58,7 @@ PyMODINIT_FUNC PyInit_libDapServerCore(void){
     PyObject *module = PyModule_Create(&dapservercorepythonmodule);
 
     PyModule_AddObject(module, "DapEvents", (PyObject*)&dapEvents_dapEventsType);
+    PyModule_AddObject(module, "DapEventsSocket", (PyObject*)&dapEventsSocket_dapEventsSocketType);
 
     return module;
 }
