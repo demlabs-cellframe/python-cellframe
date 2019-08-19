@@ -4,7 +4,6 @@
 static PyObject *dap_server_core_init(PyObject *self, PyObject *args){
     uint32_t l_thread_cnt;
     size_t conn_t;
-    dap_common_init("CVNT", "CVNT.log");
     if (!PyArg_ParseTuple(args, "I|n", &l_thread_cnt, &conn_t)){
         return NULL;
     }
