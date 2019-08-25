@@ -4,11 +4,27 @@ cmake_minimum_required(VERSION 2.8)
 set(CMAKE_VERBOSE_MAKEFILE ON)
 set(CMAKE_COLOR_MAKEFILE   ON)
 set(CMAKE_C_STANDARD 11)
-set(SUBMODULES_NO_BUILD ON)
 
-add_subdirectory(libdap)
-add_subdirectory(libdap-crypto)
+if(NOT (${SUBMODULES_NO_BUILD} MATCHES ON))
+    set(SUBMODULES_NO_BUILD ON)
+    if (NOT (TARGET dap_core))
+        add_subdirectory(libdap)
+        target_compile_options(
+            dap_core PRIVATE
+            "-fpic"
+        )
+    endif()
+    if (NOT (TARGET dap_crypto))
+       add_subdirectory(libdap-crypto)
+       target_compile_options(
+           dap_crypto PRIVATE
+           "-fpic"
+       )
+    endif()
+endif()
+
 add_subdirectory(libdap-server-core)
+
 
 file(GLOB SERVER_CORE_PYTHON_SRCS src/*.c)
 file(GLOB SERVER_CORE_PYTHON_HEADERS include/*.h)
@@ -28,18 +44,6 @@ target_compile_options(
     "-fpic"
 )
 
-target_compile_options(
-    dap_core PRIVATE
-    "-fpic"
-)
-target_compile_options(
-    dap_crypto PRIVATE
-    "-fpic"
-)
-
-
-#target_link_libraries(${PROJECT_NAME} dap_core dap_crypto)
-#targat_link_libraries(${PROJECT_NAME} dap_server_core)
 target_link_libraries(${PROJECT_NAME} dap_core dap_crypto dap_server_core)
 
 #if(BUILD_DAP_PYTHON_TESTS)
