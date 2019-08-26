@@ -13,13 +13,13 @@ static PyObject *dap_init(PyObject *self, PyObject *args){
     const char* log = "_logs.txt";
     memcpy(dap_app_name_logs+len_dap_app_name, log,9);
     dap_config_init(system_configs_dir);
+    if (dap_common_init(dap_app_name, dap_app_name_logs)!=0){
+        log_it(L_CRITICAL, "Can't init common functions module");
+        return PyLong_FromLong(-2);
+    }
     if ((g_config = dap_config_open(dap_app_name) ) == NULL){
         log_it(L_CRITICAL, "Can't init general configurations");
         return PyLong_FromLong(-1);
-    }
-    if (dap_common_init(dap_app_name_logs)!=0){
-        log_it(L_CRITICAL, "Can't init common functions module");
-        return PyLong_FromLong(-2);
     }
     dap_log_level_set( dap_config_get_item_bool_default(g_config,"general","debug_mode", false)? L_DEBUG: L_NOTICE );
     return PyLong_FromLong(0);

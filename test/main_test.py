@@ -7,9 +7,9 @@ def create_config_file(app_name):
     f.write("[server]\nlisten_address=0.0.0.0\n")
     f.close()
 
-logIt(LogLevel.L_INFO,"Start main test")
+print("Start main test")
 app_name = "TestAPP"
-logIt(LogLevel.L_INFO, "Create config file")
+print("Create config file")
 create_config_file(app_name)
 
 
