@@ -1,6 +1,6 @@
 #include "libdap-python.h"
 
-static PyObject *dap_init(PyObject *self, PyObject *args){
+/*static PyObject *dap_init(PyObject *self, PyObject *args){
     //const char *data;
     const char *system_configs_dir;
     const char *dap_app_name;
@@ -33,13 +33,13 @@ static PyObject *dap_deinit(){
     log_it(L_DEBUG, "Function dap_config_deinit done.");
     log_it(L_DEBUG, "Function dap_deinit done.");
     return PyLong_FromLong(0);
-}
+}*/
 
-static PyObject *dap_set_log_level(PyObject *self, PyObject *args){
+PyObject *dap_set_log_level(PyObject *self, PyObject *args){
     short int new_log_level;
     if (!PyArg_ParseTuple(args, "h", &new_log_level))
         return NULL;
-    if (new_log_level < 0 || new_log_level > 5 ) {
+    if (new_log_level < 0 || new_log_level > 10 ) {
         return PyLong_FromLong(-1);
     } else {
         dap_log_level_set(new_log_level);
@@ -47,12 +47,12 @@ static PyObject *dap_set_log_level(PyObject *self, PyObject *args){
     }
 }
 
-static PyObject* dap_log_it(PyObject* self, PyObject* args){
+PyObject* dap_log_it(PyObject* self, PyObject* args){
     short int log_level;
     const char* string_output;
     if (!PyArg_ParseTuple(args, "h|s", &log_level, &string_output))
         return NULL;
-    if (log_level < 0 || log_level > 5 ) {
+    if (log_level < 0 || log_level > 10 ) {
         return PyLong_FromLong(-1);
     } else {
         log_it(log_level, string_output);
@@ -60,7 +60,80 @@ static PyObject* dap_log_it(PyObject* self, PyObject* args){
     }
 }
 
-static PyObject* py_m_dap_config_get_item(PyObject *self, PyObject *args){
+PyObject* dap_log_it_debug(PyObject* self, PyObject* args){
+    const char* string_output;
+    if (!PyArg_ParseTuple(args, "s", &string_output)){
+        return NULL;
+    }
+    log_it(L_DEBUG, string_output);
+    return PyLong_FromLong(0);
+}
+PyObject* dap_log_it_info(PyObject* self, PyObject* args){
+    const char* string_output;
+    if (!PyArg_ParseTuple(args, "s", &string_output)){
+        return NULL;
+    }
+    log_it(L_INFO, string_output);
+    return PyLong_FromLong(0);
+}
+PyObject* dap_log_it_notice(PyObject* self, PyObject* args){
+    const char* string_output;
+    if (!PyArg_ParseTuple(args, "s", &string_output)){
+        return NULL;
+    }
+    log_it(L_NOTICE, string_output);
+    return PyLong_FromLong(0);
+}
+PyObject* dap_log_it_message(PyObject* self, PyObject* args){
+    const char* string_output;
+    if (!PyArg_ParseTuple(args, "s", &string_output)){
+        return NULL;
+    }
+    log_it(L_MSG, string_output);
+    return PyLong_FromLong(0);
+}
+PyObject* dap_log_it_dap(PyObject* self, PyObject* args){
+    const char* string_output;
+    if (!PyArg_ParseTuple(args, "s", &string_output)){
+        return NULL;
+    }
+    log_it(L_DAP, string_output);
+    return PyLong_FromLong(0);
+}
+PyObject* dap_log_it_warning(PyObject* self, PyObject* args){
+    const char* string_output;
+    if (!PyArg_ParseTuple(args, "s", &string_output)){
+        return NULL;
+    }
+    log_it(L_WARNING, string_output);
+    return PyLong_FromLong(0);
+}
+PyObject* dap_log_it_att(PyObject* self, PyObject* args){
+    const char* string_output;
+    if (!PyArg_ParseTuple(args, "s", &string_output)){
+        return NULL;
+    }
+    log_it(L_ATT, string_output);
+    return PyLong_FromLong(0);
+}
+PyObject* dap_log_it_error(PyObject* self, PyObject* args){
+    const char* string_output;
+    if (!PyArg_ParseTuple(args, "s", &string_output)){
+        return NULL;
+    }
+    log_it(L_ERROR, string_output);
+    return PyLong_FromLong(0);
+}
+PyObject* dap_log_it_critical(PyObject* self, PyObject* args){
+    const char* string_output;
+    if (!PyArg_ParseTuple(args, "s", &string_output)){
+        return NULL;
+    }
+    log_it(L_CRITICAL, string_output);
+    return PyLong_FromLong(0);
+}
+
+PyObject* py_m_dap_config_get_item(PyObject *self, PyObject *args){
     const char *section_path;
     const char *item_name;
     if (!PyArg_ParseTuple(args, "s|s", &section_path, &item_name))
@@ -73,7 +146,7 @@ static PyObject* py_m_dap_config_get_item(PyObject *self, PyObject *args){
     return Py_BuildValue("s", res);
 }
 
-static PyObject* py_m_dap_config_get_item_default(PyObject *self, PyObject *args){
+PyObject* py_m_dap_config_get_item_default(PyObject *self, PyObject *args){
     const char *section_path;
     const char *item_name;
     const char *def;
@@ -83,31 +156,31 @@ static PyObject* py_m_dap_config_get_item_default(PyObject *self, PyObject *args
     return Py_BuildValue("s", res);
 }
 
-PyMODINIT_FUNC PyInit_libdap_python_module(void){
+/*PyMODINIT_FUNC PyInit_libdap_python_module(void){
     return PyModule_Create(&dapmodule);
-}
+}*/
 
-int main(int argc, char **argv) {
-    wchar_t *program = Py_DecodeLocale(argv[0], NULL);
-    if (program == NULL) {
-        fprintf(stderr, "Fatal error: cannot decode argv[0]\n");
-        exit(1);
-    }
+//int main(int argc, char **argv) {
+//    wchar_t *program = Py_DecodeLocale(argv[0], NULL);
+//    if (program == NULL) {
+//        fprintf(stderr, "Fatal error: cannot decode argv[0]\n");
+//        exit(1);
+//    }
 
-    /* Add a built-in module, before Py_Initialize */
-    PyImport_AppendInittab("libdap_python_module", PyInit_libdap_python_module);
+//    /* Add a built-in module, before Py_Initialize */
+//    PyImport_AppendInittab("libdap_python_module", PyInit_libdap_python_module);
 
-    /* Pass argv[0] to the Python interpreter */
-    Py_SetProgramName(program);
+//    /* Pass argv[0] to the Python interpreter */
+//    Py_SetProgramName(program);
 
-    /* Initialize the Python interpreter.  Required. */
-    Py_Initialize();
+//    /* Initialize the Python interpreter.  Required. */
+//    Py_Initialize();
 
-    /* Optionally import the module; alternatively,
-       import can be deferred until the embedded script
-       imports it. */
-    PyImport_ImportModule("libdap_python_module");
+//    /* Optionally import the module; alternatively,
+//       import can be deferred until the embedded script
+//       imports it. */
+//    PyImport_ImportModule("libdap_python_module");
 
-    PyMem_RawFree(program);
-    return 0;
-}
+//    PyMem_RawFree(program);
+//    return 0;
+//}
