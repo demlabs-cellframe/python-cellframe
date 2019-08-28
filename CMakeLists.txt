@@ -29,6 +29,8 @@ target_compile_options(
 
 target_link_libraries(${PROJECT_NAME} dap_core dap_crypto)
 
+target_include_directories(${PROJECT_NAME} PUBLIC src/ )
+
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/src/libdapConnector.py
         DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/)
 
