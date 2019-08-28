@@ -4,9 +4,14 @@
 static PyObject *dap_server_core_init(PyObject *self, PyObject *args){
     uint32_t l_thread_cnt;
     size_t conn_t;
-    if (!PyArg_ParseTuple(args, "I|n", &l_thread_cnt, &conn_t)){
+    const char *app_name;
+    const char *app_log;
+    if (!PyArg_ParseTuple(args, "I|n|s|s", &l_thread_cnt, &conn_t, &app_name, &app_log)){
         return NULL;
     }
+    int32_t result_common_init = dap_common_init(app_name, app_log);
+    if (result_common_init != 0)
+        return PyLong_FromLong(result_common_init);
     int32_t result = dap_server_init(l_thread_cnt);
     if ( result != 0 ) {
        log_it( L_CRITICAL, "Can't init socket server module" );
