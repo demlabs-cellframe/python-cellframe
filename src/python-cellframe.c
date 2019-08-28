@@ -9,6 +9,15 @@ PyMODINIT_FUNC PyInit_libCellFrame(void){
 
     CellFrame_error = PyErr_NewException("libCellFrame.error", NULL, NULL);
     PyModule_AddObject(module, "error", CellFrame_error);
+    PyModule_AddObject(module, "DEBUG", PyLong_FromLong(L_DEBUG));
+    PyModule_AddObject(module, "INFO", PyLong_FromLong(L_INFO));
+    PyModule_AddObject(module, "NOTICE", PyLong_FromLong(L_NOTICE));
+    PyModule_AddObject(module, "MESSAGE", PyLong_FromLong(L_MSG));
+    PyModule_AddObject(module, "DAP", PyLong_FromLong(L_DAP));
+    PyModule_AddObject(module, "WARNING", PyLong_FromLong(L_WARNING));
+    PyModule_AddObject(module, "ATT", PyLong_FromLong(L_ATT));
+    PyModule_AddObject(module, "ERROR", PyLong_FromLong(L_ERROR));
+    PyModule_AddObject(module, "CRITICAL", PyLong_FromLong(L_CRITICAL));
 
     //PyModule_AddObject(module, "Dap", (PyObject*)&DapObject_DapObjectType);
     return module;

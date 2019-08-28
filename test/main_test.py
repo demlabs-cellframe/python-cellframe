@@ -25,7 +25,7 @@ json_string = """{
 
 init(json_string)
 logItInfo("Initialization of the DAP done")
-setLogLevel(0)
+setLogLevel(DEBUG)
 logItInfo("Level logging ""DEBUG"" done")
 logItInfo( "Test. Outputting a string using the log_it function in the libdap library")
 logItInfo("Outputting a string using the log_it function done")
