@@ -1,6 +1,3 @@
 [submodule "libdap"]
 	path = libdap
 	url = https://gitlab.demlabs.net/cellframe/libdap.git
-[submodule "libdap-crypto"]
-	path = libdap-crypto
-	url = https://gitlab.demlabs.net/cellframe/libdap-crypto.git
