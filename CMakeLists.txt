@@ -4,10 +4,16 @@ cmake_minimum_required(VERSION 2.8)
 set(CMAKE_VERBOSE_MAKEFILE ON)
 set(CMAKE_COLOR_MAKEFILE   ON)
 set(CMAKE_C_STANDARD 11)
-set(SUBMODULES_NO_BUILD ON)
 
-add_subdirectory(libdap)
-add_subdirectory(libdap-crypto)
+if(NOT (${SUBMODULES_NO_BUILD} MATCHES ON))
+    if (NOT (TARGET dap_core))
+        add_subdirectory(libdap)
+        target_compile_options(
+            dap_core PRIVATE 
+            "-fpic"
+        )
+    endif()
+endif()
 
 file(GLOB CORE_SRCS src/*.c)
 file(GLOB CORE_HEADERS src/*.h)
@@ -27,7 +33,7 @@ target_compile_options(
     "-fpic"
 )
 
-target_link_libraries(${PROJECT_NAME} dap_core dap_crypto)
+target_link_libraries(${PROJECT_NAME} dap_core)
 
 target_include_directories(${PROJECT_NAME} PUBLIC src/ )
 
