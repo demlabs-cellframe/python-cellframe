@@ -2,3 +2,6 @@
 	path = libdap-python
 	url = https://gitlab.demlabs.net/cellframe/libdap-python.git
         branch = features-2466
+[submodule "libdap"]
+	path = libdap
+	url = https://gitlab.demlabs.net/cellframe/libdap.git
