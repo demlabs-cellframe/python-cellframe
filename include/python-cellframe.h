@@ -1,11 +1,18 @@
 #define PY_SSIZE_T_CLEAN
 #include "Python.h"
 #include "libdap-python.h"
+#include "libdap-crypto-python.h"
 #include "dap_common.h"
+
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+#undef LOG_TAG
+#define LOG_TAG "python-cellframe"
+
+static bool init_crypto;
 
 static PyObject* CellFrame_error;
 

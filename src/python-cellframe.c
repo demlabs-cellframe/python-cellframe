@@ -1,8 +1,9 @@
 #include "python-cellframe.h"
 
+
 PyMODINIT_FUNC PyInit_libCellFrame(void){
 
-    if (PyType_Ready(&DapObject_DapObjectType) < 0 )
+    if (PyType_Ready(&DapObject_DapObjectType) < 0 || PyType_Ready(&dapCrypto_dapCryptoType) < 0)
                return NULL;
 
     PyObject *module = PyModule_Create(&CellFramePythonModule);
@@ -19,6 +20,8 @@ PyMODINIT_FUNC PyInit_libCellFrame(void){
     PyModule_AddObject(module, "ERROR", PyLong_FromLong(L_ERROR));
     PyModule_AddObject(module, "CRITICAL", PyLong_FromLong(L_CRITICAL));
 
+    PyModule_AddObject(module, "Crypto", (PyObject*)&dapCrypto_dapCryptoType);
+
     //PyModule_AddObject(module, "Dap", (PyObject*)&DapObject_DapObjectType);
     return module;
 }
@@ -29,14 +32,14 @@ static PyObject *python_cellframe_init(PyObject *self, PyObject *args){
     const char *config_dir;
     const char *log_level;
     const char *JSON_str;
+    init_crypto = false;
     if (!PyArg_ParseTuple(args, "s", &JSON_str)){
         return NULL;
     }
 
-//    PyObject* JSONModuleString = PyUnicode_FromString("json");
     PyObject *JSON_Module = PyImport_ImportModule("json");
     if (JSON_Module == NULL) {
-        printf("ERROR importing module");
+        PyErr_SetString(CellFrame_error, "ERROR importing module");
         return NULL;
     }
     PyObject* JSONLoadsFunction = PyObject_GetAttrString(JSON_Module, "loads");
@@ -69,16 +72,40 @@ static PyObject *python_cellframe_init(PyObject *self, PyObject *args){
         PyErr_SetString(CellFrame_error, "Can't init common functions module");
         return NULL;
     }
+
     dap_config_init(config_dir);
     if ((g_config = dap_config_open(app_name) ) == NULL){
         PyErr_SetString(CellFrame_error, "Can't init general configurations");
         return NULL;
     }
+    //Init modules
+    log_it(L_INFO, "Initializing modules ...");
+    if (!PyList_Check(getModules)){
+        PyErr_SetString(CellFrame_error, "Can't find an array of module names");
+        return NULL;
+    }
+    Py_ssize_t size_list = PyList_Size(getModules);
+    for (int i=0; i < size_list;i++){
+        PyObject *value = PyList_GetItem(getModules, i);
+        const char *c_value = PyUnicode_AsUTF8(value);
+        if (strcmp(c_value, "crypto") == 0){            //Init crypto
+            log_it(L_INFO, "Initializing the %s module", c_value);
+            init_crypto = true;
+            if (dap_crypto_init() != 0){
+                PyErr_SetString(CellFrame_error, "An error occurred while initializing the libdap-crypto-python module.");
+                return NULL;
+            }
+        }
+    }
     return PyLong_FromLong(0);
 }
 
 static PyObject *python_cellframe_deinit(PyObject *self, PyObject *args){
-    const char *in;
+    dap_config_close(g_config);
+    dap_config_deinit();
+    if (init_crypto)
+        dap_crypto_deinit();
+    //dap_common_deinit();
     return PyLong_FromLong(0);
 }
 
