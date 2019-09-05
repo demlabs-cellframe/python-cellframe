@@ -8,3 +8,4 @@
 [submodule "libdap-server-core-python"]
 	path = libdap-server-core-python
 	url = https://gitlab.demlabs.net/cellframe/libdap-server-core-python.git
+        branch = features-2466
