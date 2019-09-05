@@ -46,6 +46,8 @@ target_compile_options(
 
 target_link_libraries(${PROJECT_NAME} dap_core dap_crypto dap_server_core)
 
+target_include_directories(${PROJECT_NAME} PUBLIC include/ )
+
 #if(BUILD_DAP_PYTHON_TESTS)
 #    add_subdirectory(test)
 #    enable_testing()
