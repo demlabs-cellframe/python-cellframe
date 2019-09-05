@@ -51,7 +51,7 @@ static PyMethodDef PyDapEventsObjectSocket_methods[] = {
 
 static PyTypeObject dapEventsSocket_dapEventsSocketType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "libDapServerCore.DapEventsSocket",             /* tp_name */
+    "libCellFrame.ServerCore.DapEventsSocket",             /* tp_name */
     sizeof(PyDapEventsSocketObject),             /* tp_basicsize */
     0,                         /* tp_itemsize */
     0,//(destructor)Noddy_dealloc, /* tp_dealloc */

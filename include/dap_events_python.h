@@ -38,7 +38,7 @@ static PyMethodDef PyDapEventsObject_methods[] = {
 
 static PyTypeObject dapEvents_dapEventsType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "libDapServerCore.DapEvents",             /* tp_name */
+    "libCellFrame.ServerCore.DapEvents",             /* tp_name */
     sizeof(PyDapEventsObject),             /* tp_basicsize */
     0,                         /* tp_itemsize */
     (destructor)PyDapEventsObject_dealloc,//(destructor)Noddy_dealloc, /* tp_dealloc */
