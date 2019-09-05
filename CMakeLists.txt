@@ -9,6 +9,7 @@ set(SUBMODULES_NO_BUILD ON)
 add_subdirectory(libdap)
 add_subdirectory(libdap-python)
 add_subdirectory(libdap-crypto-python)
+add_subdirectory(libdap-server-core-python)
 #add_subdirectory(libdap)
 #add_subdirectory(libdap-crypto)
 
@@ -32,7 +33,10 @@ target_link_libraries(${PROJECT_NAME} ${PYTHON_LIBRARIES})
 #    "-fpic"
 #)
 
-target_link_libraries(${PROJECT_NAME} dap_python_module dap_crypto_python_module )
+target_link_libraries(${PROJECT_NAME} dap_python_module 
+                      dap_crypto_python_module 
+                      DapServerCore
+                     )
 #target_link_libraries(${PROJECT_NAME} dap_core dap_crypto)
 
 target_include_directories(${PROJECT_NAME} INTERFACE include/)

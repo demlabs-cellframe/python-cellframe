@@ -3,7 +3,9 @@
 
 PyMODINIT_FUNC PyInit_libCellFrame(void){
 
-    if (PyType_Ready(&DapObject_DapObjectType) < 0 || PyType_Ready(&dapCrypto_dapCryptoType) < 0)
+    if (PyType_Ready(&DapObject_DapObjectType) < 0 || PyType_Ready(&dapCrypto_dapCryptoType) < 0 ||
+            PyType_Ready(&ServerCore_ServerCoreType) < 0 || PyType_Ready(&dapEvents_dapEventsType) < 0 ||
+            PyType_Ready(&dapEventsSocket_dapEventsSocketType) < 0)
                return NULL;
 
     PyObject *module = PyModule_Create(&CellFramePythonModule);
@@ -21,6 +23,11 @@ PyMODINIT_FUNC PyInit_libCellFrame(void){
     PyModule_AddObject(module, "CRITICAL", PyLong_FromLong(L_CRITICAL));
 
     PyModule_AddObject(module, "Crypto", (PyObject*)&dapCrypto_dapCryptoType);
+
+    PyModule_AddObject(module, "ServerCore", (PyObject*)&ServerCore_ServerCoreType);
+    PyModule_AddObject(module, "Events", (PyObject*)&dapEvents_dapEventsType);
+    PyModule_AddObject(module, "EventsSocket", (PyObject*)&dapEventsSocket_dapEventsSocketType);
+
 
     //PyModule_AddObject(module, "Dap", (PyObject*)&DapObject_DapObjectType);
     return module;
@@ -88,11 +95,35 @@ static PyObject *python_cellframe_init(PyObject *self, PyObject *args){
     for (int i=0; i < size_list;i++){
         PyObject *value = PyList_GetItem(getModules, i);
         const char *c_value = PyUnicode_AsUTF8(value);
-        if (strcmp(c_value, "crypto") == 0){            //Init crypto
+        if (strcmp(c_value, "Crypto") == 0){            //Init crypto
             log_it(L_INFO, "Initializing the %s module", c_value);
             init_crypto = true;
             if (dap_crypto_init() != 0){
                 PyErr_SetString(CellFrame_error, "An error occurred while initializing the libdap-crypto-python module.");
+                return NULL;
+            }
+        }
+        if (strcmp(c_value, "ServerCore") == 0){
+            PyObject* getServerCoreData = PyDict_GetItemString(result, "ServerCore");
+            if (getServerCoreData == NULL){
+                PyErr_SetString(CellFrame_error, "Initialization failed. ServerCore object not found in JSON."
+                                " No settings are specified for initializing libdap-server-core-python.");
+                return NULL;
+            }
+            PyObject* Nl_thread_cnt = PyDict_GetItemString(getServerCoreData, "thread_cnt");
+            PyObject* Nl_conn = PyDict_GetItemString(getServerCoreData, "conn");
+            if ( (Nl_thread_cnt == NULL || Nl_conn == NULL) || !PyNumber_Check(Nl_thread_cnt) ||
+                 !PyNumber_Check(Nl_conn)){
+                PyErr_SetString(CellFrame_error, "Failed to initialize ServerCore. "
+                                                 "Fields thread_cnt and conn are not numerical or absent.");
+                return NULL;
+            }
+            PyObject *ll_thread_cnt= PyNumber_Long(Nl_thread_cnt);
+            PyObject *ll_conn = PyNumber_Long(Nl_conn);
+            uint32_t ul_thread_cnt = (uint32_t)PyLong_AsUnsignedLong(ll_thread_cnt);
+            size_t ul_conn = PyLong_AsSize_t(ll_conn);
+            if(dap_server_core_init(ul_thread_cnt, ul_conn) != 0 ){
+                PyErr_SetString(CellFrame_error, "Failed to initialize ServerCore.");
                 return NULL;
             }
         }

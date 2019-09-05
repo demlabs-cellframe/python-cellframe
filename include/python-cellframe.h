@@ -2,6 +2,7 @@
 #include "Python.h"
 #include "libdap-python.h"
 #include "libdap-crypto-python.h"
+#include "libdap-server-core-python.h"
 #include "dap_common.h"
 
 
