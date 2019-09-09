@@ -1,12 +1,14 @@
+#ifndef WRAPPING_DAP_ENC_OAES_
+#define WRAPPING_DAP_ENC_OAES_
+
 #include "Python.h"
 #include "dap_enc_oaes.h"
-#include "key_list.h"
+#include "dap_common.h"
+#include "libdap_crypto_key_python.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-key_list_t *keys_oaes;
 
 PyObject *dap_enc_oaes_key_new_py(PyObject *self, PyObject *args);//struct dap_enc_key * a_key);
 PyObject *dap_enc_oaes_key_delete_py(PyObject *self, PyObject *args);//struct dap_enc_key *a_key);
@@ -30,3 +32,5 @@ PyObject *dap_enc_oaes_encrypt_fast_py(PyObject *self, PyObject *args);//struct 
 #ifdef __cplusplus
 }
 #endif
+
+#endif //WRAPPING_DAP_ENC_OAES_

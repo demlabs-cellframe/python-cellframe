@@ -9,16 +9,13 @@ int dap_crypto_init(void){
         log_it(L_CRITICAL,"Can't init encryption key module");
         return -2;
     }
-    keys = key_list_init();
-    keys_iaes = keys;
-    keys_oaes = keys;
+    PyCryptoKeyObject_PyCryptoKeyType.tp_new = PyType_GenericNew;
     return 0;
 }
 
 void dap_crypto_deinit(void){
     dap_enc_key_deinit();
     dap_enc_deinit();
-    key_list_free(keys);
 }
 
 

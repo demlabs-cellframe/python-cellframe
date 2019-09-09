@@ -1,7 +1,10 @@
+#ifndef WRAPPING_DAP_ENC_KEY_
+#define WRAPPING_DAP_ENC_KEY_
+
 #include "dap_enc_key.h"
 #include "Python.h"
 #include "dap_common.h"
-#include "key_list.h"
+#include "libdap_crypto_key_python.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -9,8 +12,6 @@ extern "C" {
 
 #undef LOG_TAG
 #define LOG_TAG "wrapping-dap-enc-key"
-
-key_list_t *keys;
 
 PyObject* dap_enc_key_get_enc_size_py(PyObject *self, PyObject *args);//dap_enc_key_t * a_key, const size_t buf_in_size); -> size_t
 PyObject* dap_enc_key_get_dec_size_py(PyObject *self, PyObject *args);//dap_enc_key_t * a_key, const size_t buf_in_size); -> size_t
@@ -38,6 +39,9 @@ PyObject *dap_enc_gen_key_public_py(PyObject *self, PyObject *args);//dap_enc_ke
 PyObject *dap_enc_key_signature_delete_py(PyObject *self, PyObject *args);//dap_enc_key_type_t a_key_type, uint8_t *a_sig_buf);     ->void
 PyObject *dap_enc_key_delete_py(PyObject *self, PyObject *args);//dap_enc_key_t * a_key);       ->void
 
+
 #ifdef __cplusplus
 }
 #endif
+
+#endif //WRAPPING_DAP_ENC_KEY_
