@@ -5,7 +5,9 @@ PyMODINIT_FUNC PyInit_libCellFrame(void){
 
     if (PyType_Ready(&DapObject_DapObjectType) < 0 || PyType_Ready(&dapCrypto_dapCryptoType) < 0 ||
             PyType_Ready(&ServerCore_ServerCoreType) < 0 || PyType_Ready(&dapEvents_dapEventsType) < 0 ||
-            PyType_Ready(&dapEventsSocket_dapEventsSocketType) < 0)
+            PyType_Ready(&dapEventsSocket_dapEventsSocketType) < 0 ||
+            PyType_Ready(&CryptoKeyTypeObjecy_CryptoKeyTypeObjecyType) < 0 ||
+            PyType_Ready(&CryptoDataTypeObjecy_CryptoDataTypeObjecyType) < 0)
                return NULL;
 
     PyObject *module = PyModule_Create(&CellFramePythonModule);
@@ -27,6 +29,9 @@ PyMODINIT_FUNC PyInit_libCellFrame(void){
     PyModule_AddObject(module, "ServerCore", (PyObject*)&ServerCore_ServerCoreType);
     PyModule_AddObject(module, "Events", (PyObject*)&dapEvents_dapEventsType);
     PyModule_AddObject(module, "EventsSocket", (PyObject*)&dapEventsSocket_dapEventsSocketType);
+
+    PyModule_AddObject(module, "CryptoKeyType", (PyObject*)&CryptoKeyTypeObjecy_CryptoKeyTypeObjecyType);
+    PyModule_AddObject(module, "CryptoDataType", (PyObject*)&CryptoDataTypeObjecy_CryptoDataTypeObjecyType);
 
 
     //PyModule_AddObject(module, "Dap", (PyObject*)&DapObject_DapObjectType);

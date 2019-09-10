@@ -2,7 +2,9 @@
 #include "Python.h"
 #include "libdap-python.h"
 #include "libdap-crypto-python.h"
-#include "libdap-server-core-python.h"
+#include "libdap_server_core_python.h"
+#include "libdap_crypto_key_type_python.h"
+#include "libdap_crypto_data_type.h"
 #include "dap_common.h"
 
 
