@@ -18,12 +18,7 @@ PyObject* dap_enc_iaes_key_delete_py(PyObject *self, PyObject *args){
     if (PyArg_ParseTuple(args, "O", &obj_key)){
         return NULL;
     }
-//    dap_enc_key_t *key = key_list_get_key(keys_iaes, key_id);
-//    if (key == NULL){
-//        return NULL;
-//    }
-//    dap_enc_key_delete(((PyCryptoKeyObject*)obj_key)->key);
-    PyObject_Del(obj_key);
+    dap_enc_aes_key_delete(((PyCryptoKeyObject*)obj_key)->key);
     return  PyLong_FromLong(0);
 }
 

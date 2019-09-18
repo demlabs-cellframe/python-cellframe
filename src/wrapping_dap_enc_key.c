@@ -132,20 +132,3 @@ PyObject *dap_enc_key_signature_delete_py(PyObject *self, PyObject *args){
     dap_enc_key_signature_delete(type_key, a_sig_buf);
     return PyLong_FromLong(0);
 }
-
-PyObject *dap_enc_key_delete_py(PyObject *self, PyObject *args){
-    //PyObject *obj;
-    PyObject *in_key;
-    if (!PyArg_ParseTuple(args, "O", &in_key)){
-        return NULL;
-    }
-//    dap_enc_key_t *key = key_list_get_key(keys, key_id);
-//    if (key == NULL) {
-//        return NULL;
-//    }
-//    key_list_del_element(keys, key_id);
-//    dap_enc_key_delete(((PyCryptoKeyObject*)in_key)->key);
-//    PyObject_Del(in_key);
-//    PyCryptoKeyObject_dealloc((PyCryptoKeyObject*)in_key);
-    return PyLong_FromLong(0);
-}
