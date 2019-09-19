@@ -20,8 +20,6 @@ file(GLOB CORE_HEADERS src/*.h)
 
 set(Python_ADDITIONAL_VERSIONS 3.7)
 find_package (PythonLibs REQUIRED)
-#find_package(PkgConfig)
-#pkg_check_modules(PC_JSON-C REQUIRED json-c)
 include_directories(${PYTHON_INCLUDE_DIR})
 
 add_library(${PROJECT_NAME} SHARED ${CORE_SRCS} ${CORE_UNIX_SRCS})
@@ -37,16 +35,9 @@ target_link_libraries(${PROJECT_NAME} dap_core)
 
 target_include_directories(${PROJECT_NAME} PUBLIC src/ )
 
-file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/src/libdapConnector.py
-        DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/)
-
-file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/test/main_test.py
-            DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/)
-
-if(BUILD_DAP_TESTS)
+if(BUILD_DAP_PYTHON_TESTS)
+    add_subdirectory(test)
     file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/test/main_test.py
-            DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/)
-    enable_testing()
-    #add_subdirectory(test)
+                DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/test/)
 endif()
 
