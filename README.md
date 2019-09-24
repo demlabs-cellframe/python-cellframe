@@ -7,12 +7,9 @@ libdap-crypto python binding
 ```
 mkdir build
 cd build
-cmake ../
+cmake -BUILD_DAP_CRYPTO_PYTHON_TESTS=ON ../
 make
-cp ../test/test_b58.py ./
-cp ../test/test_b64.py ./
-cp ../test/test_iaes256_cbc.py ./
-cp ../test/test_oaes.py ./
+cd test
 python3.7 test_b58.py
 python3.7 test_b64.py
 python3.7 test_iaes256_cbc.py
