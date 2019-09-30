@@ -6,10 +6,6 @@ PyObject *dap_enc_oaes_key_new_py(PyObject *self, PyObject *args){
     if (PyArg_ParseTuple(args, "O", &in_key)){
         return NULL;
     }
-//    dap_enc_key_t *key = key_list_get_key(keys_oaes, key_id);
-//    if (key == NULL){
-//        return NULL;
-//    }
     dap_enc_oaes_key_new(((PyCryptoKeyObject*)in_key)->key);
     return  PyLong_FromLong(0);
 }
@@ -30,10 +26,6 @@ PyObject *dap_enc_oaes_key_generate_py(PyObject *self, PyObject *args){
     if (PyArg_ParseTuple(args, "O|S|n|S|n", &in_key, &in_kex_buf, &in_kex_size, &in_seed, &in_seed_size)){
         return NULL;
     }
-//    dap_enc_key_t *key = key_list_get_key(keys_oaes, in_key_id);
-//    if (key == NULL){
-//        return NULL;
-//    }
     size_t key_size = sizeof(((PyCryptoKeyObject*)in_key)->key);
     void* kex_buf = NULL;
     PyBytes_AsStringAndSize((PyObject*)in_kex_buf, kex_buf, (Py_ssize_t*)in_kex_size);
@@ -78,10 +70,6 @@ PyObject *dap_enc_oaes_decrypt_fast_py(PyObject *self, PyObject *args){
     if (!PyArg_ParseTuple(args, "O|S|n|n", &in_key, &a_in, &a_in_size, &buf_out_size)){
         return NULL;
     }
-//    dap_enc_key_t *key = key_list_get_key(keys_oaes, key_id);
-//    if (key == NULL){
-//        return NULL;
-//    }
     void *in = PyBytes_AsString((PyObject*)a_in);
     void *out = DAP_NEW_SIZE(void*, buf_out_size);
     size_t res_denc_size = dap_enc_oaes_decrypt_fast(((PyCryptoKeyObject*)in_key)->key, in, a_in_size, out, buf_out_size);
@@ -97,10 +85,6 @@ PyObject *dap_enc_oaes_encrypt_fast_py(PyObject *self, PyObject *args){
     if (!PyArg_ParseTuple(args, "O|S|n|n", &in_key, &a_in, &a_in_size, &buf_out_size)){
         return NULL;
     }
-//    dap_enc_key_t *key = key_list_get_key(keys_oaes, key_id);
-//    if (key == NULL){
-//        return NULL;
-//    }
     void *in = PyBytes_AsString((PyObject*)a_in);
     void *out = DAP_NEW_SIZE(void*, buf_out_size);
     size_t res_enc_size = dap_enc_oaes_encrypt_fast(((PyCryptoKeyObject*)in_key)->key, in, a_in_size, out, buf_out_size);

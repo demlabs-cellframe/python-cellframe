@@ -3,7 +3,6 @@
 #include "dap_enc.h"
 #include "dap_enc_key.h"
 #include "dap_common.h"
-//#include "libdap-crypto-key-python.h"
 #include "wrapping_base58.h"
 #include "wrapping_base64.h"
 #include "wrapping_dap_enc_key.h"
@@ -55,10 +54,10 @@ static PyMethodDef CryptoMethods[] = {
 
 static PyTypeObject dapCrypto_dapCryptoType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "libCellFrame.Crypto",             /* tp_name */
-    sizeof(PyCryptoObject),             /* tp_basicsize */
+    "CellFrame.Crypto",             /* tp_name */
+    sizeof(PyCryptoObject),         /* tp_basicsize */
     0,                         /* tp_itemsize */
-    0,//(destructor)Noddy_dealloc, /* tp_dealloc */
+    0,                         /* tp_dealloc */
     0,                         /* tp_print */
     0,                         /* tp_getattr */
     0,                         /* tp_setattr */
@@ -90,21 +89,10 @@ static PyTypeObject dapCrypto_dapCryptoType = {
     0,                         /* tp_descr_get */
     0,                         /* tp_descr_set */
     0,                         /* tp_dictoffset */
-    0,//(initproc)PyDapEventsObject_init,//(initproc)Noddy_init,      /* tp_init */
+    0,                         /* tp_init */
     0,                         /* tp_alloc */
-    PyType_GenericNew,//PyDapEventsObject_new,//Noddy_new,                 /* tp_new */
+    PyType_GenericNew,         /* tp_new */
 };
-
-//static struct PyModuleDef dapcryptomodule = {
-//        PyModuleDef_HEAD_INIT,
-//        "libdap_crypto_python_module",   /* name of module */
-//        NULL, /* module documentation, may be NULL */
-//        -1,       /* size of per-interpreter state of the module,
-//                 or -1 if the module keeps state in global variables. */
-//        DapCryptoMethods
-//};
-
-//PyMODINIT_FUNC PyInit_libdap_crypto_python_module(void);
 
 #ifdef  __cplusplus
 }

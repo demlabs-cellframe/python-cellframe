@@ -6,9 +6,6 @@ PyObject* dap_enc_iaes_key_new_py(PyObject *self, PyObject *args){
     if (PyArg_ParseTuple(args, "O", &obj_key)){
         return NULL;
     }
-//    if (key == NULL){
-//        return NULL;
-//    }
     dap_enc_aes_key_new(((PyCryptoKeyObject*)obj_key)->key);
     return  PyLong_FromLong(0);
 }
@@ -32,11 +29,6 @@ PyObject* dap_enc_iaes_key_generate_py(PyObject *self, PyObject *args){
     if (PyArg_ParseTuple(args, "O|S|n|S|n", &in_key, &in_kex_buf, &in_kex_size, &in_seed, &in_seed_size)){
         return NULL;
     }
-//    dap_enc_key_t *key = key_list_get_key(keys_iaes, in_key_id);
-//    if (key == NULL){
-//        return NULL;
-//    }
-//    PyObject *new_key = _PyObject_New(&PyCryptoKeyObject_PyCryptoKeyType);
     size_t key_size = sizeof(((PyCryptoKeyObject*)in_key)->key);
     void* kex_buf = NULL;
     PyBytes_AsStringAndSize((PyObject*)in_kex_buf, kex_buf, (Py_ssize_t*)in_kex_size);
@@ -67,42 +59,10 @@ PyObject* dap_enc_iaes256_calc_decode_size_py(PyObject *self, PyObject *args){
 PyObject* dap_enc_iaes256_cbc_decrypt_py(PyObject *self, PyObject *args){
     //TODO
     return PyLong_FromLong(0);
-    /*uint8_t key_id;
-    PyBytesObject *in_obj;
-    size_t in_size;
-    void **a_out = NULL;
-    if (!PyArg_ParseTuple(args, "h|S|n", &key_id, &in_obj, &in_size)){
-        return NULL;
-    }
-    dap_enc_key_t *key = key_list_get_key(keys_iaes, key_id);
-    if (key == NULL){
-        return NULL;
-    }
-    //void *in = PyBytes_AsString(in_obj);
-    void *in_void = PyBytes_AsString((PyObject*)in_obj);
-    in_size = (size_t)PyBytes_GET_SIZE(in_obj);
-    dap_enc_iaes256_cbc_decrypt(key, in_void, in_size, a_out);
-    //TODO
-    return Py_BuildValue("O", a_out);*/
 }
 PyObject* dap_enc_iaes256_cbc_encrypt_py(PyObject *self, PyObject *args){
     //TODO
     return PyLong_FromLong(0);
-    /*uint8_t key_id;
-    PyBytesObject *in_obj;
-    size_t in_size;
-    void **a_out = NULL;
-    if (!PyArg_ParseTuple(args, "h|S|n", &key_id, &in_obj, &in_size)){
-        return NULL;
-    }
-    dap_enc_key_t *key = key_list_get_key(keys_iaes, key_id);
-    if (key == NULL){
-        return NULL;
-    }
-    void *in_void = PyBytes_AsString((PyObject*)in_obj);
-    in_size = (size_t)PyBytes_GET_SIZE(in_obj);
-    dap_enc_iaes256_cbc_encrypt(key, in_void, in_size, a_out);
-    return PyBytes_FromFormat("%p", a_out);*/
 }
 
 // Writes result ( out ) in already allocated buffer
@@ -114,10 +74,6 @@ PyObject* dap_enc_iaes256_cbc_decrypt_fast_py(PyObject *self, PyObject *args){
     if (!PyArg_ParseTuple(args, "O|S|n|n", &in_key, &a_in, &a_in_size, &buf_out_size)){
         return NULL;
     }
-//    dap_enc_key_t *key = key_list_get_key(keys_iaes, key_id);
-//    if (key == NULL){
-//        return NULL;
-//    }
     void *in = PyBytes_AsString((PyObject*)a_in);
     void *out = DAP_NEW_SIZE(void*, buf_out_size);
     size_t res_denc_size = dap_enc_iaes256_cbc_decrypt_fast(((PyCryptoKeyObject*)in_key)->key, in, a_in_size, out, buf_out_size);
