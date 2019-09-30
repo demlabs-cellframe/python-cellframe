@@ -4,6 +4,7 @@ cmake_minimum_required(VERSION 2.8)
 set(CMAKE_VERBOSE_MAKEFILE ON)
 set(CMAKE_COLOR_MAKEFILE   ON)
 set(CMAKE_C_STANDARD 11)
+add_definitions("-fpic")
 
 if(NOT (${SUBMODULES_NO_BUILD} MATCHES ON))
     if (NOT (TARGET dap_core))
@@ -22,7 +23,7 @@ set(Python_ADDITIONAL_VERSIONS 3.7)
 find_package (PythonLibs REQUIRED)
 include_directories(${PYTHON_INCLUDE_DIR})
 
-add_library(${PROJECT_NAME} SHARED ${CORE_SRCS} ${CORE_UNIX_SRCS})
+add_library(${PROJECT_NAME} STATIC ${CORE_SRCS} ${CORE_UNIX_SRCS})
 
 target_link_libraries(${PROJECT_NAME} ${PYTHON_LIBRARIES})
 
