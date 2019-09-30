@@ -8,11 +8,6 @@ PyObject *dap_events_socket_create_after_py(PyDapEventsSocketObject *self){
     return  PyLong_FromLong(0);
 }
 
-//PyObject *dap_events_socket_wrap_no_add_py(PyObject *self, PyObject *args){
-//    return  PyLong_FromLong(0);
-//}
-
-
 PyObject *dap_events_socket_find_py(PyDapEventsSocketObject *self, PyObject *args){
     if (self->t_events_socket != NULL){
         return NULL;
@@ -25,21 +20,6 @@ PyObject *dap_events_socket_find_py(PyDapEventsSocketObject *self, PyObject *arg
     self->t_events_socket = dap_events_socket_find(socket, ((PyDapEventsObject*)in_object)->t_events);
     return  PyLong_FromLong(0);
 }
-
-//PyObject *dap_events_socket_is_ready_to_read_py(PyDapEventsSocketObject *self){
-//    bool result = dap_events_socket_is_ready_to_read(self->t_events_socket);
-//    if (result)
-//        return Py_BuildValue("O", Py_True);
-//    else
-//        return Py_BuildValue("O", Py_False);
-//}
-//PyObject *dap_events_socket_is_ready_to_write_py(PyDapEventsSocketObject *self){
-//    bool result = dap_events_socket_is_ready_to_write(self->t_events_socket);
-//    if (result)
-//        return Py_BuildValue("O", Py_True);
-//    else
-//        return Py_BuildValue("O", Py_False);
-//}
 PyObject *dap_events_socket_set_readable_py(PyDapEventsSocketObject *self, PyObject *args){
     if (self->t_events_socket == NULL){
         return NULL;

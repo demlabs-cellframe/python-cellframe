@@ -11,7 +11,6 @@ void PyDapEventsObject_dealloc(PyDapEventsObject *eventsObject){
     Py_TYPE(eventsObject)->tp_free((PyObject*)eventsObject);
 }
 
-//void dap_events_socket_remove_and_delete( dap_events_socket_t* a_es );
 PyObject *dap_events_socket_remove_and_delete_py(PyDapEventsObject *self, PyObject *args){
     PyObject *in_obj;
     PyObject *in_bool;
