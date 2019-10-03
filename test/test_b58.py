@@ -1,4 +1,4 @@
-import libdap_crypto_python_module as crypto
+import libTPO
 import pickle
 import sys
 
@@ -7,10 +7,10 @@ s = """Test! I will crush Base58!"""
 base_in = pickle.dumps(s)
 print ("Input data: "+s)
 print (base_in)
-crypt = crypto.encodeBase58(base_in)
+crypt = libTPO.Crypto.encodeBase58(base_in)
 print ("Encrypted data: \t")
 print(crypt)
-decrypt = crypto.decodeBase58(crypt)
+decrypt = libTPO.Crypto.decodeBase58(crypt)
 print ("Decoded data: \t")
 print(decrypt)
 out_data = pickle.loads(decrypt)

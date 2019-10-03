@@ -1,20 +1,17 @@
-import libdap_crypto_python_module as crypto
+import libTPO
 import sys
 
 print ("Start test crypto OAES")
 s = "Test! I will crush OAES!"
-print ("Input data: "+s)
 kex_buff = bytes("114151400014314485131FGXVGHcJFIH", "utf-8")
 size_kex_buff = len(kex_buff)
 seed = bytes(112771128)
 seed_size = len(seed)
-crypto.init()
-key_id = crypto.generateNewKey(1, kex_buff, size_kex_buff, seed, seed_size, 32)
+libTPO.init()
+key = libTPO.Crypto.generateNewKey(libTPO.CryptoKeyType.DAP_ENC_KEY_TYPE_OAES(), kex_buff, size_kex_buff, seed, seed_size, 32)
 source = bytes(s, "utf-8")
-enc = crypto.encryptOAESFast(key_id, source, len(source), 2048)
-decrypt = crypto.decryptOAESFast(key_id, enc, len(enc), 2048)
-print (decrypt)
-
+enc = libTPO.Crypto.encryptOAESFast(key, source, len(source), 2048)
+decrypt = libTPO.Crypto.decryptOAESFast(key, enc, len(enc), 2048)
 
 if bytes(s, "utf-8") == decrypt:
     print ("TEST 1. Encode/Decode OAES FAST done")

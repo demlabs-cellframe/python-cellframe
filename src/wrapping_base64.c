@@ -26,7 +26,6 @@
          return NULL;
      }
      void *res = DAP_NEW_SIZE(void*, DAP_ENC_BASE64_ENCODE_SIZE(strlen(in_str)));
-     //size_t decrypted_size = dap_enc_base58_decode(in_str, res);
      size_t decrypted_size = dap_enc_base64_decode(in_str, strlen(in_str), res, l_dap_enc_data_type);
      PyBytesObject *return_object = (PyBytesObject*)PyBytes_FromStringAndSize(res, (Py_ssize_t)decrypted_size);
      return Py_BuildValue("O", return_object);

@@ -1,6 +1,10 @@
+#ifndef WRAPPING_DAP_ENC_IAES_
+#define WRAPPING_DAP_ENC_IAES_
+
 #include "Python.h"
 #include "dap_enc_iaes.h"
-#include "key_list.h"
+#include "dap_common.h"
+#include "libdap_crypto_key_python.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -8,8 +12,6 @@ extern "C" {
 
 #undef LOG_TAG
 #define LOG_TAG "wrapping-dap-enc-iaes"
-
-key_list_t *keys_iaes;
 
 PyObject* dap_enc_iaes_key_new_py(PyObject *self, PyObject *args);
 
@@ -30,3 +32,5 @@ PyObject* dap_enc_iaes256_cbc_encrypt_fast_py(PyObject *self, PyObject *args);
 #ifdef __cplusplus
 }
 #endif
+
+#endif //WRAPPING_DAP_ENC_IAES_

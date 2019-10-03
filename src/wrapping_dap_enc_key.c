@@ -1,30 +1,30 @@
 #include "wrapping_dap_enc_key.h"
 
 PyObject* dap_enc_key_get_enc_size_py(PyObject *self, PyObject *args){
-    uint8_t key_id;
+    PyObject *in_key;
     size_t buff_in_size;
-    if (!PyArg_ParseTuple(args, "h|i"), &key_id, &buff_in_size){
+    if (!PyArg_ParseTuple(args, "O|i", &in_key, &buff_in_size)){
         return NULL;
     }
-    dap_enc_key_t *key = key_list_get_key(keys, key_id);
-    if (key == NULL)
-        return NULL;
-    size_t size_buff = dap_enc_key_get_enc_size(key, buff_in_size);
+//    dap_enc_key_t *key = key_list_get_key(keys, key_id);
+//    if (key == NULL)
+//        return NULL;
+    size_t size_buff = dap_enc_key_get_enc_size(((PyCryptoKeyObject*)in_key)->key, buff_in_size);
     if (size_buff == 0)
         return NULL;
     return  PyLong_FromSize_t(size_buff);
 }
 
 PyObject* dap_enc_key_get_dec_size_py(PyObject *self, PyObject *args){
-    uint8_t key_id;
+    PyObject *in_key;
     size_t buff_in_size;
-    if (!PyArg_ParseTuple(args, "h|i"), &key_id, &buff_in_size){
+    if (!PyArg_ParseTuple(args, "O|i", &in_key, &buff_in_size)){
         return NULL;
     }
-    dap_enc_key_t *key = key_list_get_key(keys, key_id);
-    if (key == NULL)
-        return NULL;
-    size_t size_buff = dap_enc_key_get_dec_size(key, buff_in_size);
+//    dap_enc_key_t *key = key_list_get_key(keys, key_id);
+//    if (key == NULL)
+//        return NULL;
+    size_t size_buff = dap_enc_key_get_dec_size(((PyCryptoKeyObject*)in_key)->key, buff_in_size);
     if (size_buff == 0)
         return NULL;
     return  PyLong_FromSize_t(size_buff);
@@ -40,8 +40,9 @@ PyObject* dap_enc_key_new_py(PyObject *self, PyObject *args){
         return PyLong_FromLong(-1);
     }
     dap_enc_key_t *new_key = dap_enc_key_new(type_key);
-    uint8_t res = key_list_add_element(keys, new_key);
-    return  PyLong_FromLong(res);
+    PyObject *obj = _PyObject_New(&PyCryptoKeyObject_PyCryptoKeyType);
+    ((PyCryptoKeyObject*)obj)->key = new_key;
+    return  Py_BuildValue("O", obj);
 }
 
 /// default gen key
@@ -65,22 +66,22 @@ PyObject *dap_enc_key_new_generate_py(PyObject *self, PyObject *args){
         kex_buf = PyBytes_AsString((PyObject*)in_kex_buf);
     if (in_seed_size != 0)
         seed = PyBytes_AsString((PyObject*)in_seed);
-    dap_enc_key_t *new_key = dap_enc_key_new_generate(in_type_key, kex_buf, in_kex_size, seed, in_seed_size, in_key_size);
-    uint8_t new_key_id = key_list_add_element(keys, new_key);
-    return PyLong_FromLong(new_key_id);
+    PyCryptoKeyObject *obj_key = (PyCryptoKeyObject*)_PyObject_New(&PyCryptoKeyObject_PyCryptoKeyType);
+    obj_key->key = dap_enc_key_new_generate(in_type_key, kex_buf, in_kex_size, seed, in_seed_size, in_key_size);
+    return  Py_BuildValue("O", (PyObject*)obj_key);
 }
 
 // update struct dap_enc_key_t after insert foreign keys
 PyObject* dap_enc_key_update_py(PyObject *self, PyObject *args){
-    uint8_t key_id;
-    if (!PyArg_ParseTuple(args, "h", &key_id)){
+    PyObject *in_key;
+    if (!PyArg_ParseTuple(args, "O", &in_key)){
         return NULL;
     }
-    dap_enc_key_t *key = key_list_get_key(keys, key_id);
-    if (key == NULL) {
-        return NULL;
-    }
-    dap_enc_key_update(key);
+//    dap_enc_key_t *key = key_list_get_key(keys, key_id);
+//    if (key == NULL) {
+//        return NULL;
+//    }
+    dap_enc_key_update(((PyCryptoKeyObject*)in_key)->key);
     return PyLong_FromLong(0);
 }
 
@@ -91,29 +92,29 @@ PyObject *dap_enc_gen_pub_key_from_priv_py(PyObject *self, PyObject *args){ //NO
 
 
 PyObject *dap_enc_gen_key_public_size_py(PyObject *self, PyObject *args){
-    uint8_t  key_id;
-    if (PyArg_ParseTuple(args, "h", &key_id)){
+    PyObject *in_key;
+    if (PyArg_ParseTuple(args, "h", &in_key)){
         return NULL;
     }
-    dap_enc_key_t *key = key_list_get_key(keys, key_id);
-    if (key == NULL){
-        return NULL;
-    }
-    size_t size = dap_enc_gen_key_public_size(key);
+//    dap_enc_key_t *key = key_list_get_key(keys, key_id);
+//    if (key == NULL){
+//        return NULL;
+//    }
+    size_t size = dap_enc_gen_key_public_size(((PyCryptoKeyObject*)in_key)->key);
     return PyLong_FromSize_t(size);
 }
 
 PyObject *dap_enc_gen_key_public_py(PyObject *self, PyObject *args){
-    uint8_t  key_id;
+    PyObject *in_key;
     PyObject *obj;
-    if (PyArg_ParseTuple(args, "h|O", &key_id, &obj)){
+    if (PyArg_ParseTuple(args, "O|O", &in_key, &obj)){
         return NULL;
     }
-    dap_enc_key_t *key = key_list_get_key(keys, key_id);
-    if (key == NULL){
-        return NULL;
-    }
-    int size = dap_enc_gen_key_public(key, obj);
+//    dap_enc_key_t *key = key_list_get_key(keys, key_id);
+//    if (key == NULL){
+//        return NULL;
+//    }
+    int size = dap_enc_gen_key_public(((PyCryptoKeyObject*)in_key)->key, obj);
     return PyLong_FromLong(size);
 }
 
@@ -129,20 +130,5 @@ PyObject *dap_enc_key_signature_delete_py(PyObject *self, PyObject *args){
     }
     a_sig_buf = (uint8_t*)sig_buf;
     dap_enc_key_signature_delete(type_key, a_sig_buf);
-    return PyLong_FromLong(0);
-}
-
-PyObject *dap_enc_key_delete_py(PyObject *self, PyObject *args){
-    //PyObject *obj;
-    uint8_t key_id;
-    if (!PyArg_ParseTuple(args, "h", &key_id)){
-        return NULL;
-    }
-    dap_enc_key_t *key = key_list_get_key(keys, key_id);
-    if (key == NULL) {
-        return NULL;
-    }
-    key_list_del_element(keys, key_id);
-    dap_enc_key_delete(key);
     return PyLong_FromLong(0);
 }
