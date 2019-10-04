@@ -1,16 +1,12 @@
 # python-cellframe
 
 ## Build and Run tests:
+To install, you must have Python3.7 and a scikit-build.
 ```
 git clone https://gitlab.demlabs.net/cellframe/python-cellframe.git
 cd python-cellframe
-git submodule update --init
-git submodule foreach git submodule update --init
-mkdir build
-cd build
-cmake ../
-make
-cp ../test/main_test.py ./
-python3.7 main_test.py
+git submodule update --init --recursive
+sudo python3.7 setup.py install
+python3.7 test/main_test.py
 ```
 
