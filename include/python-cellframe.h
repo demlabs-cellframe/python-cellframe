@@ -40,9 +40,6 @@ static PyMethodDef CellFramePythonMethods[] = {
 
         {"configGetItem", (PyCFunction)py_m_dap_config_get_item, METH_VARARGS, ""},
         {"configGetItemDefault", (PyCFunction)py_m_dap_config_get_item_default, METH_VARARGS, ""},
-        //{"deinit", dap_server_core_deinit, METH_NOARGS, "Deinitialization of the DAP (Deus Applicaions Prototypes) server core library"},
-        //{"loop", dap_server_core_loop, METH_VARARGS, ""},
-        //{"listen", dap_server_core_listen, METH_VARARGS, ""},
         {NULL, NULL, 0, NULL}
 };
 

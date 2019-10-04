@@ -30,7 +30,7 @@ static PyObject *python_cellframe_init(PyObject *self, PyObject *args){
     PyObject* getDap = PyDict_GetItemString(result, "DAP");
     if (getDap == NULL)
         return NULL;
-//    /*Parse DAP*/
+    /*Parse DAP*/
     PyObject* config_dir_PyObject = PyDict_GetItemString(getDap, "config_dir");
     PyObject* application_name_PyObject = PyDict_GetItemString(getDap, "application_name");
     PyObject* file_name_log_PyObject = PyDict_GetItemString(getDap, "file_name_log");
@@ -132,7 +132,6 @@ PyMODINIT_FUNC PyInit_CellFrame(void){
     PyModule_AddObject(module, "CryptoDataType", (PyObject*)&CryptoDataTypeObjecy_CryptoDataTypeObjecyType);
 
 
-    //PyModule_AddObject(module, "Dap", (PyObject*)&DapObject_DapObjectType);
     return module;
 }
 
@@ -141,7 +140,6 @@ static PyObject *python_cellframe_deinit(PyObject *self, PyObject *args){
     dap_config_deinit();
     if (init_crypto)
         dap_crypto_deinit();
-    //dap_common_deinit();
     return PyLong_FromLong(0);
 }
 
