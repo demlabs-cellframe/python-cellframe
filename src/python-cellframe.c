@@ -1,43 +1,6 @@
 #include "python-cellframe.h"
 
 
-PyMODINIT_FUNC PyInit_libCellFrame(void){
-
-    if (PyType_Ready(&DapObject_DapObjectType) < 0 || PyType_Ready(&dapCrypto_dapCryptoType) < 0 ||
-            PyType_Ready(&ServerCore_ServerCoreType) < 0 || PyType_Ready(&dapEvents_dapEventsType) < 0 ||
-            PyType_Ready(&dapEventsSocket_dapEventsSocketType) < 0 ||
-            PyType_Ready(&CryptoKeyTypeObjecy_CryptoKeyTypeObjecyType) < 0 ||
-            PyType_Ready(&CryptoDataTypeObjecy_CryptoDataTypeObjecyType) < 0)
-               return NULL;
-
-    PyObject *module = PyModule_Create(&CellFramePythonModule);
-
-    CellFrame_error = PyErr_NewException("libCellFrame.error", NULL, NULL);
-    PyModule_AddObject(module, "error", CellFrame_error);
-    PyModule_AddObject(module, "DEBUG", PyLong_FromLong(L_DEBUG));
-    PyModule_AddObject(module, "INFO", PyLong_FromLong(L_INFO));
-    PyModule_AddObject(module, "NOTICE", PyLong_FromLong(L_NOTICE));
-    PyModule_AddObject(module, "MESSAGE", PyLong_FromLong(L_MSG));
-    PyModule_AddObject(module, "DAP", PyLong_FromLong(L_DAP));
-    PyModule_AddObject(module, "WARNING", PyLong_FromLong(L_WARNING));
-    PyModule_AddObject(module, "ATT", PyLong_FromLong(L_ATT));
-    PyModule_AddObject(module, "ERROR", PyLong_FromLong(L_ERROR));
-    PyModule_AddObject(module, "CRITICAL", PyLong_FromLong(L_CRITICAL));
-
-    PyModule_AddObject(module, "Crypto", (PyObject*)&dapCrypto_dapCryptoType);
-
-    PyModule_AddObject(module, "ServerCore", (PyObject*)&ServerCore_ServerCoreType);
-    PyModule_AddObject(module, "Events", (PyObject*)&dapEvents_dapEventsType);
-    PyModule_AddObject(module, "EventsSocket", (PyObject*)&dapEventsSocket_dapEventsSocketType);
-
-    PyModule_AddObject(module, "CryptoKeyType", (PyObject*)&CryptoKeyTypeObjecy_CryptoKeyTypeObjecyType);
-    PyModule_AddObject(module, "CryptoDataType", (PyObject*)&CryptoDataTypeObjecy_CryptoDataTypeObjecyType);
-
-
-    //PyModule_AddObject(module, "Dap", (PyObject*)&DapObject_DapObjectType);
-    return module;
-}
-
 static PyObject *python_cellframe_init(PyObject *self, PyObject *args){
     const char *app_name;
     const char *file_name_log;
@@ -136,6 +99,43 @@ static PyObject *python_cellframe_init(PyObject *self, PyObject *args){
     return PyLong_FromLong(0);
 }
 
+PyMODINIT_FUNC PyInit_CellFrame(void){
+
+    if (PyType_Ready(&DapObject_DapObjectType) < 0 || PyType_Ready(&dapCrypto_dapCryptoType) < 0 ||
+            PyType_Ready(&ServerCore_ServerCoreType) < 0 || PyType_Ready(&dapEvents_dapEventsType) < 0 ||
+            PyType_Ready(&dapEventsSocket_dapEventsSocketType) < 0 ||
+            PyType_Ready(&CryptoKeyTypeObjecy_CryptoKeyTypeObjecyType) < 0 ||
+            PyType_Ready(&CryptoDataTypeObjecy_CryptoDataTypeObjecyType) < 0)
+               return NULL;
+
+    PyObject *module = PyModule_Create(&CellFramePythonModule);
+
+    CellFrame_error = PyErr_NewException("libCellFrame.error", NULL, NULL);
+    PyModule_AddObject(module, "error", CellFrame_error);
+    PyModule_AddObject(module, "DEBUG", PyLong_FromLong(L_DEBUG));
+    PyModule_AddObject(module, "INFO", PyLong_FromLong(L_INFO));
+    PyModule_AddObject(module, "NOTICE", PyLong_FromLong(L_NOTICE));
+    PyModule_AddObject(module, "MESSAGE", PyLong_FromLong(L_MSG));
+    PyModule_AddObject(module, "DAP", PyLong_FromLong(L_DAP));
+    PyModule_AddObject(module, "WARNING", PyLong_FromLong(L_WARNING));
+    PyModule_AddObject(module, "ATT", PyLong_FromLong(L_ATT));
+    PyModule_AddObject(module, "ERROR", PyLong_FromLong(L_ERROR));
+    PyModule_AddObject(module, "CRITICAL", PyLong_FromLong(L_CRITICAL));
+
+    PyModule_AddObject(module, "Crypto", (PyObject*)&dapCrypto_dapCryptoType);
+
+    PyModule_AddObject(module, "ServerCore", (PyObject*)&ServerCore_ServerCoreType);
+    PyModule_AddObject(module, "Events", (PyObject*)&dapEvents_dapEventsType);
+    PyModule_AddObject(module, "EventsSocket", (PyObject*)&dapEventsSocket_dapEventsSocketType);
+
+    PyModule_AddObject(module, "CryptoKeyType", (PyObject*)&CryptoKeyTypeObjecy_CryptoKeyTypeObjecyType);
+    PyModule_AddObject(module, "CryptoDataType", (PyObject*)&CryptoDataTypeObjecy_CryptoDataTypeObjecyType);
+
+
+    //PyModule_AddObject(module, "Dap", (PyObject*)&DapObject_DapObjectType);
+    return module;
+}
+
 static PyObject *python_cellframe_deinit(PyObject *self, PyObject *args){
     dap_config_close(g_config);
     dap_config_deinit();
@@ -153,7 +153,7 @@ int main(int argc, char **argv) {
     }
 
     /* Add a built-in module, before Py_Initialize */
-    PyImport_AppendInittab("libCellFrame", PyInit_libCellFrame);
+    PyImport_AppendInittab("CellFrame", PyInit_CellFrame);
 
     /* Pass argv[0] to the Python interpreter */
     Py_SetProgramName(program);
@@ -164,7 +164,7 @@ int main(int argc, char **argv) {
     /* Optionally import the module; alternatively,
        import can be deferred until the embedded script
        imports it. */
-    PyImport_ImportModule("libCellFrame");
+    PyImport_ImportModule("CellFrame");
 
     PyMem_RawFree(program);
     return 0;

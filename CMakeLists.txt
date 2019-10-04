@@ -18,18 +18,48 @@ file(GLOB PYTHON_CELLFRAME_HEADERS include/*.h)
 
 set(Python_ADDITIONAL_VERSIONS 3.7)
 find_package (PythonLibs REQUIRED)
-#find_package(PkgConfig)
-#pkg_check_modules(PC_JSON-C REQUIRED json-c)
+
 include_directories(${PYTHON_INCLUDE_DIR} include/)
 
-add_library(${PROJECT_NAME} SHARED ${PYTHON_CELLFRAME_SRCS} ${PYTHON_CELLFRAME_HEADERS})
+if (SKBUILD)
+    message(STATUS "The project is built using scikit-build")
+    find_package(PythonExtensions REQUIRED)
+    add_library(${PROJECT_NAME} MODULE ${PYTHON_CELLFRAME_SRCS} ${PYTHON_CELLFRAME_HEADERS})
+    python_extension_module(${PROJECT_NAME})
+    python_extension_module(${PROJECT_NAME} LINKED_MODULES_VAR dap_python_module)
+    python_extension_module(${PROJECT_NAME} LINKED_MODULES_VAR dap_crypto_python_module)
+    python_extension_module(${PROJECT_NAME} LINKED_MODULES_VAR DapServerCore)
+    install(TARGETS ${PROJECT_NAME} LIBRARY DESTINATION CellFrame)
+    install(FILES src/__init__.py DESTINATION CellFrame)
+#    install(FILES ${CMAKE_CURRENT_BINARY_DIR}/libdap-python/libdap_python_module.so DESTINATION CellFrame/lib)
+#    install(TARGETS dap_python_module LIBRARY DESTINATION CellFrame)
+#    install(TARGETS dap_crypto_python_module LIBRARY DESTINATION CellFrame)
+#    install(TARGETS DapServerCore LIBRARY DESTINATION CellFrame)
+else()
+    add_library(${PROJECT_NAME} SHARED ${PYTHON_CELLFRAME_SRCS} ${PYTHON_CELLFRAME_HEADERS})
+endif()
 
-target_link_libraries(${PROJECT_NAME})
+    target_link_libraries(${PROJECT_NAME})
 
-target_link_libraries(${PROJECT_NAME} ${PYTHON_LIBRARIES})
+    target_link_libraries(${PROJECT_NAME} ${PYTHON_LIBRARIES})
 
 #target_compile_options(
 #    dap_core PRIVATE 
+#    "-fpic"
+#)
+
+#target_compile_options(
+#    dap_python_module PRIVATE 
+#    "-fpic"
+#)
+
+#target_compile_options(
+#    dap_crypto_python_module PRIVATE 
+#    "-fpic"
+#)
+
+#target_compile_options(
+#    DapServerCore PRIVATE 
 #    "-fpic"
 #)
 
@@ -54,4 +84,3 @@ target_include_directories(${PROJECT_NAME} INTERFACE include/)
 #    enable_testing()
     #add_subdirectory(test)
 #endif()
-

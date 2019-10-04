@@ -48,15 +48,14 @@ static PyMethodDef CellFramePythonMethods[] = {
 
 static struct PyModuleDef CellFramePythonModule = {
         PyModuleDef_HEAD_INIT,
-        "libCellFrame",   /* name of module */
+        "CellFrame",   /* name of module */
         NULL, /* module documentation, may be NULL */
         -1,       /* size of per-interpreter state of the module,
                  or -1 if the module keeps state in global variables. */
         CellFramePythonMethods
 };
 
-PyMODINIT_FUNC PyInit_libCellFrame(void);
-
+PyMODINIT_FUNC PyInit_CellFrame(void);
 
 #ifdef __cplusplus
 }
