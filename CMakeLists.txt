@@ -15,8 +15,14 @@ if(NOT (${SUBMODULES_NO_BUILD} MATCHES ON))
             "-fpic"
         )
     endif()
+    if (NOT (TARGET dap_crypto))
+        add_subdirectory(libdap-crypto)
+        target_compile_options(
+            dap_crypto PRIVATE 
+            "-fpic"
+        )
+    endif()
 endif()
-add_subdirectory(libdap-crypto)
 
 file(GLOB CRYPTO_PYTHON_SRCS src/*.c)
 file(GLOB CRYPTO_PYTHON_HEADERS include/*.h)
@@ -28,16 +34,6 @@ include_directories(${PYTHON_INCLUDE_DIR} include/)
 add_library(${PROJECT_NAME} STATIC ${CRYPTO_PYTHON_SRCS} ${CRYPTO_PYTHON_HEADERS})
 
 target_link_libraries(${PROJECT_NAME})
-
-target_compile_options(
-    dap_core PRIVATE 
-    "-fpic"
-)
-target_compile_options(
-    dap_crypto PRIVATE 
-    "-fpic"
-)
-
 
 target_link_libraries(${PROJECT_NAME} dap_core dap_crypto)
 
