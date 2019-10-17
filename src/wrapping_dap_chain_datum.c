@@ -10,6 +10,7 @@ PyObject *PyDapChainDatumObject_new(PyTypeObject *type_object, PyObject *args, P
     if (!PyArg_ParseTuple(args, "h|S|n", &type_id, &bytes, &data_size))
         return NULL;
     PyDapChainDatumObject *obj = (PyDapChainDatumObject*)PyType_GenericNew(type_object, args, kwds);
-    obj->datum = dap_chain_datum_create(type_id, bytes, data_size);
+    void* bytes_v = (void *)PyBytes_AsString((PyObject*)bytes);
+    obj->datum = dap_chain_datum_create(type_id, bytes_v, data_size);
     return (PyObject *)obj;
 }

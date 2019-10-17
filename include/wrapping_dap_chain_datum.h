@@ -103,7 +103,7 @@ static PyTypeObject DapChainDatumObject_DapChainDatumObjectType = {
     0,                               /* tp_dictoffset */
     0,                               /* tp_init */
     0,                               /* tp_alloc */
-    PyDapChainDatumObject_new,       /* tp_new */
+    DapChainDatumObject_new,       /* tp_new */
 };
 /* -------------------------------- */
 
