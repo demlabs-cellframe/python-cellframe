@@ -43,7 +43,7 @@ PyObject *dap_chain_addr_fill_py(PyObject *self, PyObject *args){
     if (!PyArg_ParseTuple(args, "O|O|O", &addr, &key, &net_id))
         return NULL;
     dap_chain_addr_fill(((PyDapChainAddrObject*)addr)->addr, ((PyCryptoKeyObject*)key)->key,
-                        ((PyDapChainNetIdObject*)net_id)->net_id);
+                        &(((PyDapChainNetIdObject*)net_id)->net_id));
     return PyLong_FromLong(0);
 }
 
