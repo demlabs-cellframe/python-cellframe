@@ -47,6 +47,7 @@ add_subdirectory(libdap-chain-wallet)
 add_subdirectory(libdap-chain-net-srv)
 add_subdirectory(libdap-server-http-db-auth)
 add_subdirectory(libdap-chain-gdb)
+add_subdirectory(libdap-crypto-python)
 
 file(GLOB CHAIN_PYTHON_SRCS src/*.c)
 file(GLOB CHAIN_PYTHON_HEADERS include/*.h)
@@ -69,7 +70,7 @@ target_link_libraries(${PROJECT_NAME})
 #)
 
 
-target_link_libraries(${PROJECT_NAME} dap_core dap_crypto dap_chain dap_chain_crypto dap_server_core dap_chain_net)
+target_link_libraries(${PROJECT_NAME} dap_core dap_crypto dap_chain dap_chain_crypto dap_server_core dap_chain_net dap_crypto_python_module)
 #target_link_libraries(${PROJECT_NAME} dap_core dap_crypto dap_chain dap_chain_global_db dap_chain_crypto dap_chain_mempool
 #                         
 #                     ) #dap_chain_crypto dap_chain_mempool dap_chain_global_db )
