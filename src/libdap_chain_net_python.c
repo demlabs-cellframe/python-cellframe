@@ -28,24 +28,34 @@ PyObject *dap_chain_net_stop_py(PyObject *self, PyObject *args){
     return PyLong_FromLong(res);
 }
 PyObject *dap_chain_net_links_establish_py(PyObject *self, PyObject *args){
-    return NULL;
+    int res = dap_chain_net_links_establish(((PyDapChainNetObject*)self)->chain_net);
+    return PyLong_FromLong(res);
 }
 PyObject *dap_chain_net_sync_chains_py(PyObject *self, PyObject *args){
-    return NULL;
+    int res = dap_chain_net_sync_chains(((PyDapChainNetObject*)self)->chain_net);
+    return PyLong_FromLong(res);
 }
 PyObject *dap_chain_net_sync_gdb_py(PyObject *self, PyObject *args){
-    return NULL;
+    int res = dap_chain_net_sync_gdb(((PyDapChainNetObject*)self)->chain_net);
+    return PyLong_FromLong(res);
 }
 PyObject *dap_chain_net_sync_all_py(PyObject *self, PyObject *args){
-    return NULL;
+    int res = dap_chain_net_sync_all(((PyDapChainNetObject*)self)->chain_net);
+    return PyLong_FromLong(res);
 }
 
 PyObject *dap_chain_net_proc_datapool_py(PyObject *self, PyObject *args){
-    return NULL;
+    dap_chain_net_proc_datapool(((PyDapChainNetObject*)self)->chain_net);
+    return PyLong_FromLong(0);
 }
 
 PyObject *dap_chain_net_by_name_py(PyObject *self, PyObject *args){
-    return NULL;
+    const char *a_name;
+    if (!PyArg_ParseTuple(args, "s", &a_name))
+        return NULL;
+    PyObject *obj_chain_net = _PyObject_New(&DapChainNetObject_DapChainNetObjectType);
+    ((PyDapChainNetObject*)obj_chain_net)->chain_net = dap_chain_net_by_name(a_name);
+    return Py_BuildValue("O", obj_chain_net);
 }
 PyObject *dap_chain_net_by_id_py(PyObject *self, PyObject *args){
     return NULL;
