@@ -149,4 +149,24 @@ static PyObject* DapChainDatumTxArrayToPyList(dap_chain_datum_tx_t** datum_txs){
     return list;
 }
 
+dap_chain_tx_out_cond_t **PyListToDapChainTxOutCond(PyObject *list){
+    Py_ssize_t size = PyList_Size(list);
+    dap_chain_tx_out_cond_t **out_conds = calloc(sizeof(dap_chain_tx_out_cond_t), (size_t)size);
+    for (Py_ssize_t i=0; i < size; i++){
+        out_conds[i] = ((PyDapChainTxOutCondObject*)PyList_GetItem(list, i))->out_cond;
+    }
+    return out_conds;
+}
+
+PyObject *DapChainTxOutCondObjectToPyList(dap_chain_tx_out_cond_t **out_cond){
+    size_t len = sizeof(out_cond) / sizeof(out_cond[0]);
+    PyObject *list = PyList_New((Py_ssize_t)len);
+    for (size_t i=0; i< len;i++ ){
+        PyObject *obj = _PyObject_New(&DapChainTxOutCond_DapChainTxOutCondObjectType);
+        ((PyDapChainTxOutCondObject*)obj)->out_cond = out_cond[i];
+        PyList_Append(list, obj);
+    }
+    return list;
+}
+
 /* -------------------------------------- */
