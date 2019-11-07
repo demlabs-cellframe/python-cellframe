@@ -62,7 +62,7 @@ static PyTypeObject DapChainIdObject_DapChainIdObjectType = {
 
 typedef struct PyDapChainCellId{
     PyObject_HEAD
-    dap_chain_cell_id_t *id;
+    dap_chain_cell_id_t id;
 }PyDapChainCellIdObject;
 
 static PyTypeObject DapChainCellIdObject_DapChainCellIdObjectType = {
@@ -118,7 +118,7 @@ typedef struct PyDapChainNodeAddr{
 
 static PyTypeObject DapChainNodeAddrObject_DapChainNodeAddrObjectType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "CellFrame.ChainCellID",             /* tp_name */
+    "CellFrame.ChainNodeAddr",             /* tp_name */
     sizeof(PyDapChainNodeAddrObject),      /* tp_basicsize */
     0,                               /* tp_itemsize */
     0,                               /* tp_dealloc */
