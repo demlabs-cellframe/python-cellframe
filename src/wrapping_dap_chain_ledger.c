@@ -96,7 +96,8 @@ PyObject *dap_chain_ledger_purge_py(PyObject *self, PyObject *args){
     return PyLong_FromLong(0);
 }
 PyObject *dap_chain_ledger_count_py(PyObject *self, PyObject *args){
-    return NULL;
+    long long  res = (long long)dap_chain_ledger_count(((PyDapChainLedgerObject*)self)->ledger);
+    return PyLong_FromLongLong(res);
 }
 PyObject *dap_chain_ledger_count_from_to_py(PyObject *self, PyObject *args){
     return NULL;
@@ -166,10 +167,16 @@ PyObject *dap_chain_ledger_tx_cache_find_out_cond_py(PyObject *self, PyObject *a
     return Py_BuildValue("O", res);
 }
 PyObject *dap_chain_ledger_tx_cache_get_out_cond_value_py(PyObject *self, PyObject *args){
-//    PyObject *obj_addr;
-//    PyObject *obj_out_cond;
-//    if (!PyArg_ParseTuple(args, "O|O", &obj_addr, &obj_out_cond))
-//        return NULL;
-//    uint64_t res = dap_chain_ledger_tx_cache_get_out_cond_value(((PyDapChainLedgerObject*)self)->ledger, ((PyDapChainAddrObject*)obj_addr)->addr, ());
+    PyObject *obj_addr;
+    PyObject *obj_out_conds;
+    if (!PyArg_ParseTuple(args, "O|O", &obj_addr, &obj_out_conds))
+        return NULL;
+    if (!PyList_Check(obj_out_conds)){
+        PyErr_SetString(PyExc_TypeError, "Thse second argument received isn't array");
+        return NULL;
+    }
+    dap_chain_tx_out_cond_t **out_conds = PyListToDapChainTxOutCond(obj_out_conds);
+    uint64_t res = dap_chain_ledger_tx_cache_get_out_cond_value(((PyDapChainLedgerObject*)self)->ledger, ((PyDapChainAddrObject*)obj_addr)->addr, out_conds);
+    return PyLong_FromUnsignedLongLong(res);
 }
 
