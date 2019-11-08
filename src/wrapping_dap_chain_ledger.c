@@ -73,10 +73,26 @@ PyObject *dap_chain_ledger_tx_get_token_ticker_by_hash_py(PyObject *self, PyObje
     return Py_BuildValue("s", res);
 }
 PyObject *dap_chain_ledger_addr_get_token_ticker_all_py(PyObject *self, PyObject *args){
-    return NULL;
+    PyObject *obj_addr;
+    PyObject *obj_tickers;
+    PyObject *obj_tickers_size;
+    if (!PyArg_ParseTuple(args, "O|O|O", &obj_addr, &obj_tickers, &obj_tickers_size))
+        return NULL;
+    char ***tickers = ListStringToArrayStringFormatChar(obj_tickers);
+    size_t *tickers_size = ListIntToSizeT(obj_tickers_size);
+    dap_chain_ledger_addr_get_token_ticker_all(((PyDapChainLedgerObject*)self)->ledger, ((PyDapChainAddrObject*)obj_addr)->addr, tickers, tickers_size);
+    return PyLong_FromLong(0);
 }
 PyObject *dap_chain_ledger_addr_get_token_ticker_all_fast_py(PyObject *self, PyObject *args){
-    return NULL;
+    PyObject *obj_addr;
+    PyObject *obj_tickers;
+    PyObject *obj_tickers_size;
+    if (!PyArg_ParseTuple(args, "O|O|O", &obj_addr, &obj_tickers, &obj_tickers_size))
+        return NULL;
+    char ***tickers = ListStringToArrayStringFormatChar(obj_tickers);
+    size_t *tickers_size = ListIntToSizeT(obj_tickers_size);
+    dap_chain_ledger_addr_get_token_ticker_all_fast(((PyDapChainLedgerObject*)self)->ledger, ((PyDapChainAddrObject*)obj_addr)->addr, tickers, tickers_size);
+    return PyLong_FromLong(0);
 }
 PyObject *dap_chain_ledger_tx_cache_check_py(PyObject *self, PyObject *args){
     return NULL;
@@ -100,7 +116,11 @@ PyObject *dap_chain_ledger_count_py(PyObject *self, PyObject *args){
     return PyLong_FromLongLong(res);
 }
 PyObject *dap_chain_ledger_count_from_to_py(PyObject *self, PyObject *args){
-    return NULL;
+    long ts_from, ts_to;
+    if (!PyArg_ParseTuple(args, "l|l", &ts_from, &ts_to))
+        return NULL;
+    uint64_t res = dap_chain_ledger_count_from_to(((PyDapChainLedgerObject*)self)->ledger, (time_t)ts_from, (time_t)ts_to);
+    return PyLong_FromUnsignedLongLong(res);
 }
 PyObject *dap_chain_ledger_tx_hash_is_used_out_item_py(PyObject *self, PyObject *args){
     PyObject *obj_h_fast;
@@ -180,3 +200,29 @@ PyObject *dap_chain_ledger_tx_cache_get_out_cond_value_py(PyObject *self, PyObje
     return PyLong_FromUnsignedLongLong(res);
 }
 
+static char*** ListStringToArrayStringFormatChar(PyObject *list){
+    Py_ssize_t size = PyList_Size(list);
+    char ***data = calloc(sizeof(char**), (size_t)size);
+    for (Py_ssize_t i = 0; i < size; i++){
+        PyObject *obj_two = PyList_GetItem(list,i);
+        Py_ssize_t size_seentenses = PyList_Size(obj_two);
+        char **sentences = calloc(sizeof(char**), (size_t)size_seentenses);
+        for (int j=0; j < size_seentenses;j++){
+            PyObject *obj_byte = PyList_GetItem(obj_two, j);
+            char *word = PyBytes_AsString(obj_byte);
+            sentences[j] = word;
+        }
+        data[i] = sentences;
+    }
+    return data;
+}
+
+static size_t *ListIntToSizeT(PyObject *list){
+    Py_ssize_t size = PyList_Size(list);
+    size_t *res_size_t = calloc(sizeof(size_t), (size_t)size);
+    for (Py_ssize_t i=0; i<size;i++){
+        PyObject *obj = PyList_GetItem(list, i);
+        res_size_t[i] = (size_t)PyLong_AsSsize_t(obj);
+    }
+    return res_size_t;
+}

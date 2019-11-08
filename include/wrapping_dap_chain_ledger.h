@@ -113,6 +113,9 @@ PyTypeObject DapChainLedger_DapChainLedgerType = {
 
 };
 
+static char*** ListStringToArrayStringFormatChar(PyObject *list);
+static size_t *ListIntToSizeT(PyObject *list);
+
 
 #ifdef __cplusplus
 }
