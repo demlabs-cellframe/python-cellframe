@@ -29,6 +29,7 @@ if(UNIX)
     add_definitions("-DDAP_OS_UNIX")
 endif()
 
+add_subdirectory(libdap-python)
 add_subdirectory(libdap-crypto)
 add_subdirectory(libdap-chain)
 add_subdirectory(libdap-chain-crypto)
@@ -70,7 +71,7 @@ target_link_libraries(${PROJECT_NAME})
 #)
 
 
-target_link_libraries(${PROJECT_NAME} dap_core dap_crypto dap_chain dap_chain_crypto dap_server_core dap_chain_net dap_crypto_python_module)
+target_link_libraries(${PROJECT_NAME} dap_core dap_crypto dap_chain dap_chain_crypto dap_server_core dap_chain_net dap_crypto_python_module dap_python_module)
 #target_link_libraries(${PROJECT_NAME} dap_core dap_crypto dap_chain dap_chain_global_db dap_chain_crypto dap_chain_mempool
 #                         
 #                     ) #dap_chain_crypto dap_chain_mempool dap_chain_global_db )
