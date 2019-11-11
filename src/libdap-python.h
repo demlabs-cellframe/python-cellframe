@@ -3,6 +3,7 @@
 #include <Python.h>
 #include "dap_config.h"
 #include "dap_common.h"
+#include "dap_list.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -77,6 +78,10 @@ static PyTypeObject DapObject_DapObjectType = {
     0,                         /* tp_alloc */
     PyType_GenericNew,         /* tp_new */
 };
+
+PyObject *dapListToPyList(dap_list_t *list);
+
+dap_list_t *pyListToDapList(PyObject *list);
 
 #ifdef  __cplusplus
 }
