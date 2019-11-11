@@ -3,6 +3,8 @@
 #include "wrapping_dap_chain_common_objects.h"
 #include "wrapping_dap_chain_datum_tx.h"
 #include "wrapping_dap_chain_datum_token.h"
+#include "libdap-python.h"
+
 
 #ifdef __cplusplus
 extern "C" {

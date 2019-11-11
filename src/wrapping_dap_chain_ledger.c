@@ -95,10 +95,42 @@ PyObject *dap_chain_ledger_addr_get_token_ticker_all_fast_py(PyObject *self, PyO
     return PyLong_FromLong(0);
 }
 PyObject *dap_chain_ledger_tx_cache_check_py(PyObject *self, PyObject *args){
-    return NULL;
+    PyObject *obj_datum_tx;
+    PyObject *list_bound_items;
+    PyObject *list_tx_out;
+    if (!PyArg_ParseTuple(args, "O|O|O", &obj_datum_tx, &list_bound_items, &list_tx_out))
+        return NULL;
+    Py_ssize_t size_list_bound_item = PyList_Size(list_bound_items);
+    dap_list_t **bound_items = calloc(sizeof(dap_list_t**), (size_t)size_list_bound_item);
+    for (Py_ssize_t i = 0; i < size_list_bound_item;i++){
+        PyObject *obj = PyList_GetItem(list_bound_items, i);
+        dap_list_t *l = pyListToDapList(obj);
+        bound_items[i] = l;
+    }
+    Py_ssize_t size_tx_out = PyList_Size(list_tx_out);
+    dap_list_t **tx_out = calloc(sizeof(dap_list_t**), (size_t)size_tx_out);
+    for (Py_ssize_t i = 0; i < size_tx_out;i++){
+        PyObject *obj = PyList_GetItem(list_bound_items, i);
+        dap_list_t *l = pyListToDapList(obj);
+        tx_out[i] = l;
+    }
+    int res = dap_chain_ledger_tx_cache_check(((PyDapChainLedgerObject*)self)->ledger, ((PyDapChainDatumTxObject*)obj_datum_tx)->datum_tx, bound_items, tx_out);
+    return PyLong_FromLong(res);
 }
 PyObject *dap_chain_node_datum_tx_cache_check_py(PyObject *self, PyObject *args){
-    return NULL;
+    PyObject *obj_datum_tx;
+    PyObject *list_bound_items;
+    if (!PyArg_ParseTuple(args, "O|O", &obj_datum_tx, &list_bound_items))
+        return NULL;
+    Py_ssize_t size = PyList_Size(list_bound_items);
+    dap_list_t **bound_items = calloc(sizeof (dap_list_t**), (size_t)size);
+    for (int i = 0; i < size ; i++){
+        PyObject *obj = PyList_GetItem(list_bound_items, i);
+        dap_list_t *l = pyListToDapList(obj);
+        bound_items[i] = l;
+    }
+    int res = dap_chain_node_datum_tx_cache_check(((PyDapChainDatumTxObject*)obj_datum_tx)->datum_tx, bound_items);
+    return PyLong_FromLong(res);
 }
 PyObject *dap_chain_ledger_tx_remove_py(PyObject *self, PyObject *args){
     PyObject *obj_h_fast;
