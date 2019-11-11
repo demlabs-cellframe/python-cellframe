@@ -2,6 +2,7 @@
 #define _WRAPPING_DAP_CHAIN_CELL_
 #include "Python.h"
 #include "dap_chain_cell.h"
+#include "libdap-chain-python.h"
 
 #ifdef __cplusplus
 extern "C" {
