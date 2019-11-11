@@ -120,3 +120,25 @@ PyObject* py_m_dap_config_get_item_default(PyObject *self, PyObject *args){
     const char *res = dap_config_get_item_str_default(g_config, section_path, item_name, def);
     return Py_BuildValue("s", res);
 }
+
+PyObject *dapListToPyList(dap_list_t *list ){
+    unsigned int len = dap_list_length(list);
+    PyObject *obj = PyList_New((Py_ssize_t)len);
+    for (unsigned int l = 0; l <len; l++){
+        void *data = dap_list_nth_data(list, l);
+        PyObject *obj_data = PyBytes_FromString((const char*)data);
+        PyList_Append(obj, obj_data);
+    }
+    return obj;
+}
+
+dap_list_t *pyListToDapList(PyObject *list ){
+    Py_ssize_t len = PyList_Size(list);
+    dap_list_t *dap_list = dap_list_alloc();
+    for (Py_ssize_t i = 0; i < len; i++){
+        PyObject *obj = PyList_GetItem(list, i);
+        void *data = PyBytes_AsString(obj);
+        dap_list = dap_list_append(dap_list, data);
+    }
+    return dap_list;
+}
