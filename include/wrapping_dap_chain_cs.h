@@ -27,7 +27,7 @@ PyObject *dap_chain_cs_create_py(PyObject *self, PyObject *args);
 PyObject *dap_chain_class_add_py (PyObject *self, PyObject *args);
 PyObject *dap_chain_class_create_py(PyObject *self, PyObject *args);
 
-static PyMethodDef DapChainTypeMethods[] = {
+static PyMethodDef DapChainCSMethods[] = {
     {"csAdd", (PyCFunction)dap_chain_cs_add_py, METH_VARARGS, ""},
     {"csCreate", (PyCFunction)dap_chain_cs_create_py, METH_VARARGS, ""},
     {"classAdd", (PyCFunction)dap_chain_class_add_py, METH_VARARGS, ""},
@@ -57,14 +57,14 @@ static PyTypeObject DapChainCsObject_DapChainCsObjectType = {
     0,                               /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT |
         Py_TPFLAGS_BASETYPE,         /* tp_flags */
-    "Chain id object",           /* tp_doc */
+    "Chain cs object",           /* tp_doc */
     0,		                         /* tp_traverse */
     0,		                         /* tp_clear */
     0,		                         /* tp_richcompare */
     0,                               /* tp_weaklistoffset */
     0,		                         /* tp_iter */
     0,		                         /* tp_iternext */
-    0,                               /* tp_methods */
+    DapChainCSMethods,               /* tp_methods */
     0,                               /* tp_members */
     0,                               /* tp_getset */
     0,                               /* tp_base */
