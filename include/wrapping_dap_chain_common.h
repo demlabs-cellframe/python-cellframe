@@ -30,7 +30,7 @@ static PyMethodDef PyDapChainCommonObjectMethods[] ={
 
 static PyTypeObject ChainCommonObject_ChainCommonType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "CellFrame.ChainCommon",                                      /* tp_name */
+    "CellFrame.Chain.Common",                                      /* tp_name */
     sizeof(PyDapChainCommonObject),                               /* tp_basicsize */
     0,                                                            /* tp_itemsize */
     0,                                                            /* tp_dealloc */

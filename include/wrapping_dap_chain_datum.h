@@ -15,7 +15,7 @@ typedef struct PyDapChainDatumTypeId{
 
 static PyTypeObject DapChainDatumTypeIdObject_DapChainDatumTypeIdObjectType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "CellFrame.ChainDatumTypeId",          /* tp_name */
+    "CellFrame.Chain.DatumTypeId",          /* tp_name */
     sizeof(PyDapChainDatumTypeIdObject),   /* tp_basicsize */
     0,                               /* tp_itemsize */
     0,                               /* tp_dealloc */
@@ -66,7 +66,7 @@ PyObject *DapChainDatumObject_new(PyTypeObject *type_object, PyObject *args, PyO
 
 static PyTypeObject DapChainDatumObject_DapChainDatumObjectType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "CellFrame.ChainDatum",          /* tp_name */
+    "CellFrame.Chain.Datum",          /* tp_name */
     sizeof(PyDapChainDatumObject),   /* tp_basicsize */
     0,                               /* tp_itemsize */
     0,                               /* tp_dealloc */
@@ -115,7 +115,7 @@ typedef struct PyDapChainDatumIter{
 
 static PyTypeObject DapChainDatumIterObject_DapChainDatumIterObjectType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "CellFrame.ChainDatumIter",          /* tp_name */
+    "CellFrame.Chain.DatumIter",          /* tp_name */
     sizeof(PyDapChainDatumIterObject),   /* tp_basicsize */
     0,                               /* tp_itemsize */
     0,                               /* tp_dealloc */

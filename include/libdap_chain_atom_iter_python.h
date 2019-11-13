@@ -16,7 +16,7 @@ static PyMethodDef DapChainAtomIterMethods[] = {
 
 static PyTypeObject dapChainAtomPtr_dapChainAtomPtrType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "CellFrame.ChainAtomIter",     /* tp_name */
+    "CellFrame.Chain.AtomIter",     /* tp_name */
     sizeof(PyChainAtomIterObject),       /* tp_basicsize */
     0,                                  /* tp_itemsize */
     0,                                  /* tp_dealloc */

@@ -16,7 +16,7 @@ typedef struct PyDapChainId{
 
 static PyTypeObject DapChainIdObject_DapChainIdObjectType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "CellFrame.ChainID",             /* tp_name */
+    "CellFrame.Chain.ID",             /* tp_name */
     sizeof(PyDapChainIdObject),      /* tp_basicsize */
     0,                               /* tp_itemsize */
     0,                               /* tp_dealloc */
@@ -67,7 +67,7 @@ typedef struct PyDapChainCellId{
 
 static PyTypeObject DapChainCellIdObject_DapChainCellIdObjectType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "CellFrame.ChainCellID",             /* tp_name */
+    "CellFrame.Chain.CellID",             /* tp_name */
     sizeof(PyDapChainCellIdObject),      /* tp_basicsize */
     0,                               /* tp_itemsize */
     0,                               /* tp_dealloc */
@@ -118,7 +118,7 @@ typedef struct PyDapChainNodeAddr{
 
 static PyTypeObject DapChainNodeAddrObject_DapChainNodeAddrObjectType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "CellFrame.ChainNodeAddr",             /* tp_name */
+    "CellFrame.Chain.NodeAddr",             /* tp_name */
     sizeof(PyDapChainNodeAddrObject),      /* tp_basicsize */
     0,                               /* tp_itemsize */
     0,                               /* tp_dealloc */
@@ -174,7 +174,7 @@ typedef struct PyDapChainNetId{
 
 static PyTypeObject DapChainNetIdObject_DapChainNetIdObjectType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "CellFrame.ChainNetID",          /* tp_name */
+    "CellFrame.Chain.NetID",          /* tp_name */
     sizeof(PyDapChainNetIdObject),   /* tp_basicsize */
     0,                               /* tp_itemsize */
     0,                               /* tp_dealloc */
@@ -224,7 +224,7 @@ typedef struct PyDapChainHashSlow{
 
 static PyTypeObject DapChainHashSlowObject_DapChainHashSlowObjectType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "CellFrame.ChainHashSlow",       /* tp_name */
+    "CellFrame.Chain.HashSlow",       /* tp_name */
     sizeof(PyDapChainHashSlowObject),/* tp_basicsize */
     0,                               /* tp_itemsize */
     0,                               /* tp_dealloc */
@@ -275,7 +275,7 @@ typedef struct PyDapChainHashFast{
 
 static PyTypeObject DapChainHashFastObject_DapChainHashFastObjectType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "CellFrame.ChainHashFast",       /* tp_name */
+    "CellFrame.Chain.HashFast",       /* tp_name */
     sizeof(PyDapChainHashFastObject),/* tp_basicsize */
     0,                               /* tp_itemsize */
     0,                               /* tp_dealloc */
@@ -324,7 +324,7 @@ typedef struct PyDapChainHashSlowKind{
 
 static PyTypeObject DapChainHashSlowKindObject_DapChainHashSlowKindObjectType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "CellFrame.ChainHashSlowKind",       /* tp_name */
+    "CellFrame.Chain.HashSlowKind",       /* tp_name */
     sizeof(PyDapChainHashSlowKindObject),/* tp_basicsize */
     0,                               /* tp_itemsize */
     0,                               /* tp_dealloc */
@@ -373,7 +373,7 @@ typedef struct PyDapChainPkeyType{
 
 static PyTypeObject DapChainPkeyTypeObject_DapChainPkeyTypeObjectType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "CellFrame.ChainPkeyType",       /* tp_name */
+    "CellFrame.Chain.PkeyType",       /* tp_name */
     sizeof(PyDapChainPkeyTypeObject),/* tp_basicsize */
     0,                               /* tp_itemsize */
     0,                               /* tp_dealloc */
@@ -422,7 +422,7 @@ typedef struct PyDapChainPkey{
 
 static PyTypeObject DapChainPkeyObject_DapChainPkeyObjectType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "CellFrame.ChainPkey",       /* tp_name */
+    "CellFrame.Chain.Pkey",       /* tp_name */
     sizeof(PyDapChainPkeyObject),/* tp_basicsize */
     0,                               /* tp_itemsize */
     0,                               /* tp_dealloc */
@@ -471,7 +471,7 @@ typedef struct PyDapChainSignType{
 
 static PyTypeObject DapChainSignTypeObject_DapChainSignTypeObjectType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "CellFrame.ChainSignType",       /* tp_name */
+    "CellFrame.Chain.SignType",       /* tp_name */
     sizeof(PyDapChainSignTypeObject),/* tp_basicsize */
     0,                               /* tp_itemsize */
     0,                               /* tp_dealloc */
@@ -521,7 +521,7 @@ typedef struct PyDapChainAddr{
 
 static PyTypeObject DapChainAddrObject_DapChainAddrObjectType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "CellFrame.ChainAddr",       /* tp_name */
+    "CellFrame.Chain.Addr",       /* tp_name */
     sizeof(PyDapChainAddrObject),/* tp_basicsize */
     0,                               /* tp_itemsize */
     0,                               /* tp_dealloc */

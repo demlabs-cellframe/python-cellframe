@@ -40,7 +40,7 @@ static PyMethodDef PyDapChainTxItemTypeObjectMethods[] ={
 
 static PyTypeObject DapChainTxItemObject_DapChainTxItemTypeObjectType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "CellFrame.ChainTxItemType",        /* tp_name */
+    "CellFrame.Chain.TxItemType",        /* tp_name */
     sizeof(PyDapChainTxItemTypeObject), /* tp_basicsize */
     0,                                  /* tp_itemsize */
     0,                                  /* tp_dealloc */
@@ -90,7 +90,7 @@ typedef struct PyDapChainTxCondType{
 
 static PyTypeObject DapChainTxType_DapChainTxCondTypeObject = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "CellFrame.ChainTxCondType",       /* tp_name */
+    "CellFrame.Chain.TxCondType",       /* tp_name */
     sizeof(PyDapChainTxCondTypeObject),/* tp_basicsize */
     0,                               /* tp_itemsize */
     0,                               /* tp_dealloc */
@@ -165,7 +165,7 @@ static PyMethodDef PyDapChainDatumTxObjectMethods[] ={
 
 static PyTypeObject DapChainDatumTx_DapChainDatumTxObjectType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "CellFrame.ChainDatumTx",                      /* tp_name */
+    "CellFrame.Chain.DatumTx",                      /* tp_name */
     sizeof(PyDapChainDatumTxObject),               /* tp_basicsize */
     0,                                             /* tp_itemsize */
     (destructor)PyDapChainDatumTxObject_delete,    /* tp_dealloc */
@@ -214,7 +214,7 @@ typedef struct PyDapChainTxOutCond{
 
 static PyTypeObject DapChainTxOutCond_DapChainTxOutCondObjectType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "CellFrame.ChainTxOutCond",                      /* tp_name */
+    "CellFrame.Chain.TxOutCond",                      /* tp_name */
     sizeof(PyDapChainTxOutCondObject),               /* tp_basicsize */
     0,                                             /* tp_itemsize */
     0,                                             /* tp_dealloc */
