@@ -55,3 +55,6 @@
 [submodule "libdap-server-udp"]
 	path = libdap-server-udp
 	url = https://gitlab.demlabs.net/cellframe/libdap-server-udp.git
+[submodule "libdap-chain-python"]
+	path = libdap-chain-python
+	url = https://gitlab.demlabs.net/cellframe/libdap-chain-python.git
