@@ -5,6 +5,7 @@ set(CMAKE_VERBOSE_MAKEFILE ON)
 set(CMAKE_COLOR_MAKEFILE   ON)
 set(CMAKE_C_STANDARD 11)
 add_definitions("-fpic")
+add_definitions("-DDAP_LOG_MT")
 
 add_definitions ("-DNODE_NETNAME=\"cellframe\"")
 if(UNIX)
@@ -160,9 +161,20 @@ if (NOT (${SUBMODULES_NO_BUILD} MATCHES ON))
             "-fpic"
        )
    endif()
-#    if (NOT (TARGET dap_chain_net_srv_vpn))
-#        add_subdirectory(libdap-chain-net-srv-vpn)
-#    endif()
+    if (NOT (TARGET dap_chain_net_srv_vpn))
+        add_subdirectory(libdap-chain-net-srv-vpn)
+        target_compile_options(
+             dap_chain_net_srv_vpn PRIVATE
+             "-fpic"
+        )
+    endif()
+    if (NOT (TARGET dap_server_http_db))
+        add_subdirectory(libdap-server-http-db)
+        target_compile_options(
+             dap_server_http_db PRIVATE
+             "-fpic"
+        )
+    endif()
 endif()
 #add_definitions("-DDAP_APP_NAME=\"TestPRJ\" -DSYSTEM_CONFIGS_DIR=\"${CMAKE_CURRENT_BINARY_DIR}\"")
 
