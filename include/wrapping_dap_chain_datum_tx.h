@@ -23,7 +23,7 @@ PyObject *TX_ITEM_TYPE_SIG_PY(void);
 PyObject *TX_ITEM_TYPE_TOKEN_PY(void);
 PyObject *TX_ITEM_TYPE_IN_COND_PY(void);
 PyObject *TX_ITEM_TYPE_OUT_COND_PY(void);
-PyObject *TX_ITEM_TYPE_OUT_SERVICE_RECEIPT_PY(void);
+PyObject *TX_ITEM_TYPE_RECEIPT_PY(void);
 
 static PyMethodDef PyDapChainTxItemTypeObjectMethods[] ={
     {"TX_ITEM_TYPE_IN", (PyCFunction)TX_ITEM_TYPE_IN_PY, METH_NOARGS | METH_STATIC, ""},
@@ -33,7 +33,7 @@ static PyMethodDef PyDapChainTxItemTypeObjectMethods[] ={
     {"TX_ITEM_TYPE_TOKEN", (PyCFunction)TX_ITEM_TYPE_TOKEN_PY, METH_NOARGS | METH_STATIC, ""},
     {"TX_ITEM_TYPE_IN_COND", (PyCFunction)TX_ITEM_TYPE_IN_COND_PY, METH_NOARGS | METH_STATIC, ""},
     {"TX_ITEM_TYPE_OUT_COND", (PyCFunction)TX_ITEM_TYPE_OUT_COND_PY, METH_NOARGS | METH_STATIC, ""},
-    {"TX_ITEM_TYPE_OUT_SERVICE_RECEIPT", (PyCFunction)TX_ITEM_TYPE_OUT_SERVICE_RECEIPT_PY,
+    {"TX_ITEM_TYPE_RECEIPT", (PyCFunction)TX_ITEM_TYPE_RECEIPT_PY,
                                                             METH_NOARGS | METH_STATIC, ""},
     {NULL, NULL, 0, NULL}
 };

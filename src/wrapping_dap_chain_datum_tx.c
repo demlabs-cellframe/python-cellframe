@@ -23,8 +23,8 @@ PyObject *TX_ITEM_TYPE_IN_COND_PY(void){
 PyObject *TX_ITEM_TYPE_OUT_COND_PY(void){
         return PyLong_FromLong(TX_ITEM_TYPE_OUT_COND);
 }
-PyObject *TX_ITEM_TYPE_OUT_SERVICE_RECEIPT_PY(void){
-        return PyLong_FromLong(TX_ITEM_TYPE_OUT_SERVICE_RECEIPT);
+PyObject *TX_ITEM_TYPE_RECEIPT_PY(void){
+        return PyLong_FromLong(TX_ITEM_TYPE_RECEIPT);
 }
 
 /* -------------------------------------- */
