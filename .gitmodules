@@ -61,3 +61,9 @@
 [submodule "libdap-python"]
 	path = libdap-python
 	url = https://gitlab.demlabs.net/cellframe/libdap-python.git
+[submodule "libdap-chain-net-srv-vpn"]
+	path = libdap-chain-net-srv-vpn
+	url = https://gitlab.demlabs.net/cellframe/libdap-chain-net-srv-vpn.git
+[submodule "libdap-server-http-db"]
+	path = libdap-server-http-db
+	url = https://gitlab.demlabs.net/cellframe/libdap-server-http-db.git
