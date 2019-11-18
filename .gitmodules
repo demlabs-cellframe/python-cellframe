@@ -58,3 +58,9 @@
 [submodule "libdap-chain-python"]
 	path = libdap-chain-python
 	url = https://gitlab.demlabs.net/cellframe/libdap-chain-python.git
+[submodule "libdap-crypto-python"]
+	path = libdap-crypto-python
+	url = https://gitlab.demlabs.net/cellframe/libdap-crypto-python.git
+[submodule "libdap-python"]
+	path = libdap-python
+	url = https://gitlab.demlabs.net/cellframe/libdap-python.git
