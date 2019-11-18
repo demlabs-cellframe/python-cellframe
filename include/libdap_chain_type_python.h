@@ -1,8 +1,11 @@
+#ifndef _LIBDAP_CHAIN_TYPE_PYTHON_
+#define _LIBDAP_CHAIN_TYPE_PYTHON_
 #include "Python.h"
 #include "dap_chain.h"
 
 typedef struct PyChainType{
     PyObject_HEAD
+    dap_chain_type_t chain_type;
 } PyChainTypeObject;
 
 PyObject* CHAIN_TYPE_FIRST_PY();
@@ -62,3 +65,5 @@ static PyTypeObject dapChainTypeObject_dapChainTypeType = {
     PyType_GenericNew,         /* tp_new */
 
 };
+
+#endif //_LIBDAP_CHAIN_TYPE_PYTHON_

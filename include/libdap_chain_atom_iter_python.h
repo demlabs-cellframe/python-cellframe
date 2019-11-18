@@ -1,3 +1,5 @@
+#ifndef _LIBDAP_CHAIN_ATOM_ITER_PYTHON_
+#define _LIBDAP_CHAIN_ATOM_ITER_PYTHON_
 #include "Python.h"
 #include "dap_chain.h"
 
@@ -60,3 +62,5 @@ static PyTypeObject dapChainAtomPtr_dapChainAtomPtrType = {
 #ifdef __cplusplus
 }
 #endif
+
+#endif //_LIBDAP_CHAIN_ATOM_ITER_PYTHON_

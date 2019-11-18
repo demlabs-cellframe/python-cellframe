@@ -1,3 +1,6 @@
+#ifndef _WRAPPING_DAP_CHAIN_DATUM_TOKEN_
+#define _WRAPPING_DAP_CHAIN_DATUM_TOKEN_
+
 #include "Python.h"
 #include "dap_chain_datum_token.h"
 
@@ -102,3 +105,5 @@ static PyTypeObject DapChainDatumTokenEmission_DapChainDatumTokenEmissionObjectT
 };
 
 /* ------------------------------------------- */
+
+#endif //_WRAPPING_DAP_CHAIN_DATUM_TOKEN_
