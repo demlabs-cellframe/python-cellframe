@@ -5,6 +5,7 @@
 
 typedef struct PyChainType{
     PyObject_HEAD
+    dap_chain_type_t chain_type;
 } PyChainTypeObject;
 
 PyObject* CHAIN_TYPE_FIRST_PY();
