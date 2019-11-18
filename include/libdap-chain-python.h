@@ -1,3 +1,6 @@
+#ifndef _LIBDAP_CHAIN_PYTHON_
+#define _LIBDAP_CHAIN_PYTHON_
+
 #define PY_SSIZE_T_CLEAN
 
 //#define DAP_APP_NAME NODE_NETNAME "-node"
@@ -98,4 +101,4 @@ static PyTypeObject dapChainObject_dapChainType = {
 }
 #endif
 
-
+#endif //_LIBDAP_CHAIN_PYTHON_

@@ -1,3 +1,6 @@
+#ifndef _WRAPPING_DAP_CHAIN_COMMON_
+#define _WRAPPING_DAP_CHAIN_COMMON_
+
 #include "Python.h"
 #include "dap_chain_common.h"
 #include "wrapping_dap_chain_common_objects.h"
@@ -74,3 +77,5 @@ static PyTypeObject ChainCommonObject_ChainCommonType = {
 #ifdef __cplusplus
 }
 #endif
+
+#endif //_WRAPPING_DAP_CHAIN_COMMON_

@@ -1,3 +1,6 @@
+#ifndef _WRAPPING_DAP_CHAIN_LEDGER_
+#define _WRAPPING_DAP_CHAIN_LEDGER_
+
 #include "Python.h"
 #include "dap_chain_ledger.h"
 #include "wrapping_dap_chain_common_objects.h"
@@ -122,3 +125,5 @@ static size_t *ListIntToSizeT(PyObject *list);
 #ifdef __cplusplus
 }
 #endif
+
+#endif //_WRAPPING_DAP_CHAIN_LEDGER_

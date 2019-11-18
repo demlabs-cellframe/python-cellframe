@@ -1,3 +1,5 @@
+#ifndef _LIBDAP_CHAIN_TYPE_PYTHON_
+#define _LIBDAP_CHAIN_TYPE_PYTHON_
 #include "Python.h"
 #include "dap_chain.h"
 
@@ -62,3 +64,5 @@ static PyTypeObject dapChainTypeObject_dapChainTypeType = {
     PyType_GenericNew,         /* tp_new */
 
 };
+
+#endif //_LIBDAP_CHAIN_TYPE_PYTHON_
