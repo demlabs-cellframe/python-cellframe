@@ -4,6 +4,9 @@
 #include <Python.h>
 #include "dap_config.h"
 #include "dap_chain_node_cli.h"
+#include "dap_chain_node_cli_cmd.h"
+#include "wrapping_dap_chain_common_objects.h"
+#include "wrapping_dap_chain_net_node.h"
 
 #ifdef __cplusplus
 extern "C"{
@@ -23,9 +26,12 @@ PyObject *DapChainNodeCliObject_new(PyTypeObject *type_object, PyObject *args, P
 PyObject *dap_chain_node_cli_cmd_item_create_py(PyObject *self, PyObject *args);
 PyObject *dap_chain_node_cli_set_reply_text_py(PyObject *self, PyObject *args);
 
+PyObject *dap_chain_node_addr_get_by_alias_py(PyObject *self, PyObject *args);
+
 static PyMethodDef DapChainNodeCliMethods[] = {
     {"cmdItemCreate", dap_chain_node_cli_cmd_item_create_py, METH_VARARGS, ""},
     {"setReplyText", dap_chain_node_cli_set_reply_text_py, METH_VARARGS, ""},
+    {"getByAlias", dap_chain_node_addr_get_by_alias_py, METH_VARARGS | METH_STATIC, ""},
     {NULL, NULL, 0, NULL}
 };
 

@@ -59,6 +59,16 @@ PyObject *dap_chain_node_cli_set_reply_text_py(PyObject *self, PyObject *args){
     return PyLong_FromLong(0);
 }
 
+PyObject *dap_chain_node_addr_get_by_alias_py(PyObject *self, PyObject *args){
+    PyObject *chain_net;
+    const char *alias;
+    if (!PyArg_ParseTuple(args, "O|s", &chain_net, &alias))
+        return NULL;
+    PyObject *obj_node_addr = _PyObject_New(&DapChainNodeAddrObject_DapChainNodeAddrObjectType);
+    ((PyDapChainNodeAddrObject*)obj_node_addr)->node_addr = dap_chain_node_addr_get_by_alias(((PyDapChainNetObject*)chain_net)->chain_net, alias);
+    return Py_BuildValue("O", obj_node_addr);
+}
+
 char **PyListToString(PyObject *list){
     Py_ssize_t size = PyList_Size(list);
     char **res = calloc(sizeof(char**), (size_t)size);
