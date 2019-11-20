@@ -10,6 +10,115 @@ add_subdirectory(libdap)
 add_subdirectory(libdap-python)
 add_subdirectory(libdap-crypto-python)
 add_subdirectory(libdap-server-core-python)
+add_subdirectory(libdap-chain)
+
+    #add_subdirectory(libdap-chain)
+    #target_compile_options(
+    #     dap_chain PRIVATE
+    #     "-fpic"
+    #)
+
+    add_subdirectory(libdap-chain-crypto)
+    target_compile_options(
+         dap_chain_crypto PRIVATE
+         "-fpic"
+    )
+    add_subdirectory(libdap-chain-mempool)
+    target_compile_options(
+         dap_chain_mempool PRIVATE
+         "-fpic"
+    )
+    add_subdirectory(libdap-chain-net)
+    target_compile_options(
+         dap_chain_net PRIVATE
+         "-fpic"
+    )
+    add_subdirectory(libdap-server-core)
+    target_compile_options(
+         dap_server_core PRIVATE
+         "-fpic"
+    )
+    add_subdirectory(libdap-chain-global-db)
+    target_compile_options(
+         dap_chain_global_db PRIVATE
+         "-fpic"
+    )
+    add_subdirectory(libdap-client)
+    target_compile_options(
+         dap_client PRIVATE
+         "-fpic"
+    )
+    add_subdirectory(libdap-server)
+#       target_compile_options(
+#            libdap-server PRIVATE
+#            "-fpic"
+#       )
+    add_subdirectory(libdap-stream)
+    target_compile_options(
+         dap_stream PRIVATE
+         "-fpic"
+    )
+    add_subdirectory(libdap-stream-ch)
+    target_compile_options(
+         dap_stream_ch PRIVATE
+          "-fpic"
+    )
+    add_subdirectory(libdap-stream-ch-chain)
+    target_compile_options(
+         dap_stream_ch_chain PRIVATE
+         "-fpic"
+    )
+    add_subdirectory(libdap-stream-ch-chain-net)
+    target_compile_options(
+         dap_stream_ch_chain_net PRIVATE
+         "-fpic"
+    )
+    add_subdirectory(libdap-server-udp)
+    target_compile_options(
+         dap_udp_server PRIVATE
+         "-fpic"
+    )
+    add_subdirectory(libdap-chain-wallet)
+    target_compile_options(
+         dap_chain_wallet PRIVATE
+         "-fpic"
+    )
+    add_subdirectory(libdap-chain-net-srv)
+    target_compile_options(
+         dap_chain_net_srv PRIVATE
+         "-fpic"
+    )
+    add_subdirectory(libdap-server-http-db-auth)
+    target_compile_options(
+         dap_server_http_db_auth PRIVATE
+         "-fpic"
+    )
+    add_subdirectory(libdap-chain-gdb)
+    target_compile_options(
+         dap_chain_gdb PRIVATE
+         "-fpic"
+    )
+#    add_subdirectory(libdap-python)
+#    target_compile_options(
+#         dap_python_module PRIVATE
+#         "-fpic"
+#    )
+#    add_subdirectory(libdap-crypto-python)
+#    target_compile_options(
+#         dap_crypto_python_module PRIVATE
+#         "-fpic"
+#    )
+     add_subdirectory(libdap-chain-net-srv-vpn)
+     target_compile_options(
+          dap_chain_net_srv_vpn PRIVATE
+          "-fpic"
+     )
+     #add_subdirectory(libdap-server-http-db)
+     #target_compile_options(
+     #     dap_server_http_db PRIVATE
+     #     "-fpic"
+     #)
+add_subdirectory(libdap-chain-python)
 #add_subdirectory(libdap)
 #add_subdirectory(libdap-crypto)
 
