@@ -22,9 +22,15 @@ if(NOT (${SUBMODULES_NO_BUILD} MATCHES ON))
            "-fpic"
        )
     endif()
+    if (NOT (TARGET dap-server-core))
+       add_subdirectory(libdap-server-core)
+       target_compile_options(
+           dap_server_core PRIVATE
+           "-fpic"
+       )
+    endif()
 endif()
 
-add_subdirectory(libdap-server-core)
 
 
 file(GLOB SERVER_CORE_PYTHON_SRCS src/*.c)
@@ -38,10 +44,6 @@ add_library(${PROJECT_NAME} STATIC ${SERVER_CORE_PYTHON_SRCS} ${SERVER_CORE_PYTH
 
 target_link_libraries(${PROJECT_NAME})
 
-target_compile_options(
-    dap_server_core PRIVATE
-    "-fpic"
-)
 
 target_link_libraries(${PROJECT_NAME} dap_core dap_crypto dap_server_core)
 
