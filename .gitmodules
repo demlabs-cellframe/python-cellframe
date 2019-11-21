@@ -73,3 +73,6 @@
 [submodule "libdap-stream-ch-chain-net"]
 	path = libdap-stream-ch-chain-net
 	url = https://gitlab.demlabs.net/cellframe/libdap-stream-ch-chain-net.git
+[submodule "libdap-server-http-db"]
+	path = libdap-server-http-db
+	url = http://gitlab.demlabs.net/cellframe/libdap-server-http-db.git
