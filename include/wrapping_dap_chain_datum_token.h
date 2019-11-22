@@ -4,6 +4,10 @@
 #include "Python.h"
 #include "dap_chain_datum_token.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* DAP chain datum token */
 
 typedef struct PyDapChainDatumToken{
@@ -105,5 +109,9 @@ static PyTypeObject DapChainDatumTokenEmission_DapChainDatumTokenEmissionObjectT
 };
 
 /* ------------------------------------------- */
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif //_WRAPPING_DAP_CHAIN_DATUM_TOKEN_

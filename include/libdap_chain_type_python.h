@@ -3,6 +3,10 @@
 #include "Python.h"
 #include "dap_chain.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct PyChainType{
     PyObject_HEAD
     dap_chain_type_t chain_type;
@@ -65,5 +69,9 @@ static PyTypeObject dapChainTypeObject_dapChainTypeType = {
     PyType_GenericNew,         /* tp_new */
 
 };
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif //_LIBDAP_CHAIN_TYPE_PYTHON_
