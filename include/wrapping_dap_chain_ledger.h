@@ -75,7 +75,7 @@ static PyMethodDef DapChainLedgerMethods[] = {
     {NULL, NULL, 0, NULL}
 };
 
-PyTypeObject DapChainLedger_DapChainLedgerType = {
+static PyTypeObject DapChainLedger_DapChainLedgerType = {
     PyVarObject_HEAD_INIT(NULL, 0)
     "CellFrame.Chain.Ledger",                                      /* tp_name */
     sizeof(PyDapChainLedgerObject),                               /* tp_basicsize */
