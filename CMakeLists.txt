@@ -118,6 +118,7 @@ endif()
 target_link_libraries(${PROJECT_NAME} dap_python_module 
                       dap_crypto_python_module 
                       DapServerCore
+                     dap_chain_python_module
                      )
 #target_link_libraries(${PROJECT_NAME} dap_core dap_crypto)
 
