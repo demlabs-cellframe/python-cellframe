@@ -101,6 +101,11 @@ static PyObject *python_cellframe_init(PyObject *self, PyObject *args){
                                                  "Fields thread_cnt and conn are not numerical or absent.");
                 return NULL;
             }
+            if (dap_chain_cs_init_py() != 0){
+                PyErr_SetString(CellFrame_error, "Failed to initialize Chain CS. "
+                                                 "Fields thread_cnt and conn are not numerical or absent.");
+                return NULL;
+            }
         }
     }
     return PyLong_FromLong(0);
@@ -119,6 +124,15 @@ PyMODINIT_FUNC PyInit_CellFrame(void){
             PyType_Ready(&dapChainAtomPtr_dapChainAtomPtrType) < 0 ||
             PyType_Ready(&DapChainCell_DapChainCellObjectType) < 0 ||
             PyType_Ready(&ChainCommonObject_ChainCommonType) < 0 ||
+
+            PyType_Ready(&DapChainIdObject_DapChainIdObjectType) < 0 ||
+            PyType_Ready(&DapChainCellIdObject_DapChainCellIdObjectType) < 0 ||
+            PyType_Ready(&DapChainNodeAddrObject_DapChainNodeAddrObjectType) < 0 ||
+            PyType_Ready(&DapChainHashSlowObject_DapChainHashSlowObjectType) < 0 ||
+            PyType_Ready(&DapChainHashFastObject_DapChainHashFastObjectType) < 0 ||
+            PyType_Ready(&DapChainHashSlowKindObject_DapChainHashSlowKindObjectType) < 0 ||
+            PyType_Ready(&DapChainAddrObject_DapChainAddrObjectType) < 0 ||
+
             PyType_Ready(&DapChainCsObject_DapChainCsObjectType) < 0 ||
             PyType_Ready(&DapChainDatumTypeIdObject_DapChainDatumTypeIdObjectType) < 0 ||
             PyType_Ready(&DapChainDatumObject_DapChainDatumObjectType) < 0 ||
@@ -128,8 +142,8 @@ PyMODINIT_FUNC PyInit_CellFrame(void){
             PyType_Ready(&DapChainTxItemObject_DapChainTxItemTypeObjectType) < 0 ||
             PyType_Ready(&DapChainTxType_DapChainTxCondTypeObject) < 0 ||
             PyType_Ready(&DapChainDatumTx_DapChainDatumTxObjectType) < 0 ||
-            PyType_Ready(&DapChainTxOutCond_DapChainTxOutCondObjectType) < 0
-//            PyType_Ready(&DapChainLedger_DapChainLedgerType) < 0
+            PyType_Ready(&DapChainTxOutCond_DapChainTxOutCondObjectType) < 0 ||
+            PyType_Ready(&DapChainLedger_DapChainLedgerType) < 0
             // =============
             )
                return NULL;
@@ -163,6 +177,16 @@ PyMODINIT_FUNC PyInit_CellFrame(void){
     PyModule_AddObject(module, "ChainAtomIter", (PyObject*)&dapChainAtomPtr_dapChainAtomPtrType);
     PyModule_AddObject(module, "ChainCell", (PyObject*)&DapChainCell_DapChainCellObjectType);
     PyModule_AddObject(module, "ChainCommon", (PyObject*)&ChainCommonObject_ChainCommonType);
+
+    PyModule_AddObject(module, "ChainID", (PyObject*)&DapChainIdObject_DapChainIdObjectType);
+    PyModule_AddObject(module, "ChainCellID", (PyObject*)&DapChainCellIdObject_DapChainCellIdObjectType);
+    PyModule_AddObject(module, "ChainNodeAddr", (PyObject*)&DapChainNodeAddrObject_DapChainNodeAddrObjectType);
+//    PyModule_AddObject(module, "ChainNetID", (PyObject*)&DapChainNetIdObject_DapChainNetIdObjectType);
+    PyModule_AddObject(module, "ChainHashSlow", (PyObject*)&DapChainHashSlowObject_DapChainHashSlowObjectType);
+    PyModule_AddObject(module, "ChainHashFast", (PyObject*)&DapChainHashFastObject_DapChainHashFastObjectType);
+    PyModule_AddObject(module, "ChainHashSlowKind", (PyObject*)&DapChainHashSlowKindObject_DapChainHashSlowKindObjectType);
+    PyModule_AddObject(module, "ChainAddr", (PyObject*)&DapChainAddrObject_DapChainAddrObjectType);
+
     PyModule_AddObject(module, "ChainCS", (PyObject*)&DapChainCsObject_DapChainCsObjectType);
     PyModule_AddObject(module, "ChainDatumTypeID", (PyObject*)&DapChainDatumTypeIdObject_DapChainDatumTypeIdObjectType);
     PyModule_AddObject(module, "ChainDatum", (PyObject*)&DapChainDatumObject_DapChainDatumObjectType);
@@ -173,7 +197,7 @@ PyMODINIT_FUNC PyInit_CellFrame(void){
     PyModule_AddObject(module, "ChainTxCondType", (PyObject*)&DapChainTxType_DapChainTxCondTypeObject);
     PyModule_AddObject(module, "ChainDatumTx", (PyObject*)&DapChainDatumTx_DapChainDatumTxObjectType);
     PyModule_AddObject(module, "ChainTxOutCond", (PyObject*)&DapChainTxOutCond_DapChainTxOutCondObjectType);
-//    PyModule_AddObject(module, "ChainLedger", (PyObject*)&DapChainLedger_DapChainLedgerType);
+    PyModule_AddObject(module, "ChainLedger", (PyObject*)&DapChainLedger_DapChainLedgerType);
     // =============
 
 
@@ -187,6 +211,7 @@ static PyObject *python_cellframe_deinit(PyObject *self, PyObject *args){
         dap_crypto_deinit();
     if (init_chain){
         deinit_chain_py();
+        dap_chain_cs_deinit_py();
     }
     return PyLong_FromLong(0);
 }
