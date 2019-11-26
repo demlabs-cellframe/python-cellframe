@@ -1,0 +1,24 @@
+[submodule "libdap"]
+	path = libdap
+	url = https://gitlab.demlabs.net/cellframe/libdap.git
+[submodule "libdap-crypto"]
+	path = libdap-crypto
+	url = https://gitlab.demlabs.net/cellframe/libdap-crypto.git
+[submodule "libdap-server"]
+	path = libdap-server
+	url = https://gitlab.demlabs.net/cellframe/libdap-server.git
+[submodule "libdap-server-core"]
+	path = libdap-server-core
+	url = https://gitlab.demlabs.net/cellframe/libdap-server-core.git
+[submodule "libdap-server-udp"]
+	path = libdap-server-udp
+	url = https://gitlab.demlabs.net/cellframe/libdap-server-udp.git
+[submodule "libdap-stream"]
+	path = libdap-stream
+	url = https://gitlab.demlabs.net/cellframe/libdap-stream.git
+[submodule "libdap-stream-ch"]
+	path = libdap-stream-ch
+	url = https://gitlab.demlabs.net/cellframe/libdap-stream-ch.git
+[submodule "libdap-client"]
+	path = libdap-client
+	url = https://gitlab.demlabs.net/cellframe/libdap-client.git
