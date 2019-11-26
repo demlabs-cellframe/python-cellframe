@@ -66,11 +66,14 @@ PyObject *dap_chain_ledger_token_emission_find_py(PyObject *self, PyObject *args
     return Py_BuildValue("O", &token_emission);
 }
 PyObject *dap_chain_ledger_tx_get_token_ticker_by_hash_py(PyObject *self, PyObject *args){
-    PyObject *obj_tx_hash;
-    if (!PyArg_ParseTuple(args, "O", &obj_tx_hash))
-        return NULL;
-    const char *res = dap_chain_ledger_tx_get_token_ticker_by_hash(((PyDapChainHashFastObject*)obj_tx_hash)->hash_fast);
-    return Py_BuildValue("s", res);
+    //TODO
+    //Missing implementation of dap_chain_ledger_tx_get_token_ticker_by_hash function in dap_chain_ledger
+    return NULL;
+//    PyObject *obj_tx_hash;
+//    if (!PyArg_ParseTuple(args, "O", &obj_tx_hash))
+//        return NULL;
+//    const char *res = dap_chain_ledger_tx_get_token_ticker_by_hash(((PyDapChainHashFastObject*)obj_tx_hash)->hash_fast);
+//    return Py_BuildValue("s", res);
 }
 PyObject *dap_chain_ledger_addr_get_token_ticker_all_py(PyObject *self, PyObject *args){
     PyObject *obj_addr;
@@ -118,19 +121,22 @@ PyObject *dap_chain_ledger_tx_cache_check_py(PyObject *self, PyObject *args){
     return PyLong_FromLong(res);
 }
 PyObject *dap_chain_node_datum_tx_cache_check_py(PyObject *self, PyObject *args){
-    PyObject *obj_datum_tx;
-    PyObject *list_bound_items;
-    if (!PyArg_ParseTuple(args, "O|O", &obj_datum_tx, &list_bound_items))
-        return NULL;
-    Py_ssize_t size = PyList_Size(list_bound_items);
-    dap_list_t **bound_items = calloc(sizeof (dap_list_t**), (size_t)size);
-    for (int i = 0; i < size ; i++){
-        PyObject *obj = PyList_GetItem(list_bound_items, i);
-        dap_list_t *l = pyListToDapList(obj);
-        bound_items[i] = l;
-    }
-    int res = dap_chain_node_datum_tx_cache_check(((PyDapChainDatumTxObject*)obj_datum_tx)->datum_tx, bound_items);
-    return PyLong_FromLong(res);
+    //TODO
+    //Missing implementation of dap_chain_node_datum_tx_cache_check function in dap_chain_ledger
+    return NULL;
+//    PyObject *obj_datum_tx;
+//    PyObject *list_bound_items;
+//    if (!PyArg_ParseTuple(args, "O|O", &obj_datum_tx, &list_bound_items))
+//        return NULL;
+//    Py_ssize_t size = PyList_Size(list_bound_items);
+//    dap_list_t **bound_items = calloc(sizeof (dap_list_t**), (size_t)size);
+//    for (int i = 0; i < size ; i++){
+//        PyObject *obj = PyList_GetItem(list_bound_items, i);
+//        dap_list_t *l = pyListToDapList(obj);
+//        bound_items[i] = l;
+//    }
+//    int res = dap_chain_node_datum_tx_cache_check(((PyDapChainDatumTxObject*)obj_datum_tx)->datum_tx, bound_items);
+//    return PyLong_FromLong(res);
 }
 PyObject *dap_chain_ledger_tx_remove_py(PyObject *self, PyObject *args){
     PyObject *obj_h_fast;
