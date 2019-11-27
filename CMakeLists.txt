@@ -4,53 +4,171 @@ cmake_minimum_required(VERSION 2.8)
 set(CMAKE_VERBOSE_MAKEFILE ON)
 set(CMAKE_COLOR_MAKEFILE   ON)
 set(CMAKE_C_STANDARD 11)
-set(SUBMODULES_NO_BUILD ON)
 add_definitions("-fpic")
-
-#if(NOT (${SUBMODULES_NO_BUILD} MATCHES ON))
-#    if (NOT (TARGET dap_core))
-        add_subdirectory(libdap)
-#        target_compile_options(
-#            dap_core PRIVATE 
-#            "-fpic"
-#        )
-#    endif()
-#    if (NOT (TARGET dap_crypto))
-#        add_subdirectory(libdap-crypto)
-#        target_compile_options(
-#            dap_crypto PRIVATE
-#            "-fpic"
- #       )
- #   endif()
-#endif()
-#add_definitions("-DDAP_APP_NAME=\"TestPRJ\" -DSYSTEM_CONFIGS_DIR=\"${CMAKE_CURRENT_BINARY_DIR}\"")
 add_definitions ("-DNODE_NETNAME=\"cellframe\"")
+
 if(UNIX)
     add_definitions("-DDAP_OS_UNIX")
 endif()
 
-add_subdirectory(libdap-crypto)
-add_subdirectory(libdap-chain)
-add_subdirectory(libdap-chain-crypto)
-add_subdirectory(libdap-chain-mempool)
-add_subdirectory(libdap-chain-net)
-add_subdirectory(libdap-server-core)
-add_subdirectory(libdap-chain-global-db)
-add_subdirectory(libdap-client)
-add_subdirectory(libdap-server)
-add_subdirectory(libdap-stream)
-add_subdirectory(libdap-stream-ch)
-add_subdirectory(libdap-server-udp)
-add_subdirectory(libdap-stream-ch-chain-net)
-add_subdirectory(libdap-stream-ch-chain)
-add_subdirectory(libdap-chain-wallet)
-add_subdirectory(libdap-chain-net-srv)
-add_subdirectory(libdap-chain-net-srv-vpn)
-add_subdirectory(libdap-chain-gdb)
-add_subdirectory(libdap-chain-python)
-add_subdirectory(libdap-crypto-python)
-add_subdirectory(libdap-python)
-add_subdirectory(libdap-client-python)
+if(NOT (${SUBMODULES_NO_BUILD} MATCHES ON))
+    set (SUBMODULES_NO_BUILD ON)
+    if (NOT (TARGET dap_core))
+        add_subdirectory(libdap)
+        target_compile_options(
+            dap_core PRIVATE
+            "-fpic"
+        )
+    endif()
+    if (NOT (TARGET dap_crypto))
+        add_subdirectory(libdap-crypto)
+        target_compile_options(
+            dap_crypto PRIVATE
+            "-fpic"
+       )
+   endif()
+   if (NOT (TARGET dap_chain))
+       add_subdirectory(libdap-chain)
+       target_compile_options(
+            dap_chain PRIVATE
+            "-fpic"
+       )
+   endif()
+   if (NOT (TARGET dap_chain_crypto))
+       add_subdirectory(libdap-chain-crypto)
+       target_compile_options(
+            dap_chain_crypto PRIVATE
+            "-fpic"
+       )
+   endif()
+   if (NOT (TARGET dap_chain_mempool))
+       add_subdirectory(libdap-chain-mempool)
+       target_compile_options(
+            dap_chain_mempool PRIVATE
+            "-fpic"
+       )
+   endif()
+   if (NOT (TARGET dap_chain_net))
+       add_subdirectory(libdap-chain-net)
+       target_compile_options(
+            dap_chain_net PRIVATE
+            "-fpic"
+       )
+   endif()
+   if (NOT (TARGET dap_server_core))
+       add_subdirectory(libdap-server-core)
+       target_compile_options(
+            dap_server_core PRIVATE
+            "-fpic"
+       )
+   endif()
+   if (NOT (TARGET dap_chain_global_db))
+       add_subdirectory(libdap-chain-global-db)
+       target_compile_options(
+            dap_chain_global_db PRIVATE
+            "-fpic"
+       )
+   endif()
+   if (NOT (TARGET dap_client))
+       add_subdirectory(libdap-client)
+       target_compile_options(
+            dap_client PRIVATE
+            "-fpic"
+       )
+   endif()
+   if (NOT (TARGET libdap-server))
+       add_subdirectory(libdap-server)
+#       target_compile_options(
+#            libdap-server PRIVATE
+#            "-fpic"
+#       )
+   endif()
+   if (NOT (TARGET dap_stream))
+       add_subdirectory(libdap-stream)
+       target_compile_options(
+            dap_stream PRIVATE
+            "-fpic"
+       )
+   endif()
+   if (NOT (TARGET dap_stream_ch))
+       add_subdirectory(libdap-stream-ch)
+       target_compile_options(
+            dap_stream_ch PRIVATE
+             "-fpic"
+       )
+   endif()
+   if (NOT (TARGET dap_stream_ch_chain))
+       add_subdirectory(libdap-stream-ch-chain)
+       target_compile_options(
+            dap_stream_ch_chain PRIVATE
+            "-fpic"
+       )
+   endif()
+   if (NOT (TARGET dap_stream_ch_chain_net))
+       add_subdirectory(libdap-stream-ch-chain-net)
+       target_compile_options(
+            dap_stream_ch_chain_net PRIVATE
+            "-fpic"
+       )
+   endif()
+   if (NOT (TARGET dap_udp_server))
+       add_subdirectory(libdap-server-udp)
+       target_compile_options(
+            dap_udp_server PRIVATE
+            "-fpic"
+       )
+   endif()
+   if (NOT (TARGET dap_chain_net_srv))
+       add_subdirectory(libdap-chain-net-srv)
+       target_compile_options(
+            dap_chain_net_srv PRIVATE
+            "-fpic"
+       )
+   endif()
+   if (NOT (TARGET dap_chain_wallet))
+       add_subdirectory(libdap-chain-wallet)
+       target_compile_options(
+            dap_chain_wallet PRIVATE
+            "-fpic"
+       )
+   endif()
+   if (NOT (TARGET dap_chain_gdb))
+       add_subdirectory(libdap-chain-gdb)
+       target_compile_options(
+            dap_chain_gdb PRIVATE
+            "-fpic"
+       )
+   endif()
+   if (NOT (TARGET dap_python_module))
+       add_subdirectory(libdap-python)
+       target_compile_options(
+            dap_python_module PRIVATE
+            "-fpic"
+       )
+   endif()
+   if (NOT (TARGET dap_crypto_python_module))
+       add_subdirectory(libdap-crypto-python)
+       target_compile_options(
+            dap_crypto_python_module PRIVATE
+            "-fpic"
+       )
+   endif()
+    if (NOT (TARGET dap_chain_net_srv_vpn))
+        add_subdirectory(libdap-chain-net-srv-vpn)
+        target_compile_options(
+             dap_chain_net_srv_vpn PRIVATE
+             "-fpic"
+        )
+    endif()
+    if (NOT (TARGET dap_client_python_module))
+        add_subdirectory(libdap-client-python)
+        target_compile_options(
+            dap_client_python_module PRIVATE
+            "-fpic"
+            )
+    endif()
+endif()
+#add_definitions("-DDAP_APP_NAME=\"TestPRJ\" -DSYSTEM_CONFIGS_DIR=\"${CMAKE_CURRENT_BINARY_DIR}\"")
 
 file(GLOB CHAIN_NET_PYTHON_SRCS src/*.c)
 file(GLOB CHAIN_NET_PYTHON_HEADERS include/*.h)
