@@ -1,7 +1,15 @@
+#ifndef _WRAPPING_DAP_NET_PYTHON_
+#define _WRAPPING_DAP_NET_PYTHON_
+
 #define PY_SSIZE_T_CLEAN
 #include "Python.h"
 #include "dap_chain_net.h"
 #include "wrapping_dap_chain_net_state.h"
+//#include "wrapping_dap_chain_net_state.h"
+#include "wrapping_dap_chain_common_objects.h"
+#include "wrapping_dap_chain_ledger.h"
+#include "libdap-chain-python.h"
+#include "libdap_chain_type_python.h"
 
 #ifdef __cplusplus
 extern "C"{
@@ -53,10 +61,16 @@ static PyMethodDef DapChainNetMethods[] = {
     {"syncAll", dap_chain_net_sync_all_py, METH_VARARGS, ""},
     {"procDatapool", dap_chain_net_proc_datapool_py, METH_VARARGS, ""},
     {"byName", dap_chain_net_by_name_py, METH_VARARGS | METH_STATIC, ""},
-    /*{"csAdd", (PyCFunction)dap_chain_cs_add_py, METH_VARARGS, ""},
-    {"csCreate", (PyCFunction)dap_chain_cs_create_py, METH_VARARGS, ""},
-    {"classAdd", (PyCFunction)dap_chain_class_add_py, METH_VARARGS, ""},
-    {"classCreate", (PyCFunction)dap_chain_class_create_py, METH_VARARGS, ""},*/
+    {"byId", dap_chain_net_by_id_py, METH_VARARGS | METH_STATIC, ""},
+    {"idByName", dap_chain_net_id_by_name_py, METH_VARARGS | METH_STATIC, ""},
+    {"ledgerByNetName", dap_chain_ledger_by_net_name_py, METH_VARARGS | METH_STATIC, ""},
+    {"getChainByName", dap_chain_net_get_chain_by_name_py, METH_VARARGS, ""},
+    {"getCurAddr", dap_chain_net_get_cur_addr_py, METH_VARARGS, ""},
+    {"getCurCell", dap_chain_net_get_cur_cell_py, METH_VARARGS, ""},
+    {"getGdbGroupMempool", dap_chain_net_get_gdb_group_mempool_py, METH_VARARGS | METH_STATIC, ""},
+    {"getGdbGroupMempoolByChainType", dap_chain_net_get_gdb_group_mempool_by_chain_type_py, METH_VARARGS, ""},
+    {"linksConnect", dap_chain_net_links_connect_py, METH_VARARGS, ""},
+    {"getChainByChainType", dap_chain_net_get_chain_by_chain_type_py, METH_VARARGS, ""},
     {NULL, NULL, 0, NULL}
 };
 
@@ -105,3 +119,5 @@ static PyTypeObject DapChainNetObject_DapChainNetObjectType = {
 #ifdef __cplusplus
 }
 #endif
+
+#endif //_WRAPPING_DAP_NET_PYTHON_
