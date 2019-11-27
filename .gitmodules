@@ -64,3 +64,6 @@
 [submodule "libdap-python"]
 	path = libdap-python
 	url = https://gitlab.demlabs.net/cellframe/libdap-python.git
+[submodule "libdap-client-python"]
+	path = libdap-client-python
+	url = https://gitlab.demlabs.net/cellframe/libdap-client-python.git
