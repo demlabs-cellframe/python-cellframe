@@ -160,6 +160,13 @@ if(NOT (${SUBMODULES_NO_BUILD} MATCHES ON))
              "-fpic"
         )
     endif()
+    if (NOT (TARGET dap_chain_python_module))
+        add_subdirectory(libdap-chain-python)
+        target_compile_options(
+            dap_chain_python_module PRIVATE
+            "-fpic"
+        )
+    endif()
     if (NOT (TARGET dap_client_python_module))
         add_subdirectory(libdap-client-python)
         target_compile_options(
