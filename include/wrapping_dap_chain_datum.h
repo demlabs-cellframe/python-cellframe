@@ -62,7 +62,7 @@ typedef struct PyDapChainDatum{
 }PyDapChainDatumObject;
 
 //void PyDapChainDatumObject_dealloc(PyDapChainDatumObject* object);
-PyObject *DapChainDatumObject_new(PyTypeObject *type_object, PyObject *args, PyObject *kwds);
+PyObject *PyDapChainDatumObject_new(PyTypeObject *type_object, PyObject *args, PyObject *kwds);
 
 static PyTypeObject DapChainDatumObject_DapChainDatumObjectType = {
     PyVarObject_HEAD_INIT(NULL, 0)
@@ -103,7 +103,7 @@ static PyTypeObject DapChainDatumObject_DapChainDatumObjectType = {
     0,                               /* tp_dictoffset */
     0,                               /* tp_init */
     0,                               /* tp_alloc */
-    DapChainDatumObject_new,       /* tp_new */
+    PyDapChainDatumObject_new,       /* tp_new */
 };
 /* -------------------------------- */
 
