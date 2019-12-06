@@ -123,8 +123,9 @@ PyObject *dap_chain_net_get_gdb_group_mempool_by_chain_type_py(PyObject *self, P
 
 }
 PyObject *dap_chain_net_links_connect_py(PyObject *self, PyObject *args){
-    dap_chain_net_links_connect(((PyDapChainNetObject*)self)->chain_net);
-    PyLong_FromLong(0);
+//    dap_chain_net_links_connect(((PyDapChainNetObject*)self)->chain_net);
+//    PyLong_FromLong(0);
+    return NULL;
 }
 PyObject *dap_chain_net_get_chain_by_chain_type_py(PyObject *self, PyObject *args){
     PyObject *obj_chain_type;
