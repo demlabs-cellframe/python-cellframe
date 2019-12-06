@@ -61,9 +61,14 @@ add_subdirectory(libdap-crypto-python)
 target_compile_options(dap_crypto_python_module PRIVATE "-fpic" )
 add_subdirectory(libdap-server-http-db)
 target_compile_options(dap_server_http_db PRIVATE "-fpic")
+add_subdirectory(libdap-chain-net-python)
+target_compile_options(dap_chain_net_python_module PRIVATE "-fpic")
 
 add_subdirectory(libdap-chain-python)
 target_compile_options(dap_chain_python_module PRIVATE "-fpic")
+
+add_subdirectory(libdap-client-python)
+target_compile_options(dap_client_python_module PRIVATE "-fpic")
 
 file(GLOB PYTHON_CELLFRAME_SRCS src/*.c)
 file(GLOB PYTHON_CELLFRAME_HEADERS include/*.h)
@@ -118,7 +123,8 @@ endif()
 target_link_libraries(${PROJECT_NAME} dap_python_module 
                       dap_crypto_python_module 
                       DapServerCore
-                     dap_chain_python_module
+                      dap_chain_python_module
+                      dap_chain_net_python_module
                      )
 #target_link_libraries(${PROJECT_NAME} dap_core dap_crypto)
 

@@ -76,3 +76,9 @@
 [submodule "libdap-server-http-db"]
 	path = libdap-server-http-db
 	url = http://gitlab.demlabs.net/cellframe/libdap-server-http-db.git
+[submodule "libdap-chain-net-python"]
+	path = libdap-chain-net-python
+	url = https://gitlab.demlabs.net/cellframe/libdap-chain-net-python.git
+[submodule "libdap-client-python"]
+	path = libdap-client-python
+	url = https://gitlab.demlabs.net/cellframe/libdap-client-python.git
