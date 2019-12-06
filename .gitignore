@@ -1,0 +1,6 @@
+build/
+_skbuild/
+dist/
+CellFrame.egg-info/
+*.text
+
