@@ -18,6 +18,14 @@
 #include "wrapping_dap_chain_datum_tx.h"
 #include "wrapping_dap_chain_ledger.h"
 // ============
+// === Chain net ===
+#include "libdap_chain_net_python.h"
+#include "wrapping_dap_chain_net_node.h"
+#include "wrapping_dap_chain_net_node_cli.h"
+#include "wrapping_dap_chain_net_node_client.h"
+#include "wrapping_dap_chain_net_node_info.h"
+#include "wrapping_dap_chain_net_state.h"
+// ============
 #include "dap_common.h"
 
 

@@ -143,7 +143,15 @@ PyMODINIT_FUNC PyInit_CellFrame(void){
             PyType_Ready(&DapChainTxType_DapChainTxCondTypeObject) < 0 ||
             PyType_Ready(&DapChainDatumTx_DapChainDatumTxObjectType) < 0 ||
             PyType_Ready(&DapChainTxOutCond_DapChainTxOutCondObjectType) < 0 ||
-            PyType_Ready(&DapChainLedger_DapChainLedgerType) < 0
+            PyType_Ready(&DapChainLedger_DapChainLedgerType) < 0 ||
+            // =============
+            // === Chain net ===
+            PyType_Ready(&DapChainNetObject_DapChainNetObjectType) < 0 ||
+            PyType_Ready(&DapChainNodeCliObject_DapChainNodeCliObjectType) < 0 ||
+            PyType_Ready(&DapChainNodeClientObject_DapChainNodeClientObjectType) < 0 ||
+            PyType_Ready(&DapChainNodeInfoObject_DapChainNodeInfoObjectType) < 0 ||
+            PyType_Ready(&DapChainNetNodeObject_DapChainNetNodeObjectType) < 0 ||
+            PyType_Ready(&DapChainNetStateObject_DapChainNetStateObjectType) < 0
             // =============
             )
                return NULL;
@@ -198,6 +206,14 @@ PyMODINIT_FUNC PyInit_CellFrame(void){
     PyModule_AddObject(module, "ChainDatumTx", (PyObject*)&DapChainDatumTx_DapChainDatumTxObjectType);
     PyModule_AddObject(module, "ChainTxOutCond", (PyObject*)&DapChainTxOutCond_DapChainTxOutCondObjectType);
     PyModule_AddObject(module, "ChainLedger", (PyObject*)&DapChainLedger_DapChainLedgerType);
+    // =============
+    // === Chain net ===
+    PyModule_AddObject(module, "ChainNet", (PyObject*)&DapChainNetObject_DapChainNetObjectType);
+    PyModule_AddObject(module, "ChainNodeCLI", (PyObject*)&DapChainNodeCliObject_DapChainNodeCliObjectType);
+    PyModule_AddObject(module, "ChainNodeClient", (PyObject*)&DapChainNodeClientObject_DapChainNodeClientObjectType);
+    PyModule_AddObject(module, "ChainNodeInfo", (PyObject*)&DapChainNodeInfoObject_DapChainNodeInfoObjectType);
+    PyModule_AddObject(module, "ChainNetNode", (PyObject*)&DapChainNetNodeObject_DapChainNetNodeObjectType);
+    PyModule_AddObject(module, "ChainNetState", (PyObject*)&DapChainNetStateObject_DapChainNetStateObjectType);
     // =============
 
 
