@@ -168,6 +168,27 @@ if (NOT (${SUBMODULES_NO_BUILD} MATCHES ON))
              "-fpic"
         )
     endif()
+    if (NOT (TARGET (dap_python_module)))
+        add_subdirectory(libdap-python)
+        target_compile_options(
+              dap_python_module PRIVATE
+              "-fpic"
+        )
+    endif()
+    if (NOT (TARGET (dap_chain_python_module)))
+        add_subdirectory(libdap-chain-python)
+        target_compile_options(
+              dap_chain_python_module PRIVATE
+              "-fpic"
+        )
+    endif()
+    if (NOT (TARGET (dap_crypto_python_module)))
+        add_subdirectory(libdap-crypto-python)
+        target_compile_options(
+              dap_crypto_python_module PRIVATE
+              "-fpic"
+        )
+    endif()
 endif()
 
 
@@ -182,7 +203,7 @@ add_library(${PROJECT_NAME} STATIC ${CHAIN_GDB_PYTHON_SRCS} ${CHAIN_GDB_PYTHON_H
 
 target_link_libraries(${PROJECT_NAME})
 
-target_link_libraries(${PROJECT_NAME} dap_chain_gdb dap_core dap_chain dap_chain_global_db dap_chain_mempool dap_chain_net)
+target_link_libraries(${PROJECT_NAME} dap_chain_gdb dap_core dap_chain dap_chain_global_db dap_chain_mempool dap_chain_net dap_chain_python_module)
 
 target_include_directories(${PROJECT_NAME} PUBLIC include/ )
 
