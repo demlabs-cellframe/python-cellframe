@@ -10,8 +10,6 @@ extern "C" {
 
 typedef struct PyDapChainGDB{
     PyObject_HEAD
-    dap_chain_gdb_t *gdb;
-
 }PyDapChainGDBObject;
 
 int dap_chain_gdb_init_py(void);
@@ -30,8 +28,8 @@ PyMethodDef DapChainGDBMethod[] = {
 
 static PyTypeObject DapChainGDBObject_DapChainGDBType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "CellFrame.Chain",                                            /* tp_name */
-    sizeof(PyDapChainObject),                                     /* tp_basicsize */
+    "CellFrame.ChainGDB",                                            /* tp_name */
+    sizeof(PyDapChainGDBObject),                                     /* tp_basicsize */
     0,                                                            /* tp_itemsize */
     0,                                                            /* tp_dealloc */
     0,                                                            /* tp_print */
