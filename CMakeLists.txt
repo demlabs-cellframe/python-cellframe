@@ -42,6 +42,13 @@ if (NOT (${SUBMODULES_NO_BUILD} MATCHES ON))
             "-fpic"  
        )
    endif()
+   if (NOT (TARGET dap_chain_common))
+       add_subdirectory(libdap-chain-common)
+       target_compile_options(
+            dap_chain_common PRIVATE
+            "-fpic"
+       )
+   endif()
    if (NOT (TARGET dap_chain_mempool))
        add_subdirectory(libdap-chain-mempool)
        target_compile_options(
