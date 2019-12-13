@@ -36,3 +36,12 @@ PyObject *dap_chain_net_id_from_str_py(PyObject *self, PyObject *args){
     ((PyDapChainNetIdObject*)obj_net_id)->net_id = dap_chain_net_id_from_str(str);
     return Py_BuildValue("O", obj_net_id);
 }
+
+PyObject *dap_chain_net_srv_uid_from_str_py(PyObject *self, PyObject *args){
+    const char *str;
+    if (!PyArg_ParseTuple(args, "s", &str))
+        return NULL;
+    PyObject *obj = _PyObject_New(&DapChainNetSrvUIDObject_DapChainNetSrvUIDObjectType);
+    ((PyDapChainNetSrvUIDObject*)obj)->net_srv_uid = dap_chain_net_srv_uid_from_str(str);
+    return Py_BuildValue("O", obj);
+}

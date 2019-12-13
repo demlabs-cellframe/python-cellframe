@@ -134,7 +134,7 @@ typedef struct PyDapChainNetId{
 
 PyObject *dap_chain_net_id_from_str_py(PyObject *self, PyObject *args);
 
-PyMethodDef DapChainNetIdObject[] = {
+PyMethodDef DapChainNetIdObjectMethods[] = {
     {"fromStr", (PyCFunction)dap_chain_net_id_from_str_py, METH_VARARGS, ""},
     {NULL, NULL, 0, NULL}
 };
@@ -168,7 +168,65 @@ static PyTypeObject DapChainNetIdObject_DapChainNetIdObjectType = {
     0,                               /* tp_weaklistoffset */
     0,		                         /* tp_iter */
     0,		                         /* tp_iternext */
-    0,                               /* tp_methods */
+    DapChainNetIdObjectMethods,      /* tp_methods */
+    0,                               /* tp_members */
+    0,                               /* tp_getset */
+    0,                               /* tp_base */
+    0,                               /* tp_dict */
+    0,                               /* tp_descr_get */
+    0,                               /* tp_descr_set */
+    0,                               /* tp_dictoffset */
+    0,                               /* tp_init */
+    0,                               /* tp_alloc */
+    PyType_GenericNew,               /* tp_new */
+};
+
+/*=================*/
+
+/* Chain net srv uid */
+
+typedef struct PyDapChainNetSrvUID{
+    PyObject_HEAD
+    dap_chain_net_srv_uid_t net_srv_uid;
+}PyDapChainNetSrvUIDObject;
+
+PyObject *dap_chain_net_srv_uid_from_str_py(PyObject *self, PyObject *args);
+
+PyMethodDef DapChainNetSrvUIDObject[] = {
+    {"fromStr", (PyCFunction)dap_chain_net_srv_uid_from_str_py, METH_VARARGS, ""},
+    {NULL, NULL, 0, NULL}
+};
+
+static PyTypeObject DapChainNetSrvUIDObject_DapChainNetSrvUIDObjectType = {
+    PyVarObject_HEAD_INIT(NULL, 0)
+    "CellFrame.ChainNetSrvUID",          /* tp_name */
+    sizeof(dap_chain_net_srv_uid_t),   /* tp_basicsize */
+    0,                               /* tp_itemsize */
+    0,                               /* tp_dealloc */
+    0,                               /* tp_print */
+    0,                               /* tp_getattr */
+    0,                               /* tp_setattr */
+    0,                               /* tp_reserved */
+    0,                               /* tp_repr */
+    0,                               /* tp_as_number */
+    0,                               /* tp_as_sequence */
+    0,                               /* tp_as_mapping */
+    0,                               /* tp_hash  */
+    0,                               /* tp_call */
+    0,                               /* tp_str */
+    0,                               /* tp_getattro */
+    0,                               /* tp_setattro */
+    0,                               /* tp_as_buffer */
+    Py_TPFLAGS_DEFAULT |
+        Py_TPFLAGS_BASETYPE,         /* tp_flags */
+    "Chain net srv uid object",           /* tp_doc */
+    0,		                         /* tp_traverse */
+    0,		                         /* tp_clear */
+    0,		                         /* tp_richcompare */
+    0,                               /* tp_weaklistoffset */
+    0,		                         /* tp_iter */
+    0,		                         /* tp_iternext */
+    DapChainNetSrvUIDObject,         /* tp_methods */
     0,                               /* tp_members */
     0,                               /* tp_getset */
     0,                               /* tp_base */
