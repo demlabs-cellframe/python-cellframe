@@ -189,13 +189,13 @@ if (NOT (${SUBMODULES_NO_BUILD} MATCHES ON))
     #          "-fpic"
     #    )
     #endif()
-    #if (NOT (TARGET (dap_crypto_python_module)))
-    #    add_subdirectory(libdap-crypto-python)
-    #    target_compile_options(
-    #          dap_crypto_python_module PRIVATE
-    #          "-fpic"
-    #    )
-    #endif()
+    if (NOT (TARGET (dap_crypto_python_module)))
+        add_subdirectory(libdap-crypto-python)
+        target_compile_options(
+              dap_crypto_python_module PRIVATE
+              "-fpic"
+        )
+    endif()
 endif()
 
 
@@ -210,7 +210,7 @@ add_library(${PROJECT_NAME} STATIC ${CHAIN_COMMON_PYTHON_SRCS} ${CHAIN_COMMON_PY
 
 target_link_libraries(${PROJECT_NAME})
 
-target_link_libraries(${PROJECT_NAME} dap_chain_common dap_core dap_crypto)
+target_link_libraries(${PROJECT_NAME} dap_chain_common dap_core dap_crypto dap_crypto_python_module)
 
 target_include_directories(${PROJECT_NAME} PUBLIC include/ )
 
