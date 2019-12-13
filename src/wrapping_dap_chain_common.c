@@ -28,6 +28,19 @@ PyObject *dap_chain_addr_from_str_py(PyObject *self, PyObject *args){
     return Py_BuildValue("O", obj);
 }
 
+PyObject *dap_chain_addr_fill_py(PyObject *self, PyObject *args){
+    PyObject *key;
+    PyObject *net_id;
+    if (!PyArg_ParseTuple(args, "O|O", &key, &net_id))
+        return NULL;
+    dap_chain_addr_fill(((PyDapChainAddrObject*)self)->addr, ((PyCryptoKeyObject*)key)->key, &(((PyDapChainNetIdObject*)net_id)->net_id));
+}
+
+PyObject *dap_chain_addr_check_sum_py(PyObject *self, PyObject *args){
+    int res = dap_chain_addr_check_sum(((PyDapChainAddrObject*)self)->addr);
+    return PyLong_FromLong(res);
+}
+
 PyObject *dap_chain_net_id_from_str_py(PyObject *self, PyObject *args){
     const char *str;
     if (!PyArg_ParseTuple(args, "s", &str))

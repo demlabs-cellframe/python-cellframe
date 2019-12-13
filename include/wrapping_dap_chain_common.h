@@ -2,6 +2,7 @@
 #define _WRAPPING_DAP_CHAIN_COMMON_
 #include <Python.h>
 #include "dap_chain_common.h"
+#include "libdap_crypto_key_python.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -73,10 +74,14 @@ typedef struct PyDapChainAddr{
 
 PyObject *dap_chain_addr_to_str_py(PyObject *self, PyObject *args);
 PyObject *dap_chain_addr_from_str_py(PyObject *self, PyObject *args);
+PyObject *dap_chain_addr_fill_py(PyObject *self, PyObject *args);
+PyObject *dap_chain_addr_check_sum_py(PyObject *self, PyObject *args);
 
 PyMethodDef DapChainAddrMethods[] = {
     {"toStr", (PyCFunction)dap_chain_addr_to_str_py, METH_VARARGS, ""},
     {"fromStr", (PyCFunction)dap_chain_addr_from_str_py, METH_VARARGS | METH_STATIC, ""},
+    {"fill", (PyCFunction)dap_chain_addr_fill_py, METH_VARARGS, ""},
+    {"checkSum", (PyCFunction)dap_chain_addr_check_sum_py, METH_VARARGS, ""},
     {NULL, NULL, 0, NULL}
 };
 
