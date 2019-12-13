@@ -16,7 +16,7 @@ typedef struct PyDapChainHashSlow{
 PyObject *dap_chain_hash_slow_to_str_py(PyObject *self, PyObject *args);
 
 PyMethodDef DapChainHashSlowMethod[] = {
-    {"toStr", (PyCFunction)dap_chain_hash_slow_to_str_py, METH_VARARGS, ""},
+    {"toStr", (PyCFunction)dap_chain_hash_slow_to_str_py, METH_VARARGS | METH_STATIC, ""},
     {NULL, NULL, 0, NULL}
 };
 
@@ -76,7 +76,7 @@ PyObject *dap_chain_addr_from_str_py(PyObject *self, PyObject *args);
 
 PyMethodDef DapChainAddrMethods[] = {
     {"toStr", (PyCFunction)dap_chain_addr_to_str_py, METH_VARARGS, ""},
-    {"fromStr", (PyCFunction)dap_chain_addr_from_str_py, METH_VARARGS, ""},
+    {"fromStr", (PyCFunction)dap_chain_addr_from_str_py, METH_VARARGS | METH_STATIC, ""},
     {NULL, NULL, 0, NULL}
 };
 
@@ -135,7 +135,7 @@ typedef struct PyDapChainNetId{
 PyObject *dap_chain_net_id_from_str_py(PyObject *self, PyObject *args);
 
 PyMethodDef DapChainNetIdObjectMethods[] = {
-    {"fromStr", (PyCFunction)dap_chain_net_id_from_str_py, METH_VARARGS, ""},
+    {"fromStr", (PyCFunction)dap_chain_net_id_from_str_py, METH_VARARGS | METH_STATIC, ""},
     {NULL, NULL, 0, NULL}
 };
 
@@ -193,7 +193,7 @@ typedef struct PyDapChainNetSrvUID{
 PyObject *dap_chain_net_srv_uid_from_str_py(PyObject *self, PyObject *args);
 
 PyMethodDef DapChainNetSrvUIDObject[] = {
-    {"fromStr", (PyCFunction)dap_chain_net_srv_uid_from_str_py, METH_VARARGS, ""},
+    {"fromStr", (PyCFunction)dap_chain_net_srv_uid_from_str_py, METH_VARARGS | METH_STATIC, ""},
     {NULL, NULL, 0, NULL}
 };
 
