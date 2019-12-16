@@ -22,9 +22,9 @@ static PyMethodDef DapHashTypeMethods[] = {
     {NULL, NULL, 0, NULL}
 };
 
-static PyTypeObject DapChainHashTypeObject_DapChainHashTypeObjectType = {
+static PyTypeObject DapHashTypeObject_DapChainHashTypeObjectType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "CellFrame.ChainHashType",          /* tp_name */
+    "CellFrame.HashType",          /* tp_name */
     sizeof(PyDapHashTypeObject),   /* tp_basicsize */
     0,                               /* tp_itemsize */
     0,                               /* tp_dealloc */
@@ -44,7 +44,7 @@ static PyTypeObject DapChainHashTypeObject_DapChainHashTypeObjectType = {
     0,                               /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT |
         Py_TPFLAGS_BASETYPE,         /* tp_flags */
-    "Chain hash type object",           /* tp_doc */
+    "Hash type object",           /* tp_doc */
     0,		                         /* tp_traverse */
     0,		                         /* tp_clear */
     0,		                         /* tp_richcompare */
@@ -67,10 +67,10 @@ static PyTypeObject DapChainHashTypeObject_DapChainHashTypeObjectType = {
 /*=================*/
 
 /* Chain hash fast */
-typedef struct PyDapChainHashFast{
+typedef struct PyDapHashFast{
     PyObject_HEAD
     dap_chain_hash_fast_t *hash_fast;
-}PyDapChainHashFastObject;
+}PyDapHashFastObject;
 
 PyObject *dap_chain_str_to_hash_fast_py(PyObject *self, PyObject *args);
 PyObject *dap_hash_fast_py(PyObject *self, PyObject *args);
@@ -89,10 +89,10 @@ static PyMethodDef DapHashFastMethods[] = {
     {NULL, NULL, 0, NULL}
 };
 
-static PyTypeObject DapChainHashFastObject_DapChainHashFastObjectType = {
+static PyTypeObject DapHashFastObject_DapHashFastObjectType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "CellFrame.ChainFast",          /* tp_name */
-    sizeof(PyDapChainHashFastObject),   /* tp_basicsize */
+    "CellFrame.HashFast",          /* tp_name */
+    sizeof(PyDapHashFastObject),   /* tp_basicsize */
     0,                               /* tp_itemsize */
     0,                               /* tp_dealloc */
     0,                               /* tp_print */
@@ -111,7 +111,7 @@ static PyTypeObject DapChainHashFastObject_DapChainHashFastObjectType = {
     0,                               /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT |
         Py_TPFLAGS_BASETYPE,         /* tp_flags */
-    "Chain hash fast object",           /* tp_doc */
+    "Hash fast object",           /* tp_doc */
     0,		                         /* tp_traverse */
     0,		                         /* tp_clear */
     0,		                         /* tp_richcompare */
