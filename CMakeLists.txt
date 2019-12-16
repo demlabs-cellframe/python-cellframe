@@ -6,6 +6,7 @@ set(CMAKE_COLOR_MAKEFILE   ON)
 set(CMAKE_C_STANDARD 11)
 #set(SUBMODULES_NO_BUILD ON)
 add_definitions("-fpic")
+add_definitions("-DDAP_LOG_MT")
 
 if(NOT (${SUBMODULES_NO_BUILD} MATCHES ON))
     if (NOT (TARGET dap_core))
