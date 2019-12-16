@@ -61,3 +61,8 @@ PyObject *dap_chain_hash_fast_to_str_py(PyObject *self, PyObject *args){
     int res = dap_chain_hash_fast_to_str(((PyDapChainHashFastObject*)self)->hash_fast, str, str_max);
     return Py_BuildValue("sn", &str, &str_max);
 }
+
+PyObject *dap_chain_hash_fast_to_str_new_py(PyObject *self, PyObject *args){
+    char *res = dap_chain_hash_fast_to_str_new(((PyDapChainHashFastObject*)self)->hash_fast);
+    return Py_BuildValue("s", res);
+}

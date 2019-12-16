@@ -77,6 +77,7 @@ PyObject *dap_hash_fast_py(PyObject *self, PyObject *args);
 PyObject *dap_hash_fast_compare_py(PyObject *self, PyObject *args);
 PyObject *dap_hash_fast_is_blank_py(PyObject *self, PyObject *args);
 PyObject *dap_chain_hash_fast_to_str_py(PyObject *self, PyObject *args);
+PyObject *dap_chain_hash_fast_to_str_new_py(PyObject *self, PyObject *args);
 
 static PyMethodDef DapHashFastMethods[] = {
     {"strToHashFast", (PyCFunction)dap_chain_str_to_hash_fast_py, METH_VARARGS | METH_STATIC, ""},
@@ -84,6 +85,7 @@ static PyMethodDef DapHashFastMethods[] = {
     {"compare", (PyCFunction)dap_hash_fast_compare_py, METH_VARARGS | METH_STATIC, ""},
     {"isBlank", (PyCFunction)dap_hash_fast_is_blank_py, METH_VARARGS, ""},
     {"toStr", (PyCFunction)dap_chain_hash_fast_to_str_py, METH_VARARGS, ""},
+    {"toStrNew", (PyCFunction)dap_chain_hash_fast_to_str_new_py, METH_VARARGS, ""},
     {NULL, NULL, 0, NULL}
 };
 
