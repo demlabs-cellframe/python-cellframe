@@ -1,12 +1,12 @@
 #include "wrapping_dap_hash.h"
 
 PyObject *DAP_HASH_TYPE_KECCAK_PY(){
-    PyObject *obj = _PyObject_New(&DapChainHashTypeObject_DapChainHashTypeObjectType);
+    PyObject *obj = _PyObject_New(&DapHashTypeObject_DapChainHashTypeObjectType);
     ((PyDapHashTypeObject*)obj)->hash_type = DAP_HASH_TYPE_KECCAK;
     return Py_BuildValue("O", obj);
 }
 PyObject *DAP_HASH_TYPE_SLOW_0_PY(){
-    PyObject *obj = _PyObject_New(&DapChainHashTypeObject_DapChainHashTypeObjectType);
+    PyObject *obj = _PyObject_New(&DapHashTypeObject_DapChainHashTypeObjectType);
     ((PyDapHashTypeObject*)obj)->hash_type = DAP_HASH_TYPE_SLOW_0;
     return Py_BuildValue("O", obj);
 }
@@ -16,7 +16,7 @@ PyObject *dap_chain_str_to_hash_fast_py(PyObject *self, PyObject *args){
     PyObject *obj_hash_fast;
     if (!PyArg_ParseTuple(args, "s|O", &hash_str, &obj_hash_fast))
         return NULL;
-    int res = dap_chain_str_to_hash_fast(hash_str, ((PyDapChainHashFastObject*)obj_hash_fast)->hash_fast);
+    int res = dap_chain_str_to_hash_fast(hash_str, ((PyDapHashFastObject*)obj_hash_fast)->hash_fast);
     return Py_BuildValue("nO", res, obj_hash_fast);
 }
 
@@ -26,7 +26,7 @@ PyObject *dap_hash_fast_py(PyObject *self, PyObject *args){
     if (!PyArg_ParseTuple(args, "O|n", &obj_bytes, &data_in_size))
         return NULL;
     const void *bytes = (void*)PyBytes_AsString(obj_bytes);
-    bool res = dap_hash_fast(bytes, data_in_size, ((PyDapChainHashFastObject*)self)->hash_fast);
+    bool res = dap_hash_fast(bytes, data_in_size, ((PyDapHashFastObject*)self)->hash_fast);
     if (res)
         return Py_BuildValue("O", Py_True);
     else
@@ -38,7 +38,7 @@ PyObject *dap_hash_fast_compare_py(PyObject *self, PyObject *args){
     PyObject *hash2;
     if (!PyArg_ParseTuple(args, "O|O", &hash1, &hash2))
         return NULL;
-    bool res = dap_hash_fast_compare(((PyDapChainHashFastObject*)hash1)->hash_fast, ((PyDapChainHashFastObject*)hash2)->hash_fast);
+    bool res = dap_hash_fast_compare(((PyDapHashFastObject*)hash1)->hash_fast, ((PyDapHashFastObject*)hash2)->hash_fast);
     if (res)
         return Py_BuildValue("O", Py_True);
     else
@@ -46,7 +46,7 @@ PyObject *dap_hash_fast_compare_py(PyObject *self, PyObject *args){
 }
 
 PyObject *dap_hash_fast_is_blank_py(PyObject *self, PyObject *args){
-    bool res = dap_hash_fast_is_blank(((PyDapChainHashFastObject*)self)->hash_fast);
+    bool res = dap_hash_fast_is_blank(((PyDapHashFastObject*)self)->hash_fast);
     if (res)
         return Py_BuildValue("O", Py_True);
     else
@@ -58,11 +58,11 @@ PyObject *dap_chain_hash_fast_to_str_py(PyObject *self, PyObject *args){
     size_t str_max;
     if (!PyArg_ParseTuple(args, "s|n", &str, &str_max))
         return NULL;
-    int res = dap_chain_hash_fast_to_str(((PyDapChainHashFastObject*)self)->hash_fast, str, str_max);
+    int res = dap_chain_hash_fast_to_str(((PyDapHashFastObject*)self)->hash_fast, str, str_max);
     return Py_BuildValue("sn", &str, &str_max);
 }
 
 PyObject *dap_chain_hash_fast_to_str_new_py(PyObject *self, PyObject *args){
-    char *res = dap_chain_hash_fast_to_str_new(((PyDapChainHashFastObject*)self)->hash_fast);
+    char *res = dap_chain_hash_fast_to_str_new(((PyDapHashFastObject*)self)->hash_fast);
     return Py_BuildValue("s", res);
 }
