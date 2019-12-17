@@ -1,0 +1,12 @@
+[submodule "libdap"]
+	path = libdap
+	url = https://gitlab.demlabs.net/cellframe/libdap.git
+[submodule "libdap-crypto"]
+	path = libdap-crypto
+	url = https://gitlab.demlabs.net/cellframe/libdap-crypto.git
+[submodule "libdap-chain-common"]
+	path = libdap-chain-common
+	url = https://gitlab.demlabs.net/cellframe/libdap-chain-common.git
+[submodule "libdap-crypto-python"]
+	path = libdap-crypto-python
+	url = https://gitlab.demlabs.net/cellframe/libdap-crypto-python.git
