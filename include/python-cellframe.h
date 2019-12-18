@@ -26,6 +26,12 @@
 #include "wrapping_dap_chain_net_node_info.h"
 #include "wrapping_dap_chain_net_state.h"
 // ============
+
+#include "wrapping_http.h"
+#include "wrapping_dap_enc_http.h"
+#include "wrapping_dap_stream.h"
+#include "wrapping_dap_stream_ctl.h"
+
 #include "dap_common.h"
 
 

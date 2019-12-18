@@ -107,6 +107,43 @@ static PyObject *python_cellframe_init(PyObject *self, PyObject *args){
                 return NULL;
             }
         }
+        if (strcmp(c_value, "Http") == 0){
+            if(dap_http_init() != 0){
+                PyErr_SetString(CellFrame_error, "Failed to initialize Http module. ");
+                return NULL;
+            }
+        }
+        if (strcmp(c_value, "EncHttp") == 0){
+            if(enc_http_init() != 0){
+                PyErr_SetString(CellFrame_error, "Failed to initialize EncHttp module. ");
+                return NULL;
+            }
+        }
+        if (strcmp(c_value, "Stream") == 0){
+            PyObject* getStreamData = PyDict_GetItemString(result, "Stream");
+            if (getStreamData == NULL){
+                PyErr_SetString(CellFrame_error, "Initialization failed. Stream object not found in JSON."
+                                " No settings are specified for initializing libdap-stream-python.");
+                return NULL;
+            }
+            PyObject *debugDumpStreamHeadersObj = PyDict_GetItemString(getStreamData, "DebugDumpStreamHeaders");
+            if (debugDumpStreamHeadersObj == NULL || !PyBool_Check(debugDumpStreamHeadersObj)){
+                PyErr_SetString(CellFrame_error, "Failed to initialize Stream. "
+                                                 "Fields DebugDumpStreamHeaders are not boolean type.");
+                return NULL;
+            }
+            bool res_bollean = (debugDumpStreamHeadersObj == Py_True) ? true : false;
+            if(dap_stream_init(res_bollean) != 0){
+                PyErr_SetString(CellFrame_error, "Failed to initialize Stream module. ");
+                return NULL;
+            }
+        }
+        if (strcmp(c_value, "StreamCtl") == 0){
+            if (dap_stream_ctl_init(DAP_ENC_KEY_TYPE_OAES, 32) != 0){
+                PyErr_SetString(CellFrame_error, "Failed to initialize StreamCtl module. ");
+                return NULL;
+            }
+        }
     }
     return PyLong_FromLong(0);
 }
@@ -151,8 +188,13 @@ PyMODINIT_FUNC PyInit_CellFrame(void){
             PyType_Ready(&DapChainNodeClientObject_DapChainNodeClientObjectType) < 0 ||
             PyType_Ready(&DapChainNodeInfoObject_DapChainNodeInfoObjectType) < 0 ||
             PyType_Ready(&DapChainNetNodeObject_DapChainNetNodeObjectType) < 0 ||
-            PyType_Ready(&DapChainNetStateObject_DapChainNetStateObjectType) < 0
+            PyType_Ready(&DapChainNetStateObject_DapChainNetStateObjectType) < 0 ||
             // =============
+
+            PyType_Ready(&DapHTTP_DapHTTPType) < 0 ||
+            PyType_Ready(&DapEncHTTP_DapEncHTTPType) < 0 ||
+            PyType_Ready(&DapStream_DapStreamType) < 0 ||
+            PyType_Ready(&DapStreamCtl_DapStreamCtlType) < 0
             )
                return NULL;
 
@@ -215,6 +257,11 @@ PyMODINIT_FUNC PyInit_CellFrame(void){
     PyModule_AddObject(module, "ChainNetNode", (PyObject*)&DapChainNetNodeObject_DapChainNetNodeObjectType);
     PyModule_AddObject(module, "ChainNetState", (PyObject*)&DapChainNetStateObject_DapChainNetStateObjectType);
     // =============
+
+    PyModule_AddObject(module, "Http", (PyObject*)&DapHTTP_DapHTTPType);
+    PyModule_AddObject(module, "EncHttp", (PyObject*)&DapEncHTTP_DapEncHTTPType);
+    PyModule_AddObject(module, "Stream", (PyObject*)&DapStream_DapStreamType);
+    PyModule_AddObject(module, "StreamCtl", (PyObject*)&DapStreamCtl_DapStreamCtlType);
 
 
     return module;
