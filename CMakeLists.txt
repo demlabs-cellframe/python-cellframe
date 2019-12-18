@@ -182,6 +182,13 @@ if (NOT (${SUBMODULES_NO_BUILD} MATCHES ON))
              "-fpic"
         )
     endif()
+    if (NOT (TARGET dap_chain_common_python_module))
+       add_subdirectory(libdap-chain-common-python)
+       target_compile_options(
+            dap_chain_common_python_module PRIVATE
+            "-fpic"
+       )
+    endif()
 endif()
 #add_definitions("-DDAP_APP_NAME=\"TestPRJ\" -DSYSTEM_CONFIGS_DIR=\"${CMAKE_CURRENT_BINARY_DIR}\"")
 
@@ -196,7 +203,7 @@ add_library(${PROJECT_NAME} STATIC ${CHAIN_PYTHON_SRCS} ${CHAIN_PYTHON_HEADERS})
 
 target_link_libraries(${PROJECT_NAME})
 
-target_link_libraries(${PROJECT_NAME} dap_core dap_crypto dap_chain dap_chain_crypto dap_server_core dap_chain_net dap_crypto_python_module dap_python_module)
+target_link_libraries(${PROJECT_NAME} dap_core dap_crypto dap_chain dap_chain_crypto dap_server_core dap_chain_net dap_crypto_python_module dap_python_module dap_chain_common_python_module)
 
 target_include_directories(${PROJECT_NAME} PUBLIC include/ )
 
