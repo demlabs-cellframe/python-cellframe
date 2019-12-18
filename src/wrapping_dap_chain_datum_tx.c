@@ -78,7 +78,7 @@ PyObject *dap_chain_datum_tx_add_in_item_py(PyObject *self, PyObject *args){
     if (!PyArg_ParseTuple(args, "O|O|I", &in_obj_datum_txs, &in_obj_hash_fast, &in_tx_out_pref_idx))
         return NULL;
     dap_chain_datum_tx_t **a_txs = PyListToDapChainDatumTxArray(in_obj_datum_txs);
-    int res = dap_chain_datum_tx_add_in_item(a_txs, ((PyDapChainHashFastObject*)in_obj_hash_fast)->hash_fast,
+    int res = dap_chain_datum_tx_add_in_item(a_txs, ((PyDapHashFastObject*)in_obj_hash_fast)->hash_fast,
                                              in_tx_out_pref_idx);
     if (res == -1){
         return NULL;
@@ -96,7 +96,7 @@ PyObject *dap_chain_datum_tx_add_in_cond_item_py(PyObject *self, PyObject *args)
     if (!PyArg_ParseTuple(args, "O|O|I|I", &in_obj_datum_txs, &in_chain_hash_fast, &in_tx_out_prev_idx, &in_receipt_idx))
         return NULL;
     dap_chain_datum_tx_t **a_txs = PyListToDapChainDatumTxArray(in_obj_datum_txs);
-    int res = dap_chain_datum_tx_add_in_cond_item(a_txs, ((PyDapChainHashFastObject*)in_chain_hash_fast)->hash_fast, in_tx_out_prev_idx, in_receipt_idx);
+    int res = dap_chain_datum_tx_add_in_cond_item(a_txs, ((PyDapHashFastObject*)in_chain_hash_fast)->hash_fast, in_tx_out_prev_idx, in_receipt_idx);
     return PyLong_FromLong(res);
 }
 
