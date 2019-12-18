@@ -13,7 +13,7 @@
 #include "dap_chain.h"
 #include "dap_chain_node_client.h"
 #include "wrapping_dap_chain_ledger.h"
-#include "wrapping_dap_chain_common_objects.h"
+#include "wrapping_dap_chain_common.h"
 
 #ifdef __cplusplus
 extern "C" {
