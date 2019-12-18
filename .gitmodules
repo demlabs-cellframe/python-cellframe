@@ -82,3 +82,15 @@
 [submodule "libdap-client-python"]
 	path = libdap-client-python
 	url = https://gitlab.demlabs.net/cellframe/libdap-client-python.git
+[submodule "libdap-chain-common"]
+	path = libdap-chain-common
+	url = https://gitlab.demlabs.net/cellframe/libdap-chain-common.git
+[submodule "libdap-stream-ch-chain-net-srv"]
+	path = libdap-stream-ch-chain-net-srv
+	url = https://gitlab.demlabs.net/cellframe/libdap-stream-ch-chain-net-srv.git
+[submodule "libdap-chain-net-srv-app"]
+	path = libdap-chain-net-srv-app
+	url = https://gitlab.demlabs.net/cellframe/libdap-chain-net-srv-app.git
+[submodule "libdap-chain-net-srv-app-db"]
+	path = libdap-chain-net-srv-app-db
+	url = https://gitlab.demlabs.net/cellframe/libdap-chain-net-srv-app-db.git
