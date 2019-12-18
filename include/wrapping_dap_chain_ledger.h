@@ -3,9 +3,10 @@
 
 #include "Python.h"
 #include "dap_chain_ledger.h"
-#include "wrapping_dap_chain_common_objects.h"
+#include "wrapping_dap_chain_common.h"
 #include "wrapping_dap_chain_datum_tx.h"
 #include "wrapping_dap_chain_datum_token.h"
+#include "wrapping_dap_hash.h"
 #include "libdap-python.h"
 
 
