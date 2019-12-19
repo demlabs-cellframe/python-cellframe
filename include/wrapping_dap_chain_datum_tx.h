@@ -91,7 +91,7 @@ typedef struct PyDapChainTxCondType{
 PyObject *COND_SERVICE_PROVIDE_PY();
 PyObject *COND_SERVICE_BILL_PY();
 
-PyMethodDef DapChainTxCondTypeMethods[] = {
+static PyMethodDef DapChainTxCondTypeMethods[] = {
     {"COND_SERVICE_PROVIDE", COND_SERVICE_PROVIDE_PY, METH_NOARGS | METH_STATIC, ""},
     {"COND_SERVICE_BILL", COND_SERVICE_BILL_PY, METH_NOARGS | METH_STATIC, ""},
     {NULL, NULL,0, NULL}
