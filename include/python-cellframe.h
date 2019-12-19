@@ -11,7 +11,6 @@
 #include "libdap_chain_atom_iter_python.h"
 #include "wrapping_dap_chain_cell.h"
 #include "wrapping_dap_chain_common.h"
-#include "wrapping_dap_chain_common_objects.h"
 #include "wrapping_dap_chain_cs.h"
 #include "wrapping_dap_chain_datum.h"
 #include "wrapping_dap_chain_datum_token.h"
@@ -31,6 +30,7 @@
 #include "wrapping_dap_enc_http.h"
 #include "wrapping_dap_stream.h"
 #include "wrapping_dap_stream_ctl.h"
+#include "wrapping_dap_mempool.h"
 
 #include "dap_common.h"
 

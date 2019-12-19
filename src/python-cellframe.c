@@ -144,6 +144,12 @@ static PyObject *python_cellframe_init(PyObject *self, PyObject *args){
                 return NULL;
             }
         }
+        if (strcmp(c_value, "Mempool") == 0){
+            if (dap_datum_mempool_init() != 0){
+                PyErr_SetString(CellFrame_error, "Failed to initialize Mempool module. ");
+                return NULL;
+            }
+        }
     }
     return PyLong_FromLong(0);
 }
@@ -194,7 +200,8 @@ PyMODINIT_FUNC PyInit_CellFrame(void){
             PyType_Ready(&DapHTTP_DapHTTPType) < 0 ||
             PyType_Ready(&DapEncHTTP_DapEncHTTPType) < 0 ||
             PyType_Ready(&DapStream_DapStreamType) < 0 ||
-            PyType_Ready(&DapStreamCtl_DapStreamCtlType) < 0
+            PyType_Ready(&DapStreamCtl_DapStreamCtlType) < 0 ||
+            PyType_Ready(&DapMempool_DapMempoolType) < 0
             )
                return NULL;
 
@@ -262,6 +269,7 @@ PyMODINIT_FUNC PyInit_CellFrame(void){
     PyModule_AddObject(module, "EncHttp", (PyObject*)&DapEncHTTP_DapEncHTTPType);
     PyModule_AddObject(module, "Stream", (PyObject*)&DapStream_DapStreamType);
     PyModule_AddObject(module, "StreamCtl", (PyObject*)&DapStreamCtl_DapStreamCtlType);
+    PyModule_AddObject(module, "Mempool", (PyObject*)&DapMempool_DapMempoolType);
 
 
     return module;
