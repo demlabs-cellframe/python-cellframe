@@ -5,7 +5,7 @@
 #include "dap_config.h"
 #include "dap_chain_node_cli.h"
 #include "dap_chain_node_cli_cmd.h"
-#include "wrapping_dap_chain_common_objects.h"
+#include "wrapping_dap_chain_common.h"
 #include "wrapping_dap_chain_net_node.h"
 
 #ifdef __cplusplus

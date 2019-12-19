@@ -98,7 +98,7 @@ PyObject *dap_chain_net_get_cur_addr_py(PyObject *self, PyObject *args){
 }
 PyObject *dap_chain_net_get_cur_cell_py(PyObject *self, PyObject *args){
     PyObject *obj_cell_id = _PyObject_New(&DapChainNodeAddrObject_DapChainNodeAddrObjectType);
-    ((PyDapChainCellIdObject*)obj_cell_id)->id = *(dap_chain_net_get_cur_cell(((PyDapChainNetObject*)self)->chain_net));
+    ((PyDapChainCellIDObject*)obj_cell_id)->cell_id = dap_chain_net_get_cur_cell(((PyDapChainNetObject*)self)->chain_net);
     return Py_BuildValue("O", obj_cell_id);
 }
 PyObject *dap_chain_net_get_cur_addr_int_py(PyObject *self, PyObject *args){
