@@ -94,3 +94,6 @@
 [submodule "libdap-chain-net-srv-app-db"]
 	path = libdap-chain-net-srv-app-db
 	url = https://gitlab.demlabs.net/cellframe/libdap-chain-net-srv-app-db.git
+[submodule "libdap-chain-common-python"]
+	path = libdap-chain-common-python
+	url = https://gitlab.demlabs.net/cellframe/libdap-chain-common-python.git
