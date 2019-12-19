@@ -1,3 +1,5 @@
+#ifndef _DAP_SERVER_PYTHON_
+#define _DAP_SERVER_PYTHON_
 #include "Python.h"
 #include "dap_server.h"
 
@@ -37,3 +39,4 @@ static PyTypeObject dapServer_dapServerType = {
 #ifdef __cplusplus
 }
 #endif
+#endif //_DAP_SERVER_PYTHON_
