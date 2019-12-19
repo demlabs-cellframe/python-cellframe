@@ -8,3 +8,7 @@ PyObject *dap_stream_ctl_add_proc_py(PyObject *self, PyObject *args){
     dap_stream_ctl_add_proc(DAP_HTTP(((PyDapServerObject*)obj_server)->t_server), STREAM_CTL_URL);
     return PyLong_FromLong(0);
 }
+
+int dap_stream_ctl_init_py(dap_enc_key_type_t key, uint32_t size){
+    return dap_stream_ctl_init(key, size);
+}

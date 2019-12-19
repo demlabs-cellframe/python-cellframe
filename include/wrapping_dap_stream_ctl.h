@@ -2,6 +2,7 @@
 #define _WRAPPING_DAP_STREAM_CTL_
 
 #include <Python.h>
+#include "dap_enc_key.h"
 #include "dap_stream_ctl.h"
 #include "dap_server_python.h"
 #include "dap_http.h"
@@ -11,7 +12,10 @@ typedef struct PyDapStreamCtl{
     PyObject_HEAD
 }PyDapStreamCtlObject;
 
+dap_enc_key_type_t dap_enc_key_type;
+
 PyObject *dap_stream_ctl_add_proc_py(PyObject *self, PyObject *args);
+int dap_stream_ctl_init_py(dap_enc_key_type_t key, uint32_t size);
 
 PyMethodDef DapStreamCtlMethods[] = {
     {"addProcHttp", dap_stream_ctl_add_proc_py, METH_VARARGS | METH_STATIC, ""},
