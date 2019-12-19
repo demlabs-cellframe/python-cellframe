@@ -6,7 +6,7 @@
 #include "dap_chain_net.h"
 #include "wrapping_dap_chain_net_state.h"
 //#include "wrapping_dap_chain_net_state.h"
-#include "wrapping_dap_chain_common_objects.h"
+#include "wrapping_dap_chain_common.h"
 #include "wrapping_dap_chain_ledger.h"
 #include "libdap-chain-python.h"
 #include "libdap_chain_type_python.h"
