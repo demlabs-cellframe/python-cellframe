@@ -11,7 +11,7 @@ typedef struct PyDapHttp{
 
 PyObject *dap_http_new_py(PyObject *self, PyObject *args);
 
-PyMethodDef DapHttpMethods[] = {
+static PyMethodDef DapHttpMethods[] = {
     {"new", dap_http_new_py, METH_VARARGS | METH_STATIC, ""},
     {NULL, NULL, 0, NULL}
 };

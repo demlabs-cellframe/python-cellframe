@@ -13,7 +13,7 @@ typedef struct PyDapStream{
 
 PyObject *dap_stream_add_proc_http_py(PyObject *self, PyObject *args);
 
-PyMethodDef DapStreamMethods[] = {
+static PyMethodDef DapStreamMethods[] = {
     {"addProcHttp", dap_stream_add_proc_http_py, METH_VARARGS | METH_STATIC, ""},
     {NULL, NULL, 0, NULL}
 };

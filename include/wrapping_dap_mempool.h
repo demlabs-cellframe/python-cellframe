@@ -12,7 +12,7 @@ typedef struct PyDapMempool{
 
 PyObject *dap_chain_mempool_add_proc_py(PyObject *self, PyObject *args);
 
-PyMethodDef  DapMempoolMethods[] = {
+static PyMethodDef  DapMempoolMethods[] = {
         {NULL,NULL,0,NULL}
 };
 

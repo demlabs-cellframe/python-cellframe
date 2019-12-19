@@ -13,7 +13,7 @@ typedef struct PyDapHttpFolder{
 
 PyObject *dap_http_folder_add_py(PyObject *self, PyObject *args);
 
-PyMethodDef DapHttpFolderMethods[] = {
+static PyMethodDef DapHttpFolderMethods[] = {
     {"add", (PyCFunction)dap_http_folder_add_py, METH_VARARGS | METH_STATIC, ""},
     {NULL, NULL, 0, NULL}
 };

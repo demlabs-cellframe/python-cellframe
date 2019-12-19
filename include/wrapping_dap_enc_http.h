@@ -10,7 +10,7 @@ typedef struct PyDapEncHttp{
 
 PyObject *enc_http_add_proc_py(PyObject *self, PyObject *args);
 
-PyMethodDef DapEncHttpMethods[] = {
+static PyMethodDef DapEncHttpMethods[] = {
     {"addProc", enc_http_add_proc_py, METH_VARARGS | METH_STATIC, ""},
     {NULL, NULL, 0, NULL}
 };

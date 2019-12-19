@@ -17,7 +17,7 @@ dap_enc_key_type_t dap_enc_key_type;
 PyObject *dap_stream_ctl_add_proc_py(PyObject *self, PyObject *args);
 int dap_stream_ctl_init_py(dap_enc_key_type_t key, uint32_t size);
 
-PyMethodDef DapStreamCtlMethods[] = {
+static PyMethodDef DapStreamCtlMethods[] = {
     {"addProcHttp", dap_stream_ctl_add_proc_py, METH_VARARGS | METH_STATIC, ""},
     {NULL, NULL, 0, NULL}
 };
