@@ -13,16 +13,42 @@ app_name = "testAPP"
 print("Create config file")
 create_config_file(app_name)
 
+
+#json_string = """{
+#    "modules": ["Crypto", "ServerCore" ],
+#    "DAP": {
+#       "config_dir": \""""+os.getcwd()+"""\",
+#       "log_level": "L_DEBUG",
+#       "application_name": \""""+app_name+"""\",
+#       "file_name_log": \""""+app_name+""".text\"
+#    },
+#    "Stream" : {
+#        "DebugDumpStreamHeaders": false
+#    },
+#    "ServerCore" : {
+#        "thread_cnt": 0,
+#        "conn": 0
+#    }
+#    }"""
+
 json_string = """{
-    "modules": ["crypto"],
+    "modules": ["Crypto", "ServerCore", "Http", "HttpFolder", "GlobalDB", "Client", "HttpClientSimple", "Mempool",
+     "Chain", "Wallet", "ChainCSDag", "ChainCSDagPoa", "ChainCSDagPos", "GDB", "Net", "ChainNetSrv", "EncHttp",
+     "Stream", "StreamCtl", "HttpSimple", "StreamChChain", "StreamChChainNet", "StreamChChainNetSrv"],
     "DAP": {
        "config_dir": \""""+os.getcwd()+"""\",
        "log_level": "L_DEBUG",
        "application_name": \""""+app_name+"""\",
        "file_name_log": \""""+app_name+""".text\"
+    },
+    "Stream" : {
+        "DebugDumpStreamHeaders": false
+    },
+    "ServerCore" : {
+        "thread_cnt": 0,
+        "conn": 0
     }
     }"""
-
 
 print("init start")
 init(json_string)
