@@ -97,3 +97,12 @@
 [submodule "libdap-chain-common-python"]
 	path = libdap-chain-common-python
 	url = https://gitlab.demlabs.net/cellframe/libdap-chain-common-python.git
+[submodule "libdap-chain-cs-dag"]
+	path = libdap-chain-cs-dag
+	url = https://gitlab.demlabs.net/cellframe/libdap-chain-cs-dag.git
+[submodule "libdap-chain-cs-dag-poa"]
+	path = libdap-chain-cs-dag-poa
+	url = https://gitlab.demlabs.net/cellframe/libdap-chain-cs-dag-poa.git
+[submodule "libdap-chain-cs-dag-pos"]
+	path = libdap-chain-cs-dag-pos
+	url = https://gitlab.demlabs.net/cellframe/libdap-chain-cs-dag-pos.git

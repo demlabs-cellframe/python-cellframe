@@ -77,6 +77,13 @@ target_compile_options(dap_chain_python_module PRIVATE "-fpic")
 add_subdirectory(libdap-client-python)
 target_compile_options(dap_client_python_module PRIVATE "-fpic")
 
+add_subdirectory(libdap-chain-cs-dag)
+target_compile_options(dap_chain_cs_dag PRIVATE "-fpic")
+add_subdirectory(libdap-chain-cs-dag-poa)
+target_compile_options(dap_chain_cs_dag_poa PRIVATE "-fpic")
+add_subdirectory(libdap-chain-cs-dag-pos)
+target_compile_options(dap_chain_cs_dag_pos PRIVATE "-fpic")
+
 file(GLOB PYTHON_CELLFRAME_SRCS src/*.c)
 file(GLOB PYTHON_CELLFRAME_HEADERS include/*.h)
 
@@ -132,6 +139,10 @@ target_link_libraries(${PROJECT_NAME} dap_python_module
                       DapServerCore
                       dap_chain_python_module
                       dap_chain_net_python_module
+
+                      dap_chain_cs_dag
+                      dap_chain_cs_dag_pos
+                      dap_chain_cs_dag_poa
                      )
 #target_link_libraries(${PROJECT_NAME} dap_core dap_crypto)
 
