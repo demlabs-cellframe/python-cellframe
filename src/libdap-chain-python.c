@@ -15,7 +15,8 @@ PyObject *dap_chain_find_by_id_py(PyObject *self, PyObject *args){
     if (!PyArg_ParseTuple(args, "O|O", &obj_net_id, &obj_chain_id))
         return NULL;
     PyObject *new_obj = _PyObject_New(&dapChainObject_dapChainType);
-    ((PyDapChainObject*)new_obj)->chain_t = dap_chain_find_by_id(((PyDapChainNetIdObject*)obj_net_id)->net_id, ((PyDapChainIDObject*)obj_chain_id)->chain_id);
+    ((PyDapChainObject*)new_obj)->chain_t = dap_chain_find_by_id(((PyDapChainNetIdObject*)obj_net_id)->net_id,
+                                                                 *(((PyDapChainIDObject*)obj_chain_id)->chain_id));
     return Py_BuildValue("O", &new_obj);
 }
 
