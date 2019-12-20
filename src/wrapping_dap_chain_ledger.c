@@ -18,7 +18,7 @@ PyObject *dap_chain_ledger_set_local_cell_id_py(PyObject *self, PyObject *args){
     if (!PyArg_ParseTuple(args, "O", &obj_local_cell_id))
         return NULL;
     dap_chain_ledger_set_local_cell_id(((PyDapChainLedgerObject*)self)->ledger,
-                                       *(((PyDapChainCellIDObject*)obj_local_cell_id)->cell_id));
+                                       ((PyDapChainCellIDObject*)obj_local_cell_id)->cell_id);
     return  PyLong_FromLong(0);
 }
 PyObject *dap_chain_node_datum_tx_calc_hash_py(PyObject *self, PyObject *args){
