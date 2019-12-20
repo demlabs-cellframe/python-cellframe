@@ -70,6 +70,8 @@ target_compile_options(dap_chain_net_python_module PRIVATE "-fpic")
 target_compile_options(dap_enc_server PRIVATE "-fpic")
 target_compile_options(dap_http_server PRIVATE "-fpic")
 target_compile_options(dap_session PRIVATE "-fpic")
+add_subdirectory(libdap-stream-ch-chain-net-srv)
+target_compile_options(dap_stream_ch_chain_net_srv PRIVATE "-fpic")
 
 add_subdirectory(libdap-chain-python)
 target_compile_options(dap_chain_python_module PRIVATE "-fpic")
@@ -143,6 +145,7 @@ target_link_libraries(${PROJECT_NAME} dap_python_module
                       dap_chain_cs_dag
                       dap_chain_cs_dag_pos
                       dap_chain_cs_dag_poa
+                      dap_stream_ch_chain_net_srv
                      )
 #target_link_libraries(${PROJECT_NAME} dap_core dap_crypto)
 
