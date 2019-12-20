@@ -251,6 +251,25 @@ static PyObject *python_cellframe_init(PyObject *self, PyObject *args){
                 return NULL;
             }
         }
+        if (strcmp(c_value, "Client") == 0){
+            if (dap_client_init() != 0){
+                PyErr_SetString(CellFrame_error, "Failed to initialize Client module. ");
+                return NULL;
+            }
+        }
+        if (strcmp(c_value, "GDB") == 0){
+            if (dap_chain_gdb_init() != 0){
+                PyErr_SetString(CellFrame_error, "Failed to initialize GDB module. ");
+                return NULL;
+            }
+        }
+        if (strcmp(c_value, "Net") == 0){
+            if (dap_chain_net_init_py() != 0 ){
+                PyErr_SetString(CellFrame_error, "Failed to initialize chain net module. ");
+                return NULL;
+            }
+        }
+
 
 //        if (strcmp(c_value, "ENC") == 0){
 //            if (dap_enc_init())
