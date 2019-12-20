@@ -11,12 +11,12 @@
 #include "libdap_chain_atom_iter_python.h"
 #include "wrapping_dap_chain_cell.h"
 #include "wrapping_dap_chain_common.h"
-#include "wrapping_dap_chain_common_objects.h"
 #include "wrapping_dap_chain_cs.h"
 #include "wrapping_dap_chain_datum.h"
 #include "wrapping_dap_chain_datum_token.h"
 #include "wrapping_dap_chain_datum_tx.h"
 #include "wrapping_dap_chain_ledger.h"
+#include "wrapping_dap_chain_datum_tx.h"
 // ============
 // === Chain net ===
 #include "libdap_chain_net_python.h"
@@ -26,6 +26,30 @@
 #include "wrapping_dap_chain_net_node_info.h"
 #include "wrapping_dap_chain_net_state.h"
 // ============
+
+
+#include "wrapping_http.h"
+#include "wrapping_dap_enc_http.h"
+#include "wrapping_dap_stream.h"
+#include "wrapping_dap_stream_ctl.h"
+#include "wrapping_dap_mempool.h"
+#include "wrapping_dap_http_folder.h"
+
+#include "dap_http_client_simple.h"
+#include "dap_chain_wallet.h"
+#include "dap_chain_cs.h"
+#include "dap_chain_cs_dag.h"
+#include "dap_chain_cs_dag_poa.h"
+#include "dap_chain_cs_dag_pos.h"
+#include "dap_chain_net_srv.h"
+#include "dap_http_simple.h"
+#include "dap_stream_ch_chain.h"
+#include "dap_stream_ch_chain_net.h"
+#include "dap_stream_ch_chain_net_srv.h"
+#include "dap_enc_ks.h"
+#include "dap_chain_gdb.h"
+#include "libdap_chain_net_python.h"
+
 #include "dap_common.h"
 
 
@@ -38,6 +62,20 @@ extern "C" {
 
 static bool init_crypto;
 static bool init_chain;
+static bool init_stream;
+static bool init_stream_ctl;
+static bool init_http_folder;
+static bool init_http;
+static bool init_http_enc;
+static bool init_mempool;
+
+static bool init_http_client_simple;
+static bool init_wallet;
+static bool init_cs_dag;
+static bool init_cs_dag_poa;
+static bool init_cs_dag_pos;
+static bool init_chain_net_srv;
+static bool init_ks;
 
 static PyObject* CellFrame_error;
 
