@@ -77,8 +77,9 @@ static PyObject *python_cellframe_init(PyObject *self, PyObject *args){
     for (int i=0; i < size_list;i++){
         PyObject *value = PyList_GetItem(getModules, i);
         const char *c_value = PyUnicode_AsUTF8(value);
+        log_it(L_INFO, "Initializing the %s module ", c_value);
         if (strcmp(c_value, "Crypto") == 0){            //Init crypto
-            log_it(L_INFO, "Initializing the %s module", c_value);
+//            log_it(L_INFO, "Initializing the %s module", c_value);
             init_crypto = true;
             if (dap_crypto_init() != 0){
                 PyErr_SetString(CellFrame_error, "An error occurred while initializing the libdap-crypto-python module.");
@@ -243,6 +244,12 @@ static PyObject *python_cellframe_init(PyObject *self, PyObject *args){
         if (strcmp(c_value, "EncKS") == 0){
 //            if (dap_enc_ks_init())
 //            if (dap_enc_ks_
+        }
+        if (strcmp(c_value, "GlobalDB") == 0){
+            if (dap_chain_global_db_init(g_config) != 0){
+                PyErr_SetString(CellFrame_error, "Failed to initialize GlobalDB module. ");
+                return NULL;
+            }
         }
 
 //        if (strcmp(c_value, "ENC") == 0){
