@@ -298,7 +298,7 @@ static PyTypeObject DapChainNetSrvPriceUnitUIDObject_DapChainNetSrvPriceUnitUIDO
 /* Chain cell id */
 typedef struct PyDapChainID{
     PyObject_HEAD
-    dap_chain_id_t chain_id;
+    dap_chain_id_t *chain_id;
 }PyDapChainIDObject;
 
 static PyTypeObject DapChainIDObject_DapChainIDType = {
@@ -349,7 +349,7 @@ static PyTypeObject DapChainIDObject_DapChainIDType = {
 /* Chain cell id */
 typedef struct PyDapChainCellID{
     PyObject_HEAD
-    dap_chain_cell_id_t *cell_id;
+    dap_chain_cell_id_t cell_id;
 }PyDapChainCellIDObject;
 
 static PyTypeObject DapChainCellIDObject_DapChainCellIDType = {
