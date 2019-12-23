@@ -3,4 +3,4 @@ _skbuild/
 dist/
 CellFrame.egg-info/
 *.text
-
+CMakeLists.txt.user*
