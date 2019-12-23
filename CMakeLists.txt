@@ -28,7 +28,7 @@ endif()
 file(GLOB CRYPTO_PYTHON_SRCS src/*.c)
 file(GLOB CRYPTO_PYTHON_HEADERS include/*.h)
 
-set(Python_ADDITIONAL_VERSIONS 3.7)
+set(Python_ADDITIONAL_VERSIONS 3.7 3.6 3.5 3.4)
 find_package (PythonLibs REQUIRED)
 include_directories(${PYTHON_INCLUDE_DIR} include/)
 
