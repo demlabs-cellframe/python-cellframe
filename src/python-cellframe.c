@@ -61,7 +61,19 @@ static PyObject *python_cellframe_init(PyObject *self, PyObject *args){
         PyErr_SetString(CellFrame_error, "Can't init common functions module");
         return NULL;
     }
-
+    dap_set_appname(app_name);
+    //generation config files
+    PyObject *configure = PyDict_GetItemString(result, "Configuration");
+    int res_gen_config_file = gen_config_files(config_dir, app_name, configure);
+    switch (res_gen_config_file) {
+    case -1:
+        PyErr_SetString(CellFrame_error, "Can't generate configuration files. Can name directory path contains not ASCII simbols.");
+        return NULL;
+    case -3:
+        PyErr_SetString(CellFrame_error, "Can't generate configuration files. Can't open file stream.");
+        return NULL;
+    }
+    //Init config
     dap_config_init(config_dir);
     if ((g_config = dap_config_open(app_name) ) == NULL){
         PyErr_SetString(CellFrame_error, "Can't init general configurations");
@@ -109,6 +121,7 @@ static PyObject *python_cellframe_init(PyObject *self, PyObject *args){
                 PyErr_SetString(CellFrame_error, "Failed to initialize ServerCore.");
                 return NULL;
             }
+            init_server_core = true;
         }
         if (strcmp(c_value, "Chain") == 0){
             if(init_chain_py() != 0){
@@ -400,8 +413,6 @@ PyMODINIT_FUNC PyInit_CellFrame(void){
 }
 
 static PyObject *python_cellframe_deinit(PyObject *self, PyObject *args){
-    dap_config_close(g_config);
-    dap_config_deinit();
     if (init_crypto)
         dap_crypto_deinit();
     if (init_chain){
@@ -420,9 +431,15 @@ static PyObject *python_cellframe_deinit(PyObject *self, PyObject *args){
     if (init_http){
         dap_http_deinit();
     }
+    if (init_server_core){
+        dap_server_core_deinit();
+    }
     if (init_ks){
         dap_enc_ks_deinit();
     }
+    dap_config_close(g_config);
+    dap_config_deinit();
+    dap_common_deinit();
     return PyLong_FromLong(0);
 }
 

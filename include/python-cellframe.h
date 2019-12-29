@@ -50,6 +50,10 @@
 #include "dap_chain_gdb.h"
 #include "libdap_chain_net_python.h"
 
+#include "dap_file_utils.h"
+#include "dap_string.h"
+#include "generator_config_file.h"
+
 #include "dap_common.h"
 
 
@@ -67,6 +71,7 @@ static bool init_stream_ctl;
 static bool init_http_folder;
 static bool init_http;
 static bool init_http_enc;
+static bool init_server_core;
 static bool init_mempool;
 
 static bool init_http_client_simple;
