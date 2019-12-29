@@ -7,7 +7,6 @@ set(CMAKE_C_STANDARD 11)
 add_definitions("-fpic")
 add_definitions("-DDAP_LOG_MT")
 
-add_definitions ("-DNODE_NETNAME=\"cellframe\"")
 if(UNIX)
     add_definitions("-DDAP_OS_UNIX")
 endif()
