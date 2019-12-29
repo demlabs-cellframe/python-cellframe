@@ -1,4 +1,6 @@
 build/
+testdir/
+*.text
 _skbuild/
 dist/
 CellFrame.egg-info/
