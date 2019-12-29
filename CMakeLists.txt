@@ -141,6 +141,7 @@ target_link_libraries(${PROJECT_NAME} dap_python_module
                       DapServerCore
                       dap_chain_python_module
                       dap_chain_net_python_module
+                      dap_chain_gdb
 
                       dap_chain_cs_dag
                       dap_chain_cs_dag_pos
