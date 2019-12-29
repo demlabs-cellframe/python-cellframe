@@ -11,8 +11,8 @@ if (UNIX)
 endif()
 
 add_definitions("-DDAP_LOG_MT")
-add_definitions("-DNODE_NETNAME=\"cellframe\"")
-add_definitions("-DDAP_APP_NAME=\"pythonCellframe\"")
+#add_definitions("-DNODE_NETNAME=\"cellframe\"")
+#add_definitions("-DDAP_APP_NAME=\"pythonCellframe\"")
 
 add_subdirectory(libdap)
 target_compile_options(dap_core PRIVATE "-fpic")
@@ -141,6 +141,7 @@ target_link_libraries(${PROJECT_NAME} dap_python_module
                       DapServerCore
                       dap_chain_python_module
                       dap_chain_net_python_module
+                      dap_chain_gdb
 
                       dap_chain_cs_dag
                       dap_chain_cs_dag_pos
