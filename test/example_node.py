@@ -109,6 +109,7 @@ init(json_string)
 setLogLevel(DEBUG)
 
 sr = ServerCore.listen("0.0.0.0", 3307, 0)
+Http.new(sr, app_name)
 EncHttp.addProc(sr, "/enc_http")
 Stream.addProcHttp(sr, "/stream")
 StreamCtl.addProcHttp(sr, "/stream_ctl")
@@ -117,9 +118,9 @@ if (configGetItem("mempool", "accept") == "true"):
     Mempool.addProc(sr, "/mempool")
 
 ev = Events()
-ev.strat()
+ev.start()
 
-rc = sr.loop()
+rc = ServerCore.loop(sr)
 
 
 
