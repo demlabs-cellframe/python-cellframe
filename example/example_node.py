@@ -1,9 +1,9 @@
 from CellFrame import *
 import os
 
-app_name = "example-node"
-tmp_dir = os.getcwd() + "/testdir"
-var_dir = os.getcwd() + "/var_dir"
+app_name = "example_node"
+tmp_dir = os.getcwd() + "/tmp"
+var_dir = os.getcwd() + "/var"
 
 json_string = """{
     "modules": ["Crypto", "ServerCore", "Http", "HttpFolder", "GlobalDB", "Client", "HttpClientSimple", "Mempool",
@@ -31,7 +31,7 @@ json_string = """{
         },
         "conserver": {
             "enabled": true,
-            "listen_unix_socket_path": \""""+var_dir+"""/run/node_cli\"
+            "listen_unix_socket_path": \""""+tmp_dir+"""/node_cli\"
         },
         "resources": {
             "threads_cnt": 0,
@@ -39,25 +39,19 @@ json_string = """{
             "log_file": \""""+var_dir+"""/log/cellframe-node.log\",
             "wallets_path": \""""+var_dir+"""/lib/wallet\",
             "ca_folders": [
-                \""""+var_dir+"""/lib/ca\",
-                \""""+tmp_dir+"""/share/ca\"
+                \""""+var_dir+"""/lib/ca\"
             ],
             "dap_global_db_path": \""""+var_dir+"""/lib/global_db\",
             "dap_global_db_driver": "cdb"
         },
         "networks":{
-            "private": {
+            "devnet": {
                 "general":{
-                    "id": "0xFF00000000000001",
-                    "name": "private",
-                    "type": "testing",
-                    "node-role": "full",
-                    "gdb_groups_prefix": "private",
-                    "node-addr-expired": 168,
-                    "seed_nodes_ipv4": ["153.256.133.160", "62.216.90.227"],
-                    "seed_nodes_port": [8079, 8079],
-                    "seed_nodes_aliases": ["kelvin.testnet.root.0", "kelvin.testnet.root.1"],
-                    "seed_nodes_addrs": ["ffff::0000::0000::0001","ffff::0000::0000::0002"]
+                    "id": "0xFF00000000000003",
+                    "name": "devnet",
+                    "type": "development",
+                    "node-role": "root",
+                    "gdb_groups_prefix": "devnet"
                 },
                 "name_cfg_files": ["chain-gdb"],
                 "conf_files":{
@@ -91,7 +85,9 @@ setLogLevel(DEBUG)
 
 server_host_name = configGetItem("server", "listen_address")
 server_port = int(configGetItem("server", "listen_port_tcp"))
-sr = ServerCore.listen("0.0.0.0", 3307, 0)
+print(server_host_name)
+print(server_port)
+sr = ServerCore.listen(server_host_name, server_port, 0)
 Http.new(sr, app_name)
 EncHttp.addProc(sr, "/enc_http")
 Stream.addProcHttp(sr, "/stream")
