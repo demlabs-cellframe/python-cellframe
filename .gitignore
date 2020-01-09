@@ -1,5 +1,6 @@
 build/
 testdir/
+var_dir/
 *.text
 _skbuild/
 dist/
