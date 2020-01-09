@@ -3,6 +3,7 @@ import os
 
 app_name = "example-node"
 tmp_dir = os.getcwd() + "/testdir"
+var_dir = os.getcwd() + "/var_dir"
 
 json_string = """{
     "modules": ["Crypto", "ServerCore", "Http", "HttpFolder", "GlobalDB", "Client", "HttpClientSimple", "Mempool",
@@ -30,18 +31,18 @@ json_string = """{
         },
         "conserver": {
             "enabled": true,
-            "listen_unix_socket_path": \""""+tmp_dir+"""/run/node_cli\"
+            "listen_unix_socket_path": \""""+var_dir+"""/run/node_cli\"
         },
         "resources": {
             "threads_cnt": 0,
-            "pid_path": \""""+tmp_dir+"""/run/cellframe-node.pid\",
-            "log_file": \""""+tmp_dir+"""/log/cellframe-node.log\",
-            "wallets_path": \""""+tmp_dir+"""/lib/wallet\",
+            "pid_path": \""""+var_dir+"""/run/cellframe-node.pid\",
+            "log_file": \""""+var_dir+"""/log/cellframe-node.log\",
+            "wallets_path": \""""+var_dir+"""/lib/wallet\",
             "ca_folders": [
-                \""""+tmp_dir+"""/lib/ca\",
+                \""""+var_dir+"""/lib/ca\",
                 \""""+tmp_dir+"""/share/ca\"
             ],
-            "dap_global_db_path": \""""+tmp_dir+"""/lib/global_db\",
+            "dap_global_db_path": \""""+var_dir+"""/lib/global_db\",
             "dap_global_db_driver": "cdb"
         },
         "networks":{
