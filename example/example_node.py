@@ -85,8 +85,6 @@ setLogLevel(DEBUG)
 
 server_host_name = configGetItem("server", "listen_address")
 server_port = int(configGetItem("server", "listen_port_tcp"))
-print(server_host_name)
-print(server_port)
 sr = ServerCore.listen(server_host_name, server_port, 0)
 Http.new(sr, app_name)
 EncHttp.addProc(sr, "/enc_http")
