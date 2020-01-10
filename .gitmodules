@@ -103,3 +103,6 @@
 [submodule "libdap-chain-cs-dag-pos"]
 	path = libdap-chain-cs-dag-pos
 	url = https://gitlab.demlabs.net/cellframe/libdap-chain-cs-dag-pos.git
+[submodule "libdap-chain-common"]
+	path = libdap-chain-common
+	url = https://gitlab.demlabs.net/cellframe/libdap-chain-common.git
