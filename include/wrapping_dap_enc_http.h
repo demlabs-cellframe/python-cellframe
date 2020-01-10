@@ -3,6 +3,8 @@
 
 #include <Python.h>
 #include "dap_server_python.h"
+#include "dap_enc_http.h"
+#include "dap_http.h"
 
 typedef struct PyDapEncHttp{
     PyObject_HEAD

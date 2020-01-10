@@ -1,5 +1,6 @@
 build/
-testdir/
+example/tmp
+example/var
 *.text
 _skbuild/
 dist/
