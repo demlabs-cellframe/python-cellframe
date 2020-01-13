@@ -82,3 +82,6 @@
 [submodule "libdap-python"]
 	path = libdap-python
 	url = https://gitlab.demlabs.net/cellframe/libdap-python.git
+[submodule "libdap-chain-common-python"]
+	path = libdap-chain-common-python
+	url = https://gitlab.demlabs.net/cellframe/libdap-chain-common-python.git
