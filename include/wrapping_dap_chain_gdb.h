@@ -19,7 +19,7 @@ PyObject* dap_chain_gdb_new_py(PyObject* self, PyObject *args);
 PyObject *dap_chain_gdb_delete_py(PyObject *self, PyObject *args);
 PyObject *dap_chain_gdb_get_group_py(PyObject *self, PyObject *args);
 
-PyMethodDef DapChainGDBMethod[] = {
+static PyMethodDef DapChainGDBMethod[] = {
     {"new", (PyCFunction)dap_chain_gdb_new_py, METH_VARARGS | METH_STATIC, ""},
     {"delete", (PyCFunction)dap_chain_gdb_delete_py, METH_VARARGS | METH_STATIC, ""},
     {"getGroup", (PyCFunction)dap_chain_gdb_get_group_py, METH_VARARGS | METH_STATIC, ""},
