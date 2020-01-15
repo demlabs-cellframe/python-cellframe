@@ -53,6 +53,7 @@
 #include "dap_file_utils.h"
 #include "dap_string.h"
 #include "generator_config_file.h"
+#include "wrapping_dap_chain_gdb.h"
 
 #include "dap_common.h"
 

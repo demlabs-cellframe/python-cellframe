@@ -271,7 +271,7 @@ static PyObject *python_cellframe_init(PyObject *self, PyObject *args){
             }
         }
         if (strcmp(c_value, "GDB") == 0){
-            if (dap_chain_gdb_init() != 0){
+            if (dap_chain_gdb_init_py() != 0){
                 PyErr_SetString(CellFrame_error, "Failed to initialize GDB module. ");
                 return NULL;
             }
@@ -333,6 +333,8 @@ PyMODINIT_FUNC PyInit_CellFrame(void){
             PyType_Ready(&DapChainNetNodeObject_DapChainNetNodeObjectType) < 0 ||
             PyType_Ready(&DapChainNetStateObject_DapChainNetStateObjectType) < 0 ||
             // =============
+
+            PyType_Ready(&DapChainGDBObject_DapChainGDBType) < 0 ||
 
             PyType_Ready(&DapHTTP_DapHTTPType) < 0 ||
             PyType_Ready(&DapEncHTTP_DapEncHTTPType) < 0 ||
@@ -401,6 +403,8 @@ PyMODINIT_FUNC PyInit_CellFrame(void){
     PyModule_AddObject(module, "ChainNetNode", (PyObject*)&DapChainNetNodeObject_DapChainNetNodeObjectType);
     PyModule_AddObject(module, "ChainNetState", (PyObject*)&DapChainNetStateObject_DapChainNetStateObjectType);
     // =============
+
+    PyModule_AddObject(module, "ChainGDB", (PyObject*)&DapChainGDBObject_DapChainGDBType);
 
     PyModule_AddObject(module, "Http", (PyObject*)&DapHTTP_DapHTTPType);
     PyModule_AddObject(module, "EncHttp", (PyObject*)&DapEncHTTP_DapEncHTTPType);
