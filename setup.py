@@ -11,7 +11,7 @@ from skbuild import setup
 
 setup(
     name="CellFrame",
-    version="0.6.1",
+    version="0.7.0",
     description="SDK CellFrame network",
     author='DEMLABS Inc. (2017-2019)',
     license="GNU GPL",
