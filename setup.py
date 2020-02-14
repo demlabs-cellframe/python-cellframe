@@ -11,10 +11,10 @@ from skbuild import setup
 
 setup(
     name="CellFrame",
-    version="0.7.0",
-    description="SDK CellFrame network",
-    author='DEMLABS Inc. (2017-2019)',
-    license="GNU GPL",
+    version="0.9-0",
+    description="CellFrame SDK",
+    author='DEMLABS Inc. (2017-2020)',
+    license="GNU GPLv3",
     packages=['CellFrame'],
 #    tests_require=['pytest'],
 #    setup_requires=setup_requires

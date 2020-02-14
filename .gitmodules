@@ -55,9 +55,6 @@
 [submodule "libdap-server-core"]
 	path = libdap-server-core
 	url = https://gitlab.demlabs.net/cellframe/libdap-server-core.git
-[submodule "libdap-server-http-db-auth"]
-	path = libdap-server-http-db-auth
-	url = https://gitlab.demlabs.net/cellframe/libdap-server-http-db-auth.git
 [submodule "libdap-server-udp"]
 	path = libdap-server-udp
 	url = https://gitlab.demlabs.net/cellframe/libdap-server-udp.git
@@ -73,9 +70,6 @@
 [submodule "libdap-stream-ch-chain-net"]
 	path = libdap-stream-ch-chain-net
 	url = https://gitlab.demlabs.net/cellframe/libdap-stream-ch-chain-net.git
-[submodule "libdap-server-http-db"]
-	path = libdap-server-http-db
-	url = http://gitlab.demlabs.net/cellframe/libdap-server-http-db.git
 [submodule "libdap-chain-net-python"]
 	path = libdap-chain-net-python
 	url = https://gitlab.demlabs.net/cellframe/libdap-chain-net-python.git
