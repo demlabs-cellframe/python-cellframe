@@ -1,105 +1,105 @@
 [submodule "libdap-python"]
-	path = libdap-python
+	path = cellframe-sdk/libdap-python
 	url = https://gitlab.demlabs.net/cellframe/libdap-python.git
         branch = features-2466
 [submodule "libdap"]
-	path = libdap
+	path = cellframe-sdk/libdap
 	url = https://gitlab.demlabs.net/cellframe/libdap.git
 [submodule "libdap-server-core-python"]
-	path = libdap-server-core-python
+	path = cellframe-sdk/libdap-server-core-python
 	url = https://gitlab.demlabs.net/cellframe/libdap-server-core-python.git
         branch = features-2466
 [submodule "libdap-crypto-python"]
-	path = libdap-crypto-python
+	path = cellframe-sdk/libdap-crypto-python
 	url = https://gitlab.demlabs.net/cellframe/libdap-crypto-python.git
         branch = features-2466
 [submodule "libdap-chain-python"]
-	path = libdap-chain-python
+	path = cellframe-sdk/libdap-chain-python
 	url = https://gitlab.demlabs.net/cellframe/libdap-chain-python.git
 [submodule "libdap-chain"]
-	path = libdap-chain
+	path = cellframe-sdk/libdap-chain
 	url = https://gitlab.demlabs.net/cellframe/libdap-chain.git
 [submodule "libdap-chain-crypto"]
-	path = libdap-chain-crypto
+	path = cellframe-sdk/libdap-chain-crypto
 	url = https://gitlab.demlabs.net/cellframe/libdap-chain-crypto.git
 [submodule "libdap-chain-gdb"]
-	path = libdap-chain-gdb
+	path = cellframe-sdk/libdap-chain-gdb
 	url = https://gitlab.demlabs.net/cellframe/libdap-chain-gdb.git
 [submodule "libdap-chain-global-db"]
-	path = libdap-chain-global-db
+	path = cellframe-sdk/libdap-chain-global-db
 	url = https://gitlab.demlabs.net/cellframe/libdap-chain-global-db.git
 [submodule "libdap-chain-mempool"]
-	path = libdap-chain-mempool
+	path = cellframe-sdk/libdap-chain-mempool
 	url = https://gitlab.demlabs.net/cellframe/libdap-chain-mempool.git
 [submodule "libdap-chain-net"]
-	path = libdap-chain-net
+	path = cellframe-sdk/libdap-chain-net
 	url = https://gitlab.demlabs.net/cellframe/libdap-chain-net.git
 [submodule "libdap-chain-net-srv"]
-	path = libdap-chain-net-srv
+	path = cellframe-sdk/libdap-chain-net-srv
 	url = https://gitlab.demlabs.net/cellframe/libdap-chain-net-srv.git
 [submodule "libdap-chain-net-srv-vpn"]
-	path = libdap-chain-net-srv-vpn
+	path = cellframe-sdk/libdap-chain-net-srv-vpn
 	url = https://gitlab.demlabs.net/cellframe/libdap-chain-net-srv-vpn.git
 [submodule "libdap-chain-wallet"]
-	path = libdap-chain-wallet
+	path = cellframe-sdk/libdap-chain-wallet
 	url = https://gitlab.demlabs.net/cellframe/libdap-chain-wallet.git
 [submodule "libdap-client"]
-	path = libdap-client
+	path = cellframe-sdk/libdap-client
 	url = https://gitlab.demlabs.net/cellframe/libdap-client.git
 [submodule "libdap-crypto"]
-	path = libdap-crypto
+	path = cellframe-sdk/libdap-crypto
 	url = https://gitlab.demlabs.net/cellframe/libdap-crypto.git
 [submodule "libdap-server"]
-	path = libdap-server
+	path = cellframe-sdk/libdap-server
 	url = https://gitlab.demlabs.net/cellframe/libdap-server.git
 [submodule "libdap-server-core"]
-	path = libdap-server-core
+	path = cellframe-sdk/libdap-server-core
 	url = https://gitlab.demlabs.net/cellframe/libdap-server-core.git
 [submodule "libdap-server-udp"]
-	path = libdap-server-udp
+	path = cellframe-sdk/libdap-server-udp
 	url = https://gitlab.demlabs.net/cellframe/libdap-server-udp.git
 [submodule "libdap-stream"]
-	path = libdap-stream
+	path = cellframe-sdk/libdap-stream
 	url = https://gitlab.demlabs.net/cellframe/libdap-stream.git
 [submodule "libdap-stream-ch"]
-	path = libdap-stream-ch
+	path = cellframe-sdk/libdap-stream-ch
 	url = https://gitlab.demlabs.net/cellframe/libdap-stream-ch.git
 [submodule "libdap-stream-ch-chain"]
-	path = libdap-stream-ch-chain
+	path = cellframe-sdk/libdap-stream-ch-chain
 	url = https://gitlab.demlabs.net/cellframe/libdap-stream-ch-chain.git
 [submodule "libdap-stream-ch-chain-net"]
-	path = libdap-stream-ch-chain-net
+	path = cellframe-sdk/libdap-stream-ch-chain-net
 	url = https://gitlab.demlabs.net/cellframe/libdap-stream-ch-chain-net.git
 [submodule "libdap-chain-net-python"]
-	path = libdap-chain-net-python
+	path = cellframe-sdk/libdap-chain-net-python
 	url = https://gitlab.demlabs.net/cellframe/libdap-chain-net-python.git
 [submodule "libdap-client-python"]
-	path = libdap-client-python
+	path = cellframe-sdk/libdap-client-python
 	url = https://gitlab.demlabs.net/cellframe/libdap-client-python.git
 [submodule "libdap-stream-ch-chain-net-srv"]
-	path = libdap-stream-ch-chain-net-srv
+	path = cellframe-sdk/libdap-stream-ch-chain-net-srv
 	url = https://gitlab.demlabs.net/cellframe/libdap-stream-ch-chain-net-srv.git
 [submodule "libdap-chain-net-srv-app"]
-	path = libdap-chain-net-srv-app
+	path = cellframe-sdk/libdap-chain-net-srv-app
 	url = https://gitlab.demlabs.net/cellframe/libdap-chain-net-srv-app.git
 [submodule "libdap-chain-net-srv-app-db"]
-	path = libdap-chain-net-srv-app-db
+	path = cellframe-sdk/libdap-chain-net-srv-app-db
 	url = https://gitlab.demlabs.net/cellframe/libdap-chain-net-srv-app-db.git
 [submodule "libdap-chain-common-python"]
-	path = libdap-chain-common-python
+	path = cellframe-sdk/libdap-chain-common-python
 	url = https://gitlab.demlabs.net/cellframe/libdap-chain-common-python.git
 [submodule "libdap-chain-cs-dag"]
-	path = libdap-chain-cs-dag
+	path = cellframe-sdk/libdap-chain-cs-dag
 	url = https://gitlab.demlabs.net/cellframe/libdap-chain-cs-dag.git
 [submodule "libdap-chain-cs-dag-poa"]
-	path = libdap-chain-cs-dag-poa
+	path = cellframe-sdk/libdap-chain-cs-dag-poa
 	url = https://gitlab.demlabs.net/cellframe/libdap-chain-cs-dag-poa.git
 [submodule "libdap-chain-cs-dag-pos"]
-	path = libdap-chain-cs-dag-pos
+	path = cellframe-sdk/libdap-chain-cs-dag-pos
 	url = https://gitlab.demlabs.net/cellframe/libdap-chain-cs-dag-pos.git
 [submodule "libdap-chain-common"]
-	path = libdap-chain-common
+	path = cellframe-sdk/libdap-chain-common
 	url = https://gitlab.demlabs.net/cellframe/libdap-chain-common.git
 [submodule "libdap-chain-gdb-python"]
-	path = libdap-chain-gdb-python
+	path = cellframe-sdk/libdap-chain-gdb-python
 	url = https://gitlab.demlabs.net/cellframe/libdap-chain-gdb-python.git
