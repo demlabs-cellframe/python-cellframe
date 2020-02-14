@@ -11,5 +11,10 @@ git submodule update --init
 cd ..
 sudo python3.7 setup.py install
 python3.7 test/main_test.py
-``
+```
 
+## How to package 
+First install packages 
+```
+sudo apt-get install devscripts dpkg-dev build-essential
+```

@@ -78,7 +78,7 @@ json_string = """{
     }
     }"""
 
-init(json_string)
+CellFrame.init(json_string)
 setLogLevel(DEBUG)
 
 server_host_name = configGetItem("server", "listen_address")

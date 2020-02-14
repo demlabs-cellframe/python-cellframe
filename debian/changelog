@@ -1,4 +1,11 @@
-python3-cellframe (0.5-1) testing; urgency=high
+python3-cellframe (0.9-1) testing; urgency=medium
+
+  * Non-maintainer upload.
+  * 
+
+ -- Dmitriy Gerasimov <naeper@demlabs.net>  Fri, 14 Feb 2020 16:12:18 +0700
+
+python3-cellframe (0.5-0) testing; urgency=high
 
   * Initial release. 
 
