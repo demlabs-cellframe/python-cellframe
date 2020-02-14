@@ -1,4 +1,4 @@
-build/
+build/*
 example/tmp
 example/var
 *.text
