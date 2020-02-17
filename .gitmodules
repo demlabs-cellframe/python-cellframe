@@ -34,3 +34,7 @@
 	path = cellframe-sdk-python/libdap-client-python
 	url = https://gitlab.demlabs.net/cellframe/libdap-client-python.git/
 	branch = master
+[submodule "cellframe-sdk-python/libdap-chain-cli-python"]
+	path = cellframe-sdk-python/libdap-chain-cli-python
+	url = https://gitlab.demlabs.net/cellframe/libdap-chain-cli-python.git
+	branch = master

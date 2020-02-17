@@ -9,12 +9,19 @@ json_string = """{
     "modules": ["Crypto", "ServerCore", "Http", "HttpFolder", "GlobalDB", "Client", "HttpClientSimple", "Mempool",
      "Chain", "Wallet", "ChainCSDag", "ChainCSDagPoa", "ChainCSDagPos", "GDB", "Net", "ChainNetSrv", "EncHttp",
      "Stream", "StreamCtl", "HttpSimple", "StreamChChain", "StreamChChainNet", "StreamChChainNetSrv"],
-    "DAP": {
+     "DAP": {
        "config_dir": \""""+tmp_dir+"""\",
        "log_level": "L_DEBUG",
        "application_name": \""""+app_name+"""\",
        "file_name_log": \""""+app_name+""".text\"
-    },
+     },
+     "Stream" : {
+        "DebugDumpStreamHeaders": false
+     },
+     "ServerCore" : {
+        "thread_cnt": 0,
+        "conn": 0
+     }
     "Configuration" : {
         "general": {
             "debug_mode": false,
@@ -22,12 +29,9 @@ json_string = """{
             "wallets_default": "default"
         },
         "server": {
-            "enabled": false,
+            "enabled": true,
             "listen_address": "0.0.0.0",
             "listen_port_tcp": 8079
-        },
-        "mempool": {
-             "accept": false
         },
         "conserver": {
             "enabled": true,
@@ -46,7 +50,7 @@ json_string = """{
             "devnet": {
                 "general":{
                     "id": "0xFF00000000000003",
-                    "name": "devnet",
+                    "name": "mychains-dev",
                     "type": "development",
                     "node-role": "root",
                     "gdb_groups_prefix": "devnet"
@@ -69,13 +73,6 @@ json_string = """{
             }
         }
     },
-    "Stream" : {
-        "DebugDumpStreamHeaders": false
-    },
-    "ServerCore" : {
-        "thread_cnt": 0,
-        "conn": 0
-    }
     }"""
 
 CellFrame.init(json_string)
