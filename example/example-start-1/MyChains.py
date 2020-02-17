@@ -1,7 +1,7 @@
 from CellFrame import *
 import os
 
-app_name = "example_node"
+app_name = "MyChains"
 tmp_dir = os.getcwd() + "/tmp"
 var_dir = os.getcwd() + "/var"
 
