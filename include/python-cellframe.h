@@ -49,6 +49,8 @@
 #include "dap_enc_ks.h"
 #include "dap_chain_gdb.h"
 #include "libdap_chain_net_python.h"
+#include "dap_app_cli.h"
+#include "libdap-app-cli-python.h"
 
 #include "dap_file_utils.h"
 #include "dap_string.h"
@@ -67,6 +69,7 @@ extern "C" {
 
 static bool init_crypto;
 static bool init_chain;
+static bool init_app_cli;
 static bool init_stream;
 static bool init_stream_ctl;
 static bool init_http_folder;

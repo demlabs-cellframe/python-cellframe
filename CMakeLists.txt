@@ -79,6 +79,8 @@ add_definitions("-DDAP_LOG_MT")
 
 add_subdirectory(cellframe-sdk/libdap)
 target_compile_options(dap_core PRIVATE "-fpic")
+add_subdirectory(cellframe-sdk/libdap-app-cli)
+target_compile_options(dap_app_cli PRIVATE "-fpic")
 add_subdirectory(cellframe-sdk/libdap-crypto)
 target_compile_options(dap_crypto PRIVATE "-fpic")
 add_subdirectory(cellframe-sdk/libdap-chain)
@@ -95,8 +97,6 @@ add_subdirectory(cellframe-sdk/libdap-chain-mempool)
 target_compile_options(dap_chain_mempool PRIVATE "-fpic" )
 add_subdirectory(cellframe-sdk/libdap-chain-net)
 target_compile_options(dap_chain_net PRIVATE "-fpic" )
-add_subdirectory(cellframe-sdk/libdap-chain-cli)
-target_compile_options(dap_chain_cli PRIVATE "-fpic")
 
 add_subdirectory(cellframe-sdk/libdap-server-core)
 target_compile_options(dap_server_core PRIVATE "-fpic" )
@@ -140,8 +140,8 @@ target_compile_options(dap_chain_gdb_python_module PRIVATE "-fpic")
 add_subdirectory(cellframe-sdk-python/libdap-chain-python)
 target_compile_options(dap_chain_python_module PRIVATE "-fpic")
 
-add_subdirectory(cellframe-sdk-python/libdap-chain-cli-python)
-target_compile_options(dap_chain_cli_python_module PRIVATE "-fpic")
+add_subdirectory(cellframe-sdk-python/libdap-app-cli-python)
+target_compile_options(dap_app_cli_python_module PRIVATE "-fpic")
 
 add_subdirectory(cellframe-sdk-python/libdap-client-python)
 target_compile_options(dap_client_python_module PRIVATE "-fpic")
@@ -210,6 +210,9 @@ target_link_libraries(${PROJECT_NAME} dap_python_module
                       dap_chain_net_python_module
                       dap_chain_gdb
                       dap_chain_gdb_python_module
+
+                      dap_app_cli
+                      dap_app_cli_python_module
 
                       dap_chain_cs_dag
                       dap_chain_cs_dag_pos
