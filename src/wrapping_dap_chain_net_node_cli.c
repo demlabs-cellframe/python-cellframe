@@ -31,10 +31,11 @@ PyObject *DapChainNodeCliObject_new(PyTypeObject *type_object, PyObject *args, P
     return (PyObject *)obj;
 }
 
-PyObject *dap_chain_node_cli_cmd_item_create_py(PyObject *self, PyObject *args){
+PyObject *dap_chain_node_cli_cmd_item_create_py(PyObject *a_self, PyObject *a_args){
+    (void) a_self;
     const char *name, *doc, *doc_ex;
     PyObject *obj_cmdfunc;
-    if (!PyArg_ParseTuple(args, "s|O:set_callback|s|s", &name, &obj_cmdfunc, &doc, &doc_ex)){
+    if (!PyArg_ParseTuple(a_args, "s|O:set_callback|s|s", &name, &obj_cmdfunc, &doc, &doc_ex)){
         return NULL;
     } else {
         if (!PyCallable_Check(obj_cmdfunc)){

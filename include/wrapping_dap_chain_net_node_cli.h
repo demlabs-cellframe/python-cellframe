@@ -23,7 +23,7 @@ void dap_chain_node_cli_delete_py(void);
 
 PyObject *DapChainNodeCliObject_new(PyTypeObject *type_object, PyObject *args, PyObject *kwds);
 
-PyObject *dap_chain_node_cli_cmd_item_create_py(PyObject *self, PyObject *args);
+PyObject *dap_chain_node_cli_cmd_item_create_py(PyObject *a_self, PyObject *a_args);
 PyObject *dap_chain_node_cli_set_reply_text_py(PyObject *self, PyObject *args);
 
 PyObject *dap_chain_node_addr_get_by_alias_py(PyObject *self, PyObject *args);
