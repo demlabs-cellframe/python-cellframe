@@ -86,12 +86,10 @@ EncHttp.addProc(sr, "/enc_http")
 Stream.addProcHttp(sr, "/stream")
 StreamCtl.addProcHttp(sr, "/stream_ctl")
 
-if (configGetItem("mempool", "accept") == "true"):
-    Mempool.addProc(sr, "/mempool")
-
 ev = Events()
 ev.start()
 
+logItNotice(app_name+" v0.1 runned on port "+server_port)
 rc = ServerCore.loop(sr)
 
 deinit()
