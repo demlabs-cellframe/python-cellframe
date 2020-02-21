@@ -291,7 +291,7 @@ static PyObject *python_cellframe_init(PyObject *self, PyObject *args){
     return PyLong_FromLong(0);
 }
 
-PyMODINIT_FUNC PyInit_CellFrame(void){
+PyMODINIT_FUNC PyInit_libCellFrame(void){
 
     if (PyType_Ready(&DapObject_DapObjectType) < 0 || PyType_Ready(&dapCrypto_dapCryptoType) < 0 ||
             PyType_Ready(&ServerCore_ServerCoreType) < 0 || PyType_Ready(&dapEvents_dapEventsType) < 0 ||
@@ -459,7 +459,7 @@ int main(int argc, char **argv) {
     }
 
     /* Add a built-in module, before Py_Initialize */
-    PyImport_AppendInittab("CellFrame", PyInit_CellFrame);
+    PyImport_AppendInittab("libCellFrame", PyInit_libCellFrame);
 
     /* Pass argv[0] to the Python interpreter */
     Py_SetProgramName(program);
@@ -470,7 +470,7 @@ int main(int argc, char **argv) {
     /* Optionally import the module; alternatively,
        import can be deferred until the embedded script
        imports it. */
-    PyImport_ImportModule("CellFrame");
+    PyImport_ImportModule("libCellFrame");
 
     PyMem_RawFree(program);
     return 0;
