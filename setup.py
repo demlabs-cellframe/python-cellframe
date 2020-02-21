@@ -73,9 +73,12 @@ setup(
     author='DEMLABS Inc. (2017-2020)',
     license="GNU GPLv3",
     packages=['CellFrame'],
-    ext_modules=[CMakeExtension('CellFrame')],
+    ext_modules=[CMakeExtension('CellFrame/libCellFrame')],
     # add custom build_ext command
-    cmdclass=dict(build_ext=CMakeBuild),
+    cmdclass={
+        'build_ext': CMakeBuild
+    },
+#    cmdclass=dict(build_ext=CMakeBuild),
     zip_safe=False,
 #    tests_require=['pytest'],
 #    setup_requires=setup_requires
