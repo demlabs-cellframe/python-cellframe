@@ -17,7 +17,7 @@ PyObject* dap_app_cli_main_py(PyObject *self, PyObject *args)
     int l_argc = 0;
     char ** l_argv = NULL;
     PyObject* l_args_py = NULL;
-    if (!PyArg_ParseTuple(args, "ssI", &l_app_name,&l_socket_path, &l_args_py))
+    if (!PyArg_ParseTuple(args, "ssO", &l_app_name,&l_socket_path, &l_args_py))
             return NULL;
 
     Py_ssize_t l_args_py_size = PyList_Size(l_args_py);
