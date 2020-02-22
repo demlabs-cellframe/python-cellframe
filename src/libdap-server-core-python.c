@@ -1,5 +1,7 @@
 #include "libdap-server-core-python.h"
 
+#define LOG_TAG "libdap-server-core-python"
+
 int dap_server_core_init(uint32_t l_thread_cnt, size_t conn_t){
     int result = dap_server_init(l_thread_cnt);
     if ( result != 0 ) {

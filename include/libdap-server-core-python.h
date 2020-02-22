@@ -12,8 +12,6 @@
 extern "C" {
 #endif
 
-#undef LOG_TAG
-#define LOG_TAG "libdap-server-core-python"
 
 typedef struct SeverCore{
     PyObject_HEAD
@@ -34,7 +32,7 @@ static PyMethodDef ServerCorePythonMethods[] = {
 
 static PyTypeObject ServerCore_ServerCoreType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "CellFrame.ServerCore",             /* tp_name */
+    "ServerCore",             /* tp_name */
     sizeof(PyServerCoreObject),         /* tp_basicsize */
     0,                                  /* tp_itemsize */
     0,                                  /* tp_dealloc */
