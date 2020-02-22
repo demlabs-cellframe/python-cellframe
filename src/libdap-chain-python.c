@@ -1,5 +1,7 @@
 #include "libdap-chain-python.h"
 
+#define LOG_TAG "libdap-chain-python"
+
 
 int init_chain_py(){
     return  dap_chain_init();

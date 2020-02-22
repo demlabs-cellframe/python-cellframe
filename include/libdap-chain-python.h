@@ -1,5 +1,4 @@
-#ifndef _LIBDAP_CHAIN_PYTHON_
-#define _LIBDAP_CHAIN_PYTHON_
+#pragma once
 
 #define PY_SSIZE_T_CLEAN
 
@@ -14,12 +13,6 @@
 #include "wrapping_dap_chain_ledger.h"
 #include "wrapping_dap_chain_common.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-#undef LOG_TAG
-#define LOG_TAG "libdap-chain-python"
 
 typedef struct PyDapChain{
     PyObject_HEAD
@@ -96,8 +89,4 @@ static PyTypeObject dapChainObject_dapChainType = {
 
 };
 
-#ifdef __cplusplus
-}
-#endif
 
-#endif //_LIBDAP_CHAIN_PYTHON_
