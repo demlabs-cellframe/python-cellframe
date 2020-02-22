@@ -5,10 +5,6 @@
 #include "dap_common.h"
 #include "dap_app_cli.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 
 typedef struct PyAppCli{
     PyObject_HEAD
@@ -24,7 +20,7 @@ static PyMethodDef AppCliMethods[] = {
 
 static PyTypeObject DapAppCli_dapAppCliType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "CellFrame.AppCli",             /* tp_name */
+    "AppCli",             /* tp_name */
     sizeof(PyAppCliObject),         /* tp_basicsize */
     0,                         /* tp_itemsize */
     0,                         /* tp_dealloc */
@@ -74,6 +70,3 @@ static PyTypeObject DapAppCli_dapAppCliType = {
     0,                         /* tp_finalize*/
 };
 
-#ifdef  __cplusplus
-}
-#endif
