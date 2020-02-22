@@ -1,5 +1,7 @@
 #include "generator_config_file.h"
 
+#define LOG_TAG "generator_config_file"
+
 static void writeGroupInFile(FILE *file, char *group){
     fputs("[", file);
     fputs(group, file);

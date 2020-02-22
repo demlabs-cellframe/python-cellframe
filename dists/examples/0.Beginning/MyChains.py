@@ -1,3 +1,5 @@
+#!/usr/bin/python3
+
 from CellFrame.libCellFrame import *
 import os
 
@@ -7,13 +9,13 @@ var_dir = os.getcwd() + "/var"
 
 json_string = """{
     "modules": ["Crypto", "ServerCore", "Http", "HttpFolder", "GlobalDB", "Client", "HttpClientSimple", "Mempool",
-     "Chain", "Wallet", "ChainCSDag", "ChainCSDagPoa", "ChainCSDagPos", "GDB", "Net", "ChainNetSrv", "EncHttp",
+     "Chain", "Wallet", "ChainCSDag", "ChainCSDagPoa", "ChainCSDagPos", "GDB", "Net", "AppCliServer", "ChainNetSrv", "EncHttp",
      "Stream", "StreamCtl", "HttpSimple", "StreamChChain", "StreamChChainNet", "StreamChChainNetSrv"],
      "DAP": {
        "config_dir": \""""+tmp_dir+"""\",
        "log_level": "L_DEBUG",
        "application_name": \""""+app_name+"""\",
-       "file_name_log": \""""+app_name+""".text\"
+       "file_name_log": \""""+var_dir+"/log/"+app_name+".log"+"""\"
      },
      "Stream" : {
         "DebugDumpStreamHeaders": false
@@ -35,15 +37,15 @@ json_string = """{
         },
         "conserver": {
             "enabled": true,
-            "listen_unix_socket_path": \""""+tmp_dir+"""/node_cli\"
+            "listen_unix_socket_path": \""""+tmp_dir+"/node_cli"+"""\"
         },
         "resources": {
             "threads_cnt": 0,
-            "pid_path": \""""+var_dir+"""/run/cellframe-node.pid\",
-            "log_file": \""""+var_dir+"""/log/cellframe-node.log\",
-            "wallets_path": \""""+var_dir+"""/lib/wallet\",
-            "ca_folders": [ \""""+var_dir+"""/lib/ca\", \""""+os.getcwd()+"""/ca\"],
-            "dap_global_db_path": \""""+var_dir+"""/lib/global_db\",
+            "pid_path": \""""+ var_dir+"/run/"+ app_name+".pid"+"""\" ,
+            "log_file": \""""+var_dir+"/log/"+ app_name+".log"+"""\",
+            "wallets_path": \""""+var_dir+"/lib/wallet" + """\",
+            "ca_folders": [ \""""+var_dir+"""/lib/ca\" ],
+            "dap_global_db_path": \""""+var_dir+"/lib/global_db"+"""\",
             "dap_global_db_driver": "cdb"
         },
         "networks":{

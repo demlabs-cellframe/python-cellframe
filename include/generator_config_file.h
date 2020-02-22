@@ -1,14 +1,10 @@
+#pragma once
+
 #include <Python.h>
 #include "dap_common.h"
 #include "dap_string.h"
 #include"dap_file_utils.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-#undef LOG_TAG
-#define LOG_TAG "generator_config_file"
 
 char* getCharFromPyObject(PyObject *obj);
 
@@ -37,6 +33,3 @@ void writeSectorsToFile(FILE *file, PyObject *sectors, int count, ...);
  */
 int gen_config_files(const char *cfgDir, const char *app_name, PyObject *cfg_JSON);
 
-#ifdef __cplusplus
-}
-#endif

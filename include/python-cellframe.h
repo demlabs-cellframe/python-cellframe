@@ -59,38 +59,9 @@
 
 #include "dap_common.h"
 
+PyObject *python_cellframe_init(PyObject *self, PyObject *args);
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-#undef LOG_TAG
-#define LOG_TAG "python-cellframe"
-
-static bool init_crypto;
-static bool init_chain;
-static bool init_app_cli;
-static bool init_stream;
-static bool init_stream_ctl;
-static bool init_http_folder;
-static bool init_http;
-static bool init_http_enc;
-static bool init_server_core;
-static bool init_mempool;
-
-static bool init_http_client_simple;
-static bool init_wallet;
-static bool init_cs_dag;
-static bool init_cs_dag_poa;
-static bool init_cs_dag_pos;
-static bool init_chain_net_srv;
-static bool init_ks;
-
-static PyObject* CellFrame_error;
-
-static PyObject *python_cellframe_init(PyObject *self, PyObject *args);
-
-static PyObject *python_cellframe_deinit(PyObject *self, PyObject *args);
+PyObject *python_cellframe_deinit(PyObject *self, PyObject *args);
 
 static PyMethodDef CellFramePythonMethods[] = {
         {"init", python_cellframe_init, METH_VARARGS, "Initialization of the python-cellframe interface DAP (Deus Applicaions Prototypes)"},
@@ -118,13 +89,11 @@ static struct PyModuleDef CellFramePythonModule = {
         NULL, /* module documentation, may be NULL */
         -1,       /* size of per-interpreter state of the module,
                  or -1 if the module keeps state in global variables. */
-        CellFramePythonMethods
+        CellFramePythonMethods,
+        NULL,
+        NULL,
+        NULL,
+        NULL
 };
 
 PyMODINIT_FUNC PyInit_libCellFrame(void);
-
-#ifdef __cplusplus
-}
-#endif
-
-

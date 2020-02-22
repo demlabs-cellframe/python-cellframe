@@ -1,6 +1,30 @@
 #include "python-cellframe.h"
 
-static PyObject *python_cellframe_init(PyObject *self, PyObject *args){
+#define LOG_TAG "python-cellframe"
+
+bool init_crypto;
+bool init_chain;
+bool init_app_cli;
+bool init_stream;
+bool init_stream_ctl;
+bool init_http_folder;
+bool init_http;
+bool init_http_enc;
+bool init_server_core;
+bool init_mempool;
+
+bool init_http_client_simple;
+bool init_wallet;
+bool init_cs_dag;
+bool init_cs_dag_poa;
+bool init_cs_dag_pos;
+bool init_chain_net_srv;
+bool init_ks;
+
+PyObject* CellFrame_error;
+
+
+PyObject *python_cellframe_init(PyObject *self, PyObject *args){
     const char *app_name;
     const char *file_name_log;
     const char *config_dir;
@@ -282,6 +306,12 @@ static PyObject *python_cellframe_init(PyObject *self, PyObject *args){
                 return NULL;
             }
         }
+        if (strcmp(c_value, "AppCliServer") == 0){
+            if (dap_chain_node_cli_init(g_config) != 0 ){
+                PyErr_SetString(CellFrame_error, "Failed to initialize AppCliServer " );
+                return NULL;
+            }
+        }
 
 
 //        if (strcmp(c_value, "ENC") == 0){
@@ -293,7 +323,7 @@ static PyObject *python_cellframe_init(PyObject *self, PyObject *args){
 
 PyMODINIT_FUNC PyInit_libCellFrame(void){
 
-    if (PyType_Ready(&DapObject_DapObjectType) < 0 || PyType_Ready(&dapCrypto_dapCryptoType) < 0 ||
+    if (PyType_Ready(&DapCoreObjectType) < 0 || PyType_Ready(&dapCrypto_dapCryptoType) < 0 ||
             PyType_Ready(&ServerCore_ServerCoreType) < 0 || PyType_Ready(&dapEvents_dapEventsType) < 0 ||
             PyType_Ready(&dapEventsSocket_dapEventsSocketType) < 0 ||
             PyType_Ready(&CryptoKeyTypeObjecy_CryptoKeyTypeObjecyType) < 0 ||
@@ -420,7 +450,7 @@ PyMODINIT_FUNC PyInit_libCellFrame(void){
     return module;
 }
 
-static PyObject *python_cellframe_deinit(PyObject *self, PyObject *args){
+PyObject *python_cellframe_deinit(PyObject *self, PyObject *args){
     if (init_crypto)
         dap_crypto_deinit();
     if (init_chain){
@@ -459,7 +489,7 @@ int main(int argc, char **argv) {
     }
 
     /* Add a built-in module, before Py_Initialize */
-    PyImport_AppendInittab("libCellFrame", PyInit_libCellFrame);
+    PyImport_AppendInittab("CellFrame", PyInit_libCellFrame);
 
     /* Pass argv[0] to the Python interpreter */
     Py_SetProgramName(program);
@@ -470,7 +500,7 @@ int main(int argc, char **argv) {
     /* Optionally import the module; alternatively,
        import can be deferred until the embedded script
        imports it. */
-    PyImport_ImportModule("libCellFrame");
+    PyImport_ImportModule(".");
 
     PyMem_RawFree(program);
     return 0;

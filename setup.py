@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 import os
 import re
 import sys
@@ -52,7 +53,7 @@ class CMakeBuild(build_ext):
             build_args += ['--', '/m']
         else:
             cmake_args += ['-DCMAKE_BUILD_TYPE=' + cfg]
-            build_args += ['--', '-j2']
+            build_args += ['--', '-j4']
 
         env = os.environ.copy()
         env['CXXFLAGS'] = '{} -DVERSION_INFO=\\"{}\\"'.format(
@@ -68,9 +69,9 @@ class CMakeBuild(build_ext):
 
 setup(
     name="CellFrame",
-    version="0.9-0",
+    version="0.9-post8",
     description="CellFrame SDK",
-    author='DEMLABS Inc. (2017-2020)',
+    author='Demlabs (2007-2020)',
     license="GNU GPLv3",
     packages=['CellFrame'],
     ext_modules=[CMakeExtension('CellFrame/libCellFrame')],
