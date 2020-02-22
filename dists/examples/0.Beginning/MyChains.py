@@ -42,7 +42,7 @@ json_string = """{
             "pid_path": \""""+var_dir+"""/run/cellframe-node.pid\",
             "log_file": \""""+var_dir+"""/log/cellframe-node.log\",
             "wallets_path": \""""+var_dir+"""/lib/wallet\",
-            "ca_folders": [ \""""+var_dir+"""/lib/ca\"],
+            "ca_folders": [ \""""+var_dir+"""/lib/ca\", \""""+os.getcwd()+"""/ca\"],
             "dap_global_db_path": \""""+var_dir+"""/lib/global_db\",
             "dap_global_db_driver": "cdb"
         },
