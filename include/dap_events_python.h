@@ -19,7 +19,7 @@ void PyDapEventsObject_dealloc(PyDapEventsObject *eventsObject);
 PyObject *PyDapEventsObject_new(PyTypeObject *type_object, PyObject *args, PyObject *kwds);
 PyObject *dap_events_socket_remove_and_delete_py(PyDapEventsObject *self, PyObject *args);
 
-PyObject *dap_events_kill_socket_py(PyDapEventsObject *self, PyObject *args);
+PyObject *dap_events_socket_kill_socket_py(PyDapEventsObject *self, PyObject *args);
 
 PyObject *dap_events_start_py(PyDapEventsObject *self);
 PyObject *dap_events_wait_py(PyDapEventsObject *self);
@@ -27,7 +27,7 @@ PyObject *dap_events_wait_py(PyDapEventsObject *self);
 static PyMethodDef PyDapEventsObject_methods[] = {
     {"start", (PyCFunction)dap_events_start_py, METH_NOARGS, ""},
     {"wait", (PyCFunction)dap_events_wait_py, METH_NOARGS, ""},
-    {"killSocket", (PyCFunction)dap_events_kill_socket_py, METH_VARARGS, ""},
+    {"killSocket", (PyCFunction)dap_events_socket_kill_socket_py, METH_VARARGS, ""},
     {"removeAndDeleteSocket", (PyCFunction)dap_events_socket_remove_and_delete_py, METH_VARARGS, ""},
     {NULL, NULL, 0, NULL}  /* Sentinel */
 };

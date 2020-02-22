@@ -24,12 +24,12 @@ PyObject *dap_events_socket_remove_and_delete_py(PyDapEventsObject *self, PyObje
     return PyLong_FromLong(0);
 }
 
-PyObject *dap_events_kill_socket_py(PyDapEventsObject *self, PyObject *args){
+PyObject *dap_events_socket_kill_socket_py(PyDapEventsObject *self, PyObject *args){
     PyObject *in_obj;
     if (!PyArg_ParseTuple(args, "O", &in_obj)){
         return NULL;
     }
-    dap_events_kill_socket(((PyDapEventsSocketObject*)in_obj)->t_events_socket);
+    dap_events_socket_kill_socket(((PyDapEventsSocketObject*)in_obj)->t_events_socket);
     return PyLong_FromLong(0);
 }
 
