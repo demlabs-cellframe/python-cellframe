@@ -10,8 +10,6 @@
 extern "C" {
 #endif
 
-#undef LOG_TAG
-#define LOG_TAG "wrapping-dap-enc-key"
 
 PyObject* dap_enc_key_get_enc_size_py(PyObject *self, PyObject *args);//dap_enc_key_t * a_key, const size_t buf_in_size); -> size_t
 PyObject* dap_enc_key_get_dec_size_py(PyObject *self, PyObject *args);//dap_enc_key_t * a_key, const size_t buf_in_size); -> size_t

@@ -1,5 +1,7 @@
 #include "wrapping_dap_enc_key.h"
 
+#define LOG_TAG "wrapping-dap-enc-key"
+
 PyObject* dap_enc_key_get_enc_size_py(PyObject *self, PyObject *args){
     PyObject *in_key;
     size_t buff_in_size;

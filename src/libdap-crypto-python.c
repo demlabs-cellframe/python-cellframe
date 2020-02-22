@@ -1,5 +1,7 @@
 #include "libdap-crypto-python.h"
 
+#define LOG_TAG "dap_crypto_python"
+
 int dap_crypto_init(void){
     if(dap_enc_init()!=0){
         log_it(L_CRITICAL,"Can't init encryption module");

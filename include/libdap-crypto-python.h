@@ -13,8 +13,6 @@
 extern "C" {
 #endif
 
-#undef LOG_TAG
-#define LOG_TAG "libdap-python-crypto"
 
 typedef struct PyCrypto{
     PyObject_HEAD

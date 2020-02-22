@@ -10,9 +10,6 @@
 extern "C" {
 #endif
 
-#undef LOG_TAG
-#define LOG_TAG "wrapping-dap-enc-iaes"
-
 PyObject* dap_enc_iaes_key_new_py(PyObject *self, PyObject *args);
 
 PyObject* dap_enc_iaes_key_delete_py(PyObject *self, PyObject *args);
