@@ -1,5 +1,7 @@
 #include "libdap-python.h"
 
+#define LOG_TAG "libdap-python"
+
 PyObject *dap_set_log_level(PyObject *self, PyObject *args){
     short int new_log_level;
     if (!PyArg_ParseTuple(args, "h", &new_log_level))

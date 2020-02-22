@@ -5,12 +5,6 @@
 #include "dap_common.h"
 #include "dap_list.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-#define LOG_TAG "libdap-python"
-
 typedef struct PyDap{
     PyObject_HEAD
 }PyDapObject;
@@ -33,13 +27,13 @@ PyObject* py_m_dap_config_get_item(PyObject *self, PyObject *args);
 
 PyObject* py_m_dap_config_get_item_default(PyObject *self, PyObject *args);
 
-static PyMethodDef DapMethods[] = {
+static PyMethodDef DapCoreMethods[] = {
         {NULL, NULL, 0, NULL}
 };
 
-static PyTypeObject DapObject_DapObjectType = {
+static PyTypeObject DapCoreObjectType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "CellFrame.Dap",             /* tp_name */
+    "Dap",             /* tp_name */
     sizeof(PyDapObject),             /* tp_basicsize */
     0,                         /* tp_itemsize */
     0,			       /* tp_dealloc */
@@ -66,7 +60,7 @@ static PyTypeObject DapObject_DapObjectType = {
     0,		               /* tp_weaklistoffset */
     0,		               /* tp_iter */
     0,		               /* tp_iternext */
-    DapMethods,                /* tp_methods */
+    DapCoreMethods,                /* tp_methods */
     0,                         /* tp_members */
     0,                         /* tp_getset */
     0,                         /* tp_base */
@@ -77,12 +71,18 @@ static PyTypeObject DapObject_DapObjectType = {
     0,                         /* tp_init */
     0,                         /* tp_alloc */
     PyType_GenericNew,         /* tp_new */
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
 };
-
 PyObject *dapListToPyList(dap_list_t *list);
 
 dap_list_t *pyListToDapList(PyObject *list);
 
-#ifdef  __cplusplus
-}
-#endif
