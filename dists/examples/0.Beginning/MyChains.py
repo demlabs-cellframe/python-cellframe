@@ -1,4 +1,4 @@
-from CellFrame import *
+from CellFrame.libCellFrame import *
 import os
 
 app_name = "MyChains"
@@ -21,7 +21,7 @@ json_string = """{
      "ServerCore" : {
         "thread_cnt": 0,
         "conn": 0
-     }
+     },
     "Configuration" : {
         "general": {
             "debug_mode": false,
@@ -72,7 +72,7 @@ json_string = """{
                 }
             }
         }
-    },
+    }
     }"""
 
 init(json_string)
@@ -89,7 +89,7 @@ StreamCtl.addProcHttp(sr, "/stream_ctl")
 ev = Events()
 ev.start()
 
-logItNotice(app_name+" v0.1 runned on port "+server_port)
+logItNotice(app_name+" v0.1 runned on port "+str(server_port))
 rc = ServerCore.loop(sr)
 
 deinit()
