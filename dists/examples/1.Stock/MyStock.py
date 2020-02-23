@@ -28,7 +28,7 @@ StreamCtl.addProcHttp(sr, "/stream_ctl")
 ev = Events()
 ev.start()
 
-MyStockCmd.init()
+#MyStockCmd.init()
 
 logItNotice(app_name+" v0.1 runned on port "+str(server_port))
 rc = ServerCore.loop(sr)
