@@ -2,10 +2,19 @@
 # CellFrame SDK.Python v0.9-4 Example Application #0
 from CellFrame.libCellFrame import *
 import os
+import json
+import sys
 from MyStockConf import getJsonString
-app_name = "MyChains"
+import MyStockCmd
+app_name = "MyStock"
 
-init( getJsonString(app_name) )
+jsonCfg=getJsonString(app_name)
+try:
+    init( jsonCfg )
+except json.decoder.JSONDecodeError as jex:
+    sys.stderr.write("load_json_config JSONdecode :%s" % jex)
+    exit(-1)
+
 setLogLevel(DEBUG)
 
 server_host_name = configGetItem("server", "listen_address")
@@ -18,6 +27,8 @@ StreamCtl.addProcHttp(sr, "/stream_ctl")
 
 ev = Events()
 ev.start()
+
+MyStockCmd.init()
 
 logItNotice(app_name+" v0.1 runned on port "+str(server_port))
 rc = ServerCore.loop(sr)

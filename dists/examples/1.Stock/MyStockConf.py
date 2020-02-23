@@ -1,25 +1,30 @@
 import os
+from string import Template
 
 def getJsonString(app_name):
     tmp_dir = os.getcwd() + "/tmp"
     var_dir = os.getcwd() + "/var"
-    return """{
-        "modules": ["Crypto", "ServerCore", "Http", "HttpFolder", "GlobalDB", "Client", "HttpClientSimple", "Mempool",
-         "Chain", "Wallet", "ChainCSDag", "ChainCSDagPoa", "ChainCSDagPos", "GDB", "Net", "AppCliServer", "ChainNetSrv", "EncHttp",
-         "Stream", "StreamCtl", "HttpSimple", "StreamChChain", "StreamChChainNet", "StreamChChainNetSrv"],
-         "DAP": {
-           "config_dir": \""""+tmp_dir+"""\",
-           "log_level": "L_DEBUG",
-           "application_name": \""""+app_name+"""\",
-           "file_name_log": \""""+var_dir+"/log/"+app_name+".log"+"""\"
-         },
-         "Stream" : {
+    ret_tpl = Template("""
+    {
+        "modules": [
+            "Crypto", "ServerCore", "Http",
+            "HttpFolder","GlobalDB","Client","HttpClientSimple","Mempool",
+            "Chain", "Wallet", "ChainCSDag", "ChainCSDagPoa", "ChainCSDagPos", "GDB", "Net", "AppCliServer",
+            "ChainNetSrv", "EncHttp","Stream", "StreamCtl", "HttpSimple", "StreamChChain", "StreamChChainNet",
+            "StreamChChainNetSrv" ],
+        "DAP": {
+            "config_dir": "${tmpdir}",
+            "log_level": "L_DEBUG",
+            "application_name": "${appname}",
+            "file_name_log": "${vardir}/log/${appname}.log"
+        },
+        "Stream" : {
             "DebugDumpStreamHeaders": false
-         },
-         "ServerCore" : {
+        },
+        "ServerCore" : {
             "thread_cnt": 0,
             "conn": 0
-         },
+        },
         "Configuration" : {
             "general": {
                 "debug_mode": false,
@@ -33,42 +38,77 @@ def getJsonString(app_name):
             },
             "conserver": {
                 "enabled": true,
-                "listen_unix_socket_path": \""""+tmp_dir+"/node_cli"+"""\"
+                "listen_unix_socket_path": "${tmpdir}/node_cli"
             },
             "resources": {
                 "threads_cnt": 0,
-                "pid_path": \""""+ var_dir+"/run/"+ app_name+".pid"+"""\" ,
-                "log_file": \""""+var_dir+"/log/"+ app_name+".log"+"""\",
-                "wallets_path": \""""+var_dir+"/lib/wallet" + """\",
-                "ca_folders": [ \""""+var_dir+"""/lib/ca\" ],
-                "dap_global_db_path": \""""+var_dir+"/lib/global_db"+"""\",
+                "pid_path": "${vardir}/run/${appname}.pid",
+                "log_file": "${vardir}/log/${appname}.log",
+                "wallets_path": "${vardir}/lib/wallet",
+                "ca_folders": [ "${vardir}/lib/ca" ],
+                "dap_global_db_path": "${vardir}/lib/global_db",
                 "dap_global_db_driver": "cdb"
             },
             "networks":{
-                "mychains-dev": {
+                "mystock-dev": {
                     "general":{
                         "id": "0xFF00000000000003",
-                        "name": "mychains-dev",
+                        "name": "mystock-dev",
                         "type": "development",
                         "node-role": "root",
-                        "gdb_groups_prefix": "devnet"
+                        "gdb_groups_prefix": "mystock"
                     },
-                    "name_cfg_files": ["chain-gdb"],
+                    "name_cfg_files": ["zerochain","main"],
                     "conf_files":{
-                        "chain-gdb": {
+                        "zerochain": {
+                            "general": {
+                                "id": "0xf000000000000001",
+                                "name": "zerochain",
+                                "consensus": "dag-poa",
+                                "datum_types": ["token", "emission", "shard", "ca" ]
+                            },
+                            "dag":{
+                                "is_single_line": true,
+                                "is_celled": false,
+                                "is_add_directly": true,
+                                "datum_and_hash_count": 1
+                            },
+                            "dag-poa": {
+                                "auth_certs_prefix": "mystock-dev.root",
+                                "auth_certs_number": 1,
+                                "auth_certs_number_verify":1,
+                                "auth_certs_dir": "${vardir}/lib/ca"
+                            }
+                        },
+                        "main": {
                             "general": {
                                 "id": "0xf00000000000000f",
-                                "name": "gdb",
-                                "consensus": "gdb",
-                                "class": "gdb",
-                                "datum_types": ["token", "emission", "shard", "ca", "transaction"]
+                                "name": "main",
+                                "consensus": "dag-poa",
+                                "datum_types": ["ca", "transaction"]
                             },
-                            "gdb":{
-                                "celled": false
+                            "dag":{
+                                "is_single_line": false,
+                                "is_celled": true,
+                                "is_add_directly": true,
+                                "datum_and_hash_count": 3
+                            },
+                            "dag-poa":{
+                                "auth_certs_prefix": "mystock-dev.root",
+                                "auth_certs_number": 1,
+                                "auth_certs_number_verify":1,
+                                "auth_certs_dir": "${vardir}/lib/ca"
                             }
                         }
                     }
                 }
             }
         }
-        }"""
+    }"""
+    )
+    tpl_vars={
+        "vardir":var_dir,
+        "tmpdir":tmp_dir,
+        "appname":app_name
+    }
+    return ret_tpl.substitute(tpl_vars)
