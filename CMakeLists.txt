@@ -22,7 +22,7 @@ add_library(${PROJECT_NAME} STATIC ${CHAIN_PLUGINS_PYTHON_SRCS} ${CHAIN_PLUGINS_
 
 target_link_libraries(${PROJECT_NAME})
 
-target_link_libraries(${PROJECT_NAME} dap_chain_common dap_core dap_crypto dap_crypto_python_module)
+target_link_libraries(${PROJECT_NAME} dap_core  )
 
 target_include_directories(${PROJECT_NAME} PUBLIC include/ )
 
