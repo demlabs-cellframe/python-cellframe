@@ -28,6 +28,7 @@ typedef struct manifest{
     dap_list_t *dependencys;
     char *author;
     char *description;
+    bool init;
 }manifest_t;
 
 manifest_t *dap_chain_plugins_manifest_new(const char *name, const char *version, const dap_list_t *dep, const char *author,
@@ -39,6 +40,7 @@ static dap_list_t *manifests;
 
 void dap_chain_plugins_manifest_list_create();
 manifest_t *dap_chain_plugins_manifest_get_list(size_t index);
+unsigned int dap_chain_plugins_manifests_get_lenght();
 void dap_chain_plugins_manifest_list_free();
 void dap_chain_plugins_manifest_list_add_manifest(manifest_t *manifest);
 bool dap_chain_plugins_manifest_list_add_from_file(const char *file_path);

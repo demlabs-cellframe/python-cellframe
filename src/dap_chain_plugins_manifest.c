@@ -2,7 +2,7 @@
 
 dap_list_t *JSON_array_to_dap_list(json_object *obj){
     int len = json_object_array_length(obj);
-    dap_list_t *list = dap_list_alloc();
+    dap_list_t *list = NULL;
     json_object *j_data;
     char *data;
     for (int i = 0; i < len; i++){
@@ -15,12 +15,13 @@ dap_list_t *JSON_array_to_dap_list(json_object *obj){
 
 manifest_t *dap_chain_plugins_manifest_new(const char *name, const char *version, const dap_list_t *dep, const char *author,
                          const char *description){
-    manifest_t *manifest = DAP_NEW(manifest_t);
+    manifest_t *manifest = (manifest_t*)malloc(sizeof(manifest_t));//DAP_NEW(manifest_t);
     manifest->name = dap_strdup(name);
     manifest->version = dap_strdup(version);
-    manifest->dependencys = dap_list_copy(dep);
+    manifest->dependencys = dap_list_copy((dap_list_t*)dep);
     manifest->author = dap_strdup(author);
     manifest->description = dap_strdup(description);
+    manifest->init = false;
     return manifest;
 }
 void dap_chain_plugins_manifest_free(manifest_t *manifest){
@@ -36,7 +37,7 @@ manifest_t* dap_chain_plugins_add_manifest_from_file(const char *file_path){
     log_it(L_INFO, "Parse json file");
     FILE *file = fopen(file_path, "rt");
     if (file == NULL){
-        log_it(L_INFO, "Parse json file");
+        log_it(L_ERROR, "Error open manifest files along the way %s", file_path);
         return NULL;
     }
     fseek(file, 0, SEEK_END);
@@ -65,10 +66,14 @@ manifest_t* dap_chain_plugins_add_manifest_from_file(const char *file_path){
 
 //--------------------------------------------------------
 void dap_chain_plugins_manifest_list_create(){
-    manifests = dap_list_alloc();
+    manifests = NULL;
 }
 manifest_t *dap_chain_plugins_manifest_get_list(size_t index){
     return (manifest_t*)dap_list_nth_data(manifests, (unsigned int)index);
+}
+
+unsigned int dap_chain_plugins_manifests_get_lenght(){
+    return dap_list_length(manifests);
 }
 
 void dap_chain_plugins_manifest_list_free(){
