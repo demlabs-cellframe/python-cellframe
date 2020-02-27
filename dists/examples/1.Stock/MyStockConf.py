@@ -12,7 +12,7 @@ def getJsonString(app_name):
             "Chain", "Wallet", "ChainCSDag", "ChainCSDagPoa", "ChainCSDagPos", "GDB", "Net", "AppCliServer",
             "ChainNetSrv", "EncHttp","Stream", "StreamCtl", "HttpSimple", "StreamChChain", "StreamChChainNet",
             "StreamChChainNetSrv" ],
-        "DAP": {
+        "Core": {
             "config_dir": "${tmpdir}",
             "log_level": "L_DEBUG",
             "application_name": "${appname}",
@@ -54,32 +54,11 @@ def getJsonString(app_name):
                     "general":{
                         "id": "0xFF00000000000003",
                         "name": "mystock-dev",
-                        "type": "development",
                         "node-role": "root",
                         "gdb_groups_prefix": "mystock"
                     },
-                    "name_cfg_files": ["zerochain","main"],
+                    "name_cfg_files": ["main"],
                     "conf_files":{
-                        "zerochain": {
-                            "general": {
-                                "id": "0xf000000000000001",
-                                "name": "zerochain",
-                                "consensus": "dag-poa",
-                                "datum_types": ["token", "emission", "shard", "ca" ]
-                            },
-                            "dag":{
-                                "is_single_line": true,
-                                "is_celled": false,
-                                "is_add_directly": true,
-                                "datum_and_hash_count": 1
-                            },
-                            "dag-poa": {
-                                "auth_certs_prefix": "mystock-dev.root",
-                                "auth_certs_number": 1,
-                                "auth_certs_number_verify":1,
-                                "auth_certs_dir": "${vardir}/lib/ca"
-                            }
-                        },
                         "main": {
                             "general": {
                                 "id": "0xf00000000000000f",

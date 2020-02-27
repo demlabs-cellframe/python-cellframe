@@ -21,7 +21,6 @@
 // === Chain net ===
 #include "libdap_chain_net_python.h"
 #include "wrapping_dap_chain_net_node.h"
-#include "wrapping_dap_chain_net_node_cli.h"
 #include "wrapping_dap_chain_net_node_client.h"
 #include "wrapping_dap_chain_net_node_info.h"
 #include "wrapping_dap_chain_net_state.h"
@@ -49,8 +48,10 @@
 #include "dap_enc_ks.h"
 #include "dap_chain_gdb.h"
 #include "libdap_chain_net_python.h"
+
 #include "dap_app_cli.h"
 #include "libdap-app-cli-python.h"
+#include "wrapping_dap_app_cli_server.h"
 
 #include "dap_file_utils.h"
 #include "dap_string.h"
@@ -83,10 +84,13 @@ static PyMethodDef CellFramePythonMethods[] = {
         {NULL, NULL, 0, NULL}
 };
 
+static char CellFramePythonModuleDoc[]=
+"CellFrame SDK.Python v"DAP_VERSION" welcomes you!"
+"";
 static struct PyModuleDef CellFramePythonModule = {
         PyModuleDef_HEAD_INIT,
-        "libCellFrame",   /* name of module */
-        NULL, /* module documentation, may be NULL */
+        "CellFrame",   /* name of module */
+        CellFramePythonModuleDoc, /* module documentation, may be NULL */
         -1,       /* size of per-interpreter state of the module,
                  or -1 if the module keeps state in global variables. */
         CellFramePythonMethods,

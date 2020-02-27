@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-# CellFrame SDK.Python v0.9-4 Example Application #0
+# CellFrame SDK.Python v0.9 Example Application #0
 from CellFrame.libCellFrame import *
 import os
 import json
@@ -28,9 +28,9 @@ StreamCtl.addProcHttp(sr, "/stream_ctl")
 ev = Events()
 ev.start()
 
-#MyStockCmd.init()
+MyStockCmd.init()
 
-logItNotice(app_name+" v0.1 runned on port "+str(server_port))
+print(app_name+" v0.1 runned on port "+str(server_port))
+
 rc = ServerCore.loop(sr)
-
 deinit()
