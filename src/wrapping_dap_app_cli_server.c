@@ -1,6 +1,9 @@
-#include "wrapping_dap_chain_net_node_cli.h"
+#include "wrapping_dap_app_cli_server.h"
+
+#define LOG_TAG "wrapping_dap_app_cli_server"
 
 int dap_chain_node_cli_init_py(dap_config_t *g_config){
+    log_it(L_DEBUG, "Init app cli server");
     dap_chain_node_cli_init(g_config);
 }
 void dap_chain_node_cli_delete_py(void){
@@ -26,7 +29,7 @@ static int wrapping_cmdfunc(int argc, char **argv, char **str_reply){
 }
 
 PyObject *DapChainNodeCliObject_new(PyTypeObject *type_object, PyObject *args, PyObject *kwds){
-    PyDapChainNodeCliObject *obj = (PyDapChainNodeCliObject*)PyType_GenericNew(type_object, args, kwds);
+    PyDapAppCliServerObject *obj = (PyDapAppCliServerObject*)PyType_GenericNew(type_object, args, kwds);
     obj->func = wrapping_cmdfunc;
     return (PyObject *)obj;
 }
@@ -35,7 +38,7 @@ PyObject *dap_chain_node_cli_cmd_item_create_py(PyObject *a_self, PyObject *a_ar
     (void) a_self;
     const char *name, *doc, *doc_ex;
     PyObject *obj_cmdfunc;
-    if (!PyArg_ParseTuple(a_args, "s|O:set_callback|s|s", &name, &obj_cmdfunc, &doc, &doc_ex)){
+    if (!PyArg_ParseTuple(a_args, "s|O:cmdCallback|s|s", &name, &obj_cmdfunc, &doc, &doc_ex)){
         return NULL;
     } else {
         if (!PyCallable_Check(obj_cmdfunc)){
@@ -46,11 +49,12 @@ PyObject *dap_chain_node_cli_cmd_item_create_py(PyObject *a_self, PyObject *a_ar
     Py_XINCREF(obj_cmdfunc);
     Py_XDECREF(binded_object_cmdfunc);
     binded_object_cmdfunc = obj_cmdfunc;
-    dap_chain_node_cli_cmd_item_create(name, ((PyDapChainNodeCliObject*)obj_cmdfunc)->func, doc, doc_ex);
+    dap_chain_node_cli_cmd_item_create(name, ((PyDapAppCliServerObject*)obj_cmdfunc)->func, doc, doc_ex);
     return PyLong_FromLong(0);
 }
 
 PyObject *dap_chain_node_cli_set_reply_text_py(PyObject *self, PyObject *args){
+    (void) self;
     PyObject *obj_str_reply_list;
     const char *str_list;
     if (!PyArg_ParseTuple(args, "O|O", &obj_str_reply_list))
@@ -61,6 +65,7 @@ PyObject *dap_chain_node_cli_set_reply_text_py(PyObject *self, PyObject *args){
 }
 
 PyObject *dap_chain_node_addr_get_by_alias_py(PyObject *self, PyObject *args){
+    (void) self;
     PyObject *chain_net;
     const char *alias;
     if (!PyArg_ParseTuple(args, "O|s", &chain_net, &alias))

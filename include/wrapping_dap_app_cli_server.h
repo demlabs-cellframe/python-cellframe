@@ -1,5 +1,4 @@
-#ifndef _WRAPPING_DAP_CHAIN_NET_NODE_CLI_
-#define _WRAPPING_DAP_CHAIN_NET_NODE_CLI_
+#pragma once
 
 #include <Python.h>
 #include "dap_config.h"
@@ -8,14 +7,10 @@
 #include "wrapping_dap_chain_common.h"
 #include "wrapping_dap_chain_net_node.h"
 
-#ifdef __cplusplus
-extern "C"{
-#endif
-
-typedef struct PyDapChainNodeCli{
+typedef struct PyDapAppCliServer{
     PyObject_HEAD
     cmdfunc_t *func;
-}PyDapChainNodeCliObject;
+}PyDapAppCliServerObject;
 static PyObject *binded_object_cmdfunc = NULL;
 
 int dap_chain_node_cli_init_py(dap_config_t *g_config);
@@ -29,16 +24,16 @@ PyObject *dap_chain_node_cli_set_reply_text_py(PyObject *self, PyObject *args);
 PyObject *dap_chain_node_addr_get_by_alias_py(PyObject *self, PyObject *args);
 
 static PyMethodDef DapChainNodeCliMethods[] = {
-    {"cmdItemCreate", dap_chain_node_cli_cmd_item_create_py, METH_VARARGS, ""},
-    {"setReplyText", dap_chain_node_cli_set_reply_text_py, METH_VARARGS, ""},
+    {"cmdItemCreate", dap_chain_node_cli_cmd_item_create_py, METH_VARARGS| METH_STATIC, ""},
+    {"setReplyText", dap_chain_node_cli_set_reply_text_py, METH_VARARGS| METH_STATIC, ""},
     {"getByAlias", dap_chain_node_addr_get_by_alias_py, METH_VARARGS | METH_STATIC, ""},
     {NULL, NULL, 0, NULL}
 };
 
 static PyTypeObject DapChainNodeCliObject_DapChainNodeCliObjectType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "CellFrame.Chain.Node.cli",            /* tp_name */
-    sizeof(PyDapChainNodeCliObject),     /* tp_basicsize */
+    "AppCliServer",            /* tp_name */
+    sizeof(PyDapAppCliServerObject),     /* tp_basicsize */
     0,                               /* tp_itemsize */
     0,                               /* tp_dealloc */
     0,                               /* tp_print */
@@ -79,9 +74,3 @@ static PyTypeObject DapChainNodeCliObject_DapChainNodeCliObjectType = {
 
 char **PyListToString(PyObject *list);
 PyObject *stringToPyList(char **list);
-
-#ifdef __cplusplus
-}
-#endif
-
-#endif //_WRAPPING_DAP_CHAIN_NET_NODE_CLI_
