@@ -11,6 +11,7 @@ void dap_chain_node_cli_delete_py(void){
 }
 
 static int wrapping_cmdfunc(int argc, char **argv, char **str_reply){
+    log_it(L_ERROR, "Wrapping activy");
     PyObject *arglist;
     PyObject *result;
     PyObject *obj_argv = stringToPyList(argv);
@@ -38,9 +39,10 @@ PyObject *dap_chain_node_cli_cmd_item_create_py(PyObject *a_self, PyObject *a_ar
     (void) a_self;
     const char *name, *doc, *doc_ex;
     PyObject *obj_cmdfunc;
-    if (!PyArg_ParseTuple(a_args, "s|O:cmdCallback|s|s", &name, &obj_cmdfunc, &doc, &doc_ex)){
-        return NULL;
-    } else {
+    //if (!PyArg_ParseTuple(a_args, "s|O:set_callback|s|s", &name, &obj_cmdfunc, &doc, &doc_ex)){
+    if (!PyArg_ParseTuple(a_args, "s|O|s|s", &name, &obj_cmdfunc, &doc, &doc_ex)){
+            return NULL;
+    }else {
         if (!PyCallable_Check(obj_cmdfunc)){
             PyErr_SetString(PyExc_TypeError, "parameter must be callable");
             return NULL;
