@@ -21,14 +21,19 @@ PyObject* dap_app_cli_main_py(PyObject *self, PyObject *args)
             return NULL;
 
     Py_ssize_t l_args_py_size = PyList_Size(l_args_py);
-    if ( l_args_py_size ){
-        l_argc = l_args_py_size;
-        l_argv = DAP_NEW_Z_SIZE(char*, sizeof(char**)*l_argc  );
-        for (  int i = 0; i< l_argc; i++){
-            l_argv[i] = PyBytes_AsString(PyList_GetItem(l_args_py, i));
+    if (l_args_py_size > 1){
+        l_argc = (int)l_args_py_size;
+        l_argv = DAP_NEW_SIZE(char*, l_argc);
+        PyObject *l_obj_from_list = NULL;
+        for (int i = 0; i < l_argc; i++){
+            l_obj_from_list = PyList_GetItem(l_args_py, i);
+            if (PyUnicode_Check(l_obj_from_list)){
+                l_argv[i] = (char*)PyUnicode_AsUTF8(PyList_GetItem(l_args_py, i));
+            }
+            Py_XDECREF(l_obj_from_list);
         }
-        return PyLong_FromLong((long) dap_app_cli_main(l_app_name,l_socket_path,l_argc,l_argv));
+        return PyLong_FromLong((long)dap_app_cli_main(l_app_name, l_socket_path, l_argc, l_argv));
+        DAP_FREE(l_argv);
     }else
         return PyLong_FromLong(-1024);
-
 }
