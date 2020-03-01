@@ -23,7 +23,7 @@ PyObject* dap_app_cli_main_py(PyObject *self, PyObject *args)
     Py_ssize_t l_args_py_size = PyList_Size(l_args_py);
     if (l_args_py_size > 1){
         l_argc = (int)l_args_py_size;
-        l_argv = calloc(sizeof(char*), (l_argc-1));
+        l_argv = calloc(sizeof(char*), l_argc);
         PyObject *l_obj_from_list = NULL;
         for (int i = 0; i < l_argc; i++){
             l_obj_from_list = PyList_GetItem(l_args_py, i);
@@ -33,6 +33,7 @@ PyObject* dap_app_cli_main_py(PyObject *self, PyObject *args)
             Py_XDECREF(l_obj_from_list);
         }
         return PyLong_FromLong((long)dap_app_cli_main(l_app_name, l_socket_path, l_argc, l_argv));
+        DAP_FREE(l_argv);
     }else
         return PyLong_FromLong(-1024);
 }
