@@ -23,7 +23,7 @@ PyObject* dap_app_cli_main_py(PyObject *self, PyObject *args)
     Py_ssize_t l_args_py_size = PyList_Size(l_args_py);
     if (l_args_py_size > 1){
         l_argc = (int)l_args_py_size;
-        l_argv = calloc(sizeof(char*), l_argc);
+        l_argv = DAP_NEW_SIZE(char*, l_argc);
         PyObject *l_obj_from_list = NULL;
         for (int i = 0; i < l_argc; i++){
             l_obj_from_list = PyList_GetItem(l_args_py, i);
