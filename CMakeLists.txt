@@ -182,6 +182,7 @@ add_library(${PROJECT_NAME} MODULE ${PYTHON_CELLFRAME_SRCS} ${PYTHON_CELLFRAME_H
 #python_extension_module(${PROJECT_NAME} LINKED_MODULES_VAR DapServerCore)
 install(TARGETS ${PROJECT_NAME} LIBRARY DESTINATION CellFrame)
 install(FILES src/__init__.py DESTINATION CellFrame)
+install(FILES src/PublicNetworks/* DESTINATION CellFrame)
 #    install(FILES ${CMAKE_CURRENT_BINARY_DIR}/libdap-python/libdap_python_module.so DESTINATION CellFrame/lib)
 #    install(TARGETS dap_python_module LIBRARY DESTINATION CellFrame)
 #    install(TARGETS dap_crypto_python_module LIBRARY DESTINATION CellFrame)
