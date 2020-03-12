@@ -34,6 +34,7 @@ PyObject *python_cellframe_init(PyObject *self, PyObject *args){
     s_init_ks = true;
 
     if (!PyArg_ParseTuple(args, "s", &JSON_str)){
+        PyErr_SetString(CellFrame_error, "ERROR in function call signature: can't get one String argument");
         return NULL;
     }
 
@@ -42,16 +43,24 @@ PyObject *python_cellframe_init(PyObject *self, PyObject *args){
         PyErr_SetString(CellFrame_error, "ERROR importing module");
         return NULL;
     }
+
     PyObject* JSONLoadsFunction = PyObject_GetAttrString(JSON_Module, "loads");
-    if (JSONLoadsFunction == NULL)
+    if (JSONLoadsFunction == NULL) {
+        PyErr_SetString(CellFrame_error, "Can't find \"loads\" section");
         return NULL;
+    }
+
     PyObject* argsInLoadsJSON = PyTuple_Pack(1,PyUnicode_FromString(JSON_str));
     PyObject* result = PyObject_CallObject(JSONLoadsFunction, argsInLoadsJSON);
-    if (result == NULL)
+    if (result == NULL){
+        PyErr_SetString(CellFrame_error, "ERROR in JSONLoadsFunction");
         return NULL;
+    }
     PyObject* getModules = PyDict_GetItemString(result, "modules");
-    if (getModules == NULL)
+    if (getModules == NULL){
+        PyErr_SetString(CellFrame_error, "Can't find \"modules\" section");
         return NULL;
+    }
 
     // DAP or Core
     PyObject* getDap = PyDict_GetItemString(result, "DAP");
@@ -59,8 +68,10 @@ PyObject *python_cellframe_init(PyObject *self, PyObject *args){
     if (getDap == NULL)
         getDap = PyDict_GetItemString(result, "Core");
 
-    if( getDap == NULL )
+    if( getDap == NULL ){
+        PyErr_SetString(CellFrame_error, "Can't find \"Core\" or \"DAP\" section");
         return NULL;
+    }
 
     /*Parse DAP*/
     PyObject* config_dir_PyObject = PyDict_GetItemString(getDap, "config_dir");
@@ -68,8 +79,10 @@ PyObject *python_cellframe_init(PyObject *self, PyObject *args){
     PyObject* file_name_log_PyObject = PyDict_GetItemString(getDap, "file_name_log");
     PyObject* logLevel_PyObject = PyDict_GetItemString(getDap, "log_level");
     if (config_dir_PyObject == NULL || application_name_PyObject == NULL ||
-            logLevel_PyObject == NULL || file_name_log_PyObject == NULL)
+            logLevel_PyObject == NULL || file_name_log_PyObject == NULL){
+        PyErr_SetString(CellFrame_error, "config_dir or application_name or file_name_log or log_level");
         return NULL;
+    }
     app_name = PyUnicode_AsUTF8(application_name_PyObject);
     file_name_log = PyUnicode_AsUTF8(file_name_log_PyObject);
     config_dir = PyUnicode_AsUTF8(config_dir_PyObject);
@@ -80,6 +93,25 @@ PyObject *python_cellframe_init(PyObject *self, PyObject *args){
         return NULL;
     }
     dap_set_appname(app_name);
+    if ( dap_strcmp( log_level, "L_DEBUG" )==0 || dap_strcmp( log_level, "DEBUG" )==0  ){
+        dap_log_level_set(L_DEBUG);
+    }else if ( dap_strcmp( log_level, "L_INFO" )==0 || dap_strcmp( log_level, "INFO" )==0  ){
+        dap_log_level_set(L_INFO);
+    }else if ( dap_strcmp( log_level, "L_NOTICE" )==0 || dap_strcmp( log_level, "NOTICE" )==0  ){
+        dap_log_level_set(L_NOTICE);
+    }else if ( dap_strcmp( log_level, "L_MSG" )==0 || dap_strcmp( log_level, "MSG" )==0  ){
+        dap_log_level_set(L_MSG);
+    }else if ( dap_strcmp( log_level, "L_DAP" )==0 || dap_strcmp( log_level, "DAP" )==0  ){
+        dap_log_level_set(L_DAP);
+    }else if ( dap_strcmp( log_level, "L_WARNING" )==0 || dap_strcmp( log_level, "WARNING" )==0  ){
+        dap_log_level_set(L_WARNING);
+    }else if ( dap_strcmp( log_level, "L_ATT" )==0 || dap_strcmp( log_level, "ATTENTION" )==0  ){
+        dap_log_level_set(L_ATT);
+    }else if ( dap_strcmp( log_level, "ERROR" )==0 || dap_strcmp( log_level, "ERROR" )==0  ){
+        dap_log_level_set(L_ERROR);
+    }else if ( dap_strcmp( log_level, "L_CRITICAL" )==0 || dap_strcmp( log_level, "CRITICAL" )==0  ){
+        dap_log_level_set(L_CRITICAL);
+    }
     //generation config files
     PyObject *configure = PyDict_GetItemString(result, "Configuration");
     int res_gen_config_file = gen_config_files(config_dir, app_name, configure);
@@ -115,6 +147,7 @@ PyObject *python_cellframe_init(PyObject *self, PyObject *args){
                 PyErr_SetString(CellFrame_error, "An error occurred while initializing the libdap-crypto-python module.");
                 return NULL;
             }
+            dap_cert_init();
         }else if (strcmp(c_value, "ServerCore") == 0){
             PyObject* getServerCoreData = PyDict_GetItemString(result, "ServerCore");
             if (getServerCoreData == NULL){
@@ -281,9 +314,9 @@ PyObject *python_cellframe_init(PyObject *self, PyObject *args){
                 PyErr_SetString(CellFrame_error, "Failed to initialize AppCliServer " );
                 return NULL;
             }
-        }else
-            return NULL;
-
+        }else{
+            log_it(L_WARNING,"Unknown module \"%s\"", c_value);
+        }
 
 //        if (strcmp(c_value, "ENC") == 0){
 //            if (dap_enc_init())
@@ -362,6 +395,7 @@ PyMODINIT_FUNC PyInit_libCellFrame(void){
     PyModule_AddObject(module, "CRITICAL", PyLong_FromLong(L_CRITICAL));
 
     PyModule_AddObject(module, "Crypto", (PyObject*)&dapCrypto_dapCryptoType);
+    PyModule_AddObject(module, "CryptoCert", (PyObject*)&dapCrypto_dapCryptoCertType);
 
     PyModule_AddObject(module, "ServerCore", (PyObject*)&ServerCore_ServerCoreType);
     PyModule_AddObject(module, "Events", (PyObject*)&dapEvents_dapEventsType);

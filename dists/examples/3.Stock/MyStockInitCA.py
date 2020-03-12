@@ -10,17 +10,17 @@ app_name = "MyStock"
 init_json_string = Template("""{
     "modules": ["Core","Crypto"],
     "Core": {
-        "config_dir": "${tmpdir}",
-        "log_level": "L_CRITICAL",
-        "application_name": "${appname}"
+        "config_dir": "${tmp_dir}",
+        "log_level": "L_DEBUG",
+        "application_name": "${app_name}"
     }
 }
 """)
 
 tpl_vars={
-    "vardir":var_dir,
-    "tmpdir":tmp_dir,
-    "appname":app_name
+    "var_dir":var_dir,
+    "tmp_dir":tmp_dir,
+    "app_name":app_name
 }
 
 print("begin")

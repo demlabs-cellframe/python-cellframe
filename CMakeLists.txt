@@ -10,23 +10,30 @@ SET( CPACK_GENERATOR "DEB")
 SET( CPACK_PACKAGE_NAME  "${PROJECT_NAME}")
 SET( CPACK_PACKAGE_VERSION_MAJOR 0)
 SET( CPACK_PACKAGE_VERSION_MINOR 9)
-SET( CPACK_PACKAGE_VERSION_PATCH 9)
+SET( CPACK_PACKAGE_VERSION_PATCH 10)
 
 add_definitions("-DDAP_VERSION_MAJOR=\"${CPACK_PACKAGE_VERSION_MAJOR}\"")
 add_definitions("-DDAP_VERSION_MINOR=\"${CPACK_PACKAGE_VERSION_MINOR}\"")
 add_definitions("-DDAP_VERSION_PATCH=\"${CPACK_PACKAGE_VERSION_PATCH}\"")
 add_definitions("-DDAP_VERSION=\"${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}-${CPACK_PACKAGE_VERSION_PATCH}\"")
 
+if((CMAKE_BUILD_TYPE STREQUAL "Debug") OR (DAP_DEBUG))
+    message("Debug build")
+    SET(DAP_DEBUG ON)
+else()
+    message("Release build")
+    SET(DAP_RELEASE ON)
+endif()
+
 if(UNIX)
   add_definitions ("-DDAP_OS_LINUX -DDAP_OS_UNIX")
 # add_definitions ("-DDAP_LOG_MT")
-  if(DAP_RELEASE)
-    set(_CCOPT " -Wall -O3 -fPIC -fno-ident -ffast-math -ftree-vectorize -fno-asynchronous-unwind-tables -ffunction-sections -Wl,--gc-sections -Wl,--strip-all -std=gnu11
-")
+  if(DAP_DEBUG)
+      set(_CCOPT "-Wno-unused-function -Wno-implicit-fallthrough -Wno-unused-variable -Wno-unused-parameter -Wno-unused-but-set-variable -pg -g3 -ggdb -fno-eliminate-unused-debug-symbols")
+      set(_LOPT "-pg")
+      SET(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -pg")
   else()
-    set(_CCOPT "-Wall -pg -g3 -ggdb -fno-eliminate-unused-debug-symbols")
-    set(_LOPT "-pg")
-    SET(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -pg")
+    set(_CCOPT "-DDAP_DEBUG  -Wno-unused-function -Wno-implicit-fallthrough -Wno-unused-variable -Wno-unused-parameter -Wno-unused-but-set-variable -O3 -fPIC -fno-ident -ffast-math -ftree-vectorize -fno-asynchronous-unwind-tables -ffunction-sections -Wl,--gc-sections -Wl,--strip-all -std=gnu11")
   endif()
 
   if (ANDROID)
@@ -63,15 +70,17 @@ if(WIN32)
   add_definitions("-DHAVE_STRNDUP")
   add_compile_definitions(WINVER=0x0600 _WIN32_WINNT=0x0600)
 
-  if(DAP_RELEASE)
-    set(_CCOPT "-static -std=gnu11 -Wall -O3 -fno-ident -ffast-math -ftree-vectorize -mfpmath=sse -mmmx -msse2 -fno-asynchronous-unwind-tables -ffunction-sections -Wl,--
-gc-sections -Wl,--strip-all")
+  if(DAP_DEBUG)
+      set(_CCOPT "-mconsole -static -Wall -std=gnu11 -Wextra -Wno-unused-function -Wno-implicit-fallthrough -Wno-un
+          used-variable -Wno-unused-parameter -Wno-unused-but-set-variable -g3 -ggdb -fno-eliminate-unused-debug-symbols -pg")
+      set(_LOPT "-mconsole -static -pg")
   else()
-    set(_CCOPT "-mconsole -static -Wall -pg")
-    set(_LOPT "-mconsole -static -pg")
+      set(_CCOPT "-static -std=gnu11 -Wall -Wextra -Wno-unused-function -Wno-implicit-fallthrough -Wno-un
+          used-variable -Wno-unused-parameter -Wno-unused-but-set-variable -O3 -fno-ident -ffast-math -ftree-vectorize -mfpmath=sse -mmmx -msse2 -fno-asynchronous-unwind-tables -ffunction-sections -Wl,--
+  gc-sections -Wl,--strip-all")
   endif()
 
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${_CCOPT}")
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${_CCOPT} ")
   set(CMAKE_LINKER_FLAGS "${CMAKE_LINKER_FLAGS} ${_LOPT}")
 
   include_directories(libdap/src/win32/)
