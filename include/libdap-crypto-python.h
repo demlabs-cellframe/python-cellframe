@@ -3,6 +3,7 @@
 #include "dap_enc.h"
 #include "dap_enc_key.h"
 #include "dap_common.h"
+#include "wrapping_cert.h"
 #include "wrapping_base58.h"
 #include "wrapping_base64.h"
 #include "wrapping_dap_enc_key.h"
