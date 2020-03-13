@@ -1,11 +1,11 @@
 #ifndef _DAP_CHAIN_PLUGINS_MANIFEST_
 #define _DAP_CHAIN_PLUGINS_MANIFEST_
 #include "dap_common.h"
-#include "dap_list.h"
 #include "dap_strfuncs.h"
 #include "stdio.h"
 #include "json-c/json_object.h"
 #include "json-c/json_tokener.h"
+#include "utlist.h"
 
 #ifdef __cplusplus
 extern "C"{
@@ -14,37 +14,32 @@ extern "C"{
 #undef LOG_TAG
 #define LOG_TAG "dap_chain_plugins_manifest"
 
-enum data_in_manifest{
-    NAME,
-    VERSION,
-    DEPENDENCYS,
-    AUTHOR,
-    DESCRIPTION
-};
+typedef struct dap_chain_plugins_list_char{
+    char *value;
+    struct dap_chain_plugins_list_char *next;
+}dap_chain_plugins_list_char_t;
 
-typedef struct manifest{
+typedef struct dap_list_manifest{
     char *name;
     char *version;
-    dap_list_t *dependencys;
     char *author;
     char *description;
-    bool init;
-}manifest_t;
+    dap_chain_plugins_list_char_t *dependencys;
+    struct dap_list_manifest *next;
+}dap_chain_plugins_list_manifest_t;
 
-manifest_t *dap_chain_plugins_manifest_new(const char *name, const char *version, const dap_list_t *dep, const char *author,
+dap_chain_plugins_list_manifest_t* manifests;
+
+dap_chain_plugins_list_manifest_t *dap_chain_plugins_manifest_new(const char *name, const char *version, const dap_chain_plugins_list_char_t *dep, const char *author,
                          const char *description);
-void dap_chain_plugins_manifest_free(manifest_t *manifest);
-manifest_t* dap_chain_plugins_add_manifest_from_file(const char *file_path);
-
-static dap_list_t *manifests;
 
 void dap_chain_plugins_manifest_list_create();
-manifest_t *dap_chain_plugins_manifest_get_list(size_t index);
-unsigned int dap_chain_plugins_manifests_get_lenght();
-void dap_chain_plugins_manifest_list_free();
-void dap_chain_plugins_manifest_list_add_manifest(manifest_t *manifest);
-bool dap_chain_plugins_manifest_list_add_from_file(const char *file_path);
 
+dap_chain_plugins_list_manifest_t* dap_chain_plugins_manifests_get_list();
+
+dap_chain_plugins_list_manifest_t* dap_chain_plugins_add_manifest_from_file(const char *file_path);
+
+bool dap_chain_plugins_manifest_list_add_from_file(const char *path_file);
 
 #ifdef __cplusplus
 }
