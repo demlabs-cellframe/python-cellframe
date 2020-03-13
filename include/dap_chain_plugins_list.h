@@ -3,9 +3,11 @@
 
 #include "Python.h"
 #include "stdbool.h"
-#include "dap_list.h"
+//#include "dap_list.h"
 #include "dap_common.h"
 #include "dap_strfuncs.h"
+#include "utlist.h"
+#include "dap_chain_plugins_manifest.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -14,34 +16,24 @@ extern "C" {
 #undef LOG_TAG
 #define LOG_TAG "dap_chain_plugins_list"
 
-typedef struct dap_chain_plugin_module{
+typedef struct dap_chain_list_plugin_module{
     char *name;
     PyObject *obj_module;
     bool isFuncOnChainsUpdated;
     bool isFuncOnGdbUpdated;
     bool isFuncOnNetStatusChanged;
-}dap_chain_plugins_module_t;
+    struct dap_chain_list_plugin_module *next;
+}dap_chain_plugin_list_module_t;
 
-static dap_list_t* dap_chain_plugins_module_list;
+static dap_chain_plugin_list_module_t* m_dap_chain_plugins_module_list;
 
-int dap_chain_plugins_list_init();
-void dap_chain_plugins_list_deint();
+void dap_chain_plugins_list_init();
+
+dap_chain_plugin_list_module_t* dap_chain_plugins_list_get();
+
+bool dap_chain_plugins_list_check_load_plugins(dap_chain_plugins_list_char_t *list);
 
 void dap_chain_plugins_list_add(PyObject *module, const char *name);
-
-unsigned int dap_chain_plugins_list_lenght();
-
-dap_chain_plugins_module_t *dap_chain_plugins_list_get_module(unsigned int id);
-PyObject *dap_chain_plugins_list_get_object(unsigned int id);
-
-bool dap_chai_plugins_list_module_check_on_chains_updated(unsigned int id);
-bool dap_chai_plugins_list_module_check_on_gdb_updated(unsigned int id);
-bool dap_chai_plugins_list_module_check_on_net_status_updated(unsigned int id);
-
-bool dap_chain_plugins_list_module_del(dap_chain_plugins_module_t *module);
-bool dap_chain_plugins_list_id_del(unsigned int id_module);
-bool dap_chain_plugins_list_name_del(const char *name_module);
-
 
 #ifdef __cplusplus
 extern "C" {
