@@ -9,6 +9,7 @@ int dap_chain_plugins_init(dap_config_t *config){
             log_it(L_ERROR, "The directory %s was not found.", plugins_root_path);
             return -1;
         }
+        PyImport_AppendInittab("CellFrame", PyInit_libCellFrame);
         Py_Initialize();
         PyObject *sys_module = PyImport_ImportModule("sys");
         sys_path = PyObject_GetAttrString(sys_module, "path");
@@ -107,6 +108,7 @@ void dap_chain_plugins_load_plugin(const char *dir_path, const char *name){
             if (_PyLong_AsInt(res_int) == 0){
                 dap_chain_plugins_list_add(module, name);
             } else {
+                PyErr_Print();
                 log_it(L_ERROR, "Code error %i at initialization %s plugin", _PyLong_AsInt(res_int), name);
             }
         } else {
