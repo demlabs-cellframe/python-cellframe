@@ -107,7 +107,7 @@ PyObject *python_cellframe_init(PyObject *self, PyObject *args){
         dap_log_level_set(L_WARNING);
     }else if ( dap_strcmp( log_level, "L_ATT" )==0 || dap_strcmp( log_level, "ATTENTION" )==0  ){
         dap_log_level_set(L_ATT);
-    }else if ( dap_strcmp( log_level, "ERROR" )==0 || dap_strcmp( log_level, "ERROR" )==0  ){
+    }else if ( dap_strcmp( log_level, "L_ERROR" )==0 || dap_strcmp( log_level, "ERROR" )==0  ){
         dap_log_level_set(L_ERROR);
     }else if ( dap_strcmp( log_level, "L_CRITICAL" )==0 || dap_strcmp( log_level, "CRITICAL" )==0  ){
         dap_log_level_set(L_CRITICAL);
