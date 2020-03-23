@@ -19,9 +19,6 @@ extern "C" {
 typedef struct dap_chain_list_plugin_module{
     char *name;
     PyObject *obj_module;
-    bool isFuncOnChainsUpdated;
-    bool isFuncOnGdbUpdated;
-    bool isFuncOnNetStatusChanged;
     struct dap_chain_list_plugin_module *next;
 }dap_chain_plugin_list_module_t;
 
