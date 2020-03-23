@@ -6,6 +6,8 @@ set(CMAKE_COLOR_MAKEFILE   ON)
 set(CMAKE_C_STANDARD 11)
 add_definitions("-fpic")
 add_definitions("-DDAP_LOG_MT")
+add_subdirectory(python-cellframe)
+target_compile_options(API_CellFrame PRIVATE "-fpic")
 
 if(UNIX)
     add_definitions("-DDAP_OS_UNIX")
@@ -22,7 +24,7 @@ add_library(${PROJECT_NAME} STATIC ${CHAIN_PLUGINS_PYTHON_SRCS} ${CHAIN_PLUGINS_
 
 target_link_libraries(${PROJECT_NAME})
 
-target_link_libraries(${PROJECT_NAME} dap_core  )
+target_link_libraries(${PROJECT_NAME} dap_core  API_CellFrame)
 
 target_include_directories(${PROJECT_NAME} PUBLIC include/ )
 

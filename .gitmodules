@@ -1,0 +1,3 @@
+[submodule "python-cellframe"]
+	path = python-cellframe
+	url = https://gitlab.demlabs.net/cellframe/python-cellframe.git
