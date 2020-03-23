@@ -107,7 +107,7 @@ PyObject *python_cellframe_init(PyObject *self, PyObject *args){
         dap_log_level_set(L_WARNING);
     }else if ( dap_strcmp( log_level, "L_ATT" )==0 || dap_strcmp( log_level, "ATTENTION" )==0  ){
         dap_log_level_set(L_ATT);
-    }else if ( dap_strcmp( log_level, "ERROR" )==0 || dap_strcmp( log_level, "ERROR" )==0  ){
+    }else if ( dap_strcmp( log_level, "L_ERROR" )==0 || dap_strcmp( log_level, "ERROR" )==0  ){
         dap_log_level_set(L_ERROR);
     }else if ( dap_strcmp( log_level, "L_CRITICAL" )==0 || dap_strcmp( log_level, "CRITICAL" )==0  ){
         dap_log_level_set(L_CRITICAL);
@@ -328,7 +328,8 @@ PyObject *python_cellframe_init(PyObject *self, PyObject *args){
 PyMODINIT_FUNC PyInit_libCellFrame(void){
 
     if (PyType_Ready(&DapCoreObjectType) < 0 || PyType_Ready(&dapCrypto_dapCryptoType) < 0 ||
-            PyType_Ready(&ServerCore_ServerCoreType) < 0 || PyType_Ready(&dapEvents_dapEventsType) < 0 ||
+            PyType_Ready(&dapCrypto_dapCryptoCertType) < 0 ||
+           PyType_Ready(&ServerCore_ServerCoreType) < 0 || PyType_Ready(&dapEvents_dapEventsType) < 0 ||
             PyType_Ready(&dapEventsSocket_dapEventsSocketType) < 0 ||
             PyType_Ready(&CryptoKeyTypeObjecy_CryptoKeyTypeObjecyType) < 0 ||
             PyType_Ready(&CryptoDataTypeObjecy_CryptoDataTypeObjecyType) < 0 ||
@@ -409,7 +410,7 @@ PyMODINIT_FUNC PyInit_libCellFrame(void){
     PyModule_AddObject(module, "ChainType", (PyObject*)&dapChainTypeObject_dapChainTypeType);
     PyModule_AddObject(module, "ChainAtomIter", (PyObject*)&dapChainAtomPtr_dapChainAtomPtrType);
     PyModule_AddObject(module, "ChainCell", (PyObject*)&DapChainCell_DapChainCellObjectType);
-////    PyModule_AddObject(module, "ChainCommon", (PyObject*)&ChainCommonObject_ChainCommonType);
+//    PyModule_AddObject(module, "ChainCommon", (PyObject*)&ChainCommonObject_ChainCommonType);
 
 //    PyModule_AddObject(module, "ChainID", (PyObject*)&DapChainIDObject_DapChainIDType);
     PyModule_AddObject(module, "ChainCellID", (PyObject*)&DapChainCellIDObject_DapChainCellIDType);
