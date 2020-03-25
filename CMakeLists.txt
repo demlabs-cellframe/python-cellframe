@@ -21,8 +21,6 @@ if (SUPPORT_PYTHON_PLUGINS)
     target_compile_options(dap_chain_python_module PRIVATE "-fpic")
 
     add_subdirectory(cellframe-sdk-python/libdap-app-cli-python)
-    add_subdirectory(cellframe-sdk/libdap-app-cli)
-    target_compile_options(dap_app_cli_python_module PRIVATE "-fpic")
 
     add_subdirectory(cellframe-sdk-python/libdap-client-python)
     target_compile_options(dap_client_python_module PRIVATE "-fpic")
