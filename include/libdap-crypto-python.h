@@ -1,4 +1,31 @@
+/*
+ * Authors:
+ * Alexey Stratulat <alexey.stratulat@demlabs.net>
+ * Dmitriy A. Gearasimov <gerasimov.dmitriy@demlabs.net>
+ * DeM Labs Inc.   https://demlabs.net
+ * CellFrame       https://cellframe.net
+ * Sources         https://gitlab.demlabs.net/cellframe
+ * Copyright  (c) 2017-2020
+ * All rights reserved.
+
+ This file is part of DAP (Deus Applications Prototypes) the open source project
+
+    DAP (Deus Applicaions Prototypes) is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    DAP is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with any DAP based project.  If not, see <http://www.gnu.org/licenses/>.
+*/
+#pragma once
 #define PY_SSIZE_T_CLEAN
+
 #include <Python.h>
 #include "dap_enc.h"
 #include "dap_enc_key.h"
@@ -23,7 +50,7 @@ int dap_crypto_init(void);
 
 void dap_crypto_deinit(void);
 
-static PyMethodDef CryptoMethods[] = {
+static PyMethodDef g_crypto_methods_py[] = {
         {"encodeBase58", dap_encode_base58_py, METH_VARARGS | METH_STATIC, "Encrypts information using the base58 algorithm from the DAP crypto library"},
         {"decodeBase58", dap_decode_base58_py, METH_VARARGS | METH_STATIC, "Dencrypts information using the base58 algorithm from the DAP crypto library"},
         {"encodeBase64", dap_encode_base64_py, METH_VARARGS | METH_STATIC, "Encrypts information using the base64 algorithm from the DAP crypto library"},
@@ -51,7 +78,7 @@ static PyMethodDef CryptoMethods[] = {
         {NULL, NULL, 0, NULL}
 };
 
-static PyTypeObject dapCrypto_dapCryptoType = {
+static PyTypeObject g_crypto_type_py = {
     PyVarObject_HEAD_INIT(NULL, 0)
     "CellFrame.Crypto",             /* tp_name */
     sizeof(PyCryptoObject),         /* tp_basicsize */
@@ -80,7 +107,7 @@ static PyTypeObject dapCrypto_dapCryptoType = {
     0,		               /* tp_weaklistoffset */
     0,		               /* tp_iter */
     0,		               /* tp_iternext */
-    CryptoMethods,             /* tp_methods */
+    g_crypto_methods_py,             /* tp_methods */
     0,                         /* tp_members */
     0,                         /* tp_getset */
     0,                         /* tp_base */

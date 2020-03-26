@@ -119,18 +119,3 @@ PyObject *dap_enc_gen_key_public_py(PyObject *self, PyObject *args){
     int size = dap_enc_gen_key_public(((PyCryptoKeyObject*)in_key)->key, obj);
     return PyLong_FromLong(size);
 }
-
-PyObject *dap_enc_key_signature_delete_py(PyObject *self, PyObject *args){
-    int type_key;
-    uint8_t *a_sig_buf;
-    uint8_t sig_buf;
-    if(!PyArg_ParseTuple(args, "i|h", &type_key, &sig_buf)){
-        return NULL;
-    }
-    if (type_key < 0 || type_key > 16){
-        return PyLong_FromLong(-1);
-    }
-    a_sig_buf = (uint8_t*)sig_buf;
-    dap_enc_key_signature_delete(type_key, a_sig_buf);
-    return PyLong_FromLong(0);
-}

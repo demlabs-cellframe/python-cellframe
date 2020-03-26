@@ -1,28 +1,77 @@
+/*
+ * Authors:
+ * Dmitriy A. Gearasimov <gerasimov.dmitriy@demlabs.net>
+ * DeM Labs Inc.   https://demlabs.net
+ * CellFrame       https://cellframe.net
+ * Sources         https://gitlab.demlabs.net/cellframe
+ * Copyright  (c) 2017-2020
+ * All rights reserved.
+
+ This file is part of DAP (Deus Applications Prototypes) the open source project
+
+    DAP (Deus Applicaions Prototypes) is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    DAP is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with any DAP based project.  If not, see <http://www.gnu.org/licenses/>.
+*/
 #pragma once
+#define PY_SSIZE_T_CLEAN
 
 #include <Python.h>
 #include "dap_common.h"
 #include "dap_cert.h"
 
-
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 typedef struct PyCryptoCert{
     PyObject_HEAD;
     dap_cert_t * cert;
 }PyCryptoCertObject;
 
-int dap_cert_init_py(void);
-void dap_cert_deinit_py(void);
-PyObject* dap_cert_add_folder_py(PyObject *self, PyObject *args);
+PyObject* dap_cert_generate_py(PyObject *self, PyObject *args);
+PyObject* dap_cert_dump_py(PyObject *self, PyObject *args);
+PyObject* dap_cert_pkey_py(PyObject *self, PyObject *args);
+PyObject* dap_cert_find_py(PyObject *self, PyObject *args);
+PyObject* dap_cert_sign_py(PyObject *self, PyObject *args);
+PyObject* dap_cert_cert_sign_add_py(PyObject *self, PyObject *args);
+PyObject* dap_cert_cert_signs_py(PyObject *self, PyObject *args);
+PyObject* dap_cert_compare_py(PyObject *self, PyObject *args);
+PyObject* dap_cert_save_py(PyObject *self, PyObject *args);
+PyObject* dap_cert_load_py(PyObject *self, PyObject *args);
+PyObject* dap_cert_close_py(PyObject *self, PyObject *args);
+PyObject* dap_cert_folder_add_py(PyObject *self, PyObject *args);
+PyObject* dap_cert_folder_get_py(PyObject *self, PyObject *args);
 
-static PyMethodDef CryptoCertMethods[] = {
-        {"addFolder", dap_cert_add_folder_py, METH_VARARGS | METH_STATIC, "Add folders with .dcert files in it"},
+static PyMethodDef g_crypto_cert_methods_py[] = {
+        {"generate",dap_cert_generate_py , METH_VARARGS | METH_STATIC, "Generate from seed or randomly the new certificate"},
+        {"find", dap_cert_find_py, METH_VARARGS | METH_STATIC, ""},
+        {"folderAdd", dap_cert_folder_add_py, METH_VARARGS | METH_STATIC, "Add folders with .dcert files in it"},
+        {"folderGet", dap_cert_folder_get_py, METH_VARARGS | METH_STATIC, "Get folder by number or the default one"},
+        {"load", dap_cert_load_py, METH_VARARGS | METH_STATIC ,""},
+        {"dump", dap_cert_dump_py, METH_VARARGS , ""},
+        {"pkey", dap_cert_pkey_py, METH_VARARGS , ""},
+        {"sign", dap_cert_sign_py, METH_VARARGS , ""},
+        {"certSignAdd", dap_cert_cert_sign_add_py, METH_VARARGS,  ""},
+        {"certSigns", dap_cert_cert_signs_py, METH_VARARGS , ""},
+        {"compare", dap_cert_compare_py, METH_VARARGS, ""},
+        {"save", dap_cert_save_py, METH_VARARGS , ""},
+        {"close", dap_cert_close_py, METH_VARARGS , ""},
         {NULL, NULL, 0, NULL}
 };
 
-static PyTypeObject dapCrypto_dapCryptoCertType = {
+static PyTypeObject g_crypto_cert_type_py = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "CellFrame.CryptoCert",             /* tp_name */
+    "CellFrame.Cert",             /* tp_name */
     sizeof(PyCryptoCertObject),         /* tp_basicsize */
     0,                         /* tp_itemsize */
     0,                         /* tp_dealloc */
@@ -42,14 +91,14 @@ static PyTypeObject dapCrypto_dapCryptoCertType = {
     0,                         /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT |
         Py_TPFLAGS_BASETYPE,   /* tp_flags */
-    "Crypto objects",           /* tp_doc */
+    "Cert objects",           /* tp_doc */
     0,		               /* tp_traverse */
     0,		               /* tp_clear */
     0,		               /* tp_richcompare */
     0,		               /* tp_weaklistoffset */
     0,		               /* tp_iter */
     0,		               /* tp_iternext */
-    CryptoCertMethods,             /* tp_methods */
+    g_crypto_cert_methods_py,             /* tp_methods */
     0,                         /* tp_members */
     0,                         /* tp_getset */
     0,                         /* tp_base */
@@ -62,3 +111,6 @@ static PyTypeObject dapCrypto_dapCryptoCertType = {
     PyType_GenericNew,         /* tp_new */
 };
 
+#ifdef __cplusplus
+}
+#endif
