@@ -1,6 +1,9 @@
 import os
 from string import Template
 
+def getNetworkName(appName,sep="-"):
+    return appName.lower()+sep+"dev"
+
 def getJsonString(app_name, log_level="DEBUG"):
     tmp_dir = os.getcwd() + "/tmp"
     var_dir = os.getcwd() + "/var"
@@ -88,7 +91,7 @@ def getJsonString(app_name, log_level="DEBUG"):
         "var_dir":var_dir,
         "tmp_dir":tmp_dir,
         "app_name":app_name,
-        "net_name": str.lower(app_name)+"-dev",
+        "net_name": getNetworkName(app_name),
         "log_level":log_level
 
     }

@@ -317,39 +317,38 @@ PyObject *python_cellframe_init(PyObject *self, PyObject *args){
         }else{
             log_it(L_WARNING,"Unknown module \"%s\"", c_value);
         }
-
-//        if (strcmp(c_value, "ENC") == 0){
-//            if (dap_enc_init())
-//        }
     }
     return PyLong_FromLong(0);
 }
 
 PyMODINIT_FUNC PyInit_libCellFrame(void){
 
-    if (PyType_Ready(&DapCoreObjectType) < 0 || PyType_Ready(&dapCrypto_dapCryptoType) < 0 ||
-            PyType_Ready(&ServerCore_ServerCoreType) < 0 || PyType_Ready(&dapEvents_dapEventsType) < 0 ||
-            PyType_Ready(&dapEventsSocket_dapEventsSocketType) < 0 ||
-            PyType_Ready(&CryptoKeyTypeObjecy_CryptoKeyTypeObjecyType) < 0 ||
-            PyType_Ready(&CryptoDataTypeObjecy_CryptoDataTypeObjecyType) < 0 ||
+    if (    PyType_Ready( &DapCoreObjectType ) < 0 ||
+            PyType_Ready( &g_crypto_type_py ) < 0  ||
+            PyType_Ready( &g_crypto_cert_type_py ) < 0  ||
+            PyType_Ready( &ServerCore_ServerCoreType ) < 0 ||
+            PyType_Ready( &dapEvents_dapEventsType ) < 0 ||
+            PyType_Ready( &dapEventsSocket_dapEventsSocketType ) < 0 ||
+            PyType_Ready( &CryptoKeyTypeObjecy_CryptoKeyTypeObjecyType ) < 0 ||
+            PyType_Ready( &CryptoDataTypeObjecy_CryptoDataTypeObjecyType ) < 0 ||
             // === Chain ===
-            PyType_Ready(&dapChainObject_dapChainType) < 0 ||
-            PyType_Ready(&dapChainTypeObject_dapChainTypeType) < 0 ||
-            PyType_Ready(&dapChainAtomPtr_dapChainAtomPtrType) < 0 ||
-            PyType_Ready(&DapChainCell_DapChainCellObjectType) < 0 ||
+            PyType_Ready( &dapChainObject_dapChainType ) < 0 ||
+            PyType_Ready( &dapChainTypeObject_dapChainTypeType ) < 0 ||
+            PyType_Ready( &dapChainAtomPtr_dapChainAtomPtrType ) < 0 ||
+            PyType_Ready( &DapChainCell_DapChainCellObjectType ) < 0 ||
 //            PyType_Ready(&ChainCommonObject_ChainCommonType) < 0 ||
 
-            PyType_Ready(&DapChainCellIDObject_DapChainCellIDType) < 0 ||
-            PyType_Ready(&DapChainCellIDObject_DapChainCellIDType) < 0 ||
-            PyType_Ready(&DapChainNodeAddrObject_DapChainNodeAddrObjectType) < 0 ||
-            PyType_Ready(&DapChainHashSlowObject_DapChainHashSlowObjectType) < 0 ||
-            PyType_Ready(&DapHashFastObject_DapHashFastObjectType) < 0 ||
-            PyType_Ready(&DapChainHashSlowObject_DapChainHashSlowObjectType) < 0 ||
-            PyType_Ready(&DapChainAddrObject_DapChainAddrObjectType) < 0 ||
+            PyType_Ready( &DapChainCellIDObject_DapChainCellIDType) < 0 ||
+            PyType_Ready( &DapChainCellIDObject_DapChainCellIDType) < 0 ||
+            PyType_Ready( &DapChainNodeAddrObject_DapChainNodeAddrObjectType) < 0 ||
+            PyType_Ready( &DapChainHashSlowObject_DapChainHashSlowObjectType) < 0 ||
+            PyType_Ready( &DapHashFastObject_DapHashFastObjectType) < 0 ||
+            PyType_Ready( &DapChainHashSlowObject_DapChainHashSlowObjectType) < 0 ||
+            PyType_Ready( &DapChainAddrObject_DapChainAddrObjectType) < 0 ||
 
-            PyType_Ready(&DapChainCsObject_DapChainCsObjectType) < 0 ||
-            PyType_Ready(&DapChainDatumTypeIdObject_DapChainDatumTypeIdObjectType) < 0 ||
-            PyType_Ready(&DapChainDatumObject_DapChainDatumObjectType) < 0 ||
+            PyType_Ready( &DapChainCsObject_DapChainCsObjectType) < 0 ||
+            PyType_Ready( &DapChainDatumTypeIdObject_DapChainDatumTypeIdObjectType) < 0 ||
+            PyType_Ready( &DapChainDatumObject_DapChainDatumObjectType) < 0 ||
             PyType_Ready(&DapChainDatumIterObject_DapChainDatumIterObjectType) < 0 ||
             PyType_Ready(&DapChainDatumToken_DapChainDatumTokenObjectType) < 0 ||
             PyType_Ready(&DapChainDatumTokenEmission_DapChainDatumTokenEmissionObjectType) < 0 ||
@@ -377,13 +376,19 @@ PyMODINIT_FUNC PyInit_libCellFrame(void){
             PyType_Ready(&DapMempool_DapMempoolType) < 0 ||
             // ====
             PyType_Ready(&DapAppCli_dapAppCliType ) < 0
-            )
-               return NULL;
+            ){
+        log_it(L_CRITICAL,"Not all py modules are ready for init");
+        return NULL;
+    }
 
     PyObject *module = PyModule_Create(&CellFramePythonModule);
+    PyModule_AddStringConstant(module, "__author__", "Alexey Stratulat <alexey.stratulat@demlabs.net>");
+    PyModule_AddStringConstant(module, "__version__", DAP_VERSION);
 
     CellFrame_error = PyErr_NewException("CellFrame.error", NULL, NULL);
+
     PyModule_AddObject(module, "error", CellFrame_error);
+
     PyModule_AddObject(module, "DEBUG", PyLong_FromLong(L_DEBUG));
     PyModule_AddObject(module, "INFO", PyLong_FromLong(L_INFO));
     PyModule_AddObject(module, "NOTICE", PyLong_FromLong(L_NOTICE));
@@ -394,8 +399,8 @@ PyMODINIT_FUNC PyInit_libCellFrame(void){
     PyModule_AddObject(module, "ERROR", PyLong_FromLong(L_ERROR));
     PyModule_AddObject(module, "CRITICAL", PyLong_FromLong(L_CRITICAL));
 
-    PyModule_AddObject(module, "Crypto", (PyObject*)&dapCrypto_dapCryptoType);
-    PyModule_AddObject(module, "CryptoCert", (PyObject*)&dapCrypto_dapCryptoCertType);
+    PyModule_AddObject(module, "Crypto", (PyObject*)&g_crypto_type_py);
+    PyModule_AddObject(module, "Cert", (PyObject*)&g_crypto_cert_type_py);
 
     PyModule_AddObject(module, "ServerCore", (PyObject*)&ServerCore_ServerCoreType);
     PyModule_AddObject(module, "Events", (PyObject*)&dapEvents_dapEventsType);
@@ -456,8 +461,10 @@ PyMODINIT_FUNC PyInit_libCellFrame(void){
 }
 
 PyObject *python_cellframe_deinit(PyObject *self, PyObject *args){
-    if (s_init_crypto)
+    if (s_init_crypto){
         dap_crypto_deinit();
+        dap_cert_deinit();
+    }
     if (s_init_chain){
         deinit_chain_py();
         dap_chain_cs_deinit_py();

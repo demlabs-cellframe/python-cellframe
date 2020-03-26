@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 import sys
 import os
-from CellFrame.libCellFrame import AppCli
+from CellFrame.libCelLFrame import AppCli
 
 app_name="MyAuth"
 tmp_dir = os.getcwd() + "/tmp"
