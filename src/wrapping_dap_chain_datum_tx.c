@@ -168,7 +168,7 @@ static dap_chain_datum_tx_t **PyListToDapChainDatumTxArray(PyObject *a_in_obj){
 }
 
 static PyObject* DapChainDatumTxArrayToPyList(dap_chain_datum_tx_t** datum_txs){
-    size_t len = sizeof(datum_txs) / sizeof(datum_txs[0]);
+    size_t len = sizeof(datum_txs) / sizeof(*datum_txs);
     PyObject* list = PyList_New((Py_ssize_t)len);
     for (size_t i=0; i < len; i++){
         PyObject *obj = _PyObject_New(&DapChainDatumTx_DapChainDatumTxObjectType);
@@ -188,7 +188,7 @@ dap_chain_tx_out_cond_t **PyListToDapChainTxOutCond(PyObject *list){
 }
 
 PyObject *DapChainTxOutCondObjectToPyList(dap_chain_tx_out_cond_t **out_cond){
-    size_t len = sizeof(out_cond) / sizeof(out_cond[0]);
+    size_t len = sizeof(out_cond) / sizeof(*out_cond);
     PyObject *list = PyList_New((Py_ssize_t)len);
     for (size_t i=0; i< len;i++ ){
         PyObject *obj = _PyObject_New(&DapChainTxOutCond_DapChainTxOutCondObjectType);
