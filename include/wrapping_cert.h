@@ -38,6 +38,9 @@ typedef struct PyCryptoCert{
     dap_cert_t * cert;
 }PyCryptoCertObject;
 
+int dap_cert_init_py();
+void dap_cert_deinit_py();
+
 PyObject* dap_cert_generate_py(PyObject *self, PyObject *args);
 PyObject* dap_cert_dump_py(PyObject *self, PyObject *args);
 PyObject* dap_cert_pkey_py(PyObject *self, PyObject *args);
@@ -91,7 +94,7 @@ static PyTypeObject g_crypto_cert_type_py = {
     0,                         /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT |
         Py_TPFLAGS_BASETYPE,   /* tp_flags */
-    "Cert objects",           /* tp_doc */
+    "Crypto cert object",           /* tp_doc */
     0,		               /* tp_traverse */
     0,		               /* tp_clear */
     0,		               /* tp_richcompare */

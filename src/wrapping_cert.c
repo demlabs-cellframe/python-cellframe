@@ -162,10 +162,21 @@ PyObject* dap_cert_folder_add_py(PyObject *self, PyObject *args)
 
 PyObject* dap_cert_folder_get_py(PyObject *self, PyObject *args)
 {
-    (void) self;
-    (void) args;
-    /// TODO: Implement it!
-    PyErr_SetString(PyExc_TypeError, "Unimplemented function");
-    return NULL;
+    (void)self;
+    const char *a_folder_path;
+    if(!PyArg_ParseTuple(args, "s", &a_folder_path))
+        return NULL;
+    dap_cert_add_folder(a_folder_path);
+    return PyLong_FromLong(0);
+}
+
+int dap_cert_init_py(void)
+{
+    return dap_cert_init();
+}
+
+void dap_cert_deinit_py(void)
+{
+    dap_cert_deinit();
 }
 
