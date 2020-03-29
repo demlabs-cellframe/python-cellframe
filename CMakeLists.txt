@@ -1,4 +1,9 @@
 cmake_minimum_required(VERSION 2.8)
+if (SUPPORT_PYTHON_PLUGINS)
+    project(API_CellFrame C)
+else()
+    project(CellFrame C)
+endif()
 set(CMAKE_VERBOSE_MAKEFILE ON)
 set(CMAKE_COLOR_MAKEFILE   ON)
 set(CMAKE_C_STANDARD 11)
@@ -57,7 +62,6 @@ add_subdirectory(cellframe-sdk-python/libdap-app-cli-python)
 add_subdirectory(cellframe-sdk-python/libdap-client-python)
 
 if (SUPPORT_PYTHON_PLUGINS)
-    project(API_CellFrame C)
 
     add_definitions("-fpic")
     add_subdirectory(cellframe-sdk-python/libdap-chain-common-python)
@@ -74,7 +78,6 @@ if (SUPPORT_PYTHON_PLUGINS)
 
 
 else()
-    project(CellFrame C)
 
     SET( CPACK_GENERATOR "DEB")
     SET( CPACK_PACKAGE_NAME  "${PROJECT_NAME}")
