@@ -2,13 +2,13 @@
 
 #define LOG_TAG "generator_config_file"
 
-static void writeGroupInFile(FILE *file, char *group){
+static void writeGroupInFile(FILE *file, const char *group){
     fputs("[", file);
     fputs(group, file);
     fputs("]\n", file);
 }
 
-static void writeKeyAndValueInFile(FILE *file, char *key, char *value){
+static void writeKeyAndValueInFile(FILE *file, const char *key, const char *value){
     fputs(key, file);
     fputs("=", file);
     fputs(value, file);
@@ -52,7 +52,10 @@ char* getCharFromPyObject(PyObject *obj){
 }
 
 void writeContectSectorToFile(FILE *file, PyObject *sector){
+    PyGILState_STATE state;
+    state = PyGILState_Ensure();
     PyObject *list_keys = PyDict_Keys(sector);
+    PyGILState_Release(state);
     Py_ssize_t count_keys = PyList_Size(list_keys);
     char *key;
     PyObject *obj_value;
@@ -66,118 +69,102 @@ void writeContectSectorToFile(FILE *file, PyObject *sector){
 }
 
 void writeSectorsToFile(FILE *file, PyObject *sectors, int count, ...){
+    log_it(L_DEBUG, "Write_sector start");
+    if (!PyDict_Check(sectors)){
+        log_it(L_ERROR, "input object don't have sector");
+        return;
+    }
     PyObject *list_sectors = PyDict_Keys(sectors);
+    log_it(L_DEBUG, "WSTF1");
     Py_ssize_t count_sectors = PyList_Size(list_sectors);
-    char *name_sector;
+    char *name_sector = NULL;
+    bool _this_obj_not_processes = false;
     PyObject *sector;
-    bool _this_obj_not_processes;
-    log_it(L_DEBUG, "Write chain config to file: sectors list size %d", count_sectors);
     for (Py_ssize_t i = 0; i < count_sectors; i++){
         name_sector = getCharFromPyObject(PyList_GetItem(list_sectors, i));
         va_list args;
         va_start(args, count);
-        log_it(L_DEBUG, "  name_sector=\"%s\" ( count=%d )", name_sector, count);
-        for (int l=0; l < count;l++){
-            _this_obj_not_processes = true;
+        for (int l=0; l < count; l++){
             if (strcmp(name_sector, va_arg(args, char*)) == 0){
-                _this_obj_not_processes = false;
-                va_end(args);
-                break;
+                _this_obj_not_processes = true;
             }
         }
         if (!_this_obj_not_processes){
-            break;
+            sector = PyDict_GetItemString(sectors, name_sector);
+            writeGroupInFile(file, name_sector);
+            writeContectSectorToFile(file, sector);
         }
-        va_end(args);
-        sector = PyDict_GetItemString(sectors, name_sector);
-        log_it(L_DEBUG, "  sector=\"%s\"", sector);
-        writeGroupInFile(file, name_sector);
-        writeContectSectorToFile(file, sector);
+        DAP_FREE(name_sector);
     }
 }
 
-void createConfNetworks(dap_string_t *base_path, PyObject *nets){
+void writeChainFiles(char *base_path, PyObject *chains_conf){
+    PyObject *list_names = PyDict_GetItemString(chains_conf, "name_cfg_files");
+    PyObject *dict_conf = PyDict_GetItemString(chains_conf, "conf_files");
+    for (Py_ssize_t i=0; i < PyList_Size(list_names); i++){
+        char *name = dap_strdup(PyUnicode_AsUTF8(PyList_GetItem(list_names, i)));
+        PyObject *cfg = PyDict_GetItemString(dict_conf, name);
+        FILE *file_chain;
+        char *path_file = dap_strjoin(NULL, base_path, name, ".cfg", NULL);
+        if ((file_chain = fopen(path_file, "w")) == NULL){
+            log_it(L_WARNING,"Can't create file \"%s\"", path_file);
+            break;
+        }
+        writeSectorsToFile(file_chain, cfg, 0);
+        fclose(file_chain);
+    }
+}
+
+void createConfNetworks(char *base_path, PyObject *nets){
+    log_it(L_DEBUG, "Create network settings");
     PyObject *name_nets = PyDict_Keys(nets);
     Py_ssize_t count_nets = PyList_Size(name_nets);
-    char *l_net_name;
-    PyObject *obj_net;
-    dap_string_t *l_path_net_str;
-    dap_string_t *l_net_file_path;
-    FILE *file_net;
-    PyObject *list_files;
-    PyObject *obj_conf_files;
-    Py_ssize_t count_list_file;
-    dap_string_t *l_chain_file_path;
-    char *name_cfg_chain_file;
-    FILE *l_chain_file;
+    char *name_net_dir;
+    char *name_net_cfg;
+    char *name_net_cfg_tmp;
+    char *value = NULL;
     for (Py_ssize_t i =0; i < count_nets; i++){
-        l_net_name = getCharFromPyObject(PyList_GetItem(name_nets, i));
-        l_path_net_str = dap_string_new(base_path->str);
-        l_path_net_str = dap_string_append(l_path_net_str, "/");
-        l_path_net_str = dap_string_append(l_path_net_str, l_net_name);
-        l_net_file_path = dap_string_new(l_path_net_str->str);
-        l_net_file_path = dap_string_append(l_net_file_path, ".cfg");
-        l_path_net_str = dap_string_append(l_path_net_str, "/");
-        if (!dap_valid_ascii_symbols(l_path_net_str->str)){
-            return;
+        value = getCharFromPyObject(PyList_GetItem(name_nets, i));
+        log_it(L_DEBUG, "net: %s", value);
+        name_net_cfg_tmp = dap_strjoin(NULL, base_path, "/", value, NULL);
+        name_net_dir = dap_strjoin(NULL, name_net_cfg_tmp, "/", NULL);
+        name_net_cfg = dap_strjoin(NULL, name_net_cfg_tmp, ".cfg", NULL);
+        DAP_FREE(name_net_cfg_tmp);
+        if (!dap_valid_ascii_symbols(name_net_cfg)){
+            break;
         }
-        dap_mkdir_with_parents(l_path_net_str->str);
-        if ((file_net = fopen(l_net_file_path->str, "w")) == NULL){
-            log_it(L_WARNING,"Can't create file \"%s\"", l_net_file_path->str);
-            return;
+        dap_mkdir_with_parents(name_net_dir);
+        FILE *cfg_file_net;
+        if ((cfg_file_net = fopen(name_net_cfg, "w")) == NULL){
+            log_it(L_WARNING,"Can't create file \"%s\"", name_net_cfg);
+            break;
         }
-        obj_net = PyDict_GetItemString(nets, l_net_name);
-        writeSectorsToFile(file_net, obj_net, 2, "name_cfg_files", "conf_files");
-        fclose(file_net);
-        log_it(L_INFO,"Generated network \"%s\" on path %s", l_net_name, l_net_file_path->str);
-
-        list_files = PyDict_GetItemString(obj_net, "name_cfg_files");
-        count_list_file = PyList_Size(list_files);
-        obj_conf_files = PyDict_GetItemString(obj_net, "conf_files");
-        for (Py_ssize_t index = 0; index < count_list_file; index++){
-            name_cfg_chain_file = getCharFromPyObject(PyList_GetItem(list_files, index));
-            l_chain_file_path = dap_string_new(l_path_net_str->str);
-            l_chain_file_path = dap_string_append(l_chain_file_path, name_cfg_chain_file);
-            l_chain_file_path = dap_string_append(l_chain_file_path, ".cfg");
-            if ((l_chain_file = fopen(l_chain_file_path->str, "w")) == NULL){
-                log_it(L_WARNING,"Can't create file \"%s\" ", l_chain_file_path->str);
-                return;
-            }
-            log_it(L_INFO, "Created config for chain \"%s\" on path %s",  name_cfg_chain_file, l_chain_file_path->str );
-            writeSectorsToFile( l_chain_file, PyDict_GetItemString(obj_conf_files, name_cfg_chain_file), 0 );
-            fclose(l_chain_file);
-            if ( l_chain_file_path )
-                log_it(L_INFO,"Produced output for %s", l_chain_file_path->str);
-            else
-                log_it(L_ERROR,"No output for %s", l_chain_file_path->str);
-            dap_string_free(l_chain_file_path, true);
-        }
-        dap_string_free(l_net_file_path, true);
-        dap_string_free(l_path_net_str, true);
+        DAP_FREE(name_net_cfg);
+        PyObject *conf = PyDict_GetItemString(nets, value);
+        writeSectorsToFile(cfg_file_net, conf, 2, "name_cfg_files", "conf_files");
+        fclose(cfg_file_net);
+        writeChainFiles(name_net_dir, conf);
+        DAP_FREE(name_net_dir);
+        DAP_FREE(value);
     }
 }
 
 int gen_config_files(const char *cfgDir, const char *app_name, PyObject *cfg_JSON){
-    dap_string_t *string_cfg_dir = dap_string_new(cfgDir);
-    dap_string_t *networks_dir = dap_string_new(string_cfg_dir->str);
-    networks_dir = dap_string_append(networks_dir, "/network");
     if (!dap_valid_ascii_symbols(cfgDir)){
         return -1;
     }
-    dap_mkdir_with_parents(networks_dir->str);
-    dap_string_t *main_cfg_file = dap_string_new(string_cfg_dir->str);
-    main_cfg_file = dap_string_append(main_cfg_file, "/");
-    main_cfg_file = dap_string_append(main_cfg_file, app_name);
-    main_cfg_file = dap_string_append(main_cfg_file, ".cfg");
+    char *network_dir = dap_strjoin(NULL, cfgDir, "/network", NULL);
+    dap_mkdir_with_parents(network_dir);
+    char *main_config_files = dap_strjoin(NULL, cfgDir, "//", app_name, ".cfg", NULL);
     FILE *main_file;
-    if ((main_file = fopen(main_cfg_file->str, "w")) == NULL){
+    if ((main_file = fopen(main_config_files, "w")) == NULL){
+        log_it(L_WARNING, "Can't open file %s", main_config_files);
         return -3;
     }
     writeSectorsToFile(main_file, cfg_JSON, 1, "networks");
     fclose(main_file);
-    createConfNetworks(networks_dir, PyDict_GetItemString(cfg_JSON, "networks"));
-    dap_string_free(main_cfg_file, true);
-    dap_string_free(networks_dir, true);
-    dap_string_free(string_cfg_dir, true);
+    createConfNetworks(network_dir, PyDict_GetItemString(cfg_JSON, "networks"));
+    DAP_FREE(main_config_files);
+    DAP_FREE(network_dir);
     return 0;
 }
