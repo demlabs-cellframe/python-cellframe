@@ -107,7 +107,7 @@ PyObject *python_cellframe_init(PyObject *self, PyObject *args){
         dap_log_level_set(L_WARNING);
     }else if ( dap_strcmp( log_level, "L_ATT" )==0 || dap_strcmp( log_level, "ATTENTION" )==0  ){
         dap_log_level_set(L_ATT);
-    }else if ( dap_strcmp( log_level, "ERROR" )==0 || dap_strcmp( log_level, "ERROR" )==0  ){
+    }else if ( dap_strcmp( log_level, "L_ERROR" )==0 || dap_strcmp( log_level, "ERROR" )==0  ){
         dap_log_level_set(L_ERROR);
     }else if ( dap_strcmp( log_level, "L_CRITICAL" )==0 || dap_strcmp( log_level, "CRITICAL" )==0  ){
         dap_log_level_set(L_CRITICAL);
@@ -414,7 +414,7 @@ PyMODINIT_FUNC PyInit_libCellFrame(void){
     PyModule_AddObject(module, "ChainType", (PyObject*)&dapChainTypeObject_dapChainTypeType);
     PyModule_AddObject(module, "ChainAtomIter", (PyObject*)&dapChainAtomPtr_dapChainAtomPtrType);
     PyModule_AddObject(module, "ChainCell", (PyObject*)&DapChainCell_DapChainCellObjectType);
-////    PyModule_AddObject(module, "ChainCommon", (PyObject*)&ChainCommonObject_ChainCommonType);
+//    PyModule_AddObject(module, "ChainCommon", (PyObject*)&ChainCommonObject_ChainCommonType);
 
 //    PyModule_AddObject(module, "ChainID", (PyObject*)&DapChainIDObject_DapChainIDType);
     PyModule_AddObject(module, "ChainCellID", (PyObject*)&DapChainCellIDObject_DapChainCellIDType);
@@ -493,6 +493,7 @@ PyObject *python_cellframe_deinit(PyObject *self, PyObject *args){
     return PyLong_FromLong(0);
 }
 
+#ifdef DAP_SUPPORT_PYTHON_PLUGINS
 int main(int argc, char **argv) {
     wchar_t *program = Py_DecodeLocale(argv[0], NULL);
     if (program == NULL) {
@@ -517,3 +518,4 @@ int main(int argc, char **argv) {
     PyMem_RawFree(program);
     return 0;
 }
+#endif
