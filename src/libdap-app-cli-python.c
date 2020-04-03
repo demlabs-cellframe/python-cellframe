@@ -12,28 +12,32 @@
 PyObject* dap_app_cli_main_py(PyObject *self, PyObject *args)
 {
     (void) self;
-    char *l_app_name = NULL;
+    char *l_app_name    = NULL;
     char *l_socket_path = NULL;
-    int l_argc = 0;
-    char ** l_argv = NULL;
-    PyObject* l_args_py = NULL;
-    if (!PyArg_ParseTuple(args, "ssO", &l_app_name,&l_socket_path, &l_args_py))
-            return NULL;
+    int l_argc          = 0;
+    char **l_argv       = NULL;
+    PyObject *l_argv_py = NULL;
 
-    Py_ssize_t l_args_py_size = PyList_Size(l_args_py);
-    if (l_args_py_size > 1){
-        l_argc = (int)l_args_py_size;
-        l_argv = DAP_NEW_SIZE(char*, l_argc);
-        PyObject *l_obj_from_list = NULL;
-        for (int i = 0; i < l_argc; i++){
-            l_obj_from_list = PyList_GetItem(l_args_py, i);
-            if (PyUnicode_Check(l_obj_from_list)){
-                l_argv[i] = (char*)PyUnicode_AsUTF8(PyList_GetItem(l_args_py, i));
-            }
-            Py_XDECREF(l_obj_from_list);
+    PyObject *l_from_list_obj   = NULL;
+    PyObject *l_value_obj       = NULL;
+    if (!PyArg_ParseTuple(args, "ssO", &l_app_name, &l_socket_path, & l_argv_py))
+        return NULL;
+    Py_ssize_t l_argv_size_py = PyList_Size(l_argv_py);
+    l_argc = (int)l_argv_size_py;
+    if (l_argv_size_py > 1){
+        l_argv = PyMem_Calloc((size_t)l_argv_size_py, sizeof(char**));
+        for (Py_ssize_t i=0; i < l_argv_size_py; i++){
+            l_from_list_obj = PyList_GetItem(l_argv_py, i);
+            l_value_obj = PyList_GetItem(l_argv_py, i);
+            l_argv[i] = dap_strdup(PyUnicode_AsUTF8(l_value_obj));
         }
-        return PyLong_FromLong((long)dap_app_cli_main(l_app_name, l_socket_path, l_argc, l_argv));
-        DAP_FREE(l_argv);
-    }else
+        int res = dap_app_cli_main(l_app_name, l_socket_path, l_argc, l_argv);
+        for (Py_ssize_t i=0; i < l_argv_size_py; i++){
+            DAP_FREE(l_argv[i]);
+        }
+        PyMem_Free(l_argv);
+        return PyLong_FromLong(res);
+    }
+    else
         return PyLong_FromLong(-1024);
 }
