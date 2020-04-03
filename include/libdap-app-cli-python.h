@@ -4,6 +4,7 @@
 #include <Python.h>
 #include "dap_common.h"
 #include "dap_app_cli.h"
+#include "dap_strfuncs.h"
 
 
 typedef struct PyAppCli{
