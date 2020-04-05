@@ -38,3 +38,20 @@ bool dap_chain_plugins_list_check_load_plugins(dap_chain_plugins_list_char_t *li
     return true;
 }
 
+void dap_chain_plugins_list_name_del(const char *name){
+    dap_chain_plugin_list_module_t *plugin;
+    dap_chain_plugin_list_module_t *tmp;
+    bool plugin_searcging = false;
+    LL_FOREACH_SAFE(m_dap_chain_plugins_module_list, plugin, tmp){
+        if (strcmp(plugin->name, name) == 0){
+            DAP_FREE(plugin->name);
+            Py_XDECREF(plugin->obj_module);
+            LL_DELETE(m_dap_chain_plugins_module_list, plugin);
+            plugin_searcging = true;
+        }
+    }
+    if (!plugin_searcging){
+        log_it(L_WARNING, "Can't searching plugins %s for delete", name);
+    }
+}
+
