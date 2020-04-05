@@ -36,9 +36,6 @@ int dap_chain_plugins_init(dap_config_t *config){
     }
     return 0;
 }
-void dap_chain_plugins_deinit(){
-    Py_Finalize();
-}
 
 void dap_chain_plugins_loading(){
     log_it(L_NOTICE, "Loading plugins");
@@ -121,5 +118,25 @@ void dap_chain_plugins_load_plugin(const char *dir_path, const char *name){
     if (func_deinit == NULL || !PyCallable_Check(func_deinit)){
         log_it(L_WARNING, "For plugins %s don't found function deinit", name);
     }
+}
+
+void dap_chain_plugins_deinit(){
+    log_it(L_NOTICE, "Deinit python plugins");
+    dap_chain_plugin_list_module_t *plugins = dap_chain_plugins_list_get();
+    dap_chain_plugin_list_module_t *plugin;
+    dap_chain_plugin_list_module_t *tmp;
+    PyObject *res_int = NULL;
+    LL_FOREACH_SAFE(plugins, plugin, tmp){
+        PyObject *func_deinit = PyObject_GetAttrString(plugin->obj_module, "deinit");
+        if (func_deinit != NULL || PyCallable_Check(func_deinit)){
+            res_int = PyEval_CallObject(func_deinit, NULL);
+        } else {
+            log_it(L_WARNING, "For plugin %s can't callable function deinit", plugin->name);
+        }
+        DAP_FREE(plugin->name);
+        Py_XDECREF(plugin->obj_module);
+        LL_DELETE(plugins, plugin);
+    }
+    Py_Finalize();
 }
 
