@@ -17,4 +17,14 @@ python3.7 test/main_test.py
 First install packages 
 ```
 sudo apt-get install devscripts dpkg-dev build-essential
+sudo apt-get install libev-dev
+sudo apt-get install libmagic-dev
+sudo apt-get install libjson-c-dev
+sudo apt-get install libjsoncpp-dev
+sudo apt-get install libsqlite3-dev
+sudo apt-get install libtalloc-dev
+sudo apt-get install traceroute
+sudo apt-get install libverto-dev
+sudo apt-get install lldb-7
+
 ```
