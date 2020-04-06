@@ -493,7 +493,7 @@ PyObject *python_cellframe_deinit(PyObject *self, PyObject *args){
     return PyLong_FromLong(0);
 }
 
-#ifdef DAP_SUPPORT_PYTHON_PLUGINS
+#ifndef DAP_SUPPORT_PYTHON_PLUGINS
 int main(int argc, char **argv) {
     wchar_t *program = Py_DecodeLocale(argv[0], NULL);
     if (program == NULL) {
