@@ -32,7 +32,7 @@ target_compile_options(
     "-fpic"
 )
 
-target_link_libraries(${PROJECT_NAME} dap_core)
+target_link_libraries(${PROJECT_NAME} dap_core ${PYTHON_LIBRARIES})
 
 target_include_directories(${PROJECT_NAME} PUBLIC src/ )
 
