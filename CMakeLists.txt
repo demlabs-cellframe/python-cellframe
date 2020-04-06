@@ -51,31 +51,12 @@ target_compile_options(dap_chain_cs_dag_poa PRIVATE "-fpic")
 target_compile_options(dap_chain_cs_dag_pos PRIVATE "-fpic")
 
 
-add_subdirectory(cellframe-sdk-python/libdap-server-core-python)
-add_subdirectory(cellframe-sdk-python/libdap-python)
-add_subdirectory(cellframe-sdk-python/libdap-crypto-python)
-add_subdirectory(cellframe-sdk-python/libdap-chain-common-python)
-add_subdirectory(cellframe-sdk-python/libdap-chain-net-python)
-add_subdirectory(cellframe-sdk-python/libdap-chain-gdb-python)
-add_subdirectory(cellframe-sdk-python/libdap-chain-python)
-add_subdirectory(cellframe-sdk-python/libdap-app-cli-python)
-add_subdirectory(cellframe-sdk-python/libdap-client-python)
 
 if (SUPPORT_PYTHON_PLUGINS)
 
     add_definitions("-fpic")
-    add_subdirectory(cellframe-sdk-python/libdap-chain-common-python)
-    add_subdirectory(cellframe-sdk-python/libdap-server-core-python)
-    add_subdirectory(cellframe-sdk-python/libdap-python)
-    add_subdirectory(cellframe-sdk-python/libdap-crypto-python)
-    add_subdirectory(cellframe-sdk-python/libdap-chain-net-python)
-    add_subdirectory(cellframe-sdk-python/libdap-chain-gdb-python)
-    add_subdirectory(cellframe-sdk-python/libdap-chain-python)
-    add_subdirectory(cellframe-sdk-python/libdap-app-cli-python)
-    add_subdirectory(cellframe-sdk-python/libdap-client-python)
 
     add_library(${PROJECT_NAME} STATIC ${PYTHON_CELLFRAME_SRCS} ${PYTHON_CELLFRAME_HEADERS})
-
 
 else()
 
@@ -91,6 +72,15 @@ else()
     add_definitions("-DDAP_VERSION=\"${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}-${CPACK_PACKAGE_VERSION_PATCH}\"")
     set(SUBMODULES_NO_BUILD ON)
 
+    add_subdirectory(cellframe-sdk-python/libdap-chain-common-python)
+    add_subdirectory(cellframe-sdk-python/libdap-server-core-python)
+    add_subdirectory(cellframe-sdk-python/libdap-python)
+    add_subdirectory(cellframe-sdk-python/libdap-crypto-python)
+    add_subdirectory(cellframe-sdk-python/libdap-chain-net-python)
+    add_subdirectory(cellframe-sdk-python/libdap-chain-gdb-python)
+    add_subdirectory(cellframe-sdk-python/libdap-chain-python)
+    add_subdirectory(cellframe-sdk-python/libdap-app-cli-python)
+    add_subdirectory(cellframe-sdk-python/libdap-client-python)
 
 
     target_compile_options(dap_chain_common_python_module PRIVATE "-fpic")
