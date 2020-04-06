@@ -26,5 +26,10 @@ sudo apt-get install libtalloc-dev
 sudo apt-get install traceroute
 sudo apt-get install libverto-dev
 sudo apt-get install lldb-7
+sudo apt-get install libmemcached-dev
+sudo apt-get install libldb-dev
+sudo apt-get install libtalloc-dev
+sudo apt-get install libtevent-dev
+sudo apt-get install traceroute
 
 ```
