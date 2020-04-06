@@ -30,6 +30,7 @@ sudo apt-get install libmemcached-dev
 sudo apt-get install libldb-dev
 sudo apt-get install libtalloc-dev
 sudo apt-get install libtevent-dev
+sudo apt-get install libpython3-dev
 sudo apt-get install traceroute
 
 ```
