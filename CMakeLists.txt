@@ -55,7 +55,7 @@ target_compile_options(dap_chain_cs_dag_pos PRIVATE "-fpic")
 if (SUPPORT_PYTHON_PLUGINS)
 
     add_definitions("-fpic")
-
+    add_definitions("-DDAP_SUPPORT_PYTHON_PLUGINS")
     add_library(${PROJECT_NAME} STATIC ${PYTHON_CELLFRAME_SRCS} ${PYTHON_CELLFRAME_HEADERS})
 
 else()
