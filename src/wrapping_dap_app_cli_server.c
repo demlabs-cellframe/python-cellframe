@@ -5,46 +5,114 @@
 int dap_chain_node_cli_init_py(dap_config_t *g_config){
     log_it(L_DEBUG, "Init app cli server");
     dap_chain_node_cli_init(g_config);
+    l_str_reply_list = NULL;
+    l_element_py_func_list = NULL;
 }
 void dap_chain_node_cli_delete_py(void){
+    element_py_func_del_all();
+    elements_str_reply_delete_all();
     dap_chain_node_cli_delete();
 }
 
-static int wrapping_cmdfunc(int argc, char **argv, char **str_reply){
-
-//    PyGILState_STATE status;
-//    dap_chain_node_cli_set_reply_text(str_reply, "working callback python");
-//    status  = PyGILState_Ensure();
-//    PyGILState_Release(status);
-    log_it(L_DEBUG, "Wrapping activy");
-    PyObject *arglist;
-    PyObject *result;
-    log_it(L_DEBUG, "STEP 1");
-    PyObject *obj_argv = stringToPyList(argv);
-//    log_it(L_ERROR, "STEP 2");
-//    PyObject *obj_str_reply = stringToPyList(str_reply);
-    log_it(L_DEBUG, "STEP 2");
-//    arglist = Py_BuildValue("i|O|O", argc, obj_argv, obj_str_reply);
-    arglist = Py_BuildValue("O", obj_argv);
-    log_it(L_DEBUG, "STEP 4");
-    log_it(L_DEBUG, "Adress %zu object python", binded_object_cmdfunc);
-//    result = PyEval_CallObject(binded_object_cmdfunc, arglist);
-    result = PyObject_CallObject(binded_object_cmdfunc, arglist);
-    if (result)
-        log_it(L_DEBUG, "result = %i", PyLong_AsSize_t(result));
+size_t elements_str_reply_add(char** str_reply){
+    size_t max_index = 0;
+    element_str_reply_t *el;
+    LL_FOREACH(l_str_reply_list, el){
+        if (max_index  < el->id)
+            max_index = el->id;
+    }
+    size_t new_index = max_index+1;
+    element_str_reply_t *new_el = DAP_NEW(element_str_reply_t);
+    new_el->str_reply = str_reply;
+    new_el->id = new_index;
+    LL_APPEND(l_str_reply_list, new_el);
+    return new_index;
+}
+int elements_str_reply_cmp_by_id(element_str_reply_t *e1, element_str_reply_t *e2){
+    if (e1->id == e2->id)
+        return 0;
     else
+        return 1;
+}
+char** elements_str_reply_get_by_id(size_t id){
+    element_str_reply_t *el, *tmp;
+    tmp = DAP_NEW(element_str_reply_t);
+    tmp->id = id;
+    LL_SEARCH(l_str_reply_list, el, tmp, elements_str_reply_cmp_by_id);
+    DAP_FREE(tmp);
+    if (el)
+        return el->str_reply;
+    return NULL;
+}
+void elements_str_reply_delete(size_t id){
+     element_str_reply_t *el, *tmp;
+     LL_FOREACH_SAFE(l_str_reply_list, el, tmp){
+         if (id == el->id){
+             LL_DELETE(l_str_reply_list, el);
+             DAP_FREE(el);
+         }
+     }
+}
+void elements_str_reply_delete_all(){
+    element_str_reply_t *el, *tmp;
+    LL_FOREACH_SAFE(l_str_reply_list, el, tmp){
+        LL_DELETE(l_str_reply_list, el);
+        DAP_FREE(el);
+    }
+}
+
+void element_py_func_add(const char *name, PyObject *func){
+    element_py_func_t *el = DAP_NEW(element_py_func_t);
+    el->name = name;
+    el->func = func;
+    Py_XINCREF(el->func);
+    LL_APPEND(l_element_py_func_list, el);
+}
+int element_py_func_cmp_by_name(element_py_func_t *e1, element_py_func_t *e2){
+    return dap_strcmp(e1->name, e2->name);
+}
+PyObject *element_py_func_get(char *name){
+    element_py_func_t *el, *like;
+    like = DAP_NEW(element_py_func_t);
+    like->name = name;
+    LL_SEARCH(l_element_py_func_list, el, like,  element_py_func_cmp_by_name);
+    DAP_FREE(like);
+    return el->func;
+}
+void element_py_func_del_by_name(char *name){
+    element_py_func_t *el, *like;
+    like = DAP_NEW(element_py_func_t);
+    like->name = name;
+    LL_SEARCH(l_element_py_func_list, el, like,  element_py_func_cmp_by_name);
+    DAP_FREE(like);
+    LL_DELETE(l_element_py_func_list, el);
+    Py_XDECREF(el->func);
+    DAP_FREE(el);
+}
+void element_py_func_del_all(){
+    element_py_func_t *el, *tmp;
+    LL_FOREACH_SAFE(l_element_py_func_list, el, tmp){
+        LL_DELETE(l_element_py_func_list, el);
+        Py_XDECREF(el->func);
+        DAP_FREE(el);
+    }
+}
+
+static int wrapping_cmdfunc(int argc, char **argv, char **str_reply){
+    size_t id_str_replay = elements_str_reply_add(str_reply);
+    PyObject *obj_argv = stringToPyList(argc, argv);
+    PyObject *obj_id_str_replay = PyLong_FromSize_t(id_str_replay);
+    PyObject *arglist = Py_BuildValue("OO", obj_argv, obj_id_str_replay);
+    Py_XINCREF(arglist);
+    PyObject *binden_obj_cmdfunc = element_py_func_get(argv[0]);
+    PyObject *result = PyObject_CallObject(binden_obj_cmdfunc, arglist);
+    if (!result){
         log_it(L_DEBUG, "Function can't called");
-//    log_it(L_ERROR, "STEP 5");
-//    Py_DECREF(arglist);
-//    Py_DECREF(obj_argv);
-//    Py_DECREF(obj_str_reply);
-//    int r = -1;
-//    if (PyLong_Check(result)){
-//        r = (int)PyLong_AsLong(result);
-//    }
-//    Py_DECREF(result);
-//    return r;
-//    PyGILState_Release(status);
+        PyErr_Print();
+    }
+    Py_XDECREF(arglist);
+    Py_XDECREF(obj_argv);
+    elements_str_reply_delete(id_str_replay);
     return 0;
 }
 
@@ -58,7 +126,6 @@ PyObject *dap_chain_node_cli_cmd_item_create_py(PyObject *a_self, PyObject *a_ar
     (void) a_self;
     const char *name, *doc, *doc_ex;
     PyObject *obj_cmdfunc;
-    //if (!PyArg_ParseTuple(a_args, "s|O:set_callback|s|s", &name, &obj_cmdfunc, &doc, &doc_ex)){
     if (!PyArg_ParseTuple(a_args, "s|O|s|s", &name, &obj_cmdfunc, &doc, &doc_ex)){
             return NULL;
     }else {
@@ -67,24 +134,19 @@ PyObject *dap_chain_node_cli_cmd_item_create_py(PyObject *a_self, PyObject *a_ar
             return NULL;
         }
     }
-    Py_XINCREF(obj_cmdfunc);
-    Py_XDECREF(binded_object_cmdfunc);
-    binded_object_cmdfunc = obj_cmdfunc;
-    log_it(L_DEBUG, "Adress obj_cmdfunc %zu", obj_cmdfunc);
-//    dap_chain_node_cli_cmd_item_create(name, ((PyDapAppCliServerObject*)obj_cmdfunc)->func, doc, doc_ex);
+    element_py_func_add(name, obj_cmdfunc);
     dap_chain_node_cli_cmd_item_create(name, wrapping_cmdfunc, doc, doc_ex);
     return PyLong_FromLong(0);
 }
 
 PyObject *dap_chain_node_cli_set_reply_text_py(PyObject *self, PyObject *args){
     (void) self;
-    log_it(L_ERROR, "reply_text");
-    PyObject *obj_str_reply_list;
-    const char *str_list;
-    if (!PyArg_ParseTuple(args, "O|O", &obj_str_reply_list))
+    PyObject *obj_id_str_reply;
+    const char *str_reply_text;
+    if (!PyArg_ParseTuple(args, "sO", &str_reply_text, &obj_id_str_reply))
         return NULL;
-    char **str_reply_list = PyListToString(obj_str_reply_list);
-    dap_chain_node_cli_set_reply_text(str_reply_list, str_list);
+    size_t id_str_reply = PyLong_AsSize_t(obj_id_str_reply);
+    dap_chain_node_cli_set_reply_text(elements_str_reply_get_by_id(id_str_reply), str_reply_text);
     return PyLong_FromLong(0);
 }
 
@@ -101,22 +163,18 @@ PyObject *dap_chain_node_addr_get_by_alias_py(PyObject *self, PyObject *args){
 
 char **PyListToString(PyObject *list){
     Py_ssize_t size = PyList_Size(list);
-    char **res = calloc(sizeof(char**), (size_t)size);
-    for (Py_ssize_t i=0; i < size;i++ ){
-        char *data = PyBytes_AsString(PyList_GetItem(list, i));
-        res[(size_t)i] = data;
+    char **result = DAP_NEW_SIZE(char*, size);
+    for (Py_ssize_t i=0; i<size;i++){
+        PyObject *element = PyList_GetItem(list, i);
+        result[i] = dap_strdup(PyUnicode_AsUTF8(element));
     }
-    return res;
+    return result;
 }
-PyObject *stringToPyList(char **list){
-    log_it(L_DEBUG, "String to  PyList");
-    size_t size = sizeof(list) / sizeof(list[0]);
-    log_it(L_DEBUG, "len: %zu", size);
-    PyObject *obj = PyList_New((Py_ssize_t)size);
-    for (size_t i=0; i < size; i++){
-        log_it(L_DEBUG, "Send data \"%s\"", list[i]);
-        PyObject *data = PyBytes_FromString(list[i]);
-        PyList_Append(obj, data);
+
+PyObject *stringToPyList(int argc, char **list){
+    PyObject *obj_list = PyList_New(0);
+    for (int i=0; i < argc; i++){
+        PyList_Append(obj_list, PyUnicode_FromString(list[i]));
     }
-    return obj;
+    return obj_list;
 }
