@@ -153,7 +153,8 @@ PyObject *dap_chain_datum_tx_add_sign_item_py(PyObject *self, PyObject *args){
         return Py_BuildValue("O", out);
     }
 }
-PyObject *dap_chain_datum_tx_verify_sign_py(PyObject *self, PyObject *args){
+PyObject *dap_chain_datum_tx_verify_sign_py(PyObject *self, PyObject *args)
+{
     int res = dap_chain_datum_tx_verify_sign(((PyDapChainDatumTxObject*)self)->datum_tx);
     return PyLong_FromLong(res);
 }
