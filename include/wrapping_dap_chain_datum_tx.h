@@ -159,9 +159,6 @@ PyObject *dap_chain_datum_tx_add_out_cond_item_py(PyObject *self, PyObject *args
 PyObject *dap_chain_datum_tx_add_sign_item_py(PyObject *self, PyObject *args);
 PyObject *dap_chain_datum_tx_verify_sign_py(PyObject *self, PyObject *args);
 
-//static dap_chain_datum_tx_t **PyListToDapChainDatumTxArray(PyObject *a_in_obj);
-//static PyObject* DapChainDatumTxArrayToPyList(dap_chain_datum_tx_t** datum_txs);
-
 static PyMethodDef PyDapChainDatumTxObjectMethods[] ={
     {"getSize", (PyCFunction)dap_chain_datum_tx_get_size_py, METH_VARARGS, ""},
     {"addItem", (PyCFunction)dap_chain_datum_tx_add_item_py, METH_VARARGS, ""},
@@ -173,19 +170,6 @@ static PyMethodDef PyDapChainDatumTxObjectMethods[] ={
     {"verifySign", (PyCFunction)dap_chain_datum_tx_verify_sign_py, METH_VARARGS, ""},
     {NULL, NULL, 0, NULL}
 };
-
-
-//static PyMethodDef PyDapChainDatumTxObjectMethods[] ={
-//    {"getSize", (PyCFunction)dap_chain_datum_tx_get_size_py, METH_VARARGS, ""},
-//    {"addItem", (PyCFunction)dap_chain_datum_tx_add_item_py, METH_VARARGS | METH_STATIC, ""},
-//    {"addInItem", (PyCFunction)dap_chain_datum_tx_add_in_item_py, METH_VARARGS | METH_STATIC, ""},
-//    {"addInCondItem", (PyCFunction)dap_chain_datum_tx_add_in_cond_item_py, METH_VARARGS | METH_STATIC, ""},
-//    {"addOutItem", (PyCFunction)dap_chain_datum_tx_add_out_item_py, METH_VARARGS | METH_STATIC, ""},
-//    {"addOutCond", (PyCFunction)dap_chain_datum_tx_add_out_cond_item_py, METH_VARARGS | METH_STATIC, ""},
-//    {"addSignItem", (PyCFunction)dap_chain_datum_tx_add_sign_item_py, METH_VARARGS | METH_STATIC, ""},
-//    {"verifySign", (PyCFunction)dap_chain_datum_tx_verify_sign_py, METH_VARARGS, ""},
-//    {NULL, NULL, 0, NULL}
-//};
 
 static PyTypeObject DapChainDatumTx_DapChainDatumTxObjectType = {
     PyVarObject_HEAD_INIT(NULL, 0)
@@ -277,9 +261,6 @@ static PyTypeObject DapChainTxOutCond_DapChainTxOutCondObjectType = {
     0,                                              /* tp_alloc */
     PyType_GenericNew,                              /* tp_new */
 };
-
-//dap_chain_tx_out_cond_t **PyListToDapChainTxOutCond(PyObject *list);
-//PyObject *DapChainTxOutCondObjectToPyList(dap_chain_tx_out_cond_t **out_cond);
 
 /* -------------------------------------- */
 
