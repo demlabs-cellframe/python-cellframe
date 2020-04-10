@@ -6,6 +6,7 @@
 #include "libdap_crypto_key_python.h"
 #include "dap_chain_datum_tx_out_cond.h"
 #include "wrapping_dap_hash.h"
+#include "dap_chain_datum_tx_items.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -158,21 +159,33 @@ PyObject *dap_chain_datum_tx_add_out_cond_item_py(PyObject *self, PyObject *args
 PyObject *dap_chain_datum_tx_add_sign_item_py(PyObject *self, PyObject *args);
 PyObject *dap_chain_datum_tx_verify_sign_py(PyObject *self, PyObject *args);
 
-static dap_chain_datum_tx_t **PyListToDapChainDatumTxArray(PyObject *a_in_obj);
-static PyObject* DapChainDatumTxArrayToPyList(dap_chain_datum_tx_t** datum_txs);
-
+//static dap_chain_datum_tx_t **PyListToDapChainDatumTxArray(PyObject *a_in_obj);
+//static PyObject* DapChainDatumTxArrayToPyList(dap_chain_datum_tx_t** datum_txs);
 
 static PyMethodDef PyDapChainDatumTxObjectMethods[] ={
     {"getSize", (PyCFunction)dap_chain_datum_tx_get_size_py, METH_VARARGS, ""},
-    {"addItem", (PyCFunction)dap_chain_datum_tx_add_item_py, METH_VARARGS | METH_STATIC, ""},
-    {"addInItem", (PyCFunction)dap_chain_datum_tx_add_in_item_py, METH_VARARGS | METH_STATIC, ""},
-    {"addInCondItem", (PyCFunction)dap_chain_datum_tx_add_in_cond_item_py, METH_VARARGS | METH_STATIC, ""},
-    {"addOutItem", (PyCFunction)dap_chain_datum_tx_add_out_item_py, METH_VARARGS | METH_STATIC, ""},
-    {"addOutCond", (PyCFunction)dap_chain_datum_tx_add_out_cond_item_py, METH_VARARGS | METH_STATIC, ""},
-    {"addSignItem", (PyCFunction)dap_chain_datum_tx_add_sign_item_py, METH_VARARGS | METH_STATIC, ""},
+    {"addItem", (PyCFunction)dap_chain_datum_tx_add_item_py, METH_VARARGS, ""},
+    {"addInItem", (PyCFunction)dap_chain_datum_tx_add_in_item_py, METH_VARARGS, ""},
+    {"addInCondItem", (PyCFunction)dap_chain_datum_tx_add_in_cond_item_py, METH_VARARGS, ""},
+    {"addOutItem", (PyCFunction)dap_chain_datum_tx_add_out_item_py, METH_VARARGS, ""},
+    {"addOutCond", (PyCFunction)dap_chain_datum_tx_add_out_cond_item_py, METH_VARARGS, ""},
+    {"addSignItem", (PyCFunction)dap_chain_datum_tx_add_sign_item_py, METH_VARARGS, ""},
     {"verifySign", (PyCFunction)dap_chain_datum_tx_verify_sign_py, METH_VARARGS, ""},
     {NULL, NULL, 0, NULL}
 };
+
+
+//static PyMethodDef PyDapChainDatumTxObjectMethods[] ={
+//    {"getSize", (PyCFunction)dap_chain_datum_tx_get_size_py, METH_VARARGS, ""},
+//    {"addItem", (PyCFunction)dap_chain_datum_tx_add_item_py, METH_VARARGS | METH_STATIC, ""},
+//    {"addInItem", (PyCFunction)dap_chain_datum_tx_add_in_item_py, METH_VARARGS | METH_STATIC, ""},
+//    {"addInCondItem", (PyCFunction)dap_chain_datum_tx_add_in_cond_item_py, METH_VARARGS | METH_STATIC, ""},
+//    {"addOutItem", (PyCFunction)dap_chain_datum_tx_add_out_item_py, METH_VARARGS | METH_STATIC, ""},
+//    {"addOutCond", (PyCFunction)dap_chain_datum_tx_add_out_cond_item_py, METH_VARARGS | METH_STATIC, ""},
+//    {"addSignItem", (PyCFunction)dap_chain_datum_tx_add_sign_item_py, METH_VARARGS | METH_STATIC, ""},
+//    {"verifySign", (PyCFunction)dap_chain_datum_tx_verify_sign_py, METH_VARARGS, ""},
+//    {NULL, NULL, 0, NULL}
+//};
 
 static PyTypeObject DapChainDatumTx_DapChainDatumTxObjectType = {
     PyVarObject_HEAD_INIT(NULL, 0)
@@ -265,8 +278,8 @@ static PyTypeObject DapChainTxOutCond_DapChainTxOutCondObjectType = {
     PyType_GenericNew,                              /* tp_new */
 };
 
-dap_chain_tx_out_cond_t **PyListToDapChainTxOutCond(PyObject *list);
-PyObject *DapChainTxOutCondObjectToPyList(dap_chain_tx_out_cond_t **out_cond);
+//dap_chain_tx_out_cond_t **PyListToDapChainTxOutCond(PyObject *list);
+//PyObject *DapChainTxOutCondObjectToPyList(dap_chain_tx_out_cond_t **out_cond);
 
 /* -------------------------------------- */
 
