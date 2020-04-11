@@ -1,7 +1,15 @@
 # python-cellframe
 
+## Prerequisites
+To install, you must have Python3.7 including pip and a scikit-build.
+sudo apt-get install pip3
+If there is a problem on Debian buster 
+"unknown system group 'Debian-exim' in statoverride file; the system group got removed"
+Use the following command to fix it
+dpkg-statoverride --remove /etc/exim4/passwd.client
+Now repeat sudo apt-get install pip3
+
 ## Build and Run tests:
-To install, you must have Python3.7 and a scikit-build.
 ```
 git clone https://gitlab.demlabs.net/cellframe/python-cellframe.git
 cd python-cellframe
