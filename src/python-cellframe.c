@@ -21,8 +21,17 @@ static bool s_init_cs_dag_pos = false;
 static bool s_init_chain_net_srv = false;
 static bool s_init_ks = false;
 
+static bool submodules_deint;
+
 PyObject* CellFrame_error = NULL;
 
+void sigfunc(int sig){
+    if (sig == SIGINT){
+        log_it(L_NOTICE, "Handler Ctrl+C");
+        dap_server_loop_stop();
+        deinit_modules();
+    }
+}
 
 PyObject *python_cellframe_init(PyObject *self, PyObject *args){
     const char *app_name;
@@ -32,6 +41,9 @@ PyObject *python_cellframe_init(PyObject *self, PyObject *args){
     const char *JSON_str;
 
     s_init_ks = true;
+    submodules_deint = false;
+
+    signal(SIGINT, sigfunc);
 
     if (!PyArg_ParseTuple(args, "s", &JSON_str)){
         PyErr_SetString(CellFrame_error, "ERROR in function call signature: can't get one String argument");
@@ -460,36 +472,44 @@ PyMODINIT_FUNC PyInit_libCellFrame(void){
     return module;
 }
 
+void deinit_modules(void){
+    if (!submodules_deint){
+        log_it(L_NOTICE, "Start deint submodules");
+        if (s_init_crypto){
+            dap_crypto_deinit();
+            dap_cert_deinit();
+        }
+        if (s_init_chain){
+            deinit_chain_py();
+            dap_chain_cs_deinit_py();
+        }
+        if (s_init_stream){
+            dap_stream_deinit();
+        }
+        if (s_init_stream_ctl){
+            dap_stream_ctl_deinit();
+        }
+        if (s_init_http_folder){
+            dap_http_folder_deinit();
+        }
+        if (s_init_http){
+            dap_http_deinit();
+        }
+        if (s_init_server_core){
+            dap_server_core_deinit();
+        }
+        if (s_init_ks){
+            dap_enc_ks_deinit();
+        }
+        dap_config_close(g_config);
+        dap_config_deinit();
+        dap_common_deinit();
+        submodules_deint = true;
+    }
+}
+
 PyObject *python_cellframe_deinit(PyObject *self, PyObject *args){
-    if (s_init_crypto){
-        dap_crypto_deinit();
-        dap_cert_deinit();
-    }
-    if (s_init_chain){
-        deinit_chain_py();
-        dap_chain_cs_deinit_py();
-    }
-    if (s_init_stream){
-        dap_stream_deinit();
-    }
-    if (s_init_stream_ctl){
-        dap_stream_ctl_deinit();
-    }
-    if (s_init_http_folder){
-        dap_http_folder_deinit();
-    }
-    if (s_init_http){
-        dap_http_deinit();
-    }
-    if (s_init_server_core){
-        dap_server_core_deinit();
-    }
-    if (s_init_ks){
-        dap_enc_ks_deinit();
-    }
-    dap_config_close(g_config);
-    dap_config_deinit();
-    dap_common_deinit();
+    deinit_modules();
     return PyLong_FromLong(0);
 }
 

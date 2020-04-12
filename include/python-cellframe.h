@@ -59,8 +59,14 @@
 #include "wrapping_dap_chain_gdb.h"
 
 #include "dap_common.h"
+#include "signal.h"
+#include "dap_server.h"
+
+void sigfunc(int sig);
 
 PyObject *python_cellframe_init(PyObject *self, PyObject *args);
+
+void deinit_modules(void);
 
 PyObject *python_cellframe_deinit(PyObject *self, PyObject *args);
 
