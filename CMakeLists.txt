@@ -20,6 +20,7 @@ file(GLOB PYTHON_CELLFRAME_HEADERS include/*.h)
 set(SUBMODULES_NO_BUILD ON)
 
 if (NOT (SUPPORT_PYTHON_PLUGINS))
+    include(cellframe-sdk/cmake/OS_Detection.cmake)
     add_subdirectory(cellframe-sdk)
 endif()
 
