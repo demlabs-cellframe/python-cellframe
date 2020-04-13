@@ -22,6 +22,7 @@ PyObject *dap_chain_ledger_set_local_cell_id_py(PyObject *self, PyObject *args){
     return  PyLong_FromLong(0);
 }
 PyObject *dap_chain_node_datum_tx_calc_hash_py(PyObject *self, PyObject *args){
+    (void)self;
     PyObject *obj_tx;
     if (!PyArg_ParseTuple(args, "O", &obj_tx))
         return NULL;
@@ -212,7 +213,11 @@ PyObject *dap_chain_ledger_tx_find_by_pkey_py(PyObject *self, PyObject *args){
     if (!PyArg_ParseTuple(args, "s|n|O", &p_key, &p_key_size, &obj_first_hash))
         return NULL;
     PyObject *res = _PyObject_New(&DapChainDatumTx_DapChainDatumTxObjectType);
-    ((PyDapChainDatumTxObject*)res)->datum_tx = dap_chain_ledger_tx_find_by_pkey(((PyDapChainLedgerObject*)self)->ledger, p_key, p_key_size, ((PyDapHashFastObject*)obj_first_hash)->hash_fast);
+    ((PyDapChainDatumTxObject*)res)->datum_tx = (dap_chain_datum_tx_t*)dap_chain_ledger_tx_find_by_pkey(
+                ((PyDapChainLedgerObject*)self)->ledger,
+                p_key,
+                p_key_size,
+                ((PyDapHashFastObject*)obj_first_hash)->hash_fast);
     return Py_BuildValue("O", res);
 }
 PyObject *dap_chain_ledger_tx_cache_find_out_cond_py(PyObject *self, PyObject *args){
@@ -221,21 +226,24 @@ PyObject *dap_chain_ledger_tx_cache_find_out_cond_py(PyObject *self, PyObject *a
     if (!PyArg_ParseTuple(args, "O|O", &obj_addr, &obj_first_hash))
         return NULL;
     PyObject *res = _PyObject_New(&DapChainDatumTx_DapChainDatumTxObjectType);
-    ((PyDapChainDatumTxObject*)res)->datum_tx = dap_chain_ledger_tx_cache_find_out_cond(((PyDapChainLedgerObject*)self)->ledger, ((PyDapChainAddrObject*)obj_addr)->addr, ((PyDapHashFastObject*)obj_first_hash)->hash_fast);
+    ((PyDapChainDatumTxObject*)res)->datum_tx = (dap_chain_datum_tx_t*)dap_chain_ledger_tx_cache_find_out_cond(
+                ((PyDapChainLedgerObject*)self)->ledger,
+                ((PyDapChainAddrObject*)obj_addr)->addr,
+                ((PyDapHashFastObject*)obj_first_hash)->hash_fast);
     return Py_BuildValue("O", res);
 }
 PyObject *dap_chain_ledger_tx_cache_get_out_cond_value_py(PyObject *self, PyObject *args){
     PyObject *obj_addr;
-    PyObject *obj_out_conds;
-    if (!PyArg_ParseTuple(args, "O|O", &obj_addr, &obj_out_conds))
+    if (!PyArg_ParseTuple(args, "O", &obj_addr))
         return NULL;
-    if (!PyList_Check(obj_out_conds)){
-        PyErr_SetString(PyExc_TypeError, "Thse second argument received isn't array");
-        return NULL;
-    }
-    dap_chain_tx_out_cond_t **out_conds = PyListToDapChainTxOutCond(obj_out_conds);
-    uint64_t res = dap_chain_ledger_tx_cache_get_out_cond_value(((PyDapChainLedgerObject*)self)->ledger, ((PyDapChainAddrObject*)obj_addr)->addr, out_conds);
-    return PyLong_FromUnsignedLongLong(res);
+    dap_chain_tx_out_cond_t **out_conds = NULL;
+    uint64_t res = dap_chain_ledger_tx_cache_get_out_cond_value(((PyDapChainLedgerObject*)self)->ledger,
+                                                                ((PyDapChainAddrObject*)obj_addr)->addr,
+                                                                out_conds);
+    PyObject *obj_out_conds = _PyObject_New(&DapChainTxOutCond_DapChainTxOutCondObjectType);
+    ((PyDapChainTxOutCondObject*)obj_out_conds)->out_cond = *out_conds;
+    PyObject *obj_res = PyLong_FromUnsignedLongLong(res);
+    return Py_BuildValue("OO", obj_res, obj_out_conds);
 }
 
 static char*** ListStringToArrayStringFormatChar(PyObject *list){
