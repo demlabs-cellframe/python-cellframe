@@ -127,6 +127,7 @@ PyObject *dap_chain_datum_tx_add_sign_item_py(PyObject *self, PyObject *args){
                                                ((PyCryptoKeyObject*)obj_key)->key);
     return PyLong_FromLong(res);
 }
+
 PyObject *dap_chain_datum_tx_verify_sign_py(PyObject *self, PyObject *args){
     (void)args;
     int res = dap_chain_datum_tx_verify_sign(((PyDapChainDatumTxObject*)self)->datum_tx);
