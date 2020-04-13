@@ -51,7 +51,7 @@ PyObject* dap_cert_cert_signs_py(PyObject *self, PyObject *args);
 PyObject* dap_cert_compare_py(PyObject *self, PyObject *args);
 PyObject* dap_cert_save_py(PyObject *self, PyObject *args);
 PyObject* dap_cert_load_py(PyObject *self, PyObject *args);
-PyObject* dap_cert_close_py(PyObject *self, PyObject *args);
+void dap_cert_delete_py(PyObject *self);
 PyObject* dap_cert_folder_add_py(PyObject *self, PyObject *args);
 PyObject* dap_cert_folder_get_py(PyObject *self, PyObject *args);
 
@@ -67,8 +67,7 @@ static PyMethodDef g_crypto_cert_methods_py[] = {
         {"certSignAdd", dap_cert_cert_sign_add_py, METH_VARARGS,  ""},
         {"certSigns", dap_cert_cert_signs_py, METH_VARARGS , ""},
         {"compare", dap_cert_compare_py, METH_VARARGS, ""},
-        {"save", dap_cert_save_py, METH_VARARGS , ""},
-        {"close", dap_cert_close_py, METH_VARARGS , ""},
+        {"save", dap_cert_save_py, METH_VARARGS , "Save to the first directory in cert folders list"},
         {NULL, NULL, 0, NULL}
 };
 
@@ -77,7 +76,7 @@ static PyTypeObject g_crypto_cert_type_py = {
     "CellFrame.Cert",             /* tp_name */
     sizeof(PyCryptoCertObject),         /* tp_basicsize */
     0,                         /* tp_itemsize */
-    0,                         /* tp_dealloc */
+    dap_cert_delete_py,                         /* tp_dealloc */
     0,                         /* tp_print */
     0,                         /* tp_getattr */
     0,                         /* tp_setattr */
@@ -112,6 +111,16 @@ static PyTypeObject g_crypto_cert_type_py = {
     0,                         /* tp_init */
     0,                         /* tp_alloc */
     PyType_GenericNew,         /* tp_new */
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
 };
 
 #ifdef __cplusplus
