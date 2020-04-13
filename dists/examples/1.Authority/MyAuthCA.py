@@ -9,11 +9,11 @@ import MyAuthConf
 appName = "MyAuth"
 
 # Generate config
-jsonCfg=MyAuthConf.getJsonString(appName,"CRITICAL")
+jsonCfg = MyAuthConf.getJsonString(appName, "CRITICAL")
 
 # Init SDK
 try:
-    init( jsonCfg )
+    init(jsonCfg)
 except json.decoder.JSONDecodeError as jex:
     sys.stderr.write("load_json_config JSONdecode :%s" % jex)
     exit(-1)
@@ -27,7 +27,7 @@ action_arg = {}
 
 # Parse input arguments
 for arg in sys.argv:
-    counter+=1
+    counter += 1
     # Extract command name
     if counter == 1:
         cmdName = arg
@@ -45,7 +45,8 @@ def help():
     print("To get this help")
     print("\t"+cmdName+" [help]")
     print("")
-    print("Generate <Root nodes number> certificates (5 by default) for selected <Algorythm> (\"sig_dil\" by default)")
+    print("Generate <Root nodes number> certificates (5 by default)" +
+          "for selected <Algorythm> (\"sig_dil\" by default)")
     print("\t"+cmdName+" init_root_ca [<Root nodes number>] [<Algorythm>]")
     print("")
 if action == "help":
