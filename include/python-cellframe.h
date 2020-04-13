@@ -59,10 +59,16 @@
 #include "wrapping_dap_chain_gdb.h"
 
 #include "dap_common.h"
-#include "signal.h"
 #include "dap_server.h"
+#ifdef _WIN32
+#include "Windows.h"
+
+BOOL WINAPI consoleHandler(DWORD);
+#else
+#include "signal.h"
 
 void sigfunc(int sig);
+#endif
 
 PyObject *python_cellframe_init(PyObject *self, PyObject *args);
 

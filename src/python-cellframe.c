@@ -25,6 +25,19 @@ static bool submodules_deint;
 
 PyObject* CellFrame_error = NULL;
 
+
+#ifdef _WIN32
+
+BOOL WINAPI consoleHandler(DWORD dwType){
+    if (dwType == CTRL_C_EVENT){
+        log_it(L_NOTICE, "Handler Ctrl+C");
+        dap_server_loop_stop();
+        deinit_modules();
+    }
+    return TRUE;
+}
+#else
+
 void sigfunc(int sig){
     if (sig == SIGINT){
         log_it(L_NOTICE, "Handler Ctrl+C");
@@ -32,6 +45,7 @@ void sigfunc(int sig){
         deinit_modules();
     }
 }
+#endif
 
 PyObject *python_cellframe_init(PyObject *self, PyObject *args){
     const char *app_name;
@@ -43,7 +57,11 @@ PyObject *python_cellframe_init(PyObject *self, PyObject *args){
     s_init_ks = true;
     submodules_deint = false;
 
-    signal(SIGINT, sigfunc);
+    #ifdef _WIN32
+        setConsoleCtrlHandler((PHANDLER_ROUTINE)consoleHandler, TRUE);
+    #else
+        signal(SIGINT, sigfunc);
+    #endif
 
     if (!PyArg_ParseTuple(args, "s", &JSON_str)){
         PyErr_SetString(CellFrame_error, "ERROR in function call signature: can't get one String argument");
