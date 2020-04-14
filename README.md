@@ -36,9 +36,20 @@ sudo apt-get install libverto-dev
 sudo apt-get install lldb-7
 sudo apt-get install libmemcached-dev
 sudo apt-get install libldb-dev
-sudo apt-get install libtalloc-dev
 sudo apt-get install libtevent-dev
 sudo apt-get install libpython3-dev
-sudo apt-get install traceroute
 
+```
+
+
+## Windows Build
+First of all you need to install msys2. It provides 3 shells.
+To install dependencies, run from MSYS shell:
+```
+pacman -S base-devel mingw-w64-x86_64-toolchain mingw-w64-x86_64-cmake mingw-w64-x86_64-file mingw-w64-x86_64-json-c mingw-w64-x86_64-python-pip
+```
+
+To start a build, run from MinGW 64bit shell (don't forget to change dir to python-cellframe repo):
+```
+python setup.py install
 ```
