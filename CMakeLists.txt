@@ -13,7 +13,7 @@ set(CMAKE_C_STANDARD 11)
 set(Python_ADDITIONAL_VERSIONS 3.9 3.8 3.7 3.6 3.5 3.4)
 find_package (PythonLibs REQUIRED)
 include_directories(${PYTHON_INCLUDE_DIR} include/)
-file(GLOB PYTHON_CELLFRAME_SRCS src/*.c)
+file(GLOB PYTHON_CELLFRAME_SRCS CellFrame/*.c)
 file(GLOB PYTHON_CELLFRAME_HEADERS include/*.h)
 
 set(SUBMODULES_NO_BUILD ON)
@@ -105,8 +105,8 @@ else()
     #python_extension_module(${PROJECT_NAME} LINKED_MODULES_VAR dap_crypto_python_module)
     #python_extension_module(${PROJECT_NAME} LINKED_MODULES_VAR DapServerCore)
     install(TARGETS ${PROJECT_NAME} LIBRARY DESTINATION ${PROJECT_NAME})
-    install(FILES src/__init__.py DESTINATION ${PROJECT_NAME})
-    install(FILES src/PublicNetworks/* DESTINATION ${PROJECT_NAME})
+    install(FILES CellFrame/__init__.py DESTINATION ${PROJECT_NAME})
+    install(FILES CellFrame/PublicNetworks/* DESTINATION ${PROJECT_NAME})
     #    install(FILES ${CMAKE_CURRENT_BINARY_DIR}/libdap-python/libdap_python_module.so DESTINATION CellFrame/lib)
     #    install(TARGETS dap_python_module LIBRARY DESTINATION CellFrame)
     #    install(TARGETS dap_crypto_python_module LIBRARY DESTINATION CellFrame)
@@ -149,6 +149,9 @@ target_compile_options(dap_chain_cs_dag_poa PRIVATE "-fpic")
 target_compile_options(dap_chain_cs_dag_pos PRIVATE "-fpic")
 
 
+if (WIN32)
+    set_target_properties(${PROJECT_NAME} PROPERTIES SUFFIX ".pyd")
+endif()
 
 
 target_link_libraries(${PROJECT_NAME} cellframe-sdk dap_python_module
