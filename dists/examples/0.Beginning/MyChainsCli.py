@@ -2,7 +2,7 @@
 
 import sys
 import os
-from CellFrame.libCellFrame import *
+from CellFrame import *
 
 app_name="MyChains"
 tmp_dir = os.getcwd() + "/tmp"
