@@ -264,11 +264,11 @@ PyObject *python_cellframe_init(PyObject *self, PyObject *args){
             }
             s_init_mempool = true;
         } else if (strcmp(c_value, "HttpClientSimple") == 0){
-            if (dap_http_client_simple_init() != 0){
-                PyErr_SetString(CellFrame_error, "Failed to initialize HttpClientSimple module. ");
-                return NULL;
-            }
-            s_init_http_client_simple = true;
+//            if (dap_http_client_simple_init() != 0){
+//                PyErr_SetString(CellFrame_error, "Failed to initialize HttpClientSimple module. ");
+//                return NULL;
+//            }
+//            s_init_http_client_simple = true;
         } else if (strcmp(c_value, "Wallet") == 0){
             if (dap_chain_wallet_init() != 0){
                 PyErr_SetString(CellFrame_error, "Failed to initialize Wallet module. ");
