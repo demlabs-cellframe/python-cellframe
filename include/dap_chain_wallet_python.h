@@ -28,7 +28,7 @@ PyObject *dap_chain_wallet_open_file_py(PyObject *self, PyObject *argv);
 PyObject *dap_chain_wallet_open_py(PyObject *self, PyObject *argv);
 PyObject *dap_chain_wallet_save_py(PyObject *self, PyObject *argv);
 
-PyObject *dap_chain_wallet_close_py(PyObject *self, PyObject *argv);
+void dap_chain_wallet_close_py(PyDapChainWalletObject *self);
 
 PyObject *dap_cert_to_addr_py(PyObject *self, PyObject *argv);
 
@@ -37,10 +37,15 @@ PyObject *dap_chain_wallet_get_certs_number_py(PyObject *self, PyObject *argv);
 PyObject *dap_chain_wallet_get_pkey_py(PyObject *self, PyObject *argv);
 PyObject *dap_chain_wallet_get_key_p(PyObject *self, PyObject *argv);
 
-PyObject *dap_chain_wallet_save_file_py(PyObject *self, PyObject *argv);
+//PyObject *dap_chain_wallet_save_file_py(PyObject *self, PyObject *argv);
 
 static PyMethodDef ChainWalletMethods[] = {
-        {NULL, NULL, 0, NULL}
+    {"getPath", (PyCFunction)dap_chain_wallet_get_path_py, METH_VARARGS | METH_STATIC, ""},
+    {"openFile", (PyCFunction)dap_chain_wallet_open_file_py, METH_VARARGS | METH_STATIC, ""},
+    {"open", (PyCFunction)dap_chain_wallet_open_py, METH_VARARGS | METH_STATIC, ""},
+    {"save", (PyCFunction)dap_chain_wallet_save_py, METH_NOARGS, ""},
+    {"getCertsNumber", (PyCFunction)dap_chain_wallet_get_certs_number_py, METH_NOARGS, ""},
+    {NULL, NULL, 0, NULL}
 };
 
 static PyTypeObject DapChainWallet_dapChainWalletType = {
@@ -48,7 +53,7 @@ static PyTypeObject DapChainWallet_dapChainWalletType = {
     "ChainWallet",             /* tp_name */
     sizeof(PyDapChainWalletObject),         /* tp_basicsize */
     0,                         /* tp_itemsize */
-    0,                         /* tp_dealloc */
+    (destructor)dap_chain_wallet_close_py, /* tp_dealloc */
     0,                         /* tp_print */
     0,                         /* tp_getattr */
     0,                         /* tp_setattr */
