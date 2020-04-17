@@ -67,7 +67,7 @@ def getJsonString(var_dir, dist_dir, node_role="full", poa_sign_cert=None,pos_si
                             "dag-pos":{
                                 "tokens_hold": ["KELT","KEL"],
                                 "tokens_hold_value": [1000000000,1000000000],
-                                "confirmations_minumum": 3,
+                                "confirmations_minumum": 1,
                             }
                             "files":{
                                 "storage_dir":"{$var_dir}/lib/network/kelvin-testnet/pasma"

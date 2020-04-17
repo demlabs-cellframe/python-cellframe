@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 # CellFrame SDK.Python v0.9-4 Example Application #0
-from CellFrame.libCellFrame import *
+from CellFrame import *
 import os
 
 app_name = "MyChains"
@@ -33,7 +33,7 @@ json_string = """{
         "server": {
             "enabled": true,
             "listen_address": "0.0.0.0",
-            "listen_port_tcp": 8079
+            "listen_port_tcp": 8099
         },
         "conserver": {
             "enabled": true,

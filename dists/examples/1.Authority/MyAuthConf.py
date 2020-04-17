@@ -33,7 +33,7 @@ def getJsonString(app_name, log_level="DEBUG"):
             "server": {
                 "enabled": true,
                 "listen_address": "0.0.0.0",
-                "listen_port_tcp": 8079
+                "listen_port_tcp": 8099
             },
             "conserver": {
                 "enabled": true,

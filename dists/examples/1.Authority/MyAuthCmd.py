@@ -1,10 +1,10 @@
 from CellFrame.libCellFrame import *
 
-def cmdUser(*argv):
+def cmdUser(argv, strReply):
     reply="user managment command:\n"
     for arg in argv:
         reply+=" arg"+str(arg)+"=\""+arg+"\"\n"
-    setReplyText(reply)
+    AppCliServer.setReplyText(reply, strReply)
 
 def init():
     AppCliServer.cmdItemCreate("user",cmdUser,"User managment command","""

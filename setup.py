@@ -48,9 +48,10 @@ class CMakeBuild(build_ext):
             cmake_args += ['-DCMAKE_LIBRARY_OUTPUT_DIRECTORY_{}={}'.format(
                 cfg.upper(),
                 extdir)]
-            if sys.maxsize > 2**32:
-                cmake_args += ['-A', 'x64']
-            build_args += ['--', '/m']
+            cmake_args += ['-G', 'MinGW Makefiles']
+            #if sys.maxsize > 2**32:
+            #    cmake_args += ['-A', 'x64']
+            #build_args += ['--', '/m']
         else:
             cmake_args += ['-DCMAKE_BUILD_TYPE=' + cfg]
             build_args += ['--', '-j4']
@@ -69,7 +70,7 @@ class CMakeBuild(build_ext):
 
 setup(
     name="CellFrame",
-    version="0.9-post12",
+    version="0.9-post14",
     description="CellFrame SDK",
     author='Demlabs (2007-2020)',
     license="GNU GPLv3",
