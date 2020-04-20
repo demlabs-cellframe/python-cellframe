@@ -4,6 +4,9 @@
 #include <Python.h>
 #include "dap_common.h"
 #include "dap_chain_wallet.h"
+#include "wrapping_dap_chain_common.h"
+#include "libdap_crypto_key_python.h"
+//#include "wrapping_dap_sign
 
 #ifdef __cplusplus
 extern "C"{
@@ -35,16 +38,19 @@ PyObject *dap_cert_to_addr_py(PyObject *self, PyObject *argv);
 PyObject *dap_chain_wallet_get_addr_py(PyObject *self, PyObject *argv);
 PyObject *dap_chain_wallet_get_certs_number_py(PyObject *self, PyObject *argv);
 PyObject *dap_chain_wallet_get_pkey_py(PyObject *self, PyObject *argv);
-PyObject *dap_chain_wallet_get_key_p(PyObject *self, PyObject *argv);
+PyObject *dap_chain_wallet_get_key_py(PyObject *self, PyObject *argv);
 
 //PyObject *dap_chain_wallet_save_file_py(PyObject *self, PyObject *argv);
 
 static PyMethodDef ChainWalletMethods[] = {
     {"getPath", (PyCFunction)dap_chain_wallet_get_path_py, METH_VARARGS | METH_STATIC, ""},
+    {"createWithSeed", (PyCFunction)dap_chain_wallet_create_with_seed_py, METH_VARARGS | METH_STATIC, ""},
     {"openFile", (PyCFunction)dap_chain_wallet_open_file_py, METH_VARARGS | METH_STATIC, ""},
     {"open", (PyCFunction)dap_chain_wallet_open_py, METH_VARARGS | METH_STATIC, ""},
     {"save", (PyCFunction)dap_chain_wallet_save_py, METH_NOARGS, ""},
+    {"getAddr", (PyCFunction)dap_chain_wallet_get_addr_py, METH_VARARGS, ""},
     {"getCertsNumber", (PyCFunction)dap_chain_wallet_get_certs_number_py, METH_NOARGS, ""},
+    {"getKey", (PyCFunction)dap_chain_wallet_get_key_py, METH_VARARGS, ""},
     {NULL, NULL, 0, NULL}
 };
 

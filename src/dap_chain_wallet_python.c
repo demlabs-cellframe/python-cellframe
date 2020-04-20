@@ -14,6 +14,20 @@ PyObject *dap_chain_wallet_get_path_py(PyObject *self, PyObject *argv){
     return Py_BuildValue("(s)", path);
 }
 
+PyObject *dap_chain_wallet_create_with_seed_py(PyObject *self, PyObject *argv){
+    (void)self;
+    const char *wallet_name;
+    const char *path_wallets;
+    PyObject *obj_sig_type;
+    PyObject *obj_seed;
+    if (!PyArg_ParseTuple(argv, "ssOO", &wallet_name, &path_wallets, &obj_sig_type, &obj_seed))
+        return NULL;
+    if (PyBytes_Check(obj_seed)){
+        PyErr_SetString(PyExc_TypeError, "Fourth argument to not have a Bytes object type");
+        return NULL;
+    }
+    return NULL;;
+}
 PyObject *dap_chain_wallet_open_file_py(PyObject *self, PyObject *argv){
     (void)self;
     const char *file_path;
@@ -44,8 +58,35 @@ void dap_chain_wallet_close_py(PyDapChainWalletObject *self){
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
+PyObject *dap_cert_to_addr_py(PyObject *self, PyObject *argv){
+    (void)self;
+    return NULL;
+}
+
+PyObject *dap_chain_wallet_get_addr_py(PyObject *self, PyObject *argv){
+    PyObject *obj_net_id;
+    if (!PyArg_ParseTuple(argv, "O", &obj_net_id))
+        return NULL;
+    PyObject *obj_addr = _PyObject_New(&DapChainAddrObject_DapChainAddrObjectType);
+    ((PyDapChainAddrObject*)obj_addr)->addr = dap_chain_wallet_get_addr(
+                ((PyDapChainWalletObject*)self)->wallet,
+                ((PyDapChainNetIdObject*)obj_net_id)->net_id
+                );
+    return Py_BuildValue("(O)", obj_addr);
+}
 PyObject *dap_chain_wallet_get_certs_number_py(PyObject *self, PyObject *argv){
     (void)argv;
     size_t result = dap_chain_wallet_get_certs_number(((PyDapChainWalletObject*)self)->wallet);
     return PyLong_FromLong(result);
+}
+PyObject *dap_chain_wallet_get_key_py(PyObject *self, PyObject *argv){
+    uint32_t key_idx;
+    if (!PyArg_ParseTuple(argv, "I", &key_idx))
+            return NULL;
+    PyObject *obj_key = _PyObject_New(&PyCryptoKeyObject_PyCryptoKeyType);
+    ((PyCryptoKeyObject*)obj_key)->key = dap_chain_wallet_get_key(
+                ((PyDapChainWalletObject*)self)->wallet,
+                key_idx
+                );
+    return Py_BuildValue("(O)", obj_key);
 }
