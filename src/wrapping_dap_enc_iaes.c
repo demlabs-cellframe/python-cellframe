@@ -1,5 +1,7 @@
 #include "wrapping_dap_enc_iaes.h"
 
+#define LOG_TAG "wrapping-dap-enc-iaes"
+
 
 PyObject* dap_enc_iaes_key_new_py(PyObject *self, PyObject *args){
     PyObject *obj_key;

@@ -1,5 +1,28 @@
-#ifndef WRAPPING_DAP_ENC_KEY_
-#define WRAPPING_DAP_ENC_KEY_
+/*
+ * Authors:
+ * Alexey Stratulat <alexey.stratulat@demlabs.net>
+ * DeM Labs Inc.   https://demlabs.net
+ * CellFrame       https://cellframe.net
+ * Sources         https://gitlab.demlabs.net/cellframe
+ * Copyright  (c) 2017-2020
+ * All rights reserved.
+
+ This file is part of DAP (Deus Applications Prototypes) the open source project
+
+    DAP (Deus Applicaions Prototypes) is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    DAP is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with any DAP based project.  If not, see <http://www.gnu.org/licenses/>.
+*/
+#pragma once
 
 #include "dap_enc_key.h"
 #include "Python.h"
@@ -10,8 +33,6 @@
 extern "C" {
 #endif
 
-#undef LOG_TAG
-#define LOG_TAG "wrapping-dap-enc-key"
 
 PyObject* dap_enc_key_get_enc_size_py(PyObject *self, PyObject *args);//dap_enc_key_t * a_key, const size_t buf_in_size); -> size_t
 PyObject* dap_enc_key_get_dec_size_py(PyObject *self, PyObject *args);//dap_enc_key_t * a_key, const size_t buf_in_size); -> size_t
@@ -36,11 +57,7 @@ PyObject *dap_enc_gen_pub_key_from_priv_py(PyObject *self, PyObject *args);//str
 PyObject *dap_enc_gen_key_public_size_py(PyObject *self, PyObject *args);//dap_enc_key_t *a_key); ->size_t
 PyObject *dap_enc_gen_key_public_py(PyObject *self, PyObject *args);//dap_enc_key_t *a_key, void * a_output); ->int
 
-PyObject *dap_enc_key_signature_delete_py(PyObject *self, PyObject *args);//dap_enc_key_type_t a_key_type, uint8_t *a_sig_buf);     ->void
-
 
 #ifdef __cplusplus
 }
 #endif
-
-#endif //WRAPPING_DAP_ENC_KEY_
