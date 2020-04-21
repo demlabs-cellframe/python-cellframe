@@ -258,7 +258,7 @@ PyObject *python_cellframe_init(PyObject *self, PyObject *args){
                 return NULL;
             }
         } else if (strcmp(c_value, "ChainCSDagPos") == 0){
-            if (dap_chain_cs_dag_poa_init() != 0){
+            if (dap_chain_cs_dag_pos_init() != 0){
                 PyErr_SetString(CellFrame_error, "Failed to initialize ChainCSDagPos module. ");
                 return NULL;
             }
