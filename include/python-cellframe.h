@@ -33,9 +33,10 @@
 #include "wrapping_dap_stream_ctl.h"
 #include "wrapping_dap_mempool.h"
 #include "wrapping_dap_http_folder.h"
+#include "dap_chain_wallet_python.h"
 
 //#include "dap_http_client_simple.h"
-#include "dap_chain_wallet.h"
+//#include "dap_chain_wallet.h"
 #include "dap_chain_cs.h"
 #include "dap_chain_cs_dag.h"
 #include "dap_chain_cs_dag_poa.h"

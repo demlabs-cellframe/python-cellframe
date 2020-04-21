@@ -271,7 +271,7 @@ PyObject *python_cellframe_init(PyObject *self, PyObject *args){
             }
             s_init_http_client_simple = true;*/
         } else if (strcmp(c_value, "Wallet") == 0){
-            if (dap_chain_wallet_init() != 0){
+            if (dap_chain_wallet_init_py() != 0){
                 PyErr_SetString(CellFrame_error, "Failed to initialize Wallet module. ");
                 return NULL;
             }
@@ -288,7 +288,7 @@ PyObject *python_cellframe_init(PyObject *self, PyObject *args){
                 return NULL;
             }
         } else if (strcmp(c_value, "ChainCSDagPos") == 0){
-            if (dap_chain_cs_dag_poa_init() != 0){
+            if (dap_chain_cs_dag_pos_init() != 0){
                 PyErr_SetString(CellFrame_error, "Failed to initialize ChainCSDagPos module. ");
                 return NULL;
             }
@@ -406,7 +406,8 @@ PyMODINIT_FUNC PyInit_libCellFrame(void){
             PyType_Ready(&DapStreamCtl_DapStreamCtlType) < 0 ||
             PyType_Ready(&DapMempool_DapMempoolType) < 0 ||
             // ====
-            PyType_Ready(&DapAppCli_dapAppCliType ) < 0
+            PyType_Ready(&DapAppCli_dapAppCliType ) < 0 ||
+            PyType_Ready(&DapChainWallet_dapChainWalletType) < 0
             ){
         log_it(L_CRITICAL,"Not all py modules are ready for init");
         return NULL;
@@ -477,6 +478,7 @@ PyMODINIT_FUNC PyInit_libCellFrame(void){
     // =============
 
     PyModule_AddObject(module, "ChainGDB", (PyObject*)&DapChainGDBObject_DapChainGDBType);
+    PyModule_AddObject(module, "ChainWallet", (PyObject*)&DapChainWallet_dapChainWalletType);
 
     PyModule_AddObject(module, "Http", (PyObject*)&DapHTTP_DapHTTPType);
     PyModule_AddObject(module, "EncHttp", (PyObject*)&DapEncHTTP_DapEncHTTPType);
@@ -525,6 +527,12 @@ void deinit_modules(void){
         dap_common_deinit();
         submodules_deint = true;
     }
+    if (s_init_wallet){
+        dap_chain_wallet_deinit_py();
+    }
+    dap_config_close(g_config);
+    dap_config_deinit();
+    dap_common_deinit();
 }
 
 PyObject *python_cellframe_deinit(PyObject *self, PyObject *args){

@@ -85,6 +85,7 @@ else()
     add_subdirectory(cellframe-sdk-python/libdap-chain-python)
     add_subdirectory(cellframe-sdk-python/libdap-app-cli-python)
     add_subdirectory(cellframe-sdk-python/libdap-client-python)
+    add_subdirectory(cellframe-sdk-python/libdap-chain-wallet-python)
 
 
     target_compile_options(dap_chain_common_python_module PRIVATE "-fpic")
@@ -95,6 +96,7 @@ else()
     target_compile_options(dap_chain_python_module PRIVATE "-fpic")
     target_compile_options(dap_app_cli_python_module PRIVATE "-fpic")
     target_compile_options(dap_client_python_module PRIVATE "-fpic")
+    target_compile_options(dap_chain_wallet_python_module PRIVATE "-fpic")
 
     #if (SKBUILD)
     message(STATUS "Make python extension")
@@ -161,6 +163,7 @@ target_link_libraries(${PROJECT_NAME} cellframe-sdk dap_python_module
                       dap_chain_net_python_module
                       dap_chain_gdb_python_module
                       dap_app_cli_python_module
+                      dap_chain_wallet_python_module
                       ${PYTHON_LIBRARIES}
                      )
 
