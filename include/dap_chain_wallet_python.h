@@ -7,7 +7,8 @@
 #include "wrapping_dap_chain_common.h"
 #include "libdap_crypto_key_python.h"
 #include "wrapping_dap_sign.h"
-//#include "wrapping_dap_sign
+#include "wrapping_dap_pkey.h"
+#include "wrapping_cert.h"
 
 #ifdef __cplusplus
 extern "C"{
@@ -27,7 +28,7 @@ void dap_chain_wallet_deinit_py(void);
 PyObject *dap_chain_wallet_get_path_py(PyObject *self, PyObject *argv);
 
 PyObject *dap_chain_wallet_create_with_seed_py(PyObject *self, PyObject *argv);
-PyObject *dap_chain_wallet_create_py(PyObject *self, PyObject *argv);
+PyObject *dap_chain_wallet_create_py(PyTypeObject *type, PyObject *argv, PyObject *kwds);
 PyObject *dap_chain_wallet_open_file_py(PyObject *self, PyObject *argv);
 PyObject *dap_chain_wallet_open_py(PyObject *self, PyObject *argv);
 PyObject *dap_chain_wallet_save_py(PyObject *self, PyObject *argv);
@@ -49,8 +50,10 @@ static PyMethodDef ChainWalletMethods[] = {
     {"openFile", (PyCFunction)dap_chain_wallet_open_file_py, METH_VARARGS | METH_STATIC, ""},
     {"open", (PyCFunction)dap_chain_wallet_open_py, METH_VARARGS | METH_STATIC, ""},
     {"save", (PyCFunction)dap_chain_wallet_save_py, METH_NOARGS, ""},
+    {"certToAddr", (PyCFunction)dap_cert_to_addr_py, METH_VARARGS | METH_STATIC, ""},
     {"getAddr", (PyCFunction)dap_chain_wallet_get_addr_py, METH_VARARGS, ""},
     {"getCertsNumber", (PyCFunction)dap_chain_wallet_get_certs_number_py, METH_NOARGS, ""},
+    {"getPKey", (PyCFunction)dap_chain_wallet_get_pkey_py, METH_VARARGS, ""},
     {"getKey", (PyCFunction)dap_chain_wallet_get_key_py, METH_VARARGS, ""},
     {NULL, NULL, 0, NULL}
 };
@@ -94,7 +97,7 @@ static PyTypeObject DapChainWallet_dapChainWalletType = {
     0,                         /* tp_dictoffset */
     0,                         /* tp_init */
     0,                         /* tp_alloc */
-    PyType_GenericNew,         /* tp_new */
+    dap_chain_wallet_create_py,/* tp_new */
     0,                         /* tp_free */
     0,                         /* tp_is_gc*/
     0,                          /* tp_bases*/
