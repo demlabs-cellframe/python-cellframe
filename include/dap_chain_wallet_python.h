@@ -6,6 +6,7 @@
 #include "dap_chain_wallet.h"
 #include "wrapping_dap_chain_common.h"
 #include "libdap_crypto_key_python.h"
+#include "wrapping_dap_sign.h"
 //#include "wrapping_dap_sign
 
 #ifdef __cplusplus

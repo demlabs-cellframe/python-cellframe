@@ -26,7 +26,16 @@ PyObject *dap_chain_wallet_create_with_seed_py(PyObject *self, PyObject *argv){
         PyErr_SetString(PyExc_TypeError, "Fourth argument to not have a Bytes object type");
         return NULL;
     }
-    return NULL;;
+    void *seed = (void *)PyBytes_AsString(obj_seed);
+    size_t seed_size = PyBytes_Size(obj_seed);
+    PyObject *obj_wallet = _PyObject_New(&DapChainWallet_dapChainWalletType);
+    ((PyDapChainWalletObject*)obj_wallet)->wallet = dap_chain_wallet_create_with_seed(
+                wallet_name,
+                path_wallets,
+                *((PyDapSignTypeObject*)obj_sig_type)->sign_type,
+                seed,
+                seed_size);
+    return Py_BuildValue("(O)", obj_wallet);
 }
 PyObject *dap_chain_wallet_open_file_py(PyObject *self, PyObject *argv){
     (void)self;
