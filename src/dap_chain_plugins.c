@@ -2,8 +2,9 @@
 
 int dap_chain_plugins_init(dap_config_t *config){
     if(dap_config_get_item_bool_default(config, "plugins", "py_load", false)){
-        plugins_root_path = dap_config_get_item_str_default(config, "plugins", "py_path",
+        const char *l_plugins_root_path = dap_config_get_item_str_default(config, "plugins", "py_path",
                                                             "/opt/cellframe-node/var/plugins/");
+        plugins_root_path = dap_strjoin(NULL, l_plugins_root_path, "/", NULL);
         log_it(L_INFO, "Start initialize python plugins. Path plugins %s", plugins_root_path);
         if (!dap_dir_test(plugins_root_path)){
             log_it(L_ERROR, "The directory %s was not found.", plugins_root_path);
@@ -137,6 +138,45 @@ void dap_chain_plugins_deinit(){
         Py_XDECREF(plugin->obj_module);
         LL_DELETE(plugins, plugin);
     }
+    dap_chain_plugins_manifest_list_delete_all();
     Py_Finalize();
+}
+int dap_chain_plugins_reload_plugin(const char * name_plugin){
+    log_it(L_NOTICE, "Reload plugin %s", name_plugin);
+    dap_chain_plugin_list_module_t *plugins = dap_chain_plugins_list_get();
+    dap_chain_plugin_list_module_t *plugin = NULL;
+    LL_SEARCH(plugins, plugin, name_plugin, dap_chain_plugins_list_name_cmp);
+    if (plugin == NULL)
+        return -1;
+    PyObject *func_deinit = PyObject_GetAttrString(plugin->obj_module, "deinit");
+//    PyObject *res_int = NULL;
+    if (func_deinit != NULL || PyCallable_Check(func_deinit)){
+        PyEval_CallObject(func_deinit, NULL);
+    } else {
+        log_it(L_WARNING, "For plugin %s can't callable function deinit", plugin->name);
+    }
+    DAP_FREE(plugin->name);
+    Py_XDECREF(plugin->obj_module);
+    LL_DELETE(plugins, plugin);
+    dap_chain_plugins_manifest_list_delete_name(name_plugin);
+    //Loading plugin
+    char *path_plugin = dap_strjoin(NULL, plugins_root_path, name_plugin, NULL);
+    char *name_file_manifest = dap_strjoin("",plugins_root_path, name_plugin, "/manifest.json", NULL);
+    if (!dap_chain_plugins_manifest_list_add_from_file(name_file_manifest)){
+        log_it(L_ERROR, "Registration %s manifest fail", path_plugin);
+    }
+    DAP_FREE(name_file_manifest);
+    dap_chain_plugins_list_manifest_t *manifest =  dap_chain_plugins_manifest_list_get_name(name_plugin);
+    if (manifest->dependencys != NULL){
+        if (!dap_chain_plugins_list_check_load_plugins(manifest->dependencys)){
+            log_it(L_NOTICE, "%s plugin has unresolved dependencys, restart all plagins", manifest->name);
+        }else{
+            dap_chain_plugins_load_plugin(dap_strjoin("", plugins_root_path, manifest->name, "/", NULL), manifest->name);
+        }
+    }else{
+        dap_chain_plugins_load_plugin(dap_strjoin("", plugins_root_path, manifest->name, "/", NULL), manifest->name);
+    }
+
+    return -1;
 }
 

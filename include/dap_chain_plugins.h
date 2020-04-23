@@ -23,6 +23,7 @@ int dap_chain_plugins_init();
 void dap_chain_plugins_deinit();
 void dap_chain_plugins_loading();
 void dap_chain_plugins_load_plugin(const char *dir_path, const char *name);
+int dap_chain_plugins_reload_plugin(const char * name_plugin);
 
 #ifdef __cplusplus
 }
