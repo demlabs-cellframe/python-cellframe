@@ -44,6 +44,8 @@ void dap_chain_plugins_loading(){
     dap_chain_plugins_list_manifest_t *man = NULL;
     dap_chain_plugins_list_manifest_t *treshold = NULL;
     dap_chain_plugins_list_manifest_t *tmp = NULL;
+    if (l_manifests == NULL)
+        return;
     LL_FOREACH_SAFE(l_manifests, man, tmp){
         if (man->name == NULL){
             log_it(L_ERROR, "Can loading plugin, file not found");
