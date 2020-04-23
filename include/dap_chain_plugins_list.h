@@ -32,6 +32,7 @@ bool dap_chain_plugins_list_check_load_plugins(dap_chain_plugins_list_char_t *li
 
 void dap_chain_plugins_list_add(PyObject *module, const char *name);
 void dap_chain_plugins_list_name_del(const char *name);
+int dap_chain_plugins_list_name_cmp(dap_chain_plugin_list_module_t *element, const char *name);
 
 #ifdef __cplusplus
 extern "C" {

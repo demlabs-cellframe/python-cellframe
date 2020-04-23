@@ -55,3 +55,7 @@ void dap_chain_plugins_list_name_del(const char *name){
     }
 }
 
+int dap_chain_plugins_list_name_cmp(dap_chain_plugin_list_module_t *element, const char *name){
+    return strcmp(element->name, name);
+}
+

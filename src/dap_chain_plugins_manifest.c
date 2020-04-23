@@ -1,5 +1,14 @@
 #include "dap_chain_plugins_manifest.h"
 
+void dap_chain_plugins_list_char_delete_all(dap_chain_plugins_list_char_t *list){
+    dap_chain_plugins_list_char_t *element;
+    dap_chain_plugins_list_char_t *tmp;
+    LL_FOREACH_SAFE(list, element, tmp){
+        DAP_FREE(element->value);
+        LL_DELETE(list, element);
+    }
+}
+
 dap_chain_plugins_list_manifest_t *dap_chain_plugins_manifest_new(const char *name, const char *version, const dap_chain_plugins_list_char_t *dep, const char *author,
                                                     const char *description){
     dap_chain_plugins_list_manifest_t *man = (dap_chain_plugins_list_manifest_t*)DAP_NEW(dap_chain_plugins_list_manifest_t);
@@ -32,6 +41,10 @@ static dap_chain_plugins_list_char_t* JSON_array_to_dap_list_char(json_object *j
 
 void dap_chain_plugins_manifest_list_create(){
     manifests = NULL;
+}
+
+int dap_chain_plugins_manifest_name_cmp(dap_chain_plugins_list_manifest_t *man, const char *name){
+    return dap_strcmp(man->name, name);
 }
 
 dap_chain_plugins_list_manifest_t* dap_chain_plugins_add_manifest_from_file(const char *file_path){
@@ -75,10 +88,64 @@ dap_chain_plugins_list_manifest_t* dap_chain_plugins_manifests_get_list(){
     return manifests;
 }
 
+dap_chain_plugins_list_manifest_t *dap_chain_plugins_manifest_list_get_name(const char *name){
+    dap_chain_plugins_list_manifest_t *element;
+    LL_SEARCH(manifests, element, name, dap_chain_plugins_manifest_name_cmp);
+    return element;
+}
+
+char* dap_chain_plugins_manifests_get_list_dependencyes(dap_chain_plugins_list_manifest_t *element){
+    char *result = NULL;
+    dap_chain_plugins_list_char_t *e1;
+    LL_FOREACH(element->dependencys, e1){
+        char *new_result = dap_strjoin(NULL, result, e1->value, ", ");
+        DAP_FREE(result);
+        result = new_result;
+    }
+    if (result != NULL){
+        size_t size_result = dap_strlen(result);
+        size_t new_size_result = size_result - 2;
+        char *new_result = DAP_NEW_SIZE(char, new_size_result);
+        memcpy(new_result, result, new_size_result);
+        DAP_FREE(result);
+        result = new_result;
+    } else {
+        result = "";
+    }
+    return result;
+}
+
 bool dap_chain_plugins_manifest_list_add_from_file(const char *file_path){
     dap_chain_plugins_list_manifest_t *manifest = dap_chain_plugins_add_manifest_from_file(file_path);
     if (manifest == NULL)
         return false;
     dap_chain_plugins_manifest_list_add_manifest(manifest);
     return true;
+}
+
+bool dap_chain_plugins_manifest_list_delete_name(const char *name){
+    dap_chain_plugins_list_manifest_t *element;
+    LL_SEARCH(manifests, element, name, dap_chain_plugins_manifest_name_cmp);
+    if (element == NULL)
+        return false;
+    DAP_FREE(element->name);
+    DAP_FREE(element->version);
+    DAP_FREE(element->author);
+    DAP_FREE(element->description);
+    dap_chain_plugins_list_char_delete_all(element->dependencys);
+    LL_DELETE(manifests, element);
+    return true;
+}
+void dap_chain_plugins_manifest_list_delete_all(void){
+    dap_chain_plugins_list_manifest_t *element;
+    dap_chain_plugins_list_manifest_t *tmp;
+    LL_FOREACH_SAFE(manifests, element, tmp){
+        DAP_FREE(element->name);
+        DAP_FREE(element->version);
+        DAP_FREE(element->author);
+        DAP_FREE(element->description);
+        dap_chain_plugins_list_char_delete_all(element->dependencys);
+        LL_DELETE(manifests, element);
+    }
+//    LL_FOREACH_SAFE()
 }
