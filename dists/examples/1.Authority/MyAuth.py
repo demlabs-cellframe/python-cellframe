@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 # CellFrame SDK.Python v0.9 Example Application #1
-from CellFrame.libCellFrame import *
+from CellFrame import *
 import os
 import json
 import sys

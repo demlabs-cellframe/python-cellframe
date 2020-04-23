@@ -1,8 +1,9 @@
 #!/usr/bin/python3
-from CellFrame.libCellFrame import init, Cert,CryptoKeyType
+from CellFrame import init, Cert, CryptoKeyType
 from string import Template
 import os
 import sys
+import json
 import MyAuthConf
 import random
 import string
