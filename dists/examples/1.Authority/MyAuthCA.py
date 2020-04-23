@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 from CellFrame import init, Cert, CryptoKeyType
-from string import Template
-import os
+# from string import Template
+# import os
 import sys
 import json
 import MyAuthConf
@@ -24,11 +24,12 @@ except json.decoder.JSONDecodeError as jex:
     exit(-1)
 
 
-
+# Produce random string
 def randomString(stringLength=10):
     """Generate a random string of fixed length """
     letters = string.ascii_lowercase
     return ''.join(random.choice(letters) for i in range(stringLength))
+
 
 # Action Help
 def help():
