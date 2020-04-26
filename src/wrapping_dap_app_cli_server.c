@@ -7,6 +7,7 @@ int dap_chain_node_cli_init_py(dap_config_t *g_config){
     dap_chain_node_cli_init(g_config);
     l_str_reply_list = NULL;
     l_element_py_func_list = NULL;
+    return 0;
 }
 void dap_chain_node_cli_delete_py(void){
     element_py_func_del_all();
