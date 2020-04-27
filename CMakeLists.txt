@@ -5,7 +5,6 @@ set(CMAKE_VERBOSE_MAKEFILE ON)
 set(CMAKE_COLOR_MAKEFILE   ON)
 set(CMAKE_C_STANDARD 11)
 add_definitions("-fpic")
-add_definitions ("-DNODE_NETNAME=\"cellframe\"")
 
 if(UNIX)
     add_definitions("-DDAP_OS_UNIX")
