@@ -95,24 +95,22 @@ dap_chain_plugins_list_manifest_t *dap_chain_plugins_manifest_list_get_name(cons
 }
 
 char* dap_chain_plugins_manifests_get_list_dependencyes(dap_chain_plugins_list_manifest_t *element){
-    char *result = NULL;
-    dap_chain_plugins_list_char_t *e1;
-    LL_FOREACH(element->dependencys, e1){
-        char *new_result = dap_strjoin(NULL, result, e1->value, ", ");
-        DAP_FREE(result);
-        result = new_result;
-    }
-    if (result != NULL){
-        size_t size_result = dap_strlen(result);
-        size_t new_size_result = size_result - 2;
-        char *new_result = DAP_NEW_SIZE(char, new_size_result);
-        memcpy(new_result, result, new_size_result);
-        DAP_FREE(result);
-        result = new_result;
+    if (element->dependencys == NULL) {
+        return NULL;
     } else {
-        result = "";
+        char *result = "";
+        dap_chain_plugins_list_char_t *el;
+        int max_count_list = 0;
+        LL_COUNT(element->dependencys, el, max_count_list);
+        int count_list = 1;
+        LL_FOREACH(element->dependencys, el){
+            if (count_list != max_count_list)
+                result = dap_strjoin(NULL, result, el->value, ", ", NULL);
+            else
+                result = dap_strjoin(NULL, result, el->value, NULL);
+        }
+        return result;
     }
-    return result;
 }
 
 bool dap_chain_plugins_manifest_list_add_from_file(const char *file_path){
