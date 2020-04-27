@@ -1,4 +1,5 @@
 #include "dap_chain_wallet_python.h"
+#define LOG_TAG "dap_chain_wallet_python"
 
 int dap_chain_wallet_init_py(void){
     return dap_chain_wallet_init();

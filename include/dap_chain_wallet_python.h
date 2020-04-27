@@ -14,8 +14,6 @@
 extern "C"{
 #endif
 
-#undef LOG_TAG
-#define LOG_TAG "dap_chain_wallet_python"
 
 typedef struct PyDapChainWallet{
     PyObject_HEAD
