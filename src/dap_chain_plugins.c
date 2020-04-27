@@ -31,6 +31,7 @@ int dap_chain_plugins_init(dap_config_t *config){
             DAP_FREE(name_file);
         }
         dap_chain_plugins_loading();
+        dap_chain_plugins_command_create();
     }else{
         log_it(L_NOTICE, "Permission to initialize python plugins has not been obtained.");
         return -2;
@@ -149,7 +150,7 @@ int dap_chain_plugins_reload_plugin(const char * name_plugin){
     dap_chain_plugin_list_module_t *plugin = NULL;
     LL_SEARCH(plugins, plugin, name_plugin, dap_chain_plugins_list_name_cmp);
     if (plugin == NULL)
-        return -1;
+        return -4;
     PyObject *func_deinit = PyObject_GetAttrString(plugin->obj_module, "deinit");
 //    PyObject *res_int = NULL;
     if (func_deinit != NULL || PyCallable_Check(func_deinit)){
@@ -166,17 +167,21 @@ int dap_chain_plugins_reload_plugin(const char * name_plugin){
     char *name_file_manifest = dap_strjoin("",plugins_root_path, name_plugin, "/manifest.json", NULL);
     if (!dap_chain_plugins_manifest_list_add_from_file(name_file_manifest)){
         log_it(L_ERROR, "Registration %s manifest fail", path_plugin);
+        return -3;
     }
     DAP_FREE(name_file_manifest);
     dap_chain_plugins_list_manifest_t *manifest =  dap_chain_plugins_manifest_list_get_name(name_plugin);
     if (manifest->dependencys != NULL){
         if (!dap_chain_plugins_list_check_load_plugins(manifest->dependencys)){
             log_it(L_NOTICE, "%s plugin has unresolved dependencys, restart all plagins", manifest->name);
+            return -2;
         }else{
             dap_chain_plugins_load_plugin(dap_strjoin("", plugins_root_path, manifest->name, "/", NULL), manifest->name);
+            return 0;
         }
     }else{
         dap_chain_plugins_load_plugin(dap_strjoin("", plugins_root_path, manifest->name, "/", NULL), manifest->name);
+        return 0;
     }
 
     return -1;

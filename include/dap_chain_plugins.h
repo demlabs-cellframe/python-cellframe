@@ -7,6 +7,7 @@
 #include "dap_chain_plugins_manifest.h"
 #include "dap_chain_plugins_list.h"
 #include "python-cellframe.h"
+#include "dap_chain_plugins_command.h"
 
 #ifdef __cplusplus
 extern "C"{
