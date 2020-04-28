@@ -4,6 +4,7 @@
 #define LOG_TAG "dap_chain_plugins"
 
 int dap_chain_plugins_init(dap_config_t *a_config){
+    log_it(L_ERROR, "Z1");
     if(dap_config_get_item_bool_default(a_config, "plugins", "py_load", false)){
         const char *l_defaule_path_plugins = dap_strjoin(NULL, "/opt/", dap_get_appname(), "/var/plugins/", NULL);
         const char *l_plugins_root_path = dap_config_get_item_str_default(a_config, "plugins", "py_path",
@@ -26,9 +27,10 @@ int dap_chain_plugins_init(dap_config_t *a_config){
         dap_chain_plugins_manifest_list_create();
         dap_chain_plugins_list_init();
         char *l_name_file = NULL;
+        log_it(L_ERROR, "Z2");
         LL_FOREACH(l_list_plugins_name, l_element){
             log_it(L_NOTICE, "Registration %s manifest", l_element->name_directory);
-            l_name_file = dap_strjoin("",l_plugins_root_path, l_element->name_directory, "/manifest.json", NULL);
+            l_name_file = dap_strjoin("",l_plugins_root_path, "/", l_element->name_directory, "/manifest.json", NULL);
             if (!dap_chain_plugins_manifest_list_add_from_file(l_name_file)){
                 log_it(L_ERROR, "Registration %s manifest fail", l_element->name_directory);
             }
