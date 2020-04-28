@@ -21,8 +21,9 @@ This file is part of DAP (Deus Applications Prototypes) the open source project
    You should have received a copy of the GNU General Public License
    along with any DAP based project.  If not, see <http://www.gnu.org/licenses/>.
 */
-
 #pragma once
+
+#define _DAP_CHAIN_PLUGINS_COMMAND_
 #include "dap_chain_node_cli.h"
 #include "dap_chain_node_cli_cmd.h"
 #include "dap_chain_plugins_manifest.h"
