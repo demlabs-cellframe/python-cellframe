@@ -21,34 +21,21 @@ This file is part of DAP (Deus Applications Prototypes) the open source project
    You should have received a copy of the GNU General Public License
    along with any DAP based project.  If not, see <http://www.gnu.org/licenses/>.
 */
+#pragma once
 
-#ifndef _DAP_CHAIN_PLUGINS_
-#define _DAP_CHAIN_PLUGINS_
-#include <Python.h>
-#include "dap_config.h"
-#include "dap_common.h"
-#include "dap_file_utils.h"
+#define _DAP_CHAIN_PLUGINS_COMMAND_
+#include "dap_chain_node_cli.h"
+#include "dap_chain_node_cli_cmd.h"
 #include "dap_chain_plugins_manifest.h"
-#include "dap_chain_plugins_list.h"
-#include "python-cellframe.h"
-#include "dap_chain_plugins_command.h"
+#include "dap_chain_plugins.h"
 
 #ifdef __cplusplus
-extern "C"{
+extern "C" {
 #endif
 
-static PyObject *s_sys_path;
-
-const char *s_plugins_root_path;
-
-int dap_chain_plugins_init();
-void dap_chain_plugins_deinit();
-void dap_chain_plugins_loading();
-void dap_chain_plugins_load_plugin(const char *a_dir_path, const char *a_name);
-int dap_chain_plugins_reload_plugin(const char * a_name_plugin);
+void dap_chain_plugins_command_create(void);
+int dap_chain_plugins_command_handler(int a_argc, char **a_argv, void *a_arg_func, char **a_str_reply);
 
 #ifdef __cplusplus
 }
 #endif
-
-#endif //_DAP_CHAIN_PLUGINS_
