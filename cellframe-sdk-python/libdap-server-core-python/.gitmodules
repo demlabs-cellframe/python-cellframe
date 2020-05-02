@@ -1,9 +1,0 @@
-[submodule "libdap-server-core"]
-	path = libdap-server-core
-	url = https://gitlab.demlabs.net/cellframe/libdap-server-core.git
-[submodule "libdap"]
-	path = libdap
-	url = https://gitlab.demlabs.net/cellframe/libdap.git
-[submodule "libdap-crypto"]
-	path = libdap-crypto
-	url = https://gitlab.demlabs.net/cellframe/libdap-crypto.git
