@@ -1,7 +1,7 @@
 #ifndef _WRAPPING_DAP_CHAIN_GDB_
 #define _WRAPPING_DAP_CHAIN_GDB_
 #include <Python.h>
-#include "dap_chain_gdb.h"
+#include "dap_chain_cs_none.h"
 #include "libdap-chain-python.h"
 
 #ifdef __cplusplus

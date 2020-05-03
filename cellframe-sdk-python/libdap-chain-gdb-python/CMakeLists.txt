@@ -207,7 +207,7 @@ add_library(${PROJECT_NAME} STATIC ${CHAIN_GDB_PYTHON_SRCS} ${CHAIN_GDB_PYTHON_H
 
 target_link_libraries(${PROJECT_NAME})
 
-target_link_libraries(${PROJECT_NAME} dap_chain_gdb dap_core dap_chain dap_chain_global_db dap_chain_mempool dap_chain_net dap_chain_python_module)
+target_link_libraries(${PROJECT_NAME} dap_chain_cs_none dap_core dap_chain dap_chain_global_db dap_chain_mempool dap_chain_net dap_chain_python_module)
 
 target_include_directories(${PROJECT_NAME} PUBLIC include/ )
 

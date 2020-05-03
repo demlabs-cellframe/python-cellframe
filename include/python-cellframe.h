@@ -47,7 +47,7 @@
 #include "dap_stream_ch_chain_net.h"
 #include "dap_stream_ch_chain_net_srv.h"
 #include "dap_enc_ks.h"
-#include "dap_chain_gdb.h"
+#include "dap_chain_cs_none.h"
 #include "libdap_chain_net_python.h"
 
 #include "dap_app_cli.h"
