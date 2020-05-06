@@ -7,7 +7,7 @@ PyObject *get_ENC_KEY_TYPE_OAES(){
     return PyLong_FromLong(DAP_ENC_KEY_TYPE_OAES);
 }
 PyObject *get_ENC_KEY_TYPE_RLWE_NEWHOPE(){
-    return PyLong_FromLong(DAP_ENC_KEY_TYPE_RLWE_NEWHOPE);
+    return PyLong_FromLong(DAP_ENC_KEY_TYPE_RLWE_NEWHOPE_CPA_KEM );
 }
 PyObject *get_ENC_KEY_TYPE_SIDH_CLN16(){
     return PyLong_FromLong(DAP_ENC_KEY_TYPE_SIDH_CLN16);
