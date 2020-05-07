@@ -22,6 +22,6 @@ target_link_libraries(${PROJECT_NAME} ${PYTHON_LIBRARIES})
 #    "-fpic"
 #)
 
-target_link_libraries(${PROJECT_NAME} dap_core ${PYTHON_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} cellframe-sdk)# dap_core ${PYTHON_LIBRARIES})
 
 target_include_directories(${PROJECT_NAME} PUBLIC ./ )

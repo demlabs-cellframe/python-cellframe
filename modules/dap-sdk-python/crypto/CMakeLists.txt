@@ -15,7 +15,7 @@ add_library(${PROJECT_NAME} STATIC ${CRYPTO_PYTHON_SRCS} ${CRYPTO_PYTHON_HEADERS
 
 target_link_libraries(${PROJECT_NAME})
 
-target_link_libraries(${PROJECT_NAME} dap_core dap_crypto)
+target_link_libraries(${PROJECT_NAME} cellframe-sdk) #dap_core dap_crypto)
 
 target_include_directories(${PROJECT_NAME} PUBLIC include/ )
 
