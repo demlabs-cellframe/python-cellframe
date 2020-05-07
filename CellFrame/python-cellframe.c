@@ -331,10 +331,10 @@ PyObject *python_cellframe_init(PyObject *self, PyObject *args){
                 return NULL;
             }
         }else if (strcmp(c_value, "GDB") == 0){
-            if (dap_chain_gdb_init_py() != 0){
-                PyErr_SetString(CellFrame_error, "Failed to initialize GDB module. ");
-                return NULL;
-            }
+//            if (dap_chain_gdb_init_py() != 0){
+//                PyErr_SetString(CellFrame_error, "Failed to initialize GDB module. ");
+//                return NULL;
+//            }
         }else if (strcmp(c_value, "Net") == 0){
             if (dap_chain_net_init_py() != 0 ){
                 PyErr_SetString(CellFrame_error, "Failed to initialize chain net module. ");
@@ -398,7 +398,7 @@ PyMODINIT_FUNC PyInit_libCellFrame(void){
             PyType_Ready(&DapChainNetStateObject_DapChainNetStateObjectType) < 0 ||
             // =============
 
-            PyType_Ready(&DapChainGDBObject_DapChainGDBType) < 0 ||
+//            PyType_Ready(&DapChainGDBObject_DapChainGDBType) < 0 ||
 
             PyType_Ready(&DapHTTP_DapHTTPType) < 0 ||
             PyType_Ready(&DapEncHTTP_DapEncHTTPType) < 0 ||
@@ -477,7 +477,7 @@ PyMODINIT_FUNC PyInit_libCellFrame(void){
     PyModule_AddObject(module, "ChainNetState", (PyObject*)&DapChainNetStateObject_DapChainNetStateObjectType);
     // =============
 
-    PyModule_AddObject(module, "ChainGDB", (PyObject*)&DapChainGDBObject_DapChainGDBType);
+//    PyModule_AddObject(module, "ChainGDB", (PyObject*)&DapChainGDBObject_DapChainGDBType);
     PyModule_AddObject(module, "ChainWallet", (PyObject*)&DapChainWallet_dapChainWalletType);
 
     PyModule_AddObject(module, "Http", (PyObject*)&DapHTTP_DapHTTPType);

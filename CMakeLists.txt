@@ -34,7 +34,7 @@ endif()
     add_subdirectory(modules/dap-sdk-python/core)
     add_subdirectory(modules/dap-sdk-python/crypto)
     add_subdirectory(modules/modules/net)
-    add_subdirectory(modules/modules/gdb)
+#    add_subdirectory(modules/modules/gdb)
     add_subdirectory(modules/modules/chain)
     add_subdirectory(modules/modules/app-cli)
     add_subdirectory(modules/dap-sdk-python/net/client)
@@ -168,7 +168,7 @@ target_link_libraries(${PROJECT_NAME} ${CELLFRAME_LIBS} dap_python_module
                       dap_server_core_python_module
                       dap_chain_python_module
                       dap_chain_net_python_module
-                      dap_chain_gdb_python_module
+#                      dap_chain_gdb_python_module
                       dap_app_cli_python_module
                       dap_chain_wallet_python_module
                       ${PYTHON_LIBRARIES}
