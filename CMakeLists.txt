@@ -19,8 +19,14 @@ file(GLOB PYTHON_CELLFRAME_HEADERS include/*.h)
 set(SUBMODULES_NO_BUILD ON)
 
 if (NOT (SUPPORT_PYTHON_PLUGINS))
+    if (NOT(WIN32))
+        set(CELLFRAME_MODULES "core chains mining network srv cs-dag-poa cs-dag-pos cs-none srv-app srv-app-db srv-datum srv-vpn")
+    else()
+        set(CELLFRAME_MODULES "core chains mining network srv cs-dag-poa cs-dag-pos cs-none srv-app srv-app-db srv-datum")
+    endif()
     include(cellframe-sdk/cmake/OS_Detection.cmake)
     add_subdirectory(cellframe-sdk)
+
 endif()
 
     add_subdirectory(modules/modules/common)
@@ -157,12 +163,12 @@ if (WIN32)
 endif()
 
 
-target_link_libraries(${PROJECT_NAME} cellframe-sdk dap_python_module
+target_link_libraries(${PROJECT_NAME} ${CELLFRAME_LIBS} dap_python_module
                       dap_crypto_python_module
                       dap_server_core_python_module
                       dap_chain_python_module
                       dap_chain_net_python_module
-                      #dap_chain_gdb_python_module
+                      dap_chain_gdb_python_module
                       dap_app_cli_python_module
                       dap_chain_wallet_python_module
                       ${PYTHON_LIBRARIES}
