@@ -64,7 +64,7 @@ void elements_str_reply_delete_all(){
 
 void element_py_func_add(const char *name, PyObject *func){
     element_py_func_t *el = DAP_NEW(element_py_func_t);
-    el->name = name;
+    el->name = dap_strdup(name);
     el->func = func;
     Py_XINCREF(el->func);
     LL_APPEND(l_element_py_func_list, el);
@@ -99,7 +99,8 @@ void element_py_func_del_all(){
     }
 }
 
-static int wrapping_cmdfunc(int argc, char **argv, char **str_reply){
+static int wrapping_cmdfunc(int argc, char **argv, void * arg_func, char **str_reply){
+    UNUSED(arg_func);
     size_t id_str_replay = elements_str_reply_add(str_reply);
     PyObject *obj_argv = stringToPyList(argc, argv);
     PyObject *obj_id_str_replay = PyLong_FromSize_t(id_str_replay);
