@@ -1,2 +1,0 @@
-# libdap-client-python
-
