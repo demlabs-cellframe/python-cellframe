@@ -28,6 +28,7 @@ if (NOT (SUPPORT_PYTHON_PLUGINS))
     add_subdirectory(cellframe-sdk)
 else()
     add_subdirectory(modules/plugins)
+    target_compile_options(dap_plugins_python PRIVATE "-fpic")
 endif()
 
 add_subdirectory(modules/dap-sdk/core)
