@@ -15,14 +15,15 @@ typedef struct PyDapStore{
 PyObject *dap_store_obj_copy_py(PyObject *self, PyObject *args);
 PyObject *dap_store_obj_free_py(PyObject *self, PyObject *args);
 
-//PyObject *dap_chain_global_db_driver_read_last_py(const char *a_group);
-//PyObject *dap_chain_global_db_driver_cond_read_py(const char *a_group, uint64_t id, size_t *a_count_out);
+PyObject *dap_chain_global_db_driver_read_last_py(PyObject *self, PyObject *argv);
+PyObject *dap_chain_global_db_driver_cond_read_py(PyObject *self, PyObject *argv);//(const char *a_group, uint64_t id, size_t *a_count_out);
 //PyObject *dap_chain_global_db_driver_read_py(const char *a_group, const char *a_key, size_t *count_out);
 
 static PyMethodDef DapStoreMethods[] = {
-        {"copy", dap_store_obj_copy_py, METH_VARARGS | METH_STATIC, ""},
-        {"free", dap_store_obj_free_py, METH_VARARGS | METH_STATIC, ""},
-        {NULL, NULL, 0, NULL}
+    {"copy", dap_store_obj_copy_py, METH_VARARGS | METH_STATIC, ""},
+    {"free", dap_store_obj_free_py, METH_VARARGS | METH_STATIC, ""},
+    {"readLast", dap_chain_global_db_driver_read_last_py, METH_VARARGS | METH_STATIC, ""},
+    {NULL, NULL, 0, NULL}
 };
 
 static PyTypeObject DapStoreObject_DapStoreType = {

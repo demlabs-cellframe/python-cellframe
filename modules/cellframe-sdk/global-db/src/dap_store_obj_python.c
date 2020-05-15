@@ -20,3 +20,19 @@ PyObject *dap_store_obj_free_py(PyObject *self, PyObject *args){
     Py_XINCREF(Py_None);
     return Py_None;
 }
+
+PyObject *dap_chain_global_db_driver_read_last_py(PyObject *self, PyObject *argv){
+    (void)self;
+    const char *group;
+    if (!PyArg_ParseTuple(argv, "s", &group))
+        return NULL;
+    PyObject *store_obj = _PyObject_New(&DapStoreObject_DapStoreType);
+    ((PyDapStoreObj*)store_obj)->store_obj = dap_chain_global_db_driver_read_last(group);
+    return Py_BuildValue("(O)", store_obj);
+}
+//PyObject *dap_chain_global_db_driver_cond_read_py(PyObject *self, PyObject *argv){
+//    (void)self;
+//    const char *group;
+//    uint64_t id;
+//    size_t *a_count_out
+//}
