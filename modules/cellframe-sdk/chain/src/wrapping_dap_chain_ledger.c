@@ -221,15 +221,16 @@ PyObject *dap_chain_ledger_tx_find_by_pkey_py(PyObject *self, PyObject *args){
     return Py_BuildValue("O", res);
 }
 PyObject *dap_chain_ledger_tx_cache_find_out_cond_py(PyObject *self, PyObject *args){
-    PyObject *obj_addr;
     PyObject *obj_first_hash;
-    if (!PyArg_ParseTuple(args, "O|O", &obj_addr, &obj_first_hash))
+    if (!PyArg_ParseTuple(args, "O", &obj_first_hash))
         return NULL;
     PyObject *res = _PyObject_New(&DapChainDatumTx_DapChainDatumTxObjectType);
+    dap_chain_tx_out_cond_t **out_conds = NULL;
+    int out_cond_idx = 0;
     ((PyDapChainDatumTxObject*)res)->datum_tx = (dap_chain_datum_tx_t*)dap_chain_ledger_tx_cache_find_out_cond(
                 ((PyDapChainLedgerObject*)self)->ledger,
-                ((PyDapChainAddrObject*)obj_addr)->addr,
-                ((PyDapHashFastObject*)obj_first_hash)->hash_fast);
+                ((PyDapHashFastObject*)obj_first_hash)->hash_fast
+                out_conds, out_cond_idx);
     return Py_BuildValue("O", res);
 }
 PyObject *dap_chain_ledger_tx_cache_get_out_cond_value_py(PyObject *self, PyObject *args){
