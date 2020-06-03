@@ -229,7 +229,8 @@ PyObject *dap_chain_ledger_tx_cache_find_out_cond_py(PyObject *self, PyObject *a
     ((PyDapChainDatumTxObject*)res)->datum_tx = (dap_chain_datum_tx_t*)dap_chain_ledger_tx_cache_find_out_cond(
                 ((PyDapChainLedgerObject*)self)->ledger,
                 ((PyDapChainAddrObject*)obj_addr)->addr,
-                ((PyDapHashFastObject*)obj_first_hash)->hash_fast);
+                ((PyDapHashFastObject*)obj_first_hash)->hash_fast,
+                NULL);
     return Py_BuildValue("O", res);
 }
 PyObject *dap_chain_ledger_tx_cache_get_out_cond_value_py(PyObject *self, PyObject *args){
