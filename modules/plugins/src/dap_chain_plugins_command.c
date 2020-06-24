@@ -18,7 +18,6 @@ void dap_chain_plugins_command_create(void){
 }
 int dap_chain_plugins_command_handler(int a_argc, char **a_argv, void *a_arg_func, char **a_str_reply){
     (void)a_arg_func;
-    log_it(L_NOTICE, "Handler cmd");
     enum {
         CMD_NONE, CMD_LIST, CMD_SHOW_NAME, CMD_RESTART, CMD_RELOAD_NAME
     };
@@ -47,7 +46,6 @@ int dap_chain_plugins_command_handler(int a_argc, char **a_argv, void *a_arg_fun
         break;
     case CMD_SHOW_NAME:
         dap_chain_node_cli_find_option_val(a_argv, l_arg_index, a_argc, "--name", &l_name_plugin);
-        log_it(L_NOTICE, "name plugin: %s", l_name_plugin);
         LL_SEARCH(dap_chain_plugins_manifests_get_list(), l_element, l_name_plugin, dap_chain_plugins_manifest_name_cmp);
         if (l_element != NULL){
             char *l_dep = dap_chain_plugins_manifests_get_list_dependencyes(l_element);
