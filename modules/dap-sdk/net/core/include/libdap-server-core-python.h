@@ -1,8 +1,8 @@
+#pragma once
 #define PY_SSIZE_T_CLEAN
 #include "Python.h"
 #include "dap_server_python.h"
 #include "dap_server.h"
-#include "dap_client_remote.h"
 #include "dap_events.h"
 #include "dap_common.h"
 #include "dap_events_python.h"
@@ -24,7 +24,6 @@ PyObject *dap_server_core_loop(PyObject *self, PyObject *args);
 PyObject *dap_server_core_listen(PyObject *self, PyObject *args);
 
 static PyMethodDef ServerCorePythonMethods[] = {
-        {"loop", dap_server_core_loop, METH_VARARGS | METH_STATIC, ""},
         {"listen", dap_server_core_listen, METH_VARARGS | METH_STATIC, ""},
         {NULL, NULL, 0, NULL}
 };

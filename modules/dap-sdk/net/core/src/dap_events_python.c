@@ -29,7 +29,7 @@ PyObject *dap_events_socket_kill_socket_py(PyDapEventsObject *self, PyObject *ar
     if (!PyArg_ParseTuple(args, "O", &in_obj)){
         return NULL;
     }
-    dap_events_socket_kill_socket(((PyDapEventsSocketObject*)in_obj)->t_events_socket);
+    dap_events_socket_queue_remove_and_delete(((PyDapEventsSocketObject*)in_obj)->t_events_socket);
     return PyLong_FromLong(0);
 }
 
