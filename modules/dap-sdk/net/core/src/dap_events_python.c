@@ -20,7 +20,7 @@ PyObject *dap_events_socket_remove_and_delete_py(PyDapEventsObject *self, PyObje
     bool preserve_inheritor = true;
     if (in_bool == Py_False)
         preserve_inheritor = false;
-    dap_events_socket_queue_remove_and_delete(((PyDapEventsSocketObject*)in_obj)->t_events_socket);
+    dap_events_socket_remove_and_delete_mt(((PyDapEventsSocketObject*)in_obj)->t_events_socket->worker,((PyDapEventsSocketObject*)in_obj)->t_events_socket);
     return PyLong_FromLong(0);
 }
 
@@ -29,7 +29,7 @@ PyObject *dap_events_socket_kill_socket_py(PyDapEventsObject *self, PyObject *ar
     if (!PyArg_ParseTuple(args, "O", &in_obj)){
         return NULL;
     }
-    dap_events_socket_queue_remove_and_delete(((PyDapEventsSocketObject*)in_obj)->t_events_socket);
+    dap_events_socket_remove_and_delete_mt(((PyDapEventsSocketObject*)in_obj)->t_events_socket->worker,((PyDapEventsSocketObject*)in_obj)->t_events_socket);
     return PyLong_FromLong(0);
 }
 

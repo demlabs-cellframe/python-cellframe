@@ -19,7 +19,7 @@ PyObject *dap_events_socket_find_py(PyDapEventsSocketObject *self, PyObject *arg
     if (!PyArg_ParseTuple(args, "i|O", &socket, &in_object)){
         return NULL;
     }
-    self->t_events_socket = dap_events_socket_find(socket, ((PyDapEventsObject*)in_object)->t_events);
+    self->t_events_socket = dap_events_socket_find_unsafe(socket, ((PyDapEventsObject*)in_object)->t_events);
     return  PyLong_FromLong(0);
 }
 PyObject *dap_events_socket_set_readable_py(PyDapEventsSocketObject *self, PyObject *args){
@@ -106,7 +106,7 @@ PyObject *dap_events_socket_delete_py(PyDapEventsSocketObject *self, PyObject *a
     bool boolean = true;
     if (in_bool == Py_False)
         boolean = false;
-    dap_events_socket_queue_remove_and_delete( self->t_events_socket);
+    dap_events_socket_remove_and_delete_mt(self->t_events_socket->worker, self->t_events_socket);
     return  PyLong_FromLong(0);
 }
 
