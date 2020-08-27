@@ -29,7 +29,6 @@ PyObject *dap_events_socket_delete_py(PyDapEventsSocketObject *self, PyObject *a
 PyObject *dap_events_socket_shrink_buf_in_py(PyDapEventsSocketObject *self, PyObject *args);
 
 static PyMethodDef PyDapEventsObjectSocket_methods[] = {
-    {"createAfter", (PyCFunction)dap_events_socket_create_after_py, METH_NOARGS, ""},
     {"find", (PyCFunction)dap_events_socket_find_py, METH_VARARGS, ""},
     {"setReadable", (PyCFunction)dap_events_socket_set_readable_py, METH_VARARGS, ""},
     {"setWritable", (PyCFunction)dap_events_socket_set_writable_py, METH_VARARGS, ""},

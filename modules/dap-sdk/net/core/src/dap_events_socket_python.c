@@ -2,14 +2,6 @@
 
 #define LOG_TAG "dap_events_socket_python"
 
-PyObject *dap_events_socket_create_after_py(PyDapEventsSocketObject *self){
-    if (self->t_events_socket == NULL){
-        return NULL;
-    }
-    dap_events_socket_create_after(self->t_events_socket);
-    return  PyLong_FromLong(0);
-}
-
 PyObject *dap_events_socket_find_py(PyDapEventsSocketObject *self, PyObject *args){
     if (self->t_events_socket != NULL){
         return NULL;
