@@ -41,7 +41,7 @@ BOOL WINAPI consoleHandler(DWORD dwType){
 void sigfunc(int sig){
     if (sig == SIGINT){
         log_it(L_NOTICE, "Handler Ctrl+C");
-        dap_server_loop_stop();
+        dap_events_stop_all();
         deinit_modules();
     }
 }

@@ -6,7 +6,7 @@ PyObject *dap_events_socket_create_after_py(PyDapEventsSocketObject *self){
     if (self->t_events_socket == NULL){
         return NULL;
     }
-    dap_events_socket_create_after(self->t_events_socket);
+    dap_worker_add_events_socket_auto(self->t_events_socket);
     return  PyLong_FromLong(0);
 }
 
@@ -19,7 +19,7 @@ PyObject *dap_events_socket_find_py(PyDapEventsSocketObject *self, PyObject *arg
     if (!PyArg_ParseTuple(args, "i|O", &socket, &in_object)){
         return NULL;
     }
-    self->t_events_socket = dap_events_socket_find(socket, ((PyDapEventsObject*)in_object)->t_events);
+    self->t_events_socket = dap_events_socket_find_unsafe(socket, ((PyDapEventsObject*)in_object)->t_events);
     return  PyLong_FromLong(0);
 }
 PyObject *dap_events_socket_set_readable_py(PyDapEventsSocketObject *self, PyObject *args){
@@ -33,7 +33,7 @@ PyObject *dap_events_socket_set_readable_py(PyDapEventsSocketObject *self, PyObj
     bool is_ready = true;
     if (l_is_ready == Py_False)
         is_ready = false;
-    dap_events_socket_set_readable(self->t_events_socket, is_ready);
+    dap_events_socket_set_readable_unsafe(self->t_events_socket, is_ready);
     return  PyLong_FromLong(0);
 }
 PyObject *dap_events_socket_set_writable_py(PyDapEventsSocketObject *self, PyObject *args){
@@ -47,7 +47,7 @@ PyObject *dap_events_socket_set_writable_py(PyDapEventsSocketObject *self, PyObj
     bool is_ready = true;
     if (l_is_ready == Py_False)
         is_ready = false;
-    dap_events_socket_set_writable(self->t_events_socket, is_ready);
+    dap_events_socket_set_writable_unsafe(self->t_events_socket, is_ready);
     return  PyLong_FromLong(0);
 }
 
@@ -61,7 +61,7 @@ PyObject *dap_events_socket_write_py(PyDapEventsSocketObject *self, PyObject *ar
         return NULL;
     }
     char *in_v_bytes = PyBytes_AsString((PyObject*)in_bytes);
-    size_t res_size = dap_events_socket_write(self->t_events_socket,
+    size_t res_size = dap_events_socket_write_unsafe(self->t_events_socket,
                                               in_v_bytes, in_size);
     return Py_BuildValue("n", res_size);
 }
@@ -78,7 +78,7 @@ PyObject *dap_events_socket_write_f_py(PyDapEventsSocketObject *self, PyObject *
     if (!PyArg_VaParse(args, format, ap)){
         return NULL;
     }
-    size_t res_size = dap_events_socket_write_f(self->t_events_socket, format, ap);
+    size_t res_size = dap_events_socket_write_f_unsafe(self->t_events_socket, format, ap);
     return Py_BuildValue("n", res_size);
 }
 PyObject *dap_events_socket_read_py(PyDapEventsSocketObject *self, PyObject *args){
@@ -90,7 +90,7 @@ PyObject *dap_events_socket_read_py(PyDapEventsSocketObject *self, PyObject *arg
         return NULL;
     }
     void *res = DAP_NEW_SIZE(void*, in_size);
-    size_t res_size = dap_events_socket_read(self->t_events_socket, res, in_size);
+    size_t res_size = dap_events_socket_pop_from_buf_in(self->t_events_socket, res, in_size);
     PyBytesObject *res_obj = (PyBytesObject*)PyBytes_FromString(res);
     return  Py_BuildValue("nS", res_size, res_obj);
 }
@@ -106,7 +106,7 @@ PyObject *dap_events_socket_delete_py(PyDapEventsSocketObject *self, PyObject *a
     bool boolean = true;
     if (in_bool == Py_False)
         boolean = false;
-    dap_events_socket_delete(self->t_events_socket, boolean);
+    dap_events_socket_remove_and_delete_mt(self->t_events_socket->worker, self->t_events_socket);
     return  PyLong_FromLong(0);
 }
 
