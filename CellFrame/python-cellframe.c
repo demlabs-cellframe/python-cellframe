@@ -244,14 +244,13 @@ PyObject *python_cellframe_init(PyObject *self, PyObject *args){
                                                  "Fields DebugDumpStreamHeaders are not boolean type.");
                 return NULL;
             }
-            bool res_bollean = (debugDumpStreamHeadersObj == Py_True) ? true : false;
-            if(dap_stream_init(res_bollean) != 0){
+            if(dap_stream_init(g_config) != 0){
                 PyErr_SetString(CellFrame_error, "Failed to initialize Stream module. ");
                 return NULL;
             }
             s_init_stream = true;
         } else if (strcmp(c_value, "StreamCtl") == 0){
-            if (dap_stream_ctl_init_py(g_config, 32) != 0){
+            if (dap_stream_ctl_init_py(32) != 0){
                 PyErr_SetString(CellFrame_error, "Failed to initialize StreamCtl module. ");
                 return NULL;
             }
