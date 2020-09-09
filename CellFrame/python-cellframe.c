@@ -251,8 +251,7 @@ PyObject *python_cellframe_init(PyObject *self, PyObject *args){
             }
             s_init_stream = true;
         } else if (strcmp(c_value, "StreamCtl") == 0){
-//            if (dap_stream_ctl_init(DAP_ENC_KEY_TYPE_OAES, 32) != 0){
-            if (dap_stream_ctl_init_py(DAP_ENC_KEY_TYPE_OAES, 32) != 0){
+            if (dap_stream_ctl_init_py(g_config, 32) != 0){
                 PyErr_SetString(CellFrame_error, "Failed to initialize StreamCtl module. ");
                 return NULL;
             }
