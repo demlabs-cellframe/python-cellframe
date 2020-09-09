@@ -9,6 +9,6 @@ PyObject *dap_stream_ctl_add_proc_py(PyObject *self, PyObject *args){
     return PyLong_FromLong(0);
 }
 
-int dap_stream_ctl_init_py(dap_config_t * a_config, uint32_t size){
-    return dap_stream_ctl_init(a_config, size);
+int dap_stream_ctl_init_py(uint32_t size){
+    return dap_stream_ctl_init(size);
 }
