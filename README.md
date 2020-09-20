@@ -24,20 +24,7 @@ python3.7 test/main_test.py
 ## How to package 
 First install packages 
 ```
-sudo apt-get install devscripts dpkg-dev build-essential
-sudo apt-get install libev-dev
-sudo apt-get install libmagic-dev
-sudo apt-get install libjson-c-dev
-sudo apt-get install libjsoncpp-dev
-sudo apt-get install libsqlite3-dev
-sudo apt-get install libtalloc-dev
-sudo apt-get install traceroute
-sudo apt-get install libverto-dev
-sudo apt-get install lldb-7
-sudo apt-get install libmemcached-dev
-sudo apt-get install libldb-dev
-sudo apt-get install libtevent-dev
-sudo apt-get install libpython3-dev
+apt-get install devscripts dpkg-dev build-essential libmagic-dev libjson-c-dev libjsoncpp-dev  libsqlite3-dev traceroute libverto-dev libpython3-dev cmake
 
 ```
 
