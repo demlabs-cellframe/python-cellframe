@@ -57,6 +57,8 @@ PyObject *python_cellframe_init(PyObject *self, PyObject *args){
     s_init_ks = true;
     submodules_deint = false;
 
+    PyObject *events = NULL;
+
     #ifdef _WIN32
         setConsoleCtrlHandler((PHANDLER_ROUTINE)consoleHandler, TRUE);
     #else
@@ -178,6 +180,11 @@ PyObject *python_cellframe_init(PyObject *self, PyObject *args){
                 return NULL;
             }
             dap_cert_init();
+        }else if (strcmp(c_value, "Server") == 0){
+            if(dap_server_init() != 0 ){
+                PyErr_SetString(CellFrame_error, "Failed to initialize Server.");
+                return NULL;
+            }
         }else if (strcmp(c_value, "ServerCore") == 0){
             PyObject* getServerCoreData = PyDict_GetItemString(result, "ServerCore");
             if (getServerCoreData == NULL){
@@ -219,6 +226,11 @@ PyObject *python_cellframe_init(PyObject *self, PyObject *args){
                 return NULL;
             }
             s_init_http = true;
+        } else if (strcmp(c_value, "HttpSimple") == 0){
+            if (dap_http_simple_module_init() != 0){
+                PyErr_SetString(CellFrame_error, "Failed to initialize HttpSimple module. ");
+                return NULL;
+            }
         } else if (strcmp(c_value, "EncHttp") == 0){
             if(enc_http_init() != 0){
                 PyErr_SetString(CellFrame_error, "Failed to initialize EncHttp module. ");
@@ -231,6 +243,11 @@ PyObject *python_cellframe_init(PyObject *self, PyObject *args){
                 return NULL;
             }
             s_init_http_folder = true;
+        } else if (strcmp(c_value, "Events") == 0){
+            dap_events_init(0,0);
+            events = _PyObject_New(&dapEvents_dapEventsType);
+            ((PyDapEventsObject*)events)->t_events = dap_events_new();
+            dap_events_start(((PyDapEventsObject*)events)->t_events);
         } else if (strcmp(c_value, "Stream") == 0){
             PyObject* getStreamData = PyDict_GetItemString(result, "Stream");
             if (getStreamData == NULL){
@@ -295,12 +312,7 @@ PyObject *python_cellframe_init(PyObject *self, PyObject *args){
                 PyErr_SetString(CellFrame_error, "Failed to initialize ChainNetSrv module. ");
                 return NULL;
             }
-        }else if (strcmp(c_value, "HttpSimple") == 0){
-            if (dap_http_simple_module_init() != 0){
-                PyErr_SetString(CellFrame_error, "Failed to initialize HttpSimple module. ");
-                return NULL;
-            }
-        } else if (strcmp(c_value, "StreamChChain") == 0){
+        }else if (strcmp(c_value, "StreamChChain") == 0){
             if (dap_stream_ch_chain_init() != 0 ){
                 PyErr_SetString(CellFrame_error, "Failed to initialize StreamChChain module. ");
                 return NULL;
@@ -347,7 +359,10 @@ PyObject *python_cellframe_init(PyObject *self, PyObject *args){
             log_it(L_WARNING,"Unknown module \"%s\"", c_value);
         }
     }
-    return PyLong_FromLong(0);
+    if (events == NULL)
+        return PyLong_FromLong(0);
+    else
+        return Py_BuildValue("iO", PyLong_FromLong(0), events);
 }
 
 PyMODINIT_FUNC PyInit_libCellFrame(void){
