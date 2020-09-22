@@ -8,7 +8,7 @@ tmp_dir = os.getcwd() + "/tmp"
 var_dir = os.getcwd() + "/var"
 
 json_string = """{
-    "modules": ["Crypto", "ServerCore", "Http", "HttpFolder", "GlobalDB", "Client", "HttpClientSimple", "Mempool",
+    "modules": ["Crypto", "Events", "Server", "Http", "HttpFolder", "GlobalDB", "Client", "HttpClientSimple", "Mempool",
      "Chain", "Wallet", "ChainCSDag", "ChainCSDagPoa", "ChainCSDagPos", "GDB", "Net", "AppCliServer", "ChainNetSrv", "EncHttp",
      "Stream", "StreamCtl", "HttpSimple", "StreamChChain", "StreamChChainNet", "StreamChChainNetSrv"],
      "DAP": {
@@ -18,11 +18,8 @@ json_string = """{
        "file_name_log": \""""+var_dir+"/log/"+app_name+".log"+"""\"
      },
      "Stream" : {
+	"prefferd_encryption": "IAES",
         "DebugDumpStreamHeaders": false
-     },
-     "ServerCore" : {
-        "thread_cnt": 0,
-        "conn": 0
      },
     "Configuration" : {
         "general": {
@@ -77,21 +74,22 @@ json_string = """{
     }
     }"""
 
-init(json_string)
+rsi = init(json_string)
+ev = rsi[1]
 setLogLevel(DEBUG)
 
 server_host_name = configGetItem("server", "listen_address")
 server_port = int(configGetItem("server", "listen_port_tcp"))
-sr = ServerCore.listen(server_host_name, server_port, 0)
+sr = ServerCore.listen(ev, server_host_name, server_port, 0)
 Http.new(sr, app_name)
 EncHttp.addProc(sr, "/enc_http")
 Stream.addProcHttp(sr, "/stream")
 StreamCtl.addProcHttp(sr, "/stream_ctl")
 
-ev = Events()
-ev.start()
+#ev = Events()
+#ev.start()
 
 logItNotice(app_name+" v0.1 runned on port "+str(server_port))
-rc = ServerCore.loop(sr)
+rc = ev.wait()
 
 deinit()
