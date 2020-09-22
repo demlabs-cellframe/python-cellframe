@@ -180,7 +180,12 @@ PyObject *python_cellframe_init(PyObject *self, PyObject *args){
                 return NULL;
             }
             dap_cert_init();
-        }else if (strcmp(c_value, "Server") == 0){
+        } else if (strcmp(c_value, "Events") == 0){
+            dap_events_init(0,0);
+            events = _PyObject_New(&dapEvents_dapEventsType);
+            ((PyDapEventsObject*)events)->t_events = dap_events_new();
+            dap_events_start(((PyDapEventsObject*)events)->t_events);
+        } else if (strcmp(c_value, "Server") == 0){
             if(dap_server_init() != 0 ){
                 PyErr_SetString(CellFrame_error, "Failed to initialize Server.");
                 return NULL;
@@ -243,11 +248,6 @@ PyObject *python_cellframe_init(PyObject *self, PyObject *args){
                 return NULL;
             }
             s_init_http_folder = true;
-        } else if (strcmp(c_value, "Events") == 0){
-            dap_events_init(0,0);
-            events = _PyObject_New(&dapEvents_dapEventsType);
-            ((PyDapEventsObject*)events)->t_events = dap_events_new();
-            dap_events_start(((PyDapEventsObject*)events)->t_events);
         } else if (strcmp(c_value, "Stream") == 0){
             PyObject* getStreamData = PyDict_GetItemString(result, "Stream");
             if (getStreamData == NULL){
