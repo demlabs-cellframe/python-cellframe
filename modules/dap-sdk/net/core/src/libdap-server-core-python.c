@@ -27,6 +27,6 @@ PyObject *dap_server_core_listen(PyObject *self, PyObject *args){
     if (type > 1)
         return  NULL;
     PyObject *obj = _PyObject_New(&dapServer_dapServerType);
-    ((PyDapServerObject*)obj)->t_server = dap_server_new(((PyDapEventsObject*)events)->t_events, addr, port, type);
+    ((PyDapServerObject*)obj)->t_server = dap_server_new(((PyDapEventsObject*)events)->t_events, addr, port, type, NULL);
     return Py_BuildValue("O", obj);
 }
