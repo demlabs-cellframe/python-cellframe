@@ -2,10 +2,11 @@
 
 PyObject *DapChainLedgerObject_create(PyTypeObject *type_object, PyObject *args, PyObject *kwds){
     uint16_t check_flag;
-    if (!PyArg_ParseTuple(args, "H", &check_flag))
+    char *net_name;
+    if (!PyArg_ParseTuple(args, "H|s", &check_flag, &net_name))
         return NULL;
     PyDapChainLedgerObject *obj = (PyDapChainLedgerObject *)PyType_GenericNew(type_object, args, kwds);
-    obj->ledger = dap_chain_ledger_create(check_flag);
+    obj->ledger = dap_chain_ledger_create(check_flag, net_name);
     return (PyObject *)obj;
 }
 void DapChainLedgerObject_free(PyDapChainLedgerObject* object){
