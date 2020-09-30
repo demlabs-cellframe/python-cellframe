@@ -13,10 +13,10 @@ def getJsonString(app_name, log_level="DEBUG"):
     ret_tpl = Template("""
     {
         "modules": [
-            "Crypto", "ServerCore", "Http",
-            "HttpFolder","GlobalDB","Client","HttpClientSimple","Mempool",
+            "Crypto", "Events", "Server", "Http",
+            "HttpFolder","GlobalDB","Client","HttpClientSimple", "EncHttp", "Mempool", "Stream", "StreamCtl",
             "Chain", "Wallet", "ChainCSDag", "ChainCSDagPoa", "ChainCSDagPos", "GDB", "Net", "AppCliServer",
-            "ChainNetSrv", "EncHttp","Stream", "StreamCtl", "HttpSimple", "StreamChChain", "StreamChChainNet",
+            "ChainNetSrv","HttpSimple", "StreamChChain", "StreamChChainNet",
             "StreamChChainNetSrv" ],
         "Core": {
             "config_dir": "${tmp_dir}",
@@ -61,10 +61,10 @@ def getJsonString(app_name, log_level="DEBUG"):
                     "name_cfg_files": ["main"],
                     "conf_files":{
                         "main": {
-                            "general": {
-                                "id": "0xF00000000000000F",
+                            "chain":{
+                                "id": "0x0A0000000000000F",
                                 "name": "main",
-                                "consensus": "dag-poa",
+                                "consensus": "dag_poa",
                                 "datum_types": ["ca", "transaction","token","token_update","emission","shard"]
                             },
                             "dag":{
