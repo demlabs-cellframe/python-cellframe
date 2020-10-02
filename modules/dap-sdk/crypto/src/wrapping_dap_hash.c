@@ -16,7 +16,7 @@ PyObject *dap_chain_str_to_hash_fast_py(PyObject *self, PyObject *args){
     PyObject *obj_hash_fast;
     if (!PyArg_ParseTuple(args, "s|O", &hash_str, &obj_hash_fast))
         return NULL;
-    int res = dap_chain_str_to_hash_fast(hash_str, ((PyDapHashFastObject*)obj_hash_fast)->hash_fast);
+    int res = dap_chain_hash_fast_from_str(hash_str, ((PyDapHashFastObject*)obj_hash_fast)->hash_fast);
     return Py_BuildValue("nO", res, obj_hash_fast);
 }
 
