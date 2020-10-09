@@ -55,19 +55,21 @@ PyObject* dap_cert_generate_py(PyObject *self, PyObject *args)
     if (l_arg_seed_string != 0)
         l_seed = l_arg_seed_string;
 
-    PyCryptoCertObject *obj_cert = (PyCryptoCertObject*)_PyObject_New(&g_crypto_cert_type_py);
+    PyCryptoCertObject *obj_cert = PyObject_New(PyCryptoCertObject, &g_crypto_cert_type_py);
+//    PyCryptoCertObject *obj_cert = (PyCryptoCertObject*)_PyObject_New(&g_crypto_cert_type_py);
     obj_cert->cert = l_seed ? dap_cert_generate_mem_with_seed( l_cert_name, l_arg_cert_key_type, l_seed, strlen(l_seed) )
               :dap_cert_generate_mem( l_cert_name,l_arg_cert_key_type );
-    return  Py_BuildValue("O", (PyObject*)obj_cert);
+    if (obj_cert->cert == NULL)
+        return  Py_BuildValue("O", Py_None);
+    else
+        return  Py_BuildValue("O", (PyObject*)obj_cert);
 }
 
 PyObject* dap_cert_dump_py(PyObject *self, PyObject *args)
 {
-    (void) self;
     (void) args;
-    /// TODO: Implement it!
-    PyErr_SetString(PyExc_TypeError, "Unimplemented function");
-    return NULL;
+    dap_cert_dump(((PyCryptoCertObject*)self)->cert);
+    return Py_BuildValue("(O)", Py_None);
 }
 
 PyObject* dap_cert_pkey_py(PyObject *self, PyObject *args)
@@ -161,20 +163,21 @@ void dap_cert_delete_py(PyObject *self)
 PyObject* dap_cert_folder_add_py(PyObject *self, PyObject *args)
 {
     (void) self;
-    (void) args;
-    /// TODO: Implement it!
-    PyErr_SetString(PyExc_TypeError, "Unimplemented function");
-    return NULL;
+    const char *a_folder_path;
+    if(!PyArg_ParseTuple(args, "s", &a_folder_path))
+        return NULL;
+    dap_cert_add_folder(a_folder_path);
+    return Py_BuildValue("(O)", Py_None);
 }
 
 PyObject* dap_cert_folder_get_py(PyObject *self, PyObject *args)
 {
     (void)self;
-    const char *a_folder_path;
-    if(!PyArg_ParseTuple(args, "s", &a_folder_path))
+    int n_folder;
+    if(!PyArg_ParseTuple(args, "i", &n_folder))
         return NULL;
-    dap_cert_add_folder(a_folder_path);
-    return PyLong_FromLong(0);
+    const char *l_ret = dap_cert_get_folder(n_folder);
+    return Py_BuildValue("(S)", l_ret);
 }
 
 int dap_cert_init_py(void)
