@@ -32,6 +32,9 @@ def getJsonString(app_name, log_level="DEBUG"):
             "conn": 0
         },
         "Configuration" : {
+            "general": {
+                "seed_mode": true
+            }, 
             "server": {
                 "enabled": true,
                 "listen_address": "0.0.0.0",
@@ -58,6 +61,9 @@ def getJsonString(app_name, log_level="DEBUG"):
                         "node-role": "root",
                         "gdb_groups_prefix": "${net_name}"
                     },
+                    "dag-poa":{
+                        "events-sign-cert": "${net_name}.root.0"
+                    },
                     "name_cfg_files": ["main"],
                     "conf_files":{
                         "main": {
@@ -71,7 +77,9 @@ def getJsonString(app_name, log_level="DEBUG"):
                                 "is_single_line": false,
                                 "is_celled": true,
                                 "is_add_directly": true,
-                                "datum_and_hash_count": 3
+                                "datum_and_hash_count": 1,
+                                "#is_static_genesis_event": true,
+                                "#static_genesis_event": "0x642DEBE847A73FA0505C6648C1086675B6B4ADDDC4A8D333DCCD4169228E1E97"
                             },
                             "dag-poa":{
                                 "auth_certs_prefix": "${net_name}.root",
@@ -80,7 +88,7 @@ def getJsonString(app_name, log_level="DEBUG"):
                                 "auth_certs_dir": "${var_dir}/lib/ca"
                             },
                             "files":{
-                                "storage_dir":"{$var_dir}/lib/network/${net_name}/main"
+                                "storage_dir":"${var_dir}/lib/network/${net_name}/main/"
                             }
                         }
                     }
