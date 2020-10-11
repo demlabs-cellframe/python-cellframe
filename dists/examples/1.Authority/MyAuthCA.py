@@ -3,6 +3,7 @@ from CellFrame import init, Cert, CryptoKeyType
 # from string import Template
 # import os
 import sys
+import os
 import json
 import MyAuthConf
 import random
@@ -96,13 +97,15 @@ elif action == "init_root_ca":
         print("(!) Wrong algo name \""+rootCaAlgoName+"\", possible names: sig_bliss, sig_tesla, sig_picnic, sig_dil")
         help()
         exit(-1)
-
     # Create certs
     print("Init root "+str(rootCaNumber)+" certificates with algo "
           + rootCaAlgoName)
     print("Record somewhere the restore string(without braces): \""
           + restoreString+"\"")
     for cur in range(int(rootCaNumber)):
-        cname = MyAuthConf.getNetworkName(appName, "_") + "_root_" + str(cur)
-        cert = Cert.generate(cname, rootCaAlgo, restoreString)
-        cert.save()
+        cname = MyAuthConf.getNetworkName(appName, "-") + ".root." + str(cur)
+        Cert.folderAdd (os.getcwd()+"/var/lib/ca/")
+        certobject = Cert.generate(cname, rootCaAlgo, restoreString)
+        dir(certobject)
+        certobject.save()
+        print("Save certificate")
