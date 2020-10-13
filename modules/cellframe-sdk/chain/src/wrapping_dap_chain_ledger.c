@@ -35,7 +35,7 @@ PyObject *dap_chain_ledger_tx_add_py(PyObject *self, PyObject *args){
     PyObject *obj_datum_tx;
     if (!PyArg_ParseTuple(args, "O", &obj_datum_tx))
         return NULL;
-    int res = dap_chain_ledger_tx_add(((PyDapChainLedgerObject*)self)->ledger, ((PyDapChainDatumTxObject*)obj_datum_tx)->datum_tx);
+    int res = dap_chain_ledger_tx_add(((PyDapChainLedgerObject*)self)->ledger, ((PyDapChainDatumTxObject*)obj_datum_tx)->datum_tx, 0);
     return PyLong_FromLong(res);
 }
 PyObject *dap_chain_ledger_token_add_py(PyObject *self, PyObject *args)
