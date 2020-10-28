@@ -1,3 +1,8 @@
+#include "dap_chain_node_cli.h"
+#include "dap_chain_node_cli_cmd.h"
+#include "dap_chain_plugins_manifest.h"
+#include "dap_chain_plugins.h"
+#include "utlist.h"
 #include "dap_chain_plugins_command.h"
 
 static bool s_l_restart_plugins = false;

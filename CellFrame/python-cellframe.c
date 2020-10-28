@@ -120,7 +120,7 @@ PyObject *python_cellframe_init(PyObject *self, PyObject *args){
     config_dir = PyUnicode_AsUTF8(config_dir_PyObject);
     log_level = PyUnicode_AsUTF8(logLevel_PyObject);
 
-    if (dap_common_init(app_name, file_name_log) != 0){
+    if (dap_common_init(app_name, file_name_log,NULL ) != 0){
         PyErr_SetString(CellFrame_error, "Can't init common functions module");
         return NULL;
     }

@@ -24,10 +24,6 @@ This file is part of DAP (Deus Applications Prototypes) the open source project
 #pragma once
 
 #define _DAP_CHAIN_PLUGINS_COMMAND_
-#include "dap_chain_node_cli.h"
-#include "dap_chain_node_cli_cmd.h"
-#include "dap_chain_plugins_manifest.h"
-#include "dap_chain_plugins.h"
 
 #ifdef __cplusplus
 extern "C" {

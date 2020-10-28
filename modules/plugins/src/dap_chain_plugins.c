@@ -1,7 +1,18 @@
+#include "dap_config.h"
+#include "dap_common.h"
+#include "dap_file_utils.h"
+#include "dap_chain_plugins_manifest.h"
+#include "dap_chain_plugins_list.h"
+#include "python-cellframe.h"
+#include "dap_chain_plugins_command.h"
+
 #include "dap_chain_plugins.h"
 
-#undef LOG_TAG
 #define LOG_TAG "dap_chain_plugins"
+
+PyObject *s_sys_path = NULL;
+const char *s_plugins_root_path = NULL;
+
 
 int dap_chain_plugins_init(dap_config_t *a_config){
     if(dap_config_get_item_bool_default(a_config, "plugins", "py_load", false)){

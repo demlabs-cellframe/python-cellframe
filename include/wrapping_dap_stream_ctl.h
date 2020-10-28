@@ -1,5 +1,4 @@
-#ifndef _WRAPPING_DAP_STREAM_CTL_
-#define _WRAPPING_DAP_STREAM_CTL_
+#pragma once
 
 #include <Python.h>
 #include "dap_config.h"
@@ -12,8 +11,6 @@
 typedef struct PyDapStreamCtl{
     PyObject_HEAD
 }PyDapStreamCtlObject;
-
-dap_enc_key_type_t dap_enc_key_type;
 
 PyObject *dap_stream_ctl_add_proc_py(PyObject *self, PyObject *args);
 int dap_stream_ctl_init_py(uint32_t size);
@@ -65,4 +62,3 @@ static PyTypeObject DapStreamCtl_DapStreamCtlType = {
     PyType_GenericNew,                                 /* tp_new */
 };
 
-#endif // _WRAPPING_DAP_STREAM_CTL_

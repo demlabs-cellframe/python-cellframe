@@ -22,14 +22,7 @@ This file is part of DAP (Deus Applications Prototypes) the open source project
    along with any DAP based project.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef _DAP_CHAIN_PLUGINS_MANIFEST_
-#define _DAP_CHAIN_PLUGINS_MANIFEST_
-#include "dap_common.h"
-#include "dap_strfuncs.h"
-#include "stdio.h"
-#include "json-c/json_object.h"
-#include "json-c/json_tokener.h"
-#include "utlist.h"
+#pragma once
 
 #ifdef __cplusplus
 extern "C"{
@@ -52,7 +45,7 @@ typedef struct dap_list_manifest{
     struct dap_list_manifest *next;
 }dap_chain_plugins_list_manifest_t;
 
-dap_chain_plugins_list_manifest_t* s_manifests;
+extern dap_chain_plugins_list_manifest_t* s_manifests;
 
 int dap_chain_plugins_manifest_name_cmp(dap_chain_plugins_list_manifest_t *a_man, const char *a_name);
 
@@ -77,5 +70,4 @@ void dap_chain_plugins_manifest_list_delete_all(void);
 
 #ifdef __cplusplus
 }
-#endif
 #endif

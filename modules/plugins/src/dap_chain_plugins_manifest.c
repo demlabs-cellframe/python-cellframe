@@ -1,7 +1,14 @@
+#include "dap_common.h"
+#include "dap_strfuncs.h"
+#include "json-c/json_object.h"
+#include "json-c/json_tokener.h"
+#include "utlist.h"
+
 #include "dap_chain_plugins_manifest.h"
 
-#undef LOG_TAG
 #define LOG_TAG "dap_chain_plugins_manifest"
+
+dap_chain_plugins_list_manifest_t* s_manifests = NULL;
 
 void dap_chain_plugins_list_char_delete_all(dap_chain_plugins_list_char_t *a_list){
     dap_chain_plugins_list_char_t *l_element;
@@ -36,7 +43,7 @@ dap_chain_plugins_list_manifest_t *dap_chain_plugins_manifest_new(const char *a_
 static dap_chain_plugins_list_char_t* JSON_array_to_dap_list_char(json_object *a_j_obj){
     dap_chain_plugins_list_char_t *l_list = NULL;
     dap_chain_plugins_list_char_t *l_element = NULL;
-    for (int i = 0; i < json_object_array_length(a_j_obj); i++){
+    for (size_t i = 0; i < json_object_array_length(a_j_obj); i++){
         l_element = (dap_chain_plugins_list_char_t*)DAP_NEW(dap_chain_plugins_list_char_t);
         l_element->value = dap_strdup(json_object_get_string(json_object_array_get_idx(a_j_obj, i)));
         LL_APPEND(l_list, l_element);

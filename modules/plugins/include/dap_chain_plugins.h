@@ -22,24 +22,15 @@ This file is part of DAP (Deus Applications Prototypes) the open source project
    along with any DAP based project.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef _DAP_CHAIN_PLUGINS_
-#define _DAP_CHAIN_PLUGINS_
+#pragma once
 #include <Python.h>
-#include "dap_config.h"
-#include "dap_common.h"
-#include "dap_file_utils.h"
-#include "dap_chain_plugins_manifest.h"
-#include "dap_chain_plugins_list.h"
-#include "python-cellframe.h"
-#include "dap_chain_plugins_command.h"
 
 #ifdef __cplusplus
 extern "C"{
 #endif
 
-static PyObject *s_sys_path;
-
-const char *s_plugins_root_path;
+extern PyObject *s_sys_path;
+extern const char *s_plugins_root_path;
 
 int dap_chain_plugins_init();
 void dap_chain_plugins_deinit();
@@ -50,5 +41,3 @@ int dap_chain_plugins_reload_plugin(const char * a_name_plugin);
 #ifdef __cplusplus
 }
 #endif
-
-#endif //_DAP_CHAIN_PLUGINS_

@@ -1,5 +1,8 @@
 #include "wrapping_dap_stream_ctl.h"
 
+#define LOG_TAG "wrapping_dap_stream_ctl"
+
+
 PyObject *dap_stream_ctl_add_proc_py(PyObject *self, PyObject *args){
     PyObject *obj_server;
     const char *STREAM_CTL_URL;
