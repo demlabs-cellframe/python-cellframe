@@ -414,13 +414,20 @@ PyMODINIT_FUNC PyInit_libCellFrame(void){
             PyType_Ready(&DapChainGDBObject_DapChainGDBType) < 0 ||
 
             PyType_Ready(&DapHTTP_DapHTTPType) < 0 ||
-            PyType_Ready(&DapEncHTTP_DapEncHTTPType) < 0 ||
+            PyType_Ready(&DapEncServer_DapEncServerType) < 0 ||
             PyType_Ready(&DapStream_DapStreamType) < 0 ||
             PyType_Ready(&DapStreamCtl_DapStreamCtlType) < 0 ||
             PyType_Ready(&DapMempool_DapMempoolType) < 0 ||
             // ====
             PyType_Ready(&DapAppCli_dapAppCliType ) < 0 ||
-            PyType_Ready(&DapChainWallet_dapChainWalletType) < 0
+            PyType_Ready(&DapChainWallet_dapChainWalletType) < 0 ||
+            PyType_Ready(&HTTPCode_HTTPCodeType) < 0 ||
+            #ifdef DAP_SUPPORT_PYTHON_PLUGINS
+                PyType_Ready(&DapHTTPSimple_DapHTTPSimpleType) < 0 ||
+                PyType_Ready(&dapAppContext_dapAppContextType) < 0
+            #else
+                PyType_Ready(&DapHTTPSimple_DapHTTPSimpleType) < 0
+            #endif
             ){
         log_it(L_CRITICAL,"Not all py modules are ready for init");
         return NULL;
@@ -494,7 +501,9 @@ PyMODINIT_FUNC PyInit_libCellFrame(void){
     PyModule_AddObject(module, "ChainWallet", (PyObject*)&DapChainWallet_dapChainWalletType);
 
     PyModule_AddObject(module, "Http", (PyObject*)&DapHTTP_DapHTTPType);
-    PyModule_AddObject(module, "EncHttp", (PyObject*)&DapEncHTTP_DapEncHTTPType);
+    PyModule_AddObject(module, "HttpSimple", (PyObject*)&DapHTTPSimple_DapHTTPSimpleType);
+    PyModule_AddObject(module, "HttpCode", (PyObject*)&HTTPCode_HTTPCodeType);
+    PyModule_AddObject(module, "EncHttp", (PyObject*)&DapEncServer_DapEncServerType);
     PyModule_AddObject(module, "Stream", (PyObject*)&DapStream_DapStreamType);
     PyModule_AddObject(module, "StreamCtl", (PyObject*)&DapStreamCtl_DapStreamCtlType);
     PyModule_AddObject(module, "Mempool", (PyObject*)&DapMempool_DapMempoolType);
@@ -502,6 +511,9 @@ PyMODINIT_FUNC PyInit_libCellFrame(void){
     // ==============
     PyModule_AddObject(module, "AppCli", (PyObject*)&DapAppCli_dapAppCliType);
     PyModule_AddObject(module, "AppCliServer", (PyObject*)&DapChainNodeCliObject_DapChainNodeCliObjectType);
+    #ifdef DAP_SUPPORT_PYTHON_PLUGINS
+        PyModule_AddObject(module, "AppContext", (PyObject*)&dapAppContext_dapAppContextType);
+    #endif
 
     return module;
 }
