@@ -4,6 +4,7 @@
 #include "http_status_code.h"
 #include "Python.h"
 
+#undef LOG_TAG
 #define LOG_TAG "wrapping_http_status_code"
 
 #ifdef __cplusplus
