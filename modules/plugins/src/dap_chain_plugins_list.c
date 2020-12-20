@@ -30,14 +30,19 @@ bool dap_chain_plugins_list_check_load_plugins(dap_chain_plugins_list_char_t *a_
 
     int lenght;
     LL_COUNT(s_dap_chain_plugins_module_list, l_element_from_list_module, lenght);
-    if (lenght == 0)
+    if (lenght == 0){
+        DAP_FREE(l_element_lnk);
         return false;
+    }
     LL_FOREACH(a_list, l_value_from_list){
         l_element_lnk->name = l_value_from_list->value;
         LL_SEARCH(s_dap_chain_plugins_module_list, l_element_from_list_module, l_element_lnk, dap_chain_plugins_list_cmp);
-        if (!l_element_from_list_module)
+        if (!l_element_from_list_module){
+            DAP_FREE(l_element_lnk);
             return false;
+        }
     }
+    DAP_FREE(l_element_lnk);
     return true;
 }
 

@@ -8,6 +8,7 @@
 
 #include "dap_chain_plugins.h"
 
+#undef LOG_TAG
 #define LOG_TAG "dap_chain_plugins"
 
 PyObject *s_sys_path = NULL;
@@ -27,6 +28,7 @@ int dap_chain_plugins_init(dap_config_t *a_config){
         }
         PyImport_AppendInittab("API_CellFrame", PyInit_libCellFrame);
         Py_Initialize();
+        PyEval_InitThreads();
         PyObject *l_sys_module = PyImport_ImportModule("sys");
         s_sys_path = PyObject_GetAttrString(l_sys_module, "path");
         //Get list files
@@ -47,6 +49,7 @@ int dap_chain_plugins_init(dap_config_t *a_config){
         }
         dap_chain_plugins_loading();
         dap_chain_plugins_command_create();
+        PyThreadState *l_thread_state = PyEval_SaveThread();
     }else{
         log_it(L_NOTICE, "Permission to initialize python plugins has not been obtained.");
         return -2;

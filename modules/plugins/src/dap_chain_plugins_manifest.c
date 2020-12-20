@@ -43,7 +43,7 @@ dap_chain_plugins_list_manifest_t *dap_chain_plugins_manifest_new(const char *a_
 static dap_chain_plugins_list_char_t* JSON_array_to_dap_list_char(json_object *a_j_obj){
     dap_chain_plugins_list_char_t *l_list = NULL;
     dap_chain_plugins_list_char_t *l_element = NULL;
-    for (size_t i = 0; i < json_object_array_length(a_j_obj); i++){
+    for (size_t i = 0; i < (size_t)json_object_array_length(a_j_obj); i++){
         l_element = (dap_chain_plugins_list_char_t*)DAP_NEW(dap_chain_plugins_list_char_t);
         l_element->value = dap_strdup(json_object_get_string(json_object_array_get_idx(a_j_obj, i)));
         LL_APPEND(l_list, l_element);
@@ -75,20 +75,35 @@ dap_chain_plugins_list_manifest_t* dap_chain_plugins_add_manifest_from_file(cons
     fclose(file);
     //Parse JSON
     json_object *j_obj = json_tokener_parse(json);
-    json_object *j_name = json_object_object_get(j_obj, "name");
-    json_object *j_version = json_object_object_get(j_obj, "version");
-    json_object *j_dependencys = json_object_object_get(j_obj, "dependencys");
-    json_object *j_author = json_object_object_get(j_obj, "author");
-    json_object *j_description = json_object_object_get(j_obj, "description");
+    json_object *j_name;
+    json_object *j_version;
+    json_object *j_dependencys;
+    json_object *j_author;
+    json_object *j_description;
+    if (!json_object_object_get_ex(j_obj, "name", &j_name))
+        return NULL;
+    if (!json_object_object_get_ex(j_obj, "version", &j_version))
+        return NULL;
+    if (!json_object_object_get_ex(j_obj, "dependencys", &j_dependencys))
+        return NULL;
+    if (!json_object_object_get_ex(j_obj, "author", &j_author))
+        return NULL;
+    if (!json_object_object_get_ex(j_obj, "description", &j_description))
+        return NULL;
     const char *name, *version, *author, *description;
     name = json_object_get_string(j_name);
     version = json_object_get_string(j_version);
     author = json_object_get_string(j_author);
     description = json_object_get_string(j_description);
     dap_chain_plugins_list_char_t *dep = JSON_array_to_dap_list_char(j_dependencys);
-    DAP_FREE(json);
-    dap_chain_plugins_list_char_t *tmp = NULL;
     dap_chain_plugins_list_manifest_t *manifest = dap_chain_plugins_manifest_new(name, version, dep, author, description);
+    json_object_put(j_dependencys);
+    json_object_put(j_description);
+    json_object_put(j_author);
+    json_object_put(j_version);
+    json_object_put(j_name);
+    json_object_put(j_obj);
+    DAP_FREE(json);
     return manifest;
 }
 
