@@ -167,6 +167,8 @@ static PyTypeObject HTTPCode_HTTPCodeType = {
     PyType_GenericNew,                                 /* tp_new */
 };
 
+#undef LOG_TAG
+
 #ifdef __cplusplus
 }
 #endif
