@@ -36,7 +36,7 @@ dap_chain_plugins_list_manifest_t *dap_chain_plugins_manifest_new(const char *a_
     LL_FOREACH((dap_chain_plugins_list_char_t*)a_dep, l_char_t){
         LL_APPEND(l_man->dependencys, l_char_t);
     }
-    l_man->dependencys = (dap_chain_plugins_list_char_t*)a_dep;
+//    l_man->dependencys = (dap_chain_plugins_list_char_t*)a_dep;
     return l_man;
 }
 
@@ -69,12 +69,21 @@ dap_chain_plugins_list_manifest_t* dap_chain_plugins_add_manifest_from_file(cons
     }
     fseek(file, 0, SEEK_END);
     size_t size_file = (size_t)ftell(file);
-    char *json = DAP_NEW_SIZE(char, size_file);
+    char *json = DAP_NEW_SIZE(char, size_file + 1);
     rewind(file);
     fread(json, sizeof(char), size_file, file);
     fclose(file);
+    json[size_file] = '\0';
     //Parse JSON
-    json_object *j_obj = json_tokener_parse(json);
+    size_t l_json_str_size = strlen(json);
+    json_tokener *j_tokener = json_tokener_new();
+    json_object *j_obj = NULL;
+    j_obj = json_tokener_parse_ex(j_tokener, json, l_json_str_size);
+    if (json_tokener_get_error(j_tokener) != json_tokener_success){
+        log_it(L_ERROR, "Can't parse file manifest: %s", json_tokener_error_desc(json_tokener_get_error(j_tokener)));
+        return NULL;
+    }
+//    json_object *j_obj = json_tokener_parse(json);
     json_object *j_name;
     json_object *j_version;
     json_object *j_dependencys;
@@ -97,12 +106,15 @@ dap_chain_plugins_list_manifest_t* dap_chain_plugins_add_manifest_from_file(cons
     description = json_object_get_string(j_description);
     dap_chain_plugins_list_char_t *dep = JSON_array_to_dap_list_char(j_dependencys);
     dap_chain_plugins_list_manifest_t *manifest = dap_chain_plugins_manifest_new(name, version, dep, author, description);
-    json_object_put(j_dependencys);
-    json_object_put(j_description);
-    json_object_put(j_author);
-    json_object_put(j_version);
-    json_object_put(j_name);
+//    json_object_put(j_dependencys);
+//    json_object_put(j_description);
+//    json_object_put(j_author);
+//    json_object_put(j_version);
+//    json_object_put(j_name);
     json_object_put(j_obj);
+    json_tokener_free(j_tokener);
+    dap_chain_plugins_list_char_delete_all(dep);
+    DAP_FREE(dep);
     DAP_FREE(json);
     return manifest;
 }
@@ -158,6 +170,7 @@ bool dap_chain_plugins_manifest_list_delete_name(const char *a_name){
     DAP_FREE(l_element->author);
     DAP_FREE(l_element->description);
     dap_chain_plugins_list_char_delete_all(l_element->dependencys);
+    DAP_FREE(l_element->dependencys);
     LL_DELETE(s_manifests, l_element);
     return true;
 }
@@ -170,6 +183,7 @@ void dap_chain_plugins_manifest_list_delete_all(void){
         DAP_FREE(l_element->author);
         DAP_FREE(l_element->description);
         dap_chain_plugins_list_char_delete_all(l_element->dependencys);
+        DAP_FREE(l_element->dependencys);
         LL_DELETE(s_manifests, l_element);
     }
 }
