@@ -36,17 +36,17 @@ void wrapping_dap_http_simple_callback(dap_http_simple_t *sh, void *obj){
     ((PyHttpStatusCodeObject*)obj_http_status_code)->http_status = *ret;
     PyObject_Dir((PyObject*)obj_http_status_code);
     PyObject *obj_argv = Py_BuildValue("OO", obj_http_simple, obj_http_status_code);
-    PyErr_Print();
-    PyObject *result = PyObject_CallObject(obj_func, obj_argv);
+    PyObject *result = PyEval_CallObject(obj_func, obj_argv);
     if (!result){
         log_it(L_DEBUG, "Function can't called");
         PyErr_Print();
         *ret = Http_Status_InternalServerError;
     }
     *ret = ((PyHttpStatusCodeObject*)obj_http_status_code)->http_status;
-    Py_XDECREF(obj_argv);
-    Py_XDECREF(obj_http_status_code);
-    Py_XDECREF(obj_http_simple);
+    Py_XDECREF(result);
+    Py_DECREF(obj_argv);
+//    Py_DECREF(obj_http_status_code);
+//    Py_DECREF(obj_http_simple);
     PyGILState_Release(gstate);
 }
 
