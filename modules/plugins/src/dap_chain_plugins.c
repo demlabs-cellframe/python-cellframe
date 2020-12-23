@@ -29,6 +29,7 @@ int dap_chain_plugins_init(dap_config_t *a_config){
         PyImport_AppendInittab("API_CellFrame", PyInit_libCellFrame);
         Py_Initialize();
         PyEval_InitThreads();
+        log_it(L_NOTICE, "Version python: %s", Py_GetVersion());
         PyObject *l_sys_module = PyImport_ImportModule("sys");
         s_sys_path = PyObject_GetAttrString(l_sys_module, "path");
         //Get list files
@@ -112,16 +113,17 @@ void dap_chain_plugins_loading(){
 void dap_chain_plugins_load_plugin(const char *a_dir_path, const char *a_name){
     log_it(L_NOTICE, "Loading %s plugin directory %s", a_name, a_dir_path);
     PyErr_Clear();
-
     PyObject *l_obj_dir_path = PyUnicode_FromString(a_dir_path);
     PyList_Append(s_sys_path, l_obj_dir_path);
-    Py_XDECREF(l_obj_dir_path);
-    PyObject *l_module = PyImport_ImportModule(a_name);
-    PyErr_Print();
+//    Py_XDECREF(l_obj_dir_path);
+    PyObject *l_name_obj = PyUnicode_FromString(a_name);
+    log_it(L_ERROR, "Add module");
+    PyObject *l_module = PyImport_Import(l_name_obj);
+//    PyObject *l_module = PyImport_ImportModule(a_name);
+//    PyImport_Import()
     PyObject *l_func_init = PyObject_GetAttrString(l_module, "init");
     PyObject *l_func_deinit = PyObject_GetAttrString(l_module, "deinit");
     PyObject *l_res_int = NULL;
-    PyErr_Clear();
     if (l_func_init != NULL && PyCallable_Check(l_func_init)){
         l_res_int = PyEval_CallObject(l_func_init, NULL);
         if (l_res_int && PyLong_Check(l_res_int)){
