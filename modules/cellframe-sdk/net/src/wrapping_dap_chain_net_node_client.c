@@ -9,14 +9,12 @@ void dap_chain_node_client_deinit_py(void){
 
 PyObject *dap_chain_client_connect_py(PyObject *self, PyObject *args){
     PyObject *obj_node_info;
-    PyObject *obj_client_stage;
     const char *active_channels;
-    if (!PyArg_ParseTuple(args, "O|O|s", &obj_node_info, &obj_client_stage, &active_channels))
+    if (!PyArg_ParseTuple(args, "O|s", &obj_node_info, &active_channels))
         return NULL;
     PyObject *obj_node_client = _PyObject_New(&DapChainNodeClientObject_DapChainNodeClientObjectType);
     ((PyDapChainNodeClientObject*)obj_node_client)->node_client =dap_chain_client_connect(
-                ((PyDapChainNodeInfoObject*)obj_node_info)->node_info,
-                ((PyDapClientStageObject*)obj_client_stage)->stage, active_channels);
+                ((PyDapChainNodeInfoObject*)obj_node_info)->node_info, active_channels);
     return Py_BuildValue("O", obj_node_client);
 }
 PyObject *dap_chain_node_client_connect_py(PyObject *self, PyObject *args){

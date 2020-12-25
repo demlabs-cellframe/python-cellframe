@@ -43,10 +43,9 @@ void wrapping_dap_http_simple_callback(dap_http_simple_t *sh, void *obj){
         *ret = Http_Status_InternalServerError;
     }
     *ret = ((PyHttpStatusCodeObject*)obj_http_status_code)->http_status;
-    Py_XDECREF(result);
-    Py_DECREF(obj_argv);
-//    Py_DECREF(obj_http_status_code);
-//    Py_DECREF(obj_http_simple);
+    Py_XDECREF(obj_argv);
+    Py_XDECREF(obj_http_status_code);
+    Py_XDECREF(obj_http_simple);
     PyGILState_Release(gstate);
 }
 
