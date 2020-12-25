@@ -33,13 +33,7 @@ if(NOT (${SUBMODULES_NO_BUILD} MATCHES ON))
             "-fpic"
        )
    endif()
-   if (NOT (TARGET dap_chain_crypto))
-       add_subdirectory(libdap-chain-crypto)
-       target_compile_options(
-            dap_chain_crypto PRIVATE
-            "-fpic"
-       )
-   endif()
+
    if (NOT (TARGET dap_chain_mempool))
        add_subdirectory(libdap-chain-mempool)
        target_compile_options(
@@ -187,36 +181,10 @@ add_library(${PROJECT_NAME} STATIC ${CHAIN_NET_PYTHON_SRCS} ${CHAIN_NET_PYTHON_H
 
 target_link_libraries(${PROJECT_NAME})
 
-#target_compile_options(
-#    dap_core PRIVATE 
-#    "-fpic"
-#)
-#target_compile_options(
-#    dap_crypto PRIVATE 
-#    "-fpic"
-#)
-
-
-target_link_libraries(${PROJECT_NAME} dap_core dap_crypto dap_chain dap_chain_crypto dap_server_core dap_chain_net dap_chain_python_module dap_client_python_module)
-#target_link_libraries(${PROJECT_NAME} dap_core dap_crypto dap_chain dap_chain_global_db dap_chain_crypto dap_chain_mempool
-#                         
-#                     ) #dap_chain_crypto dap_chain_mempool dap_chain_global_db )
-#target_link_libraries(${PROJECT_NAME} dap_core dap_crypto)
+target_link_libraries(${PROJECT_NAME} dap_core dap_crypto dap_chain dap_server_core dap_chain_net dap_chain_python_module dap_client_python_module)
 
 target_include_directories(${PROJECT_NAME} PUBLIC include/ )
 
-#if(BUILD_DAP_CRYPTO_PYTHON_TESTS)
-#    add_subdirectory(test)
-#    file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/test/test_b58.py 
-#                    DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/test/)
-#    file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/test/test_b64.py
-#                    DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/test/)
-#    file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/test/test_iaes256_cbc.py
-#                    DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/test/)
-#    file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/test/test_iaes256_cbc.py
-#                    DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/test/)
-#    file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/test/test_oaes.py
-#                    DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/test/)
 
 
 #endif()
