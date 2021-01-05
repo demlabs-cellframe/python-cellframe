@@ -29,13 +29,14 @@ void wrapping_dap_http_simple_callback(dap_http_simple_t *sh, void *obj){
     gstate = PyGILState_Ensure();
     PyObject *obj_func = _w_simple_proc_find(sh->http_client->url_path);
     PyDapHttpSimpleObject *obj_http_simple = PyObject_NEW(PyDapHttpSimpleObject, &DapHTTPSimple_DapHTTPSimpleType);
-    PyObject *obj_http_status_code = _PyObject_New(&HTTPCode_HTTPCodeType);
+    PyHttpStatusCodeObject *obj_http_status_code = PyObject_New(PyHttpStatusCodeObject, &HTTPCode_HTTPCodeType);
     ((PyDapHttpSimpleObject*)obj_http_simple)->sh = sh;
     PyObject_Dir((PyObject*)obj_http_simple);
     http_status_code_t *ret = (http_status_code_t*)obj;
-    ((PyHttpStatusCodeObject*)obj_http_status_code)->http_status = *ret;
+    obj_http_status_code->http_status = *ret;
     PyObject_Dir((PyObject*)obj_http_status_code);
     PyObject *obj_argv = Py_BuildValue("OO", obj_http_simple, obj_http_status_code);
+    Py_INCREF(obj_func);
     PyObject *result = PyEval_CallObject(obj_func, obj_argv);
     if (!result){
         log_it(L_DEBUG, "Function can't called");
@@ -44,6 +45,7 @@ void wrapping_dap_http_simple_callback(dap_http_simple_t *sh, void *obj){
     }
     *ret = ((PyHttpStatusCodeObject*)obj_http_status_code)->http_status;
     Py_XDECREF(obj_argv);
+    Py_XDECREF(obj_func);
     Py_XDECREF(obj_http_status_code);
     Py_XDECREF(obj_http_simple);
     PyGILState_Release(gstate);
