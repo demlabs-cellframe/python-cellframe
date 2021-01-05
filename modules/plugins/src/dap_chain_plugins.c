@@ -32,6 +32,7 @@ int dap_chain_plugins_init(dap_config_t *a_config){
         log_it(L_NOTICE, "Version python: %s", Py_GetVersion());
         PyObject *l_sys_module = PyImport_ImportModule("sys");
         s_sys_path = PyObject_GetAttrString(l_sys_module, "path");
+        Py_XDECREF(l_sys_module);
         //Get list files
         dap_list_name_directories_t *l_list_plugins_name = dap_get_subs(s_plugins_root_path);
         dap_list_name_directories_t *l_element;
@@ -115,12 +116,14 @@ void dap_chain_plugins_load_plugin(const char *a_dir_path, const char *a_name){
     PyErr_Clear();
     PyObject *l_obj_dir_path = PyUnicode_FromString(a_dir_path);
     PyList_Append(s_sys_path, l_obj_dir_path);
-//    Py_XDECREF(l_obj_dir_path);
-    PyObject *l_name_obj = PyUnicode_FromString(a_name);
-    log_it(L_ERROR, "Add module");
-    PyObject *l_module = PyImport_Import(l_name_obj);
-//    PyObject *l_module = PyImport_ImportModule(a_name);
-//    PyImport_Import()
+    Py_XDECREF(l_obj_dir_path);
+//    PyObject *l_name_obj = PyUnicode_FromString(a_name);
+    PyObject *l_module = PyImport_ImportModule(a_name);
+    if (l_module == NULL){
+        log_it(L_ERROR, "Can't loading module %s", a_name);
+        PyErr_Print();
+        return ;
+    }
     PyObject *l_func_init = PyObject_GetAttrString(l_module, "init");
     PyObject *l_func_deinit = PyObject_GetAttrString(l_module, "deinit");
     PyObject *l_res_int = NULL;
@@ -138,6 +141,9 @@ void dap_chain_plugins_load_plugin(const char *a_dir_path, const char *a_name){
             log_it(L_ERROR, "Function initialization %s plugin don't reterned integer value", a_name);
         }
         Py_XDECREF(l_res_int);
+        Py_XDECREF(l_func_init);
+        Py_XDECREF(l_func_deinit);
+//        Py_XDECREF(l_module);
     }else {
         log_it(L_ERROR, "For plugins %s don't found function init", a_name);
     }

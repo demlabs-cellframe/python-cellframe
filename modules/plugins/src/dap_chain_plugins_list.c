@@ -11,6 +11,7 @@ void dap_chain_plugins_list_add(PyObject *a_module, const char *a_name){
     dap_chain_plugin_list_module_t *elemnet = (dap_chain_plugin_list_module_t*)DAP_NEW(dap_chain_plugin_list_module_t);
     elemnet->name = dap_strdup(a_name);
     elemnet->obj_module = a_module;
+    Py_XINCREF(elemnet->obj_module);
     LL_APPEND(s_dap_chain_plugins_module_list, elemnet);
 }
 
