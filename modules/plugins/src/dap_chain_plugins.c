@@ -51,8 +51,7 @@ int dap_chain_plugins_init(dap_config_t *a_config){
         dap_chain_plugins_command_create();
         PyThreadState *l_thread_state = PyEval_SaveThread();
     }else{
-        log_it(L_NOTICE, "Permission to initialize python plugins has not been obtained.");
-        return -2;
+        return 0;
     }
     return 0;
 }
