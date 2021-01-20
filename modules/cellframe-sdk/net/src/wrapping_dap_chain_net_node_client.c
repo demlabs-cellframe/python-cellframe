@@ -8,25 +8,31 @@ void dap_chain_node_client_deinit_py(void){
 }
 
 PyObject *dap_chain_client_connect_py(PyObject *self, PyObject *args){
+    PyObject *obj_net;
     PyObject *obj_node_info;
     const char *active_channels;
-    if (!PyArg_ParseTuple(args, "O|s", &obj_node_info, &active_channels))
+    if (!PyArg_ParseTuple(args, "O|O|s",&obj_net, &obj_node_info, &active_channels))
         return NULL;
     PyObject *obj_node_client = _PyObject_New(&DapChainNodeClientObject_DapChainNodeClientObjectType);
-    ((PyDapChainNodeClientObject*)obj_node_client)->node_client =dap_chain_client_connect(
+    ((PyDapChainNodeClientObject*)obj_node_client)->node_client =dap_chain_node_client_connect_channels(
+                ((PyDapChainNetObject*) obj_net)->chain_net,
                 ((PyDapChainNodeInfoObject*)obj_node_info)->node_info, active_channels);
     return Py_BuildValue("O", obj_node_client);
 }
+
 PyObject *dap_chain_node_client_connect_py(PyObject *self, PyObject *args){
     if (self != NULL){
         PyErr_SetString(PyExc_SyntaxWarning, "This is method called statically");
         return NULL;
     }
+    PyObject *obj_net;
     PyObject *obj_node_info;
-    if (!PyArg_ParseTuple(args, "O", &obj_node_info))
+    if (!PyArg_ParseTuple(args, "O|O",&obj_net, &obj_node_info))
         return NULL;
     PyObject *obj_node_client = _PyObject_New(&DapChainNodeClientObject_DapChainNodeClientObjectType);
-    ((PyDapChainNodeClientObject*)obj_node_client)->node_client = dap_chain_node_client_connect(((PyDapChainNodeInfoObject*)obj_node_info)->node_info);
+    ((PyDapChainNodeClientObject*)obj_node_client)->node_client = dap_chain_node_client_connect(
+                ((PyDapChainNetObject*) obj_net)->chain_net,
+                ((PyDapChainNodeInfoObject*)obj_node_info)->node_info);
     return Py_BuildValue("O", obj_node_client);
 }
 PyObject *dap_chain_node_client_close_py(PyObject *self, PyObject *args){
