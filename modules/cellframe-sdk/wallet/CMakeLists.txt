@@ -21,7 +21,7 @@ target_link_libraries(${PROJECT_NAME})
 target_link_libraries(${PROJECT_NAME} dap_core
                         dap_crypto
                         dap_crypto_python_module
-                        dap_chain dap_chain_crypto
+                        dap_chain
                         dap_chain_python_module
                         dap_chain_net
                         dap_chain_wallet )
