@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.0)
 
 if (SUPPORT_PYTHON_PLUGINS)
     project(API_CellFrame C)
@@ -35,6 +35,8 @@ add_subdirectory(modules/dap-sdk/core)
 add_subdirectory(modules/dap-sdk/crypto)
 add_subdirectory(modules/dap-sdk/net/core)
 add_subdirectory(modules/dap-sdk/net/client)
+add_subdirectory(modules/dap-sdk/net/server/enc)
+add_subdirectory(modules/dap-sdk/net/server/http)
 add_subdirectory(modules/cellframe-sdk/common)
 add_subdirectory(modules/cellframe-sdk/net)
 add_subdirectory(modules/cellframe-sdk/gdb)
@@ -54,6 +56,7 @@ add_subdirectory(modules/cellframe-sdk/wallet)
 
 
 target_compile_options(dap_core PRIVATE "-fpic")
+target_compile_options(dap_core_unix PRIVATE "-fpic")
 target_compile_options(dap_app_cli PRIVATE "-fpic")
 target_compile_options(dap_crypto PRIVATE "-fpic")
 target_compile_options(dap_chain PRIVATE "-fpic")
@@ -71,6 +74,7 @@ target_compile_options(dap_stream_ch PRIVATE "-fpic" )
 target_compile_options(dap_stream_ch_chain_net PRIVATE "-fpic" )
 target_compile_options(dap_stream_ch_chain PRIVATE "-fpic" )
 target_compile_options(dap_chain_net_srv PRIVATE "-fpic" )
+target_compile_options(dap_chain_net_srv_stake PRIVATE "-fpic")
 if(NOT WIN32)
     target_compile_options(dap_chain_net_srv_vpn PRIVATE "-fpic" )
 endif()
@@ -86,10 +90,12 @@ target_compile_options(dap_chain_cs_dag_pos PRIVATE "-fpic")
 
 
 if (SUPPORT_PYTHON_PLUGINS)
+    file (GLOB APP_CONTEXT_HEADER
+        modules/plugins/include/dap_plugins_python_app_context.h)
 
     add_definitions("-fpic")
     add_definitions("-DDAP_SUPPORT_PYTHON_PLUGINS")
-    add_library(${PROJECT_NAME} STATIC ${PYTHON_CELLFRAME_SRCS} ${PYTHON_CELLFRAME_HEADERS})
+    add_library(${PROJECT_NAME} STATIC ${PYTHON_CELLFRAME_SRCS} ${APP_CONTEXT_HEADER} ${PYTHON_CELLFRAME_HEADERS})
 
 else()
 
@@ -156,6 +162,7 @@ target_compile_options(dap_stream_ch_chain_net_srv PRIVATE "-fpic")
 target_compile_options(dap_chain_cs_dag PRIVATE "-fpic")
 target_compile_options(dap_chain_cs_dag_poa PRIVATE "-fpic")
 target_compile_options(dap_chain_cs_dag_pos PRIVATE "-fpic")
+target_compile_options(dap_server_core_python_module PRIVATE "-fpic")
 
 
 if (WIN32)
@@ -166,6 +173,8 @@ endif()
 target_link_libraries(${PROJECT_NAME} cellframe-sdk dap_python_module
                       dap_crypto_python_module
                       dap_server_core_python_module
+                      dap_enc_server_python_module
+                      dap_server_http_python_module
                       dap_chain_python_module
                       dap_chain_net_python_module
                       dap_chain_gdb_python_module

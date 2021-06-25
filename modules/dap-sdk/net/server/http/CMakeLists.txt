@@ -1,4 +1,4 @@
-project(dap_python_module C)
+project(dap_server_http_python_module C)
 cmake_minimum_required(VERSION 3.0)
 
 set(CMAKE_VERBOSE_MAKEFILE ON)
@@ -16,14 +16,14 @@ if(NOT (${SUBMODULES_NO_BUILD} MATCHES ON))
     endif()
 endif()
 
-file(GLOB CORE_SRCS src/*.c)
-file(GLOB CORE_HEADERS src/*.h)
+file(GLOB SERVER_HTTP_SIMPLE_SRCS src/*.c)
+file(GLOB SERVER_HTTP_SIMPLE_HEADERS include/*.h)
 
 set(Python_ADDITIONAL_VERSIONS 3.7 3.6 3.5 3.4)
 find_package (PythonLibs REQUIRED)
 include_directories(${PYTHON_INCLUDE_DIR} include/ )
 
-add_library(${PROJECT_NAME} STATIC ${CORE_SRCS} ${CORE_UNIX_SRCS})
+add_library(${PROJECT_NAME} STATIC ${SERVER_HTTP_SIMPLE_SRCS} ${SERVER_HTTP_SIMPLE_HEADERS} ${CORE_UNIX_SRCS})
 
 target_link_libraries(${PROJECT_NAME} ${PYTHON_LIBRARIES})
 
@@ -32,13 +32,13 @@ target_compile_options(
     "-fpic"
 )
 
-target_link_libraries(${PROJECT_NAME} dap_core ${PYTHON_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} dap_core dap_http_server dap_server_core_python_module ${PYTHON_LIBRARIES})
 
-target_include_directories(${PROJECT_NAME} PUBLIC src/ )
+target_include_directories(${PROJECT_NAME} PUBLIC include/ )
 
-if(BUILD_DAP_PYTHON_TESTS)
-    add_subdirectory(test)
-    file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/test/main_test.py
-                DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/test/)
-endif()
+#if(BUILD_DAP_PYTHON_TESTS)
+#    add_subdirectory(test)
+#    file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/test/main_test.py
+#                DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/test/)
+#endif()
 

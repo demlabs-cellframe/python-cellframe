@@ -8,6 +8,7 @@
 
 #include "dap_chain_plugins.h"
 
+#undef LOG_TAG
 #define LOG_TAG "dap_chain_plugins"
 
 PyObject *s_sys_path = NULL;
@@ -25,8 +26,9 @@ int dap_chain_plugins_init(dap_config_t *a_config){
             log_it(L_ERROR, "The directory %s was not found.", s_plugins_root_path);
             return -1;
         }
-        PyImport_AppendInittab("CellFrame", PyInit_libCellFrame);
+        PyImport_AppendInittab("API_CellFrame", PyInit_libCellFrame);
         Py_Initialize();
+        PyEval_InitThreads();
         PyObject *l_sys_module = PyImport_ImportModule("sys");
         s_sys_path = PyObject_GetAttrString(l_sys_module, "path");
         //Get list files
@@ -47,9 +49,9 @@ int dap_chain_plugins_init(dap_config_t *a_config){
         }
         dap_chain_plugins_loading();
         dap_chain_plugins_command_create();
+        PyThreadState *l_thread_state = PyEval_SaveThread();
     }else{
-        log_it(L_NOTICE, "Permission to initialize python plugins has not been obtained.");
-        return -2;
+        return 0;
     }
     return 0;
 }
@@ -114,6 +116,7 @@ void dap_chain_plugins_load_plugin(const char *a_dir_path, const char *a_name){
     PyList_Append(s_sys_path, l_obj_dir_path);
     Py_XDECREF(l_obj_dir_path);
     PyObject *l_module = PyImport_ImportModule(a_name);
+    PyErr_Print();
     PyObject *l_func_init = PyObject_GetAttrString(l_module, "init");
     PyObject *l_func_deinit = PyObject_GetAttrString(l_module, "deinit");
     PyObject *l_res_int = NULL;
@@ -128,6 +131,7 @@ void dap_chain_plugins_load_plugin(const char *a_dir_path, const char *a_name){
                 log_it(L_ERROR, "Code error %i at initialization %s plugin", _PyLong_AsInt(l_res_int), a_name);
             }
         } else {
+            PyErr_Print();
             log_it(L_ERROR, "Function initialization %s plugin don't reterned integer value", a_name);
         }
         Py_XDECREF(l_res_int);

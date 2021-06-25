@@ -1,26 +1,39 @@
-#ifndef _WRAPPING_DAP_ENC_HTTP_
-#define _WRAPPING_DAP_ENC_HTTP_
+#pragma once
 
-#include <Python.h>
+#include "dap_common.h"
+#include "dap_server.h"
 #include "dap_server_python.h"
-#include "dap_enc_http.h"
-#include "dap_http.h"
+#include "wrapping_http.h"
+#include <Python.h>
 
-typedef struct PyDapEncHttp{
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+typedef struct dap_plugins_python_app_context{
+    dap_server_t *server;
+}dap_plugins_python_app_context_t;
+
+int dap_plugins_python_app_content_init(dap_server_t *a_server);
+
+typedef  struct PyDapAppContext{
     PyObject_HEAD
-}PyDapEncHttpObject;
+}PyDapAppContextObject;
 
-PyObject *enc_http_add_proc_py(PyObject *self, PyObject *args);
+PyObject *dap_plugins_python_app_context_get_server(PyObject *self, PyObject *args);
+PyObject *dap_plugins_python_app_context_get_http(PyObject *self, PyObject *args);
 
-static PyMethodDef DapEncHttpMethods[] = {
-    {"addProc", enc_http_add_proc_py, METH_VARARGS | METH_STATIC, ""},
+static PyMethodDef DapAppContextMethods[] = {
+    {"getServer", (PyCFunction)dap_plugins_python_app_context_get_server, METH_VARARGS | METH_STATIC, "Get main server from node"},
+    {"getHttp", (PyCFunction)dap_plugins_python_app_context_get_http, METH_NOARGS | METH_STATIC, "Get main server from node"},
     {NULL, NULL, 0, NULL}
 };
 
-static PyTypeObject DapEncHTTP_DapEncHTTPType = {
+
+static PyTypeObject dapAppContext_dapAppContextType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "CellFrame.DapEncHttp",             /* tp_name */
-    sizeof(PyDapEncHttpObject),                   /* tp_basicsize */
+    "CellFrame.AppContext",             /* tp_name */
+    sizeof(PyDapAppContextObject),                   /* tp_basicsize */
     0,                                                 /* tp_itemsize */
     0,                                                 /* tp_dealloc */
     0,                                                 /* tp_print */
@@ -39,14 +52,14 @@ static PyTypeObject DapEncHTTP_DapEncHTTPType = {
     0,                                                 /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT |
         Py_TPFLAGS_BASETYPE,                           /* tp_flags */
-    "Dap enc http object",                         /* tp_doc */
+    "Dap App Context object",                         /* tp_doc */
     0,		                                       /* tp_traverse */
     0,                        		               /* tp_clear */
     0,		                                       /* tp_richcompare */
     0,                        		               /* tp_weaklistoffset */
     0,		                                       /* tp_iter */
     0,                        		               /* tp_iternext */
-    DapEncHttpMethods,                   /* tp_methods */
+    DapAppContextMethods,                   /* tp_methods */
     0,                                                 /* tp_members */
     0,                                                 /* tp_getset */
     0,                                                 /* tp_base */
@@ -59,5 +72,6 @@ static PyTypeObject DapEncHTTP_DapEncHTTPType = {
     PyType_GenericNew,                                 /* tp_new */
 };
 
-
-#endif // _WRAPPING_DAP_ENC_HTTP_
+#ifdef __cplusplus
+}
+#endif
