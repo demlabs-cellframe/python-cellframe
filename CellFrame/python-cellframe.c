@@ -291,7 +291,7 @@ PyObject *python_cellframe_init(PyObject *self, PyObject *args){
                 return NULL;
             }
             s_init_wallet = true;
-        } else if (strcmp(c_value, "ChainCSDag") == 0){
+/*        } else if (strcmp(c_value, "ChainCSDag") == 0){
             if (dap_chain_cs_dag_init() != 0)
             {
                 PyErr_SetString(CellFrame_error, "Failed to initialize ChainCSDag module. ");
@@ -306,7 +306,7 @@ PyObject *python_cellframe_init(PyObject *self, PyObject *args){
             if (dap_chain_cs_dag_pos_init() != 0){
                 PyErr_SetString(CellFrame_error, "Failed to initialize ChainCSDagPos module. ");
                 return NULL;
-            }
+            } */
         } else if (strcmp(c_value, "ChainNetSrv") == 0){
             if (dap_chain_net_srv_init(g_config) != 0){
                 PyErr_SetString(CellFrame_error, "Failed to initialize ChainNetSrv module. ");

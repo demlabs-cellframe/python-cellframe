@@ -24,6 +24,7 @@ This file is part of DAP (Deus Applications Prototypes) the open source project
 
 #pragma once
 #include <Python.h>
+#include "dap_config.h"
 
 #ifdef __cplusplus
 extern "C"{
@@ -32,7 +33,7 @@ extern "C"{
 extern PyObject *s_sys_path;
 extern const char *s_plugins_root_path;
 
-int dap_chain_plugins_init();
+int dap_chain_plugins_init(dap_config_t *a_config);
 void dap_chain_plugins_deinit();
 void dap_chain_plugins_loading();
 void dap_chain_plugins_load_plugin(const char *a_dir_path, const char *a_name);
