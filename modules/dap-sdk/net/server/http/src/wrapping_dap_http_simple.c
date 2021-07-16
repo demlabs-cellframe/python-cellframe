@@ -64,14 +64,19 @@ PyObject *dap_http_simple_add_proc_py(PyObject *self, PyObject *args){
             return NULL;
         }
     }
-    _w_simple_proc_add(url, func_callback);
-    dap_http_t *l_http = DAP_HTTP(((PyDapServerObject*)obj_server)->t_server);
-    dap_http_simple_proc_add(l_http,
-                             url,
-                             reply_size_max,
-                             wrapping_dap_http_simple_callback);
-    log_it(L_NOTICE, "Add proc URL %s, python plugin", url);
-    return Py_BuildValue("(O)", Py_None);
+    if (((PyDapServerObject*)obj_server)->t_server){
+        _w_simple_proc_add(url, func_callback);
+        dap_http_t *l_http = DAP_HTTP(((PyDapServerObject*)obj_server)->t_server);
+        dap_http_simple_proc_add(l_http,
+                                 url,
+                                 reply_size_max,
+                                 wrapping_dap_http_simple_callback);
+        log_it(L_NOTICE, "Add proc URL %s, python plugin", url);
+        return Py_BuildValue("(O)", Py_None);
+    } else {
+        PyErr_SetString(PyExc_Exception, "The server core object is NULL.");
+        return NULL;
+    }
 }
 PyObject *dap_http_simple_module_init_py(PyObject *self, PyObject *args){
     (void)self;
