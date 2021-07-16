@@ -41,6 +41,9 @@ typedef struct PyCryptoCert{
 int dap_cert_init_py();
 void dap_cert_deinit_py();
 
+PyObject* dap_cert_new_py(PyTypeObject *type_obj, PyObject *args, PyObject *kwds);
+void dap_cert_delete_py(PyObject *self);
+
 PyObject* dap_cert_generate_py(PyObject *self, PyObject *args);
 PyObject* dap_cert_dump_py(PyObject *self, PyObject *args);
 PyObject* dap_cert_pkey_py(PyObject *self, PyObject *args);
@@ -51,7 +54,6 @@ PyObject* dap_cert_cert_signs_py(PyObject *self, PyObject *args);
 PyObject* dap_cert_compare_py(PyObject *self, PyObject *args);
 PyObject* dap_cert_save_py(PyObject *self, PyObject *args);
 PyObject* dap_cert_load_py(PyObject *self, PyObject *args);
-void dap_cert_delete_py(PyObject *self);
 PyObject* dap_cert_folder_add_py(PyObject *self, PyObject *args);
 PyObject* dap_cert_folder_get_py(PyObject *self, PyObject *args);
 
@@ -110,7 +112,7 @@ static PyTypeObject g_crypto_cert_type_py = {
     0,                         /* tp_dictoffset */
     0,                         /* tp_init */
     0,                         /* tp_alloc */
-    PyType_GenericNew,         /* tp_new */
+    dap_cert_new_py,           /* tp_new */
     0,
     0,
     0,

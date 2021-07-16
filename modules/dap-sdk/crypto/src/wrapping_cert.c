@@ -31,6 +31,24 @@
 #define LOG_TAG "wrapping_cert"
 
 
+PyObject* dap_cert_new_py(PyTypeObject *type_object, PyObject *args, PyObject *kwds){
+    const char *l_cert_name = NULL;
+    if (!PyArg_ParseTuple(args, "s", &l_cert_name)) {
+        PyErr_SetString(PyExc_SyntaxError, "Wrong arguments list in function call");
+        return NULL;
+    }
+    PyCryptoCertObject *obj = (PyCryptoCertObject*)PyType_GenericNew(type_object, args, kwds);
+    obj->cert = dap_cert_new(l_cert_name);
+    return (PyObject *)obj;
+}
+
+void dap_cert_delete_py(PyObject *self)
+{
+    PyCryptoCertObject *certObject = (PyCryptoCertObject *)self;
+    dap_cert_delete( certObject->cert );
+    Py_TYPE(certObject)->tp_free((PyObject*)certObject);
+}
+
 PyObject* dap_cert_generate_py(PyObject *self, PyObject *args)
 {
     const char *l_cert_name = NULL;
@@ -63,11 +81,9 @@ PyObject* dap_cert_generate_py(PyObject *self, PyObject *args)
 
 PyObject* dap_cert_dump_py(PyObject *self, PyObject *args)
 {
-    (void) self;
     (void) args;
-    /// TODO: Implement it!
-    PyErr_SetString(PyExc_TypeError, "Unimplemented function");
-    return NULL;
+    dap_cert_dump(((PyCryptoCertObject*)self)->cert);
+    return Py_BuildValue("O", Py_None);
 }
 
 PyObject* dap_cert_pkey_py(PyObject *self, PyObject *args)
@@ -150,12 +166,6 @@ PyObject* dap_cert_close_py(PyObject *self, PyObject *args)
 }
 
 
-void dap_cert_delete_py(PyObject *self)
-{
-    PyCryptoCertObject *certObject = (PyCryptoCertObject *)self;
-    dap_cert_delete( certObject->cert );
-    Py_TYPE(certObject)->tp_free((PyObject*)certObject);
-}
 
 
 PyObject* dap_cert_folder_add_py(PyObject *self, PyObject *args)
