@@ -28,6 +28,7 @@
 
 #include "wrapping_cert.h"
 #include "libdap_crypto_key_type_python.h"
+#include "wrapping_dap_pkey.h"
 #define LOG_TAG "wrapping_cert"
 
 
@@ -86,13 +87,12 @@ PyObject* dap_cert_dump_py(PyObject *self, PyObject *args)
     return Py_BuildValue("O", Py_None);
 }
 
-PyObject* dap_cert_pkey_py(PyObject *self, PyObject *args)
+PyObject* dap_cert_to_pkey_py(PyObject *self, PyObject *args)
 {
-    (void) self;
     (void) args;
-    /// TODO: Implement it!
-    PyErr_SetString(PyExc_TypeError, "Unimplemented function");
-    return NULL;
+    PyObject *l_obj = _PyObject_New(&DapPkeyObject_DapPkeyObjectType);
+    ((PyDapPkeyObject*)l_obj)->pkey = dap_cert_to_pkey(((PyCryptoCertObject*)self)->cert);
+    return Py_BuildValue("O", l_obj);
 }
 
 PyObject* dap_cert_find_py(PyObject *self, PyObject *args)

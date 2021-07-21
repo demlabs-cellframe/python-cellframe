@@ -46,7 +46,7 @@ void dap_cert_delete_py(PyObject *self);
 
 PyObject* dap_cert_generate_py(PyObject *self, PyObject *args);
 PyObject* dap_cert_dump_py(PyObject *self, PyObject *args);
-PyObject* dap_cert_pkey_py(PyObject *self, PyObject *args);
+PyObject* dap_cert_to_pkey_py(PyObject *self, PyObject *args);
 PyObject* dap_cert_find_py(PyObject *self, PyObject *args);
 PyObject* dap_cert_sign_py(PyObject *self, PyObject *args);
 PyObject* dap_cert_cert_sign_add_py(PyObject *self, PyObject *args);
@@ -63,8 +63,8 @@ static PyMethodDef g_crypto_cert_methods_py[] = {
         {"folderAdd", dap_cert_folder_add_py, METH_VARARGS | METH_STATIC, "Add folders with .dcert files in it"},
         {"folderGet", dap_cert_folder_get_py, METH_VARARGS | METH_STATIC, "Get folder by number or the default one"},
         {"load", dap_cert_load_py, METH_VARARGS | METH_STATIC ,""},
-        {"dump", dap_cert_dump_py, METH_VARARGS , ""},
-        {"pkey", dap_cert_pkey_py, METH_VARARGS , ""},
+        {"dump", dap_cert_dump_py, METH_NOARGS , ""},
+        {"toPkey", dap_cert_to_pkey_py, METH_NOARGS , ""},
         {"sign", dap_cert_sign_py, METH_VARARGS , ""},
         {"certSignAdd", dap_cert_cert_sign_add_py, METH_VARARGS,  ""},
         {"certSigns", dap_cert_cert_signs_py, METH_VARARGS , ""},
