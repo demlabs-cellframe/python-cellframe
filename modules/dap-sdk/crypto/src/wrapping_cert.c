@@ -29,6 +29,7 @@
 #include "wrapping_cert.h"
 #include "libdap_crypto_key_type_python.h"
 #include "wrapping_dap_pkey.h"
+#include "wrapping_dap_sign.h"
 #define LOG_TAG "wrapping_cert"
 
 
@@ -95,22 +96,47 @@ PyObject* dap_cert_to_pkey_py(PyObject *self, PyObject *args)
     return Py_BuildValue("O", l_obj);
 }
 
-PyObject* dap_cert_find_py(PyObject *self, PyObject *args)
+PyObject* dap_cert_find_by_name_py(PyObject *self, PyObject *args)
 {
     (void) self;
-    (void) args;
-    /// TODO: Implement it!
-    PyErr_SetString(PyExc_TypeError, "Unimplemented function");
-    return NULL;
+    const char *l_name = NULL;
+    if (!PyArg_ParseTuple(args, "s", l_name)){
+        PyErr_SetString(PyExc_SyntaxError, "Wrong arguments list in function call");
+        return NULL;
+    }
+    dap_cert_t *l_tmp_cert = dap_cert_find_by_name(l_name);
+    if (l_tmp_cert) {
+        PyObject *l_obj_cert = _PyObject_New(&g_crypto_cert_type_py);
+        ((PyCryptoCertObject*)l_obj_cert)->cert = l_tmp_cert;
+        return Py_BuildValue("O", l_obj_cert);
+    } else {
+        return Py_None;
+    }
 }
 
 PyObject* dap_cert_sign_py(PyObject *self, PyObject *args)
 {
-    (void) self;
-    (void) args;
-    /// TODO: Implement it!
-    PyErr_SetString(PyExc_TypeError, "Unimplemented function");
-    return NULL;
+    PyObject *l_data_byte;
+    size_t l_data_size;
+    size_t l_output_size_wished;
+    if (!PyArg_ParseTuple(args, "On", &l_data_byte, &l_output_size_wished)){
+        PyErr_SetString(PyExc_SyntaxError, "Wrong arguments list in function call");
+        return NULL;
+    }
+    if (!PyBytes_Check(l_data_byte)){
+        PyErr_SetString(PyExc_BytesWarning, "The first agrument the is not a bytes object");
+        return NULL;
+    }
+    l_data_size = (size_t)PyBytes_Size(l_data_byte);
+    void *l_data = PyBytes_AsString(l_data_byte);
+    dap_sign_t *l_sign = dap_cert_sign(((PyCryptoCertObject*)self)->cert, l_data, l_data_size, l_output_size_wished);
+    if(l_sign) {
+        PyObject *l_obj_sign = _PyObject_New(&DapSignObject_DapSignObjectType);
+        ((PyDapSignObject*)l_obj_sign)->sign = l_sign;
+        return Py_BuildValue("O", l_obj_sign);
+    } else {
+        return Py_None;
+    }
 }
 
 PyObject* dap_cert_cert_sign_add_py(PyObject *self, PyObject *args)
