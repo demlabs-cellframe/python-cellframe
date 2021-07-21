@@ -157,13 +157,15 @@ PyObject* dap_cert_cert_signs_py(PyObject *self, PyObject *args)
     return NULL;
 }
 
-PyObject* dap_cert_compare_py(PyObject *self, PyObject *args)
+PyObject* dap_cert_compare_with_sign_py(PyObject *self, PyObject *args)
 {
-    (void) self;
-    (void) args;
-    /// TODO: Implement it!
-    PyErr_SetString(PyExc_TypeError, "Unimplemented function");
-    return NULL;
+    PyObject *l_obj_sign = NULL;
+    if (!PyArg_ParseTuple(args, "O", &l_obj_sign)){
+        PyErr_SetString(PyExc_BytesWarning, "The first agrument the is not a bytes object");
+        return NULL;
+    }
+    int res = dap_cert_compare_with_sign(((PyCryptoCertObject*)self)->cert, ((PyDapSignObject*)l_obj_sign)->sign);
+    return Py_BuildValue("i", res);
 }
 
 PyObject* dap_cert_save_py(PyObject *self, PyObject *args)
@@ -197,20 +199,25 @@ PyObject* dap_cert_close_py(PyObject *self, PyObject *args)
 PyObject* dap_cert_folder_add_py(PyObject *self, PyObject *args)
 {
     (void) self;
-    (void) args;
-    /// TODO: Implement it!
-    PyErr_SetString(PyExc_TypeError, "Unimplemented function");
-    return NULL;
+    const char *l_path_folder = NULL;
+    if (!PyArg_ParseTuple(args, "s", &l_path_folder)){
+        PyErr_SetString(PyExc_BytesWarning, "The first agrument the is not a bytes object");
+        return NULL;
+    }
+    dap_cert_add_folder(l_path_folder);
+    return Py_None;
 }
 
 PyObject* dap_cert_folder_get_py(PyObject *self, PyObject *args)
 {
     (void)self;
-    const char *a_folder_path;
-    if(!PyArg_ParseTuple(args, "s", &a_folder_path))
+    int l_n_folder_path;
+    if (!PyArg_ParseTuple(args, "i", &l_n_folder_path)){
+        PyErr_SetString(PyExc_BytesWarning, "The first agrument the is not a bytes object");
         return NULL;
-    dap_cert_add_folder(a_folder_path);
-    return PyLong_FromLong(0);
+    }
+    const char *l_path_folder = dap_cert_get_folder(l_n_folder_path);
+    return Py_BuildValue("s", l_path_folder);
 }
 
 int dap_cert_init_py(void)

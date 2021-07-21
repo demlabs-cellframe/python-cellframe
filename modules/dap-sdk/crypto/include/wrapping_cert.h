@@ -51,7 +51,7 @@ PyObject* dap_cert_find_by_name_py(PyObject *self, PyObject *args);
 PyObject* dap_cert_sign_py(PyObject *self, PyObject *args);
 PyObject* dap_cert_cert_sign_add_py(PyObject *self, PyObject *args);
 PyObject* dap_cert_cert_signs_py(PyObject *self, PyObject *args);
-PyObject* dap_cert_compare_py(PyObject *self, PyObject *args);
+PyObject* dap_cert_compare_with_sign_py(PyObject *self, PyObject *args);
 PyObject* dap_cert_save_py(PyObject *self, PyObject *args);
 PyObject* dap_cert_load_py(PyObject *self, PyObject *args);
 PyObject* dap_cert_folder_add_py(PyObject *self, PyObject *args);
@@ -68,7 +68,7 @@ static PyMethodDef g_crypto_cert_methods_py[] = {
         {"sign", dap_cert_sign_py, METH_VARARGS , ""},
         {"certSignAdd", dap_cert_cert_sign_add_py, METH_VARARGS,  ""},
         {"certSigns", dap_cert_cert_signs_py, METH_VARARGS , ""},
-        {"compare", dap_cert_compare_py, METH_VARARGS, ""},
+        {"compareWithSign", dap_cert_compare_with_sign_py, METH_VARARGS, ""},
         {"save", dap_cert_save_py, METH_VARARGS , "Save to the first directory in cert folders list"},
         {NULL, NULL, 0, NULL}
 };
