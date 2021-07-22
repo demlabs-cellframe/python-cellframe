@@ -33,7 +33,8 @@ extern "C" {
 
 typedef struct PyCryptoKeyType{
     PyObject_HEAD
-}PyCryptoKeyTypeObjecy;
+    dap_enc_key_type_t key_type;
+}PyCryptoKeyTypeObject;
 
 PyObject *get_ENC_KEY_TYPE_IAES();
 PyObject *get_ENC_KEY_TYPE_OAES();
