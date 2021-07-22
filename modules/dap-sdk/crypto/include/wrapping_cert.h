@@ -43,33 +43,50 @@ void dap_cert_deinit_py();
 
 PyObject* dap_cert_new_py(PyTypeObject *type_obj, PyObject *args, PyObject *kwds);
 void dap_cert_delete_py(PyObject *self);
+PyObject* dap_cert_delete_by_name_py(PyObject *self, PyObject *args);
 
 PyObject* dap_cert_generate_py(PyObject *self, PyObject *args);
+PyObject* dap_cert_generate_mem_py(PyObject *self, PyObject *args);
+PyObject* dap_cert_generate_mem_with_seed_py(PyObject *self, PyObject *args);
+PyObject* dap_cert_add_file_py(PyObject *self, PyObject *args);
+PyObject* dap_cert_save_to_folder_py(PyObject *self, PyObject *args);
 PyObject* dap_cert_dump_py(PyObject *self, PyObject *args);
 PyObject* dap_cert_to_pkey_py(PyObject *self, PyObject *args);
 PyObject* dap_cert_find_by_name_py(PyObject *self, PyObject *args);
 PyObject* dap_cert_sign_py(PyObject *self, PyObject *args);
-PyObject* dap_cert_cert_sign_add_py(PyObject *self, PyObject *args);
-PyObject* dap_cert_cert_signs_py(PyObject *self, PyObject *args);
+//PyObject* dap_cert_cert_sign_add_py(PyObject *self, PyObject *args);
+//PyObject* dap_cert_cert_signs_py(PyObject *self, PyObject *args);
 PyObject* dap_cert_compare_with_sign_py(PyObject *self, PyObject *args);
+PyObject* dap_cert_sign_output_size_py(PyObject *self, PyObject *args);
 PyObject* dap_cert_save_py(PyObject *self, PyObject *args);
-PyObject* dap_cert_load_py(PyObject *self, PyObject *args);
+//PyObject* dap_cert_load_py(PyObject *self, PyObject *args);
 PyObject* dap_cert_folder_add_py(PyObject *self, PyObject *args);
 PyObject* dap_cert_folder_get_py(PyObject *self, PyObject *args);
 
+PyObject* dap_cert_add_cert_sign_py(PyObject *self, PyObject *args);
+PyObject* dap_cert_count_cert_sign_py(PyObject *self, PyObject *args);
+
 static PyMethodDef g_crypto_cert_methods_py[] = {
         {"generate",dap_cert_generate_py , METH_VARARGS | METH_STATIC, "Generate from seed or randomly the new certificate"},
+        {"generateMEM", dap_cert_generate_mem_py, METH_VARARGS | METH_STATIC, ""},
+        {"generateMEMWithSeed", dap_cert_generate_mem_with_seed_py, METH_VARARGS | METH_STATIC, ""},
+        {"addFile", dap_cert_add_file_py, METH_VARARGS | METH_STATIC, ""},
+        {"saveToFolder", dap_cert_save_to_folder_py, METH_VARARGS, ""},
         {"findByName", dap_cert_find_by_name_py, METH_VARARGS | METH_STATIC, ""},
         {"folderAdd", dap_cert_folder_add_py, METH_VARARGS | METH_STATIC, "Add folders with .dcert files in it"},
         {"folderGet", dap_cert_folder_get_py, METH_VARARGS | METH_STATIC, "Get folder by number or the default one"},
-        {"load", dap_cert_load_py, METH_VARARGS | METH_STATIC ,""},
+//        {"load", dap_cert_load_py, METH_VARARGS | METH_STATIC ,""},
         {"dump", dap_cert_dump_py, METH_NOARGS , ""},
         {"toPkey", dap_cert_to_pkey_py, METH_NOARGS , ""},
         {"sign", dap_cert_sign_py, METH_VARARGS , ""},
-        {"certSignAdd", dap_cert_cert_sign_add_py, METH_VARARGS,  ""},
-        {"certSigns", dap_cert_cert_signs_py, METH_VARARGS , ""},
+//        {"certSignAdd", dap_cert_cert_sign_add_py, METH_VARARGS,  ""},
+//        {"certSigns", dap_cert_cert_signs_py, METH_VARARGS , ""},
         {"compareWithSign", dap_cert_compare_with_sign_py, METH_VARARGS, ""},
+        {"signOutputSize", dap_cert_sign_output_size_py, METH_VARARGS, ""},
         {"save", dap_cert_save_py, METH_VARARGS , "Save to the first directory in cert folders list"},
+        {"addCertSign", dap_cert_add_cert_sign_py, METH_VARARGS, ""},
+        {"countCertSign", dap_cert_count_cert_sign_py, METH_NOARGS, ""},
+        {"deleteByName", dap_cert_delete_by_name_py, METH_VARARGS | METH_STATIC, ""},
         {NULL, NULL, 0, NULL}
 };
 
