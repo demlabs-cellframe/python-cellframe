@@ -247,7 +247,7 @@ PyObject* dap_cert_compare_with_sign_py(PyObject *self, PyObject *args)
 {
     PyObject *l_obj_sign = NULL;
     if (!PyArg_ParseTuple(args, "O", &l_obj_sign)){
-        PyErr_SetString(PyExc_BytesWarning, "The first agrument the is not a bytes object");
+        PyErr_SetString(PyExc_SyntaxError, "Wrong arguments list in function call");
         return NULL;
     }
     int res = dap_cert_compare_with_sign(((PyCryptoCertObject*)self)->cert, ((PyDapSignObject*)l_obj_sign)->sign);
@@ -257,7 +257,7 @@ PyObject* dap_cert_compare_with_sign_py(PyObject *self, PyObject *args)
 PyObject* dap_cert_sign_output_size_py(PyObject *self, PyObject *args){
     int l_size_wished;
     if (!PyArg_ParseTuple(args, "i", &l_size_wished)){
-        PyErr_SetString(PyExc_BytesWarning, "The first agrument the is not a bytes object");
+        PyErr_SetString(PyExc_SyntaxError, "Wrong arguments list in function call");
         return NULL;
     }
     Py_ssize_t l_sign_output_size = (Py_ssize_t)dap_cert_sign_output_size(((PyCryptoCertObject*)self)->cert, l_size_wished);
@@ -297,7 +297,7 @@ PyObject* dap_cert_folder_add_py(PyObject *self, PyObject *args)
     (void) self;
     const char *l_path_folder = NULL;
     if (!PyArg_ParseTuple(args, "s", &l_path_folder)){
-        PyErr_SetString(PyExc_BytesWarning, "The first agrument the is not a bytes object");
+        PyErr_SetString(PyExc_SyntaxError, "Wrong arguments list in function call");
         return NULL;
     }
     dap_cert_add_folder(l_path_folder);
@@ -309,7 +309,7 @@ PyObject* dap_cert_folder_get_py(PyObject *self, PyObject *args)
     (void)self;
     int l_n_folder_path;
     if (!PyArg_ParseTuple(args, "i", &l_n_folder_path)){
-        PyErr_SetString(PyExc_BytesWarning, "The first agrument the is not a bytes object");
+        PyErr_SetString(PyExc_SyntaxError, "Wrong arguments list in function call");
         return NULL;
     }
     const char *l_path_folder = dap_cert_get_folder(l_n_folder_path);
@@ -319,7 +319,7 @@ PyObject* dap_cert_folder_get_py(PyObject *self, PyObject *args)
 PyObject* dap_cert_add_cert_sign_py(PyObject *self, PyObject *args){
     PyObject *l_obj_cert_signer = NULL;
     if (!PyArg_ParseTuple(args, "O", &l_obj_cert_signer)){
-        PyErr_SetString(PyExc_BytesWarning, "The first agrument the is not a bytes object");
+        PyErr_SetString(PyExc_SyntaxError, "Wrong arguments list in function call");
         return NULL;
     }
     return dap_cert_add_cert_sign(((PyCryptoCertObject*)self)->cert, ((PyCryptoCertObject*)l_obj_cert_signer)->cert) == 0 ?
@@ -330,6 +330,45 @@ PyObject* dap_cert_count_cert_sign_py(PyObject *self, PyObject *args){
     (void)args;
     Py_ssize_t l_count = (Py_ssize_t)dap_cert_count_cert_sign(((PyCryptoCertObject*)self)->cert);
     return Py_BuildValue("n", l_count);
+}
+
+PyObject* dap_cert_encrypt_py(PyObject *self, PyObject *args){
+    PyObject *l_obj_bytes = NULL;
+    if (!PyArg_ParseTuple(args, "O", &l_obj_bytes)){
+        PyErr_SetString(PyExc_SyntaxError, "Wrong arguments list in function call");
+        return NULL;
+    }
+    if (!PyBytes_AsString(l_obj_bytes)){
+        PyErr_SetString(PyExc_BytesWarning, "The first agrument the is not a bytes object");
+        return NULL;
+    }
+    size_t l_len_data = (size_t)PyBytes_Size(l_obj_bytes);
+    void *l_in_data = PyBytes_AsString(l_obj_bytes);
+    void *l_out_data = NULL;
+    size_t l_size_out_data = ((PyCryptoCertObject*)self)->cert->enc_key->enc(((PyCryptoCertObject*)self)->cert->enc_key,
+                                                                             l_in_data,
+                                                                             l_len_data,
+                                                                             &l_out_data);
+    PyObject *l_obj_out_data = PyBytes_FromStringAndSize(l_out_data, l_size_out_data);
+    return Py_BuildValue("O", l_obj_out_data);
+}
+
+PyObject* dap_cert_decrypt_py(PyObject *self, PyObject *args){
+    PyObject *l_obj_bytes = NULL;
+    if (!PyArg_ParseTuple(args, "O", &l_obj_bytes)){
+        PyErr_SetString(PyExc_SyntaxError, "Wrong arguments list in function call");
+        return NULL;
+    }
+    if (!PyBytes_AsString(l_obj_bytes)){
+        PyErr_SetString(PyExc_BytesWarning, "The first agrument the is not a bytes object");
+        return NULL;
+    }
+    size_t l_len_data = (size_t)PyBytes_Size(l_obj_bytes);
+    void *l_in_data = PyBytes_AsString(l_obj_bytes);
+    void *l_out_data = NULL;
+    size_t l_size_out_data = ((PyCryptoCertObject*)self)->cert->enc_key->dec(((PyCryptoCertObject*)self)->cert->enc_key, l_in_data, l_len_data, &l_out_data);
+    PyObject *l_obj_out_data = PyBytes_FromStringAndSize(l_out_data, l_size_out_data);
+    return Py_BuildValue("O", l_obj_out_data);
 }
 
 int dap_cert_init_py(void)

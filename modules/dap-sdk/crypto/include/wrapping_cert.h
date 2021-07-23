@@ -66,6 +66,9 @@ PyObject* dap_cert_folder_get_py(PyObject *self, PyObject *args);
 PyObject* dap_cert_add_cert_sign_py(PyObject *self, PyObject *args);
 PyObject* dap_cert_count_cert_sign_py(PyObject *self, PyObject *args);
 
+PyObject* dap_cert_encrypt_py(PyObject *self, PyObject *args);
+PyObject* dap_cert_decrypt_py(PyObject *self, PyObject *args);
+
 static PyMethodDef g_crypto_cert_methods_py[] = {
         {"generate",dap_cert_generate_py , METH_VARARGS | METH_STATIC, "Generate from seed or randomly the new certificate"},
         {"generateMEM", dap_cert_generate_mem_py, METH_VARARGS | METH_STATIC, ""},
@@ -87,6 +90,8 @@ static PyMethodDef g_crypto_cert_methods_py[] = {
         {"addCertSign", dap_cert_add_cert_sign_py, METH_VARARGS, ""},
         {"countCertSign", dap_cert_count_cert_sign_py, METH_NOARGS, ""},
         {"deleteByName", dap_cert_delete_by_name_py, METH_VARARGS | METH_STATIC, ""},
+        {"encrypt", dap_cert_encrypt_py, METH_VARARGS, ""},
+        {"decrypt", dap_cert_decrypt_py, METH_VARARGS, ""},
         {NULL, NULL, 0, NULL}
 };
 
