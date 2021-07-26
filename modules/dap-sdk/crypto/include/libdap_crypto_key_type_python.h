@@ -82,7 +82,7 @@ static PyMethodDef PyCryptoKeyTypeObjecyMethods[] = {
 static PyTypeObject CryptoKeyTypeObjecy_CryptoKeyTypeObjecyType = {
     PyVarObject_HEAD_INIT(NULL, 0)
     "CellFrame.CryptoKeyType",           /* tp_name */
-    sizeof(PyCryptoKeyTypeObjecy),       /* tp_basicsize */
+    sizeof(PyCryptoKeyTypeObject),       /* tp_basicsize */
     0,		                         /* tp_itemsize */
     0,		   			 /* tp_dealloc */
     0,            		         /* tp_print */
