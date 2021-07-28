@@ -177,3 +177,87 @@ PyObject *dap_cert_get_meta_custom_py(PyObject *self, PyObject *args){
 }
 
 ///!!! META TYPE
+
+PyObject *GET_DAP_CERT_META_STRING(PyObject *self, PyObject *args){
+    (void)self;
+    (void)args;
+    PyDapCertMetadataTypeObject *l_obj_metadata_type = (PyDapCertMetadataTypeObject*)_PyObject_New(&g_crypto_cert_type_metadata_type_py);
+    l_obj_metadata_type->type = DAP_CERT_META_STRING;
+    return Py_BuildValue("O", l_obj_metadata_type);
+}
+PyObject *GET_DAP_CERT_META_BOOL(PyObject *self, PyObject *args){
+    (void)self;
+    (void)args;
+    PyDapCertMetadataTypeObject *l_obj_metadata_type = (PyDapCertMetadataTypeObject*)_PyObject_New(&g_crypto_cert_type_metadata_type_py);
+    l_obj_metadata_type->type = DAP_CERT_META_BOOL;
+    return Py_BuildValue("O", l_obj_metadata_type);
+}
+PyObject *GET_DAP_CERT_META_INT(PyObject *self, PyObject *args){
+    (void)self;
+    (void)args;
+    PyDapCertMetadataTypeObject *l_obj_metadata_type = (PyDapCertMetadataTypeObject*)_PyObject_New(&g_crypto_cert_type_metadata_type_py);
+    l_obj_metadata_type->type = DAP_CERT_META_INT;
+    return Py_BuildValue("O", l_obj_metadata_type);
+}
+PyObject *GET_DAP_CERT_META_DATETIME(PyObject *self, PyObject *args){
+    (void)self;
+    (void)args;
+    PyDapCertMetadataTypeObject *l_obj_metadata_type = (PyDapCertMetadataTypeObject*)_PyObject_New(&g_crypto_cert_type_metadata_type_py);
+    l_obj_metadata_type->type = DAP_CERT_META_DATETIME;
+    return Py_BuildValue("O", l_obj_metadata_type);
+}
+PyObject *GET_DAP_CERT_META_DATETIME_PERIOD(PyObject *self, PyObject *args){
+    (void)self;
+    (void)args;
+    PyDapCertMetadataTypeObject *l_obj_metadata_type = (PyDapCertMetadataTypeObject*)_PyObject_New(&g_crypto_cert_type_metadata_type_py);
+    l_obj_metadata_type->type = DAP_CERT_META_DATETIME_PERIOD;
+    return Py_BuildValue("O", l_obj_metadata_type);
+}
+PyObject *GET_DAP_CERT_META_SIGN(PyObject *self, PyObject *args){
+    (void)self;
+    (void)args;
+    PyDapCertMetadataTypeObject *l_obj_metadata_type = (PyDapCertMetadataTypeObject*)_PyObject_New(&g_crypto_cert_type_metadata_type_py);
+    l_obj_metadata_type->type = DAP_CERT_META_SIGN;
+    return Py_BuildValue("O", l_obj_metadata_type);
+}
+PyObject *GET_DAP_CERT_META_CUSTOM(PyObject *self, PyObject *args){
+    (void)self;
+    (void)args;
+    PyDapCertMetadataTypeObject *l_obj_metadata_type = (PyDapCertMetadataTypeObject*)_PyObject_New(&g_crypto_cert_type_metadata_type_py);
+    l_obj_metadata_type->type = DAP_CERT_META_CUSTOM;
+    return Py_BuildValue("O", l_obj_metadata_type);
+}
+PyObject *getName(PyObject *self, PyObject *args){
+    (void)args;
+    char *s = NULL;
+    switch (((PyDapCertMetadataTypeObject*)self)->type){
+    case DAP_CERT_META_STRING:
+        s = "DAP_CERT_META_STRING";
+        break;
+    case DAP_CERT_META_BOOL:
+        s = "DAP_CERT_META_BOOL";
+        break;
+    case DAP_CERT_META_INT:
+        s = "DAP_CERT_META_INT";
+        break;
+    case DAP_CERT_META_DATETIME:
+        s = "DAP_CERT_META_DATETIME";
+        break;
+    case DAP_CERT_META_DATETIME_PERIOD:
+        s = "DAP_CERT_META_DATETIME_PERIOD";
+        break;
+    case DAP_CERT_META_SIGN:
+        s = "DAP_CERT_META_SIGN";
+        break;
+    case DAP_CERT_META_CUSTOM:
+        s = "DAP_CERT_META_CUSTOM";
+        break;
+    }
+    return Py_BuildValue("s", s);
+}
+PyObject *getValue(PyObject *self, PyObject *args){
+    (void)args;
+    int l_code = ((PyDapCertMetadataTypeObject*)self)->type;
+    return Py_BuildValue("i", l_code);
+}
+

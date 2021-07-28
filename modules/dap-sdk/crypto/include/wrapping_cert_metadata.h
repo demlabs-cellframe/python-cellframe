@@ -14,7 +14,26 @@ typedef struct PyDapCertMetadataType{
     dap_cert_metadata_type_t type;
 }PyDapCertMetadataTypeObject;
 
+PyObject *GET_DAP_CERT_META_STRING(PyObject *self, PyObject *args);
+PyObject *GET_DAP_CERT_META_BOOL(PyObject *self, PyObject *args);
+PyObject *GET_DAP_CERT_META_INT(PyObject *self, PyObject *args);
+PyObject *GET_DAP_CERT_META_DATETIME(PyObject *self, PyObject *args);
+PyObject *GET_DAP_CERT_META_DATETIME_PERIOD(PyObject *self, PyObject *args);
+PyObject *GET_DAP_CERT_META_SIGN(PyObject *self, PyObject *args);
+PyObject *GET_DAP_CERT_META_CUSTOM(PyObject *self, PyObject *args);
+PyObject *getName(PyObject *self, PyObject *args);
+PyObject *getValue(PyObject *self, PyObject *args);
+
 static PyMethodDef g_crypto_cert_metadata_type_methods_py[] = {
+        {"GET_DAP_CERT_META_STRING", (PyCFunction)GET_DAP_CERT_META_STRING, METH_NOARGS | METH_STATIC, ""},
+        {"GET_DAP_CERT_META_BOOL", (PyCFunction)GET_DAP_CERT_META_BOOL, METH_NOARGS | METH_STATIC, ""},
+        {"GET_DAP_CERT_META_INT", (PyCFunction)GET_DAP_CERT_META_INT, METH_NOARGS | METH_STATIC, ""},
+        {"GET_DAP_CERT_META_DATETIME", (PyCFunction)GET_DAP_CERT_META_DATETIME, METH_NOARGS | METH_STATIC, ""},
+        {"GET_DAP_CERT_META_DATETIME_PERIOD", (PyCFunction)GET_DAP_CERT_META_DATETIME_PERIOD, METH_NOARGS | METH_STATIC, ""},
+        {"GET_DAP_CERT_META_SIGN", (PyCFunction)GET_DAP_CERT_META_SIGN, METH_NOARGS | METH_STATIC, ""},
+        {"GET_DAP_CERT_META_CUSTOM", (PyCFunction)GET_DAP_CERT_META_CUSTOM, METH_NOARGS | METH_STATIC, ""},
+        {"Name", (PyCFunction)getName, METH_NOARGS | METH_STATIC, ""},
+        {"Value", (PyCFunction)getValue, METH_NOARGS | METH_STATIC, ""},
         {NULL, NULL, 0, NULL}
 };
 
