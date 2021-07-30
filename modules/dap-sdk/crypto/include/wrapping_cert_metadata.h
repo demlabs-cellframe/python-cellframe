@@ -118,6 +118,20 @@ static PyMethodDef g_crypto_cert_metadata_methods_py[] = {
         {"new", dap_cert_new_meta_py, METH_VARARGS | METH_STATIC, ""},
         {"addBytes", dap_cert_add_meta_bytes_py, METH_VARARGS | METH_STATIC, ""},
         {"addScalar", dap_cert_add_meta_scalar_py, METH_VARARGS | METH_STATIC, ""},
+        {"addString", dap_cert_add_meta_string_py, METH_VARARGS | METH_STATIC, ""},
+        {"addSign", dap_cert_add_meta_sign_py, METH_VARARGS | METH_STATIC, ""},
+        {"addCustom", dap_cert_add_meta_custom_py, METH_VARARGS | METH_STATIC, ""},
+        {"addBool", dap_cert_add_meta_bool_py, METH_VARARGS | METH_STATIC, ""},
+        {"addInt", dap_cert_add_meta_int_py, METH_VARARGS | METH_STATIC, ""},
+        {"addTime", dap_cert_add_meta_time_py, METH_VARARGS | METH_STATIC, ""},
+        {"addPeriod", dap_cert_add_meta_period_py, METH_VARARGS | METH_STATIC, ""},
+        {"getString", dap_cert_get_meta_string_py, METH_VARARGS | METH_STATIC, ""},
+        {"getBool", dap_cert_get_meta_bool_py, METH_VARARGS | METH_STATIC, ""},
+        {"getInt", dap_cert_get_meta_int_py, METH_VARARGS | METH_STATIC, ""},
+        {"getTime", dap_cert_get_meta_time_py, METH_VARARGS | METH_STATIC, ""},
+        {"getPeriod", dap_cert_get_meta_period_py, METH_VARARGS | METH_STATIC, ""},
+        {"getSign", dap_cert_get_meta_sign_py, METH_VARARGS | METH_STATIC, ""},
+        {"getCustom", dap_cert_get_meta_custom_py, METH_VARARGS | METH_STATIC, ""},
         {NULL, NULL, 0, NULL}
 };
 
