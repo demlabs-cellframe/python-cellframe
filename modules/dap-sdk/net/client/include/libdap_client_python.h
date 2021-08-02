@@ -1,6 +1,8 @@
 #define PY_SSIZE_T_CLEAN
 #include <Python.h>
 #include "dap_client.h"
+#include "dap_events_python.h"
+#include "uthash.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -11,10 +13,22 @@ typedef struct PyDapClient{
     dap_client_t *client;
 }PyDapClientObject;
 
+struct dap_client_call_hash{
+    dap_client_t *client;
+    PyObject *call_func_stage_status;
+    PyObject *call_func_stage_status_error;
+    UT_hash_handle hh;
+};
+
+struct dap_client_call_hash *g_client_hash_table = NULL;
+
 int dap_client_init_py();
 void dap_client_deinit_py();
 
-//PyObject *dap_client_new_py(PyObject *)
+void _wrapping_callback_stage_status(dap_client_t *a_client, void *a_data);
+void _wrapping_callback_stage_status_error(dap_client_t *a_client, void *a_data);
+
+int dap_client_obj_init(PyDapClientObject *self, PyObject *args, PyObject *kwds);
 PyObject *dap_client_delete_py(PyObject *self, PyObject *args);
 
 PyObject *dao_client_set_uplink_py(PyObject *self, PyObject *args);
@@ -86,7 +100,7 @@ static PyTypeObject dapClientObject_dapClientType = {
         0,                                                            /* tp_descr_get */
         0,                                                            /* tp_descr_set */
         0,                                                            /* tp_dictoffset */
-        0,                                                            /* tp_init */
+        (initproc)dap_client_obj_init,                                /* tp_init */
         0,                                                            /* tp_alloc */
         PyType_GenericNew,                                            /* tp_new */
 
