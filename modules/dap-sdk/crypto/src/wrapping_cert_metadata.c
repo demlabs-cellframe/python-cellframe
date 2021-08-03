@@ -48,23 +48,132 @@ PyObject *dap_cert_new_meta_py(PyObject *self, PyObject *args){
         return Py_BuildValue("O", l_obj_metadata);
     }
 }
-PyObject *dap_cert_add_meta_bytes_py(PyObject *self, PyObject *args){
+PyObject *dap_cert_add_meta_py(PyObject *self, PyObject *args){
     (void)self;
     PyObject *l_obj_cert = NULL;
-    PyObject *l_obj_type = NULL;
-    PyObject *l_obj_value = NULL;
     const char *l_key = NULL;
-    if (!PyArg_ParseTuple(args, "OsOO", &l_obj_cert, &l_key, &l_obj_type, &l_obj_value)){
+    PyObject *l_obj_type = NULL;
+    PyObject *l_obj_data = NULL;
+    if (!PyArg_ParseTuple(args, "OsO|O", &l_obj_cert, &l_key, &l_obj_data, &l_obj_type)){
         PyErr_SetString(PyExc_SyntaxError, "Wrong arguments list in function call");
         return NULL;
     }
-    if (!PyBytes_Check(l_obj_value)){
-        PyErr_SetString(PyExc_BytesWarning, "The third agrument the is not a bytes object");
+    if (l_obj_type == NULL){
+        if (PyUnicode_Check(l_obj_data)){
+            const char *l_str = PyUnicode_AsUTF8(l_obj_data);
+            dap_cert_add_meta_string(((PyCryptoCertObject*)l_obj_cert)->cert, l_key, l_str);
+            return Py_None;
+        }
+        if (PyLong_Check(l_obj_data)){
+            dap_cert_add_meta_int(((PyCryptoCertObject*)l_obj_cert)->cert, l_key, _PyLong_AsInt(l_obj_data));
+            return Py_None;
+        }
+        if (PyBytes_Check(l_obj_data)){
+            size_t l_value_size = (size_t)PyBytes_Size(l_obj_data);
+            void *l_value = PyBytes_AsString(l_obj_data);
+            dap_cert_add_meta_custom(((PyCryptoCertObject*)l_obj_cert)->cert, l_key, l_value, l_value_size);
+            return Py_None;
+        }
+        if (PyBool_Check(l_obj_data)){
+            if (l_obj_data == Py_True){
+                dap_cert_add_meta_bool(((PyCryptoCertObject*)l_obj_cert)->cert, l_key, true);
+            } else {
+                dap_cert_add_meta_bool(((PyCryptoCertObject*)l_obj_cert)->cert, l_key, false);
+            }
+            return Py_None;
+        }
+        if (PyDateTime_Check(l_obj_data)){
+            time_t l_time = _wrapping_cert_metadata_get_time_t(l_obj_data);
+            dap_cert_add_meta_time(((PyCryptoCertObject*)l_obj_cert)->cert, l_key, l_time);
+            return Py_None;
+        }
+        if (PyDapSignObject_Check(l_obj_data)){
+            dap_cert_add_meta_sign(((PyCryptoCertObject*)l_obj_cert)->cert, l_key, ((PyDapSignObject*)l_obj_data)->sign);
+            return Py_None;
+        }
+        PyErr_SetString(PyExc_SyntaxError, "Can't add metadata to the certificate. An object of unknown type was received.");
         return NULL;
+    } else {
+        if(!PyObject_TypeCheck(l_obj_type, &g_crypto_cert_type_metadata_type_py)){
+            PyErr_SetString(PyExc_SyntaxError, "The fourth argument does not indicate the type of metadata");
+            return NULL;
+        }
+        switch (((PyDapCertMetadataTypeObject*)l_obj_type)->type) {
+        case DAP_CERT_META_STRING:
+            if (PyUnicode_Check(l_obj_data)){
+                const char *l_str = PyUnicode_AsUTF8(l_obj_data);
+                dap_cert_add_meta_string(((PyCryptoCertObject*)l_obj_cert)->cert, l_key, l_str);
+                return Py_None;
+            } else {
+                PyErr_SetString(PyExc_SyntaxError, "Wrong arguments list in function call");
+                return NULL;
+            }
+            break;
+        case DAP_CERT_META_INT:
+            if (PyLong_Check(l_obj_data)){
+                dap_cert_add_meta_int(((PyCryptoCertObject*)l_obj_cert)->cert, l_key, _PyLong_AsInt(l_obj_data));
+                return Py_None;
+            } else {
+                PyErr_SetString(PyExc_SyntaxError, "Wrong arguments list in function call");
+                return NULL;
+            }
+            break;
+        case DAP_CERT_META_BOOL:
+            if (PyBool_Check(l_obj_data)){
+                if (l_obj_data == Py_True){
+                    dap_cert_add_meta_bool(((PyCryptoCertObject*)l_obj_cert)->cert, l_key, true);
+                } else {
+                    dap_cert_add_meta_bool(((PyCryptoCertObject*)l_obj_cert)->cert, l_key, false);
+                }
+                return Py_None;
+            } else {
+                PyErr_SetString(PyExc_SyntaxError, "Wrong arguments list in function call");
+                return NULL;
+            }
+            break;
+        case DAP_CERT_META_CUSTOM:
+            if (PyBytes_Check(l_obj_data)){
+                size_t l_value_size = (size_t)PyBytes_Size(l_obj_data);
+                void *l_value = PyBytes_AsString(l_obj_data);
+                dap_cert_add_meta_custom(((PyCryptoCertObject*)l_obj_cert)->cert, l_key, l_value, l_value_size);
+                return Py_None;
+            } else {
+                PyErr_SetString(PyExc_SyntaxError, "Wrong arguments list in function call");
+                return NULL;
+            }
+            break;
+        case DAP_CERT_META_DATETIME:
+            if (PyDateTime_Check(l_obj_data)){
+                time_t l_time = _wrapping_cert_metadata_get_time_t(l_obj_data);
+                dap_cert_add_meta_time(((PyCryptoCertObject*)l_obj_cert)->cert, l_key, l_time);
+                return Py_None;
+            } else {
+                PyErr_SetString(PyExc_SyntaxError, "Wrong arguments list in function call");
+                return NULL;
+            }
+            break;
+        case DAP_CERT_META_DATETIME_PERIOD:
+            if (PyDateTime_Check(l_obj_data)){
+                time_t l_time = _wrapping_cert_metadata_get_time_t(l_obj_data);
+                dap_cert_add_meta_period(((PyCryptoCertObject*)l_obj_cert)->cert, l_key, l_time);
+                return Py_None;
+            } else {
+                PyErr_SetString(PyExc_SyntaxError, "Wrong arguments list in function call");
+                return NULL;
+            }
+            break;
+        case DAP_CERT_META_SIGN:
+            if (PyDapSignObject_Check(l_obj_data)){
+                dap_cert_add_meta_sign(((PyCryptoCertObject*)l_obj_cert)->cert, l_key, ((PyDapSignObject*)l_obj_data)->sign);
+                return Py_None;
+            } else {
+                PyErr_SetString(PyExc_SyntaxError, "Wrong arguments list in function call");
+                return NULL;
+            }
+            break;
+
+        }
     }
-    size_t l_value_size = (size_t)PyBytes_Size(l_obj_value);
-    void *l_value = PyBytes_AsString(l_obj_value);
-    dap_cert_add_meta(((PyCryptoCertObject*)l_obj_cert)->cert, l_key, ((PyDapCertMetadataTypeObject*)l_obj_type)->type, l_value, l_value_size);
     return Py_None;
 }
 PyObject *dap_cert_add_meta_scalar_py(PyObject *self, PyObject *args){
