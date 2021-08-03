@@ -2,6 +2,7 @@
 #include "wrapping_cert.h"
 #include "wrapping_dap_sign.h"
 #include "datetime.h"
+#include "dap_sign.h"
 
 
 ///!!! META
@@ -319,6 +320,130 @@ PyObject *dap_cert_add_meta_period_py(PyObject *self, PyObject *args){
     time_t l_time = _wrapping_cert_metadata_get_time_t(l_obj_data);
     dap_cert_add_meta_period(((PyCryptoCertObject*)l_obj_cert)->cert, l_key, l_time);
     return Py_None;
+}
+
+PyObject *dap_cert_get_meta_py(PyObject *self, PyObject *args){
+    (void)self;
+    PyObject *l_obj_cert = NULL;
+    const char *l_key = NULL;
+    PyObject *l_obj_type_data = NULL;
+    if (!PyArg_ParseTuple(args, "Os|O", &l_obj_cert, &l_key, &l_obj_type_data)){
+        PyErr_SetString(PyExc_SyntaxError, "Wrong arguments list in function call");
+        return NULL;
+    }
+    if (l_obj_type_data == NULL){
+        dap_cert_metadata_t *l_meta = dap_binary_tree_search(((PyCryptoCertObject*)l_obj_cert)->cert->metadata, l_key);
+        char *s_data;
+        int i_data;
+        bool b_data;
+        time_t t_data;
+        PyObject *obj_data = NULL;
+        void *v_data = NULL;
+        dap_sign_t *l_sign = NULL;
+        switch (l_meta->type) {
+        case DAP_CERT_META_STRING:
+            s_data = strndup((char *)&l_meta->value[0], l_meta->length);
+            return Py_BuildValue("s", s_data);
+        case DAP_CERT_META_INT:
+            if (l_meta->length != sizeof(int)) {
+                PyErr_SetString(PyExc_ValueError, "Metadata field corrupted");
+                return NULL;
+            }
+            i_data = *(int *)&l_meta->value[0];
+            return Py_BuildValue("i", i_data);
+            break;
+        case DAP_CERT_META_BOOL:
+            if (l_meta->length != sizeof(bool)) {
+                PyErr_SetString(PyExc_ValueError, "Metadata field corrupted");
+                return NULL;
+            }
+            b_data = *(bool *)&l_meta->value[0];
+            if (b_data == true){
+                return Py_BuildValue("O", Py_True);
+            } else {
+                return Py_BuildValue("O", Py_False);
+            }
+            break;
+        case DAP_CERT_META_CUSTOM:
+            v_data = (void *)&l_meta->value[0];
+            obj_data = PyBytes_FromStringAndSize(v_data, (size_t)l_meta->length);
+            return Py_BuildValue("O", obj_data);
+            break;
+        case DAP_CERT_META_SIGN:
+            l_sign = (dap_sign_t *)&l_meta->value[0];
+            if (l_meta->length != dap_sign_get_size(l_sign)) {
+                PyErr_SetString(PyExc_ValueError, "Metadata field corrupted");
+                return NULL;
+            }
+            obj_data = _PyObject_New(&DapSignObject_DapSignObjectType);
+            ((PyDapSignObject*)obj_data)->sign = l_sign;
+            return Py_BuildValue("O", obj_data);
+            break;
+        case DAP_CERT_META_DATETIME:
+            if (l_meta->length != sizeof(time_t)) {
+                PyErr_SetString(PyExc_ValueError, "Metadata field corrupted");
+                return NULL;
+            }
+            t_data = *(time_t *)&l_meta->value[0];
+            obj_data = _wrapping_cert_metadata_get_dateTime(&t_data);
+            return Py_BuildValue("O", obj_data);
+            break;
+        case DAP_CERT_META_DATETIME_PERIOD:
+            if (l_meta->length != sizeof(time_t)) {
+                PyErr_SetString(PyExc_ValueError, "Metadata field corrupted");
+                return NULL;
+            }
+            t_data = *(time_t *)&l_meta->value[0];
+            obj_data = _wrapping_cert_metadata_get_dateTime(&t_data);
+            return Py_BuildValue("O", obj_data);
+            break;
+        }
+    } else {
+        char *s_data;
+        int i_data;
+        dap_sign_t *l_sign;
+        PyObject *obj_data = NULL;
+        time_t t_data;
+        void *v_data;
+        size_t v_data_size;
+        switch (((PyDapCertMetadataTypeObject*)l_obj_type_data)->type) {
+        case DAP_CERT_META_STRING:
+            s_data = dap_cert_get_meta_string(((PyCryptoCertObject*)l_obj_cert)->cert, l_key);
+            return Py_BuildValue("s", s_data);
+            break;
+        case DAP_CERT_META_INT:
+            i_data = dap_cert_get_meta_int(((PyCryptoCertObject*)l_obj_cert)->cert, l_key);
+            return Py_BuildValue("i", i_data);
+            break;
+        case DAP_CERT_META_BOOL:
+            return dap_cert_get_meta_bool(((PyCryptoCertObject*)l_obj_cert)->cert, l_key) ? Py_BuildValue("O", Py_True) : Py_BuildValue("O", Py_False);
+            break;
+        case DAP_CERT_META_CUSTOM:
+            v_data = dap_cert_get_meta_custom(((PyCryptoCertObject*)l_obj_cert)->cert, l_key, &v_data_size);
+            obj_data = PyBytes_FromStringAndSize(v_data, v_data_size);
+            return Py_BuildValue("O", obj_data);
+            break;
+        case DAP_CERT_META_SIGN:
+            l_sign = dap_cert_get_meta_sign(((PyCryptoCertObject*)l_obj_cert)->cert, l_key);
+            if (l_sign == NULL)
+                return Py_None;
+            obj_data = _PyObject_New(&DapSignObject_DapSignObjectType);
+            ((PyDapSignObject*)obj_data)->sign = l_sign;
+            return Py_BuildValue("O", obj_data);
+            break;
+        case  DAP_CERT_META_DATETIME:
+            t_data = dap_cert_get_meta_time(((PyCryptoCertObject*)l_obj_cert)->cert, l_key);
+            obj_data = _wrapping_cert_metadata_get_dateTime(&t_data);
+            return Py_BuildValue("O", obj_data);
+            break;
+        case DAP_CERT_META_DATETIME_PERIOD:
+            t_data = dap_cert_get_meta_period(((PyCryptoCertObject*)l_obj_cert)->cert, l_key);
+            obj_data = _wrapping_cert_metadata_get_dateTime(&t_data);
+            return Py_BuildValue("O", obj_data);
+            break;
+        }
+    }
+    return NULL;
 }
 
 PyObject *dap_cert_get_meta_string_py(PyObject *self, PyObject *args){
