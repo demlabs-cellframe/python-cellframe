@@ -95,7 +95,7 @@ typedef struct PyDapCertMetadata{
 } PyDapCertMetadataObject;
 
 PyObject *dap_cert_new_meta_py(PyObject *self, PyObject *args);
-PyObject *dap_cert_add_meta_bytes_py(PyObject *self, PyObject *args);
+PyObject *dap_cert_add_meta_py(PyObject *self, PyObject *args);
 PyObject *dap_cert_add_meta_scalar_py(PyObject *self, PyObject *args);
 
 PyObject *dap_cert_add_meta_string_py(PyObject *self, PyObject *args);
@@ -116,7 +116,7 @@ PyObject *dap_cert_get_meta_custom_py(PyObject *self, PyObject *args);
 
 static PyMethodDef g_crypto_cert_metadata_methods_py[] = {
         {"new", dap_cert_new_meta_py, METH_VARARGS | METH_STATIC, ""},
-        {"addBytes", dap_cert_add_meta_bytes_py, METH_VARARGS | METH_STATIC, ""},
+        {"addBytes", dap_cert_add_meta_py, METH_VARARGS | METH_STATIC, ""},
         {"addScalar", dap_cert_add_meta_scalar_py, METH_VARARGS | METH_STATIC, ""},
         {"addString", dap_cert_add_meta_string_py, METH_VARARGS | METH_STATIC, ""},
         {"addSign", dap_cert_add_meta_sign_py, METH_VARARGS | METH_STATIC, ""},
