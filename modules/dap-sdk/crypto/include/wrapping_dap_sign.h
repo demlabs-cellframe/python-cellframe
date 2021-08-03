@@ -98,4 +98,8 @@ static PyTypeObject DapSignObject_DapSignObjectType = {
     PyType_GenericNew,               /* tp_new */
 };
 
+bool PyDapSignObject_Check(PyObject *self){
+    return PyObject_TypeCheck(self, &DapSignObject_DapSignObjectType);
+}
+
 #endif // _WRAPPING_DAP_SIGN_
