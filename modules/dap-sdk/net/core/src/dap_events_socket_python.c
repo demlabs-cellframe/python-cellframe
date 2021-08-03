@@ -10,18 +10,7 @@ PyObject *dap_events_socket_create_after_py(PyDapEventsSocketObject *self){
     return  PyLong_FromLong(0);
 }
 
-PyObject *dap_events_socket_find_py(PyDapEventsSocketObject *self, PyObject *args){
-    if (self->t_events_socket != NULL){
-        return NULL;
-    }
-    int socket;
-    PyObject *in_object;
-    if (!PyArg_ParseTuple(args, "i|O", &socket, &in_object)){
-        return NULL;
-    }
-    self->t_events_socket = dap_events_socket_find_unsafe(socket, ((PyDapEventsObject*)in_object)->t_events);
-    return  PyLong_FromLong(0);
-}
+
 PyObject *dap_events_socket_set_readable_py(PyDapEventsSocketObject *self, PyObject *args){
     if (self->t_events_socket == NULL){
         return NULL;
