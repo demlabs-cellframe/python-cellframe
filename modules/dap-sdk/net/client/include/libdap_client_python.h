@@ -3,6 +3,11 @@
 #include "dap_client.h"
 #include "dap_events_python.h"
 #include "uthash.h"
+//#include "wrapping_dap_enc_key.h"
+#include "wrapping_dap_client_stage.h"
+#include "dap_events_socket_python.h"
+#include "wrapping_cert.h"
+#include "wrapping_dap_client_stage_status.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -20,7 +25,8 @@ struct dap_client_call_hash{
     UT_hash_handle hh;
 };
 
-struct dap_client_call_hash *g_client_hash_table = NULL;
+static struct dap_client_call_hash *g_client_hash_table = NULL;
+static struct dap_client_call_hash *g_client_hash_table_go_stage_end = NULL;
 
 int dap_client_init_py();
 void dap_client_deinit_py();
@@ -31,30 +37,39 @@ void _wrapping_callback_stage_status_error(dap_client_t *a_client, void *a_data)
 int dap_client_obj_init(PyDapClientObject *self, PyObject *args, PyObject *kwds);
 PyObject *dap_client_delete_py(PyObject *self, PyObject *args);
 
-PyObject *dao_client_set_uplink_py(PyObject *self, PyObject *args);
-PyObject *dap_client_get_uplink_addr_py(PyObject *self, PyObject *args);
-PyObject *dap_client_get_uplink_port_py(PyObject *self, PyObject *args);
+PyObject *dap_client_set_uplink_unsafe_py(PyObject *self, PyObject *args);
+PyObject *dap_client_get_uplink_addr_unsafe_py(PyObject *self, PyObject *args);
+PyObject *dap_client_get_uplink_port_unsafe_py(PyObject *self, PyObject *args);
 
 PyObject *dap_client_get_key_stream_py(PyObject *self, PyObject *args);
 PyObject *dap_client_go_stage_py(PyObject *self, PyObject *args);
-PyObject *dap_client_reset_py(PyObject *self, PyObject *args);
+
+PyObject *dap_client_delete_mt_py(dap_client_t * a_client);
+PyObject *dap_client_delete_unsafe_py(dap_client_t * a_client);
+
+//PyObject *dap_client_reset_py(PyObject *self, PyObject *args);
 PyObject *dap_client_request_enc_py(PyObject *self, PyObject *args);
 PyObject *dap_client_request_py(PyObject *self, PyObject *args);
-PyObject *dap_client_disconnect_py(PyObject *self, PyObject *args);
+//PyObject *dap_client_disconnect_py(PyObject *self, PyObject *args);
 
 PyObject *dap_client_get_stage_str_py(PyObject *self, PyObject *args);
-PyObject *dap_client_stage_str_py(PyObject *self, PyObject *args);
+//PyObject *dap_client_stage_str_py(PyObject *self, PyObject *args); IN GET Value from object ClientStage
 
 PyObject *dap_client_get_stage_status_str_py(PyObject *self, PyObject *args);
-PyObject *dap_client_stage_status_str_py(PyObject *self, PyObject *args);
-PyObject *dap_client_error_str_py(PyObject *self, PyObject *args);
+//PyObject *dap_client_stage_status_str_py(PyObject *self, PyObject *args); IN GET Value from object ClientStageStatus
+//PyObject *dap_client_error_str_py(PyObject *self, PyObject *args);
 PyObject *dap_client_get_error_str_py(PyObject *self, PyObject *args);
 
+PyObject *dap_client_get_is_always_reconnect_py(PyObject *self, PyObject *args);
+PyObject *dap_client_set_is_always_reconnect_py(PyObject *self, PyObject *args);
+
+PyObject *dap_client_from_esocket_py(PyObject *self, PyObject *args);
 PyObject *dap_client_get_auth_cookie_py(PyObject *self, PyObject *args);
 PyObject *dap_client_get_stream_py(PyObject *self, PyObject *args);
 PyObject *dap_client_get_stream_ch_py(PyObject *self, PyObject *args);
 PyObject *dap_client_get_stream_id_py(PyObject *self, PyObject *args);
-PyObject *dap_client_set_active_channels_py(PyObject *self, PyObject *args);
+PyObject *dap_client_set_active_channels_unsafe_py(PyObject *self, PyObject *args);
+PyObject *dap_client_set_auth_cert_unsafe_py(PyObject *self, PyObject *args);
 
 PyObject *dap_client_get_stage_py(PyObject *self, PyObject *args);
 PyObject *dap_client_get_stage_status_py(PyObject *self, PyObject *args);
