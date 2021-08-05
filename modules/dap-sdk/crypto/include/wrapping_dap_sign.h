@@ -98,7 +98,7 @@ static PyTypeObject DapSignObject_DapSignObjectType = {
     PyType_GenericNew,               /* tp_new */
 };
 
-bool PyDapSignObject_Check(PyObject *self){
+static bool PyDapSignObject_Check(PyObject *self){
     return PyObject_TypeCheck(self, &DapSignObject_DapSignObjectType);
 }
 

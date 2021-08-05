@@ -35,3 +35,13 @@ PyObject *STAGE_STREAM_ABORT_PY(){
     obj_stage->stage = STAGE_STREAM_ABORT;
     return (PyObject *)obj_stage;
 }
+
+PyObject *dap_client_stage_str_getter(PyDapClientStageObject *self, void *closure){
+    (void)closure;
+    return Py_BuildValue("s", dap_client_stage_str(self->stage));
+}
+
+PyObject *dap_client_stage_int_getter(PyDapClientStageObject *self, void *closure){
+    (void)closure;
+    return Py_BuildValue("I", ((PyDapClientStageObject*)self)->stage);
+}

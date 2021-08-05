@@ -31,6 +31,15 @@ static PyMethodDef DapClientStageMethods[] = {
         {NULL, NULL, 0, NULL}
 };
 
+PyObject *dap_client_stage_str_getter(PyDapClientStageObject *self, void *closure);
+PyObject *dap_client_stage_int_getter(PyDapClientStageObject *self, void *closure);
+
+static PyGetSetDef DapClientStageGetSets[] = {
+    {"Name", (getter)dap_client_stage_str_getter, NULL, NULL, NULL},
+    {"Value", (getter)dap_client_stage_int_getter, NULL, NULL, NULL},
+    {NULL}
+};
+
 static PyTypeObject dapClientStageObject_dapClientStageType = {
         PyVarObject_HEAD_INIT(NULL, 0)
         "CellFrame.ClientStage",                                      /* tp_name */
@@ -58,11 +67,11 @@ static PyTypeObject dapClientStageObject_dapClientStageType = {
         0,		                                                      /* tp_clear */
         0,		                                                      /* tp_richcompare */
         0,		                                                      /* tp_weaklistoffset */
-        0,		                                                      /* tp_iter */
+        0,                                                      /* tp_iter */
         0,		                                                      /* tp_iternext */
         DapClientStageMethods,                                              /* tp_methods */
         0,                                                            /* tp_members */
-        0,                                                            /* tp_getset */
+        DapClientStageGetSets,                                        /* tp_getset */
         0,                                                            /* tp_base */
         0,                                                            /* tp_dict */
         0,                                                            /* tp_descr_get */
@@ -73,6 +82,10 @@ static PyTypeObject dapClientStageObject_dapClientStageType = {
         PyType_GenericNew,                                            /* tp_new */
 
 };
+
+static bool PyDapClientStageObject_Check(PyObject *obj){
+    return PyObject_TypeCheck(obj, &dapClientStageObject_dapClientStageType);
+}
 
 
 

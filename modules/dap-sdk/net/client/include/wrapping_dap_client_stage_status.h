@@ -21,7 +21,7 @@ PyObject *STAGE_STATUS_ERROR_PY();
 PyObject *STAGE_STATUS_DONE_PY();
 
 
-PyMethodDef DapClientStageStatusMethods[] = {
+static PyMethodDef DapClientStageStatusMethods[] = {
         {"STAGE_STATUS_NONE", STAGE_STATUS_NONE_PY, METH_NOARGS, ""},
         // Enc init stage
         {"STAGE_STATUS_IN_PROGRESS", STAGE_STATUS_IN_PROGRESS_PY, METH_NOARGS | METH_STATIC, ""},
@@ -30,6 +30,15 @@ PyMethodDef DapClientStageStatusMethods[] = {
         {"STAGE_STATUS_DONE", STAGE_STATUS_DONE_PY, METH_NOARGS | METH_STATIC, ""},
 
         {NULL, NULL, 0, NULL}
+};
+
+PyObject *dap_client_stage_status_str_getter(PyDapClientStageStatusObject *self, void *closure);
+PyObject *dap_client_stage_status_int_getter(PyDapClientStageStatusObject *self, void *closure);
+
+static PyGetSetDef DapClientStageStatusGetSets[] = {
+    {"Name", (getter)dap_client_stage_status_str_getter, NULL, NULL, NULL},
+    {"Value", (getter)dap_client_stage_status_int_getter, NULL, NULL, NULL},
+    {NULL}
 };
 
 static PyTypeObject dapClientStageStatusObject_dapClientStageStatusType = {
@@ -63,7 +72,7 @@ static PyTypeObject dapClientStageStatusObject_dapClientStageStatusType = {
         0,		                                                      /* tp_iternext */
         DapClientStageStatusMethods,                                              /* tp_methods */
         0,                                                            /* tp_members */
-        0,                                                            /* tp_getset */
+        DapClientStageStatusGetSets,                                  /* tp_getset */
         0,                                                            /* tp_base */
         0,                                                            /* tp_dict */
         0,                                                            /* tp_descr_get */

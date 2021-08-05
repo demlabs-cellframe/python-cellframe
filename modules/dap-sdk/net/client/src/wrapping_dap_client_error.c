@@ -98,13 +98,13 @@ PyObject* GET_ERROR_NETWORK_CONNECTION_TIMEOUT(PyObject *self, PyObject *args){
     l_obj->error = ERROR_NETWORK_CONNECTION_TIMEOUT;
     return Py_BuildValue("O", l_obj);
 }
-PyObject* getName(PyObject *self, PyObject *args){
-    (void)args;
-    const char *l_error_str = dap_client_error_str(((PyDapClientErrorObject*)self)->error);
+
+PyObject *dap_client_error_str_getter(PyDapClientErrorObject *self, void *closure){
+    (void)closure;
+    const char *l_error_str = dap_client_error_str(self->error);
     return Py_BuildValue("s", l_error_str);
 }
-PyObject* getValue(PyObject *self, PyObject *args){
-    (void)args;
-    int l_value = ((PyDapClientErrorObject*)self)->error;
-    return Py_BuildValue("i", l_value);
+PyObject *dap_client_error_int_getter(PyDapClientErrorObject *self, void *closure){
+    (void)closure;
+    return Py_BuildValue("I", self->error);
 }

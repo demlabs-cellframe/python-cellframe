@@ -147,6 +147,10 @@ static PyTypeObject g_crypto_cert_type_py = {
     0
 };
 
+static bool PyCryptoCertObject_Check(const PyObject *self){
+    return PyObject_TypeCheck(self, &g_crypto_cert_type_py);
+}
+
 #ifdef __cplusplus
 }
 #endif

@@ -26,8 +26,6 @@ PyObject* GET_ERROR_STREAM_RESPONSE_TIMEOUT(PyObject *self, PyObject *args);
 PyObject* GET_ERROR_STREAM_FREEZED(PyObject *self, PyObject *args);
 PyObject* GET_ERROR_NETWORK_CONNECTION_REFUSE(PyObject *self, PyObject *args);
 PyObject* GET_ERROR_NETWORK_CONNECTION_TIMEOUT(PyObject *self, PyObject *args);
-PyObject* getName(PyObject *self, PyObject *args);
-PyObject* getValue(PyObject *self, PyObject *args);
 
 PyMethodDef DapClientErrorMethods[] = {
         {"GET_ERROR_NO_ERROR", (PyCFunction)GET_ERROR_NO_ERROR, METH_NOARGS | METH_STATIC, ""},
@@ -44,9 +42,16 @@ PyMethodDef DapClientErrorMethods[] = {
         {"GET_ERROR_STREAM_FREEZED", (PyCFunction)GET_ERROR_STREAM_FREEZED, METH_NOARGS | METH_STATIC, ""},
         {"GET_ERROR_NETWORK_CONNECTION_REFUSE", (PyCFunction)GET_ERROR_NETWORK_CONNECTION_REFUSE, METH_NOARGS | METH_STATIC, ""},
         {"GET_ERROR_NETWORK_CONNECTION_TIMEOUT", (PyCFunction)GET_ERROR_NETWORK_CONNECTION_TIMEOUT, METH_NOARGS | METH_STATIC, ""},
-        {"name", getName, METH_NOARGS, ""},
-        {"value", getValue, METH_NOARGS, ""},
         {NULL, NULL, 0, NULL}
+};
+
+PyObject *dap_client_error_str_getter(PyDapClientErrorObject *self, void *closure);
+PyObject *dap_client_error_int_getter(PyDapClientErrorObject *self, void *closure);
+
+static PyGetSetDef DapClientErrorGetSets[] = {
+    {"Name", (getter)dap_client_error_str_getter, NULL, NULL, NULL},
+    {"Value", (getter)dap_client_error_int_getter, NULL, NULL, NULL},
+    {NULL}
 };
 
 static PyTypeObject dapClientErrorObject_dapClientErrorType = {
@@ -80,7 +85,7 @@ static PyTypeObject dapClientErrorObject_dapClientErrorType = {
         0,		                                                      /* tp_iternext */
         DapClientErrorMethods,                                              /* tp_methods */
         0,                                                            /* tp_members */
-        0,                                                            /* tp_getset */
+        DapClientErrorGetSets,                                        /* tp_getset */
         0,                                                            /* tp_base */
         0,                                                            /* tp_dict */
         0,                                                            /* tp_descr_get */

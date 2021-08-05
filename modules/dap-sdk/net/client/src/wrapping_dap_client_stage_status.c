@@ -31,3 +31,12 @@ PyObject *STAGE_STATUS_DONE_PY(){
     obj_stage_status->stage_status = STAGE_STATUS_DONE;
     return (PyObject *)obj_stage_status;
 }
+
+PyObject *dap_client_stage_status_str_getter(PyDapClientStageStatusObject *self, void *closure){
+    (void)closure;
+    return Py_BuildValue("s", dap_client_stage_status_str(self->stage_status));
+}
+PyObject *dap_client_stage_status_int_getter(PyDapClientStageStatusObject *self, void *closure){
+    (void)closure;
+    return Py_BuildValue("I", self->stage_status);
+}
