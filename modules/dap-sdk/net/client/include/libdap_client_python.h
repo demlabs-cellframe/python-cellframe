@@ -30,6 +30,15 @@ struct dap_client_call_hash{
 static struct dap_client_call_hash *g_client_hash_table = NULL;
 static struct dap_client_call_hash *g_client_hash_table_go_stage_end = NULL;
 
+struct dap_client_call_responce{
+    dap_client_t *client;
+    PyObject *call_func_response_proc;
+    PyObject *call_func_response_error;
+    UT_hash_handle hh;
+};
+
+static struct dap_client_call_responce *g_client_hash_table_response = NULL;
+
 int dap_client_init_py();
 void dap_client_deinit_py();
 
@@ -50,8 +59,8 @@ PyObject *dap_client_delete_mt_py(dap_client_t * a_client);
 PyObject *dap_client_delete_unsafe_py(dap_client_t * a_client);
 
 //PyObject *dap_client_reset_py(PyObject *self, PyObject *args);
-PyObject *dap_client_request_enc_py(PyObject *self, PyObject *args);
-PyObject *dap_client_request_py(PyObject *self, PyObject *args);
+PyObject *dap_client_request_enc_unsafe_py(PyObject *self, PyObject *args);
+PyObject *dap_client_request_unsafe_py(PyObject *self, PyObject *args);
 //PyObject *dap_client_disconnect_py(PyObject *self, PyObject *args);
 
 PyObject *dap_client_get_stage_str_py(PyObject *self, PyObject *args);

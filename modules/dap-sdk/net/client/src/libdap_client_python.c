@@ -51,6 +51,24 @@ void _wrapping_callback_stage_go_end(dap_client_t *a_client, void *a_data){
     PyEval_CallObject(l_obj_func, l_obj_args);
 }
 
+void _wrapping_callback_response_proc(dap_client_t *a_client, void *a_data, size_t a_data_size){
+    struct dap_client_call_hash *l_call;
+    HASH_FIND_PTR(g_client_hash_table_go_stage_end, a_client, l_call);
+    PyObject *l_obj_client = _PyObject_New(&dapClientObject_dapClientType);
+    ((PyDapClientObject*)l_obj_client)->client = a_client;
+    PyObject *l_obj_bytes = PyBytes_FromStringAndSize(a_data, a_data_size);
+    PyObject *l_args = Py_BuildValue("OO", l_obj_client, l_obj_bytes);
+    PyEval_CallObject(l_call->call_func_stage_status, l_args);
+}
+void _wrapping_callback_response_error(dap_client_t *a_client, int a_integer){
+    struct dap_client_call_hash *l_call;
+    HASH_FIND_PTR(g_client_hash_table_go_stage_end, a_client, l_call);
+    PyObject *l_obj_client = _PyObject_New(&dapClientObject_dapClientType);
+    ((PyDapClientObject*)l_obj_client)->client = a_client;
+    PyObject *l_args = Py_BuildValue("Oi", l_obj_client, a_integer);
+    PyEval_CallObject(l_call->call_func_stage_status, l_args);
+}
+
 int dap_client_obj_init(PyDapClientObject *self, PyObject *args, PyObject *kwds){
     char *kwlist[] = {"events", "stage", "stageError", NULL};
     PyObject *obj_events = NULL;
@@ -114,11 +132,11 @@ PyObject *dap_client_go_stage_py(PyObject *self, PyObject *args)
         return NULL;
     }
     if (!PyCallable_Check(l_obj_stage_callback)){
-        PyErr_SetString(PyExc_SyntaxError, "Sorry, but the first argument is not a ClientStage object");
+        PyErr_SetString(PyExc_SyntaxError, "Sorry, but the second argument is not a callback function");
         return NULL;
     }
     if (!PyDapClientStageObject_Check(l_obj_stage)){
-        PyErr_SetString(PyExc_SyntaxError, "Sorry, but the second argument is not a callback function");
+        PyErr_SetString(PyExc_SyntaxError, "Sorry, but the first argument is not a ClientStage object");
         return NULL;
     }
     dap_client_go_stage(((PyDapClientObject*)self)->client, ((PyDapClientStageObject*)l_obj_stage)->stage, _wrapping_callback_stage_go_end);
@@ -139,22 +157,66 @@ PyObject *dap_client_go_stage_py(PyObject *self, PyObject *args)
 //    return NULL;
 //}
 
-PyObject *dap_client_request_enc_py(PyObject *self, PyObject *args)
+PyObject *dap_client_request_enc_unsafe_py(PyObject *self, PyObject *args)
 {
-    (void) self;
-    (void) args;
-    /// TODO: Implement it!
-    PyErr_SetString(PyExc_TypeError, "Unimplemented function");
-    return NULL;
+    const char *l_path = NULL;
+    const char *l_suburl = NULL;
+    const char *l_query = NULL;
+    PyObject *l_obj_request = NULL;
+    PyObject *l_obj_response_proc = NULL;
+    PyObject *l_obj_response_error = NULL;
+    if (!PyArg_ParseTuple(args, "sssOOO", &l_path, &l_suburl, &l_query, &l_obj_request, &l_obj_response_proc, &l_obj_response_error)){
+        PyErr_SetString(PyExc_SyntaxError, "Wrong arguments list in function call");
+        return NULL;
+    }
+    if (!PyBytes_Check(l_obj_request)){
+        return NULL;
+    }
+    if (!PyCallable_Check(l_obj_response_proc) && !PyCallable_Check(l_obj_response_error)){
+        PyErr_SetString(PyExc_SyntaxError, "Sorry, but the second argument is not a callback function");
+        return NULL;
+    }
+    void *l_request = PyBytes_AsString(l_obj_request);
+    size_t l_request_size = (size_t)PyBytes_Size(l_obj_request);
+    struct dap_client_call_responce *l_call = DAP_NEW(struct dap_client_call_responce);
+    l_call->client = ((PyDapClientObject*)self)->client;
+    l_call->call_func_response_proc = l_obj_response_proc;
+    l_call->call_func_response_error = l_obj_response_error;
+    HASH_ADD_PTR(g_client_hash_table_response, client, l_call);
+    dap_client_request_enc_unsafe(((PyDapClientObject*)self)->client,
+                                  l_path,
+                                  l_suburl,
+                                  l_query,
+                                  l_request,
+                                  l_request_size,
+                                  _wrapping_callback_response_proc,
+                                  _wrapping_callback_response_error);
+    return Py_None;
 }
 
-PyObject *dap_client_request_py(PyObject *self, PyObject *args)
+PyObject *dap_client_request_unsafe_py(PyObject *self, PyObject *args)
 {
-    (void) self;
-    (void) args;
-    /// TODO: Implement it!
-    PyErr_SetString(PyExc_TypeError, "Unimplemented function");
-    return NULL;
+    const char *l_path = NULL;
+    const char *l_query = NULL;
+    PyObject *l_obj_request = NULL;
+    PyObject *l_obj_response_proc = NULL;
+    PyObject *l_obj_response_error = NULL;
+    if (!PyArg_ParseTuple(args, "ssOOO", &l_path, &l_query, &l_obj_request, &l_obj_response_proc, &l_obj_response_error)){
+        PyErr_SetString(PyExc_SyntaxError, "Wrong arguments list in function call");
+        return NULL;
+    }
+    if (!PyBytes_Check(l_obj_request)){
+        return NULL;
+    }
+    if (!PyCallable_Check(l_obj_response_proc) && !PyCallable_Check(l_obj_response_error)){
+        PyErr_SetString(PyExc_SyntaxError, "Sorry, but the second argument is not a callback function");
+        return NULL;
+    }
+    void *l_request = PyBytes_AsString(l_obj_request);
+    size_t l_request_size = (size_t)PyBytes_Size(l_obj_request);
+    dap_client_request_unsafe(((PyDapClientObject*)self)->client, l_path, l_request, l_request_size, _wrapping_callback_response_proc,
+                              _wrapping_callback_response_error);
+    return Py_None;
 }
 
 //PyObject *dap_client_disconnect_py(PyObject *self, PyObject *args)
