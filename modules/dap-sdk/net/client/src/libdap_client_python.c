@@ -100,9 +100,9 @@ PyObject *dap_client_get_key_stream_py(PyObject *self, PyObject *args)
 {
     (void)args;
     dap_enc_key_t *l_key = dap_client_get_key_stream(((PyDapClientObject*)self)->client);
-//    PyObject *obj_key = _PyObject_New(&DapEnc)
-    PyErr_SetString(PyExc_TypeError, "Unimplemented function");
-    return NULL;
+    PyCryptoKeyObject *obj_key = (PyCryptoKeyObject*)_PyObject_New(&PyCryptoKeyObject_PyCryptoKeyType);
+    obj_key->key = l_key;
+    return (PyObject *)obj_key;
 }
 
 PyObject *dap_client_go_stage_py(PyObject *self, PyObject *args)

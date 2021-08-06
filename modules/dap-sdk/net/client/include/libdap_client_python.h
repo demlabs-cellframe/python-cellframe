@@ -9,7 +9,7 @@
 #include "wrapping_cert.h"
 #include "wrapping_dap_client_stage_status.h"
 #include "wrapping_dap_stream.h"
-#include "wrapping_dap_stream_ctl.h"
+#include "libdap_crypto_key_python.h"
 
 #ifdef __cplusplus
 extern "C" {
