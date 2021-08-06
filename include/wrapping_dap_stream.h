@@ -9,6 +9,7 @@
 
 typedef struct PyDapStream{
     PyObject_HEAD
+    dap_stream_t *stream;
 }PyDapStreamObject;
 
 PyObject *dap_stream_add_proc_http_py(PyObject *self, PyObject *args);

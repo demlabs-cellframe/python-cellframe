@@ -264,20 +264,22 @@ PyObject *dap_client_get_auth_cookie_py(PyObject *self, PyObject *args)
 
 PyObject *dap_client_get_stream_py(PyObject *self, PyObject *args)
 {
-    (void) self;
-    (void) args;
-    /// TODO: Implement it!
-    PyErr_SetString(PyExc_TypeError, "Unimplemented function");
-    return NULL;
+    (void)args;
+    dap_stream_t *l_stream = dap_client_get_stream(((PyDapClientObject*)self)->client);
+    PyDapStreamObject *l_obj_stream = (PyDapStreamObject*)_PyObject_New(&DapStream_DapStreamType);
+    l_obj_stream->stream = l_stream;
+    return (PyObject*)l_obj_stream;
 }
 
-PyObject *dap_client_get_stream_ch_py(PyObject *self, PyObject *args)
+PyObject *dap_client_get_stream_ch_unsafe_py(PyObject *self, PyObject *args)
 {
-    (void) self;
-    (void) args;
-    /// TODO: Implement it!
-    PyErr_SetString(PyExc_TypeError, "Unimplemented function");
     return NULL;
+//    uint8_t l_ch_id;
+//    if (!PyArg_ParseTuple(args, "I", &l_ch_id)){
+//        PyErr_SetString(PyExc_SyntaxError, "Wrong arguments list in function call");
+//        return NULL;
+//    }
+//    dap_stream_ch_t *l_stream_ch = dap_client_get_stream_ch_unsafe(((PyDapClientObject*)self)->client, l_ch_id);
 }
 
 PyObject *dap_client_get_stream_id_py(PyObject *self, PyObject *args)

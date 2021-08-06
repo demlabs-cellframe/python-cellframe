@@ -8,6 +8,8 @@
 #include "dap_events_socket_python.h"
 #include "wrapping_cert.h"
 #include "wrapping_dap_client_stage_status.h"
+#include "wrapping_dap_stream.h"
+#include "wrapping_dap_stream_ctl.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -66,7 +68,7 @@ PyObject *dap_client_set_is_always_reconnect_py(PyObject *self, PyObject *args);
 PyObject *dap_client_from_esocket_py(PyObject *self, PyObject *args);
 PyObject *dap_client_get_auth_cookie_py(PyObject *self, PyObject *args);
 PyObject *dap_client_get_stream_py(PyObject *self, PyObject *args);
-PyObject *dap_client_get_stream_ch_py(PyObject *self, PyObject *args);
+PyObject *dap_client_get_stream_ch_unsafe_py(PyObject *self, PyObject *args);
 PyObject *dap_client_get_stream_id_py(PyObject *self, PyObject *args);
 PyObject *dap_client_set_active_channels_unsafe_py(PyObject *self, PyObject *args);
 PyObject *dap_client_set_auth_cert_unsafe_py(PyObject *self, PyObject *args);
