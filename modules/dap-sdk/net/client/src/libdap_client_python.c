@@ -59,6 +59,8 @@ void _wrapping_callback_response_proc(dap_client_t *a_client, void *a_data, size
     PyObject *l_obj_bytes = PyBytes_FromStringAndSize(a_data, a_data_size);
     PyObject *l_args = Py_BuildValue("OO", l_obj_client, l_obj_bytes);
     PyEval_CallObject(l_call->call_func_stage_status, l_args);
+    HASH_DEL(g_client_hash_table_response, l_call);
+    DAP_FREE(l_call);
 }
 void _wrapping_callback_response_error(dap_client_t *a_client, int a_integer){
     struct dap_client_call_hash *l_call;
@@ -67,6 +69,8 @@ void _wrapping_callback_response_error(dap_client_t *a_client, int a_integer){
     ((PyDapClientObject*)l_obj_client)->client = a_client;
     PyObject *l_args = Py_BuildValue("Oi", l_obj_client, a_integer);
     PyEval_CallObject(l_call->call_func_stage_status, l_args);
+    HASH_DEL(g_client_hash_table_response, l_call);
+    DAP_FREE(l_call);
 }
 
 int dap_client_obj_init(PyDapClientObject *self, PyObject *args, PyObject *kwds){
