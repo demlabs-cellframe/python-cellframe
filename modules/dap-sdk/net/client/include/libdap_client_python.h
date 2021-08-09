@@ -9,6 +9,8 @@
 #include "wrapping_cert.h"
 #include "wrapping_dap_client_stage_status.h"
 #include "wrapping_dap_stream.h"
+#include "wrapping_dap_stream_ch.h"
+#include "wrapping_dap_stream_worker.h"
 #include "libdap_crypto_key_python.h"
 
 #ifdef __cplusplus
@@ -78,6 +80,7 @@ PyObject *dap_client_from_esocket_py(PyObject *self, PyObject *args);
 PyObject *dap_client_get_auth_cookie_py(PyObject *self, PyObject *args);
 PyObject *dap_client_get_stream_py(PyObject *self, PyObject *args);
 PyObject *dap_client_get_stream_ch_unsafe_py(PyObject *self, PyObject *args);
+PyObject *dap_client_get_stream_worker_py(PyObject *self, PyObject *args);
 PyObject *dap_client_get_stream_id_py(PyObject *self, PyObject *args);
 PyObject *dap_client_set_active_channels_unsafe_py(PyObject *self, PyObject *args);
 PyObject *dap_client_set_auth_cert_unsafe_py(PyObject *self, PyObject *args);

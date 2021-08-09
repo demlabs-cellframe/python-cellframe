@@ -339,13 +339,32 @@ PyObject *dap_client_get_stream_py(PyObject *self, PyObject *args)
 
 PyObject *dap_client_get_stream_ch_unsafe_py(PyObject *self, PyObject *args)
 {
+    uint8_t l_ch_id;
+    if (!PyArg_ParseTuple(args, "I", &l_ch_id)){
+        PyErr_SetString(PyExc_SyntaxError, "Wrong arguments list in function call");
+        return NULL;
+    }
+    dap_stream_ch_t *l_stream_ch = dap_client_get_stream_ch_unsafe(((PyDapClientObject*)self)->client, l_ch_id);
+    if (l_stream_ch == NULL){
+        return Py_None;
+    }else{
+        PyDapStreamChObject *l_obj = (PyDapStreamChObject*)_PyObject_New(&dapStreamChObject_dapStreamChType);
+        l_obj->stream_ch = l_stream_ch;
+        return (PyObject *)l_obj;
+    }
+}
+
+PyObject *dap_client_get_stream_worker_py(PyObject *self, PyObject *args){
+    (void)args;
+    dap_stream_worker_t *l_worker = dap_client_get_stream_worker(((PyDapClientObject*)self)->client);
+    if (l_worker){
+        PyDapStreamWorkerObject *l_obj_worker = (PyDapStreamWorkerObject*)_PyObject_New(&dapStreamWorkerObject_dapStreamWorkerType);
+        l_obj_worker->worker = l_worker;
+        return (PyObject *)l_obj_worker;
+    } else {
+        return Py_None;
+    }
     return NULL;
-//    uint8_t l_ch_id;
-//    if (!PyArg_ParseTuple(args, "I", &l_ch_id)){
-//        PyErr_SetString(PyExc_SyntaxError, "Wrong arguments list in function call");
-//        return NULL;
-//    }
-//    dap_stream_ch_t *l_stream_ch = dap_client_get_stream_ch_unsafe(((PyDapClientObject*)self)->client, l_ch_id);
 }
 
 PyObject *dap_client_get_stream_id_py(PyObject *self, PyObject *args)
