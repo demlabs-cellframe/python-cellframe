@@ -43,6 +43,7 @@ add_subdirectory(modules/cellframe-sdk/gdb)
 add_subdirectory(modules/cellframe-sdk/chain)
 add_subdirectory(modules/cellframe-sdk/app-cli)
 add_subdirectory(modules/cellframe-sdk/wallet)
+add_subdirectory(modules/dap-sdk/net/stream)
 
     target_compile_options(dap_chain_common_python_module PRIVATE "-fpic")
     target_compile_options(dap_python_module PRIVATE "-fpic" )
@@ -53,6 +54,7 @@ add_subdirectory(modules/cellframe-sdk/wallet)
     target_compile_options(dap_app_cli_python_module PRIVATE "-fpic")
     target_compile_options(dap_client_python_module PRIVATE "-fpic")
     target_compile_options(dap_chain_wallet_python_module PRIVATE "-fpic")
+    target_compile_options(dap_stream_python_module PRIVATE "-fpic")
 
 
 target_compile_options(dap_core PRIVATE "-fpic")
