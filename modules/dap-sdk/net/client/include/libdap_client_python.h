@@ -48,7 +48,6 @@ void _wrapping_callback_stage_status(dap_client_t *a_client, void *a_data);
 void _wrapping_callback_stage_status_error(dap_client_t *a_client, void *a_data);
 
 int dap_client_obj_init(PyDapClientObject *self, PyObject *args, PyObject *kwds);
-PyObject *dap_client_delete_py(PyObject *self, PyObject *args);
 
 PyObject *dap_client_set_uplink_unsafe_py(PyObject *self, PyObject *args);
 PyObject *dap_client_get_uplink_addr_unsafe_py(PyObject *self, PyObject *args);
@@ -57,8 +56,8 @@ PyObject *dap_client_get_uplink_port_unsafe_py(PyObject *self, PyObject *args);
 PyObject *dap_client_get_key_stream_py(PyObject *self, PyObject *args);
 PyObject *dap_client_go_stage_py(PyObject *self, PyObject *args);
 
-PyObject *dap_client_delete_mt_py(dap_client_t * a_client);
-PyObject *dap_client_delete_unsafe_py(dap_client_t * a_client);
+void dap_client_delete_mt_py(PyObject *self);
+//PyObject *dap_client_delete_unsafe_py(dap_client_t * a_client);
 
 //PyObject *dap_client_reset_py(PyObject *self, PyObject *args);
 PyObject *dap_client_request_enc_unsafe_py(PyObject *self, PyObject *args);
@@ -89,6 +88,28 @@ PyObject *dap_client_get_stage_py(PyObject *self, PyObject *args);
 PyObject *dap_client_get_stage_status_py(PyObject *self, PyObject *args);
 
 static PyMethodDef DapClientMethods[] = {
+        {"setUplinkUnsafe", (PyCFunction)dap_client_set_uplink_unsafe_py, METH_VARARGS, "Setting uplink for client"},
+        {"getUplinkAddrUnsafe", (PyCFunction)dap_client_get_uplink_addr_unsafe_py, METH_NOARGS, "Get uplink addr for client"},
+        {"getUplinkPortUnsafe", (PyCFunction)dap_client_get_uplink_port_unsafe_py, METH_NOARGS, "Get uplink addr for client"},
+        {"getKeyStream", (PyCFunction)dap_client_get_key_stream_py, METH_NOARGS, "Get key from client stream"},
+        {"goStage", (PyCFunction)dap_client_go_stage_py, METH_VARARGS, ""},
+        {"requestEncUnsafe", (PyCFunction)dap_client_request_enc_unsafe_py, METH_VARARGS, ""},
+        {"requestUnsafe", (PyCFunction)dap_client_request_unsafe_py, METH_VARARGS, ""},
+        {"getStageStr", (PyCFunction)dap_client_get_stage_str_py, METH_NOARGS, ""},
+        {"getStageStatusStr", (PyCFunction)dap_client_get_stage_status_str_py, METH_NOARGS, ""},
+        {"getErrorStr", (PyCFunction)dap_client_get_error_str_py, METH_NOARGS, ""},
+        {"getIsAlwaysReconnect", (PyCFunction)dap_client_get_is_always_reconnect_py, METH_NOARGS, ""},
+        {"setIsAlwaysReconnect", (PyCFunction)dap_client_set_is_always_reconnect_py, METH_VARARGS, ""},
+        {"fromEsocket", (PyCFunction)dap_client_from_esocket_py, METH_VARARGS | METH_STATIC, ""},
+        {"authCookie", (PyCFunction)dap_client_get_auth_cookie_py, METH_NOARGS, ""},
+        {"getStream", (PyCFunction)dap_client_get_stream_py, METH_NOARGS, ""},
+        {"getStreamChUnsafe", (PyCFunction)dap_client_get_stream_ch_unsafe_py, METH_VARARGS, ""},
+        {"getStreamWorker", (PyCFunction)dap_client_get_stream_worker_py, METH_NOARGS, ""},
+        {"getStreamId", (PyCFunction)dap_client_get_stream_id_py, METH_VARARGS, ""},
+        {"setActiveChannelsUnsafe", (PyCFunction)dap_client_set_active_channels_unsafe_py, METH_VARARGS, ""},
+        {"setAuthCertUnsafe", (PyCFunction)dap_client_set_auth_cert_unsafe_py, METH_VARARGS, ""},
+        {"getStage", (PyCFunction)dap_client_get_stage_py, METH_NOARGS, ""},
+        {"getStageStatus", (PyCFunction)dap_client_get_stage_status_py, METH_NOARGS, ""},
         {NULL, NULL, 0, NULL}
 };
 
@@ -97,7 +118,7 @@ static PyTypeObject dapClientObject_dapClientType = {
         "CellFrame.Client",                                      /* tp_name */
         sizeof(PyDapClientObject),                               /* tp_basicsize */
         0,                                                            /* tp_itemsize */
-        0,                                                            /* tp_dealloc */
+        (destructor)dap_client_delete_mt_py,                          /* tp_dealloc */
         0,                                                            /* tp_print */
         0,                                                            /* tp_getattr */
         0,                                                            /* tp_setattr */
