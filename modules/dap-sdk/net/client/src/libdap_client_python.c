@@ -152,6 +152,13 @@ PyObject *dap_client_go_stage_py(PyObject *self, PyObject *args)
     return Py_None;
 }
 
+void dap_client_delete_mt_py(PyObject *self){
+    PyTypeObject *tp = Py_TYPE(self);
+    dap_client_delete_mt(((PyDapClientObject*)self)->client);
+    tp->tp_free(self);
+    Py_DECREF(tp);
+}
+
 //PyObject *dap_client_reset_py(PyObject *self, PyObject *args)
 //{
 //    (void) self;
