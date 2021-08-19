@@ -27,7 +27,7 @@ PyObject* GET_ERROR_STREAM_FREEZED(PyObject *self, PyObject *args);
 PyObject* GET_ERROR_NETWORK_CONNECTION_REFUSE(PyObject *self, PyObject *args);
 PyObject* GET_ERROR_NETWORK_CONNECTION_TIMEOUT(PyObject *self, PyObject *args);
 
-PyMethodDef DapClientErrorMethods[] = {
+static PyMethodDef DapClientErrorMethods[] = {
         {"GET_ERROR_NO_ERROR", (PyCFunction)GET_ERROR_NO_ERROR, METH_NOARGS | METH_STATIC, ""},
         {"GET_ERROR_OUT_OF_MEMORY", (PyCFunction)GET_ERROR_OUT_OF_MEMORY, METH_NOARGS | METH_STATIC, ""},
         {"GET_ERROR_ENC_NO_KEY", (PyCFunction)GET_ERROR_ENC_NO_KEY, METH_NOARGS | METH_STATIC, ""},

@@ -1,3 +1,4 @@
+#pragma once
 #define PY_SSIZE_T_CLEAN
 #include <Python.h>
 #include "dap_client.h"
@@ -76,7 +77,7 @@ PyObject *dap_client_get_is_always_reconnect_py(PyObject *self, PyObject *args);
 PyObject *dap_client_set_is_always_reconnect_py(PyObject *self, PyObject *args);
 
 PyObject *dap_client_from_esocket_py(PyObject *self, PyObject *args);
-PyObject *dap_client_get_auth_cookie_py(PyObject *self, PyObject *args);
+//PyObject *dap_client_get_auth_cookie_py(PyObject *self, PyObject *args);
 PyObject *dap_client_get_stream_py(PyObject *self, PyObject *args);
 PyObject *dap_client_get_stream_ch_unsafe_py(PyObject *self, PyObject *args);
 PyObject *dap_client_get_stream_worker_py(PyObject *self, PyObject *args);
@@ -101,7 +102,7 @@ static PyMethodDef DapClientMethods[] = {
         {"getIsAlwaysReconnect", (PyCFunction)dap_client_get_is_always_reconnect_py, METH_NOARGS, ""},
         {"setIsAlwaysReconnect", (PyCFunction)dap_client_set_is_always_reconnect_py, METH_VARARGS, ""},
         {"fromEsocket", (PyCFunction)dap_client_from_esocket_py, METH_VARARGS | METH_STATIC, ""},
-        {"authCookie", (PyCFunction)dap_client_get_auth_cookie_py, METH_NOARGS, ""},
+//        {"authCookie", (PyCFunction)dap_client_get_auth_cookie_py, METH_NOARGS, ""},
         {"getStream", (PyCFunction)dap_client_get_stream_py, METH_NOARGS, ""},
         {"getStreamChUnsafe", (PyCFunction)dap_client_get_stream_ch_unsafe_py, METH_VARARGS, ""},
         {"getStreamWorker", (PyCFunction)dap_client_get_stream_worker_py, METH_NOARGS, ""},

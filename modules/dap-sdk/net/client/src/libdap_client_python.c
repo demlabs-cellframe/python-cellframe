@@ -328,12 +328,12 @@ PyObject *dap_client_from_esocket_py(PyObject *self, PyObject *args){
     }
 }
 
-PyObject *dap_client_get_auth_cookie_py(PyObject *self, PyObject *args)
-{
-    (void)args;
-    const char *l_auth_cookie = dap_client_get_auth_cookie(((PyDapClientObject*)self)->client);
-    return Py_BuildValue("s", l_auth_cookie);
-}
+//PyObject *dap_client_get_auth_cookie_py(PyObject *self, PyObject *args)
+//{
+//    (void)args;
+//    const char *l_auth_cookie = dap_client_get_auth_cookie(((PyDapClientObject*)self)->client);
+//    return Py_BuildValue("s", l_auth_cookie);
+//}
 
 PyObject *dap_client_get_stream_py(PyObject *self, PyObject *args)
 {
