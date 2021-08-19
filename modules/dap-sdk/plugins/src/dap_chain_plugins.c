@@ -3,6 +3,7 @@
 #include "dap_file_utils.h"
 #include "dap_chain_plugins_manifest.h"
 #include "dap_chain_plugins_list.h"
+#include "python-dap.h"
 #include "python-cellframe.h"
 #include "dap_chain_plugins_command.h"
 
@@ -26,6 +27,7 @@ int dap_chain_plugins_init(dap_config_t *a_config){
             log_it(L_ERROR, "The directory %s was not found.", s_plugins_root_path);
             return -1;
         }
+        PyImport_AppendInittab("API_DAP", PyInit_libDAP);
         PyImport_AppendInittab("API_CellFrame", PyInit_libCellFrame);
         Py_Initialize();
         PyEval_InitThreads();

@@ -24,7 +24,7 @@ add_library(${PROJECT_NAME} STATIC ${DAP_PLUGINS_PYTHON_SRCS} ${DAP_PLUGINS_PYTH
 
 target_link_libraries(${PROJECT_NAME})
 
-target_link_libraries(${PROJECT_NAME} dap_core  API_CellFrame)
+target_link_libraries(${PROJECT_NAME} dap_core dap_app_cli dap_server_core_python_module dap_server_http_python_module API_DAP API_CellFrame)
 
 target_include_directories(${PROJECT_NAME} PUBLIC include/ )
 

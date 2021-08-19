@@ -97,11 +97,11 @@ dap_chain_plugins_list_manifest_t* dap_chain_plugins_add_manifest_from_file(cons
     description = json_object_get_string(j_description);
     dap_chain_plugins_list_char_t *dep = JSON_array_to_dap_list_char(j_dependencys);
     dap_chain_plugins_list_manifest_t *manifest = dap_chain_plugins_manifest_new(name, version, dep, author, description);
-    json_object_put(j_dependencys);
-    json_object_put(j_description);
-    json_object_put(j_author);
-    json_object_put(j_version);
-    json_object_put(j_name);
+//    json_object_put(j_dependencys);
+//    json_object_put(j_description);
+//    json_object_put(j_author);
+//    json_object_put(j_version);
+//    json_object_put(j_name);
     json_object_put(j_obj);
     DAP_FREE(json);
     return manifest;
