@@ -430,7 +430,8 @@ PyMODINIT_FUNC PyInit_libCellFrame(void){
 //            PyType_Ready(&DapEncServer_DapEncServerType) < 0 ||
 //            PyType_Ready(&DapStream_DapStreamType) < 0 ||
 //            PyType_Ready(&DapStreamCtl_DapStreamCtlType) < 0 ||
-//            PyType_Ready(&DapMempool_DapMempoolType) < 0 ||
+            //mempool
+            PyType_Ready(&DapMempool_DapMempoolType) < 0 ||
 //            // ====
             //app-cli
             PyType_Ready(&DapAppCli_dapAppCliType ) < 0 ||
@@ -532,7 +533,8 @@ PyMODINIT_FUNC PyInit_libCellFrame(void){
 //    PyModule_AddObject(module, "EncHttp", (PyObject*)&DapEncServer_DapEncServerType);
 //    PyModule_AddObject(module, "Stream", (PyObject*)&DapStream_DapStreamType);
 //    PyModule_AddObject(module, "StreamCtl", (PyObject*)&DapStreamCtl_DapStreamCtlType);
-//    PyModule_AddObject(module, "Mempool", (PyObject*)&DapMempool_DapMempoolType);
+    //mempool
+    PyModule_AddObject(module, "Mempool", (PyObject*)&DapMempool_DapMempoolType);
 
 //    // ==============
     //app-cli

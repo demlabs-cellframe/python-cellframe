@@ -38,7 +38,8 @@
 //#include "wrapping_dap_enc_http.h"
 //#include "wrapping_dap_stream.h"
 //#include "wrapping_dap_stream_ctl.h"
-//#include "wrapping_dap_mempool.h"
+//mempool
+#include "wrapping_dap_mempool.h"
 //#include "wrapping_dap_http_folder.h"
 //wallet
 #include "dap_chain_wallet_python.h"
