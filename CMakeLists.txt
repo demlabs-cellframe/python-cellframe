@@ -1,13 +1,28 @@
 cmake_minimum_required(VERSION 3.0)
 project(python-cellframe)
-add_subdirectory(modules/cellframe-sdk)
-add_subdirectory(modules/dap-sdk)
+
 
 #if (SUPPORT_PYTHON_PLUGINS)
 #    project(API_CellFrame C)
 #else()
 #    project(CellFrame C)
 #endif()
+
+if (NOT (SUPPORT_PYTHON_PLUGINS))
+    set (SUBMODULES_NO_BUILD ON)
+    message("CoNNETC")
+    if (NOT(WIN32))
+        set(CELLFRAME_MODULES "core chains network cs-none")
+    else()
+        set(CELLFRAME_MODULES "core chains network cs-none")
+    endif()
+    include(cellframe-sdk/cmake/OS_Detection.cmake)
+    add_subdirectory(cellframe-sdk)
+endif()
+
+add_subdirectory(modules/cellframe-sdk)
+add_subdirectory(modules/dap-sdk)
+
 #set(CMAKE_VERBOSE_MAKEFILE ON)
 #set(CMAKE_COLOR_MAKEFILE   ON)
 #set(CMAKE_C_STANDARD 11)
