@@ -42,7 +42,7 @@ static PyGetSetDef DapClientStageGetSets[] = {
 
 static PyTypeObject dapClientStageObject_dapClientStageType = {
         PyVarObject_HEAD_INIT(NULL, 0)
-        "CellFrame.ClientStage",                                      /* tp_name */
+        "DAP.ClientStage",                                      /* tp_name */
         sizeof(PyDapClientStageObject),                               /* tp_basicsize */
         0,                                                            /* tp_itemsize */
         0,                                                            /* tp_dealloc */

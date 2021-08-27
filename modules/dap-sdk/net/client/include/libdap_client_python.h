@@ -116,7 +116,7 @@ static PyMethodDef DapClientMethods[] = {
 
 static PyTypeObject dapClientObject_dapClientType = {
         PyVarObject_HEAD_INIT(NULL, 0)
-        "CellFrame.Client",                                      /* tp_name */
+        "DAP.Client",                                      /* tp_name */
         sizeof(PyDapClientObject),                               /* tp_basicsize */
         0,                                                            /* tp_itemsize */
         (destructor)dap_client_delete_mt_py,                          /* tp_dealloc */

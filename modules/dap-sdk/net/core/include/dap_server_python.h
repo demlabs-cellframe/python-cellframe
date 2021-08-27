@@ -14,7 +14,7 @@ typedef struct PyDapServer {
 
 static PyTypeObject dapServer_dapServerType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "CellFrame.ServerCore.DapServer",             /* tp_name */
+    "DAP.ServerCore.DapServer",             /* tp_name */
     sizeof(PyDapServerObject),                    /* tp_basicsize */
     0,                                            /* tp_itemsize */
     0,                                            /* tp_dealloc */

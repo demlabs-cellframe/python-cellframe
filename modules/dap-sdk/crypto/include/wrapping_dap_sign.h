@@ -11,7 +11,7 @@ typedef struct PyDapSignType{
 
 static PyTypeObject DapSignTypeObject_DapSignTypeObjectType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "CellFrame.SignType",       /* tp_name */
+    "DAP.SignType",       /* tp_name */
     sizeof(PyDapSignTypeObject),/* tp_basicsize */
     0,                               /* tp_itemsize */
     0,                               /* tp_dealloc */
@@ -58,7 +58,7 @@ typedef struct PyDapSign{
 
 static PyTypeObject DapSignObject_DapSignObjectType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "CellFrame.Sign",       /* tp_name */
+    "DAP.Sign",       /* tp_name */
     sizeof(PyDapSignObject),/* tp_basicsize */
     0,                               /* tp_itemsize */
     0,                               /* tp_dealloc */

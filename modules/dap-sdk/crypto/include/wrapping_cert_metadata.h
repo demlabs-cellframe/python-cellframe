@@ -39,7 +39,7 @@ static PyMethodDef g_crypto_cert_metadata_type_methods_py[] = {
 
 static PyTypeObject g_crypto_cert_type_metadata_type_py = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "CellFrame.CertMetadataType",             /* tp_name */
+    "DAP.CertMetadataType",             /* tp_name */
     sizeof(PyDapCertMetadataTypeObject),         /* tp_basicsize */
     0,                         /* tp_itemsize */
     0,                         /* tp_dealloc */
@@ -139,7 +139,7 @@ static PyMethodDef g_crypto_cert_metadata_methods_py[] = {
 
 static PyTypeObject g_crypto_cert_metadata_type_py = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "CellFrame.CertMetadata",             /* tp_name */
+    "DAP.CertMetadata",             /* tp_name */
     sizeof(PyDapCertMetadataObject),         /* tp_basicsize */
     0,                         /* tp_itemsize */
     0,                         /* tp_dealloc */

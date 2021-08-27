@@ -3,7 +3,7 @@
  * Alexey Stratulat <alexey.stratulat@demlabs.net>
  * Dmitriy A. Gearasimov <gerasimov.dmitriy@demlabs.net>
  * DeM Labs Inc.   https://demlabs.net
- * CellFrame       https://cellframe.net
+ * CellFrame       https://dap.net
  * Sources         https://gitlab.demlabs.net/cellframe
  * Copyright  (c) 2017-2020
  * All rights reserved.
@@ -80,7 +80,7 @@ static PyMethodDef g_crypto_methods_py[] = {
 
 static PyTypeObject g_crypto_type_py = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "CellFrame.Crypto",             /* tp_name */
+    "DAP.Crypto",             /* tp_name */
     sizeof(PyCryptoObject),         /* tp_basicsize */
     0,                         /* tp_itemsize */
     0,                         /* tp_dealloc */

@@ -2,7 +2,7 @@
  * Authors:
  * Alexey Stratulat <alexey.stratulat@demlabs.net>
  * DeM Labs Inc.   https://demlabs.net
- * CellFrame       https://cellframe.net
+ * CellFrame       https://dap.net
  * Sources         https://gitlab.demlabs.net/cellframe
  * Copyright  (c) 2017-2020
  * All rights reserved.

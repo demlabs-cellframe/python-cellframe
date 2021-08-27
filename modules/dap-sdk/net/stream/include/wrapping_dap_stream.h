@@ -21,7 +21,7 @@ static PyMethodDef DapStreamMethods[] = {
 
 static PyTypeObject DapStream_DapStreamType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "CellFrame.DapStream",             /* tp_name */
+    "DAP.DapStream",             /* tp_name */
     sizeof(PyDapStreamObject),                   /* tp_basicsize */
     0,                                                 /* tp_itemsize */
     0,                                                 /* tp_dealloc */

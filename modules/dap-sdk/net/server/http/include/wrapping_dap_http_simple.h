@@ -53,7 +53,7 @@ static PyGetSetDef PyDapHttpSimpleGetSetDef[] = {
 
 static PyTypeObject DapHTTPSimple_DapHTTPSimpleType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "CellFrame.HttpSimple",             /* tp_name */
+    "DAP.HttpSimple",             /* tp_name */
     sizeof(PyDapHttpSimpleObject),                   /* tp_basicsize */
     0,                                                 /* tp_itemsize */
     0,                                                 /* tp_dealloc */

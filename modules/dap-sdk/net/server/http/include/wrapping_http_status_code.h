@@ -127,7 +127,7 @@ static PyMethodDef PyDapHttpCodeMethods[] = {
 
 static PyTypeObject HTTPCode_HTTPCodeType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "CellFrame.HTTPCode",             /* tp_name */
+    "DAP.HTTPCode",             /* tp_name */
     sizeof(PyHttpStatusCodeObject),                   /* tp_basicsize */
     0,                                                 /* tp_itemsize */
     0,                                                 /* tp_dealloc */

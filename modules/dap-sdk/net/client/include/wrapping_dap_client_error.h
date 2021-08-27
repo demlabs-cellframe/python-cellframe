@@ -56,7 +56,7 @@ static PyGetSetDef DapClientErrorGetSets[] = {
 
 static PyTypeObject dapClientErrorObject_dapClientErrorType = {
         PyVarObject_HEAD_INIT(NULL, 0)
-        "CellFrame.ClientError",                                      /* tp_name */
+        "DAP.ClientError",                                      /* tp_name */
         sizeof(PyDapClientErrorObject),                               /* tp_basicsize */
         0,                                                            /* tp_itemsize */
         0,                                                            /* tp_dealloc */

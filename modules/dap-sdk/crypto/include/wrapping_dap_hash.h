@@ -2,7 +2,7 @@
  * Authors:
  * Alexey Stratulat <alexey.stratulat@demlabs.net>
  * DeM Labs Inc.   https://demlabs.net
- * CellFrame       https://cellframe.net
+ * CellFrame       https://dap.net
  * Sources         https://gitlab.demlabs.net/cellframe
  * Copyright  (c) 2017-2020
  * All rights reserved.
@@ -47,7 +47,7 @@ static PyMethodDef DapHashTypeMethods[] = {
 
 static PyTypeObject DapHashTypeObject_DapChainHashTypeObjectType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "CellFrame.HashType",          /* tp_name */
+    "DAP.HashType",          /* tp_name */
     sizeof(PyDapHashTypeObject),   /* tp_basicsize */
     0,                               /* tp_itemsize */
     0,                               /* tp_dealloc */
@@ -114,7 +114,7 @@ static PyMethodDef DapHashFastMethods[] = {
 
 static PyTypeObject DapHashFastObject_DapHashFastObjectType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "CellFrame.HashFast",          /* tp_name */
+    "DAP.HashFast",          /* tp_name */
     sizeof(PyDapHashFastObject),   /* tp_basicsize */
     0,                               /* tp_itemsize */
     0,                               /* tp_dealloc */

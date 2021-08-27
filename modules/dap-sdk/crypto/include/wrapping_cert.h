@@ -2,7 +2,7 @@
  * Authors:
  * Dmitriy A. Gearasimov <gerasimov.dmitriy@demlabs.net>
  * DeM Labs Inc.   https://demlabs.net
- * CellFrame       https://cellframe.net
+ * CellFrame       https://dap.net
  * Sources         https://gitlab.demlabs.net/cellframe
  * Copyright  (c) 2017-2020
  * All rights reserved.
@@ -97,7 +97,7 @@ static PyMethodDef g_crypto_cert_methods_py[] = {
 
 static PyTypeObject g_crypto_cert_type_py = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "CellFrame.Cert",             /* tp_name */
+    "DAP.Cert",             /* tp_name */
     sizeof(PyCryptoCertObject),         /* tp_basicsize */
     0,                         /* tp_itemsize */
     dap_cert_delete_py,                         /* tp_dealloc */

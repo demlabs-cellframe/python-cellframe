@@ -18,7 +18,7 @@ static PyMethodDef DapStreamWorkerMethods[] = {
 
 static PyTypeObject dapStreamWorkerObject_dapStreamWorkerType = {
         PyVarObject_HEAD_INIT(NULL, 0)
-        "CellFrame.StreamWorker",                                      /* tp_name */
+        "DAP.StreamWorker",                                      /* tp_name */
         sizeof(PyDapStreamWorkerObject),                               /* tp_basicsize */
         0,                                                            /* tp_itemsize */
         0,                                                            /* tp_dealloc */

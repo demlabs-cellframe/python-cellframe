@@ -44,7 +44,7 @@ static PyGetSetDef PyDapEncServerGetSet[] = {
 
 static PyTypeObject DapEncServer_DapEncServerType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "CellFrame.EncHttp",             /* tp_name */
+    "DAP.EncHttp",             /* tp_name */
     sizeof(PyDapEncServerObject),                   /* tp_basicsize */
     0,                                                 /* tp_itemsize */
     (destructor)enc_http_delegate_delete_py,           /* tp_dealloc */

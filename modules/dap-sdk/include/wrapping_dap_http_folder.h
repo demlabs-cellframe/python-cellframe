@@ -20,7 +20,7 @@ static PyMethodDef DapHttpFolderMethods[] = {
 
 static PyTypeObject DapHttpFolder_DapHttpFolderType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "CellFrame.DapHttpFolder",             /* tp_name */
+    "DAP.DapHttpFolder",             /* tp_name */
     sizeof(PyDapHttpFolderObject),                   /* tp_basicsize */
     0,                                                 /* tp_itemsize */
     0,                                                 /* tp_dealloc */

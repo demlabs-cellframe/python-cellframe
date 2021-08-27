@@ -22,7 +22,7 @@ static PyMethodDef DapStreamCtlMethods[] = {
 
 static PyTypeObject DapStreamCtl_DapStreamCtlType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "CellFrame.DapStreamCtl",             /* tp_name */
+    "DAP.DapStreamCtl",             /* tp_name */
     sizeof(PyDapStreamCtlObject),                   /* tp_basicsize */
     0,                                                 /* tp_itemsize */
     0,                                                 /* tp_dealloc */

@@ -11,7 +11,7 @@ typedef struct PyDapPkeyType{
 
 static PyTypeObject DapPkeyTypeObject_DapPkeyTypeObjectType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "CellFrame.PkeyType",       /* tp_name */
+    "DAP.PkeyType",       /* tp_name */
     sizeof(PyDapPkeyTypeObject),/* tp_basicsize */
     0,                               /* tp_itemsize */
     0,                               /* tp_dealloc */
@@ -60,7 +60,7 @@ typedef struct PyDapPkey{
 
 static PyTypeObject DapPkeyObject_DapPkeyObjectType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "CellFrame.Pkey",       /* tp_name */
+    "DAP.Pkey",       /* tp_name */
     sizeof(PyDapPkeyObject),/* tp_basicsize */
     0,                               /* tp_itemsize */
     0,                               /* tp_dealloc */
