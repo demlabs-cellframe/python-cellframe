@@ -90,8 +90,11 @@ add_subdirectory(wallet)
 ##target_compile_options(dap_chain_cs_dag_pos PRIVATE "-fpic")
 
 
-
-add_library(${PROJECT_NAME} STATIC ${PYTHON_CELLFRAME_SRCS} ${PYTHON_CELLFRAME_HEADERS})
+if (SUPPORT_PYTHON_PLUGINS)
+    add_library(${PROJECT_NAME} STATIC ${PYTHON_CELLFRAME_SRCS} ${PYTHON_CELLFRAME_HEADERS})
+else()
+    add_library(${PROJECT_NAME} SHARED ${PYTHON_CELLFRAME_SRCS} ${PYTHON_CELLFRAME_HEADERS})
+endif()
 
 #if (SUPPORT_PYTHON_PLUGINS)
 #    file (GLOB APP_CONTEXT_HEADER

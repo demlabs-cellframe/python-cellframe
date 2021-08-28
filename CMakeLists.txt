@@ -30,7 +30,9 @@ if (NOT (SUPPORT_PYTHON_PLUGINS))
     add_definitions("-DDAP_VERSION=\"${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}-${CPACK_PACKAGE_VERSION_PATCH}\"")
 endif()
 
-add_subdirectory(modules/cellframe-sdk)
+if (NOT (NO_CELLFRAME_SDK))
+    add_subdirectory(modules/cellframe-sdk)
+endif()
 add_subdirectory(modules/dap-sdk)
 
 #set(CMAKE_VERBOSE_MAKEFILE ON)
