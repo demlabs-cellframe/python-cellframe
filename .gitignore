@@ -14,3 +14,7 @@ debian/python3-cellframe/
 debian/files
 *.text
 CMakeLists.txt.user*
+DAP.egg-info/*
+CellFrame/__pycache__/*
+DAP/__pycache__/*
+
