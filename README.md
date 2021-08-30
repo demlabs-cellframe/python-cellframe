@@ -10,15 +10,26 @@ dpkg-statoverride --remove /etc/exim4/passwd.client
 Now repeat sudo apt-get install pip3
 
 ## Build and Run tests:
+### STEP 1
+Clone the repository and update the submodules.
 ```
 git clone https://gitlab.demlabs.net/cellframe/python-cellframe.git
 cd python-cellframe
 git submodule update --init 
-cd cellframe-sdk
-git submodule update --init
-cd ..
-sudo python3.7 setup.py install
-python3.7 test/main_test.py
+'''
+### STEP 2
+Building and installing the DAP package 
+'''
+sudo python3 setup_dap.py install
+'''
+### STEP 3 
+Building and installing the CellFrame package
+'''
+sudo python3 setup_cellframe.py install
+'''
+### Test run 
+'''
+python3 test/main_test.py
 ```
 
 ## How to package 
