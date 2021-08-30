@@ -16,7 +16,6 @@ typedef struct PyDapEventsSocket{
 
 PyObject *dap_events_socket_create_after_py(PyDapEventsSocketObject *self);
 
-PyObject *dap_events_socket_find_py(PyDapEventsSocketObject *self, PyObject *args);// Find client by socket
 PyObject *dap_events_socket_set_readable_py(PyDapEventsSocketObject *self, PyObject *args);
 PyObject *dap_events_socket_set_writable_py(PyDapEventsSocketObject *self, PyObject *args);
 
@@ -30,7 +29,6 @@ PyObject *dap_events_socket_shrink_buf_in_py(PyDapEventsSocketObject *self, PyOb
 
 static PyMethodDef PyDapEventsObjectSocket_methods[] = {
     {"createAfter", (PyCFunction)dap_events_socket_create_after_py, METH_NOARGS, ""},
-    {"find", (PyCFunction)dap_events_socket_find_py, METH_VARARGS, ""},
     {"setReadable", (PyCFunction)dap_events_socket_set_readable_py, METH_VARARGS, ""},
     {"setWritable", (PyCFunction)dap_events_socket_set_writable_py, METH_VARARGS, ""},
     {"write", (PyCFunction)dap_events_socket_write_py, METH_VARARGS, ""},
