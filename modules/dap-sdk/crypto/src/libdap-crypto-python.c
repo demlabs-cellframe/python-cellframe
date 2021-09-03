@@ -37,7 +37,7 @@ int dap_crypto_init(void){
         log_it(L_CRITICAL,"Can't init encryption key module");
         return -2;
     }
-    PyCryptoKeyObject_PyCryptoKeyType.tp_new = PyType_GenericNew;
+//    PyCryptoKeyObject_PyCryptoKeyType.tp_new = PyType_GenericNew;
     return 0;
 }
 

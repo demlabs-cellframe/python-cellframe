@@ -33,9 +33,17 @@
 extern "C" {
 #endif
 
+typedef struct PyCryptoKey{
+    PyObject_HEAD
+    dap_enc_key_t *key;
+}PyCryptoKeyObject;
 
 PyObject* dap_enc_key_get_enc_size_py(PyObject *self, PyObject *args);//dap_enc_key_t * a_key, const size_t buf_in_size); -> size_t
 PyObject* dap_enc_key_get_dec_size_py(PyObject *self, PyObject *args);//dap_enc_key_t * a_key, const size_t buf_in_size); -> size_t
+
+//PyObject *dap_enc_key_serealize_sign_py(PyObject *self, PyObject *args);
+
+PyObject *dap_enc_key_serealize_priv_key_py(PyObject *self, PyObject *args);
 
 
 // allocate memory for key struct
@@ -57,6 +65,60 @@ PyObject *dap_enc_gen_pub_key_from_priv_py(PyObject *self, PyObject *args);//str
 PyObject *dap_enc_gen_key_public_size_py(PyObject *self, PyObject *args);//dap_enc_key_t *a_key); ->size_t
 PyObject *dap_enc_gen_key_public_py(PyObject *self, PyObject *args);//dap_enc_key_t *a_key, void * a_output); ->int
 
+static PyMethodDef g_crypto_key_methods[]={
+    {"getEncSize", dap_enc_key_get_enc_size_py, METH_VARARGS, ""},
+    {"getDecSize", dap_enc_key_get_dec_size_py, METH_VARARGS, ""},
+    {"serealizePrivKey", dap_enc_key_serealize_priv_key_py, METH_NOARGS, ""},
+    {"genKeyPublicSize", dap_enc_gen_key_public_size_py, METH_VARARGS, ""},
+    {"genPublic", dap_enc_gen_key_public_py, METH_VARARGS, ""},
+    {NULL, NULL, 0, NULL}
+};
+
+//static PyGetSetDef g_crypto_key_getset[]={
+//    {NULL}
+//};
+
+static PyTypeObject CryptoKeyObjecy_CryptoKeyObjecyType = {
+    PyVarObject_HEAD_INIT(NULL, 0)
+    "DAP.CryptoKey",           /* tp_name */
+    sizeof(PyCryptoKeyObject),       /* tp_basicsize */
+    0,		                         /* tp_itemsize */
+    0,		   			 /* tp_dealloc */
+    0,            		         /* tp_print */
+    0,           		         /* tp_getattr */
+    0,                         		 /* tp_setattr */
+    0,                         		 /* tp_reserved */
+    0,                         		 /* tp_repr */
+    0,                                   /* tp_as_number */
+    0,                                   /* tp_as_sequence */
+    0,                                   /* tp_as_mapping */
+    0,                                   /* tp_hash  */
+    0,                                   /* tp_call */
+    0,                                   /* tp_str */
+    0,                                   /* tp_getattro */
+    0,                                   /* tp_setattro */
+    0,                                   /* tp_as_buffer */
+    Py_TPFLAGS_DEFAULT |
+        Py_TPFLAGS_BASETYPE,             /* tp_flags */
+    "Crypto key objects",          /* tp_doc */
+    0,                                   /* tp_traverse */
+    0,		                         /* tp_clear */
+    0,		               		 /* tp_richcompare */
+    0,                                   /* tp_weaklistoffset */
+    0,		                         /* tp_iter */
+    0,		                         /* tp_iternext */
+    g_crypto_key_methods,        /* tp_methods */
+    0,                                   /* tp_members */
+    0,                                   /* tp_getset */
+    0,                                   /* tp_base */
+    0,                                   /* tp_dict */
+    0,                                   /* tp_descr_get */
+    0,                                   /* tp_descr_set */
+    0,                                   /* tp_dictoffset */
+    0,                                   /* tp_init */
+    0,                                   /* tp_alloc */
+    PyType_GenericNew,                   /* tp_new */
+};
 
 #ifdef __cplusplus
 }
