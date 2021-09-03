@@ -78,6 +78,7 @@ static PyMethodDef g_crypto_key_methods[]={
     {"deserealizePrivKey", dap_enc_key_deserealize_priv_key_py, METH_VARARGS, ""},
     {"deserealizePubKey", dap_enc_key_deserealize_pub_key_py, METH_VARARGS, ""},
     {"clone", dap_enc_key_dup_py, METH_NOARGS, ""},
+    {"generate", dap_enc_key_new_generate_py, METH_VARARGS | METH_STATIC, ""},
     {"genKeyPublicSize", dap_enc_gen_key_public_size_py, METH_VARARGS, ""},
     {"genPublic", dap_enc_gen_key_public_py, METH_VARARGS, ""},
     {NULL, NULL, 0, NULL}

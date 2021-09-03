@@ -120,29 +120,29 @@ PyObject* dap_enc_key_new_py(PyObject *self, PyObject *args){
 
 /// default gen key
 PyObject *dap_enc_key_new_generate_py(PyObject *self, PyObject *args){
-    return NULL;
-//    uint8_t in_type_key;
-//    PyBytesObject *in_kex_buf;
-//    size_t in_kex_size;
-//    PyBytesObject *in_seed;
-//    size_t in_seed_size;
-//    size_t in_key_size;
-//    if (!PyArg_ParseTuple(args, "h|S|n|S|n|n", &in_type_key, &in_kex_buf, &in_kex_size, &in_seed,
-//                         &in_seed_size, &in_key_size)){
-//        return NULL;
-//    }
-//    if (in_type_key > 16){
-//        return PyLong_FromLong(-1);
-//    }
-//    void *kex_buf = NULL;
-//    void *seed = NULL;
-//    if (in_kex_size != 0)
-//        kex_buf = PyBytes_AsString((PyObject*)in_kex_buf);
-//    if (in_seed_size != 0)
-//        seed = PyBytes_AsString((PyObject*)in_seed);
-//    PyCryptoKeyObject *obj_key = (PyCryptoKeyObject*)_PyObject_New(&PyCryptoKeyObject_PyCryptoKeyType);
-//    obj_key->key = dap_enc_key_new_generate(in_type_key, kex_buf, in_kex_size, seed, in_seed_size, in_key_size);
-//    return  Py_BuildValue("O", (PyObject*)obj_key);
+    (void)self;
+    uint8_t in_type_key;
+    PyBytesObject *in_kex_buf;
+    size_t in_kex_size;
+    PyBytesObject *in_seed;
+    size_t in_seed_size;
+    size_t in_key_size;
+    if (!PyArg_ParseTuple(args, "h|S|n|S|n|n", &in_type_key, &in_kex_buf, &in_kex_size, &in_seed,
+                         &in_seed_size, &in_key_size)){
+        return NULL;
+    }
+    if (in_type_key > 16){
+        return PyLong_FromLong(-1);
+    }
+    void *kex_buf = NULL;
+    void *seed = NULL;
+    if (in_kex_size != 0)
+        kex_buf = PyBytes_AsString((PyObject*)in_kex_buf);
+    if (in_seed_size != 0)
+        seed = PyBytes_AsString((PyObject*)in_seed);
+    PyCryptoKeyObject *obj_key = (PyCryptoKeyObject*)_PyObject_New(&CryptoKeyObjecy_CryptoKeyObjecyType);
+    obj_key->key = dap_enc_key_new_generate(in_type_key, kex_buf, in_kex_size, seed, in_seed_size, in_key_size);
+    return  Py_BuildValue("O", (PyObject*)obj_key);
 }
 
 // update struct dap_enc_key_t after insert foreign keys
