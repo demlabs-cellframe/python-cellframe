@@ -3,6 +3,7 @@
 #include <Python.h>
 #include "dap_chain_common.h"
 #include "libdap_crypto_key_python.h"
+#include "wrapping_dap_enc_key.h"
 
 #ifdef __cplusplus
 extern "C" {

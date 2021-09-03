@@ -13,6 +13,7 @@
 #include "wrapping_dap_stream_ch.h"
 #include "wrapping_dap_stream_worker.h"
 #include "libdap_crypto_key_python.h"
+#include "wrapping_dap_enc_key.h"
 
 #ifdef __cplusplus
 extern "C" {

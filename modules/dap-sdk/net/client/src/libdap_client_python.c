@@ -122,7 +122,7 @@ PyObject *dap_client_get_key_stream_py(PyObject *self, PyObject *args)
 {
     (void)args;
     dap_enc_key_t *l_key = dap_client_get_key_stream(((PyDapClientObject*)self)->client);
-    PyCryptoKeyObject *obj_key = (PyCryptoKeyObject*)_PyObject_New(&PyCryptoKeyObject_PyCryptoKeyType);
+    PyCryptoKeyObject *obj_key = (PyCryptoKeyObject*)_PyObject_New(&CryptoKeyObjecy_CryptoKeyObjecyType);
     obj_key->key = l_key;
     return (PyObject *)obj_key;
 }

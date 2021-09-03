@@ -29,6 +29,7 @@
 #include "dap_enc_oaes.h"
 #include "dap_common.h"
 #include "libdap_crypto_key_python.h"
+#include "wrapping_dap_enc_key.h"
 
 #ifdef __cplusplus
 extern "C" {
