@@ -44,6 +44,11 @@ PyObject* dap_enc_key_get_dec_size_py(PyObject *self, PyObject *args);//dap_enc_
 //PyObject *dap_enc_key_serealize_sign_py(PyObject *self, PyObject *args);
 
 PyObject *dap_enc_key_serealize_priv_key_py(PyObject *self, PyObject *args);
+PyObject *dap_enc_key_serealize_pub_key_py(PyObject *self, PyObject *args);
+PyObject *dap_enc_key_deserealize_priv_key_py(PyObject *self, PyObject *args);
+PyObject *dap_enc_key_deserealize_pub_key_py(PyObject *self, PyObject *args);
+
+PyObject *dap_enc_key_dup_py(PyObject *self, PyObject *args);
 
 
 // allocate memory for key struct
@@ -69,6 +74,10 @@ static PyMethodDef g_crypto_key_methods[]={
     {"getEncSize", dap_enc_key_get_enc_size_py, METH_VARARGS, ""},
     {"getDecSize", dap_enc_key_get_dec_size_py, METH_VARARGS, ""},
     {"serealizePrivKey", dap_enc_key_serealize_priv_key_py, METH_NOARGS, ""},
+    {"serealizePubKey", dap_enc_key_serealize_pub_key_py, METH_NOARGS, ""},
+    {"deserealizePrivKey", dap_enc_key_deserealize_priv_key_py, METH_VARARGS, ""},
+    {"deserealizePubKey", dap_enc_key_deserealize_pub_key_py, METH_VARARGS, ""},
+    {"clone", dap_enc_key_dup_py, METH_NOARGS, ""},
     {"genKeyPublicSize", dap_enc_gen_key_public_size_py, METH_VARARGS, ""},
     {"genPublic", dap_enc_gen_key_public_py, METH_VARARGS, ""},
     {NULL, NULL, 0, NULL}

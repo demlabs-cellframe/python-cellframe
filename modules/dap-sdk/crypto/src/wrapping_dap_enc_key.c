@@ -52,6 +52,57 @@ PyObject *dap_enc_key_serealize_priv_key_py(PyObject *self, PyObject *args){
     return ret;
 }
 
+PyObject *dap_enc_key_serealize_pub_key_py(PyObject *self, PyObject *args){
+    (void)args;
+    size_t bufflen_out = 0;
+    void *data = dap_enc_key_serealize_pub_key(((PyCryptoKeyObject*)self)->key, &bufflen_out);
+    PyObject *ret = PyBytes_FromStringAndSize(data, bufflen_out);
+    return ret;
+}
+
+PyObject *dap_enc_key_deserealize_priv_key_py(PyObject *self, PyObject *args){
+    PyObject *obj_priv_key;
+    if (!PyArg_ParseTuple(args, "O", &obj_priv_key)){
+        PyErr_SetString(PyExc_ValueError, "This function must accept one object type bytes");
+        return NULL;
+    }
+    if (!PyBytes_Check(obj_priv_key)){
+        PyErr_SetString(PyExc_ValueError, "This first argument is not a bytes object");
+        return NULL;
+    }
+    void *l_in_data = PyBytes_AsString(obj_priv_key);
+    size_t l_in_data_size = PyBytes_Size(obj_priv_key);
+    int ret_code = dap_enc_key_deserealize_priv_key(((PyCryptoKeyObject*)self)->key, l_in_data, l_in_data_size);
+    if (ret_code == 0)
+        return Py_None;
+    return Py_BuildValue("O", Py_False);
+}
+
+PyObject *dap_enc_key_deserealize_pub_key_py(PyObject *self, PyObject *args){
+    PyObject *obj_pub_key;
+    if (!PyArg_ParseTuple(args, "O", &obj_pub_key)){
+        PyErr_SetString(PyExc_ValueError, "This function must accept one object type bytes");
+        return NULL;
+    }
+    if (!PyBytes_Check(obj_pub_key)){
+        PyErr_SetString(PyExc_ValueError, "This first argument is not a bytes object");
+        return NULL;
+    }
+    void *l_in_data = PyBytes_AsString(obj_pub_key);
+    size_t l_in_data_size = PyBytes_Size(obj_pub_key);
+    int ret_code = dap_enc_key_deserealize_pub_key(((PyCryptoKeyObject*)self)->key, l_in_data, l_in_data_size);
+    if (ret_code == 0)
+        return Py_None;
+    return Py_BuildValue("O", Py_False);
+}
+
+PyObject *dap_enc_key_dup_py(PyObject *self, PyObject *args){
+    (void)args;
+    PyObject *new_obj = _PyObject_New(&CryptoKeyObjecy_CryptoKeyObjecyType);
+    ((PyCryptoKeyObject*)new_obj)->key = dap_enc_key_dup(((PyCryptoKeyObject*)self)->key);
+    return new_obj;
+}
+
 // allocate memory for key struct
 PyObject* dap_enc_key_new_py(PyObject *self, PyObject *args){
 /*    uint8_t type_key;
