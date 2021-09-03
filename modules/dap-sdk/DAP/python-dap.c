@@ -366,11 +366,14 @@ PyObject* DAP_error = NULL;
 //}
 
 PyMODINIT_FUNC PyInit_libDAP(void){
+    Py_INCREF(&g_crypto_base64_type_py);
     if (
             //CRYPTO
+            PyType_Ready(&g_crypto_base58_type_py) < 0 ||
+            PyType_Ready(&g_crypto_base64_type_py) < 0 ||
             PyType_Ready(&g_crypto_type_py) < 0 ||
             PyType_Ready(&CryptoKeyTypeObjecy_CryptoKeyTypeObjecyType) < 0 ||
-            PyType_Ready(&PyCryptoKeyObject_PyCryptoKeyType) < 0 ||
+//            PyType_Ready(&PyCryptoKeyObject_PyCryptoKeyType) < 0 ||
             PyType_Ready(&CryptoDataTypeObjecy_CryptoDataTypeObjecyType) < 0 ||
             PyType_Ready(&g_crypto_cert_type_py) < 0 ||
             PyType_Ready(&g_crypto_cert_type_metadata_type_py) < 0 ||
@@ -405,7 +408,8 @@ PyMODINIT_FUNC PyInit_libDAP(void){
             PyType_Ready(&dapStreamChObject_dapStreamChType) < 0 ||
             PyType_Ready(&dapStreamWorkerObject_dapStreamWorkerType) < 0 ||
             PyType_Ready(&DapStream_DapStreamType) < 0 ||
-            PyType_Ready(&DapStreamCtl_DapStreamCtlType) < 0
+            PyType_Ready(&DapStreamCtl_DapStreamCtlType) < 0 ||
+            PyType_Ready(&g_crypto_m_type_py) < 0
             ){
         log_it(L_CRITICAL,"Not all py modules are ready for init");
         return NULL;
@@ -417,9 +421,11 @@ PyMODINIT_FUNC PyInit_libDAP(void){
 
     PyModule_AddObject(module, "error", DAP_error);
     //CRYPTO
+    PyModule_AddObject(module, "Base64", (PyObject*)&g_crypto_base64_type_py);
+    PyModule_AddObject(module, "Base58", (PyObject*)&g_crypto_base58_type_py);
     PyModule_AddObject(module, "Crypto", (PyObject *)&g_crypto_type_py);
     PyModule_AddObject(module, "CryptoDataType", (PyObject *)&CryptoDataTypeObjecy_CryptoDataTypeObjecyType);
-    PyModule_AddObject(module, "CryptoKey", (PyObject *)&PyCryptoKeyObject_PyCryptoKeyType);
+//    PyModule_AddObject(module, "CryptoKey", (PyObject *)&PyCryptoKeyObject_PyCryptoKeyType);
     PyModule_AddObject(module, "CryptoKeyType", (PyObject *)&CryptoKeyTypeObjecy_CryptoKeyTypeObjecyType);
     PyModule_AddObject(module, "Cert", (PyObject*)&g_crypto_cert_type_py);
     PyModule_AddObject(module, "CertMetadataType", (PyObject*)&g_crypto_cert_type_metadata_type_py);
