@@ -70,6 +70,9 @@ PyObject *dap_enc_gen_pub_key_from_priv_py(PyObject *self, PyObject *args);//str
 PyObject *dap_enc_gen_key_public_size_py(PyObject *self, PyObject *args);//dap_enc_key_t *a_key); ->size_t
 PyObject *dap_enc_gen_key_public_py(PyObject *self, PyObject *args);//dap_enc_key_t *a_key, void * a_output); ->int
 
+PyObject *wrapping_dap_enc_key_encrypt(PyObject *self, PyObject *args);
+PyObject *wrapping_dap_enc_key_decrypt(PyObject *self, PyObject *args);
+
 static PyMethodDef g_crypto_key_methods[]={
     {"getEncSize", dap_enc_key_get_enc_size_py, METH_VARARGS, ""},
     {"getDecSize", dap_enc_key_get_dec_size_py, METH_VARARGS, ""},
@@ -79,8 +82,11 @@ static PyMethodDef g_crypto_key_methods[]={
     {"deserealizePubKey", dap_enc_key_deserealize_pub_key_py, METH_VARARGS, ""},
     {"clone", dap_enc_key_dup_py, METH_NOARGS, ""},
     {"generate", dap_enc_key_new_generate_py, METH_VARARGS | METH_STATIC, ""},
+    {"update", dap_enc_key_update_py, METH_NOARGS, ""},
     {"genKeyPublicSize", dap_enc_gen_key_public_size_py, METH_VARARGS, ""},
     {"genPublic", dap_enc_gen_key_public_py, METH_VARARGS, ""},
+    {"encrypt", wrapping_dap_enc_key_encrypt, METH_VARARGS, ""},
+    {"decrypt", wrapping_dap_enc_key_decrypt, METH_VARARGS, ""},
     {NULL, NULL, 0, NULL}
 };
 

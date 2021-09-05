@@ -148,10 +148,6 @@ PyObject *dap_enc_key_new_generate_py(PyObject *self, PyObject *args){
 // update struct dap_enc_key_t after insert foreign keys
 PyObject* dap_enc_key_update_py(PyObject *self, PyObject *args){
     (void)args;
-//    dap_enc_key_t *key = key_list_get_key(keys, key_id);
-//    if (key == NULL) {
-//        return NULL;
-//    }
     dap_enc_key_update(((PyCryptoKeyObject*)self)->key);
     return Py_None;
 }
@@ -177,4 +173,47 @@ PyObject *dap_enc_gen_key_public_py(PyObject *self, PyObject *args){
     //TODO
     return NULL;
     return PyLong_FromLong(ret_code);
+}
+
+PyObject *wrapping_dap_enc_key_encrypt(PyObject *self, PyObject *args){
+    PyObject *obj_in_data;
+    if (!PyArg_ParseTuple(args, "O", &obj_in_data)){
+        PyErr_SetString(PyExc_ValueError, "This function must accept one object type bytes");
+        return NULL;
+    }
+    if (!PyBytes_Check(obj_in_data)){
+        PyErr_SetString(PyExc_ValueError, "This first argument is not a bytes object");
+        return NULL;
+    }
+    void *l_in_data = PyBytes_AsString(obj_in_data);
+    size_t l_in_data_size = PyBytes_Size(obj_in_data);
+    void *l_out = NULL;
+    dap_enc_key_t *tmp = ((PyCryptoKeyObject*)self)->key;
+    size_t l_size_out = tmp->enc(tmp, l_in_data, l_in_data_size, l_out);
+    if (l_size_out == 0){
+        return Py_None;
+    }
+    PyObject *obj_out_data = PyBytes_FromStringAndSize(l_out, l_size_out);
+    return obj_out_data;
+}
+PyObject *wrapping_dap_enc_key_decrypt(PyObject *self, PyObject *args){
+    PyObject *obj_in_data;
+    if (!PyArg_ParseTuple(args, "O", &obj_in_data)){
+        PyErr_SetString(PyExc_ValueError, "This function must accept one object type bytes");
+        return NULL;
+    }
+    if (!PyBytes_Check(obj_in_data)){
+        PyErr_SetString(PyExc_ValueError, "This first argument is not a bytes object");
+        return NULL;
+    }
+    void *l_in_data = PyBytes_AsString(obj_in_data);
+    size_t l_in_data_size = PyBytes_Size(obj_in_data);
+    void *l_out = NULL;
+    dap_enc_key_t *tmp = ((PyCryptoKeyObject*)self)->key;
+    size_t l_size_out = tmp->dec(tmp, l_in_data, l_in_data_size, l_out);
+    if (l_size_out == 0){
+        return Py_None;
+    }
+    PyObject *obj_out_data = PyBytes_FromStringAndSize(l_out, l_size_out);
+    return obj_out_data;
 }
