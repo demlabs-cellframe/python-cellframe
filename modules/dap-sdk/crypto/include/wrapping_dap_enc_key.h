@@ -28,6 +28,7 @@
 #include "Python.h"
 #include "dap_common.h"
 #include "libdap_crypto_key_python.h"
+#include "libdap_crypto_key_type_python.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -36,10 +37,14 @@ extern "C" {
 typedef struct PyCryptoKey{
     PyObject_HEAD
     dap_enc_key_t *key;
+    bool key_filled;
 }PyCryptoKeyObject;
 
-PyObject* dap_enc_key_get_enc_size_py(PyObject *self, PyObject *args);//dap_enc_key_t * a_key, const size_t buf_in_size); -> size_t
-PyObject* dap_enc_key_get_dec_size_py(PyObject *self, PyObject *args);//dap_enc_key_t * a_key, const size_t buf_in_size); -> size_t
+int wrapping_dap_enc_key_init(PyCryptoKeyObject *self, PyObject *args, PyObject *kwds);
+void dap_enc_key_delete_py(PyCryptoKeyObject *self);
+
+PyObject* dap_enc_key_get_enc_size_py(PyObject *self, PyObject *args);
+PyObject* dap_enc_key_get_dec_size_py(PyObject *self, PyObject *args);
 
 //PyObject *dap_enc_key_serealize_sign_py(PyObject *self, PyObject *args);
 
@@ -51,24 +56,17 @@ PyObject *dap_enc_key_deserealize_pub_key_py(PyObject *self, PyObject *args);
 PyObject *dap_enc_key_dup_py(PyObject *self, PyObject *args);
 
 
-// allocate memory for key struct
-PyObject* dap_enc_key_new_py(PyObject *self, PyObject *args);//dap_enc_key_type_t a_key_type);     ->dap_enc_key_t*
 
-
-// default gen key
-PyObject *dap_enc_key_new_generate_py(PyObject *self, PyObject *args);//dap_enc_key_type_t key_type, const void *kex_buf,  ->dap_enc_key_t*
-                                        //size_t kex_size, const void* seed,
-                                        //size_t seed_size, size_t key_size);
 
 // update struct dap_enc_key_t after insert foreign keys
-PyObject* dap_enc_key_update_py(PyObject *self, PyObject *args);//dap_enc_key_t *a_key);            ->void
+PyObject* dap_enc_key_update_py(PyObject *self, PyObject *args);
 
 // for asymmetric gen public key
-PyObject *dap_enc_gen_pub_key_from_priv_py(PyObject *self, PyObject *args);//struct dap_enc_key *a_key, void **priv_key, size_t *alice_msg_len);  ->dap_enc_key_t *
+PyObject *dap_enc_gen_pub_key_from_priv_py(PyObject *self, PyObject *args);
 
 
-PyObject *dap_enc_gen_key_public_size_py(PyObject *self, PyObject *args);//dap_enc_key_t *a_key); ->size_t
-PyObject *dap_enc_gen_key_public_py(PyObject *self, PyObject *args);//dap_enc_key_t *a_key, void * a_output); ->int
+PyObject *dap_enc_gen_key_public_size_py(PyObject *self, PyObject *args);
+PyObject *dap_enc_gen_key_public_py(PyObject *self, PyObject *args);
 
 PyObject *wrapping_dap_enc_key_encrypt(PyObject *self, PyObject *args);
 PyObject *wrapping_dap_enc_key_decrypt(PyObject *self, PyObject *args);
@@ -80,8 +78,7 @@ static PyMethodDef g_crypto_key_methods[]={
     {"serealizePubKey", dap_enc_key_serealize_pub_key_py, METH_NOARGS, ""},
     {"deserealizePrivKey", dap_enc_key_deserealize_priv_key_py, METH_VARARGS, ""},
     {"deserealizePubKey", dap_enc_key_deserealize_pub_key_py, METH_VARARGS, ""},
-    {"clone", dap_enc_key_dup_py, METH_NOARGS, ""},
-    {"generate", dap_enc_key_new_generate_py, METH_VARARGS | METH_STATIC, ""},
+    {"clone", dap_enc_key_dup_py, METH_NOARGS, "This function clones the key"},
     {"update", dap_enc_key_update_py, METH_NOARGS, ""},
     {"genKeyPublicSize", dap_enc_gen_key_public_size_py, METH_VARARGS, ""},
     {"genPublic", dap_enc_gen_key_public_py, METH_VARARGS, ""},
@@ -131,7 +128,7 @@ static PyTypeObject CryptoKeyObjecy_CryptoKeyObjecyType = {
     0,                                   /* tp_descr_get */
     0,                                   /* tp_descr_set */
     0,                                   /* tp_dictoffset */
-    0,                                   /* tp_init */
+    (initproc)wrapping_dap_enc_key_init, /* tp_init */
     0,                                   /* tp_alloc */
     PyType_GenericNew,                   /* tp_new */
 };
