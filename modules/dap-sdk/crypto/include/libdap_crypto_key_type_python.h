@@ -36,24 +36,24 @@ typedef struct PyCryptoKeyType{
     dap_enc_key_type_t key_type;
 }PyCryptoKeyTypeObject;
 
-PyObject *get_ENC_KEY_TYPE_IAES();
-PyObject *get_ENC_KEY_TYPE_OAES();
-PyObject *get_ENC_KEY_TYPE_RLWE_NEWHOPE();
-PyObject *get_ENC_KEY_TYPE_SIDH_CLN16();
-PyObject *get_ENC_KEY_TYPE_DEFEO();
-PyObject *get_ENC_KEY_TYPE_MSRLN();
-PyObject *get_ENC_KEY_TYPE_MSRLN16();
-PyObject *get_ENC_KEY_TYPE_RLWE_BCNS15();
-PyObject *get_ENC_KEY_TYPE_LWE_FRODO();
-PyObject *get_ENC_KEY_TYPE_SIDH_IQC_REF();
-PyObject *get_ENC_KEY_TYPE_CODE_MCBITS();
-PyObject *get_ENC_KEY_TYPE_NTRU();
-PyObject *get_ENC_KEY_TYPE_MLWE_KYBER();
-PyObject *get_ENC_KEY_TYPE_SIG_PICNIC();
-PyObject *get_ENC_KEY_TYPE_SIG_BLISS();
-PyObject *get_ENC_KEY_TYPE_SIG_TESLA();
-PyObject *get_ENC_KEY_TYPE_SIG_DILITHIUM();
-PyObject *get_ENC_KEY_TYPE_NULL();
+PyObject *get_ENC_KEY_TYPE_IAES(PyObject *self, PyObject *args);
+PyObject *get_ENC_KEY_TYPE_OAES(PyObject *self, PyObject *args);
+PyObject *get_ENC_KEY_TYPE_RLWE_NEWHOPE(PyObject *self, PyObject *args);
+PyObject *get_ENC_KEY_TYPE_SIDH_CLN16(PyObject *self, PyObject *args);
+PyObject *get_ENC_KEY_TYPE_DEFEO(PyObject *self, PyObject *args);
+PyObject *get_ENC_KEY_TYPE_MSRLN(PyObject *self, PyObject *args);
+PyObject *get_ENC_KEY_TYPE_MSRLN16(PyObject *self, PyObject *args);
+PyObject *get_ENC_KEY_TYPE_RLWE_BCNS15(PyObject *self, PyObject *args);
+PyObject *get_ENC_KEY_TYPE_LWE_FRODO(PyObject *self, PyObject *args);
+PyObject *get_ENC_KEY_TYPE_SIDH_IQC_REF(PyObject *self, PyObject *args);
+PyObject *get_ENC_KEY_TYPE_CODE_MCBITS(PyObject *self, PyObject *args);
+PyObject *get_ENC_KEY_TYPE_NTRU(PyObject *self, PyObject *args);
+PyObject *get_ENC_KEY_TYPE_MLWE_KYBER(PyObject *self, PyObject *args);
+PyObject *get_ENC_KEY_TYPE_SIG_PICNIC(PyObject *self, PyObject *args);
+PyObject *get_ENC_KEY_TYPE_SIG_BLISS(PyObject *self, PyObject *args);
+PyObject *get_ENC_KEY_TYPE_SIG_TESLA(PyObject *self, PyObject *args);
+PyObject *get_ENC_KEY_TYPE_SIG_DILITHIUM(PyObject *self, PyObject *args);
+PyObject *get_ENC_KEY_TYPE_NULL(PyObject *self, PyObject *args);
 
 static PyMethodDef PyCryptoKeyTypeObjecyMethods[] = {
         {"DAP_ENC_KEY_TYPE_IAES", (PyCFunction)get_ENC_KEY_TYPE_IAES, METH_NOARGS | METH_STATIC, ""},
