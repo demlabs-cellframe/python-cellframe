@@ -4,7 +4,6 @@
 #include "Python.h"
 ////#include "libdap-python.h"
 // CRYPTO
-#include "crypto_module.h"
 #include "libdap-crypto-python.h"
 #include "libdap_crypto_data_type.h"
 #include "libdap_crypto_key_python.h"
@@ -15,6 +14,13 @@
 #include "wrapping_dap_pkey.h"
 #include "wrapping_dap_sign.h"
 #include "wrapping_base64.h"
+#include "wrapping_base58.h"
+#include "wrapping_dap_sign.h"
+#include "wrapping_cert_metadata.h"
+#include "wrapping_cert.h"
+#include "wrapping_dap_pkey.h"
+#include "wrapping_dap_hash.h"
+#include "wrapping_dap_enc_key.h"
 // net/core
 #include "dap_events_python.h"
 #include "dap_events_socket_python.h"

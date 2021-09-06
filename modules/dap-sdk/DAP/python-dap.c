@@ -366,11 +366,20 @@ PyObject* DAP_error = NULL;
 //}
 
 PyMODINIT_FUNC PyInit_libDAP(void){
-    Py_INCREF(&g_crypto_base64_type_py);
     if (
             //CRYPTO
             PyType_Ready(&g_crypto_base58_type_py) < 0 ||
             PyType_Ready(&g_crypto_base64_type_py) < 0 ||
+            PyType_Ready(&DapSignObject_DapSignObjectType) < 0 ||
+            PyType_Ready(&DapSignTypeObject_DapSignTypeObjectType) < 0 ||
+            PyType_Ready(&g_crypto_cert_type_metadata_type_py) < 0 ||
+            PyType_Ready(&g_crypto_cert_metadata_type_py) < 0 ||
+            PyType_Ready(&g_crypto_cert_type_py) < 0 ||
+            PyType_Ready(&DapPkeyTypeObject_DapPkeyTypeObjectType) < 0 ||
+            PyType_Ready(&DapPkeyObject_DapPkeyObjectType) < 0 ||
+            PyType_Ready(&DapHashTypeObject_DapChainHashTypeObjectType) < 0 ||
+            PyType_Ready(&DapHashFastObject_DapHashFastObjectType) < 0 ||
+            PyType_Ready(&CryptoKeyObjecy_CryptoKeyObjecyType) < 0 ||
             PyType_Ready(&g_crypto_type_py) < 0 ||
             PyType_Ready(&CryptoKeyTypeObjecy_CryptoKeyTypeObjecyType) < 0 ||
 //            PyType_Ready(&PyCryptoKeyObject_PyCryptoKeyType) < 0 ||
@@ -408,8 +417,7 @@ PyMODINIT_FUNC PyInit_libDAP(void){
             PyType_Ready(&dapStreamChObject_dapStreamChType) < 0 ||
             PyType_Ready(&dapStreamWorkerObject_dapStreamWorkerType) < 0 ||
             PyType_Ready(&DapStream_DapStreamType) < 0 ||
-            PyType_Ready(&DapStreamCtl_DapStreamCtlType) < 0 ||
-            PyType_Ready(&g_crypto_m_type_py) < 0
+            PyType_Ready(&DapStreamCtl_DapStreamCtlType) < 0
             ){
         log_it(L_CRITICAL,"Not all py modules are ready for init");
         return NULL;
@@ -423,6 +431,16 @@ PyMODINIT_FUNC PyInit_libDAP(void){
     //CRYPTO
     PyModule_AddObject(module, "Base64", (PyObject*)&g_crypto_base64_type_py);
     PyModule_AddObject(module, "Base58", (PyObject*)&g_crypto_base58_type_py);
+    PyModule_AddObject(module, "Sign", (PyObject*)&DapSignObject_DapSignObjectType);
+    PyModule_AddObject(module, "SignType", (PyObject*)&DapSignTypeObject_DapSignTypeObjectType);
+    PyModule_AddObject(module, "CertMetadataType", (PyObject*)&g_crypto_cert_type_metadata_type_py);
+    PyModule_AddObject(module, "CertMetadata", (PyObject*)&g_crypto_cert_metadata_type_py);
+    PyModule_AddObject(module, "Cert", (PyObject*)&g_crypto_cert_type_py);
+    PyModule_AddObject(module, "PkeyType", (PyObject*)&DapPkeyTypeObject_DapPkeyTypeObjectType);
+    PyModule_AddObject(module, "Pkey", (PyObject*)&DapPkeyObject_DapPkeyObjectType);
+    PyModule_AddObject(module, "HashType", (PyObject*)&DapHashTypeObject_DapChainHashTypeObjectType);
+    PyModule_AddObject(module, "HashFast", (PyObject*)&DapHashFastObject_DapHashFastObjectType);
+    PyModule_AddObject(module, "Key", (PyObject*)&CryptoKeyObjecy_CryptoKeyObjecyType);
     PyModule_AddObject(module, "Crypto", (PyObject *)&g_crypto_type_py);
     PyModule_AddObject(module, "CryptoDataType", (PyObject *)&CryptoDataTypeObjecy_CryptoDataTypeObjecyType);
 //    PyModule_AddObject(module, "CryptoKey", (PyObject *)&PyCryptoKeyObject_PyCryptoKeyType);
