@@ -55,8 +55,6 @@ static PyMethodDef g_crypto_methods_py[] = {
         {"decodeBase58", dap_decode_base58_py, METH_VARARGS | METH_STATIC, "Dencrypts information using the base58 algorithm from the DAP crypto library"},
         {"encodeBase64", dap_encode_base64_py, METH_VARARGS | METH_STATIC, "Encrypts information using the base64 algorithm from the DAP crypto library"},
         {"decodeBase64", dap_decode_base64_py, METH_VARARGS | METH_STATIC, "Dencrypts information using the base64 algorithm from the DAP crypto library"},
-        {"newKey", dap_enc_key_new_py, METH_VARARGS | METH_STATIC, "The function creates a new key, and returns it with PyObject."},
-        {"generateNewKey", dap_enc_key_new_generate_py, METH_VARARGS | METH_STATIC, ""},
         {"getEncSizeKey", dap_enc_key_get_enc_size_py, METH_VARARGS | METH_STATIC, ""},
         {"getDecSizeKey", dap_enc_key_get_dec_size_py, METH_VARARGS | METH_STATIC, ""},
         /*IAES256*/
