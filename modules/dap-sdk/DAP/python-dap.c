@@ -444,7 +444,7 @@ PyMODINIT_FUNC PyInit_libDAP(void){
     PyModule_AddObject(module, "Crypto", (PyObject *)&g_crypto_type_py);
     PyModule_AddObject(module, "CryptoDataType", (PyObject *)&CryptoDataTypeObjecy_CryptoDataTypeObjecyType);
 //    PyModule_AddObject(module, "CryptoKey", (PyObject *)&PyCryptoKeyObject_PyCryptoKeyType);
-    PyModule_AddObject(module, "CryptoKeyType", (PyObject *)&CryptoKeyTypeObjecy_CryptoKeyTypeObjecyType);
+    PyModule_AddObject(module, "KeyType", (PyObject *)&CryptoKeyTypeObjecy_CryptoKeyTypeObjecyType);
     PyModule_AddObject(module, "Cert", (PyObject*)&g_crypto_cert_type_py);
     PyModule_AddObject(module, "CertMetadataType", (PyObject*)&g_crypto_cert_type_metadata_type_py);
     PyModule_AddObject(module, "HashType", (PyObject*)&DapHashTypeObject_DapChainHashTypeObjectType);
