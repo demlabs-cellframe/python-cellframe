@@ -103,34 +103,35 @@
 
 //#include "dap_file_utils.h"
 //#include "dap_string.h"
-//#include "generator_config_file.h"
 //#include "wrapping_dap_chain_gdb.h"
 
 #include "dap_common.h"
 #include "dap_config.h"
 #include "dap_list.h"
-//#include "dap_server.h"
-//#ifdef _WIN32
-//#include "Windows.h"
+#include "dap_server.h"
+#include "generator_config_file.h"
+#include "dap_enc_ks.h"
+#ifdef _WIN32
+#include "Windows.h"
 
-//BOOL WINAPI consoleHandler(DWORD);
-//#else
-//#include "signal.h"
-//#include "wrapping_http_status_code.h"
-//#include "wrapping_dap_http_simple.h"
+BOOL WINAPI consoleHandler(DWORD);
+#else
+#include "signal.h"
+#include "wrapping_http_status_code.h"
+#include "wrapping_dap_http_simple.h"
 //#ifdef DAP_SUPPORT_PYTHON_PLUGINS
 //    #include "../modules/plugins/include/dap_plugins_python_app_context.h"
 //#endif
 
 
-//void sigfunc(int sig);
-//#endif
+void sigfunc(int sig);
+#endif
 
-//PyObject *python_DAP_init(PyObject *self, PyObject *args);
+PyObject *python_DAP_init(PyObject *self, PyObject *args);
 
-//void deinit_modules(void);
+void deinit_modules(void);
 
-//PyObject *python_DAP_deinit(PyObject *self, PyObject *args);
+PyObject *python_DAP_deinit(PyObject *self, PyObject *args);
 
 PyObject *dap_set_log_level(PyObject *self, PyObject *args);
 
@@ -151,8 +152,8 @@ PyObject* py_m_dap_config_get_item(PyObject *self, PyObject *args);
 PyObject* py_m_dap_config_get_item_default(PyObject *self, PyObject *args);
 
 static PyMethodDef DAPPythonMethods[] = {
-//        {"init", python_DAP_init, METH_VARARGS, "Initialization of the python-DAP interface DAP (Deus Applicaions Prototypes)"},
-//        {"deinit", python_DAP_deinit, METH_VARARGS, "Deinitialization of the python-DAP interface DAP (Deus Applicaions Prototypes)"},
+        {"init", python_DAP_init, METH_VARARGS, "Initialization of the python-DAP interface DAP (Deus Applicaions Prototypes)"},
+        {"deinit", python_DAP_deinit, METH_VARARGS, "Deinitialization of the python-DAP interface DAP (Deus Applicaions Prototypes)"},
         {"setLogLevel", (PyCFunction)dap_set_log_level, METH_VARARGS, "Setting the logging level"},
         {"logIt", (PyCFunction)dap_log_it, METH_VARARGS, "The wrapper of the log_it function for the libdap library"},
         {"logItDebug", (PyCFunction)dap_log_it_debug, METH_VARARGS, "The log_it wrapper for the libdap library displays information with the logging level DEBUG"},
