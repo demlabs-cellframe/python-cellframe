@@ -93,7 +93,7 @@ static PyMethodDef g_crypto_key_methods[]={
 
 static PyTypeObject CryptoKeyObjecy_CryptoKeyObjecyType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "DAP.CryptoKey",           /* tp_name */
+    "DAP.EncKey",           /* tp_name */
     sizeof(PyCryptoKeyObject),       /* tp_basicsize */
     0,		                         /* tp_itemsize */
     0,		   			 /* tp_dealloc */

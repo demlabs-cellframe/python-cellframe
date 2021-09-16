@@ -58,6 +58,7 @@ PyObject *python_DAP_init(PyObject *self, PyObject *args){
     const char *config_dir;
     const char *log_level;
     const char *JSON_str;
+    g_config = NULL;
 
     s_init_ks = true;
     submodules_deint = false;
@@ -275,7 +276,7 @@ PyObject *python_DAP_init(PyObject *self, PyObject *args){
             }
             s_init_stream = true;
         } else if (strcmp(c_value, "StreamCtl") == 0){
-            if (dap_stream_ctl_init_py(32) != 0){
+            if (dap_stream_ctl_init() != 0){
                 PyErr_SetString(DAP_error, "Failed to initialize StreamCtl module. ");
                 return NULL;
             }
@@ -445,7 +446,7 @@ PyMODINIT_FUNC PyInit_libDAP(void){
     PyModule_AddObject(module, "Pkey", (PyObject*)&DapPkeyObject_DapPkeyObjectType);
     PyModule_AddObject(module, "HashType", (PyObject*)&DapHashTypeObject_DapChainHashTypeObjectType);
     PyModule_AddObject(module, "HashFast", (PyObject*)&DapHashFastObject_DapHashFastObjectType);
-    PyModule_AddObject(module, "Key", (PyObject*)&CryptoKeyObjecy_CryptoKeyObjecyType);
+    PyModule_AddObject(module, "EncKey", (PyObject*)&CryptoKeyObjecy_CryptoKeyObjecyType);
     PyModule_AddObject(module, "Crypto", (PyObject *)&g_crypto_type_py);
     PyModule_AddObject(module, "CryptoDataType", (PyObject *)&CryptoDataTypeObjecy_CryptoDataTypeObjecyType);
 //    PyModule_AddObject(module, "CryptoKey", (PyObject *)&PyCryptoKeyObject_PyCryptoKeyType);
@@ -473,13 +474,13 @@ PyMODINIT_FUNC PyInit_libDAP(void){
     // net/server/http
     PyModule_AddObject(module, "HttpSimple", (PyObject*)&DapHTTPSimple_DapHTTPSimpleType);
     PyModule_AddObject(module, "HTTPCode", (PyObject*)&HTTPCode_HTTPCodeType);
-    PyModule_AddObject(module, "DapHttp", (PyObject*)&DapHTTP_DapHTTPType);
-    PyModule_AddObject(module, "DapHttpFolder", (PyObject*)&DapHttpFolder_DapHttpFolderType);
+    PyModule_AddObject(module, "Http", (PyObject*)&DapHTTP_DapHTTPType);
+    PyModule_AddObject(module, "HttpFolder", (PyObject*)&DapHttpFolder_DapHttpFolderType);
     // net/stream
     PyModule_AddObject(module, "StreamCH", (PyObject*)&dapStreamChObject_dapStreamChType);
-    PyModule_AddObject(module, "DapStreamCtl", (PyObject*)&DapStreamCtl_DapStreamCtlType);
+    PyModule_AddObject(module, "StreamCtl", (PyObject*)&DapStreamCtl_DapStreamCtlType);
     PyModule_AddObject(module, "StreamWorker", (PyObject*)&dapStreamWorkerObject_dapStreamWorkerType);
-    PyModule_AddObject(module, "DapStream", (PyObject*)&DapStream_DapStreamType);
+    PyModule_AddObject(module, "Stream", (PyObject*)&DapStream_DapStreamType);
     //app_context
     #ifdef DAP_SUPPORT_PYTHON_PLUGINS
     PyModule_AddObject(module, "AppContext", (PyObject*)&dapAppContext_dapAppContextType);

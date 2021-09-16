@@ -166,8 +166,8 @@ static PyMethodDef DAPPythonMethods[] = {
         {"logItError", (PyCFunction)dap_log_it_error, METH_VARARGS, "The log_it wrapper for the libdap library displays information with the logging level ERROR"},
         {"logItCritical", (PyCFunction)dap_log_it_critical, METH_VARARGS, "The log_it wrapper for the libdap library displays information with the logging level CRITICAL"},
 
-//        {"configGetItem", (PyCFunction)py_m_dap_config_get_item, METH_VARARGS, ""},
-//        {"configGetItemDefault", (PyCFunction)py_m_dap_config_get_item_default, METH_VARARGS, ""},
+        {"configGetItem", (PyCFunction)py_m_dap_config_get_item, METH_VARARGS, ""},
+        {"configGetItemDefault", (PyCFunction)py_m_dap_config_get_item_default, METH_VARARGS, ""},
         {NULL, NULL, 0, NULL}
 };
 
