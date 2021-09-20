@@ -4,11 +4,12 @@ void DapChainCellObject_delete(PyDapChainCellObject* object){
     dap_chain_cell_delete(object->cell);
     Py_TYPE(object)->tp_free((PyObject*)object);
 }
-PyObject *DapChainCellObject_create(PyTypeObject *type_object, PyObject *args, PyObject *kwds){
+
+/*PyObject *DapChainCellObject_create(PyTypeObject *type_object, PyObject *args, PyObject *kwds){
     PyDapChainCellObject *obj = (PyDapChainCellObject*)PyType_GenericNew(type_object, args, kwds);
     obj->cell = dap_chain_cell_create();
     return (PyObject *)obj;
-}
+}*/
 
 PyObject *dap_chain_cell_load_py(PyObject *self, PyObject *args){
     PyObject *obj_chain;
