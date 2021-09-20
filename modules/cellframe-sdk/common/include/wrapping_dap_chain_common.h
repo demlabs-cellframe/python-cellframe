@@ -395,6 +395,10 @@ static PyTypeObject DapChainCellIDObject_DapChainCellIDType = {
     PyType_GenericNew,               /* tp_new */
 };
 
+static bool DapChainCellIdObject_Check(PyObject *obj){
+    return PyObject_TypeCheck(obj, &DapChainCellIDObject_DapChainCellIDType);
+}
+
 
 /*=================*/
 
