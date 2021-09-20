@@ -31,6 +31,7 @@
 #include "wrapping_dap_chain_net_node_info.h"
 #include "wrapping_dap_chain_net_node.h"
 #include "wrapping_dap_chain_net_state.h"
+#include "dap_chain_net_srv.h"
 //// ============
 
 
@@ -43,14 +44,13 @@
 //#include "wrapping_dap_http_folder.h"
 //wallet
 #include "dap_chain_wallet_python.h"
-
 ////#include "dap_http_client_simple.h"
 ////#include "dap_chain_wallet.h"
 //#include "dap_chain_cs.h"
 ////#include "dap_chain_cs_dag.h"
 ////#include "dap_chain_cs_dag_poa.h"
 ////#include "dap_chain_cs_dag_pos.h"
-//#include "dap_chain_net_srv.h"
+
 //#include "dap_http_simple.h"
 //#include "dap_stream_ch_chain.h"
 //#include "dap_stream_ch_chain_net.h"
@@ -88,15 +88,15 @@
 //void sigfunc(int sig);
 //#endif
 
-//PyObject *python_cellframe_init(PyObject *self, PyObject *args);
+PyObject *python_cellframe_init(PyObject *self, PyObject *args);
 
-//void deinit_modules(void);
+void deinit_modules(void);
 
-//PyObject *python_cellframe_deinit(PyObject *self, PyObject *args);
+PyObject *python_cellframe_deinit(PyObject *self, PyObject *args);
 
 static PyMethodDef CellFramePythonMethods[] = {
-//        {"init", python_cellframe_init, METH_VARARGS, "Initialization of the python-cellframe interface DAP (Deus Applicaions Prototypes)"},
-//        {"deinit", python_cellframe_deinit, METH_VARARGS, "Deinitialization of the python-cellframe interface DAP (Deus Applicaions Prototypes)"},
+        {"init", python_cellframe_init, METH_VARARGS, "Initialization of the python-cellframe interface CellFrame"},
+        {"deinit", python_cellframe_deinit, METH_VARARGS, "Deinitialization of the python-cellframe interface DAP (Deus Applicaions Prototypes)"},
 //        {"setLogLevel", (PyCFunction)dap_set_log_level, METH_VARARGS, "Setting the logging level"},
 //        {"logIt", (PyCFunction)dap_log_it, METH_VARARGS, "The wrapper of the log_it function for the libdap library"},
 //        {"logItDebug", (PyCFunction)dap_log_it_debug, METH_VARARGS, "The log_it wrapper for the libdap library displays information with the logging level DEBUG"},
