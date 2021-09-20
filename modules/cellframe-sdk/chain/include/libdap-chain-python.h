@@ -85,4 +85,8 @@ static PyTypeObject dapChainObject_dapChainType = {
 
 };
 
+static bool DapChainObject_check(PyObject *obj){
+    return PyObject_TypeCheck(obj, &dapChainObject_dapChainType);
+}
+
 

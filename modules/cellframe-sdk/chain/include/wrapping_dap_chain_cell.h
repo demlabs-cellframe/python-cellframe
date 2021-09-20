@@ -17,7 +17,7 @@ typedef struct PyDapChainCell{
 }PyDapChainCellObject;
 
 void DapChainCellObject_delete(PyDapChainCellObject* object);
-PyObject *DapChainCellObject_create(PyTypeObject *type_object, PyObject *args, PyObject *kwds);
+PyObject *dap_chain_cell_create_fill_py(PyTypeObject *type, PyObject *args, PyObject *kwds);
 
 PyObject *dap_chain_cell_load_py(PyObject *self, PyObject *args);
 PyObject *dap_chain_cell_file_update_py(PyObject *self, PyObject *args);
@@ -69,7 +69,7 @@ static PyTypeObject DapChainCell_DapChainCellObjectType = {
     0,                                       /* tp_dictoffset */
     0,                                       /* tp_init */
     0,                                       /* tp_alloc */
-    PyType_GenericNew,                       /* tp_new */
+    dap_chain_cell_create_fill_py,           /* tp_new */
 };
 
 /* ------------------------------------------- */
