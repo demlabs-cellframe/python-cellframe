@@ -178,23 +178,38 @@ PyObject *python_DAP_init(PyObject *self, PyObject *args){
         PyObject *value = PyList_GetItem(getModules, i);
         const char *c_value = PyUnicode_AsUTF8(value);
         log_it(L_INFO, "Initializing the %s module ", c_value);
+        int rc = 0;
         if (strcmp(c_value, "Crypto") == 0){            //Init crypto
 //            log_it(L_INFO, "Initializing the %s module", c_value);
             s_init_crypto = true;
-            if (dap_crypto_init() != 0){
-                PyErr_SetString(DAP_error, "An error occurred while initializing the libdap-crypto-python module.");
+            rc = dap_crypto_init();
+            if (rc != 0){
+                char *msg = dap_strdup_printf("An error occurred while initializing the libdap-crypto-python module. Code: %i", rc);
+                PyErr_SetString(DAP_error, msg);
                 return NULL;
             }
-            dap_cert_init();
+            rc = dap_cert_init();
+            if (rc != 0){
+                char *msg = dap_strdup_printf("An error occurred while initializing the libdap-crypto-cert-python module. Code: %i", rc);
+                PyErr_SetString(DAP_error, msg);
+                return NULL;
+            }
         } else if (strcmp(c_value, "Events") == 0){
-            dap_events_init(0,0);
+            rc = dap_events_init(0,0);
+            if (rc != 0){
+                char *msg = dap_strdup_printf("An error occurred while initializing the dap_events module. Code: %i", rc);
+                PyErr_SetString(DAP_error, msg);
+                return NULL;
+            }
             events = _PyObject_New(&dapEvents_dapEventsType);
             ((PyDapEventsObject*)events)->t_events = dap_events_new();
             dap_events_start(((PyDapEventsObject*)events)->t_events);
             s_init_events = true;
         } else if (strcmp(c_value, "Server") == 0){
-            if(dap_server_init() != 0 ){
-                PyErr_SetString(DAP_error, "Failed to initialize Server.");
+            rc = dap_server_init();
+            if(rc != 0 ){
+                char *msg = dap_strdup_printf("Failed to initialize Server. Code: %i", rc);
+                PyErr_SetString(DAP_error, msg);
                 return NULL;
             }
             s_init_server = true;
@@ -217,8 +232,10 @@ PyObject *python_DAP_init(PyObject *self, PyObject *args){
             PyObject *ll_conn = PyNumber_Long(Nl_conn);
             uint32_t ul_thread_cnt = (uint32_t)PyLong_AsUnsignedLong(ll_thread_cnt);
             size_t ul_conn = PyLong_AsSize_t(ll_conn);
-            if(dap_server_core_init(ul_thread_cnt, ul_conn) != 0 ){
-                PyErr_SetString(DAP_error, "Failed to initialize ServerCore.");
+            rc = dap_server_core_init(ul_thread_cnt, ul_conn);
+            if(rc != 0 ){
+                char *msg = dap_strdup_printf("Failed to initialize ServerCore. Code: %i", rc);
+                PyErr_SetString(DAP_error, msg);
                 return NULL;
             }
             s_init_server_core = true;
@@ -234,26 +251,34 @@ PyObject *python_DAP_init(PyObject *self, PyObject *args){
                 return NULL;
             }
         }*/ else if (strcmp(c_value, "Http") == 0){
-            if(dap_http_init() != 0){
-                PyErr_SetString(DAP_error, "Failed to initialize Http module. ");
+            rc = dap_http_init();
+            if(rc != 0){
+                char* msg = dap_strdup_printf("Failed to initialize Http module. Code: %i", rc);
+                PyErr_SetString(DAP_error, msg);
                 return NULL;
             }
             s_init_http = true;
         } else if (strcmp(c_value, "HttpSimple") == 0){
-            if (dap_http_simple_module_init() != 0){
-                PyErr_SetString(DAP_error, "Failed to initialize HttpSimple module. ");
+            rc = dap_http_simple_module_init();
+            if (rc != 0){
+                char* msg = dap_strdup_printf("Failed to initialize HttpSimple module. Code: %i", rc);
+                PyErr_SetString(DAP_error, msg);
                 return NULL;
             }
             s_init_http_simple = true;
         } else if (strcmp(c_value, "EncHttp") == 0){
-            if(enc_http_init() != 0){
-                PyErr_SetString(DAP_error, "Failed to initialize EncHttp module. ");
+            rc = enc_http_init();
+            if(rc != 0){
+                char *msg = dap_strdup_printf("Failed to initialize EncHttp module. Code: %i", rc);
+                PyErr_SetString(DAP_error, msg);
                 return NULL;
             }
             s_init_http_enc = true;
         } else if (strcmp(c_value, "HttpFolder") == 0){
-            if (dap_http_folder_init() !=0){
-                PyErr_SetString(DAP_error, "Failed to initialize http folder module. ");
+            rc = dap_http_folder_init();
+            if (rc !=0){
+                char *msg = dap_strdup_printf("Failed to initialize http folder module. Code: %i", rc);
+                PyErr_SetString(DAP_error, msg);
                 return NULL;
             }
             s_init_http_folder = true;
@@ -270,14 +295,18 @@ PyObject *python_DAP_init(PyObject *self, PyObject *args){
                                                  "Fields DebugDumpStreamHeaders are not boolean type.");
                 return NULL;
             }
-            if(dap_stream_init(g_config) != 0){
-                PyErr_SetString(DAP_error, "Failed to initialize Stream module. ");
+            rc = dap_stream_init(g_config);
+            if(rc != 0){
+                char* msg = dap_strdup_printf("Failed to initialize Stream module. Code %i", rc);
+                PyErr_SetString(DAP_error, msg);
                 return NULL;
             }
             s_init_stream = true;
         } else if (strcmp(c_value, "StreamCtl") == 0){
-            if (dap_stream_ctl_init() != 0){
-                PyErr_SetString(DAP_error, "Failed to initialize StreamCtl module. ");
+            rc = dap_stream_ctl_init();
+            if (rc != 0){
+                char *msg = dap_strdup_printf("Failed to initialize StreamCtl module. Code: %i", rc);
+                PyErr_SetString(DAP_error, msg);
                 return NULL;
             }
             s_init_stream_ctl = true;
@@ -341,8 +370,10 @@ PyObject *python_DAP_init(PyObject *self, PyObject *args){
                 return NULL;
             }
         }*/else if (strcmp(c_value, "Client") == 0){
-            if (dap_client_init() != 0){
-                PyErr_SetString(DAP_error, "Failed to initialize Client module. ");
+            rc = dap_client_init();
+            if (rc != 0){
+                char* msg = dap_strdup_printf("Failed to initialize Client module. Code: %i", rc);
+                PyErr_SetString(DAP_error, msg);
                 return NULL;
             }
             s_init_net_client = true;

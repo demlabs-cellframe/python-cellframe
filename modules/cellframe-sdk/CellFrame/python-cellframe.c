@@ -162,20 +162,26 @@ PyObject *python_cellframe_init(PyObject *self, PyObject *args){
         const char *c_value = PyUnicode_AsUTF8(value);
         log_it(L_INFO, "Initializing the %s module ", c_value);
         if (strcmp(c_value, "Chain") == 0){
-            if(init_chain_py() != 0){
-                PyErr_SetString(CellFrame_error, "Failed to initialize Chain. "
-                                                 "Fields thread_cnt and conn are not numerical or absent.");
+            int rx = init_chain_py();
+            if(rx != 0){
+                char *msg = dap_strdup_printf("Failed to initialize Chain. "
+                                                 "Fields thread_cnt and conn are not numerical or absent. Code: %i", rx);
+                PyErr_SetString(CellFrame_error, msg);
                 return NULL;
             }
-            if (dap_chain_cs_init_py() != 0){
-                PyErr_SetString(CellFrame_error, "Failed to initialize Chain CS. "
-                                                 "Fields thread_cnt and conn are not numerical or absent.");
+            rx = dap_chain_cs_init_py();
+            if (rx != 0){
+                char *msg = dap_strdup_printf("Failed to initialize Chain CS. "
+                                                 "Fields thread_cnt and conn are not numerical or absent. Code: %i", rx);
+                PyErr_SetString(CellFrame_error, msg);
                 return NULL;
             }
             s_init_chain = true;
         } else if (strcmp(c_value, "Mempool") == 0){
-            if (dap_datum_mempool_init() != 0){
-                PyErr_SetString(CellFrame_error, "Failed to initialize Mempool module. ");
+            int rx = dap_datum_mempool_init();
+            if (rx != 0){
+                char *msg = dap_strdup_printf("Failed to initialize Mempool module. Code: %i", rx);
+                PyErr_SetString(CellFrame_error, msg);
                 return NULL;
             }
             s_init_mempool = true;
@@ -203,8 +209,10 @@ PyObject *python_cellframe_init(PyObject *self, PyObject *args){
                 return NULL;
             } */
         } else if (strcmp(c_value, "ChainNetSrv") == 0){
-            if (dap_chain_net_srv_init(g_config) != 0){
-                PyErr_SetString(CellFrame_error, "Failed to initialize ChainNetSrv module. ");
+            int rx = dap_chain_net_srv_init(g_config);
+            if (rx != 0){
+                char *msg = dap_strdup_printf("Failed to initialize ChainNetSrv module. Code: %i", rx);
+                PyErr_SetString(CellFrame_error, msg);
                 return NULL;
             }
 //        }else if (strcmp(c_value, "StreamChChain") == 0){
@@ -226,8 +234,10 @@ PyObject *python_cellframe_init(PyObject *self, PyObject *args){
 ////            if (dap_enc_ks_init())
 ////            if (dap_enc_ks_
         } else if (strcmp(c_value, "GlobalDB") == 0){
-            if (dap_chain_global_db_init(g_config) != 0){
-                PyErr_SetString(CellFrame_error, "Failed to initialize GlobalDB module. ");
+            int rx = dap_chain_global_db_init(g_config);
+            if (rx != 0){
+                char *msg = dap_strdup_printf("Failed to initialize GlobalDB module. Code: %i", rx);
+                PyErr_SetString(CellFrame_error, msg);
                 return NULL;
             }
 //        }else if (strcmp(c_value, "Client") == 0){
@@ -236,13 +246,17 @@ PyObject *python_cellframe_init(PyObject *self, PyObject *args){
 //                return NULL;
 //            }
         }else if (strcmp(c_value, "GDB") == 0){
-            if (dap_chain_gdb_init_py() != 0){
-                PyErr_SetString(CellFrame_error, "Failed to initialize GDB module. ");
+            int rx = dap_chain_gdb_init_py();
+            if (rx != 0){
+                char *msg = dap_strdup_printf("Failed to initialize GDB module. Code: %i", rx);
+                PyErr_SetString(CellFrame_error, msg);
                 return NULL;
             }
         }else if (strcmp(c_value, "Net") == 0){
-            if (dap_chain_net_init_py() != 0 ){
-                PyErr_SetString(CellFrame_error, "Failed to initialize chain net module. ");
+            int rx = dap_chain_net_init_py();
+            if (rx != 0 ){
+                char *msg = dap_strdup_printf("Failed to initialize chain net module. Code: %i", rx);
+                PyErr_SetString(CellFrame_error,  msg);
                 return NULL;
             }
         }else if (strcmp(c_value, "AppCliServer") == 0){
