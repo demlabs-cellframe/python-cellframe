@@ -72,7 +72,7 @@ setup(
     name="CellFrame",
     version="0.13-post0",
     description="CellFrame SDK",
-    author='Demlabs (2007-2020)',
+    author='Demlabs (2007-2021)',
     license="GNU GPLv3",
     packages=['CellFrame'],
     ext_modules=[CMakeExtension('CellFrame/libCellFrame')],
