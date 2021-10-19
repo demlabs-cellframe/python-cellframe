@@ -1,9 +1,12 @@
+#pragma once
 #include <Python.h>
 #include "wrapping_dap_http_simple.h"
 #include "uthash.h"
 #include "dap_common.h"
 #include "dap_strfuncs.h"
 #include "dap_json_rpc_request_handler.h"
+#include "dap_json_rpc_params.h"
+#include "wrapping_dap_json_rpc_response.h"
 
 #ifdef __cplusplus
 extern "C" {
