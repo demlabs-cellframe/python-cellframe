@@ -1,5 +1,7 @@
 #include "wrapping_json_rpc_request.h"
 
+#define LOG_TAG "wrapping_json_rpc_request"
+
 struct _w_json_rpc_handler *handlers = NULL;
 
 void _w_dap_json_rpc_request_handler(dap_json_rpc_params_t *a_params, dap_json_rpc_response_t *a_response, const char *a_method){
@@ -17,15 +19,15 @@ void _w_dap_json_rpc_request_handler(dap_json_rpc_params_t *a_params, dap_json_r
         PyObject *obj_ptr = NULL;
         switch (a_params->params[i]->type) {
             case TYPE_PARAM_BOOLEAN:
-                tmp_bool = (bool)a_params->params[i]->value_param;
-                obj_prt = tmp_bool ? PyTuple_SetItem(args, i, Py_True) : PyTuple_SetItem(args, i, Py_False);
+                tmp_bool = *(bool*)a_params->params[i]->value_param;
+                obj_ptr = tmp_bool ? Py_True : Py_False;
                 break;
             case TYPE_PARAM_DOUBLE:
-                tmp_double = (double)a_params->params[i]->value_param;
-                obj_prt = PyLong_FromDouble(tmp_double);
+                tmp_double = *(double*)(a_params->params[i]->value_param);
+                obj_ptr = PyLong_FromDouble(tmp_double);
                 break;
             case TYPE_PARAM_INTEGER:
-                tmp_int = (int)a_params->params[i]->value_param;
+                tmp_int = *(int*)a_params->params[i]->value_param;
                 obj_ptr = PyLong_FromLong(tmp_int);
                 break;
             case TYPE_PARAM_STRING:
@@ -46,7 +48,7 @@ void _w_dap_json_rpc_request_handler(dap_json_rpc_params_t *a_params, dap_json_r
                 log_it(L_ERROR, "Can't called method: %s", a_method);
                 a_response->type_result = TYPE_RESPONSE_NULL;
                 a_response->error = dap_json_rpc_error_search_by_code(1);
-                return
+                return;
             }
         } else {
             log_it(L_WARNING, "%s method can't be called, it is not in the python function call table.");
@@ -72,7 +74,7 @@ PyObject* dap_json_rpc_request_reg_handler_py(PyObject *self, PyObject *args){
         PyErr_SetString(PyExc_IndexError, "A handler with this name has already been registered.");
         return NULL;
     }
-    struct _w_json_rpc_handler *handler = DAP_NEW(_w_json_rpc_handler);
+    struct _w_json_rpc_handler *handler = DAP_NEW(struct _w_json_rpc_handler);
     handler->method = dap_strdup(method);
     handler->call_func = obj_func;
     HASH_ADD_STR(handlers, method, handler);
