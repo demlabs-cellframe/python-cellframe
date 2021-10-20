@@ -7,12 +7,21 @@ typedef struct PyDapJSONRPCResponse{
     dap_json_rpc_response_t *response;
 }PyDapJSONRPCResponseObject;
 
-PyObject *set_request(PyObject *self, PyObject *args);
-PyObject *set_error(PyObject *self, PyObject *args);
-PyObject *get_id(PyObject *self, PyObject *args);
+int set_result(PyObject *self, PyObject *args, void *closure);
+PyObject *get_result(PyObject *self, void *closure);
+PyObject *get_error(PyObject *self, void *closure);
+int set_error(PyObject *self, PyObject *args, void *closure);
+PyObject *get_id(PyObject *self, void *closure);
 
 static PyMethodDef PyDapJSONRPCResponseMethods[] = {
         {NULL, NULL, 0, NULL}
+};
+
+static PyGetSetDef PyDapJSONRPCResponseGetsSets[] = {
+    {"ID", get_id, NULL, "ID request", NULL},
+    {"Error", get_error, set_error, "", NULL },
+    {"Result", get_result, set_result, "", NULL},
+    {NULL, NULL, NULL, NULL, NULL}
 };
 
 static PyTypeObject DapJSONRPCResponse_DapJSONRPCResponseType = {
