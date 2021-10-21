@@ -2,6 +2,43 @@
 
 int set_result(PyObject *self, PyObject *args, void *closure){
     UNUSED(closure);
+    dap_json_rpc_response_t *l_resp = ((PyDapJSONRPCResponseObject*)self)->response;
+    if (args == NULL){
+        if (l_resp->type_result == TYPE_RESPONSE_STRING){
+            DAP_FREE(l_resp->result_string);
+        }
+        l_resp->type_result = TYPE_RESPONSE_NULL;
+        return 0;
+    }
+    PyObject *obj_in = NULL;
+    if (!PyArg_ParseTuple(args, "O", &obj_in)){
+        return -1;
+    }
+    if(PyUnicode_Check(obj_in)){
+        const char *tmp_ptr = PyUnicode_AsUTF8(obj_in);
+        size_t l_size_str = dap_strlen(tmp_ptr);
+        l_resp->result_string = DAP_NEW_SIZE(char, l_size_str);
+        memcpy(l_resp->result_string, tmp_ptr, l_size_str);
+        l_resp->type_result = TYPE_RESPONSE_STRING;
+    }
+    if (PyBool_Check(obj_in)){
+        if (obj_in == Py_True){
+            l_resp->result_boolean = true;
+        } else {
+            l_resp->result_boolean = false;
+        }
+        l_resp->type_result = TYPE_RESPONSE_BOOLEAN;
+    }
+    if (PyLong_Check(obj_in)){
+        int tmp = _PyLong_AsInt(obj_in);
+        l_resp->result_int = tmp;
+        l_resp->type_result = TYPE_RESPONSE_INTEGER;
+    }
+    if (PyFloat_Check(obj_in)){
+        l_resp->result_double = PyFloat_AsDouble(obj_in);
+        l_resp->type_result = TYPE_RESPONSE_DOUBLE;
+    }
+    return 0;
 }
 PyObject *get_result(PyObject *self, void *closure){
     UNUSED(closure);
