@@ -28,6 +28,7 @@ PyObject* dap_json_roc_request_send_py(PyObject *self, PyObject *args);
 PyObject* dap_json_rpc_request_reg_handler_py(PyObject *self, PyObject *args);
 
 static PyMethodDef PyDapJSONRPCRequestMethods[] = {
+        {"registrationHandler", (PyCFunction)dap_json_rpc_request_reg_handler_py, METH_VARARGS | METH_STATIC    , ""},
         {NULL, NULL, 0, NULL}
 };
 
