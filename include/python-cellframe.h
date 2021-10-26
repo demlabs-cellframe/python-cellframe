@@ -61,6 +61,8 @@
 
 #include "dap_common.h"
 #include "dap_server.h"
+#include "wrapping_json_rpc_request.h"
+#include "wrapping_json_rpc_response.h"
 #ifdef _WIN32
 #include "Windows.h"
 

@@ -422,6 +422,8 @@ PyMODINIT_FUNC PyInit_libCellFrame(void){
             PyType_Ready(&DapAppCli_dapAppCliType ) < 0 ||
             PyType_Ready(&DapChainWallet_dapChainWalletType) < 0 ||
             PyType_Ready(&HTTPCode_HTTPCodeType) < 0 ||
+            PyType_Ready(&DapJSONRPCRequest_DapJSONRPCRequestType) < 0 ||
+            PyType_Ready(&DapJSONRPCResponse_DapJSONRPCResponseType) < 0 ||
             #ifdef DAP_SUPPORT_PYTHON_PLUGINS
                 PyType_Ready(&DapHTTPSimple_DapHTTPSimpleType) < 0 ||
                 PyType_Ready(&dapAppContext_dapAppContextType) < 0
@@ -514,6 +516,8 @@ PyMODINIT_FUNC PyInit_libCellFrame(void){
     #ifdef DAP_SUPPORT_PYTHON_PLUGINS
         PyModule_AddObject(module, "AppContext", (PyObject*)&dapAppContext_dapAppContextType);
     #endif
+    PyModule_AddObject(module, "JSONRPCRequest", (PyObject*)&DapJSONRPCRequest_DapJSONRPCRequestType);
+    PyModule_AddObject(module, "JSONRPCResponse", (PyObject*)&DapJSONRPCResponse_DapJSONRPCResponseType);
 
     return module;
 }
