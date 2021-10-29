@@ -7,20 +7,20 @@ typedef struct PyDapJSONRPCResponse{
     dap_json_rpc_response_t *response;
 }PyDapJSONRPCResponseObject;
 
-int set_result(PyObject *self, PyObject *args, void *closure);
-PyObject *get_result(PyObject *self, void *closure);
-PyObject *get_error(PyObject *self, void *closure);
-int set_error(PyObject *self, PyObject *args, void *closure);
-PyObject *get_id(PyObject *self, void *closure);
+int wrapping_json_rpc_response_set_result(PyObject *self, PyObject *args, void *closure);
+PyObject *wrapping_json_rpc_response_get_result(PyObject *self, void *closure);
+PyObject *wrapping_json_rpc_response_get_error(PyObject *self, void *closure);
+int wrapping_json_rpc_response_set_error(PyObject *self, PyObject *args, void *closure);
+PyObject *wrapping_json_rpc_response_get_id(PyObject *self, void *closure);
 
 static PyMethodDef PyDapJSONRPCResponseMethods[] = {
         {NULL, NULL, 0, NULL}
 };
 
 static PyGetSetDef PyDapJSONRPCResponseGetsSets[] = {
-    {"ID", get_id, NULL, "ID request", NULL},
-    {"Error", get_error, set_error, "", NULL },
-    {"Result", get_result, set_result, "", NULL},
+    {"ID", (getter)wrapping_json_rpc_response_get_id, NULL, "ID request", NULL},
+    {"Error", (getter)wrapping_json_rpc_response_get_error, (setter)wrapping_json_rpc_response_set_error, "", NULL },
+    {"Result", (getter)wrapping_json_rpc_response_get_result, (setter)wrapping_json_rpc_response_set_result, "", NULL},
     {NULL, NULL, NULL, NULL, NULL}
 };
 
@@ -55,7 +55,7 @@ static PyTypeObject DapJSONRPCResponse_DapJSONRPCResponseType = {
         0,                                               /* tp_iternext */
         PyDapJSONRPCResponseMethods,                   /* tp_methods */
         0,                                                 /* tp_members */
-        0,                          /* tp_getset */
+        PyDapJSONRPCResponseGetsSets,                          /* tp_getset */
         0,                                                 /* tp_base */
         0,                                                 /* tp_dict */
         0,                                                 /* tp_descr_get */
