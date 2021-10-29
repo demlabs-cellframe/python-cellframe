@@ -1,46 +1,44 @@
 #include "wrapping_json_rpc_response.h"
 
-int set_result(PyObject *self, PyObject *args, void *closure){
+#define LOG_TAG "wrapping_json_rpc_response"
+
+int wrapping_json_rpc_response_set_result(PyObject *self, PyObject *value, void *closure){
     UNUSED(closure);
     dap_json_rpc_response_t *l_resp = ((PyDapJSONRPCResponseObject*)self)->response;
-    if (args == NULL){
+    if (value == NULL){
         if (l_resp->type_result == TYPE_RESPONSE_STRING){
             DAP_FREE(l_resp->result_string);
         }
         l_resp->type_result = TYPE_RESPONSE_NULL;
         return 0;
     }
-    PyObject *obj_in = NULL;
-    if (!PyArg_ParseTuple(args, "O", &obj_in)){
-        return -1;
-    }
-    if(PyUnicode_Check(obj_in)){
-        const char *tmp_ptr = PyUnicode_AsUTF8(obj_in);
+    if(PyUnicode_Check(value)){
+        const char *tmp_ptr = PyUnicode_AsUTF8(value);
         size_t l_size_str = dap_strlen(tmp_ptr);
         l_resp->result_string = DAP_NEW_SIZE(char, l_size_str);
         memcpy(l_resp->result_string, tmp_ptr, l_size_str);
         l_resp->type_result = TYPE_RESPONSE_STRING;
     }
-    if (PyBool_Check(obj_in)){
-        if (obj_in == Py_True){
+    if (PyBool_Check(value)){
+        if (value == Py_True){
             l_resp->result_boolean = true;
         } else {
             l_resp->result_boolean = false;
         }
         l_resp->type_result = TYPE_RESPONSE_BOOLEAN;
     }
-    if (PyLong_Check(obj_in)){
-        int tmp = _PyLong_AsInt(obj_in);
+    if (PyLong_Check(value)){
+        int tmp = _PyLong_AsInt(value);
         l_resp->result_int = tmp;
         l_resp->type_result = TYPE_RESPONSE_INTEGER;
     }
-    if (PyFloat_Check(obj_in)){
-        l_resp->result_double = PyFloat_AsDouble(obj_in);
+    if (PyFloat_Check(value)){
+        l_resp->result_double = PyFloat_AsDouble(value);
         l_resp->type_result = TYPE_RESPONSE_DOUBLE;
     }
     return 0;
 }
-PyObject *get_result(PyObject *self, void *closure){
+PyObject *wrapping_json_rpc_response_get_result(PyObject *self, void *closure){
     UNUSED(closure);
     dap_json_rpc_response_t *l_resp = ((PyDapJSONRPCResponseObject*)self)->response;
     switch (l_resp->type_result) {
@@ -61,12 +59,15 @@ PyObject *get_result(PyObject *self, void *closure){
         break;
     }
 }
-PyObject *get_error(PyObject *self, void *closure){
+PyObject *wrapping_json_rpc_response_get_error(PyObject *self, void *closure){
     UNUSED(closure);
     dap_json_rpc_response_t* l_resp = ((PyDapJSONRPCResponseObject*)self)->response;
-    return Py_BuildValue("is", l_resp->error->code_error, l_resp->error->msg);
+    if (l_resp->error)
+        return Py_BuildValue("is", l_resp->error->code_error, l_resp->error->msg);
+    else
+        return PyTuple_New(2);
 }
-int set_error(PyObject *self, PyObject *args, void *closure){
+int wrapping_json_rpc_response_set_error(PyObject *self, PyObject *args, void *closure){
     UNUSED(closure);
     if (args == NULL){
         if (((PyDapJSONRPCResponseObject*)self)->response->error == NULL){
@@ -88,7 +89,7 @@ int set_error(PyObject *self, PyObject *args, void *closure){
     memcpy(((PyDapJSONRPCResponseObject*)self)->response->error->msg, message, lenght_message);
     return 0;
 }
-PyObject *get_id(PyObject *self, void *closure){
+PyObject *wrapping_json_rpc_response_get_id(PyObject *self, void *closure){
     UNUSED(closure);
     dap_json_rpc_response_t* l_resp = ((PyDapJSONRPCResponseObject*)self)->response;
     return  PyLong_FromLong(l_resp->id);
