@@ -49,6 +49,8 @@ PyObject *dap_chain_net_get_gdb_group_mempool_py(PyObject *self, PyObject *args)
 PyObject *dap_chain_net_get_gdb_group_mempool_by_chain_type_py(PyObject *self, PyObject *args);
 PyObject *dap_chain_net_links_connect_py(PyObject *self, PyObject *args);
 PyObject *dap_chain_net_get_chain_by_chain_type_py(PyObject *self, PyObject *args);
+PyObject *dap_chain_net_get_ledger_py(PyObject *self, PyObject *args);
+PyObject *dap_chain_net_get_name_py(PyObject *self, PyObject *args);
 
 static PyMethodDef DapChainNetMethods[] = {
     {"loadAll", dap_chain_net_load_all_py, METH_NOARGS | METH_STATIC, ""},
@@ -71,6 +73,8 @@ static PyMethodDef DapChainNetMethods[] = {
     {"getGdbGroupMempoolByChainType", dap_chain_net_get_gdb_group_mempool_by_chain_type_py, METH_VARARGS, ""},
     {"linksConnect", dap_chain_net_links_connect_py, METH_VARARGS, ""},
     {"getChainByChainType", dap_chain_net_get_chain_by_chain_type_py, METH_VARARGS, ""},
+    {"getLedger", dap_chain_net_get_ledger_py, METH_NOARGS, ""},
+    {"getName", dap_chain_net_get_name_py, METH_NOARGS, ""},
     {NULL, NULL, 0, NULL}
 };
 

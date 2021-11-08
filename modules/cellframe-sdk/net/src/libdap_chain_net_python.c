@@ -63,7 +63,9 @@ PyObject *dap_chain_net_by_id_py(PyObject *self, PyObject *args){
     if (!PyArg_ParseTuple(args, "O", &obj_net_id))
         return NULL;
     PyObject *obj_net = _PyObject_New(&DapChainNetObject_DapChainNetObjectType);
+    obj_net = PyObject_Init(obj_net, &DapChainNetObject_DapChainNetObjectType);
     ((PyDapChainNetObject*)obj_net)->chain_net = dap_chain_net_by_id(((PyDapChainNetIdObject*)obj_net_id)->net_id);
+    PyObject_Dir(obj_net);
     return Py_BuildValue("O", obj_net);
 }
 PyObject *dap_chain_net_id_by_name_py(PyObject *self, PyObject *args){
@@ -137,4 +139,18 @@ PyObject *dap_chain_net_get_chain_by_chain_type_py(PyObject *self, PyObject *arg
                 ((PyDapChainNetObject*)self)->chain_net,
                 ((PyChainTypeObject*)obj_chain_type)->chain_type);
     return Py_BuildValue("O", obj_chain);
+}
+
+PyObject *dap_chain_net_get_ledger_py(PyObject *self, PyObject *args){
+    (void)args;
+    PyObject *obj_ledger = PyObject_New(PyDapChainLedgerObject, &DapChainLedger_DapChainLedgerType);
+    PyObject_Dir(obj_ledger);
+    ((PyDapChainLedgerObject*)obj_ledger)->ledger = ((PyDapChainNetObject*)self)->chain_net->pub.ledger;
+    return obj_ledger;
+}
+
+PyObject *dap_chain_net_get_name_py(PyObject *self, PyObject *args){
+    (void)args;
+    PyObject *obj_name = PyUnicode_FromString(((PyDapChainNetObject*)self)->chain_net->pub.name);
+    return obj_name;
 }
