@@ -10,7 +10,7 @@ void _w_dap_json_rpc_request_handler(dap_json_rpc_params_t *a_params, dap_json_r
     obj_response = PyObject_Init((PyObject*)obj_response, &DapJSONRPCResponse_DapJSONRPCResponseType);
     obj_response->response = a_response;
     PyObject *obj_params = PyList_New(count_params);
-    for (int i=0; i < count_params; i++){
+    for (int i=0; i < count_params; i++) {
         bool tmp_bool;
         double tmp_double;
         int tmp_int;
@@ -18,53 +18,53 @@ void _w_dap_json_rpc_request_handler(dap_json_rpc_params_t *a_params, dap_json_r
         PyObject *obj_ptr = NULL;
         switch (a_params->params[i]->type) {
             case TYPE_PARAM_BOOLEAN:
-                tmp_bool = *(bool*)a_params->params[i]->value_param;
+                tmp_bool = *(bool *) a_params->params[i]->value_param;
                 obj_ptr = tmp_bool ? Py_True : Py_False;
                 break;
             case TYPE_PARAM_DOUBLE:
-                tmp_double = *(double*)(a_params->params[i]->value_param);
+                tmp_double = *(double *) (a_params->params[i]->value_param);
                 obj_ptr = PyLong_FromDouble(tmp_double);
                 break;
             case TYPE_PARAM_INTEGER:
-                tmp_int = *(int*)a_params->params[i]->value_param;
+                tmp_int = *(int *) a_params->params[i]->value_param;
                 obj_ptr = PyLong_FromLong(tmp_int);
                 break;
             case TYPE_PARAM_STRING:
-                tmp_string = (char*)a_params->params[i]->value_param;
+                tmp_string = (char *) a_params->params[i]->value_param;
                 obj_ptr = PyUnicode_FromString(tmp_string);
                 break;
-            
+
         }
-        if (obj_ptr != NULL){
+        if (obj_ptr != NULL) {
             PyList_SetItem(obj_params, i, obj_ptr);
         }
-        PyObject *args = Py_BuildValue("OO", obj_params, (PyObject*)obj_response);
-        Py_XINCREF(args);
-        struct _w_json_rpc_handler *func = NULL;
-        HASH_FIND_STR(handlers, a_method, func);
-        if (func != NULL){
-            PyGILState_STATE GILState = PyGILState_Ensure();
-            PyObject_Dir((PyObject*)obj_response);
-            //Called python func
-            PyObject *obj_result = PyObject_CallObject(func->call_func, args);
-            PyErr_Print();
-            PyGILState_Release(GILState);
-            if (!obj_result){
-                log_it(L_ERROR, "Can't called method: %s", a_method);
-                a_response->type_result = TYPE_RESPONSE_NULL;
-                a_response->error = dap_json_rpc_error_JSON_create();
-                a_response->error->code_error = 0xF1;
-                a_response->error->msg = "Can't called method";
-                //a_response->error = dap_json_rpc_error_search_by_code(1);
-                return;
-            }
-        } else {
-            log_it(L_WARNING, "%s method can't be called, it is not in the python function call table.");
-            a_response->type_result = TYPE_RESPONSE_NULL;
-            a_response->error = dap_json_rpc_error_search_by_code(1);
-        }
-        Py_XDECREF(args);
     }
+    PyObject *args = Py_BuildValue("OO", obj_params, (PyObject*)obj_response);
+    Py_XINCREF(args);
+    struct _w_json_rpc_handler *func = NULL;
+    HASH_FIND_STR(handlers, a_method, func);
+    if (func != NULL){
+        PyGILState_STATE GILState = PyGILState_Ensure();
+        PyObject_Dir((PyObject*)obj_response);
+        //Called python func
+        PyObject *obj_result = PyObject_CallObject(func->call_func, args);
+        PyErr_Print();
+        PyGILState_Release(GILState);
+        if (!obj_result){
+            log_it(L_ERROR, "Can't called method: %s", a_method);
+            a_response->type_result = TYPE_RESPONSE_NULL;
+            a_response->error = dap_json_rpc_error_JSON_create();
+            a_response->error->code_error = 0xF1;
+            a_response->error->msg = "Can't called method";
+            //a_response->error = dap_json_rpc_error_search_by_code(1);
+            return;
+        }
+    } else {
+        log_it(L_WARNING, "%s method can't be called, it is not in the python function call table.");
+        a_response->type_result = TYPE_RESPONSE_NULL;
+        a_response->error = dap_json_rpc_error_search_by_code(1);
+    }
+    Py_XDECREF(args);
 }
 
 PyObject* dap_json_rpc_request_reg_handler_py(PyObject *self, PyObject *args){
