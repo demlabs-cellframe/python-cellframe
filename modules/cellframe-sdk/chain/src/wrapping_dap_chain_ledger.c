@@ -90,14 +90,19 @@ PyObject *dap_chain_ledger_addr_get_token_ticker_all_py(PyObject *self, PyObject
 }
 PyObject *dap_chain_ledger_addr_get_token_ticker_all_fast_py(PyObject *self, PyObject *args){
     PyObject *obj_addr;
-    PyObject *obj_tickers;
-    PyObject *obj_tickers_size;
-    if (!PyArg_ParseTuple(args, "O|O|O", &obj_addr, &obj_tickers, &obj_tickers_size))
+    if (!PyArg_ParseTuple(args, "O", &obj_addr)) {
+        PyErr_SetString(PyExc_AttributeError, "This function must take an object of type ChainAddr as its first argument. ");
         return NULL;
-    char ***tickers = ListStringToArrayStringFormatChar(obj_tickers);
-    size_t *tickers_size = ListIntToSizeT(obj_tickers_size);
-    dap_chain_ledger_addr_get_token_ticker_all_fast(((PyDapChainLedgerObject*)self)->ledger, ((PyDapChainAddrObject*)obj_addr)->addr, tickers, tickers_size);
-    return PyLong_FromLong(0);
+    }
+    char **tickers = NULL;
+    size_t ticker_size = 0;
+    dap_chain_ledger_addr_get_token_ticker_all_fast(((PyDapChainLedgerObject*)self)->ledger, ((PyDapChainAddrObject*)obj_addr)->addr, &tickers, &ticker_size);
+    PyObject *obj_list = PyList_New(ticker_size);
+    for (int i=0; i < ticker_size;i++){
+        PyObject *str = PyUnicode_FromString(tickers[i]);
+        PyList_SetItem(obj_list, i, str);
+    }
+    return obj_list;
 }
 PyObject *dap_chain_ledger_tx_cache_check_py(PyObject *self, PyObject *args){
     PyObject *obj_datum_tx;
@@ -179,7 +184,8 @@ PyObject *dap_chain_ledger_calc_balance_py(PyObject *self, PyObject *args){
     if (!PyArg_ParseTuple(args, "O|s", &addr, &token_ticker))
         return NULL;
     uint64_t res = dap_chain_ledger_calc_balance(((PyDapChainLedgerObject*)self)->ledger, ((PyDapChainAddrObject*)addr)->addr, token_ticker);
-    return Py_BuildValue("k", res);
+    char* coins = dap_chain_balance_to_coins(res);
+    return Py_BuildValue("sk", coins, res);
 }
 PyObject *dap_chain_ledger_calc_balance_full_py(PyObject *self, PyObject *args){
     PyObject *addr;
