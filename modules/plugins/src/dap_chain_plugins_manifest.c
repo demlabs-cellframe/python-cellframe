@@ -102,7 +102,7 @@ dap_chain_plugins_list_manifest_t* dap_chain_plugins_add_manifest_from_file(cons
     json_object_put(j_author);
     json_object_put(j_version);
     json_object_put(j_name);
-    json_object_put(j_obj);
+    DAP_FREE(j_obj);
     DAP_FREE(json);
     return manifest;
 }
