@@ -52,9 +52,14 @@ PyObject *dap_chain_net_proc_datapool_py(PyObject *self, PyObject *args){
 
 PyObject *dap_chain_net_by_name_py(PyObject *self, PyObject *args){
     const char *a_name;
-    if (!PyArg_ParseTuple(args, "s", &a_name))
+    if (!PyArg_ParseTuple(args, "s", &a_name)) {
+        PyErr_SetString(PyExc_AttributeError,
+                        "Invalid argument specified. The first argument for this function must be a string. ");
         return NULL;
+    }
     PyObject *obj_chain_net = _PyObject_New(&DapChainNetObject_DapChainNetObjectType);
+    obj_chain_net = PyObject_Init(obj_chain_net, &DapChainNetObject_DapChainNetObjectType);
+    PyObject_Dir(obj_chain_net);
     ((PyDapChainNetObject*)obj_chain_net)->chain_net = dap_chain_net_by_name(a_name);
     return Py_BuildValue("O", obj_chain_net);
 }
