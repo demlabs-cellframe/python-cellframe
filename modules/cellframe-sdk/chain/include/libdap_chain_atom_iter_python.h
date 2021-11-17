@@ -7,7 +7,7 @@
 extern "C" {
 #endif
 
-typedef struct PyChainAtomPtr{
+typedef struct PyChainAtomIter{
     PyObject_HEAD
     dap_chain_atom_iter_t *atom_iter;
 } PyChainAtomIterObject;
@@ -16,7 +16,7 @@ static PyMethodDef DapChainAtomIterMethods[] = {
     {NULL, NULL, 0, NULL}
 };
 
-static PyTypeObject dapChainAtomPtr_dapChainAtomPtrType = {
+static PyTypeObject DapChainAtomIter_DapChainAtomIterType = {
     PyVarObject_HEAD_INIT(NULL, 0)
     "CellFrame.Chain.AtomIter",     /* tp_name */
     sizeof(PyChainAtomIterObject),       /* tp_basicsize */
@@ -58,6 +58,10 @@ static PyTypeObject dapChainAtomPtr_dapChainAtomPtrType = {
     PyType_GenericNew,                  /* tp_new */
 
 };
+
+static bool PyDapChainAtomIter_Check(PyObject *obj){
+    return PyObject_TypeCheck(obj, &DapChainAtomIter_DapChainAtomIterType);
+}
 
 #ifdef __cplusplus
 }
