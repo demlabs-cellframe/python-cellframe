@@ -92,11 +92,15 @@ PyObject *dap_chain_ledger_by_net_name_py(PyObject *self, PyObject *args){
 
 PyObject *dap_chain_net_get_chain_by_name_py(PyObject *self, PyObject *args){
     const char* chain_name;
-    if (!PyArg_ParseTuple(args, "s", &chain_name))
+    if (!PyArg_ParseTuple(args, "s", &chain_name)) {
+        PyErr_SetString(PyExc_AttributeError, "This function takes one argument, which must be a string.");
         return NULL;
-      PyObject *obj_chain = _PyObject_New(&dapChainObject_dapChainType);
-      ((PyDapChainObject*)obj_chain)->chain_t = dap_chain_net_get_chain_by_name(((PyDapChainNetObject*)self)->chain_net, chain_name);
-      return Py_BuildValue("O", obj_chain);
+    }
+    PyObject *obj_chain = _PyObject_New(&dapChainObject_dapChainType);
+    obj_chain = PyObject_Init(obj_chain, &dapChainObject_dapChainType);
+    PyObject_Dir(obj_chain);
+    ((PyDapChainObject*)obj_chain)->chain_t = dap_chain_net_get_chain_by_name(((PyDapChainNetObject*)self)->chain_net, chain_name);
+    return Py_BuildValue("O", obj_chain);
 }
 
 PyObject *dap_chain_net_get_cur_addr_py(PyObject *self, PyObject *args){
