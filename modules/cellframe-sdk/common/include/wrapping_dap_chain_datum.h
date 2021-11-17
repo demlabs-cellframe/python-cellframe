@@ -2,6 +2,7 @@
 #define _WRAPPING_DAP_CHAIN_DATUM_
 #include "Python.h"
 #include "dap_chain_datum.h"
+#include "datetime.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -64,10 +65,16 @@ typedef struct PyDapChainDatum{
 //void PyDapChainDatumObject_dealloc(PyDapChainDatumObject* object);
 PyObject *PyDapChainDatumObject_new(PyTypeObject *type_object, PyObject *args, PyObject *kwds);
 PyObject *dap_chain_datum_size_py(PyObject *self, PyObject *args);
+PyObject *dap_chain_datum_get_ts_created(PyObject *self, void* closure);
 
 static PyMethodDef DapChainDatumMethods[] = {
     {"size", dap_chain_datum_size_py, METH_VARARGS, ""},
     {NULL, NULL, 0, NULL}
+};
+
+static PyGetSetDef  DapChainDatumGetSet[] = {
+        {"tsCreated", (getter)dap_chain_datum_get_ts_created, NULL, NULL, NULL},
+        {NULL}
 };
 
 static PyTypeObject DapChainDatumObject_DapChainDatumObjectType = {
