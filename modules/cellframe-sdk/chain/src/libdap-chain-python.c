@@ -77,3 +77,78 @@ void PyDapChainObject_dealloc(PyDapChainObject* chain){
     dap_chain_delete(chain->chain_t);
     Py_TYPE(chain)->tp_free((PyObject*)chain);
 }
+
+PyObject *dap_chain_python_create_atom_iter(PyObject *self, PyObject *args){
+    (void)args;
+    PyObject *obj_atom_iter = _PyObject_New(&DapChainAtomIter_DapChainAtomIterType);
+    PyObject_Init(obj_atom_iter, &DapChainAtomIter_DapChainAtomIterType);
+    PyObject_Dir(obj_atom_iter);
+    ((PyChainAtomIterObject*)obj_atom_iter)->atom_iter =
+            ((PyDapChainObject*)self)->chain_t->callback_atom_iter_create(((PyDapChainObject*)self)->chain_t);
+    return obj_atom_iter;
+}
+
+PyObject *dap_chain_python_atom_iter_get_first(PyObject *self, PyObject *args){
+    PyObject *obj_iter;
+    if (!PyArg_ParseTuple(args, "O", &obj_iter)){
+        PyErr_SetString(PyExc_AttributeError, "This function must take one argument.");
+        return NULL;
+    }
+    if (!PyDapChainAtomIter_Check(obj_iter)){
+        PyErr_SetString(PyExc_ValueError, "The type of the first argument is not valid. The first argument accepted by this function must be of type ChainAtomIter.");
+        return NULL;
+    }
+    PyObject *obj_atom_ptr = _PyObject_New(&DapChainAtomPtr_DapChainAtomPtrType);
+    obj_atom_ptr = PyObject_Init(obj_atom_ptr, &DapChainAtomPtr_DapChainAtomPtrType);
+    PyObject_Dir(obj_atom_ptr);
+    size_t l_atom_size = 0;
+    ((PyChainAtomPtrObject*)obj_atom_ptr)->ptr = ((PyDapChainObject*)self)->chain_t->callback_atom_iter_get_first(
+            ((PyChainAtomIterObject*)obj_iter)->atom_iter, &l_atom_size
+            );
+    if (((PyChainAtomPtrObject*)obj_atom_ptr)->ptr == NULL){
+        return Py_None;
+    }
+    return Py_BuildValue("On", obj_atom_ptr, l_atom_size);
+}
+
+PyObject *dap_chain_python_atom_get_datums(PyObject *self, PyObject *args){
+    PyObject *obj_atom = NULL;
+    size_t atom_size = 0;
+    if(!PyArg_ParseTuple(args, "On", &obj_atom, &atom_size)){
+        PyErr_SetString(PyExc_AttributeError, "The given function was passed incorrect arguments, it must accept an atom and its size.");
+        return NULL;
+    }
+    size_t datums_count = 0;
+    dap_chain_datum_t **l_datums = ((PyDapChainObject*)self)->chain_t->callback_atom_get_datums(((PyChainAtomPtrObject*)obj_atom)->ptr, atom_size, &datums_count);
+    PyObject *list_datums = PyList_New(datums_count);
+    for (int i=0; i < datums_count; i++){
+        PyObject *obj_datum = _PyObject_New(&DapChainDatumObject_DapChainDatumObjectType);
+        obj_datum = PyObject_Init(obj_datum, &DapChainDatumObject_DapChainDatumObjectType);
+        ((PyDapChainDatumObject*)obj_datum)->datum = l_datums[i];
+    }
+    return list_datums;
+}
+
+PyObject *dap_chain_python_atom_iter_get_next(PyObject *self, PyObject *args){
+    //
+    size_t atom_size = 0;
+    PyObject *atom_iter = NULL;
+    if(!PyArg_ParseTuple(args, "O", &atom_iter)){
+        PyErr_SetString(PyExc_AttributeError, "This function must take only one argument.");
+        return NULL;
+    }
+    if (!PyDapChainAtomIter_Check(atom_iter)){
+        PyErr_SetString(PyExc_AttributeError, "The first argument to this function must be of type ChainAtomIter.");
+        return NULL;
+    }
+    PyObject *obj_atom_ptr = _PyObject_New(&DapChainAtomPtr_DapChainAtomPtrType);
+    obj_atom_ptr = PyObject_Init(obj_atom_ptr, &DapChainAtomPtr_DapChainAtomPtrType);
+    PyObject_Dir(obj_atom_ptr);
+    ((PyChainAtomPtrObject*)obj_atom_ptr)->ptr = ((PyDapChainObject*)self)->chain_t->callback_atom_iter_get_next(
+            ((PyChainAtomIterObject*)atom_iter)->atom_iter,
+            &atom_size);
+    if (((PyChainAtomPtrObject*)obj_atom_ptr)->ptr == NULL){
+        return Py_BuildValue("On", Py_None, 0);
+    }
+    return Py_BuildValue("On", obj_atom_ptr, atom_size);
+}
