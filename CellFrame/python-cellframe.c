@@ -368,8 +368,8 @@ PyObject *python_cellframe_init(PyObject *self, PyObject *args){
 PyMODINIT_FUNC PyInit_libCellFrame(void){
 
     if (    PyType_Ready( &DapCoreObjectType ) < 0 ||
-            PyType_Ready( &g_crypto_type_py ) < 0  ||
-            PyType_Ready( &g_crypto_cert_type_py ) < 0  ||
+            PyType_Ready( &g_crypto_type_py ) < 0 ||
+            PyType_Ready( &g_crypto_cert_type_py ) < 0 ||
             PyType_Ready( &ServerCore_ServerCoreType ) < 0 ||
             PyType_Ready( &dapEvents_dapEventsType ) < 0 ||
             PyType_Ready( &dapEventsSocket_dapEventsSocketType ) < 0 ||
@@ -378,7 +378,8 @@ PyMODINIT_FUNC PyInit_libCellFrame(void){
             // === Chain ===
             PyType_Ready( &dapChainObject_dapChainType ) < 0 ||
             PyType_Ready( &dapChainTypeObject_dapChainTypeType ) < 0 ||
-            PyType_Ready( &dapChainAtomPtr_dapChainAtomPtrType ) < 0 ||
+            PyType_Ready( &DapChainAtomIter_DapChainAtomIterType ) < 0 ||
+            PyType_Ready(&DapChainAtomPtr_DapChainAtomPtrType) < 0 ||
             PyType_Ready( &DapChainCell_DapChainCellObjectType ) < 0 ||
 //            PyType_Ready(&ChainCommonObject_ChainCommonType) < 0 ||
 
@@ -466,7 +467,8 @@ PyMODINIT_FUNC PyInit_libCellFrame(void){
     // === Chain ===
     PyModule_AddObject(module, "Chain", (PyObject*)&dapChainObject_dapChainType);
     PyModule_AddObject(module, "ChainType", (PyObject*)&dapChainTypeObject_dapChainTypeType);
-    PyModule_AddObject(module, "ChainAtomIter", (PyObject*)&dapChainAtomPtr_dapChainAtomPtrType);
+    PyModule_AddObject(module, "ChainAtomIter", (PyObject*)&DapChainAtomIter_DapChainAtomIterType);
+    PyModule_AddObject(module, "ChainAtomPtr", (PyObject*)&DapChainAtomPtr_DapChainAtomPtrType);
     PyModule_AddObject(module, "ChainCell", (PyObject*)&DapChainCell_DapChainCellObjectType);
 //    PyModule_AddObject(module, "ChainCommon", (PyObject*)&ChainCommonObject_ChainCommonType);
 
@@ -492,7 +494,7 @@ PyMODINIT_FUNC PyInit_libCellFrame(void){
     PyModule_AddObject(module, "ChainLedger", (PyObject*)&DapChainLedger_DapChainLedgerType);
     // =============
     // === Chain net ===
-//    PyModule_AddObject(module, "ChainNet", (PyObject*)&DapChainNetObject_DapChainNetObjectType);
+    PyModule_AddObject(module, "ChainNet", (PyObject*)&DapChainNetObject_DapChainNetObjectType);
     PyModule_AddObject(module, "ChainNodeClient", (PyObject*)&DapChainNodeClientObject_DapChainNodeClientObjectType);
     PyModule_AddObject(module, "ChainNodeInfo", (PyObject*)&DapChainNodeInfoObject_DapChainNodeInfoObjectType);
     PyModule_AddObject(module, "ChainNetNode", (PyObject*)&DapChainNetNodeObject_DapChainNetNodeObjectType);

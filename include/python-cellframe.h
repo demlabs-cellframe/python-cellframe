@@ -38,6 +38,7 @@
 //#include "dap_http_client_simple.h"
 //#include "dap_chain_wallet.h"
 #include "dap_chain_cs.h"
+#include "wrapping_dap_chain_atom_ptr.h"
 //#include "dap_chain_cs_dag.h"
 //#include "dap_chain_cs_dag_poa.h"
 //#include "dap_chain_cs_dag_pos.h"
