@@ -124,7 +124,9 @@ PyObject *dap_chain_python_atom_get_datums(PyObject *self, PyObject *args){
     for (int i=0; i < datums_count; i++){
         PyObject *obj_datum = _PyObject_New(&DapChainDatumObject_DapChainDatumObjectType);
         obj_datum = PyObject_Init(obj_datum, &DapChainDatumObject_DapChainDatumObjectType);
+        PyObject_Dir(obj_datum);
         ((PyDapChainDatumObject*)obj_datum)->datum = l_datums[i];
+        PyList_SetItem(list_datums, i, obj_datum);
     }
     return list_datums;
 }
