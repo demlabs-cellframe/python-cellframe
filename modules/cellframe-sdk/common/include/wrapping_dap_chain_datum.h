@@ -3,6 +3,7 @@
 #include "Python.h"
 #include "dap_chain_datum.h"
 #include "datetime.h"
+#include "wrapping_dap_chain_datum_tx.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -66,9 +67,13 @@ typedef struct PyDapChainDatum{
 PyObject *PyDapChainDatumObject_new(PyTypeObject *type_object, PyObject *args, PyObject *kwds);
 PyObject *dap_chain_datum_size_py(PyObject *self, PyObject *args);
 PyObject *dap_chain_datum_get_ts_created(PyObject *self, void* closure);
+PyObject *dap_chain_datum_is_type_tx(PyObject *self, PyObject *args);
+PyObject *wrapping_dap_chain_datum_get_datum_tx(PyObject *self, PyObject *args);
 
 static PyMethodDef DapChainDatumMethods[] = {
     {"size", dap_chain_datum_size_py, METH_VARARGS, ""},
+    {"isDatumTX", dap_chain_datum_is_type_tx, METH_NOARGS, ""},
+    {"getDatumTX", wrapping_dap_chain_datum_get_datum_tx, METH_NOARGS, ""},
     {NULL, NULL, 0, NULL}
 };
 
@@ -106,9 +111,9 @@ static PyTypeObject DapChainDatumObject_DapChainDatumObjectType = {
     0,                               /* tp_weaklistoffset */
     0,		                         /* tp_iter */
     0,		                         /* tp_iternext */
-    0,                               /* tp_methods */
+    DapChainDatumMethods,                               /* tp_methods */
     0,                               /* tp_members */
-    0,                               /* tp_getset */
+    DapChainDatumGetSet,                               /* tp_getset */
     0,                               /* tp_base */
     0,                               /* tp_dict */
     0,                               /* tp_descr_get */
