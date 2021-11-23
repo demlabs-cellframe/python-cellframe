@@ -66,3 +66,13 @@ PyObject *dap_chain_hash_fast_to_str_new_py(PyObject *self, PyObject *args){
     char *res = dap_chain_hash_fast_to_str_new(((PyDapHashFastObject*)self)->hash_fast);
     return Py_BuildValue("s", res);
 }
+
+PyObject *wrapping_dap_hash_to_str(PyObject *self){
+    char str[70];
+    if (((PyDapHashFastObject*)self)->hash_fast == NULL){
+        Py_BuildValue("s", "Hash is missing.");
+    }
+    int res = dap_chain_hash_fast_to_str(((PyDapHashFastObject*)self)->hash_fast, str, 70);
+    PyObject *obj_str = PyUnicode_FromStringAndSize(str, res);
+    return obj_str;
+}
