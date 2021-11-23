@@ -2,11 +2,13 @@
 #define _WRAPPING_DAP_CHAIN_DATUM_TX_
 
 #include "Python.h"
+#include "datetime.h"
 #include "wrapping_dap_chain_common.h"
 #include "libdap_crypto_key_python.h"
 #include "dap_chain_datum_tx_out_cond.h"
 #include "wrapping_dap_hash.h"
 #include "dap_chain_datum_tx_items.h"
+#include "wrapping_dap_hash.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -159,6 +161,17 @@ PyObject *dap_chain_datum_tx_add_out_cond_item_py(PyObject *self, PyObject *args
 PyObject *dap_chain_datum_tx_add_sign_item_py(PyObject *self, PyObject *args);
 PyObject *dap_chain_datum_tx_verify_sign_py(PyObject *self, PyObject *args);
 
+//PyObject *wrapping_dap_chain_datum_tx_get_items(PyObject *self, PyObject *args);
+
+PyObject *wrapping_dap_chain_datum_tx_get_hash(PyObject *self, void* closure);
+PyObject *wrapping_dap_chain_datum_tx_get_tsCreated(PyObject *self, void* closure);
+
+static PyGetSetDef PyDaoChainDatumTxObjectGetsSets[] = {
+        {"hash", (getter) wrapping_dap_chain_datum_tx_get_hash, NULL, NULL, NULL},
+        {"dateCreated", (getter) wrapping_dap_chain_datum_tx_get_tsCreated, NULL, NULL, NULL},
+        {NULL}
+};
+
 static PyMethodDef PyDapChainDatumTxObjectMethods[] ={
     {"getSize", (PyCFunction)dap_chain_datum_tx_get_size_py, METH_VARARGS, ""},
     {"addItem", (PyCFunction)dap_chain_datum_tx_add_item_py, METH_VARARGS, ""},
@@ -176,7 +189,7 @@ static PyTypeObject DapChainDatumTx_DapChainDatumTxObjectType = {
     "CellFrame.Chain.DatumTx",                      /* tp_name */
     sizeof(PyDapChainDatumTxObject),               /* tp_basicsize */
     0,                                             /* tp_itemsize */
-    (destructor)PyDapChainDatumTxObject_delete,    /* tp_dealloc */
+    0,//(destructor)PyDapChainDatumTxObject_delete,    /* tp_dealloc */
     0,                                              /* tp_print */
     0,                                              /* tp_getattr */
     0,                                              /* tp_setattr */
@@ -202,7 +215,7 @@ static PyTypeObject DapChainDatumTx_DapChainDatumTxObjectType = {
     0,		                                        /* tp_iternext */
     PyDapChainDatumTxObjectMethods,                 /* tp_methods */
     0,                                              /* tp_members */
-    0,                                              /* tp_getset */
+    PyDaoChainDatumTxObjectGetsSets,                /* tp_getset */
     0,                                              /* tp_base */
     0,                                              /* tp_dict */
     0,                                              /* tp_descr_get */

@@ -134,4 +134,30 @@ PyObject *dap_chain_datum_tx_verify_sign_py(PyObject *self, PyObject *args){
     return PyLong_FromLong(res);
 }
 
+PyObject *wrapping_dap_chain_datum_tx_get_hash(PyObject *self, void* closure){
+    (void)closure;
+    dap_chain_hash_fast_t l_hash_datum;
+    PyObject *obj_hash_fast = _PyObject_New(&DapHashFastObject_DapHashFastObjectType);
+    obj_hash_fast = PyObject_Init(obj_hash_fast, &DapHashFastObject_DapHashFastObjectType);
+    PyObject_Dir(obj_hash_fast);
+    ((PyDapHashFastObject*)obj_hash_fast)->hash_fast = DAP_NEW(dap_chain_hash_fast_t);
+    dap_hash_fast(((PyDapChainDatumTxObject*)self)->datum_tx,
+                  dap_chain_datum_tx_get_size(((PyDapChainDatumTxObject*)self)->datum_tx),
+                  ((PyDapHashFastObject*)obj_hash_fast)->hash_fast);
+    return  obj_hash_fast;
+}
+PyObject *wrapping_dap_chain_datum_tx_get_tsCreated(PyObject *self, void* closure){
+    (void)closure;
+    PyObject *obj_ts_float = PyLong_FromLong(((PyDapChainDatumTxObject*)self)->datum_tx->header.ts_created);
+    PyObject *obj_ts = Py_BuildValue("(O)", obj_ts_float);
+    PyDateTime_IMPORT;
+    PyObject *obj_dt = PyDateTime_FromTimestamp(obj_ts);
+    return obj_dt;
+}
+
+//PyObject *wrapping_dap_chain_datum_tx_get_items(PyObject *self, PyObject *args){
+//    (void)args;
+//    //TODO
+//}
+
 /* -------------------------------------- */
