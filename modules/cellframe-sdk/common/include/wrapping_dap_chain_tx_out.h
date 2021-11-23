@@ -17,6 +17,12 @@ typedef struct PyDapChainTXOut{
 PyObject *wrapping_dap_chain_tx_out_get_addr(PyObject *self, void *closure);
 PyObject *wrapping_dap_chain_tx_out_get_value(PyObject *self, void *closure);
 
+static PyGetSetDef DapChainTxOutGetsSetsDef[] = {
+        {"addr", (getter) wrapping_dap_chain_tx_out_get_addr,NULL, NULL, NULL},
+        {"value", (getter) wrapping_dap_chain_tx_out_get_value, NULL, NULL, NULL},
+        {NULL}
+};
+
 static PyTypeObject DapChainTxOutObject_DapChainTxOutTypeObjectType = {
         PyVarObject_HEAD_INIT(NULL, 0)
         "CellFrame.ChainTxOut",        /* tp_name */
@@ -48,7 +54,7 @@ static PyTypeObject DapChainTxOutObject_DapChainTxOutTypeObjectType = {
         0,		                            /* tp_iternext */
         0,  /* tp_methods */
         0,                                  /* tp_members */
-        0,                                  /* tp_getset */
+        DapChainTxOutGetsSetsDef,                                  /* tp_getset */
         0,                                  /* tp_base */
         0,                                  /* tp_dict */
         0,                                  /* tp_descr_get */
