@@ -17,6 +17,10 @@
 #include "wrapping_dap_chain_datum_tx.h"
 #include "wrapping_dap_chain_ledger.h"
 #include "wrapping_dap_chain_datum_tx.h"
+#include "wrapping_dap_chain_tx_in.h"
+#include "wrapping_dap_chain_tx_out.h"
+#include "wrapping_dap_chain_tx_pkey.h"
+#include "wrapping_dap_chain_tx_receipt.h"
 // ============
 // === Chain net ===
 #include "libdap_chain_net_python.h"
