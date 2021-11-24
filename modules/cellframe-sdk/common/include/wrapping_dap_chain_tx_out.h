@@ -1,13 +1,12 @@
-#ifndef _WRAPPING_DAP_CHAIN_TX_OUT_
-#define _WRAPPING_DAP_CHAIN_TX_OUT_
+#pragma once
 
 #include <Python.h>
 #include "dap_chain_datum_tx_out.h"
 #include "wrapping_dap_chain_common.h"
 
-#ifdef __cplusplus
-extern "C"{
-#endif
+//#ifdef __cplusplus
+//extern "C"{
+//#endif
 
 typedef struct PyDapChainTXOut{
     PyObject_HEAD
@@ -18,9 +17,13 @@ PyObject *wrapping_dap_chain_tx_out_get_addr(PyObject *self, void *closure);
 PyObject *wrapping_dap_chain_tx_out_get_value(PyObject *self, void *closure);
 
 static PyGetSetDef DapChainTxOutGetsSetsDef[] = {
-        {"addr", (getter) wrapping_dap_chain_tx_out_get_addr,NULL, NULL, NULL},
-        {"value", (getter) wrapping_dap_chain_tx_out_get_value, NULL, NULL, NULL},
+//        {"addr", (getter)wrapping_dap_chain_tx_out_get_addr, NULL, NULL, NULL},
+//        {"value", (getter)wrapping_dap_chain_tx_out_get_value, NULL, NULL, NULL},
         {NULL}
+};
+
+static PyMethodDef PyDapChainTxOutObjectMethods[] ={
+        {NULL, NULL, 0, NULL}
 };
 
 static PyTypeObject DapChainTxOutObject_DapChainTxOutTypeObjectType = {
@@ -52,7 +55,7 @@ static PyTypeObject DapChainTxOutObject_DapChainTxOutTypeObjectType = {
         0,                                  /* tp_weaklistoffset */
         0,		                            /* tp_iter */
         0,		                            /* tp_iternext */
-        0,  /* tp_methods */
+        PyDapChainTxOutObjectMethods,  /* tp_methods */
         0,                                  /* tp_members */
         DapChainTxOutGetsSetsDef,                                  /* tp_getset */
         0,                                  /* tp_base */
@@ -65,8 +68,6 @@ static PyTypeObject DapChainTxOutObject_DapChainTxOutTypeObjectType = {
         PyType_GenericNew,                  /* tp_new */
 };
 
-#ifdef __cplusplus
-extern "C"{
-#endif
-
-#endif //_WRAPPING_DAP_CHAIN_TX_OUT_
+//#ifdef __cplusplus
+//extern "C"{
+//#endif
