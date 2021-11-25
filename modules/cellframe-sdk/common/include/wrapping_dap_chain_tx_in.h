@@ -18,8 +18,8 @@ PyObject *wrapping_dap_chain_tx_in_get_prev_hash(PyObject *self, void *closure);
 PyObject *wrapping_dap_chain_tx_in_get_out_prev_idx(PyObject *self, void *closure);
 
 static PyGetSetDef DapChainTxGetsSetsDef[] = {
-//        {"prevHash", (getter)wrapping_dap_chain_tx_in_get_prev_hash, NULL, NULL, NULL},
-//        {"prevIdx"},
+        {"prevHash", (getter)wrapping_dap_chain_tx_in_get_prev_hash, NULL, NULL, NULL},
+        {"prevIdx", (getter)wrapping_dap_chain_tx_in_get_out_prev_idx, NULL, NULL, NULL},
         {NULL}
 };
 
