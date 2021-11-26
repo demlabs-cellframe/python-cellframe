@@ -17,8 +17,8 @@ PyObject *wrapping_dap_chain_tx_out_get_addr(PyObject *self, void *closure);
 PyObject *wrapping_dap_chain_tx_out_get_value(PyObject *self, void *closure);
 
 static PyGetSetDef DapChainTxOutGetsSetsDef[] = {
-//        {"addr", (getter)wrapping_dap_chain_tx_out_get_addr, NULL, NULL, NULL},
-//        {"value", (getter)wrapping_dap_chain_tx_out_get_value, NULL, NULL, NULL},
+        {"addr", (getter)wrapping_dap_chain_tx_out_get_addr, NULL, NULL, NULL},
+        {"value", (getter)wrapping_dap_chain_tx_out_get_value, NULL, NULL, NULL},
         {NULL}
 };
 
