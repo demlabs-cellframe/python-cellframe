@@ -3,11 +3,14 @@
 
 #include <Python.h>
 #include "dap_pkey.h"
+#include "wrapping_dap_hash.h"
 
 typedef struct PyDapPkeyType{
     PyObject_HEAD
     dap_pkey_type_t *pkey_type;
 }PyDapPkeyTypeObject;
+
+PyObject *PyDapPkeyType_str(PyObject *self);
 
 static PyTypeObject DapPkeyTypeObject_DapPkeyTypeObjectType = {
     PyVarObject_HEAD_INIT(NULL, 0)
@@ -25,7 +28,7 @@ static PyTypeObject DapPkeyTypeObject_DapPkeyTypeObjectType = {
     0,                               /* tp_as_mapping */
     0,                               /* tp_hash  */
     0,                               /* tp_call */
-    0,                               /* tp_str */
+    PyDapPkeyType_str,                               /* tp_str */
     0,                               /* tp_getattro */
     0,                               /* tp_setattro */
     0,                               /* tp_as_buffer */
@@ -58,6 +61,21 @@ typedef struct PyDapPkey{
     dap_pkey_t *pkey;
 }PyDapPkeyObject;
 
+PyObject *wrapping_dap_pkey_get_type(PyObject *self, void *closure);
+PyObject *wrapping_dap_pkey_get_hash(PyObject *self, void *closure);
+PyObject *wrapping_dap_pkey_get_size(PyObject *self, void *closure);
+
+static  PyGetSetDef PyDapPkeyGetsSetsDef[] = {
+    {"hash", (getter)wrapping_dap_pkey_get_hash, NULL, NULL, NULL},
+    {"type", (getter)wrapping_dap_pkey_get_type, NULL, NULL, NULL},
+    {"size", (getter)wrapping_dap_pkey_get_size, NULL, NULL, NULL},
+    {NULL}
+};
+
+static PyMethodDef PyDapPkeyMethods[]={
+        {NULL, NULL, 0, NULL}
+};
+
 static PyTypeObject DapPkeyObject_DapPkeyObjectType = {
     PyVarObject_HEAD_INIT(NULL, 0)
     "CellFrame.Pkey",       /* tp_name */
@@ -81,16 +99,16 @@ static PyTypeObject DapPkeyObject_DapPkeyObjectType = {
     Py_TPFLAGS_DEFAULT |
         Py_TPFLAGS_BASETYPE,         /* tp_flags */
     "Pkey object",        /* tp_doc */
-    0,		                         /* tp_traverse */
-    0,		                         /* tp_clear */
-    0,		                         /* tp_richcompare */
-    0,                               /* tp_weaklistoffset */
-    0,		                         /* tp_iter */
+    0,		                             /* tp_traverse */
+    0,		                        /* tp_clear */
+    0,		                           /* tp_richcompare */
+    0,                           /* tp_weaklistoffset */
+    0,		                  /* tp_iter */
     0,		                         /* tp_iternext */
-    0,                               /* tp_methods */
-    0,                               /* tp_members */
-    0,                               /* tp_getset */
-    0,                               /* tp_base */
+    PyDapPkeyMethods,                          /* tp_methods */
+    0,                              /* tp_members */
+    PyDapPkeyGetsSetsDef,                     /* tp_getset */
+    0,                              /* tp_base */
     0,                               /* tp_dict */
     0,                               /* tp_descr_get */
     0,                               /* tp_descr_set */
