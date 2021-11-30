@@ -2,6 +2,9 @@
 #define _WRAPPING_DAP_CHAIN_TX_TOKEN_
 
 #include <Python.h>
+#include "dap_chain_datum_tx_token.h"
+#include "wrapping_dap_hash.h"
+#include "wrapping_dap_chain_common.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -9,7 +12,19 @@ extern "C" {
 
 typedef struct PyDapChainTxToken{
     PyObject_HEAD
+    dap_chain_tx_token_t *token;
 }PyDapChainTxTokenObject;
+
+PyObject *wrapping_dap_chain_tx_token_get_ticker(PyObject *self, void *closure);
+PyObject *wrapping_dap_chain_tx_token_get_token_emission_hash(PyObject *self, void *closure);
+PyObject *wrapping_dap_chain_tx_token_get_token_emission_chain_id(PyObject *self, void *closure);
+
+static PyGetSetDef PyDapChainTxTokenGetsSetsDef[] = {
+        {"ticker", (getter)wrapping_dap_chain_tx_token_get_ticker, NULL, NULL, NULL},
+        {"tokenEmissionHash", (getter)wrapping_dap_chain_tx_token_get_token_emission_hash, NULL, NULL, NULL},
+        {"tokenEmissionChainId", (getter)wrapping_dap_chain_tx_token_get_token_emission_chain_id, NULL, NULL, NULL},
+        {NULL}
+};
 
 static PyTypeObject DapChainTxToken_DapChainTxTokenType = {
     PyVarObject_HEAD_INIT(NULL, 0)
