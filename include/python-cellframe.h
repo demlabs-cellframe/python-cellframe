@@ -14,6 +14,7 @@
 #include "wrapping_dap_chain_cs.h"
 #include "wrapping_dap_chain_datum.h"
 #include "wrapping_dap_chain_datum_token.h"
+#include "wrapping_dap_chain_tx_token_ext.h"
 #include "wrapping_dap_chain_datum_tx.h"
 #include "wrapping_dap_chain_ledger.h"
 #include "wrapping_dap_chain_datum_tx.h"
