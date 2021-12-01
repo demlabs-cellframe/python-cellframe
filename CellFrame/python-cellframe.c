@@ -401,7 +401,7 @@ PyMODINIT_FUNC PyInit_libCellFrame(void){
             PyType_Ready(&DapChainTxItemObject_DapChainTxItemTypeObjectType) < 0 ||
             PyType_Ready(&DapChainTxCondType_DapChainTxCondTypeObject) < 0 ||
             PyType_Ready(&DapChainDatumTx_DapChainDatumTxObjectType) < 0 ||
-            PyType_Ready(&DapChainTxOutCond_DapChainTxOutCondObjectType) < 0 ||
+            PyType_Ready(&DapChainTxOutCond_DapChainTxOutCondType) < 0 ||
             PyType_Ready(&DapChainLedger_DapChainLedgerType) < 0 ||
             PyType_Ready(&DapChainTxInObject_DapChainTxInTypeObjectType) < 0 ||
             PyType_Ready(&DapChainTxInCondObject_DapChainTxInCondTypeObjectType) < 0 ||
@@ -498,7 +498,7 @@ PyMODINIT_FUNC PyInit_libCellFrame(void){
     PyModule_AddObject(module, "ChainTxItemType", (PyObject*)&DapChainTxItemObject_DapChainTxItemTypeObjectType);
     PyModule_AddObject(module, "ChainTxCondType", (PyObject*)&DapChainTxCondType_DapChainTxCondTypeObject);
     PyModule_AddObject(module, "ChainDatumTx", (PyObject*)&DapChainDatumTx_DapChainDatumTxObjectType);
-    PyModule_AddObject(module, "ChainTxOutCond", (PyObject*)&DapChainTxOutCond_DapChainTxOutCondObjectType);
+    PyModule_AddObject(module, "ChainTxOutCond", (PyObject*)&DapChainTxOutCond_DapChainTxOutCondType);
     PyModule_AddObject(module, "ChainLedger", (PyObject*)&DapChainLedger_DapChainLedgerType);
     PyModule_AddObject(module, "ChainTxIn", (PyObject*)&DapChainTxInObject_DapChainTxInTypeObjectType);
     PyModule_AddObject(module, "ChainTxInCond", (PyObject*)&DapChainTxInCondObject_DapChainTxInCondTypeObjectType);
