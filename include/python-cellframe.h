@@ -21,6 +21,7 @@
 #include "wrapping_dap_chain_tx_in.h"
 #include "wrapping_dap_chain_tx_in_cond.h"
 #include "wrapping_dap_chain_tx_out.h"
+#include "wrapping_dap_chain_tx_out_cond.h"
 #include "wrapping_dap_chain_tx_pkey.h"
 #include "wrapping_dap_chain_tx_receipt.h"
 #include "wrapping_dap_chain_tx_out_ext.h"
