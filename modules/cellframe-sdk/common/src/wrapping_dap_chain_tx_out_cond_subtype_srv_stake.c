@@ -16,6 +16,5 @@ PyObject *wrapping_dap_chain_tx_out_cond_subtype_srv_stake_get_addr(PyObject *se
 }
 PyObject *wrapping_dap_chain_tx_out_cond_subtype_srv_stake_get_value(PyObject *self, void *closure){
     (void)closure;
-
-//    ((PyDapChainTxOutCondObject*)self)->out_cond->subtype.srv_stake.fee_value
+    return PyLong_FromDouble(((PyDapChainTxOutCondObject*)self)->out_cond->subtype.srv_stake.fee_value);
 }
