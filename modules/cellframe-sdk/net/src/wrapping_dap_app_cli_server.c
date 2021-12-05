@@ -99,7 +99,8 @@ void element_py_func_del_all(){
     }
 }
 
-static int wrapping_cmdfunc(int argc, char **argv, char **str_reply){
+static int wrapping_cmdfunc(int argc, char **argv, void *arg_func, char **str_reply){
+    (void)arg_func;
     size_t id_str_replay = elements_str_reply_add(str_reply);
     PyObject *obj_argv = stringToPyList(argc, argv);
     PyObject *obj_id_str_replay = PyLong_FromSize_t(id_str_replay);
@@ -136,7 +137,7 @@ PyObject *dap_chain_node_cli_cmd_item_create_py(PyObject *a_self, PyObject *a_ar
         }
     }
     element_py_func_add(name, obj_cmdfunc);
-    dap_chain_node_cli_cmd_item_create(name, wrapping_cmdfunc, doc, doc_ex);
+    dap_chain_node_cli_cmd_item_create(name, wrapping_cmdfunc, NULL, doc, doc_ex);
     return PyLong_FromLong(0);
 }
 
