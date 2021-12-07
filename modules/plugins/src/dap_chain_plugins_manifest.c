@@ -103,11 +103,6 @@ dap_chain_plugins_list_manifest_t* dap_chain_plugins_add_manifest_from_file(cons
     json_object_put(j_version);
     json_object_put(j_name);
     DAP_FREE(j_obj);
-//    if (j_obj == NULL){
-//        log_it(L_NOTICE, "JSOBJ have free");
-//    }
-//    json_tokener_free(j_obj);
-//    json_object_put(j_obj);
     DAP_FREE(json);
     return manifest;
 }
