@@ -81,6 +81,8 @@ PyObject *dap_chain_addr_check_sum_py(PyObject *self, PyObject *args);
 
 PyObject *dap_chain_addr_get_net_id_py(PyObject *self, PyObject *args);
 
+PyObject *obj_addr_str(PyObject *self);
+
 static PyMethodDef DapChainAddrMethods[] = {
     {"toStr", (PyCFunction)dap_chain_addr_to_str_py, METH_VARARGS, ""},
     {"fromStr", (PyCFunction)dap_chain_addr_from_str_py, METH_VARARGS | METH_STATIC, ""},
@@ -106,7 +108,7 @@ static PyTypeObject DapChainAddrObject_DapChainAddrObjectType = {
     0,                               /* tp_as_mapping */
     0,                               /* tp_hash  */
     0,                               /* tp_call */
-    0,                               /* tp_str */
+    obj_addr_str,                               /* tp_str */
     0,                               /* tp_getattro */
     0,                               /* tp_setattro */
     0,                               /* tp_as_buffer */

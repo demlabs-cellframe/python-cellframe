@@ -44,6 +44,10 @@ PyObject *dap_chain_addr_check_sum_py(PyObject *self, PyObject *args){
     return PyLong_FromLong(res);
 }
 
+PyObject *obj_addr_str(PyObject *self){
+    return Py_BuildValue("s", dap_chain_addr_to_str(((PyDapChainAddrObject*)self)->addr));
+}
+
 PyObject* dap_chain_addr_get_net_id_py(PyObject *self, PyObject *args){
     (void)args;
     PyObject *obj_net_id = _PyObject_New(&DapChainNetIdObject_DapChainNetIdObjectType);
