@@ -9,6 +9,18 @@
 #include "wrapping_dap_hash.h"
 #include "dap_chain_datum_tx_items.h"
 #include "wrapping_dap_hash.h"
+#include "wrapping_dap_chain_tx_in.h"
+#include "wrapping_dap_chain_tx_in_cond.h"
+#include "wrapping_dap_chain_tx_out.h"
+#include "wrapping_dap_chain_tx_out_cond.h"
+#include "wrapping_dap_chain_tx_out_cond_subtype_srv_pay.h"
+#include "wrapping_dap_chain_tx_out_cond_subtype_srv_stake.h"
+#include "wrapping_dap_chain_tx_out_cond_subtype_srv_xchange.h"
+#include "wrapping_dap_chain_tx_out_ext.h"
+#include "wrapping_dap_chain_tx_pkey.h"
+#include "wrapping_dap_chain_tx_receipt.h"
+#include "wrapping_dap_chain_tx_token.h"
+#include "wrapping_dap_chain_tx_token_ext.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -181,6 +193,7 @@ static PyMethodDef PyDapChainDatumTxObjectMethods[] ={
     {"addOutCond", (PyCFunction)dap_chain_datum_tx_add_out_cond_item_py, METH_VARARGS, ""},
     {"addSignItem", (PyCFunction)dap_chain_datum_tx_add_sign_item_py, METH_VARARGS, ""},
     {"verifySign", (PyCFunction)dap_chain_datum_tx_verify_sign_py, METH_VARARGS, ""},
+    {"getItems", (PyCFunction)wrapping_dap_chain_datum_tx_get_items, METH_NOARGS, ""},
     {NULL, NULL, 0, NULL}
 };
 
