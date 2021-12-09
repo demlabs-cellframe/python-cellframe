@@ -54,7 +54,7 @@ static PyTypeObject DapChainTxInObject_DapChainTxInTypeObjectType = {
         0,		                            /* tp_iternext */
         0,  /* tp_methods */
         0,                                  /* tp_members */
-        0,                                  /* tp_getset */
+        DapChainTxGetsSetsDef,                                  /* tp_getset */
         0,                                  /* tp_base */
         0,                                  /* tp_dict */
         0,                                  /* tp_descr_get */
