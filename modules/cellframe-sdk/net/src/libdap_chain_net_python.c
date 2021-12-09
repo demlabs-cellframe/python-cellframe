@@ -61,6 +61,10 @@ PyObject *dap_chain_net_by_name_py(PyObject *self, PyObject *args){
     obj_chain_net = PyObject_Init(obj_chain_net, &DapChainNetObject_DapChainNetObjectType);
     PyObject_Dir(obj_chain_net);
     ((PyDapChainNetObject*)obj_chain_net)->chain_net = dap_chain_net_by_name(a_name);
+    if (((PyDapChainNetObject*)obj_chain_net)->chain_net == NULL){
+        PyObject_Del(obj_chain_net);
+        return Py_None;
+    }
     return Py_BuildValue("O", obj_chain_net);
 }
 PyObject *dap_chain_net_by_id_py(PyObject *self, PyObject *args){
