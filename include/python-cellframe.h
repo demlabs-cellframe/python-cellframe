@@ -5,6 +5,7 @@
 #include "libdap-server-core-python.h"
 #include "libdap_crypto_key_type_python.h"
 #include "libdap_crypto_data_type.h"
+#include "wrapping_dap_sign.h"
 // === CHAIN ==
 #include "libdap-chain-python.h"
 #include "libdap_chain_type_python.h"
