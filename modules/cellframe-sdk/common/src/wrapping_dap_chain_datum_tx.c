@@ -182,7 +182,8 @@ PyObject *wrapping_dap_chain_datum_tx_get_items(PyObject *self, PyObject *args){
                 ((PyDapChainTxTokenExtObject*)obj_tx_item)->token_ext = (dap_chain_tx_token_ext_t*)item;
                 break;
             case TX_ITEM_TYPE_SIG:
-                obj_tx_item = Py_None;
+                obj_tx_item = (PyObject*)PyObject_New(PyDapChainTXSigObject, &DapChainTxSigObject_DapChainTxSigTypeObjectType);
+                ((PyDapChainTXSigObject*)obj_tx_item)->tx_sig = (dap_chain_tx_sig_t*)item;
                 break;
             case TX_ITEM_TYPE_RECEIPT:
                 obj_tx_item = (PyObject*)PyObject_New(PyDapChainTXReceiptObject, &DapChainTxReceiptObject_DapChainTxReceiptTypeObjectType);
