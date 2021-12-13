@@ -148,7 +148,7 @@ PyObject *dap_chain_ledger_tx_remove_py(PyObject *self, PyObject *args){
     return PyLong_FromLong(res);
 }
 PyObject *dap_chain_ledger_purge_py(PyObject *self, PyObject *args){
-    dap_chain_ledger_purge(((PyDapChainLedgerObject*)self)->ledger);
+    dap_chain_ledger_purge(((PyDapChainLedgerObject*)self)->ledger, false);
     return PyLong_FromLong(0);
 }
 PyObject *dap_chain_ledger_count_py(PyObject *self, PyObject *args){
