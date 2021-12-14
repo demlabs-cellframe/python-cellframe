@@ -26,6 +26,18 @@ PyObject *wrapping_dap_chain_tx_receipt_get_value(PyObject *self, void *closure)
 PyObject *wrapping_dap_chain_tx_receipt_get_sig_provider(PyObject *self, void *closure);
 PyObject *wrapping_dap_chain_tx_receipt_get_sig_client(PyObject *self, void *closure);
 
+static PyGetSetDef DapChainTxReceiptGetSetDefs[] = {
+        {"size", (getter)wrapping_dap_chain_tx_receipt_get_size, NULL, NULL, NULL},
+        {"extSize", (getter)wrapping_dap_chain_tx_receipt_get_ext_size, NULL, NULL, NULL},
+        {"units", (getter)wrapping_dap_chain_tx_receipt_get_units, NULL, NULL, NULL},
+        {"uid", (getter)wrapping_dap_chain_tx_receipt_get_uid, NULL, NULL, NULL},
+        {"unitsType", (getter)wrapping_dap_chain_tx_receipt_get_units_type, NULL, NULL, NULL},
+        {"value", (getter)wrapping_dap_chain_tx_receipt_get_value, NULL, NULL, NULL},
+        {"provider", (getter)wrapping_dap_chain_tx_receipt_get_sig_provider, NULL, NULL, NULL},
+        {"client", (getter)wrapping_dap_chain_tx_receipt_get_sig_client, NULL, NULL, NULL},
+        {NULL}
+};
+
 static PyTypeObject DapChainTxReceiptObject_DapChainTxReceiptTypeObjectType = {
         PyVarObject_HEAD_INIT(NULL, 0)
         "CellFrame.ChainTxReceipt",        /* tp_name */
@@ -57,7 +69,7 @@ static PyTypeObject DapChainTxReceiptObject_DapChainTxReceiptTypeObjectType = {
         0,		                            /* tp_iternext */
         0,  /* tp_methods */
         0,                                  /* tp_members */
-        0,                                  /* tp_getset */
+        DapChainTxReceiptGetSetDefs,                                  /* tp_getset */
         0,                                  /* tp_base */
         0,                                  /* tp_dict */
         0,                                  /* tp_descr_get */

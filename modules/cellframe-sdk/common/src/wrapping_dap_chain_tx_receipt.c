@@ -26,17 +26,32 @@ PyObject *wrapping_dap_chain_tx_receipt_get_value(PyObject *self, void *closure)
     return Py_BuildValue("k", ((PyDapChainTXReceiptObject*)self)->tx_receipt->receipt_info.value_datoshi);
 }
 PyObject *wrapping_dap_chain_tx_receipt_get_sig_provider(PyObject *self, void *closure){
-    return Py_None;
-//    uint16_t l_exts_size = ((PyDapChainTXReceiptObject*)self)->tx_receipt->exts_size;
-//    if (l_exts_size == sizeof(dap_sign_t) + sizeof(dap_sign_t) || l_exts_size == sizeof(dap_sign_t)){
-//        PyObject *obj_sign_provider = _PyObject_New(&DapSignTypeObject_DapSignTypeObjectType);
-//        obj_sign_provider = PyObject_Init(obj_sign_provider, &DapSignTypeObject_DapSignTypeObjectType);
-//        PyObject_Dir(obj_sign_provider);
-//
-//    } else {
-//        return Py_None;
-//    }
+    uint16_t l_exts_size = ((PyDapChainTXReceiptObject*)self)->tx_receipt->exts_size;
+    if (l_exts_size == sizeof(dap_sign_t) + sizeof(dap_sign_t) || l_exts_size == sizeof(dap_sign_t)){
+        PyObject *obj_sign_provider = _PyObject_New(&DapSignObject_DapSignObjectType);
+        obj_sign_provider = PyObject_Init(obj_sign_provider, &DapSignObject_DapSignObjectType);
+        PyObject_Dir(obj_sign_provider);
+        ((PyDapSignObject*)obj_sign_provider)->sign = DAP_NEW(dap_sign_t);
+        memcpy(
+                ((PyDapSignObject*)obj_sign_provider)->sign,
+                ((PyDapChainTXReceiptObject*)self)->tx_receipt->exts_n_signs,
+                sizeof(dap_sign_t));
+    } else {
+        return Py_None;
+    }
 }
 PyObject *wrapping_dap_chain_tx_receipt_get_sig_client(PyObject *self, void *closure){
-    return Py_None;
+    uint16_t l_exts_size = ((PyDapChainTXReceiptObject*)self)->tx_receipt->exts_size;
+    if (l_exts_size == sizeof(dap_sign_t) + sizeof(dap_sign_t)){
+        PyObject *obj_sign_client = _PyObject_New(&DapSignObject_DapSignObjectType);
+        obj_sign_client = PyObject_Init(obj_sign_client, &DapSignObject_DapSignObjectType);
+        PyObject_Dir(obj_sign_client);
+        ((PyDapSignObject*)obj_sign_client)->sign = DAP_NEW(dap_sign_t);
+        memcpy(
+                ((PyDapSignObject*)obj_sign_client)->sign,
+               ((PyDapChainTXReceiptObject*)self)->tx_receipt->exts_n_signs + sizeof(dap_sign_t),
+               sizeof(dap_sign_t));
+    } else {
+        return Py_None;
+    }
 }
