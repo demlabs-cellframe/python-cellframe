@@ -54,7 +54,7 @@ PyObject *dap_chain_ledger_token_emission_add_py(PyObject *self, PyObject *args)
     size_t token_emissiom_size;
     if (!PyArg_ParseTuple(args, "O|n", &token_emission, &token_emissiom_size))
         return NULL;
-    int res = dap_chain_ledger_token_emission_add(((PyDapChainLedgerObject*)self)->ledger, ((PyDapChainDatumTokenEmissionObject*)token_emission)->token_emission, token_emissiom_size);
+    int res = dap_chain_ledger_token_emission_add(((PyDapChainLedgerObject*)self)->ledger, (byte_t*)((PyDapChainDatumTokenEmissionObject*)token_emission)->token_emission, token_emissiom_size);
     return PyLong_FromLong(res);
 }
 PyObject *dap_chain_ledger_token_emission_find_py(PyObject *self, PyObject *args){
@@ -148,7 +148,7 @@ PyObject *dap_chain_ledger_tx_remove_py(PyObject *self, PyObject *args){
     return PyLong_FromLong(res);
 }
 PyObject *dap_chain_ledger_purge_py(PyObject *self, PyObject *args){
-    dap_chain_ledger_purge(((PyDapChainLedgerObject*)self)->ledger);
+    dap_chain_ledger_purge(((PyDapChainLedgerObject*)self)->ledger, false);
     return PyLong_FromLong(0);
 }
 PyObject *dap_chain_ledger_count_py(PyObject *self, PyObject *args){
