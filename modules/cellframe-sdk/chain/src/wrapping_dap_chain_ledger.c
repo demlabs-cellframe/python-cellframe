@@ -240,17 +240,19 @@ PyObject *dap_chain_ledger_tx_cache_find_out_cond_py(PyObject *self, PyObject *a
                 out_conds, out_cond_idx, NULL);
     return Py_BuildValue("O", res);
 }
+
 PyObject *dap_chain_ledger_tx_cache_get_out_cond_value_py(PyObject *self, PyObject *args){
     PyObject *obj_addr;
     if (!PyArg_ParseTuple(args, "O", &obj_addr))
         return NULL;
     dap_chain_tx_out_cond_t **out_conds = NULL;
-    uint64_t res = dap_chain_ledger_tx_cache_get_out_cond_value(((PyDapChainLedgerObject*)self)->ledger,
+    uint256_t res = dap_chain_ledger_tx_cache_get_out_cond_value(((PyDapChainLedgerObject*)self)->ledger,
                                                                 ((PyDapChainAddrObject*)obj_addr)->addr,
                                                                 out_conds);
+    uint64_t res64 = dap_chain_uint256_to(res);
     PyObject *obj_out_conds = _PyObject_New(&DapChainTxOutCond_DapChainTxOutCondObjectType);
     ((PyDapChainTxOutCondObject*)obj_out_conds)->out_cond = *out_conds;
-    PyObject *obj_res = PyLong_FromUnsignedLongLong(res);
+    PyObject *obj_res = PyLong_FromUnsignedLongLong(res64);
     return Py_BuildValue("OO", obj_res, obj_out_conds);
 }
 
