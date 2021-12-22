@@ -153,8 +153,16 @@ PyObject *dap_chain_ledger_tx_remove_py(PyObject *self, PyObject *args){
     return PyLong_FromLong(res);
 }
 PyObject *dap_chain_ledger_purge_py(PyObject *self, PyObject *args){
-    dap_chain_ledger_purge(((PyDapChainLedgerObject*)self)->ledger);
-    return PyLong_FromLong(0);
+    PyObject *obj_boolean = NULL;
+    if(!PyArg_ParseTuple(args, "O", &obj_boolean)){
+        return NULL;
+    }
+    if(!PyBool_Check(obj_boolean)){
+        return NULL;
+    }
+    bool preserve_db = obj_boolean == Py_True ? true : false;
+    dap_chain_ledger_purge(((PyDapChainLedgerObject*)self)->ledger, preserve_db);
+    return Py_None;
 }
 PyObject *dap_chain_ledger_count_py(PyObject *self, PyObject *args){
     long long  res = (long long)dap_chain_ledger_count(((PyDapChainLedgerObject*)self)->ledger);
@@ -188,7 +196,7 @@ PyObject *dap_chain_ledger_calc_balance_py(PyObject *self, PyObject *args){
             ((PyDapChainAddrObject*)addr)->addr, token_ticker);
     uint64_t res = dap_chain_uint128_to(balance);
     char* coins = dap_chain_balance_to_coins(res);
-    return Py_BuildValue("sK", coins, balance);
+    return Py_BuildValue("sk", coins, res);
 }
 PyObject *dap_chain_ledger_calc_balance_full_py(PyObject *self, PyObject *args){
     PyObject *addr;
