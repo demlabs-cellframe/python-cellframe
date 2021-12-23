@@ -101,6 +101,7 @@ PyObject *dap_hash_fast_compare_py(PyObject *self, PyObject *args);
 PyObject *dap_hash_fast_is_blank_py(PyObject *self, PyObject *args);
 PyObject *dap_chain_hash_fast_to_str_py(PyObject *self, PyObject *args);
 PyObject *dap_chain_hash_fast_to_str_new_py(PyObject *self, PyObject *args);
+PyObject *wrapping_dap_hash_to_str(PyObject *self);
 
 static PyMethodDef DapHashFastMethods[] = {
     {"strToHashFast", (PyCFunction)dap_chain_str_to_hash_fast_py, METH_VARARGS | METH_STATIC, ""},
@@ -109,6 +110,7 @@ static PyMethodDef DapHashFastMethods[] = {
     {"isBlank", (PyCFunction)dap_hash_fast_is_blank_py, METH_VARARGS, ""},
     {"toStr", (PyCFunction)dap_chain_hash_fast_to_str_py, METH_VARARGS, ""},
     {"toStrNew", (PyCFunction)dap_chain_hash_fast_to_str_new_py, METH_VARARGS, ""},
+    {"__str__", (PyCFunction)wrapping_dap_hash_to_str, METH_VARARGS, ""},
     {NULL, NULL, 0, NULL}
 };
 
@@ -128,7 +130,7 @@ static PyTypeObject DapHashFastObject_DapHashFastObjectType = {
     0,                               /* tp_as_mapping */
     0,                               /* tp_hash  */
     0,                               /* tp_call */
-    0,                               /* tp_str */
+    wrapping_dap_hash_to_str,                               /* tp_str */
     0,                               /* tp_getattro */
     0,                               /* tp_setattro */
     0,                               /* tp_as_buffer */
