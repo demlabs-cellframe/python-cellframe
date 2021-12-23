@@ -90,14 +90,19 @@ PyObject *dap_chain_ledger_addr_get_token_ticker_all_py(PyObject *self, PyObject
 }
 PyObject *dap_chain_ledger_addr_get_token_ticker_all_fast_py(PyObject *self, PyObject *args){
     PyObject *obj_addr;
-    PyObject *obj_tickers;
-    PyObject *obj_tickers_size;
-    if (!PyArg_ParseTuple(args, "O|O|O", &obj_addr, &obj_tickers, &obj_tickers_size))
+    if (!PyArg_ParseTuple(args, "O", &obj_addr)) {
+        PyErr_SetString(PyExc_AttributeError, "This function must take an object of type ChainAddr as its first argument. ");
         return NULL;
-    char ***tickers = ListStringToArrayStringFormatChar(obj_tickers);
-    size_t *tickers_size = ListIntToSizeT(obj_tickers_size);
-    dap_chain_ledger_addr_get_token_ticker_all_fast(((PyDapChainLedgerObject*)self)->ledger, ((PyDapChainAddrObject*)obj_addr)->addr, tickers, tickers_size);
-    return PyLong_FromLong(0);
+    }
+    char **tickers = NULL;
+    size_t ticker_size = 0;
+    dap_chain_ledger_addr_get_token_ticker_all_fast(((PyDapChainLedgerObject*)self)->ledger, ((PyDapChainAddrObject*)obj_addr)->addr, &tickers, &ticker_size);
+    PyObject *obj_list = PyList_New(ticker_size);
+    for (int i=0; i < ticker_size;i++){
+        PyObject *str = PyUnicode_FromString(tickers[i]);
+        PyList_SetItem(obj_list, i, str);
+    }
+    return obj_list;
 }
 PyObject *dap_chain_ledger_tx_cache_check_py(PyObject *self, PyObject *args){
     PyObject *obj_datum_tx;
@@ -148,8 +153,16 @@ PyObject *dap_chain_ledger_tx_remove_py(PyObject *self, PyObject *args){
     return PyLong_FromLong(res);
 }
 PyObject *dap_chain_ledger_purge_py(PyObject *self, PyObject *args){
-    dap_chain_ledger_purge(((PyDapChainLedgerObject*)self)->ledger, false);
-    return PyLong_FromLong(0);
+    PyObject *obj_boolean = NULL;
+    if(!PyArg_ParseTuple(args, "O", &obj_boolean)){
+        return NULL;
+    }
+    if(!PyBool_Check(obj_boolean)){
+        return NULL;
+    }
+    bool preserve_db = obj_boolean == Py_True ? true : false;
+    dap_chain_ledger_purge(((PyDapChainLedgerObject*)self)->ledger, preserve_db);
+    return Py_None;
 }
 PyObject *dap_chain_ledger_count_py(PyObject *self, PyObject *args){
     long long  res = (long long)dap_chain_ledger_count(((PyDapChainLedgerObject*)self)->ledger);
@@ -178,11 +191,12 @@ PyObject *dap_chain_ledger_calc_balance_py(PyObject *self, PyObject *args){
     const char *token_ticker;
     if (!PyArg_ParseTuple(args, "O|s", &addr, &token_ticker))
         return NULL;
-    uint64_t res = dap_chain_uint128_to(
-                        dap_chain_ledger_calc_balance(
-                            ((PyDapChainLedgerObject*)self)->ledger,
-                            ((PyDapChainAddrObject*)addr)->addr, token_ticker));
-    return Py_BuildValue("k", res);
+    uint128_t  balance = dap_chain_ledger_calc_balance(
+            ((PyDapChainLedgerObject*)self)->ledger,
+            ((PyDapChainAddrObject*)addr)->addr, token_ticker);
+    uint64_t res = dap_chain_uint128_to(balance);
+    char* coins = dap_chain_balance_to_coins(res);
+    return Py_BuildValue("sk", coins, res);
 }
 PyObject *dap_chain_ledger_calc_balance_full_py(PyObject *self, PyObject *args){
     PyObject *addr;
@@ -200,7 +214,13 @@ PyObject *dap_chain_ledger_tx_find_by_hash_py(PyObject *self, PyObject *args){
     if (!PyArg_ParseTuple(args, "O", &h_fast))
         return NULL;
     PyObject *res = _PyObject_New(&DapChainDatumTx_DapChainDatumTxObjectType);
+    res = PyObject_Init(res, &DapChainDatumTx_DapChainDatumTxObjectType);
+    PyObject_Dir(res);
     ((PyDapChainDatumTxObject*)res)->datum_tx = dap_chain_ledger_tx_find_by_hash(((PyDapChainLedgerObject*)self)->ledger, ((PyDapHashFastObject*)h_fast)->hash_fast);
+    if (((PyDapChainDatumTxObject*)res)->datum_tx == NULL) {
+        PyObject_DEL(res);
+        return Py_None;
+    }
     return Py_BuildValue("O", res);
 }
 PyObject *dap_chain_ledger_tx_find_by_addr_py(PyObject *self, PyObject *args){
@@ -248,7 +268,7 @@ PyObject *dap_chain_ledger_tx_cache_get_out_cond_value_py(PyObject *self, PyObje
     uint64_t res = dap_chain_ledger_tx_cache_get_out_cond_value(((PyDapChainLedgerObject*)self)->ledger,
                                                                 ((PyDapChainAddrObject*)obj_addr)->addr,
                                                                 out_conds);
-    PyObject *obj_out_conds = _PyObject_New(&DapChainTxOutCond_DapChainTxOutCondObjectType);
+    PyObject *obj_out_conds = _PyObject_New(&DapChainTxOutCond_DapChainTxOutCondType);
     ((PyDapChainTxOutCondObject*)obj_out_conds)->out_cond = *out_conds;
     PyObject *obj_res = PyLong_FromUnsignedLongLong(res);
     return Py_BuildValue("OO", obj_res, obj_out_conds);

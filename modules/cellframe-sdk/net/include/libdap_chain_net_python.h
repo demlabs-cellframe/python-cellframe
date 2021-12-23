@@ -1,3 +1,28 @@
+/*
+ * Authors:
+ * Alexey V. Stratulat <alexey.stratulat@demlabs.net>
+ * DeM Labs Inc.   https://demlabs.net
+ * CellFrame       https://cellframe.net
+ * Sources         https://gitlab.demlabs.net/cellframe
+ * Copyright  (c) 2017-2021
+ * All rights reserved.
+
+ This file is part of DAP (Deus Applications Prototypes) the open source project
+
+    DAP (Deus Applicaions Prototypes) is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    DAP is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with any DAP based project.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 #ifndef _WRAPPING_DAP_NET_PYTHON_
 #define _WRAPPING_DAP_NET_PYTHON_
 
@@ -49,6 +74,8 @@ PyObject *dap_chain_net_get_gdb_group_mempool_py(PyObject *self, PyObject *args)
 PyObject *dap_chain_net_get_gdb_group_mempool_by_chain_type_py(PyObject *self, PyObject *args);
 PyObject *dap_chain_net_links_connect_py(PyObject *self, PyObject *args);
 PyObject *dap_chain_net_get_chain_by_chain_type_py(PyObject *self, PyObject *args);
+PyObject *dap_chain_net_get_ledger_py(PyObject *self, PyObject *args);
+PyObject *dap_chain_net_get_name_py(PyObject *self, PyObject *args);
 
 static PyMethodDef DapChainNetMethods[] = {
     {"loadAll", dap_chain_net_load_all_py, METH_NOARGS | METH_STATIC, ""},
@@ -71,6 +98,8 @@ static PyMethodDef DapChainNetMethods[] = {
     {"getGdbGroupMempoolByChainType", dap_chain_net_get_gdb_group_mempool_by_chain_type_py, METH_VARARGS, ""},
     {"linksConnect", dap_chain_net_links_connect_py, METH_VARARGS, ""},
     {"getChainByChainType", dap_chain_net_get_chain_by_chain_type_py, METH_VARARGS, ""},
+    {"getLedger", dap_chain_net_get_ledger_py, METH_NOARGS, ""},
+    {"getName", dap_chain_net_get_name_py, METH_NOARGS, ""},
     {NULL, NULL, 0, NULL}
 };
 
