@@ -36,9 +36,9 @@ PyObject *wrapping_dap_chain_tx_receipt_get_sig_provider(PyObject *self, void *c
                 ((PyDapSignObject*)obj_sign_provider)->sign,
                 ((PyDapChainTXReceiptObject*)self)->tx_receipt->exts_n_signs,
                 sizeof(dap_sign_t));
-    } else {
-        return Py_None;
+        return obj_sign_provider;
     }
+    return Py_None;
 }
 PyObject *wrapping_dap_chain_tx_receipt_get_sig_client(PyObject *self, void *closure){
     uint16_t l_exts_size = ((PyDapChainTXReceiptObject*)self)->tx_receipt->exts_size;
@@ -51,7 +51,7 @@ PyObject *wrapping_dap_chain_tx_receipt_get_sig_client(PyObject *self, void *clo
                 ((PyDapSignObject*)obj_sign_client)->sign,
                ((PyDapChainTXReceiptObject*)self)->tx_receipt->exts_n_signs + sizeof(dap_sign_t),
                sizeof(dap_sign_t));
-    } else {
-        return Py_None;
+        return obj_sign_client;
     }
+    return Py_None;
 }

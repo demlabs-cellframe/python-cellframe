@@ -96,7 +96,7 @@ static PyTypeObject DapChainTxOutCond_DapChainTxOutCondType = {
 //============= DapChaTxOutCondSubtype
 typedef struct PyDapChainTxOutCondSubType{
     PyObject_HEAD
-    dap_chain_tx_out_cond_subtype_t *out_cond_subtype;
+    dap_chain_tx_out_cond_subtype_t out_cond_subtype;
 }PyDapChainTxOutCondSubTypeObject;
 
 PyObject *PyDapChainTxOutCondSubType_str(PyObject *self);
