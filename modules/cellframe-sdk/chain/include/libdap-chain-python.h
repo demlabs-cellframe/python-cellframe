@@ -42,9 +42,9 @@ PyObject *dap_chain_python_atom_iter_get_next(PyObject *self, PyObject *args);
 
 static PyMethodDef DapChainMethods[] = {
     {"findById", (PyCFunction)dap_chain_find_by_id_py, METH_VARARGS|METH_STATIC, ""},
-    {"loadFromCfg", (PyCFunction)dap_chain_has_file_store_py, METH_VARARGS|METH_STATIC, ""},
+    {"loadFromCfg", (PyCFunction)dap_chain_load_from_cfg_py, METH_VARARGS|METH_STATIC, ""},
     {"hasFileStore", (PyCFunction)dap_chain_has_file_store_py, METH_NOARGS, ""},
-    {"saveAll", (PyCFunction)dap_chain_save_all, METH_NOARGS, ""},
+    {"saveAll", (PyCFunction) dap_chain_save_all_py, METH_NOARGS, ""},
     {"loadAll", (PyCFunction)dap_chain_load_all_py, METH_NOARGS, ""},
     {"createAtomItem", (PyCFunction) dap_chain_python_create_atom_iter, METH_VARARGS, ""},
     {"atomIterGetFirst", (PyCFunction) dap_chain_python_atom_iter_get_first, METH_VARARGS, ""},
