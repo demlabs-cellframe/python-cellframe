@@ -44,20 +44,17 @@ PyObject *wrapping_json_rpc_response_get_result(PyObject *self, void *closure){
     switch (l_resp->type_result) {
     case TYPE_RESPONSE_BOOLEAN:
         return l_resp->result_boolean ? Py_BuildValue("O", Py_True) : Py_BuildValue("O", Py_False);
-        break;
     case TYPE_RESPONSE_INTEGER:
         return PyLong_FromLong(l_resp->result_int);
-        break;
     case TYPE_RESPONSE_DOUBLE:
         return PyLong_FromDouble(l_resp->result_double);
-        break;
     case TYPE_RESPONSE_STRING:
         return Py_BuildValue("s", l_resp->result_string);
-        break;
     case TYPE_RESPONSE_NULL:
-        return Py_BuildValue("O", Py_None);
+    default:
         break;
     }
+    return Py_BuildValue("O", Py_None);
 }
 PyObject *wrapping_json_rpc_response_get_error(PyObject *self, void *closure){
     UNUSED(closure);

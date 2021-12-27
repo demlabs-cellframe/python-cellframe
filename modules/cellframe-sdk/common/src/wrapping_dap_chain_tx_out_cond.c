@@ -3,11 +3,12 @@
 PyObject *wrapping_dap_chain_tx_out_cond_get_ts_expires(PyObject *self, void *closure){
     (void)closure;
     PyDateTime_IMPORT;
-    return PyDateTime_FromTimestamp((time_t)((PyDapChainTxOutCondObject*)self)->out_cond->header.ts_expires);
+        PyObject *timestamp = Py_BuildValue("k", ((PyDapChainTxOutCondObject*)self)->out_cond->header.ts_expires);
+    return PyDateTime_FromTimestamp(timestamp);
 }
 PyObject *wrapping_dap_chain_tx_out_cond_get_value(PyObject *self, void *closure){
     (void)closure;
-    Py_BuildValue("k", ((PyDapChainTxOutCondObject*)self)->out_cond->header.value);
+    return Py_BuildValue("k", ((PyDapChainTxOutCondObject*)self)->out_cond->header.value);
 }
 PyObject *wrapping_dap_chain_tx_out_cond_get_type_subtype(PyObject *self, void *closure){
     (void)closure;
@@ -24,6 +25,6 @@ PyObject *wrapping_dap_chain_tx_out_cond_get_subtype(PyObject *self, void *closu
 
 PyObject *PyDapChainTxOutCondSubType_str(PyObject *self){
     return Py_BuildValue("s",
-                         dap_chain_tx_out_cond_subtype_to_str(*((PyDapChainTxOutCondSubTypeObject*)self)->out_cond_subtype)
+                         dap_chain_tx_out_cond_subtype_to_str(((PyDapChainTxOutCondSubTypeObject*)self)->out_cond_subtype)
                          );
 }
