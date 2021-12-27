@@ -11,6 +11,7 @@
 #include "libdap_chain_atom_iter_python.h"
 #include "wrapping_dap_chain_atom_ptr.h"
 #include "wrapping_dap_chain_datum.h"
+#include "wrapping_dap_chain_cell.h"
 
 
 typedef struct PyDapChain{
@@ -45,7 +46,7 @@ static PyMethodDef DapChainMethods[] = {
     {"hasFileStore", (PyCFunction)dap_chain_has_file_store_py, METH_NOARGS, ""},
     {"saveAll", (PyCFunction)dap_chain_save_all, METH_NOARGS, ""},
     {"loadAll", (PyCFunction)dap_chain_load_all_py, METH_NOARGS, ""},
-    {"createAtomItem", (PyCFunction) dap_chain_python_create_atom_iter, METH_NOARGS, ""},
+    {"createAtomItem", (PyCFunction) dap_chain_python_create_atom_iter, METH_VARARGS, ""},
     {"atomIterGetFirst", (PyCFunction) dap_chain_python_atom_iter_get_first, METH_VARARGS, ""},
     {"atomGetDatums", (PyCFunction) dap_chain_python_atom_get_datums, METH_VARARGS, ""},
     {"atomIterGetNext", (PyCFunction)dap_chain_python_atom_iter_get_next, METH_VARARGS, ""},

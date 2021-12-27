@@ -79,12 +79,22 @@ void PyDapChainObject_dealloc(PyDapChainObject* chain){
 }
 
 PyObject *dap_chain_python_create_atom_iter(PyObject *self, PyObject *args){
-    (void)args;
+    PyObject *obj_cell_id;
+    if (!PyArg_ParseTuple(args, "O", &obj_cell_id)){
+        PyErr_SetString(PyExc_AttributeError, "This function takes one argument.");
+        return NULL;
+    }
+    if (!PyDapChainCell_Check(obj_cell_id)){
+        PyErr_SetString(PyExc_AttributeError, "The first argument to this function must be of type ChainCell.");
+        return NULL;
+    }
     PyObject *obj_atom_iter = _PyObject_New(&DapChainAtomIter_DapChainAtomIterType);
     PyObject_Init(obj_atom_iter, &DapChainAtomIter_DapChainAtomIterType);
     PyObject_Dir(obj_atom_iter);
     ((PyChainAtomIterObject*)obj_atom_iter)->atom_iter =
-            ((PyDapChainObject*)self)->chain_t->callback_atom_iter_create(((PyDapChainObject*)self)->chain_t);
+            ((PyDapChainObject*)self)->chain_t->callback_atom_iter_create(
+                    ((PyDapChainObject*)self)->chain_t,
+                    ((PyDapChainCellObject*)obj_cell_id)->cell->id);
     return obj_atom_iter;
 }
 
