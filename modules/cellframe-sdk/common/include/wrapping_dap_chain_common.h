@@ -1,8 +1,35 @@
+/*
+ * Authors:
+ * Alexey V. Stratulat <alexey.stratulat@demlabs.net>
+ * DeM Labs Inc.   https://demlabs.net
+ * CellFrame       https://cellframe.net
+ * Sources         https://gitlab.demlabs.net/cellframe
+ * Copyright  (c) 2017-2021
+ * All rights reserved.
+
+ This file is part of DAP (Deus Applications Prototypes) the open source project
+
+    DAP (Deus Applicaions Prototypes) is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    DAP is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with any DAP based project.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 #ifndef _WRAPPING_DAP_CHAIN_COMMON_
 #define _WRAPPING_DAP_CHAIN_COMMON_
 #include <Python.h>
 #include "dap_chain_common.h"
 #include "libdap_crypto_key_python.h"
+#include "wrapping_dap_chain_ledger.h"
+//#include "wrapping_dap_chain_ledger"
 
 #ifdef __cplusplus
 extern "C" {
@@ -77,11 +104,16 @@ PyObject *dap_chain_addr_from_str_py(PyObject *self, PyObject *args);
 PyObject *dap_chain_addr_fill_py(PyObject *self, PyObject *args);
 PyObject *dap_chain_addr_check_sum_py(PyObject *self, PyObject *args);
 
+PyObject *dap_chain_addr_get_net_id_py(PyObject *self, PyObject *args);
+
+PyObject *obj_addr_str(PyObject *self);
+
 static PyMethodDef DapChainAddrMethods[] = {
     {"toStr", (PyCFunction)dap_chain_addr_to_str_py, METH_VARARGS, ""},
     {"fromStr", (PyCFunction)dap_chain_addr_from_str_py, METH_VARARGS | METH_STATIC, ""},
     {"fill", (PyCFunction)dap_chain_addr_fill_py, METH_VARARGS, ""},
     {"checkSum", (PyCFunction)dap_chain_addr_check_sum_py, METH_VARARGS, ""},
+    {"getNetId", (PyCFunction)dap_chain_addr_get_net_id_py, METH_NOARGS, ""},
     {NULL, NULL, 0, NULL}
 };
 
@@ -101,7 +133,7 @@ static PyTypeObject DapChainAddrObject_DapChainAddrObjectType = {
     0,                               /* tp_as_mapping */
     0,                               /* tp_hash  */
     0,                               /* tp_call */
-    0,                               /* tp_str */
+    obj_addr_str,                               /* tp_str */
     0,                               /* tp_getattro */
     0,                               /* tp_setattro */
     0,                               /* tp_as_buffer */
@@ -301,6 +333,8 @@ typedef struct PyDapChainID{
     dap_chain_id_t *chain_id;
 }PyDapChainIDObject;
 
+PyObject *DapChainIdObject_str(PyObject *self);
+
 static PyTypeObject DapChainIDObject_DapChainIDType = {
     PyVarObject_HEAD_INIT(NULL, 0)
     "CellFrame.ChainID"  ,       /* tp_name */
@@ -317,7 +351,7 @@ static PyTypeObject DapChainIDObject_DapChainIDType = {
     0,                               /* tp_as_mapping */
     0,                               /* tp_hash  */
     0,                               /* tp_call */
-    0,                               /* tp_str */
+    DapChainIdObject_str,                               /* tp_str */
     0,                               /* tp_getattro */
     0,                               /* tp_setattro */
     0,                               /* tp_as_buffer */

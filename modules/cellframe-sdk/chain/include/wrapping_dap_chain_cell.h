@@ -72,6 +72,10 @@ static PyTypeObject DapChainCell_DapChainCellObjectType = {
     PyType_GenericNew,                       /* tp_new */
 };
 
+static bool PyDapChainCell_Check(PyObject *self){
+    return PyObject_TypeCheck(self, &DapChainCell_DapChainCellObjectType);
+}
+
 /* ------------------------------------------- */
 
 typedef struct PyDapChainCellDeclReq{

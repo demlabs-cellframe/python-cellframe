@@ -8,6 +8,7 @@
 #include "wrapping_dap_chain_datum_token.h"
 #include "wrapping_dap_hash.h"
 #include "libdap-python.h"
+#include "wrapping_dap_chain_tx_out_cond.h"
 
 
 #ifdef __cplusplus

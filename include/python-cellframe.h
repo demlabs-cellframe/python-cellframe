@@ -5,6 +5,7 @@
 #include "libdap-server-core-python.h"
 #include "libdap_crypto_key_type_python.h"
 #include "libdap_crypto_data_type.h"
+#include "wrapping_dap_sign.h"
 // === CHAIN ==
 #include "libdap-chain-python.h"
 #include "libdap_chain_type_python.h"
@@ -14,9 +15,20 @@
 #include "wrapping_dap_chain_cs.h"
 #include "wrapping_dap_chain_datum.h"
 #include "wrapping_dap_chain_datum_token.h"
+#include "wrapping_dap_chain_tx_token_ext.h"
 #include "wrapping_dap_chain_datum_tx.h"
 #include "wrapping_dap_chain_ledger.h"
 #include "wrapping_dap_chain_datum_tx.h"
+#include "wrapping_dap_chain_tx_in.h"
+#include "wrapping_dap_chain_tx_in_cond.h"
+#include "wrapping_dap_chain_tx_out.h"
+#include "wrapping_dap_chain_tx_out_cond.h"
+#include "wrapping_dap_chain_tx_out_cond_subtype_srv_pay.h"
+#include "wrapping_dap_chain_tx_out_cond_subtype_srv_stake.h"
+#include "wrapping_dap_chain_tx_out_cond_subtype_srv_xchange.h"
+#include "wrapping_dap_chain_tx_pkey.h"
+#include "wrapping_dap_chain_tx_receipt.h"
+#include "wrapping_dap_chain_tx_out_ext.h"
 // ============
 // === Chain net ===
 #include "libdap_chain_net_python.h"
@@ -38,6 +50,7 @@
 //#include "dap_http_client_simple.h"
 //#include "dap_chain_wallet.h"
 #include "dap_chain_cs.h"
+#include "wrapping_dap_chain_atom_ptr.h"
 //#include "dap_chain_cs_dag.h"
 //#include "dap_chain_cs_dag_poa.h"
 //#include "dap_chain_cs_dag_pos.h"
@@ -61,6 +74,8 @@
 
 #include "dap_common.h"
 #include "dap_server.h"
+#include "wrapping_json_rpc_request.h"
+#include "wrapping_json_rpc_response.h"
 #ifdef _WIN32
 #include "Windows.h"
 

@@ -1,12 +1,52 @@
+/*
+ * Authors:
+ * Alexey V. Stratulat <alexey.stratulat@demlabs.net>
+ * DeM Labs Inc.   https://demlabs.net
+ * CellFrame       https://cellframe.net
+ * Sources         https://gitlab.demlabs.net/cellframe
+ * Copyright  (c) 2017-2021
+ * All rights reserved.
+
+ This file is part of DAP (Deus Applications Prototypes) the open source project
+
+    DAP (Deus Applicaions Prototypes) is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    DAP is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with any DAP based project.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 #ifndef _WRAPPING_DAP_CHAIN_DATUM_TX_
 #define _WRAPPING_DAP_CHAIN_DATUM_TX_
 
 #include "Python.h"
+#include "datetime.h"
 #include "wrapping_dap_chain_common.h"
 #include "libdap_crypto_key_python.h"
 #include "dap_chain_datum_tx_out_cond.h"
 #include "wrapping_dap_hash.h"
 #include "dap_chain_datum_tx_items.h"
+#include "wrapping_dap_hash.h"
+#include "wrapping_dap_chain_tx_in.h"
+#include "wrapping_dap_chain_tx_in_cond.h"
+#include "wrapping_dap_chain_tx_out.h"
+#include "wrapping_dap_chain_tx_out_cond.h"
+#include "wrapping_dap_chain_tx_out_cond_subtype_srv_pay.h"
+#include "wrapping_dap_chain_tx_out_cond_subtype_srv_stake.h"
+#include "wrapping_dap_chain_tx_out_cond_subtype_srv_xchange.h"
+#include "wrapping_dap_chain_tx_out_ext.h"
+#include "wrapping_dap_chain_tx_pkey.h"
+#include "wrapping_dap_chain_tx_sig.h"
+#include "wrapping_dap_chain_tx_receipt.h"
+#include "wrapping_dap_chain_tx_token.h"
+#include "wrapping_dap_chain_tx_token_ext.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -159,6 +199,17 @@ PyObject *dap_chain_datum_tx_add_out_cond_item_py(PyObject *self, PyObject *args
 PyObject *dap_chain_datum_tx_add_sign_item_py(PyObject *self, PyObject *args);
 PyObject *dap_chain_datum_tx_verify_sign_py(PyObject *self, PyObject *args);
 
+PyObject *wrapping_dap_chain_datum_tx_get_items(PyObject *self, PyObject *args);
+
+PyObject *wrapping_dap_chain_datum_tx_get_hash(PyObject *self, void* closure);
+PyObject *wrapping_dap_chain_datum_tx_get_tsCreated(PyObject *self, void* closure);
+
+static PyGetSetDef PyDaoChainDatumTxObjectGetsSets[] = {
+        {"hash", (getter) wrapping_dap_chain_datum_tx_get_hash, NULL, NULL, NULL},
+        {"dateCreated", (getter) wrapping_dap_chain_datum_tx_get_tsCreated, NULL, NULL, NULL},
+        {NULL}
+};
+
 static PyMethodDef PyDapChainDatumTxObjectMethods[] ={
     {"getSize", (PyCFunction)dap_chain_datum_tx_get_size_py, METH_VARARGS, ""},
     {"addItem", (PyCFunction)dap_chain_datum_tx_add_item_py, METH_VARARGS, ""},
@@ -168,6 +219,7 @@ static PyMethodDef PyDapChainDatumTxObjectMethods[] ={
     {"addOutCond", (PyCFunction)dap_chain_datum_tx_add_out_cond_item_py, METH_VARARGS, ""},
     {"addSignItem", (PyCFunction)dap_chain_datum_tx_add_sign_item_py, METH_VARARGS, ""},
     {"verifySign", (PyCFunction)dap_chain_datum_tx_verify_sign_py, METH_VARARGS, ""},
+    {"getItems", (PyCFunction)wrapping_dap_chain_datum_tx_get_items, METH_NOARGS, ""},
     {NULL, NULL, 0, NULL}
 };
 
@@ -176,7 +228,7 @@ static PyTypeObject DapChainDatumTx_DapChainDatumTxObjectType = {
     "CellFrame.Chain.DatumTx",                      /* tp_name */
     sizeof(PyDapChainDatumTxObject),               /* tp_basicsize */
     0,                                             /* tp_itemsize */
-    (destructor)PyDapChainDatumTxObject_delete,    /* tp_dealloc */
+    0,//(destructor)PyDapChainDatumTxObject_delete,    /* tp_dealloc */
     0,                                              /* tp_print */
     0,                                              /* tp_getattr */
     0,                                              /* tp_setattr */
@@ -202,7 +254,7 @@ static PyTypeObject DapChainDatumTx_DapChainDatumTxObjectType = {
     0,		                                        /* tp_iternext */
     PyDapChainDatumTxObjectMethods,                 /* tp_methods */
     0,                                              /* tp_members */
-    0,                                              /* tp_getset */
+    PyDaoChainDatumTxObjectGetsSets,                /* tp_getset */
     0,                                              /* tp_base */
     0,                                              /* tp_dict */
     0,                                              /* tp_descr_get */
@@ -211,55 +263,6 @@ static PyTypeObject DapChainDatumTx_DapChainDatumTxObjectType = {
     0,                                              /* tp_init */
     0,                                              /* tp_alloc */
     PyDapChainDatumTxObject_create,                 /* tp_new */
-};
-
-/* -------------------------------------- */
-
-typedef struct PyDapChainTxOutCond{
-    PyObject_HEAD
-    dap_chain_tx_out_cond_t *out_cond;
-}PyDapChainTxOutCondObject;
-
-static PyTypeObject DapChainTxOutCond_DapChainTxOutCondObjectType = {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "CellFrame.Chain.TxOutCond",                      /* tp_name */
-    sizeof(PyDapChainTxOutCondObject),               /* tp_basicsize */
-    0,                                             /* tp_itemsize */
-    0,                                             /* tp_dealloc */
-    0,                                              /* tp_print */
-    0,                                              /* tp_getattr */
-    0,                                              /* tp_setattr */
-    0,                                              /* tp_reserved */
-    0,                                              /* tp_repr */
-    0,                                              /* tp_as_number */
-    0,                                              /* tp_as_sequence */
-    0,                                              /* tp_as_mapping */
-    0,                                              /* tp_hash  */
-    0,                                              /* tp_call */
-    0,                                              /* tp_str */
-    0,                                              /* tp_getattro */
-    0,                                              /* tp_setattro */
-    0,                                              /* tp_as_buffer */
-    Py_TPFLAGS_DEFAULT |
-        Py_TPFLAGS_BASETYPE,                        /* tp_flags */
-    "Chain tx out cond object",                        /* tp_doc */
-    0,		                                        /* tp_traverse */
-    0,		                                        /* tp_clear */
-    0,		                                        /* tp_richcompare */
-    0,                                              /* tp_weaklistoffset */
-    0,		                                        /* tp_iter */
-    0,		                                        /* tp_iternext */
-    0,                                              /* tp_methods */
-    0,                                              /* tp_members */
-    0,                                              /* tp_getset */
-    0,                                              /* tp_base */
-    0,                                              /* tp_dict */
-    0,                                              /* tp_descr_get */
-    0,                                              /* tp_descr_set */
-    0,                                              /* tp_dictoffset */
-    0,                                              /* tp_init */
-    0,                                              /* tp_alloc */
-    PyType_GenericNew,                              /* tp_new */
 };
 
 /* -------------------------------------- */
