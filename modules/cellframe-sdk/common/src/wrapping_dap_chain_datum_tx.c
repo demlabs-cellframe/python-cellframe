@@ -91,7 +91,7 @@ PyObject *dap_chain_datum_tx_add_in_cond_item_py(PyObject *self, PyObject *args)
 
 PyObject *dap_chain_datum_tx_add_out_item_py(PyObject *self, PyObject *args){
     PyObject *in_addr;
-    uint64_t value;
+    uint256_t value;
     if (!PyArg_ParseTuple(args, "O|k", &in_addr, &value))
         return NULL;
     int res = dap_chain_datum_tx_add_out_item(&(((PyDapChainDatumTxObject*)self)->datum_tx),
@@ -102,8 +102,8 @@ PyObject *dap_chain_datum_tx_add_out_item_py(PyObject *self, PyObject *args){
 PyObject *dap_chain_datum_tx_add_out_cond_item_py(PyObject *self, PyObject *args){
     PyObject *obj_key;
     PyObject *obj_srv_uid;
-    uint64_t value;
-    uint64_t value_max_per_unit;
+    uint256_t value;
+    uint256_t value_max_per_unit;
     PyObject *obj_srv_price_unit_uid;
     PyObject *obj_cond_bytes;
     Py_ssize_t cond_size;
