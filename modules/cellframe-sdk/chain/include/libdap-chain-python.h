@@ -8,6 +8,10 @@
 #include "dap_chain_node_client.h"
 #include "wrapping_dap_chain_ledger.h"
 #include "wrapping_dap_chain_common.h"
+#include "libdap_chain_atom_iter_python.h"
+#include "wrapping_dap_chain_atom_ptr.h"
+#include "wrapping_dap_chain_datum.h"
+#include "wrapping_dap_chain_cell.h"
 
 
 typedef struct PyDapChain{
@@ -31,13 +35,21 @@ PyObject *dap_chain_load_from_cfg_py(PyObject *self, PyObject *args);
 //PyObject *dap_chain_init_net_cfg_name_py(PyObject *self, PyObject *args); //dap_chain_init_net_cfg_name
 //PyObject *dap_chain_close_py(PyObject *self, PyObject *args);
 //PyObject *dap_chain_info_dump_log_py(PyObject *self, PyObject *args); //dap_chain_info_dump_log
+PyObject *dap_chain_python_create_atom_iter(PyObject *self, PyObject *args);
+PyObject *dap_chain_python_atom_iter_get_first(PyObject *self, PyObject *args);
+PyObject *dap_chain_python_atom_get_datums(PyObject *self, PyObject *args);
+PyObject *dap_chain_python_atom_iter_get_next(PyObject *self, PyObject *args);
 
 static PyMethodDef DapChainMethods[] = {
     {"findById", (PyCFunction)dap_chain_find_by_id_py, METH_VARARGS|METH_STATIC, ""},
-    {"loadFromCfg", (PyCFunction)dap_chain_has_file_store_py, METH_VARARGS|METH_STATIC, ""},
+    {"loadFromCfg", (PyCFunction)dap_chain_load_from_cfg_py, METH_VARARGS|METH_STATIC, ""},
     {"hasFileStore", (PyCFunction)dap_chain_has_file_store_py, METH_NOARGS, ""},
-    {"saveAll", (PyCFunction)dap_chain_save_all, METH_NOARGS, ""},
+    {"saveAll", (PyCFunction) dap_chain_save_all_py, METH_NOARGS, ""},
     {"loadAll", (PyCFunction)dap_chain_load_all_py, METH_NOARGS, ""},
+    {"createAtomItem", (PyCFunction) dap_chain_python_create_atom_iter, METH_VARARGS, ""},
+    {"atomIterGetFirst", (PyCFunction) dap_chain_python_atom_iter_get_first, METH_VARARGS, ""},
+    {"atomGetDatums", (PyCFunction) dap_chain_python_atom_get_datums, METH_VARARGS, ""},
+    {"atomIterGetNext", (PyCFunction)dap_chain_python_atom_iter_get_next, METH_VARARGS, ""},
     //{"close", (PyCFunction)dap_chain_close_py, METH_NOARGS, ""},
     {NULL, NULL, 0, NULL}
 };
