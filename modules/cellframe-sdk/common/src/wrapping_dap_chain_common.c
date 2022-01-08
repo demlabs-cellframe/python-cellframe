@@ -4,6 +4,10 @@ PyObject *DapChainIdObject_str(PyObject *self){
     return Py_BuildValue("s", dap_strdup_printf("0x%016"DAP_UINT64_FORMAT_x, ((PyDapChainIDObject*)self)->chain_id->uint64));
 }
 
+PyObject *PyDapChainCellIdObject_str(PyObject *self){
+    return Py_BuildValue("s", dap_strdup_printf("0x%016"DAP_UINT64_FORMAT_x, ((PyDapChainCellIDObject*)self)->cell_id.uint64));
+}
+
 PyObject *dap_chain_hash_slow_to_str_py(PyObject *self, PyObject *args){
     PyObject *obj_hash_slow;
     char *str;

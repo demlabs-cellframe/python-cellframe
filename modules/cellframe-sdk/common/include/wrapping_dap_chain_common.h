@@ -386,6 +386,8 @@ typedef struct PyDapChainCellID{
     dap_chain_cell_id_t cell_id;
 }PyDapChainCellIDObject;
 
+PyObject *PyDapChainCellIdObject_str(PyObject *self);
+
 static PyTypeObject DapChainCellIDObject_DapChainCellIDType = {
     PyVarObject_HEAD_INIT(NULL, 0)
     "CellFrame.ChainCellID"  ,       /* tp_name */
@@ -402,7 +404,7 @@ static PyTypeObject DapChainCellIDObject_DapChainCellIDType = {
     0,                               /* tp_as_mapping */
     0,                               /* tp_hash  */
     0,                               /* tp_call */
-    0,                               /* tp_str */
+    PyDapChainCellIdObject_str,      /* tp_str */
     0,                               /* tp_getattro */
     0,                               /* tp_setattro */
     0,                               /* tp_as_buffer */
