@@ -16,13 +16,17 @@ PyObject *PyDapChainDatumObject_new(PyTypeObject *type_object, PyObject *args, P
 }
 
 PyObject *dap_chain_datum_size_py(PyObject *self, PyObject *args){
+    (void)args;
     size_t size = dap_chain_datum_size(((PyDapChainDatumObject*)self)->datum);
     return PyLong_FromSize_t(size);
 }
 
-PyObject *dap_chain_datum_get_ts_created(PyObject *self, void* closure){
+PyObject *dap_chain_datum_get_ts_created_py(PyObject *self, void* closure){
     (void)closure;
-    return PyDateTime_FromTimestamp(((PyDapChainDatumObject*)self)->datum->header.ts_create);
+    PyDateTime_IMPORT;
+    PyObject *obj_ts_long =  Py_BuildValue("(k)",((PyDapChainDatumObject*)self)->datum->header.ts_create);
+    PyObject *obj_ts = PyDateTime_FromTimestamp(obj_ts_long);
+    return obj_ts;
 }
 
 PyObject *dap_chain_datum_is_type_tx(PyObject *self, PyObject *args){
@@ -107,4 +111,9 @@ PyObject *dap_chain_datum_get_type_str_py(PyObject *self, PyObject *args){
     if (l_ret == NULL)
         return Py_None;
     return Py_BuildValue("s", l_ret);
+}
+
+PyObject *wrapping_dap_chain_datum_get_version_str_py(PyObject *self, void* closure){
+    (void)closure;
+    return Py_BuildValue("s", dap_strdup_printf("0x%02X",((PyDapChainDatumObject*)self)->datum->header.version_id));
 }
