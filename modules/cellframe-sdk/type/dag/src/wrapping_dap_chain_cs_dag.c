@@ -21,7 +21,7 @@ PyObject *dap_chain_cs_dag_find_event_by_hash_py(PyObject *self, PyObject *args)
     size_t size_atom = 0;
     dap_chain_atom_iter_t *l_iter = ((PyDapChainCsDagObject*)self)->dag->chain->callback_atom_iter_create(
             ((PyDapChainCsDagObject*)self)->dag->chain,
-            l_cell->id
+            l_cell->id, 0
             );
     dap_chain_atom_ptr_t l_ptr = ((PyDapChainCsDagObject*)self)->dag->chain->callback_atom_find_by_hash(
             l_iter,
