@@ -38,7 +38,7 @@ PyObject *dap_chain_addr_from_str_py(PyObject *self, PyObject *args){
     return Py_BuildValue("O", obj);
 }
 
-PyObject *dap_chain_addr_fill_py(PyObject *self, PyObject *args){
+PyObject *dap_chain_addr_fill_from_key_py(PyObject *self, PyObject *args){
     PyObject *key;
     PyObject *net_id;
     if (!PyArg_ParseTuple(args, "O|O", &key, &net_id))
