@@ -86,11 +86,13 @@ typedef struct PyDapSign{
 
 PyObject *wrapping_dap_sign_get_type(PyObject *self, void *closure);
 PyObject *wrapping_dap_sign_get_pkey(PyObject *self, void *closure);
+PyObject *wrapping_dap_sign_get_pkey_hash(PyObject *self, void *closure);
 PyObject *wrapping_dap_sign_get_size(PyObject *self, void *closure);
 
 static PyGetSetDef DapSignObjectGetsSetsDef[] = {
         {"type", (getter)wrapping_dap_sign_get_type, NULL, NULL, NULL},
         {"pkey", (getter)wrapping_dap_sign_get_pkey, NULL, NULL, NULL},
+        {"pkeyHash", (getter)wrapping_dap_sign_get_pkey_hash, NULL,NULL},
         {"size", (getter)wrapping_dap_sign_get_size, NULL, NULL, NULL},
         {NULL}
 };

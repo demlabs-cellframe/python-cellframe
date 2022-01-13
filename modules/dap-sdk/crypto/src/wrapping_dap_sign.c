@@ -18,6 +18,16 @@ PyObject *wrapping_dap_sign_get_pkey(PyObject *self, void *closure){
     obj_pkey->pkey = (dap_pkey_t*)((PyDapSignObject*)self)->sign->pkey_n_sign;
     return (PyObject*)obj_pkey;
 }
+
+PyObject *wrapping_dap_sign_get_pkey_hash(PyObject *self, void *closure){
+    (void)closure;
+    PyDapHashFastObject *obj_hash = PyObject_New(PyDapHashFastObject, &DapHashFastObject_DapHashFastObjectType);
+    PyObject_Dir((PyObject*)obj_hash);
+    obj_hash->hash_fast = DAP_NEW(dap_chain_hash_fast_t);
+    dap_sign_get_pkey_hash(((PyDapSignObject*)self)->sign, obj_hash->hash_fast);
+    return (PyObject*)obj_hash;
+}
+
 PyObject *wrapping_dap_sign_get_size(PyObject *self, void *closure){
     (void)closure;
     return Py_BuildValue("I", ((PyDapSignObject*)self)->sign->header.sign_size);
