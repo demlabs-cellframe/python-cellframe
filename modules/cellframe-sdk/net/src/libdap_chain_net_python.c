@@ -167,3 +167,19 @@ PyObject *dap_chain_net_get_name_py(PyObject *self, PyObject *args){
     PyObject *obj_name = PyUnicode_FromString(((PyDapChainNetObject*)self)->chain_net->pub.name);
     return obj_name;
 }
+
+PyObject *dap_chain_net_get_tx_by_hash_py(PyObject *self, PyObject *args){
+    PyObject *obj_hash;
+    if (!PyArg_ParseTuple(args, "O", &obj_hash)){
+        return NULL;
+    }
+    PyDapChainDatumTxObject *obj_tx = PyObject_New(PyDapChainDatumTxObject, &DapChainDatumTx_DapChainDatumTxObjectType);
+    PyObject_Dir((PyObject*)obj_tx);
+    obj_tx->datum_tx = dap_chain_net_get_tx_by_hash(((PyDapChainNetObject*)self)->chain_net,
+                                 ((PyDapHashFastObject*)obj_hash)->hash_fast, TX_SEARCH_TYPE_LOCAL);
+    if(obj_tx->datum_tx == NULL){
+        Py_XDECREF(obj_tx);
+        return Py_None;
+    }
+    return (PyObject*)obj_tx;
+}
