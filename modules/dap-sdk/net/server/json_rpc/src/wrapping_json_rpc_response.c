@@ -55,9 +55,10 @@ PyObject *wrapping_json_rpc_response_get_result(PyObject *self, void *closure){
         return Py_BuildValue("s", l_resp->result_string);
         break;
     case TYPE_RESPONSE_NULL:
-        return Py_BuildValue("O", Py_None);
+    default:
         break;
     }
+    return Py_BuildValue("O", Py_None);
 }
 PyObject *wrapping_json_rpc_response_get_error(PyObject *self, void *closure){
     UNUSED(closure);
