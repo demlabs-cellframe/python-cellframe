@@ -76,3 +76,13 @@ PyObject *dap_chain_net_srv_uid_from_str_py(PyObject *self, PyObject *args){
     ((PyDapChainNetSrvUIDObject*)obj)->net_srv_uid = dap_chain_net_srv_uid_from_str(str);
     return Py_BuildValue("O", obj);
 }
+
+PyObject * dap_chain_balance_to_coins_py(PyObject *self, PyObject *args){
+    (void)self;
+    uint64_t balance=0;
+    if (!PyArg_ParseTuple(args, "k", &balance)){
+        return NULL;
+    }
+    const char *str = dap_chain_balance_to_coins(dap_chain_uint128_to(balance));
+    return Py_BuildValue("s", str);
+}
