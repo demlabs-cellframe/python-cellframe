@@ -70,9 +70,9 @@ class CMakeBuild(build_ext):
 
 setup(
     name="CellFrame",
-    version="2.9-33",
+    version="2.9-34",
     description="CellFrame SDK",
-    author='Demlabs (2007-2021)',
+    author='Demlabs (2007-2022)',
     license="GNU GPLv3",
     packages=['CellFrame'],
     ext_modules=[CMakeExtension('CellFrame/libCellFrame')],
