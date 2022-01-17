@@ -195,7 +195,7 @@ PyObject *dap_chain_ledger_calc_balance_py(PyObject *self, PyObject *args){
             ((PyDapChainLedgerObject*)self)->ledger,
             ((PyDapChainAddrObject*)addr)->addr, token_ticker);
     uint64_t res = dap_chain_uint128_to(balance);
-    char* coins = dap_chain_balance_to_coins(res);
+    char* coins = dap_chain_balance_to_coins(balance);
     return Py_BuildValue("sk", coins, res);
 }
 PyObject *dap_chain_ledger_calc_balance_full_py(PyObject *self, PyObject *args){
