@@ -164,7 +164,7 @@ PyObject *dap_chain_net_get_chain_by_chain_type_py(PyObject *self, PyObject *arg
 
 PyObject *dap_chain_net_get_ledger_py(PyObject *self, PyObject *args){
     (void)args;
-    PyObject *obj_ledger = PyObject_New(PyDapChainLedgerObject, &DapChainLedger_DapChainLedgerType);
+    PyObject *obj_ledger = (PyObject *)PyObject_New(PyDapChainLedgerObject, &DapChainLedger_DapChainLedgerType);
     PyObject_Dir(obj_ledger);
     ((PyDapChainLedgerObject*)obj_ledger)->ledger = ((PyDapChainNetObject*)self)->chain_net->pub.ledger;
     return obj_ledger;

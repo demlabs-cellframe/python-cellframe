@@ -18,6 +18,6 @@ PyObject *wrapping_dap_chain_tx_pkey_seq_no(PyObject *self, void *closure){
 PyObject *wrapping_dap_chain_tx_pkey_get_pkey(PyObject *self, void *closure){
     (void)closure;
     PyDapPkeyObject *obj_pkey = PyObject_NEW(PyDapPkeyObject, &DapPkeyTypeObject_DapPkeyTypeObjectType);
-    obj_pkey->pkey = ((PyDapChainTXPkeyObject*)self)->tx_pkey->pkey;
+    obj_pkey->pkey = (dap_pkey_t *)((PyDapChainTXPkeyObject*)self)->tx_pkey->pkey;
     return (PyObject*)obj_pkey;
 }
