@@ -68,14 +68,15 @@ PyObject *dap_chain_ledger_token_emission_find_py(PyObject *self, PyObject *args
     return Py_BuildValue("O", &token_emission);
 }
 PyObject *dap_chain_ledger_tx_get_token_ticker_by_hash_py(PyObject *self, PyObject *args){
-    //TODO
-    //Missing implementation of dap_chain_ledger_tx_get_token_ticker_by_hash function in dap_chain_ledger
-    return NULL;
-//    PyObject *obj_tx_hash;
-//    if (!PyArg_ParseTuple(args, "O", &obj_tx_hash))
-//        return NULL;
-//    const char *res = dap_chain_ledger_tx_get_token_ticker_by_hash(((PyDapChainHashFastObject*)obj_tx_hash)->hash_fast);
-//    return Py_BuildValue("s", res);
+    PyObject *obj_hash;
+    if (!PyArg_ParseTuple(args, "O", &obj_hash)){
+        PyErr_SetString(PyExc_AttributeError, "This function takes one argument, it is an instance of an object of type HashFast.");
+        return NULL;
+    }
+    const char *l_ticker = dap_chain_ledger_tx_get_token_ticker_by_hash(
+            ((PyDapChainLedgerObject*)self)->ledger,
+            ((PyDapHashFastObject*)obj_hash)->hash_fast);
+    return Py_BuildValue("s", l_ticker);
 }
 PyObject *dap_chain_ledger_addr_get_token_ticker_all_py(PyObject *self, PyObject *args){
     PyObject *obj_addr;
@@ -195,7 +196,7 @@ PyObject *dap_chain_ledger_calc_balance_py(PyObject *self, PyObject *args){
             ((PyDapChainLedgerObject*)self)->ledger,
             ((PyDapChainAddrObject*)addr)->addr, token_ticker);
     uint64_t res = dap_chain_uint128_to(balance);
-    char* coins = dap_chain_balance_to_coins(res);
+    char* coins = dap_chain_balance_to_coins(balance);
     return Py_BuildValue("sk", coins, res);
 }
 PyObject *dap_chain_ledger_calc_balance_full_py(PyObject *self, PyObject *args){

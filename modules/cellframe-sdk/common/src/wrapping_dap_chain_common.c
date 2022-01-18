@@ -83,6 +83,6 @@ PyObject * dap_chain_balance_to_coins_py(PyObject *self, PyObject *args){
     if (!PyArg_ParseTuple(args, "k", &balance)){
         return NULL;
     }
-    const char *str = dap_chain_balance_to_coins(dap_chain_uint128_to(balance));
+    const char *str = dap_chain_balance_to_coins(dap_chain_uint128_from(balance));
     return Py_BuildValue("s", str);
 }
