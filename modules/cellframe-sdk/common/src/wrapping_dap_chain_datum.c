@@ -56,6 +56,7 @@ PyObject *wrapping_dap_chain_datum_get_datum_token(PyObject *self, PyObject *arg
         size_t l_size_token = ((PyDapChainDatumObject*)self)->datum->header.data_size;
         obj_token->token = dap_chain_datum_token_read(((PyDapChainDatumObject*)self)->datum->data,
                                                       &l_size_token);
+        return (PyObject*)obj_token;
     }else{
         PyErr_SetString(PyExc_Exception, "Due to the type of this datum, it is not possible to get the token datum.");
         return NULL;
@@ -79,7 +80,7 @@ PyObject *wrapping_dap_chain_datum_get_datum_token_emission(PyObject *self, PyOb
                 &DapChainDatumTokenEmission_DapChainDatumTokenEmissionObjectType
                 );
         PyObject_Dir((PyObject*)obj_emission);
-        size_t l_token_emission_size = 0;
+        size_t l_token_emission_size = ((PyDapChainDatumObject*)self)->datum->header.data_size;
         obj_emission->token_emission = dap_chain_datum_emission_read(((PyDapChainDatumObject*)self)->datum->data,
                                                                      &l_token_emission_size);
         return (PyObject*)obj_emission;
