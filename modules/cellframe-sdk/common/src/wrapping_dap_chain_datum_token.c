@@ -119,6 +119,7 @@ PyObject *wrapping_dap_chain_datum_token_emission_get_data(PyObject *self, void 
                         sizeof(dap_sign_t));
                 PyList_SetItem(obj_tmp, i, obj_tmp_sign);
             }
+            return obj_tmp;
             break;
         case DAP_CHAIN_DATUM_TOKEN_EMISSION_TYPE_ALGO:
             obj_dict = PyDict_New();
@@ -133,7 +134,8 @@ PyObject *wrapping_dap_chain_datum_token_emission_get_data(PyObject *self, void 
             PyDict_SetItemString(obj_dict, "value_change_algo_codename", obj_tmp);
             break;
         case DAP_CHAIN_DATUM_TOKEN_EMISSION_TYPE_SMART_CONTRACT:
-            obj_dict = PyDict_New();
+//            obj_dict = PyDict_New();
+            return Py_None;
             break;
         case DAP_CHAIN_DATUM_TOKEN_EMISSION_TYPE_UNDEFINED:
             return Py_None;
@@ -141,4 +143,5 @@ PyObject *wrapping_dap_chain_datum_token_emission_get_data(PyObject *self, void 
         default:
             return Py_None;
     }
+    return obj_dict;
 }
