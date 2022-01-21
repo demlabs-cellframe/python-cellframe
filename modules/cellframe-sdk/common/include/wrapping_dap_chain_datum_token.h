@@ -40,6 +40,23 @@ typedef struct PyDapChainDatumToken{
     dap_chain_datum_token_t *token;
 }PyDapChainDatumTokenObject;
 
+PyObject *wrapping_dap_chain_datum_token_get_ticker(PyObject *self, void *closure);
+PyObject *wrapping_dap_chain_datum_token_get_type_str(PyObject *self, void *closure);
+//PyObject *wrapping_dap_chain_datum_token_get_size(PyObject *self, void *closure);
+PyObject *wrapping_dap_chain_datum_token_get_data(PyObject *self, void *closure);
+
+static PyGetSetDef  PyDapChainDatumTokenGetsSetsDef[]={
+        {"ticker", (getter)wrapping_dap_chain_datum_token_get_ticker, NULL, NULL, NULL},
+        {"typeStr", (getter)wrapping_dap_chain_datum_token_get_type_str, NULL, NULL, NULL},
+        {"data", (getter)wrapping_dap_chain_datum_token_get_data, NULL, NULL, NULL},
+        {NULL}
+};
+
+static PyMethodDef  PyDapChainDatumTokenMethods[] = {
+        {NULL, NULL, 0, NULL}
+};
+
+
 static PyTypeObject DapChainDatumToken_DapChainDatumTokenObjectType = {
     PyVarObject_HEAD_INIT(NULL, 0)
     "CellFrame.Chain.DatumTokenObject",       /* tp_name */
@@ -69,9 +86,9 @@ static PyTypeObject DapChainDatumToken_DapChainDatumTokenObjectType = {
     0,                                       /* tp_weaklistoffset */
     0,		                                 /* tp_iter */
     0,		                                 /* tp_iternext */
-    0,                                       /* tp_methods */
+    PyDapChainDatumTokenMethods,              /* tp_methods */
     0,                                       /* tp_members */
-    0,                                       /* tp_getset */
+    PyDapChainDatumTokenGetsSetsDef,           /* tp_getset */
     0,                                       /* tp_base */
     0,                                       /* tp_dict */
     0,                                       /* tp_descr_get */
@@ -91,9 +108,30 @@ typedef struct PyDapChainDatumTokenEmission{
     dap_chain_datum_token_emission_t *token_emission;
 }PyDapChainDatumTokenEmissionObject;
 
+PyObject *wrapping_dap_chain_datum_token_emission_get_version(PyObject *self, void *closure);
+PyObject *wrapping_dap_chain_datum_token_emission_get_type_str(PyObject *self, void *closure);
+PyObject *wrapping_dap_chain_datum_token_emission_get_ticker(PyObject *self, void *closure);
+PyObject *wrapping_dap_chain_datum_token_emission_get_addr(PyObject *self, void *closure);
+PyObject *wrapping_dap_chain_datum_token_emission_get_value(PyObject *self, void *closure);
+PyObject *wrapping_dap_chain_datum_token_emission_get_data(PyObject *self, void *closure);
+
+static PyGetSetDef PyDapChainDatumTokenEmissionGetsSetsDef[]={
+        {"version", (getter)wrapping_dap_chain_datum_token_emission_get_version, NULL, NULL},
+        {"typeStr", (getter)wrapping_dap_chain_datum_token_emission_get_type_str, NULL, NULL},
+        {"ticker", (getter)wrapping_dap_chain_datum_token_emission_get_ticker, NULL, NULL},
+        {"addr", (getter)wrapping_dap_chain_datum_token_emission_get_addr, NULL, NULL},
+        {"value", (getter)wrapping_dap_chain_datum_token_emission_get_value, NULL, NULL},
+        {"data", (getter)wrapping_dap_chain_datum_token_emission_get_data, NULL, NULL},
+        {NULL}
+};
+
+static PyMethodDef PyDapChainDatumTokenEmissionMethods[]={
+        {NULL, NULL, 0, NULL}
+};
+
 static PyTypeObject DapChainDatumTokenEmission_DapChainDatumTokenEmissionObjectType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "CellFrame.Chain.DatumTokenEmission",             /* tp_name */
+    "CellFrame.ChainDatumTokenEmission",             /* tp_name */
     sizeof(PyDapChainDatumTokenEmissionObject),      /* tp_basicsize */
     0,                                               /* tp_itemsize */
     0,                                               /* tp_dealloc */
@@ -120,9 +158,9 @@ static PyTypeObject DapChainDatumTokenEmission_DapChainDatumTokenEmissionObjectT
     0,                                               /* tp_weaklistoffset */
     0,		                                         /* tp_iter */
     0,		                                         /* tp_iternext */
-    0,  	                                         /* tp_methods */
+    PyDapChainDatumTokenEmissionMethods,  	         /* tp_methods */
     0,                                               /* tp_members */
-    0,                                               /* tp_getset */
+    PyDapChainDatumTokenEmissionGetsSetsDef,           /* tp_getset */
     0,                                               /* tp_base */
     0,                                               /* tp_dict */
     0,                                               /* tp_descr_get */
