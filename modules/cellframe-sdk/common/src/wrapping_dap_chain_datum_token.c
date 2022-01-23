@@ -107,15 +107,15 @@ PyObject *wrapping_dap_chain_datum_token_emission_get_value(PyObject *self, void
     (void)closure;
     return Py_BuildValue("k", ((PyDapChainDatumTokenEmissionObject*)self)->token_emission->hdr.value);
 }
-PyObject *wrapping_dap_chain_datum_token_emission_get_nonce(PyObject *self, void *closure){
-    (void)closure;
-}
+//PyObject *wrapping_dap_chain_datum_token_emission_get_nonce(PyObject *self, void *closure){
+//    (void)closure;
+//}
 PyObject *wrapping_dap_chain_datum_token_emission_get_data(PyObject *self, void *closure){
     (void)closure;
     PyObject *obj_dict = NULL;
     PyObject *obj_tmp = Py_None;
     dap_chain_datum_token_emission_t *token_emi = ((PyDapChainDatumTokenEmissionObject*)self)->token_emission;
-    PyDapSignObject *obj_tmp_sign = Py_None;
+    PyDapSignObject *obj_tmp_sign = (PyDapSignObject*)Py_None;
     switch(token_emi->hdr.type){
         case DAP_CHAIN_DATUM_TOKEN_EMISSION_TYPE_AUTH:
             obj_dict = PyDict_New();
@@ -128,7 +128,7 @@ PyObject *wrapping_dap_chain_datum_token_emission_get_data(PyObject *self, void 
                         obj_tmp_sign->sign + sizeof(dap_sign_t) * i,
                         token_emi->data.type_auth.signs[i],
                         sizeof(dap_sign_t));
-                PyList_SetItem(obj_tmp, i, obj_tmp_sign);
+                PyList_SetItem(obj_tmp, i, (PyObject*)obj_tmp_sign);
             }
             return obj_tmp;
             break;
