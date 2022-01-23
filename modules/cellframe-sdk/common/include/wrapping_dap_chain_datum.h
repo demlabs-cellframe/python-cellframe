@@ -27,6 +27,7 @@
 #define _WRAPPING_DAP_CHAIN_DATUM_
 #include "Python.h"
 #include "dap_chain_datum.h"
+#include "dap_chain_datum_token.h"
 #include "datetime.h"
 #include "wrapping_dap_chain_datum_tx.h"
 
@@ -91,19 +92,31 @@ typedef struct PyDapChainDatum{
 //void PyDapChainDatumObject_dealloc(PyDapChainDatumObject* object);
 PyObject *PyDapChainDatumObject_new(PyTypeObject *type_object, PyObject *args, PyObject *kwds);
 PyObject *dap_chain_datum_size_py(PyObject *self, PyObject *args);
-PyObject *dap_chain_datum_get_ts_created(PyObject *self, void* closure);
+PyObject *dap_chain_datum_get_ts_created_py(PyObject *self, void* closure);
 PyObject *dap_chain_datum_is_type_tx(PyObject *self, PyObject *args);
 PyObject *wrapping_dap_chain_datum_get_datum_tx(PyObject *self, PyObject *args);
+PyObject *dap_chain_datum_is_type_token(PyObject *self, PyObject *args);
+PyObject *wrapping_dap_chain_datum_get_datum_token(PyObject *self, PyObject *args);
+PyObject *dap_chain_datum_is_type_emission(PyObject *self, PyObject *args);
+PyObject *wrapping_dap_chain_datum_get_datum_token_emission(PyObject *self, PyObject *args);
+PyObject *dap_chain_datum_get_type_str_py(PyObject *self, PyObject *args);
+PyObject *wrapping_dap_chain_datum_get_version_str_py(PyObject *self, void* closure);
 
 static PyMethodDef DapChainDatumMethods[] = {
     {"size", dap_chain_datum_size_py, METH_VARARGS, ""},
     {"isDatumTX", dap_chain_datum_is_type_tx, METH_NOARGS, ""},
     {"getDatumTX", wrapping_dap_chain_datum_get_datum_tx, METH_NOARGS, ""},
+    {"isDatumToken", dap_chain_datum_is_type_token, METH_NOARGS, ""},
+    {"getDatumToken", wrapping_dap_chain_datum_get_datum_token, METH_NOARGS, ""},
+    {"isDatumTokenEmission", dap_chain_datum_is_type_emission, METH_NOARGS, ""},
+    {"getDatumTokenEmission", wrapping_dap_chain_datum_get_datum_token_emission, METH_NOARGS, ""},
+    {"getTypeStr", dap_chain_datum_get_type_str_py, METH_NOARGS, ""},
     {NULL, NULL, 0, NULL}
 };
 
 static PyGetSetDef  DapChainDatumGetSet[] = {
-        {"tsCreated", (getter)dap_chain_datum_get_ts_created, NULL, NULL, NULL},
+        {"versionStr", (getter)wrapping_dap_chain_datum_get_version_str_py, NULL, NULL},
+        {"tsCreated", (getter)dap_chain_datum_get_ts_created_py, NULL, NULL},
         {NULL}
 };
 
