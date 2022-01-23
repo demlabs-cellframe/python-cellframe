@@ -37,6 +37,10 @@
 #include "wrapping_dap_chain_net_node_info.h"
 #include "wrapping_dap_chain_net_state.h"
 // ============
+// === type DAG ===
+#include "wrapping_dap_chain_cs_dag.h"
+#include "wrapping_dap_chain_cs_dag_event.h"
+// ============
 
 
 #include "wrapping_http.h"
