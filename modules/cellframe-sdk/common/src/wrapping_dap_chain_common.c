@@ -39,6 +39,34 @@ PyObject *dap_chain_addr_from_str_py(PyObject *self, PyObject *args){
 }
 
 PyObject *dap_chain_addr_fill_py(PyObject *self, PyObject *args){
+    PyObject *obj_sign_type;
+    PyObject *obj_pkey_hash;
+    PyObject *obj_chain_net_id;
+    if (!PyArg_ParseTuple(args, "OOO", &obj_sign_type, &obj_pkey_hash, &obj_chain_net_id)){
+        PyErr_SetString(PyExc_AttributeError, "This function takes three arguments, signature type, public key hash, chain network ID.");
+        return NULL;
+    }
+    if (self == NULL){
+        PyDapChainAddrObject *obj_addr = PyObject_New(PyDapChainAddrObject, &DapChainAddrObject_DapChainAddrObjectType);
+        PyObject_Dir((PyObject*)obj_addr);
+        obj_addr->addr = DAP_NEW(dap_chain_addr_t);
+        dap_chain_addr_fill(
+                obj_addr->addr,
+                *((PyDapSignTypeObject*)obj_sign_type)->sign_type,
+                ((PyDapHashFastObject*)obj_pkey_hash)->hash_fast,
+                ((PyDapChainNetIdObject*)obj_chain_net_id)->net_id);
+        return (PyObject*)obj_addr;
+    }else{
+        dap_chain_addr_fill(
+                ((PyDapChainAddrObject*)self)->addr,
+                *((PyDapSignTypeObject*)obj_sign_type)->sign_type,
+                ((PyDapHashFastObject*)obj_pkey_hash)->hash_fast,
+                ((PyDapChainNetIdObject*)obj_chain_net_id)->net_id);
+        return Py_None;
+    }
+}
+
+PyObject *dap_chain_addr_fill_from_key_py(PyObject *self, PyObject *args){
     PyObject *key;
     PyObject *net_id;
     if (!PyArg_ParseTuple(args, "O|O", &key, &net_id))

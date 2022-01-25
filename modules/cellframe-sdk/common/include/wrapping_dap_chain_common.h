@@ -102,6 +102,7 @@ typedef struct PyDapChainAddr{
 PyObject *dap_chain_addr_to_str_py(PyObject *self, PyObject *args);
 PyObject *dap_chain_addr_from_str_py(PyObject *self, PyObject *args);
 PyObject *dap_chain_addr_fill_py(PyObject *self, PyObject *args);
+PyObject *dap_chain_addr_fill_from_key_py(PyObject *self, PyObject *args);
 PyObject *dap_chain_addr_check_sum_py(PyObject *self, PyObject *args);
 
 PyObject *dap_chain_addr_get_net_id_py(PyObject *self, PyObject *args);
@@ -111,7 +112,8 @@ PyObject *obj_addr_str(PyObject *self);
 static PyMethodDef DapChainAddrMethods[] = {
     {"toStr", (PyCFunction)dap_chain_addr_to_str_py, METH_VARARGS, ""},
     {"fromStr", (PyCFunction)dap_chain_addr_from_str_py, METH_VARARGS | METH_STATIC, ""},
-    {"fill", (PyCFunction)dap_chain_addr_fill_py, METH_VARARGS, ""},
+    {"fill", (PyCFunction)dap_chain_addr_fill_py, METH_VARARGS | METH_STATIC, ""},
+    {"fillFromKey", (PyCFunction)dap_chain_addr_fill_from_key_py, METH_VARARGS, ""},
     {"checkSum", (PyCFunction)dap_chain_addr_check_sum_py, METH_VARARGS, ""},
     {"getNetId", (PyCFunction)dap_chain_addr_get_net_id_py, METH_NOARGS, ""},
     {NULL, NULL, 0, NULL}
