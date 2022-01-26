@@ -115,23 +115,31 @@ PyObject *wrapping_dap_chain_datum_token_emission_get_data(PyObject *self, void 
     PyObject *obj_dict = NULL;
     PyObject *obj_tmp = Py_None;
     dap_chain_datum_token_emission_t *token_emi = ((PyDapChainDatumTokenEmissionObject*)self)->token_emission;
+    size_t token_emi_size = ((PyDapChainDatumTokenEmissionObject*)self)->token_size;
     PyDapSignObject *obj_tmp_sign = (PyDapSignObject*)Py_None;
+    dap_sign_t *l_sign_ptr = NULL;
+    size_t l_offset = 0;
     switch(token_emi->hdr.type){
         case DAP_CHAIN_DATUM_TOKEN_EMISSION_TYPE_AUTH:
-            obj_dict = PyDict_New();
+            l_sign_ptr = (dap_sign_t*)token_emi->data.type_auth.signs;
+            l_offset = (byte_t*)l_sign_ptr - (byte_t*)token_emi;
             obj_tmp = PyList_New(token_emi->data.type_auth.signs_count);
-            for (size_t i = 0; i < token_emi->data.type_auth.signs_count; i++){
-                obj_tmp_sign = PyObject_New(PyDapSignObject, &DapSignObject_DapSignObjectType);
-                PyObject_Dir((PyObject*)obj_tmp_sign);
-                obj_tmp_sign->sign = DAP_NEW(dap_sign_t);
-                memcpy(
-                        obj_tmp_sign->sign + sizeof(dap_sign_t) * i,
-                        token_emi->data.type_auth.signs[i],
-                        sizeof(dap_sign_t));
-                PyList_SetItem(obj_tmp, i, (PyObject*)obj_tmp_sign);
+            for (size_t i = 0; i < token_emi->data.type_auth.signs_count && l_offset < token_emi_size; i++){
+                if(dap_sign_verify_size(l_sign_ptr, ((PyDapChainDatumTokenEmissionObject*)self)->token_size - l_offset)){
+                    obj_tmp_sign = PyObject_New(PyDapSignObject, &DapSignObject_DapSignObjectType);
+                    PyObject_Dir((PyObject*)obj_tmp_sign);
+                    obj_tmp_sign->sign = DAP_NEW_Z_SIZE(dap_sign_t, dap_sign_get_size(l_sign_ptr));
+                    memcpy(obj_tmp_sign->sign, l_sign_ptr, dap_sign_get_size(l_sign_ptr));
+                    if (PyList_SetItem(obj_tmp, (Py_ssize_t)i, (PyObject*)obj_tmp_sign) == -1){
+                        return NULL;
+                    }
+                    l_offset += dap_sign_get_size(l_sign_ptr);
+                    l_sign_ptr = (dap_sign_t*)(byte_t*)token_emi + l_offset;
+                } else {
+                    break;
+                }
             }
             return obj_tmp;
-            break;
         case DAP_CHAIN_DATUM_TOKEN_EMISSION_TYPE_ALGO:
             obj_dict = PyDict_New();
             obj_tmp = Py_BuildValue("s", token_emi->data.type_algo.codename);

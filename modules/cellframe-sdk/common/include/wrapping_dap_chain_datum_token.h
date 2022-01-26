@@ -60,7 +60,7 @@ static PyMethodDef  PyDapChainDatumTokenMethods[] = {
 
 static PyTypeObject DapChainDatumToken_DapChainDatumTokenObjectType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "CellFrame.Chain.DatumTokenObject",       /* tp_name */
+    "CellFrame.ChainDatumToken",       /* tp_name */
     sizeof(PyDapChainDatumTokenObject),      /* tp_basicsize */
     0,                                       /* tp_itemsize */
     0,                                       /* tp_dealloc */
@@ -107,6 +107,7 @@ static PyTypeObject DapChainDatumToken_DapChainDatumTokenObjectType = {
 typedef struct PyDapChainDatumTokenEmission{
     PyObject_HEAD
     dap_chain_datum_token_emission_t *token_emission;
+    size_t token_size;
 }PyDapChainDatumTokenEmissionObject;
 
 PyObject *wrapping_dap_chain_datum_token_emission_get_version(PyObject *self, void *closure);
