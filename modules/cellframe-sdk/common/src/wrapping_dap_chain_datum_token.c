@@ -7,6 +7,22 @@ PyObject *wrapping_dap_chain_datum_token_get_ticker(PyObject *self, void *closur
 }
 PyObject *wrapping_dap_chain_datum_token_get_type_str(PyObject *self, void *closure){
     (void)closure;
+    switch (((PyDapChainDatumTokenObject*)self)->token->type) {
+        case DAP_CHAIN_DATUM_TOKEN_TYPE_OLD_SIMPLE:
+        case DAP_CHAIN_DATUM_TOKEN_TYPE_SIMPLE:
+            return Py_BuildValue("s", "SIMPLE");
+        case DAP_CHAIN_DATUM_TOKEN_TYPE_OLD_PRIVATE_UPDATE:
+        case DAP_CHAIN_DATUM_TOKEN_TYPE_PRIVATE_UPDATE:
+            return Py_BuildValue("s", "PRIVATE_UPDATE");
+        case DAP_CHAIN_DATUM_TOKEN_TYPE_OLD_PRIVATE_DECL:
+        case DAP_CHAIN_DATUM_TOKEN_TYPE_PRIVATE_DECL:
+            return Py_BuildValue("s", "PRIVATE_DECL");
+        case DAP_CHAIN_DATUM_TOKEN_TYPE_PUBLIC:
+            return Py_BuildValue("s", "PUBLIC");
+        default:
+            return Py_BuildValue("s", "UNKNOWN");
+    }
+//    dap_chain_datum_token_flags_dump()
 }
 //PyObject *wrapping_dap_chain_datum_token_get_size(PyObject *self, void *closure){
 //    (void)closure;
@@ -15,6 +31,7 @@ PyObject *wrapping_dap_chain_datum_token_get_type_str(PyObject *self, void *clos
 PyObject *wrapping_dap_chain_datum_token_get_data(PyObject *self, void *closure){
     (void)closure;
     dap_chain_datum_token_t  *l_token = ((PyDapChainDatumTokenObject*)self)->token;
+//    ((PyDapChainDatumTokenObject*)self)->token
     PyObject *obj_dict = PyDict_New();
     PyObject *obj_dict_header_private = NULL;
     PyObject *obj = Py_None;
@@ -31,12 +48,13 @@ PyObject *wrapping_dap_chain_datum_token_get_data(PyObject *self, void *closure)
                 obj = Py_BuildValue("s", dap_chain_balance_print(l_token->header_private.total_supply_256));
             PyDict_SetItemString(obj_dict, "total_supply", obj);
             break;
-        case DAP_CHAIN_DATUM_TOKEN_TYPE_OLD_PRIVATE_UPDATE:
-        case DAP_CHAIN_DATUM_TOKEN_TYPE_PRIVATE_UPDATE:
-            break;
-        case DAP_CHAIN_DATUM_TOKEN_TYPE_OLD_PRIVATE_DECL:
-        case DAP_CHAIN_DATUM_TOKEN_TYPE_PRIVATE_DECL:
-            break;
+//        case DAP_CHAIN_DATUM_TOKEN_TYPE_OLD_PRIVATE_UPDATE:
+//        case DAP_CHAIN_DATUM_TOKEN_TYPE_PRIVATE_UPDATE:
+////            dap_tsd_t *l_tsd = dap_chain_datum_token_tsd_get(l_token, ((PyDapChainDatumTokenObject*)self)->token_size);
+//            break;
+//        case DAP_CHAIN_DATUM_TOKEN_TYPE_OLD_PRIVATE_DECL:
+//        case DAP_CHAIN_DATUM_TOKEN_TYPE_PRIVATE_DECL:
+//            break;
         default:
             return Py_None;
     }

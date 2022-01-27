@@ -29,6 +29,7 @@
 #include "Python.h"
 #include "dap_chain_datum_token.h"
 #include "wrapping_dap_chain_common.h"
+#include "dap_tsd.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -39,6 +40,7 @@ extern "C" {
 typedef struct PyDapChainDatumToken{
     PyObject_HEAD
     dap_chain_datum_token_t *token;
+    size_t token_size;
 }PyDapChainDatumTokenObject;
 
 PyObject *wrapping_dap_chain_datum_token_get_ticker(PyObject *self, void *closure);
@@ -47,9 +49,14 @@ PyObject *wrapping_dap_chain_datum_token_get_type_str(PyObject *self, void *clos
 PyObject *wrapping_dap_chain_datum_token_get_data(PyObject *self, void *closure);
 
 static PyGetSetDef  PyDapChainDatumTokenGetsSetsDef[]={
-        {"ticker", (getter)wrapping_dap_chain_datum_token_get_ticker, NULL, NULL},
-        {"data", (getter)wrapping_dap_chain_datum_token_get_data, NULL, NULL},
+        {"ticker", (getter)wrapping_dap_chain_datum_token_get_ticker, NULL, NULL, NULL},
+        {"typeStr", (getter)wrapping_dap_chain_datum_token_get_type_str, NULL, NULL, NULL},
+        {"data", (getter)wrapping_dap_chain_datum_token_get_data, NULL, NULL, NULL},
         {NULL}
+};
+
+static PyMethodDef  PyDapChainDatumTokenMethods[] = {
+        {NULL, NULL, 0, NULL}
 };
 
 static PyTypeObject DapChainDatumToken_DapChainDatumTokenObjectType = {
@@ -81,7 +88,7 @@ static PyTypeObject DapChainDatumToken_DapChainDatumTokenObjectType = {
     0,                                       /* tp_weaklistoffset */
     0,		                                 /* tp_iter */
     0,		                                 /* tp_iternext */
-    0,                                       /* tp_methods */
+    PyDapChainDatumTokenMethods,              /* tp_methods */
     0,                                       /* tp_members */
     PyDapChainDatumTokenGetsSetsDef,        /* tp_getset */
     0,                                       /* tp_base */
