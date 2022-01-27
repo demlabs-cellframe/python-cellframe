@@ -6,6 +6,8 @@ import os
 app_name = "MyChains"
 tmp_dir = os.getcwd() + "/tmp"
 var_dir = os.getcwd() + "/var"
+if os.path.isdir(var_dir+"/log") is False:
+    os.mkdir(var_dir+"/log")
 
 json_string = """{
     "modules": ["Crypto", "Events", "Server", "Http", "HttpFolder", "GlobalDB", "Client", "HttpClientSimple", "Mempool",
