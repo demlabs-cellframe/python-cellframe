@@ -30,6 +30,7 @@
 #include "dap_chain_datum_token.h"
 #include "datetime.h"
 #include "wrapping_dap_chain_datum_tx.h"
+#include "dap_common.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -103,7 +104,7 @@ PyObject *dap_chain_datum_get_type_str_py(PyObject *self, PyObject *args);
 PyObject *wrapping_dap_chain_datum_get_version_str_py(PyObject *self, void* closure);
 
 static PyMethodDef DapChainDatumMethods[] = {
-    {"size", dap_chain_datum_size_py, METH_VARARGS, ""},
+    {"getSize", dap_chain_datum_size_py, METH_VARARGS, ""},
     {"isDatumTX", dap_chain_datum_is_type_tx, METH_NOARGS, ""},
     {"getDatumTX", wrapping_dap_chain_datum_get_datum_tx, METH_NOARGS, ""},
     {"isDatumToken", dap_chain_datum_is_type_token, METH_NOARGS, ""},

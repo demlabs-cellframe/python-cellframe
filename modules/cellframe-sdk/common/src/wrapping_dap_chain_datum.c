@@ -53,7 +53,7 @@ PyObject *wrapping_dap_chain_datum_get_datum_token(PyObject *self, PyObject *arg
                                                              &DapChainDatumToken_DapChainDatumTokenObjectType);
         PyObject_Dir((PyObject*)obj_token);
         size_t l_size_token = ((PyDapChainDatumObject*)self)->datum->header.data_size;
-        obj_token->token = DAP_NEW(dap_chain_datum_token_t);
+        obj_token->token = DAP_NEW_Z_SIZE(dap_chain_datum_token_t, l_size_token);
         memcpy(obj_token->token, ((PyDapChainDatumObject*)self)->datum->data, l_size_token);
         return (PyObject*)obj_token;
     }else{
@@ -82,6 +82,7 @@ PyObject *wrapping_dap_chain_datum_get_datum_token_emission(PyObject *self, PyOb
         size_t l_token_emission_size = ((PyDapChainDatumObject*)self)->datum->header.data_size;
         obj_emission->token_emission = dap_chain_datum_emission_read(((PyDapChainDatumObject*)self)->datum->data,
                                                                      &l_token_emission_size);
+        obj_emission->token_size = l_token_emission_size;
         return (PyObject*)obj_emission;
 
     }else{

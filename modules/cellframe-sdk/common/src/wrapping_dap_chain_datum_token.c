@@ -123,14 +123,14 @@ PyObject *wrapping_dap_chain_datum_token_emission_get_data(PyObject *self, void 
         case DAP_CHAIN_DATUM_TOKEN_EMISSION_TYPE_AUTH:
             l_sign_ptr = (dap_sign_t*)token_emi->data.type_auth.signs;
             l_offset = (byte_t*)l_sign_ptr - (byte_t*)token_emi;
-            obj_tmp = PyList_New(token_emi->data.type_auth.signs_count);
+            obj_tmp = PyList_New(0);
             for (size_t i = 0; i < token_emi->data.type_auth.signs_count && l_offset < token_emi_size; i++){
                 if(dap_sign_verify_size(l_sign_ptr, ((PyDapChainDatumTokenEmissionObject*)self)->token_size - l_offset)){
                     obj_tmp_sign = PyObject_New(PyDapSignObject, &DapSignObject_DapSignObjectType);
                     PyObject_Dir((PyObject*)obj_tmp_sign);
                     obj_tmp_sign->sign = DAP_NEW_Z_SIZE(dap_sign_t, dap_sign_get_size(l_sign_ptr));
                     memcpy(obj_tmp_sign->sign, l_sign_ptr, dap_sign_get_size(l_sign_ptr));
-                    if (PyList_SetItem(obj_tmp, (Py_ssize_t)i, (PyObject*)obj_tmp_sign) == -1){
+                    if (PyList_Append(obj_tmp, (PyObject*)obj_tmp_sign) == -1){
                         return NULL;
                     }
                     l_offset += dap_sign_get_size(l_sign_ptr);
