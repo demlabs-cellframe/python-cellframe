@@ -108,6 +108,7 @@ static PyTypeObject DapChainDatumToken_DapChainDatumTokenObjectType = {
 typedef struct PyDapChainDatumTokenEmission{
     PyObject_HEAD
     dap_chain_datum_token_emission_t *token_emission;
+    size_t token_size;
 }PyDapChainDatumTokenEmissionObject;
 
 PyObject *wrapping_dap_chain_datum_token_emission_get_version(PyObject *self, void *closure);

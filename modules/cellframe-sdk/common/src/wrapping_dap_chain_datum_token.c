@@ -114,14 +114,12 @@ PyObject *wrapping_dap_chain_datum_token_emission_get_value(PyObject *self, void
     (void)closure;
     return Py_BuildValue("k", ((PyDapChainDatumTokenEmissionObject*)self)->token_emission->hdr.value);
 }
-PyObject *wrapping_dap_chain_datum_token_emission_get_nonce(PyObject *self, void *closure){
-    (void)closure;
-}
 PyObject *wrapping_dap_chain_datum_token_emission_get_data(PyObject *self, void *closure){
     (void)closure;
     PyObject *obj_dict = NULL;
     PyObject *obj_tmp = Py_None;
     dap_chain_datum_token_emission_t *token_emi = ((PyDapChainDatumTokenEmissionObject*)self)->token_emission;
+    size_t token_emi_size = ((PyDapChainDatumTokenEmissionObject*)self)->token_size;
     PyDapSignObject *obj_tmp_sign = Py_None;
     dap_sign_t *l_sign_ptr = NULL;
     size_t l_offset = 0;
