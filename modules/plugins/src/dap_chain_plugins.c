@@ -27,6 +27,7 @@ int dap_chain_plugins_init(dap_config_t *a_config){
             return -1;
         }
         PyImport_AppendInittab("API_CellFrame", PyInit_libCellFrame);
+        Py_SetPath("/opt/cellframe-node/etc/lib/python3.7");
         Py_Initialize();
         PyEval_InitThreads();
         PyObject *l_sys_module = PyImport_ImportModule("sys");
