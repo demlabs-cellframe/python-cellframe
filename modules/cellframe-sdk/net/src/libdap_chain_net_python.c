@@ -107,6 +107,14 @@ PyObject *dap_chain_net_get_chain_by_name_py(PyObject *self, PyObject *args){
     return Py_BuildValue("O", obj_chain);
 }
 
+PyObject *dap_chain_net_python_get_id(PyObject *self, void *closure){
+    (void)closure;
+    PyDapChainNetIdObject *obj_net_id = PyObject_New(PyDapChainNetObject, &DapChainNetIdObject_DapChainNetIdObjectType);
+    PyObject_Dir((PyObject*)obj_net_id);
+    obj_net_id->net_id = ((PyDapChainNetObject*)self)->chain_net->pub.id;
+    return (PyObject*)obj_net_id;
+}
+
 PyObject *dap_chain_net_get_cur_addr_py(PyObject *self, PyObject *args){
     PyObject *obj_node_addr = _PyObject_New(&DapChainNodeAddrObject_DapChainNodeAddrObjectType);
     ((PyDapChainNodeAddrObject*)obj_node_addr)->node_addr = dap_chain_net_get_cur_addr(((PyDapChainNetObject*)self)->chain_net);

@@ -202,7 +202,15 @@ add_library(${PROJECT_NAME} STATIC ${CHAIN_PYTHON_SRCS} ${CHAIN_PYTHON_HEADERS})
 
 target_link_libraries(${PROJECT_NAME})
 
-target_link_libraries(${PROJECT_NAME} dap_core dap_crypto dap_chain dap_server_core dap_chain_net dap_crypto_python_module dap_python_module dap_chain_common_python_module)
+target_link_libraries(${PROJECT_NAME} dap_core
+        dap_crypto
+        dap_chain
+        dap_server_core
+        dap_chain_net
+        dap_crypto_python_module
+        dap_python_module
+        dap_chain_common_python_module
+        dap_chain_cs_dag_python_module)
 
 target_include_directories(${PROJECT_NAME} PUBLIC include/ )
 

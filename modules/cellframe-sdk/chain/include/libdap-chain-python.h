@@ -12,6 +12,7 @@
 #include "wrapping_dap_chain_atom_ptr.h"
 #include "wrapping_dap_chain_datum.h"
 #include "wrapping_dap_chain_cell.h"
+#include "wrapping_dap_chain_cs_dag.h"
 
 
 typedef struct PyDapChain{
@@ -39,6 +40,7 @@ PyObject *dap_chain_python_create_atom_iter(PyObject *self, PyObject *args);
 PyObject *dap_chain_python_atom_iter_get_first(PyObject *self, PyObject *args);
 PyObject *dap_chain_python_atom_get_datums(PyObject *self, PyObject *args);
 PyObject *dap_chain_python_atom_iter_get_next(PyObject *self, PyObject *args);
+PyObject *dap_chain_python_atom_iter_get_dag(PyObject *self, PyObject *args);
 
 static PyMethodDef DapChainMethods[] = {
     {"findById", (PyCFunction)dap_chain_find_by_id_py, METH_VARARGS|METH_STATIC, ""},
@@ -50,6 +52,7 @@ static PyMethodDef DapChainMethods[] = {
     {"atomIterGetFirst", (PyCFunction) dap_chain_python_atom_iter_get_first, METH_VARARGS, ""},
     {"atomGetDatums", (PyCFunction) dap_chain_python_atom_get_datums, METH_VARARGS, ""},
     {"atomIterGetNext", (PyCFunction)dap_chain_python_atom_iter_get_next, METH_VARARGS, ""},
+    {"getDag", (PyCFunction)dap_chain_python_atom_iter_get_dag, METH_NOARGS},
     //{"close", (PyCFunction)dap_chain_close_py, METH_NOARGS, ""},
     {NULL, NULL, 0, NULL}
 };
