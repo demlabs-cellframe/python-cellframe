@@ -20,7 +20,7 @@ int dap_chain_plugins_init(dap_config_t *a_config){
         const char *l_defaule_path_plugins = dap_strjoin(NULL, "/opt/", dap_get_appname(), "/var/plugins/", NULL);
         const char *l_plugins_root_path = dap_config_get_item_str_default(a_config, "plugins", "py_path",
                                                             l_defaule_path_plugins);
-        const wchar_t *l_python_env_path = L"/opt/cellframe-node/etc/lib/python3.7"
+        const wchar_t *l_python_env_path = L"/opt/cellframe-node/etc/lib/python3.7";
         s_plugins_root_path = dap_strjoin(NULL, l_plugins_root_path, "/", NULL);
         log_it(L_INFO, "Start initialize python plugins. Path plugins %s", s_plugins_root_path);
         if (!dap_dir_test(s_plugins_root_path)){
