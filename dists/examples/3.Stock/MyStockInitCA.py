@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/opt/cellframe-node/etc/bin/python3
 from CellFrame.libCellFrame import *
 from string import Template
 import os

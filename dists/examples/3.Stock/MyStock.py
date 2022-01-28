@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/opt/cellframe-node/etc/bin/python3
 # CellFrame SDK.Python v0.9 Example Application #0
 from CellFrame.libCellFrame import *
 import os

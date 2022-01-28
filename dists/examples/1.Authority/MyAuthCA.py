@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/opt/cellframe-node/etc/bin/python3
 from CellFrame import init, Cert, CryptoKeyType
 # from string import Template
 # import os

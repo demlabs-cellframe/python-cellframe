@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/opt/cellframe-node/etc/bin/python3
 import sys
 import os
 from CellFrame import AppCli
