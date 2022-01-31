@@ -28,7 +28,7 @@ int dap_chain_plugins_init(dap_config_t *a_config){
         }
         PyImport_AppendInittab("API_CellFrame", PyInit_libCellFrame);
         #ifdef DAP_BUILD_WITH_PYTHON_ENV
-            const wchar_t *l_python_env_path = L"/opt/cellframe-node/var/python/lib/python3.7";
+            const wchar_t *l_python_env_path = L"/opt/cellframe-node/etc/lib/python3.7";
             Py_SetPath(l_python_env_path);
         #endif
         Py_Initialize();
