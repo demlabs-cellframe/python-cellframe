@@ -178,3 +178,34 @@ PyObject *dap_chain_python_atom_iter_get_dag(PyObject *self, PyObject *args){
     obj_dag->dag = DAP_CHAIN_CS_DAG(((PyDapChainObject*)self)->chain_t);
     return (PyObject*)obj_dag;
 }
+
+PyObject *dap_chain_python_get_count_tx(PyObject *self, PyObject *args){
+    (void)args;
+    dap_chain_t *l_chain = ((PyDapChainObject*)self)->chain_t;
+    size_t l_count = l_chain->callback_count_tx(l_chain);
+    return Py_BuildValue("n", l_count);
+}
+
+PyObject *dap_chain_python_get_txs(PyObject *self, PyObject *args){
+    dap_chain_t *l_chain = ((PyDapChainObject*)self)->chain_t;
+    size_t l_count = 0;
+    size_t l_page = 1;
+    PyObject *obj_desc = NULL;
+    if (!PyArg_ParseTuple(args, "nnO", &l_count, &l_page, &obj_desc)){
+        return NULL;
+    }
+    bool desc = obj_desc == Py_True ? true : false;
+    dap_list_t *l_list = l_chain->callback_get_txs(l_chain, l_count, l_page, desc);
+    if (l_list == NULL){
+        return Py_None;
+    } else {
+        PyObject *obj_list = PyList_New(0);
+        for (dap_list_t *l_item = l_list; l_item != NULL; l_item = dap_list_next(l_item)){
+            PyDapChainDatumTxObject *tx_object = PyObject_New(PyDapChainDatumTxObject, &DapChainDatumTx_DapChainDatumTxObjectType);
+            PyObject_Dir((PyObject*)tx_object);
+            tx_object->datum_tx = l_item->data;
+            PyList_Append(obj_list, (PyObject*)tx_object);
+        }
+        return (PyObject*)obj_list;
+    }
+}
