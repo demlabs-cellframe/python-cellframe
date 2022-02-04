@@ -77,6 +77,7 @@ PyObject *dap_chain_net_get_chain_by_chain_type_py(PyObject *self, PyObject *arg
 PyObject *dap_chain_net_get_ledger_py(PyObject *self, PyObject *args);
 PyObject *dap_chain_net_get_name_py(PyObject *self, PyObject *args);
 PyObject *dap_chain_net_get_tx_by_hash_py(PyObject *self, PyObject *args);
+PyObject *dap_chain_net_python_get_id(PyObject *self, void *closure);
 
 static PyMethodDef DapChainNetMethods[] = {
     {"loadAll", dap_chain_net_load_all_py, METH_NOARGS | METH_STATIC, ""},
@@ -103,6 +104,11 @@ static PyMethodDef DapChainNetMethods[] = {
     {"getName", dap_chain_net_get_name_py, METH_NOARGS, ""},
     {"getTxByHash", dap_chain_net_get_tx_by_hash_py, METH_VARARGS, ""},
     {NULL, NULL, 0, NULL}
+};
+
+static PyGetSetDef DapChainNetGetsSetsDef[] = {
+    {"id", (getter)dap_chain_net_python_get_id, NULL, NULL, NULL},
+    {NULL}
 };
 
 static PyTypeObject DapChainNetObject_DapChainNetObjectType = {
@@ -134,9 +140,9 @@ static PyTypeObject DapChainNetObject_DapChainNetObjectType = {
     0,                               /* tp_weaklistoffset */
     0,		                         /* tp_iter */
     0,		                         /* tp_iternext */
-    DapChainNetMethods,              /* tp_methods */
-    0,                               /* tp_members */
-    0,                               /* tp_getset */
+    DapChainNetMethods,             /* tp_methods */
+    0,                              /* tp_members */
+    DapChainNetGetsSetsDef,           /* tp_getset */
     0,                               /* tp_base */
     0,                               /* tp_dict */
     0,                               /* tp_descr_get */

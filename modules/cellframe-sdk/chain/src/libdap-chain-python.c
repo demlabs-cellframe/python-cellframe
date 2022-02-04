@@ -154,3 +154,11 @@ PyObject *dap_chain_python_atom_iter_get_next(PyObject *self, PyObject *args){
     }
     return Py_BuildValue("On", obj_atom_ptr, atom_size);
 }
+
+PyObject *dap_chain_python_atom_iter_get_dag(PyObject *self, PyObject *args){
+    (void)args;
+    PyDapChainCsDagObject *obj_dag = PyObject_New(PyDapChainCsDagObject, &DapChainCsDag_DapChainCsDagType);
+    PyObject_Dir((PyObject*)obj_dag);
+    obj_dag->dag = DAP_CHAIN_CS_DAG(((PyDapChainObject*)self)->chain_t);
+    return (PyObject*)obj_dag;
+}
