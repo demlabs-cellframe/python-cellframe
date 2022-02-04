@@ -102,6 +102,7 @@ typedef struct PyDapChainAddr{
 PyObject *dap_chain_addr_to_str_py(PyObject *self, PyObject *args);
 PyObject *dap_chain_addr_from_str_py(PyObject *self, PyObject *args);
 PyObject *dap_chain_addr_fill_py(PyObject *self, PyObject *args);
+PyObject *dap_chain_addr_fill_from_key_py(PyObject *self, PyObject *args);
 PyObject *dap_chain_addr_check_sum_py(PyObject *self, PyObject *args);
 
 PyObject *dap_chain_addr_get_net_id_py(PyObject *self, PyObject *args);
@@ -111,7 +112,8 @@ PyObject *obj_addr_str(PyObject *self);
 static PyMethodDef DapChainAddrMethods[] = {
     {"toStr", (PyCFunction)dap_chain_addr_to_str_py, METH_VARARGS, ""},
     {"fromStr", (PyCFunction)dap_chain_addr_from_str_py, METH_VARARGS | METH_STATIC, ""},
-    {"fill", (PyCFunction)dap_chain_addr_fill_py, METH_VARARGS, ""},
+    {"fill", (PyCFunction)dap_chain_addr_fill_py, METH_VARARGS | METH_STATIC, ""},
+    {"fillFromKey", (PyCFunction)dap_chain_addr_fill_from_key_py, METH_VARARGS, ""},
     {"checkSum", (PyCFunction)dap_chain_addr_check_sum_py, METH_VARARGS, ""},
     {"getNetId", (PyCFunction)dap_chain_addr_get_net_id_py, METH_NOARGS, ""},
     {NULL, NULL, 0, NULL}
@@ -351,7 +353,7 @@ static PyTypeObject DapChainIDObject_DapChainIDType = {
     0,                               /* tp_as_mapping */
     0,                               /* tp_hash  */
     0,                               /* tp_call */
-    DapChainIdObject_str,                               /* tp_str */
+    DapChainIdObject_str,            /* tp_str */
     0,                               /* tp_getattro */
     0,                               /* tp_setattro */
     0,                               /* tp_as_buffer */
@@ -386,6 +388,8 @@ typedef struct PyDapChainCellID{
     dap_chain_cell_id_t cell_id;
 }PyDapChainCellIDObject;
 
+PyObject *PyDapChainCellIdObject_str(PyObject *self);
+
 static PyTypeObject DapChainCellIDObject_DapChainCellIDType = {
     PyVarObject_HEAD_INIT(NULL, 0)
     "CellFrame.ChainCellID"  ,       /* tp_name */
@@ -402,7 +406,7 @@ static PyTypeObject DapChainCellIDObject_DapChainCellIDType = {
     0,                               /* tp_as_mapping */
     0,                               /* tp_hash  */
     0,                               /* tp_call */
-    0,                               /* tp_str */
+    PyDapChainCellIdObject_str,      /* tp_str */
     0,                               /* tp_getattro */
     0,                               /* tp_setattro */
     0,                               /* tp_as_buffer */

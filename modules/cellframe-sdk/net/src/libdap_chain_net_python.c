@@ -183,3 +183,11 @@ PyObject *dap_chain_net_get_tx_by_hash_py(PyObject *self, PyObject *args){
     }
     return (PyObject*)obj_tx;
 }
+
+PyObject *dap_chain_net_python_get_id(PyObject *self, void *closure){
+    (void)closure;
+    PyDapChainNetIdObject *obj_net_id = PyObject_New(PyDapChainNetObject, &DapChainNetIdObject_DapChainNetIdObjectType);
+    PyObject_Dir((PyObject*)obj_net_id);
+    obj_net_id->net_id = ((PyDapChainNetObject*)self)->chain_net->pub.id;
+    return (PyObject*)obj_net_id;
+}
