@@ -2,11 +2,16 @@
 
 #include "Python.h"
 #include "dap_chain_net_srv.h"
+#include "uthash.h"
+#include "wrapping_dap_chain_common.h"
 
 typedef struct PyDapChainNetSrv{
     PyObject_HEAD
     dap_chain_net_srv_t *srv;
+    bool instance;
 }PyDapChainNetSrvObject;
+
+int PyDapChainNetSrv_init(PyDapChainNetSrvObject* self, PyObject *args, PyObject *kwds);
 
 PyObject *wrapping_dap_chain_net_srv_get_uid(PyObject *self, void *closure);
 PyObject *wrapping_dap_chain_net_srv_get_abstract(PyObject *self, void *closure);
@@ -19,6 +24,7 @@ static PyMethodDef DapChainNetSrvMethods[]={
 };
 
 static PyGetSetDef DapChaiNetSrvGetsSets[] = {
+        {"uid", (getter)wrapping_dap_chain_net_srv_get_uid, NULL, NULL, NULL},
         {NULL}
 };
 
@@ -44,7 +50,7 @@ static PyTypeObject DapChainNetSrvObject_DapChainNetSrvObjectType = {
         0,                                /* tp_as_buffer */
         Py_TPFLAGS_DEFAULT |
         Py_TPFLAGS_BASETYPE,          /* tp_flags */
-        "Chain net srv client object",               /* tp_doc */
+        "Chain net srv object",               /* tp_doc */
         0,		                          /* tp_traverse */
         0,		                          /* tp_clear */
         0,		                          /* tp_richcompare */
@@ -59,7 +65,7 @@ static PyTypeObject DapChainNetSrvObject_DapChainNetSrvObjectType = {
         0,                                /* tp_descr_get */
         0,                                /* tp_descr_set */
         0,                                /* tp_dictoffset */
-        0,                                /* tp_init */
+        (initproc)PyDapChainNetSrv_init,      /* tp_init */
         0,                                /* tp_alloc */
         PyType_GenericNew,                /* tp_new */
 };
