@@ -185,7 +185,7 @@ include_directories(${PYTHON_INCLUDE_DIR} include/)
 
 add_library(${PROJECT_NAME} STATIC ${CHAIN_NET_SRV_PYTHON_SRCS} ${CHAIN_NET_SRV_PYTHON_HEADERS})
 
-#target_link_libraries(${PROJECT_NAME})
+target_link_libraries(${PROJECT_NAME})
 target_include_directories(${PROJECT_NAME} PUBLIC include/ )
 
 target_link_libraries(${PROJECT_NAME} dap_core
