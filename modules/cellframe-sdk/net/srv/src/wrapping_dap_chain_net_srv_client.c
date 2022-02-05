@@ -33,10 +33,12 @@ PyObject *wrapping_dap_chain_net_srv_client_get_session_id(PyObject *self, void 
 PyObject *wrapping_dap_chain_net_srv_client_get_bytes_received(PyObject *self, void *closure){
     (void)closure;
     dap_chain_net_srv_client_t *l_client = ((PyDapChainNetSrvClientObject*)self)->srv_client;
-//    PyBytes_FromString(l_client->)
+    return Py_BuildValue("k", l_client->bytes_received);
 }
 PyObject *wrapping_dap_chain_net_srv_client_get_bytes_send(PyObject *self, void *closure){
     (void)closure;
+    dap_chain_net_srv_client_t *l_client = ((PyDapChainNetSrvClientObject*)self)->srv_client;
+    return Py_BuildValue("k", l_client->bytes_sent);
 }
 //PyObject *wrapping_dap_chain_net_srv_client_get_bytes_prev(PyObject *self, void *closure){
 //    (void)closure;

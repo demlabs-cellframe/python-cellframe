@@ -34,8 +34,8 @@ static PyGetSetDef DapChaiNetSrvClientGetsSets[] = {
         {"created", (getter)wrapping_dap_chain_net_srv_client_get_created, NULL, NULL, NULL},
         {"streamWorker", (getter)wrapping_dap_chain_net_srv_client_get_stream_worker, NULL, NULL, NULL},
         {"sessionId", (getter)wrapping_dap_chain_net_srv_client_get_session_id, NULL, NULL, NULL},
-        {"received", (getter)wrapping_dap_chain_net_srv_client_get_bytes_received, NULL, NULL, NULL},
-        {"send", (getter)wrapping_dap_chain_net_srv_client_get_bytes_send, NULL, NULL, NULL},
+        {"bytesReceived", (getter)wrapping_dap_chain_net_srv_client_get_bytes_received, NULL, NULL, NULL},
+        {"bytesSend", (getter)wrapping_dap_chain_net_srv_client_get_bytes_send, NULL, NULL, NULL},
         {NULL}
 };
 
