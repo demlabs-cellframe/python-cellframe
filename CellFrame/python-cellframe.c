@@ -423,6 +423,10 @@ PyMODINIT_FUNC PyInit_libCellFrame(void){
             PyType_Ready(&DapChainNetNodeObject_DapChainNetNodeObjectType) < 0 ||
             PyType_Ready(&DapChainNetStateObject_DapChainNetStateObjectType) < 0 ||
             // =============
+            // === Chain net srv ===
+            PyType_Ready(&DapChainNetSrvObject_DapChainNetSrvObjectType) < 0 ||
+            PyType_Ready(&DapChainNetSrvClientObject_DapChainNetSrvClientObjectType) < 0 ||
+            // =============
 
             PyType_Ready(&DapChainGDBObject_DapChainGDBType) < 0 ||
 
@@ -523,6 +527,10 @@ PyMODINIT_FUNC PyInit_libCellFrame(void){
     PyModule_AddObject(module, "ChainNodeInfo", (PyObject*)&DapChainNodeInfoObject_DapChainNodeInfoObjectType);
     PyModule_AddObject(module, "ChainNetNode", (PyObject*)&DapChainNetNodeObject_DapChainNetNodeObjectType);
     PyModule_AddObject(module, "ChainNetState", (PyObject*)&DapChainNetStateObject_DapChainNetStateObjectType);
+    // =============
+    // === Chain net srv ===
+    PyModule_AddObject(module, "ChainNetSrv", (PyObject*)&DapChainNetSrvObject_DapChainNetSrvObjectType);
+    PyModule_AddObject(module, "ChainNetSrvClient", (PyObject*)&DapChainNetSrvClientObject_DapChainNetSrvClientObjectType);
     // =============
 
     PyModule_AddObject(module, "ChainGDB", (PyObject*)&DapChainGDBObject_DapChainGDBType);
