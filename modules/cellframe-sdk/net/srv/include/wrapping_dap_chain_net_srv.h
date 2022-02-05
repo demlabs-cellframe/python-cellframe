@@ -8,10 +8,11 @@
 typedef struct PyDapChainNetSrv{
     PyObject_HEAD
     dap_chain_net_srv_t *srv;
-    bool instance;
+    bool original;
 }PyDapChainNetSrvObject;
 
 int PyDapChainNetSrv_init(PyDapChainNetSrvObject* self, PyObject *args, PyObject *kwds);
+void PyDapChainNetSrv_dealloc(PyDapChainNetSrvObject* self);
 
 PyObject *wrapping_dap_chain_net_srv_get_uid(PyObject *self, void *closure);
 PyObject *wrapping_dap_chain_net_srv_get_abstract(PyObject *self, void *closure);
@@ -33,7 +34,7 @@ static PyTypeObject DapChainNetSrvObject_DapChainNetSrvObjectType = {
         "CellFrame.ChainNetSrv",        /* tp_name */
         sizeof(PyDapChainNetSrvObject), /* tp_basicsize */
         0,                                /* tp_itemsize */
-        0,                                /* tp_dealloc */
+        (destructor)PyDapChainNetSrv_dealloc,                                /* tp_dealloc */
         0,                                /* tp_print */
         0,                                /* tp_getattr */
         0,                                /* tp_setattr */
