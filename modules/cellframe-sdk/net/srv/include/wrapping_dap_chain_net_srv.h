@@ -5,6 +5,7 @@
 #include "uthash.h"
 #include "wrapping_dap_chain_net_srv_client.h"
 #include "wrapping_dap_chain_common.h"
+#include "wrapping_dap_chain_net_srv_common.h"
 
 typedef struct PyDapChainNetSrv{
     PyObject_HEAD
@@ -27,6 +28,7 @@ static PyMethodDef DapChainNetSrvMethods[]={
 
 static PyGetSetDef DapChaiNetSrvGetsSets[] = {
         {"uid", (getter)wrapping_dap_chain_net_srv_get_uid, NULL, NULL, NULL},
+        {"gracePeriod", (getter)wrapping_dap_chain_net_srv_get_grace_period, NULL, NULL, NULL},
         {NULL}
 };
 

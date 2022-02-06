@@ -38,6 +38,12 @@ PyObject* _wrapping_dap_chain_net_srv_search(_wrapping_dap_chain_net_srv_callbac
     }
 }
 
+_wrapping_dap_chain_net_srv_callbacks_t* _wrapping_dap_chain_net_srv_search_el(_wrapping_dap_chain_net_srv_callbacks_key_t *a_key){
+    _wrapping_dap_chain_net_srv_callbacks_t *callbacks = NULL;
+    HASH_FIND(hh, _s_callbacks, a_key, sizeof(_wrapping_dap_chain_net_srv_callbacks_key_t), callbacks);
+    return callbacks;
+}
+
 int _wrapping_dap_chain_net_srv_add(
                 enum _wrapping_dap_chain_net_srv_type_callbacks a_type,
                 dap_chain_net_srv_t *a_srv,
@@ -272,28 +278,28 @@ void PyDapChainNetSrv_dealloc(PyDapChainNetSrvObject* self){
         _wrapping_dap_chain_net_srv_callbacks_key_t *l_key_requested = DAP_NEW(_wrapping_dap_chain_net_srv_callbacks_key_t);
         l_key_requested->type = WRAPPING_DAP_CHAIN_NET_SERV_CALLBACK_DATA_REQUESTED;
         l_key_requested->srv = self->srv;
-        callback = _wrapping_dap_chain_net_srv_search(l_key_requested);
+        callback = _wrapping_dap_chain_net_srv_search_el(l_key_requested);
         _wrapping_dap_chain_net_srv_del(callback);
         DAP_FREE(callback);
         DAP_FREE(l_key_requested);
         _wrapping_dap_chain_net_srv_callbacks_key_t *l_key_success = DAP_NEW(_wrapping_dap_chain_net_srv_callbacks_key_t);;
         l_key_success->type = WRAPPING_DAP_CHAIN_NET_SERV_CALLBACK_DATA_RESPONSE_SUCCESS;
         l_key_success->srv = self->srv;
-        callback = _wrapping_dap_chain_net_srv_search(l_key_success);
+        callback = _wrapping_dap_chain_net_srv_search_el(l_key_success);
         _wrapping_dap_chain_net_srv_del(callback);
         DAP_FREE(callback);
         DAP_FREE(l_key_requested);
         _wrapping_dap_chain_net_srv_callbacks_key_t *l_key_error = DAP_NEW(_wrapping_dap_chain_net_srv_callbacks_key_t);;
-        l_key_error = WRAPPING_DAP_CHAIN_NET_SERV_CALLBACK_DATA_RESPONSE_ERROR;
+        l_key_error->type = WRAPPING_DAP_CHAIN_NET_SERV_CALLBACK_DATA_RESPONSE_ERROR;
         l_key_error->srv = self->srv;
-        callback = _wrapping_dap_chain_net_srv_search(l_key_error);
+        callback = _wrapping_dap_chain_net_srv_search_el(l_key_error);
         _wrapping_dap_chain_net_srv_del(callback);
         DAP_FREE(callback);
         DAP_FREE(l_key_error);
         _wrapping_dap_chain_net_srv_callbacks_key_t *l_key_receipt_new_success = DAP_NEW(_wrapping_dap_chain_net_srv_callbacks_key_t);;
         l_key_receipt_new_success->type = WRAPPING_DAP_CHAIN_NET_SERV_CALLBACK_DATA_RECEIPT_NEXT_SUCCESS;
         l_key_error->srv = self->srv;
-        callback = _wrapping_dap_chain_net_srv_search(l_key_receipt_new_success);
+        callback = _wrapping_dap_chain_net_srv_search_el(l_key_receipt_new_success);
         _wrapping_dap_chain_net_srv_del(callback);
         DAP_FREE(callback);
         DAP_FREE(l_key_receipt_new_success);
@@ -308,4 +314,9 @@ PyObject *wrapping_dap_chain_net_srv_get_uid(PyObject *self, void *closure){
     PyObject_Dir((PyObject*)l_obj_srv_uid);
     l_obj_srv_uid->net_srv_uid = ((PyDapChainNetSrvObject *)self)->srv->uid;
     return (PyObject*)l_obj_srv_uid;
+}
+
+PyObject *wrapping_dap_chain_net_srv_get_grace_period(PyObject *self, void *closure){
+    (void)closure;
+    return Py_BuildValue("I", ((PyDapChainNetSrvObject*)self)->srv->grace_period);
 }
