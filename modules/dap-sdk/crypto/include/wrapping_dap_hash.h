@@ -156,6 +156,10 @@ static PyTypeObject DapHashFastObject_DapHashFastObjectType = {
     PyType_GenericNew,               /* tp_new */
 };
 
+static bool PyDapHashFast_Check(PyObject *a_obj){
+    return PyObject_TypeCheck(a_obj, &DapHashFastObject_DapHashFastObjectType);
+}
+
 #ifdef __cplusplus
 }
 #endif
