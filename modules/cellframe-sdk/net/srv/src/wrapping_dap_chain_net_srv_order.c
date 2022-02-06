@@ -3,7 +3,7 @@
 #define WRAPPING_DAP_CHAIN_NET_SRV_ORDER(a) ((PyDapChainNetSrvOrderObject*)a)
 
 int PyDapChainNetSrvOrder_init(PyDapChainNetSrvOrderObject *self, PyObject *args, PyObject *kwds){
-    const char kwlist[] = {
+    const char *kwlist[] = {
             "net",
             "direction",
             "srvUID",
@@ -23,7 +23,8 @@ int PyDapChainNetSrvOrder_init(PyDapChainNetSrvOrderObject *self, PyObject *args
     PyObject *obj_net, *obj_direction, *obj_srv_uid, *obj_node_addr, *obj_tx_cond_hash, *obj_price_unit;
     uint64_t price;
     char price_ticker;
-    unsigned long expires, *obj_ext, *obj_key;
+    unsigned long expires;
+    PyObject *obj_ext, *obj_key;
     if (!PyArg_ParseTupleAndKeywords(args, kwds, "OOOOOkOOO", kwlist, &obj_net, &obj_direction, &obj_srv_uid,
                                      &obj_node_addr, &obj_tx_cond_hash, &price, obj_price_unit, &price_ticker,
                                      &expires, &obj_ext, &obj_key)){

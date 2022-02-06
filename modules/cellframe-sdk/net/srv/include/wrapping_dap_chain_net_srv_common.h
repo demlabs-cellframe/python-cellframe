@@ -1,3 +1,5 @@
+#pragma once
+
 
 #include "Python.h"
 #include "dap_chain_net_srv_common.h"
