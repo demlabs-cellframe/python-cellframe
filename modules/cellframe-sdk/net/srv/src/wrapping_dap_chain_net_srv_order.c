@@ -267,6 +267,11 @@ PyObject *wrapping_dap_chain_net_srv_order_save(PyObject *self, PyObject *args){
         PyErr_SetString(PyExc_ValueError, "This function must take one arguments. ");
         return NULL;
     }
+    if(!PyDapChainNet_Check(obj_net)){
+        PyErr_SetString(PyExc_ValueError, "As the first argument, this function takes "
+                                          "an instance of an object of type ChainNet.");
+        return NULL;
+    }
     int res = -1;
     if (WRAPPING_DAP_CHAIN_NET_SRV_ORDER(self)->order == NULL){
         res = dap_chain_net_srv_order_save(((PyDapChainNetObject *) self)->chain_net,
@@ -277,5 +282,32 @@ PyObject *wrapping_dap_chain_net_srv_order_save(PyObject *self, PyObject *args){
     }
     return Py_BuildValue("i", res);
 }
-PyObject *wrapping_dap_chain_net_srv_order_get_gdb_group(PyObject *self, PyObject *args){}
-PyObject *wrapping_dap_chain_net_srv_order_get_nodelist_group(PyObject *self, PyObject *args){}
+PyObject *wrapping_dap_chain_net_srv_order_get_gdb_group(PyObject *self, PyObject *args){
+    (void)self;
+    PyObject *obj_net;
+    if(!PyArg_ParseTuple(args, "O", &obj_net)){
+        PyErr_SetString(PyExc_ValueError, "This function must take one arguments. ");
+        return NULL;
+    }
+    if(!PyDapChainNet_Check(obj_net)){
+        PyErr_SetString(PyExc_ValueError, "As the first argument, this function takes "
+                                          "an instance of an object of type ChainNet.");
+        return NULL;
+    }
+    return Py_BuildValue("s", dap_chain_net_srv_order_get_gdb_group(((PyDapChainNetObject*)obj_net)->chain_net));
+}
+PyObject *wrapping_dap_chain_net_srv_order_get_nodelist_group(PyObject *self, PyObject *args){
+    (void)self;
+    PyObject *obj_net;
+    if(!PyArg_ParseTuple(args, "O", &obj_net)){
+        PyErr_SetString(PyExc_ValueError, "This function must take one arguments. ");
+        return NULL;
+    }
+    if(!PyDapChainNet_Check(obj_net)){
+        PyErr_SetString(PyExc_ValueError, "As the first argument, this function takes "
+                                          "an instance of an object of type ChainNet.");
+        return NULL;
+    }
+    return Py_BuildValue("s",
+                         dap_chain_net_srv_order_get_nodelist_group(((PyDapChainNetObject*)obj_net)->chain_net));
+}

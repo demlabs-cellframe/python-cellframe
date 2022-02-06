@@ -54,6 +54,8 @@ static PyMethodDef DapChainNetSrvOrderMethods[]={
         {"find", (PyCFunction)wrapping_dap_chain_net_srv_order_find, METH_VARARGS | METH_STATIC, ""},
         {"delete", (PyCFunction)wrapping_dap_chain_net_srv_order_delete, METH_VARARGS | METH_STATIC, ""},
         {"save", (PyCFunction)wrapping_dap_chain_net_srv_order_save, METH_VARARGS, ""},
+        {"getGdbGroup", (PyCFunction)wrapping_dap_chain_net_srv_order_get_gdb_group, METH_VARARGS | METH_STATIC, ""},
+        {"getNodelistGroup", (PyCFunction)wrapping_dap_chain_net_srv_order_get_nodelist_group, METH_VARARGS | METH_STATIC, ""},
         {NULL, NULL, 0, NULL}
 };
 
