@@ -72,8 +72,14 @@ PyObject *wrapping_dap_chain_net_srv_order_get_srv_uid(PyObject *self, void *clo
 }
 PyObject *wrapping_dap_chain_net_srv_order_get_srv_direction(PyObject *self, void *closure){
     (void)closure;
-    //TODO
-    if(WRAPPING_DAP_CHAIN_NET_SRV_ORDER(self)->order == NULL){}else{}
+    PyDapChainNetSrvOrderDirectionObject *srv_direction = PyObject_New(PyDapChainNetSrvOrderDirectionObject, &DapChainNetSrvOrderDirectionObject_DapChainNetSrvOrderDirectionObjectType);
+    PyObject_Dir((PyObject*)srv_direction);
+    if(WRAPPING_DAP_CHAIN_NET_SRV_ORDER(self)->order == NULL){
+        srv_direction->direction = WRAPPING_DAP_CHAIN_NET_SRV_ORDER(self)->order_old->direction;
+    }else{
+        srv_direction->direction = WRAPPING_DAP_CHAIN_NET_SRV_ORDER(self)->order->direction;
+    }
+    return (PyObject*)srv_direction;
 }
 PyObject *wrapping_dap_chain_net_srv_order_get_srv_node_addr(PyObject *self, void *closure){
     (void)closure;
