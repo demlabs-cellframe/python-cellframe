@@ -132,9 +132,57 @@ PyObject *wrapping_dap_chain_net_srv_order_get_size(PyObject *self, PyObject *ar
 //PyObject *wrapping_dap_chain_net_srv_order_continent_to_str(PyObject *self, PyObject *args){}
 //PyObject *wrapping_dap_chain_net_srv_order_continent_to_num(PyObject *self, PyObject *args){}
 
-PyObject *wrapping_dap_chain_net_srv_order_find_by_hash_str(PyObject *self, PyObject *args){}
+//PyObject *wrapping_dap_chain_net_srv_order_find_by_hash_str(PyObject *self, PyObject *args){
+//    const char *l_hash;
+//    if (!PyArg_ParseTuple(args, "s", &l_hash)){
+//        PyErr_SetString(PyExc_AttributeError, "This function takes only one argument with a string type.");
+//        return NULL;
+//    }
+//}
+//
+//PyObject *wrapping_dap_chain_net_srv_order_find_by_hash(PyObject *self, PyObject *args){}
 
-PyObject *wrapping_dap_chain_net_srv_order_find_by_hash(PyObject *self, PyObject *args){}
+PyObject *wrapping_dap_chain_net_srv_order_find(PyObject *self, PyObject *args){
+    (void)self;
+    PyObject *obj_net;
+    PyObject *obj_order_hash;
+    if (!PyArg_ParseTuple(args, "OO", &obj_net, &obj_order_hash)){
+        PyErr_SetString(PyExc_ValueError, "This function must take two arguments. ");
+        return NULL;
+    }
+    dap_chain_net_srv_order_t *l_order = NULL;
+    if(!PyDapChainNet_Check(obj_net)){
+        PyErr_SetString(PyExc_ValueError, "As the first argument, this function takes "
+                                          "an instance of an object of type ChainNet.");
+        return NULL;
+    }
+    if (PyUnicode_Check(obj_order_hash)){
+        const char *l_str = PyUnicode_AsUTF8(obj_order_hash);
+        l_order = dap_chain_net_srv_order_find_by_hash_str(((PyDapChainNetObject*)obj_net)->chain_net, l_str);
+        if (l_order == NULL){
+            return Py_None;
+        }
+        PyDapChainNetSrvOrderObject *l_obj_order = PyObject_New(PyDapChainNetSrvOrderObject, &DapChainNetSrvOrderObject_DapChainNetSrvOrderObjectType);
+        PyObject_Dir((PyObject *)l_obj_order);
+        l_obj_order->order = l_order;
+        return (PyObject*)l_obj_order;
+    }
+    if (PyDapHashFast_Check(obj_order_hash)){
+        l_order = dap_chain_net_srv_order_find_by_hash(((PyDapChainNetObject*)obj_net)->chain_net,
+                                                       ((PyDapHashFastObject*)obj_order_hash)->hash_fast);
+        if (l_order == NULL){
+            return Py_None;
+        }
+        PyDapChainNetSrvOrderObject *l_obj_order = PyObject_New(PyDapChainNetSrvOrderObject, &DapChainNetSrvOrderObject_DapChainNetSrvOrderObjectType);
+        PyObject_Dir((PyObject *)l_obj_order);
+        l_obj_order->order = l_order;
+        return (PyObject*)l_obj_order;
+    }
+    PyErr_SetString(PyExc_ValueError, "An invalid argument type was passed to this function. "
+                                      "This function can take a string or an object of the HashFast type "
+                                      "as the second argument. ");
+    return NULL;
+}
 
 PyObject *wrapping_dap_chain_net_srv_order_find_all_by(PyObject *self, PyObject *args){}
 PyObject *wrapping_dap_chain_net_srv_order_delete_by_hash_str(PyObject *self, PyObject *args){}

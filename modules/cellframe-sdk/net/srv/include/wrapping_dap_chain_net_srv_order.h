@@ -3,6 +3,7 @@
 #include "Python.h"
 #include "dap_chain_net_srv_order.h"
 #include "wrapping_dap_chain_common.h"
+#include "libdap_chain_net_python.h"
 
 typedef struct PyDapChainNetSrvOrder{
     PyObject_HEAD
@@ -34,9 +35,10 @@ PyObject *wrapping_dap_chain_net_srv_order_get_size(PyObject *self, PyObject *ar
 //PyObject *wrapping_dap_chain_net_srv_order_continent_to_str(PyObject *self, PyObject *args);
 //PyObject *wrapping_dap_chain_net_srv_order_continent_to_num(PyObject *self, PyObject *args);
 
-PyObject *wrapping_dap_chain_net_srv_order_find_by_hash_str(PyObject *self, PyObject *args);
+PyObject *wrapping_dap_chain_net_srv_order_find(PyObject *self, PyObject *args);
 
-PyObject *wrapping_dap_chain_net_srv_order_find_by_hash(PyObject *self, PyObject *args);
+//PyObject *wrapping_dap_chain_net_srv_order_find_by_hash_str(PyObject *self, PyObject *args);
+//PyObject *wrapping_dap_chain_net_srv_order_find_by_hash(PyObject *self, PyObject *args);
 
 PyObject *wrapping_dap_chain_net_srv_order_find_all_by(PyObject *self, PyObject *args);
 PyObject *wrapping_dap_chain_net_srv_order_delete_by_hash_str(PyObject *self, PyObject *args);
@@ -48,6 +50,7 @@ PyObject *wrapping_dap_chain_net_srv_order_get_nodelist_group(PyObject *self, Py
 
 static PyMethodDef DapChainNetSrvOrderMethods[]={
         {"size", (PyCFunction)wrapping_dap_chain_net_srv_order_get_size, METH_VARARGS, ""},
+        {"find", (PyCFunction)wrapping_dap_chain_net_srv_order_find, METH_VARARGS | METH_STATIC, ""},
         {NULL, NULL, 0, NULL}
 };
 
