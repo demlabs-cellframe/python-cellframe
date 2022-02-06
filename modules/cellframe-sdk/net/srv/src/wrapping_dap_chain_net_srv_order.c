@@ -229,10 +229,53 @@ PyObject *wrapping_dap_chain_net_srv_order_find(PyObject *self, PyObject *args){
     return NULL;
 }
 
+PyObject *wrapping_dap_chain_net_srv_order_delete(PyObject *self, PyObject *args){
+    (void)self;
+    PyObject *obj_net;
+    PyObject *obj_order_hash;
+    if (!PyArg_ParseTuple(args, "OO", &obj_net, &obj_order_hash)){
+        PyErr_SetString(PyExc_ValueError, "This function must take two arguments. ");
+        return NULL;
+    }
+    if(!PyDapChainNet_Check(obj_net)){
+        PyErr_SetString(PyExc_ValueError, "As the first argument, this function takes "
+                                          "an instance of an object of type ChainNet.");
+        return NULL;
+    }
+    int res = -1;
+    if (PyUnicode_Check(obj_order_hash)){
+        const char *l_str = PyUnicode_AsUTF8(obj_order_hash);
+        res = dap_chain_net_srv_order_delete_by_hash_str(((PyDapChainNetObject*)obj_net)->chain_net,
+                                                             l_str);
+        return Py_BuildValue("i", res);
+    }
+    if (PyDapHashFast_Check(obj_order_hash)) {
+        res =dap_chain_net_srv_order_delete_by_hash(((PyDapChainNetObject*)obj_net)->chain_net,
+                                               ((PyDapHashFastObject*)obj_order_hash)->hash_fast);
+        return Py_BuildValue("i", res);
+    }
+    PyErr_SetString(PyExc_ValueError, "An invalid argument type was passed to this function. "
+                                      "This function can take a string or an object of the HashFast type "
+                                      "as the second argument. ");
+    return NULL;
+}
+
 PyObject *wrapping_dap_chain_net_srv_order_find_all_by(PyObject *self, PyObject *args){}
-PyObject *wrapping_dap_chain_net_srv_order_delete_by_hash_str(PyObject *self, PyObject *args){}
-PyObject *wrapping_dap_chain_net_srv_order_delete_by_hash(PyObject *self, PyObject *args){}
-PyObject *wrapping_dap_chain_net_srv_order_create(PyObject *self, PyObject *args){}
-PyObject *wrapping_dap_chain_net_srv_order_save(PyObject *self, PyObject *args){}
+PyObject *wrapping_dap_chain_net_srv_order_save(PyObject *self, PyObject *args){
+    PyObject *obj_net;
+    if(!PyArg_ParseTuple(args, "O", &obj_net)){
+        PyErr_SetString(PyExc_ValueError, "This function must take one arguments. ");
+        return NULL;
+    }
+    int res = -1;
+    if (WRAPPING_DAP_CHAIN_NET_SRV_ORDER(self)->order == NULL){
+        res = dap_chain_net_srv_order_save(((PyDapChainNetObject *) self)->chain_net,
+                                           WRAPPING_DAP_CHAIN_NET_SRV_ORDER(self)->order_old);
+    }else {
+        res = dap_chain_net_srv_order_save(((PyDapChainNetObject *) self)->chain_net,
+                                               WRAPPING_DAP_CHAIN_NET_SRV_ORDER(self)->order);
+    }
+    return Py_BuildValue("i", res);
+}
 PyObject *wrapping_dap_chain_net_srv_order_get_gdb_group(PyObject *self, PyObject *args){}
 PyObject *wrapping_dap_chain_net_srv_order_get_nodelist_group(PyObject *self, PyObject *args){}
