@@ -4,12 +4,18 @@
 #include "dap_chain_net_srv_order.h"
 #include "wrapping_dap_chain_common.h"
 #include "libdap_chain_net_python.h"
+#include "wrapping_dap_chain_net_srv_common.h"
+#include "datetime.h"
+#include "libdap_crypto_key_python.h"
 
 typedef struct PyDapChainNetSrvOrder{
     PyObject_HEAD
     dap_chain_net_srv_order_t *order;
     dap_chain_net_srv_order_old_t *order_old;
 }PyDapChainNetSrvOrderObject;
+
+//constructor
+int PyDapChainNetSrvOrder_init(PyDapChainNetSrvOrderObject *self, PyObject *args, PyObject *kwds);
 
 //Attributes
 PyObject *wrapping_dap_chain_net_srv_order_get_version(PyObject *self, void *closure);
@@ -36,9 +42,6 @@ PyObject *wrapping_dap_chain_net_srv_order_get_size(PyObject *self, PyObject *ar
 //PyObject *wrapping_dap_chain_net_srv_order_continent_to_num(PyObject *self, PyObject *args);
 
 PyObject *wrapping_dap_chain_net_srv_order_find(PyObject *self, PyObject *args);
-
-//PyObject *wrapping_dap_chain_net_srv_order_find_by_hash_str(PyObject *self, PyObject *args);
-//PyObject *wrapping_dap_chain_net_srv_order_find_by_hash(PyObject *self, PyObject *args);
 
 PyObject *wrapping_dap_chain_net_srv_order_find_all_by(PyObject *self, PyObject *args);
 PyObject *wrapping_dap_chain_net_srv_order_delete_by_hash_str(PyObject *self, PyObject *args);
@@ -107,7 +110,7 @@ static PyTypeObject DapChainNetSrvOrderObject_DapChainNetSrvOrderObjectType = {
         0,                                /* tp_descr_get */
         0,                                /* tp_descr_set */
         0,                                /* tp_dictoffset */
-        0,                                /* tp_init */
+        (initproc)PyDapChainNetSrvOrder_init, /* tp_init */
         0,                                /* tp_alloc */
         PyType_GenericNew,                /* tp_new */
 };

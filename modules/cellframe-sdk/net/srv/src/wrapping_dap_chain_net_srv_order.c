@@ -2,6 +2,54 @@
 
 #define WRAPPING_DAP_CHAIN_NET_SRV_ORDER(a) ((PyDapChainNetSrvOrderObject*)a)
 
+int PyDapChainNetSrvOrder_init(PyDapChainNetSrvOrderObject *self, PyObject *args, PyObject *kwds){
+    const char kwlist[] = {
+            "net",
+            "direction",
+            "srvUID",
+            "nodeAddr",
+            "txCondHash",
+            "price",
+            "priceUnit",
+            "priceTicker",
+            "expires",
+            "ext",
+//            "extSize",
+//            "region",
+//            "continentNum",
+            "key",
+            NULL
+    };
+    PyObject *obj_net, *obj_direction, *obj_srv_uid, *obj_node_addr, *obj_tx_cond_hash, *obj_price_unit;
+    uint64_t price;
+    char price_ticker;
+    unsigned long expires, *obj_ext, *obj_key;
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "OOOOOkOOO", kwlist, &obj_net, &obj_direction, &obj_srv_uid,
+                                     &obj_node_addr, &obj_tx_cond_hash, &price, obj_price_unit, &price_ticker,
+                                     &expires, &obj_ext, &obj_key)){
+        return -1;
+    }
+    void* l_ext = (void*)PyBytes_AsString(obj_ext);
+    size_t l_ext_size = PyBytes_Size(obj_ext);
+    uint256_t l_price = dap_chain_uint256_from(price);
+    self->order = dap_chain_net_srv_order_create(
+            ((PyDapChainNetObject*)obj_net)->chain_net,
+            ((PyDapChainNetSrvOrderDirectionObject*)obj_direction)->direction,
+            ((PyDapChainNetSrvUIDObject*)obj_srv_uid)->net_srv_uid,
+            *((PyDapChainNodeAddrObject*)obj_node_addr)->node_addr,
+            *((PyDapHashFastObject*)obj_tx_cond_hash)->hash_fast,
+            l_price,
+            ((PyDapChainNetSrvPriceUnitUIDObject*)obj_price_unit)->price_unit_uid,
+            price_ticker,
+            (time_t)expires,
+            l_ext,
+            l_ext_size,
+            "",
+            0,
+            ((PyCryptoKeyObject*)obj_key)->key
+            );
+}
+
 PyObject *wrapping_dap_chain_net_srv_order_get_version(PyObject *self, void *closure){
     (void)closure;
     if(WRAPPING_DAP_CHAIN_NET_SRV_ORDER(self)->order == NULL){
@@ -131,16 +179,6 @@ PyObject *wrapping_dap_chain_net_srv_order_get_size(PyObject *self, PyObject *ar
 //PyObject *wrapping_dap_chain_net_srv_order_continents_count(PyObject *self, PyObject *args){}
 //PyObject *wrapping_dap_chain_net_srv_order_continent_to_str(PyObject *self, PyObject *args){}
 //PyObject *wrapping_dap_chain_net_srv_order_continent_to_num(PyObject *self, PyObject *args){}
-
-//PyObject *wrapping_dap_chain_net_srv_order_find_by_hash_str(PyObject *self, PyObject *args){
-//    const char *l_hash;
-//    if (!PyArg_ParseTuple(args, "s", &l_hash)){
-//        PyErr_SetString(PyExc_AttributeError, "This function takes only one argument with a string type.");
-//        return NULL;
-//    }
-//}
-//
-//PyObject *wrapping_dap_chain_net_srv_order_find_by_hash(PyObject *self, PyObject *args){}
 
 PyObject *wrapping_dap_chain_net_srv_order_find(PyObject *self, PyObject *args){
     (void)self;
