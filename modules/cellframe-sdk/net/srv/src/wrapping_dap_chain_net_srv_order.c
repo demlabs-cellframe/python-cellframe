@@ -26,7 +26,7 @@ int PyDapChainNetSrvOrder_init(PyDapChainNetSrvOrderObject *self, PyObject *args
     unsigned long expires;
     PyObject *obj_ext, *obj_key;
     if (!PyArg_ParseTupleAndKeywords(args, kwds, "OOOOOkOOO", kwlist, &obj_net, &obj_direction, &obj_srv_uid,
-                                     &obj_node_addr, &obj_tx_cond_hash, &price, obj_price_unit, &price_ticker,
+                                     &obj_node_addr, &obj_tx_cond_hash, &price, &obj_price_unit, &price_ticker,
                                      &expires, &obj_ext, &obj_key)){
         return -1;
     }
@@ -49,6 +49,7 @@ int PyDapChainNetSrvOrder_init(PyDapChainNetSrvOrderObject *self, PyObject *args
             0,
             ((PyCryptoKeyObject*)obj_key)->key
             );
+    return 0;
 }
 
 PyObject *wrapping_dap_chain_net_srv_order_get_version(PyObject *self, void *closure){
@@ -168,6 +169,7 @@ PyObject *wrapping_dap_chain_net_srv_order_get_srv_ext_n_sign(PyObject *self, vo
         }
         return Py_None;
     }
+    return Py_None;
 }
 
 //Functions
@@ -273,13 +275,8 @@ PyObject *wrapping_dap_chain_net_srv_order_save(PyObject *self, PyObject *args){
         return NULL;
     }
     int res = -1;
-    if (WRAPPING_DAP_CHAIN_NET_SRV_ORDER(self)->order == NULL){
-        res = dap_chain_net_srv_order_save(((PyDapChainNetObject *) self)->chain_net,
-                                           WRAPPING_DAP_CHAIN_NET_SRV_ORDER(self)->order_old);
-    }else {
-        res = dap_chain_net_srv_order_save(((PyDapChainNetObject *) self)->chain_net,
-                                               WRAPPING_DAP_CHAIN_NET_SRV_ORDER(self)->order);
-    }
+    res = dap_chain_net_srv_order_save(((PyDapChainNetObject *) self)->chain_net,
+                                           WRAPPING_DAP_CHAIN_NET_SRV_ORDER(self)->order);
     return Py_BuildValue("i", res);
 }
 PyObject *wrapping_dap_chain_net_srv_order_get_gdb_group(PyObject *self, PyObject *args){
