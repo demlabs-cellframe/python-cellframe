@@ -9,6 +9,7 @@
 
 typedef struct PyDapStream{
     PyObject_HEAD
+    dap_stream_t *stream;
 }PyDapStreamObject;
 
 PyObject *dap_stream_add_proc_http_py(PyObject *self, PyObject *args);
@@ -20,7 +21,7 @@ static PyMethodDef DapStreamMethods[] = {
 
 static PyTypeObject DapStream_DapStreamType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "CellFrame.DapStream",             /* tp_name */
+    "DAP.DapStream",             /* tp_name */
     sizeof(PyDapStreamObject),                   /* tp_basicsize */
     0,                                                 /* tp_itemsize */
     0,                                                 /* tp_dealloc */

@@ -1,4 +1,4 @@
-project(dap_client_python_module C)
+project(dap_stream_python_module C)
 cmake_minimum_required(VERSION 3.0)
 
 set(CMAKE_VERBOSE_MAKEFILE ON)
@@ -82,7 +82,7 @@ add_library(${PROJECT_NAME} STATIC ${CLIENT_PYTHON_SRCS} ${CLIENT_PYTHON_HEADERS
 
 target_link_libraries(${PROJECT_NAME})
 
-target_link_libraries(${PROJECT_NAME} dap_core dap_crypto dap_client dap_server_core_python_module dap_crypto_python_module dap_stream_python_module )
+target_link_libraries(${PROJECT_NAME} dap_core dap_crypto dap_client dap_server_core_python_module dap_crypto_python_module )
 
 target_include_directories(${PROJECT_NAME} PUBLIC include/ )
 

@@ -81,6 +81,10 @@ static PyTypeObject dapEventsSocket_dapEventsSocketType = {
     PyType_GenericNew,                                 /* tp_new */
 };
 
+static bool PyDapEventsSocketObject_Check(PyObject *a_obj){
+    return PyObject_TypeCheck(a_obj, &dapEventsSocket_dapEventsSocketType);
+}
+
 #ifdef __cplusplus
 }
 #endif

@@ -22,6 +22,9 @@ PyObject *wrapping_dap_chain_net_srv_get_price_list(PyObject *self, void *closur
 PyObject *wrapping_dap_chain_net_srv_get_ban_list(PyObject *self, void *closure);
 PyObject *wrapping_dap_chain_net_srv_get_grace_period(PyObject *self, void *closure);
 
+//Function
+//PyObject *wrapping_dap_chain_net_srv_issue_receipt(PyObject *self, PyObject *args);
+
 static PyMethodDef DapChainNetSrvMethods[]={
         {NULL, NULL, 0, NULL}
 };
