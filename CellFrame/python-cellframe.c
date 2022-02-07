@@ -431,6 +431,12 @@ PyMODINIT_FUNC PyInit_libCellFrame(void){
             PyType_Ready(&DapChainNetSrvOrderDirectionObject_DapChainNetSrvOrderDirectionObjectType) < 0 ||
             PyType_Ready(&DapChainNetSrvPriceObject_DapChainNetSrvPriceObjectType) < 0 ||
             // =============
+            // === Client ===
+            PyType_Ready(&dapClientObject_dapClientType) < 0 ||
+            PyType_Ready(&dapClientErrorObject_dapClientErrorType) < 0 ||
+            PyType_Ready(&dapClientStageObject_dapClientStageType) < 0 ||
+            PyType_Ready(&dapClientStageStatusObject_dapClientStageStatusType) < 0 ||
+            // =============
 
             PyType_Ready(&DapChainGDBObject_DapChainGDBType) < 0 ||
 
