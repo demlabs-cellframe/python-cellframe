@@ -540,6 +540,11 @@ PyMODINIT_FUNC PyInit_libCellFrame(void){
     PyModule_AddObject(module, "ChainNetSrvOrderDirection", (PyObject*)&DapChainNetSrvOrderDirectionObject_DapChainNetSrvOrderDirectionObjectType);
     PyModule_AddObject(module, "ChainNetSrvPrice", (PyObject*)&DapChainNetSrvPriceObject_DapChainNetSrvPriceObjectType);
     // =============
+    // === Client ===
+    PyModule_AddObject(module, "Client", (PyObject*)&dapClientObject_dapClientType);
+    PyModule_AddObject(module, "ClientError", (PyObject*)&dapClientErrorObject_dapClientErrorType);
+    PyModule_AddObject(module, "ClientStage", (PyObject*)&dapClientStageObject_dapClientStageType);
+    PyModule_AddObject(module, "ClientStageStatus", (PyObject*)&dapClientStageStatusObject_dapClientStageStatusType);
 
     PyModule_AddObject(module, "ChainGDB", (PyObject*)&DapChainGDBObject_DapChainGDBType);
     PyModule_AddObject(module, "ChainWallet", (PyObject*)&DapChainWallet_dapChainWalletType);
