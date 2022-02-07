@@ -24,8 +24,10 @@ typedef struct _wrapping_dap_chain_net_srv_callbacks{
 static _wrapping_dap_chain_net_srv_callbacks_t *_s_callbacks = NULL;
 
 void _wrapping_dap_chain_net_srv_del(_wrapping_dap_chain_net_srv_callbacks_t *a_callback){
-    HASH_DEL(_s_callbacks, a_callback);
-    Py_XINCREF(a_callback->func);
+    if (a_callback != NULL) {
+        HASH_DEL(_s_callbacks, a_callback);
+        Py_XINCREF(a_callback->func);
+    }
 }
 
 PyObject* _wrapping_dap_chain_net_srv_search(_wrapping_dap_chain_net_srv_callbacks_key_t *a_key){
