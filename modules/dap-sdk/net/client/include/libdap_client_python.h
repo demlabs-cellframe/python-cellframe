@@ -24,22 +24,22 @@ typedef struct PyDapClient{
     dap_client_t *client;
 }PyDapClientObject;
 
-struct dap_client_call_hash{
-    dap_client_t *client;
-    PyObject *call_func_stage_status;
-    PyObject *call_func_stage_status_error;
-    UT_hash_handle hh;
-};
+//struct dap_client_call_hash{
+//    dap_client_t *client;
+//    PyObject *call_func_stage_status;
+//    PyObject *call_func_stage_status_error;
+//    UT_hash_handle hh;
+//};
+//
+//static struct dap_client_call_hash *g_client_hash_table = NULL;
+//static struct dap_client_call_hash *g_client_hash_table_go_stage_end = NULL;
 
-static struct dap_client_call_hash *g_client_hash_table = NULL;
-static struct dap_client_call_hash *g_client_hash_table_go_stage_end = NULL;
-
-struct dap_client_call_responce{
-    dap_client_t *client;
-    PyObject *call_func_response_proc;
-    PyObject *call_func_response_error;
-    UT_hash_handle hh;
-};
+//struct dap_client_call_responce{
+//    dap_client_t *client;
+//    PyObject *call_func_response_proc;
+//    PyObject *call_func_response_error;
+//    UT_hash_handle hh;
+//};
 
 static struct dap_client_call_responce *g_client_hash_table_response = NULL;
 
@@ -120,7 +120,7 @@ static PyTypeObject dapClientObject_dapClientType = {
         "DAP.Client",                                      /* tp_name */
         sizeof(PyDapClientObject),                               /* tp_basicsize */
         0,                                                            /* tp_itemsize */
-        (destructor)dap_client_delete_mt_py,                          /* tp_dealloc */
+        0,//(destructor)dap_client_delete_mt_py,                          /* tp_dealloc */
         0,                                                            /* tp_print */
         0,                                                            /* tp_getattr */
         0,                                                            /* tp_setattr */
