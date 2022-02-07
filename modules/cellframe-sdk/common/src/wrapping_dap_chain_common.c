@@ -108,3 +108,9 @@ PyObject *dap_chain_net_srv_uid_from_str_py(PyObject *self, PyObject *args){
     ((PyDapChainNetSrvUIDObject*)obj)->net_srv_uid = dap_chain_net_srv_uid_from_str(str);
     return Py_BuildValue("O", obj);
 }
+
+/* Chain net srv price uid */
+PyObject *PyDapChainNetSrvPriceUnitUIDObject_str(PyObject *self){
+    char *str = dap_chain_net_srv_price_unit_uid_to_str(((PyDapChainNetSrvPriceUnitUIDObject*)self)->price_unit_uid);
+    return Py_BuildValue("s", str);
+}

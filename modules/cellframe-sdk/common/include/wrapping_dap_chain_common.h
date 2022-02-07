@@ -29,6 +29,7 @@
 #include "dap_chain_common.h"
 #include "libdap_crypto_key_python.h"
 #include "wrapping_dap_chain_ledger.h"
+#include "dap_chain_net_srv_common.h"
 //#include "wrapping_dap_chain_ledger"
 
 #ifdef __cplusplus
@@ -284,11 +285,13 @@ static bool PyDapChainNetSrvUid_Check(PyObject *a_obj){
 
 /*=================*/
 
-/* Chain net srv uid */
+/* Chain net srv price uid */
 typedef struct PyDapChainNetSrvPriceUnitUID{
     PyObject_HEAD
     dap_chain_net_srv_price_unit_uid_t price_unit_uid;
 }PyDapChainNetSrvPriceUnitUIDObject;
+
+PyObject *PyDapChainNetSrvPriceUnitUIDObject_str(PyObject *self);
 
 static PyTypeObject DapChainNetSrvPriceUnitUIDObject_DapChainNetSrvPriceUnitUIDObjectType = {
     PyVarObject_HEAD_INIT(NULL, 0)
@@ -306,7 +309,7 @@ static PyTypeObject DapChainNetSrvPriceUnitUIDObject_DapChainNetSrvPriceUnitUIDO
     0,                                               /* tp_as_mapping */
     0,                                               /* tp_hash  */
     0,                                               /* tp_call */
-    0,                                               /* tp_str */
+    PyDapChainNetSrvPriceUnitUIDObject_str,          /* tp_str */
     0,                                               /* tp_getattro */
     0,                                               /* tp_setattro */
     0,                                               /* tp_as_buffer */
@@ -448,7 +451,7 @@ typedef struct PyDapChainNodeAddr{
 static PyTypeObject DapChainNodeAddrObject_DapChainNodeAddrObjectType = {
         PyVarObject_HEAD_INIT(NULL, 0)
         "CellFrame.ChainNodeAddr"  ,       /* tp_name */
-        sizeof(PyDapChainCellIDObject),  /* tp_basicsize */
+        sizeof(PyDapChainNodeAddrObject),  /* tp_basicsize */
         0,                               /* tp_itemsize */
         0,                               /* tp_dealloc */
         0,                               /* tp_print */
