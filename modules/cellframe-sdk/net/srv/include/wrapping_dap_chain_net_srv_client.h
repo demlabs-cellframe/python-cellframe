@@ -4,14 +4,14 @@
 
 #include "Python.h"
 #include "datetime.h"
-#include "dap_chain_net_srv_client.h"
+#include "dap_chain_net_srv.h"
 
 #ifndef WRAPPING_DAP_CHAIN_NET_SRV_CLIENT_H
 #define WRAPPING_DAP_CHAIN_NET_SRV_CLIENT_H
 
 typedef struct PyDapChainNetSrvClient{
     PyObject_HEAD
-    dap_chain_net_srv_client_t *srv_client;
+    dap_chain_net_srv_client_remote_t *srv_client;
 }PyDapChainNetSrvClientObject;
 
 PyObject *wrapping_dap_chain_net_srv_client_get_ch(PyObject *self, void *closure);

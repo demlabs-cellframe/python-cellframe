@@ -1,7 +1,7 @@
 //#include "wrapping_dap_chain_net_"
 #include "wrapping_dap_chain_net_srv_client.h"
 
-#define WRAPPING_DAP_CHAIN_NET_SRV_CLIENT(a) ((dap_chain_net_srv_client_t*)((PyDapPyDapChainNetSrvClientObject*)a)->srv_client)
+#define WRAPPING_DAP_CHAIN_NET_SRV_CLIENT(a) ((dap_chain_net_srv_client_remote_t*)((PyDapPyDapChainNetSrvClientObject*)a)->srv_client)
 #define _PyDapChainNetSrvClient(a) ((PyDapChainNetSrvClient*)a)
 
 PyObject *wrapping_dap_chain_net_srv_client_get_ch(PyObject *self, void *closure){
@@ -32,12 +32,12 @@ PyObject *wrapping_dap_chain_net_srv_client_get_session_id(PyObject *self, void 
 }
 PyObject *wrapping_dap_chain_net_srv_client_get_bytes_received(PyObject *self, void *closure){
     (void)closure;
-    dap_chain_net_srv_client_t *l_client = ((PyDapChainNetSrvClientObject*)self)->srv_client;
+    dap_chain_net_srv_client_remote_t *l_client = ((PyDapChainNetSrvClientObject*)self)->srv_client;
     return Py_BuildValue("k", l_client->bytes_received);
 }
 PyObject *wrapping_dap_chain_net_srv_client_get_bytes_send(PyObject *self, void *closure){
     (void)closure;
-    dap_chain_net_srv_client_t *l_client = ((PyDapChainNetSrvClientObject*)self)->srv_client;
+    dap_chain_net_srv_client_remote_t *l_client = ((PyDapChainNetSrvClientObject*)self)->srv_client;
     return Py_BuildValue("k", l_client->bytes_sent);
 }
 //PyObject *wrapping_dap_chain_net_srv_client_get_bytes_prev(PyObject *self, void *closure){
