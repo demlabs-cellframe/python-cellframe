@@ -58,6 +58,8 @@
 #include "wrapping_dap_mempool.h"
 #include "wrapping_dap_http_folder.h"
 #include "dap_chain_wallet_python.h"
+// === Chain GlobalDB ===
+#include "wrapping_dap_chain_global_db.h"
 
 //#include "dap_http_client_simple.h"
 //#include "dap_chain_wallet.h"

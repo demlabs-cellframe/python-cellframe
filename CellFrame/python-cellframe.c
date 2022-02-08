@@ -439,7 +439,7 @@ PyMODINIT_FUNC PyInit_libCellFrame(void){
             // =============
 
             PyType_Ready(&DapChainGDBObject_DapChainGDBType) < 0 ||
-
+            PyType_Ready(&DapChainGlobalDBObject_DapChainDlobalDBType) < 0 ||
             PyType_Ready(&DapHTTP_DapHTTPType) < 0 ||
             PyType_Ready(&DapEncServer_DapEncServerType) < 0 ||
             PyType_Ready(&DapStream_DapStreamType) < 0 ||
@@ -553,6 +553,7 @@ PyMODINIT_FUNC PyInit_libCellFrame(void){
     PyModule_AddObject(module, "ClientStageStatus", (PyObject*)&dapClientStageStatusObject_dapClientStageStatusType);
 
     PyModule_AddObject(module, "ChainGDB", (PyObject*)&DapChainGDBObject_DapChainGDBType);
+    PyModule_AddObject(module, "ChainGlobalDB", (PyObject*)&DapChainGlobalDBObject_DapChainDlobalDBType);
     PyModule_AddObject(module, "ChainWallet", (PyObject*)&DapChainWallet_dapChainWalletType);
 
     PyModule_AddObject(module, "Http", (PyObject*)&DapHTTP_DapHTTPType);
