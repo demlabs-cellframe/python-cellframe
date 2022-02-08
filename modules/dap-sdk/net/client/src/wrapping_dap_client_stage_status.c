@@ -3,6 +3,7 @@
 PyObject *STAGE_STATUS_NONE_PY(){
     PyDapClientStageStatusObject *obj_stage_status = (PyDapClientStageStatusObject*)_PyObject_New(
             &dapClientStageStatusObject_dapClientStageStatusType);
+    PyObject_Dir((PyObject*)obj_stage_status);
     obj_stage_status->stage_status = STAGE_STATUS_NONE;
     return (PyObject *)obj_stage_status;
 }
@@ -10,6 +11,7 @@ PyObject *STAGE_STATUS_NONE_PY(){
 PyObject *STAGE_STATUS_IN_PROGRESS_PY(){
     PyDapClientStageStatusObject *obj_stage_status = (PyDapClientStageStatusObject*)_PyObject_New(
             &dapClientStageStatusObject_dapClientStageStatusType);
+    PyObject_Dir((PyObject*)obj_stage_status);
     obj_stage_status->stage_status = STAGE_STATUS_IN_PROGRESS;
     return (PyObject *)obj_stage_status;
 }
@@ -22,6 +24,7 @@ PyObject *STAGE_STATUS_ABORTING_PY(){
 PyObject *STAGE_STATUS_ERROR_PY(){
     PyDapClientStageStatusObject *obj_stage_status = (PyDapClientStageStatusObject*)_PyObject_New(
             &dapClientStageStatusObject_dapClientStageStatusType);
+    PyObject_Dir((PyObject*)obj_stage_status);
     obj_stage_status->stage_status = STAGE_STATUS_ERROR;
     return (PyObject *)obj_stage_status;
 }
