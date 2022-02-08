@@ -302,9 +302,9 @@ int dap_client_obj_init(PyDapClientObject *self, PyObject *args, PyObject *kwds)
 
 PyObject *dap_client_set_uplink_unsafe_py(PyObject *self, PyObject *args)
 {
-    const char *l_addr = NULL;
-    uint16_t l_port;
-    if (!PyArg_ParseTuple(args, "sI", &l_addr, &l_port)){
+    char *l_addr;
+    uint16_t l_port = 8079;
+    if (!PyArg_ParseTuple(args, "s|H", &l_addr, &l_port)){
         PyErr_SetString(PyExc_SyntaxError, "Wrong arguments list in function call");
         return NULL;
     }
