@@ -9,14 +9,15 @@ def iniStage(client, buf):
 def iniStageError(client, buf):
     print("ERR STAGE")
 
-def stageBegin(client):
-    logItNotice("STAGE BEGIN")
+def response_data(client, data):
+    print("RSP DATA")
 
-def stageEncInit(client, i):
-    logItNotice("STAGE ENC INIT code: "+ str(i))
+def rsponse_error(client, code):
+    print("RSP ERROR")
 
 def stageConnected(client):
     logItNotice("STAGE CONNECTED")
+    #client.encRequestUnsafe("/", "hello".encode('utf-8'), response_data, response_error)
 
 def init():
     logItNotice("Running plugin client")
@@ -25,11 +26,9 @@ def init():
     addr = "127.0.0.1"
     print(type(addr))
     print(addr)
-    cl.setUplinkUnsafe() #default 127.0.0.1:8079
-#    cl.goStage(ClientStage.STAGE_BEGIN(), stageBegin)
-#    cl.goStage(ClientStage.STAGE_STREAM_STREAMING(), stageBegin)
-#    cl.goStage(ClientStage.STAGE_ENC_INIT(), stageEncInit)
-#    cl.goStage(ClientStage.STAGE_STREAM_CONNECTED(), stageConnected)
+    cl.setUplinkUnsafe(addr) #default port 8079
+    cl.setActiveChannelsUnsafe("R")
+    cl.goStage(ClientStage.STAGE_STREAM_CONNECTED(), stageConnected)
     return 0
 
 def deinit():
