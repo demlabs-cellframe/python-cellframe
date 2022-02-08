@@ -84,7 +84,11 @@ static PyTypeObject dapClientStageObject_dapClientStageType = {
 };
 
 static bool PyDapClientStageObject_Check(PyObject *obj){
-    return PyObject_TypeCheck(obj, &dapClientStageObject_dapClientStageType);
+    int res = PyObject_TypeCheck(obj, &dapClientStageObject_dapClientStageType);
+    if (res == 0)
+        return true;
+    else
+        return false;
 }
 
 
