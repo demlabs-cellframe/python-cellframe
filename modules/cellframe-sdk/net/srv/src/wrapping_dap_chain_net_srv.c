@@ -69,12 +69,12 @@ int _wrapping_dap_chain_net_srv_add(
 PyObject *_wrapping_dac_chain_callback_data_t_get_tuple(
         dap_chain_net_srv_t *a_srv, //NOT USAGE
         uint32_t a_usage_id,
-        dap_chain_net_srv_client_t * a_srv_client,
+        dap_chain_net_srv_client_remote_t * a_srv_client,
         const void *a_custom_data,
         size_t a_custom_data_size){
     PyDapChainNetSrvClientObject *l_obj_srv_client = NULL;
     if (a_srv_client == NULL){
-        l_obj_srv_client = Py_None;
+        l_obj_srv_client = (PyDapChainNetSrvClientObject *)Py_None;
     } else {
         l_obj_srv_client = PyObject_New(PyDapChainNetSrvClientObject,
                                         &DapChainNetSrvClientObject_DapChainNetSrvClientObjectType);
@@ -93,7 +93,7 @@ PyObject *_wrapping_dac_chain_callback_data_t_get_tuple(
 int _w_dap_chain_callback_data_t_requested(
         dap_chain_net_srv_t *a_srv,
         uint32_t a_usage_id,
-        dap_chain_net_srv_client_t * a_srv_client,
+        dap_chain_net_srv_client_remote_t * a_srv_client,
         const void *a_custom_data,
         size_t a_custom_data_size){
     _wrapping_dap_chain_net_srv_callbacks_key_t  *l_key = DAP_NEW(_wrapping_dap_chain_net_srv_callbacks_key_t);
@@ -118,7 +118,7 @@ int _w_dap_chain_callback_data_t_requested(
 int _w_dap_chain_callback_data_t_response_success(
         dap_chain_net_srv_t *a_srv,
         uint32_t a_usage_id,
-        dap_chain_net_srv_client_t * a_srv_client,
+        dap_chain_net_srv_client_remote_t * a_srv_client,
         const void *a_custom_data,
         size_t a_custom_data_size){
     _wrapping_dap_chain_net_srv_callbacks_key_t  *l_key = DAP_NEW(_wrapping_dap_chain_net_srv_callbacks_key_t);
@@ -144,7 +144,7 @@ int _w_dap_chain_callback_data_t_response_success(
 int _w_dap_chain_callback_data_t_response_error(
         dap_chain_net_srv_t *a_srv,
         uint32_t a_usage_id,
-        dap_chain_net_srv_client_t * a_srv_client,
+        dap_chain_net_srv_client_remote_t * a_srv_client,
         const void *a_custom_data,
         size_t a_custom_data_size){
     _wrapping_dap_chain_net_srv_callbacks_key_t  *l_key = DAP_NEW(_wrapping_dap_chain_net_srv_callbacks_key_t);
@@ -170,7 +170,7 @@ int _w_dap_chain_callback_data_t_response_error(
 int _w_dap_chain_callback_data_t_receipt_next_success(
         dap_chain_net_srv_t *a_srv,
         uint32_t a_usage_id,
-        dap_chain_net_srv_client_t * a_srv_client,
+        dap_chain_net_srv_client_remote_t * a_srv_client,
         const void *a_custom_data,
         size_t a_custom_data_size){
     _wrapping_dap_chain_net_srv_callbacks_key_t  *l_key = DAP_NEW(_wrapping_dap_chain_net_srv_callbacks_key_t);
@@ -196,7 +196,7 @@ int _w_dap_chain_callback_data_t_receipt_next_success(
 int _w_dap_chain_callback_data_t_stream_ch_read(
         dap_chain_net_srv_t *a_srv,
         uint32_t a_usage_id,
-        dap_chain_net_srv_client_t * a_srv_client,
+        dap_chain_net_srv_client_remote_t * a_srv_client,
         const void *a_custom_data,
         size_t a_custom_data_size){
     return 0;
@@ -204,7 +204,7 @@ int _w_dap_chain_callback_data_t_stream_ch_read(
 int _w_dap_chain_callback_data_t_client_success(
         dap_chain_net_srv_t *a_srv,
         uint32_t a_usage_id,
-        dap_chain_net_srv_client_t * a_srv_client,
+        dap_chain_net_srv_client_remote_t * a_srv_client,
         const void *a_custom_data,
         size_t a_custom_data_size){
     return 0;
@@ -224,7 +224,7 @@ int PyDapChainNetSrv_init(PyDapChainNetSrvObject* self, PyObject *args, PyObject
     PyObject *obj_callback_response_success;
     PyObject *obj_callback_response_error;
     PyObject *obj_callback_receipt_next_success;
-    if(!PyArg_ParseTupleAndKeywords(args, kwds, "OOOOO", kwlist,
+    if(!PyArg_ParseTupleAndKeywords(args, kwds, "OOOOO", (char **)kwlist,
                                     &obj_uid,
                                     &obj_callback_requested,
                                     &obj_callback_response_success,

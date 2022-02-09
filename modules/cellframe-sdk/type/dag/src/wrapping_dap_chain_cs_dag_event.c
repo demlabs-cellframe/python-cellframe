@@ -48,7 +48,7 @@ PyObject *wrapping_dap_chain_cs_dag_event_get_links(PyObject *self, void *closur
         obj_hf->hash_fast =
                 (dap_chain_hash_fast_t *) (((PyDapChainCsDagEventObject*)self)->event->hashes_n_datum_n_signs +
                                                                     i*sizeof (dap_chain_hash_fast_t));
-        PyList_SetItem(obj_list, i, obj_hf);
+        PyList_SetItem(obj_list, i, (PyObject *)obj_hf);
     }
     return obj_list;
 }
