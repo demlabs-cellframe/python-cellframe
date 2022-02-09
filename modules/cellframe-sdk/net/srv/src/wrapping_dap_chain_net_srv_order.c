@@ -216,7 +216,8 @@ PyObject *wrapping_dap_chain_net_srv_order_delete(PyObject *self, PyObject *args
     return NULL;
 }
 
-PyObject *wrapping_dap_chain_net_srv_order_find_all_by(PyObject *self, PyObject *args){}
+PyObject *wrapping_dap_chain_net_srv_order_find_all_by(PyObject *self, PyObject *args){return Py_None;}
+
 PyObject *wrapping_dap_chain_net_srv_order_save(PyObject *self, PyObject *args){
     PyObject *obj_net;
     if(!PyArg_ParseTuple(args, "O", &obj_net)){
