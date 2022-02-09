@@ -2,6 +2,7 @@
 
 #include "Python.h"
 #include "dap_chain_global_db.h"
+#include "dap_strfuncs.h"
 
 typedef struct PyDapChainGlobalDB{
     PyObject_HEAD
@@ -15,7 +16,7 @@ PyObject *wrapping_dap_chain_global_db_gr_pin(PyObject *self, PyObject *args);
 static PyMethodDef DapChainGlobalDB_Methods[] = {
         {"get", (PyCFunction)wrapping_dap_chain_global_db_gr_get, METH_VARARGS | METH_STATIC, ""},
         {"set", (PyCFunction)wrapping_dap_chain_global_db_gr_set, METH_VARARGS | METH_STATIC, ""},
-        {"del", (PyCFunction)wrapping_dap_chain_global_db_gr_del, METH_VARARGS | METH_STATIC, ""},
+        {"delete", (PyCFunction)wrapping_dap_chain_global_db_gr_del, METH_VARARGS | METH_STATIC, ""},
         {"pin", (PyCFunction)wrapping_dap_chain_global_db_gr_pin, METH_VARARGS | METH_STATIC, ""},
         {NULL, NULL, 0, NULL}
 };

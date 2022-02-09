@@ -16,8 +16,8 @@ PyObject *wrapping_dap_chain_global_db_gr_get(PyObject *self, PyObject *args){
 }
 PyObject *wrapping_dap_chain_global_db_gr_set(PyObject *self, PyObject *args){
     (void)self;
-    const char *l_key;
-    const char *l_group;
+    char *l_key;
+    char *l_group;
     PyObject *obj_byte;
     if (!PyArg_ParseTuple(args, "ssO", &l_key, &l_group, &obj_byte)){
         return NULL;
@@ -25,9 +25,11 @@ PyObject *wrapping_dap_chain_global_db_gr_set(PyObject *self, PyObject *args){
     if (!PyBytes_Check(obj_byte)){
         return NULL;
     }
+    char *l_key_dup = dap_strdup(l_key);
     void *l_bytes = PyBytes_AsString(obj_byte);
     size_t l_bytes_size = PyBytes_Size(obj_byte);
-    bool ret = dap_chain_global_db_gr_set(l_key, l_bytes, l_bytes_size, l_group);
+    void *l_bytes_dup = dap_strdup(l_bytes);
+    bool ret = dap_chain_global_db_gr_set(l_key_dup, l_bytes_dup, l_bytes_size, l_group);
     if (ret == true){
         return Py_True;
     } else {
@@ -41,7 +43,9 @@ PyObject *wrapping_dap_chain_global_db_gr_del(PyObject *self, PyObject *args){
     if (!PyArg_ParseTuple(args, "ss",&l_key, &l_group)){
         return NULL;
     }
-    bool ret = dap_chain_global_db_gr_del(l_key, l_group);
+    char *l_key_dup = dap_strdup(l_key);
+    char *l_group_dup = dap_strdup(l_group);
+    bool ret = dap_chain_global_db_gr_del(l_key_dup, l_group_dup);
     if (ret == true)
         return Py_True;
     else
