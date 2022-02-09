@@ -37,6 +37,10 @@
 #include "wrapping_dap_chain_net_node_info.h"
 #include "wrapping_dap_chain_net_state.h"
 // ============
+// === Chain net srv ===
+#include "wrapping_dap_chain_net_srv.h"
+#include "wrapping_dap_chain_net_srv_client.h"
+// ============
 
 
 #include "wrapping_http.h"
