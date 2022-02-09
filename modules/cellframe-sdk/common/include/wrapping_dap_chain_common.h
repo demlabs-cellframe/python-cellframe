@@ -280,6 +280,10 @@ static PyTypeObject DapChainNetSrvUIDObject_DapChainNetSrvUIDObjectType = {
 
 /*=================*/
 
+static bool PyDapChainNetSrvUid_Check(PyObject *a_obj){
+    return PyObject_TypeCheck(a_obj, &DapChainNetSrvUIDObject_DapChainNetSrvUIDObjectType);
+}
+
 /* Chain net srv uid */
 typedef struct PyDapChainNetSrvPriceUnitUID{
     PyObject_HEAD

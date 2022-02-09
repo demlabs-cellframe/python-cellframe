@@ -36,6 +36,11 @@
 #include "wrapping_dap_chain_net_node_client.h"
 #include "wrapping_dap_chain_net_node_info.h"
 #include "wrapping_dap_chain_net_state.h"
+// === Chain net srv ===
+#include "wrapping_dap_chain_net_srv.h"
+#include "wrapping_dap_chain_net_srv_client_remote.h"
+#include "wrapping_dap_chain_net_srv_common.h"
+#include "wrapping_dap_chain_net_srv_order.h"
 // ============
 // === type DAG ===
 #include "wrapping_dap_chain_cs_dag.h"
@@ -50,6 +55,8 @@
 #include "wrapping_dap_mempool.h"
 #include "wrapping_dap_http_folder.h"
 #include "dap_chain_wallet_python.h"
+// === Chain GlobalDB ===
+#include "wrapping_dap_chain_global_db.h"
 
 //#include "dap_http_client_simple.h"
 //#include "dap_chain_wallet.h"
