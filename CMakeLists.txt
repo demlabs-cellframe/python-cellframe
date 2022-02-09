@@ -1,17 +1,15 @@
 cmake_minimum_required(VERSION 3.0)
-
-if (SUPPORT_PYTHON_PLUGINS)
-    project(API_CellFrame C)
-else()
-    project(CellFrame C)
-endif()
+project(CellFrame C)
 set(CMAKE_VERBOSE_MAKEFILE ON)
 set(CMAKE_COLOR_MAKEFILE   ON)
 set(CMAKE_C_STANDARD 11)
 
 
-set(Python_ADDITIONAL_VERSIONS 3.9 3.8 3.7 3.6 3.5 3.4)
-find_package (PythonLibs REQUIRED)
+if (NOT SUPPORT_PYTHON_PLUGINS)
+    set(Python_ADDITIONAL_VERSIONS 3.9 3.8 3.7 3.6 3.5 3.4)
+    find_package (PythonLibs REQUIRED)
+endif()
+
 include_directories(${PYTHON_INCLUDE_DIR} include/)
 file(GLOB PYTHON_CELLFRAME_SRCS CellFrame/*.c)
 file(GLOB PYTHON_CELLFRAME_HEADERS include/*.h)

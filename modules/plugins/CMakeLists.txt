@@ -16,15 +16,13 @@ endif()
 file(GLOB DAP_PLUGINS_PYTHON_SRCS src/*.c)
 file(GLOB DAP_PLUGINS_PYTHON_HEADERS include/*.h)
 
-set(Python_ADDITIONAL_VERSIONS 3.7 3.6 3.5 3.4)
-find_package (PythonLibs REQUIRED)
 include_directories(${PYTHON_INCLUDE_DIR} include/)
 
 add_library(${PROJECT_NAME} STATIC ${DAP_PLUGINS_PYTHON_SRCS} ${DAP_PLUGINS_PYTHON_HEADERS})
 
 target_link_libraries(${PROJECT_NAME})
 
-target_link_libraries(${PROJECT_NAME} dap_core  API_CellFrame)
+target_link_libraries(${PROJECT_NAME} dap_core CellFrame)
 
 target_include_directories(${PROJECT_NAME} PUBLIC include/ )
 
