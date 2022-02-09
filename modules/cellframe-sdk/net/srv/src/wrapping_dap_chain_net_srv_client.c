@@ -76,7 +76,7 @@ int PyDapChainNetSrvClient_init(PyDapChainNetSrvClientObject* self, PyObject *ar
     PyObject *obj_net, *obj_hander;
     const char *addr;
     uint16_t port;
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "OsH", (char *)kwlist, &obj_net, &addr, &port, &obj_hander)){
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "OsH", (char **)kwlist, &obj_net, &addr, &port, &obj_hander)){
         return -1;
     }
     if (!PyCallable_Check(obj_hander)){
