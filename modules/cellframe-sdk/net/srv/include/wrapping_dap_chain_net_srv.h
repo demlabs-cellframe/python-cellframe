@@ -3,7 +3,7 @@
 #include "Python.h"
 #include "dap_chain_net_srv.h"
 #include "uthash.h"
-#include "wrapping_dap_chain_net_srv_client.h"
+#include "wrapping_dap_chain_net_srv_client_remote.h"
 #include "wrapping_dap_chain_common.h"
 //#include "wrapping_dap_chain_net_srv_common.h"
 

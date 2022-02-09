@@ -72,14 +72,14 @@ PyObject *_wrapping_dac_chain_callback_data_t_get_tuple(
         dap_chain_net_srv_client_remote_t * a_srv_client,
         const void *a_custom_data,
         size_t a_custom_data_size){
-    PyDapChainNetSrvClientObject *l_obj_srv_client = NULL;
+    PyDapChainNetSrvClientRemoteObject *l_obj_srv_client = NULL;
     if (a_srv_client == NULL){
-        l_obj_srv_client = (PyDapChainNetSrvClientObject *)Py_None;
+        l_obj_srv_client = (PyDapChainNetSrvClientRemoteObject *)Py_None;
     } else {
-        l_obj_srv_client = PyObject_New(PyDapChainNetSrvClientObject,
+        l_obj_srv_client = PyObject_New(PyDapChainNetSrvClientRemoteObject,
                                         &DapChainNetSrvClientObject_DapChainNetSrvClientObjectType);
         PyObject_Dir((PyObject *) l_obj_srv_client);
-        l_obj_srv_client->srv_client = a_srv_client;
+        l_obj_srv_client->srv_client_remote = a_srv_client;
     }
     PyObject *l_obj_custom_data = NULL;
     if (a_custom_data == NULL || a_custom_data_size == 0){

@@ -6,43 +6,43 @@
 #include "datetime.h"
 #include "dap_chain_net_srv.h"
 
-#ifndef WRAPPING_DAP_CHAIN_NET_SRV_CLIENT_H
-#define WRAPPING_DAP_CHAIN_NET_SRV_CLIENT_H
+#ifndef WRAPPING_DAP_CHAIN_NET_SRV_CLIENT_REMOTE_H
+#define WRAPPING_DAP_CHAIN_NET_SRV_CLIENT_REMOTE_H
 
-typedef struct PyDapChainNetSrvClient{
+typedef struct PyDapChainNetSrvClientRemote{
     PyObject_HEAD
-    dap_chain_net_srv_client_remote_t *srv_client;
-}PyDapChainNetSrvClientObject;
+    dap_chain_net_srv_client_remote_t *srv_client_remote;
+}PyDapChainNetSrvClientRemoteObject;
 
-PyObject *wrapping_dap_chain_net_srv_client_get_ch(PyObject *self, void *closure);
-PyObject *wrapping_dap_chain_net_srv_client_get_ts_created(PyObject *self, void *closure);
-PyObject *wrapping_dap_chain_net_srv_client_get_created(PyObject *self, void *closure);
-PyObject *wrapping_dap_chain_net_srv_client_get_stream_worker(PyObject *self, void *closure);
-PyObject *wrapping_dap_chain_net_srv_client_get_session_id(PyObject *self, void *closure);
-PyObject *wrapping_dap_chain_net_srv_client_get_bytes_received(PyObject *self, void *closure);
-PyObject *wrapping_dap_chain_net_srv_client_get_bytes_send(PyObject *self, void *closure);
-//PyObject *wrapping_dap_chain_net_srv_client_get_bytes_prev(PyObject *self, void *closure);
-//PyObject *wrapping_dap_chain_net_srv_client_get_bytes_next(PyObject *self, void *closure);
+PyObject *wrapping_dap_chain_net_srv_client_remote_get_ch(PyObject *self, void *closure);
+PyObject *wrapping_dap_chain_net_srv_client_remote_get_ts_created(PyObject *self, void *closure);
+PyObject *wrapping_dap_chain_net_srv_client_remote_get_created(PyObject *self, void *closure);
+PyObject *wrapping_dap_chain_net_srv_client_remote_get_stream_worker(PyObject *self, void *closure);
+PyObject *wrapping_dap_chain_net_srv_client_remote_get_session_id(PyObject *self, void *closure);
+PyObject *wrapping_dap_chain_net_srv_client_remote_get_bytes_received(PyObject *self, void *closure);
+PyObject *wrapping_dap_chain_net_srv_client_remote_get_bytes_send(PyObject *self, void *closure);
+//PyObject *wrapping_dap_chain_net_srv_client_remote_get_bytes_prev(PyObject *self, void *closure);
+//PyObject *wrapping_dap_chain_net_srv_client_remote_get_bytes_next(PyObject *self, void *closure);
 
 static PyMethodDef DapChainNetSrvClientMethods[]={
         {NULL, NULL, 0, NULL}
 };
 
 static PyGetSetDef DapChaiNetSrvClientGetsSets[] = {
-        {"ch", (getter)wrapping_dap_chain_net_srv_client_get_ch, NULL, NULL, NULL},
-        {"tsCreated", (getter)wrapping_dap_chain_net_srv_client_get_ts_created, NULL, NULL, NULL},
-        {"created", (getter)wrapping_dap_chain_net_srv_client_get_created, NULL, NULL, NULL},
-        {"streamWorker", (getter)wrapping_dap_chain_net_srv_client_get_stream_worker, NULL, NULL, NULL},
-        {"sessionId", (getter)wrapping_dap_chain_net_srv_client_get_session_id, NULL, NULL, NULL},
-        {"bytesReceived", (getter)wrapping_dap_chain_net_srv_client_get_bytes_received, NULL, NULL, NULL},
-        {"bytesSend", (getter)wrapping_dap_chain_net_srv_client_get_bytes_send, NULL, NULL, NULL},
+        {"ch", (getter)wrapping_dap_chain_net_srv_client_remote_get_ch, NULL, NULL, NULL},
+        {"tsCreated", (getter)wrapping_dap_chain_net_srv_client_remote_get_ts_created, NULL, NULL, NULL},
+        {"created", (getter)wrapping_dap_chain_net_srv_client_remote_get_created, NULL, NULL, NULL},
+        {"streamWorker", (getter)wrapping_dap_chain_net_srv_client_remote_get_stream_worker, NULL, NULL, NULL},
+        {"sessionId", (getter)wrapping_dap_chain_net_srv_client_remote_get_session_id, NULL, NULL, NULL},
+        {"bytesReceived", (getter)wrapping_dap_chain_net_srv_client_remote_get_bytes_received, NULL, NULL, NULL},
+        {"bytesSend", (getter)wrapping_dap_chain_net_srv_client_remote_get_bytes_send, NULL, NULL, NULL},
         {NULL}
 };
 
 static PyTypeObject DapChainNetSrvClientObject_DapChainNetSrvClientObjectType = {
         PyVarObject_HEAD_INIT(NULL, 0)
-        "CellFrame.ChainNetSrvClient",        /* tp_name */
-        sizeof(PyDapChainNetSrvClientObject), /* tp_basicsize */
+        "CellFrame.ChainNetSrvClientRemote",        /* tp_name */
+        sizeof(PyDapChainNetSrvClientRemoteObject), /* tp_basicsize */
         0,                                /* tp_itemsize */
         0,                                /* tp_dealloc */
         0,                                /* tp_print */
@@ -81,4 +81,4 @@ static PyTypeObject DapChainNetSrvClientObject_DapChainNetSrvClientObjectType = 
         PyType_GenericNew,                /* tp_new */
 };
 
-#endif //WRAPPING_DAP_CHAIN_NET_SRV_CLIENT_H
+#endif //WRAPPING_DAP_CHAIN_NET_SRV_CLIENT_REMOTE_H
