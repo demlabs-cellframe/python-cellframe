@@ -153,7 +153,11 @@ static PyTypeObject DapChainNetObject_DapChainNetObjectType = {
 };
 
 static bool PyDapChainNet_Check(PyObject *a_obj){
-    return PyObject_TypeCheck(a_obj, &DapChainNetObject_DapChainNetObjectType);
+    int res = PyObject_TypeCheck(a_obj, &DapChainNetObject_DapChainNetObjectType);
+    if (res == 0)
+        return true;
+    else
+        return false;
 }
 
 #ifdef __cplusplus
