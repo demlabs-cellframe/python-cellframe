@@ -25,14 +25,14 @@ int PyDapChainNetSrvOrder_init(PyDapChainNetSrvOrderObject *self, PyObject *args
     char *price_ticker;
     unsigned long expires;
     PyObject *obj_ext, *obj_key;
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "OOOOOkOOO", kwlist, &obj_net, &obj_direction, &obj_srv_uid,
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "OOOOOkOOO", (char **)kwlist, &obj_net, &obj_direction, &obj_srv_uid,
                                      &obj_node_addr, &obj_tx_cond_hash, &price, &obj_price_unit, &price_ticker,
                                      &expires, &obj_ext, &obj_key)){
         return -1;
     }
     void* l_ext = (void*)PyBytes_AsString(obj_ext);
     size_t l_ext_size = PyBytes_Size(obj_ext);
-    dap_chain_net_srv_order_create(
+    self->order = dap_chain_net_srv_order_compose(
             ((PyDapChainNetObject*)obj_net)->chain_net,
             ((PyDapChainNetSrvOrderDirectionObject*)obj_direction)->direction,
             ((PyDapChainNetSrvUIDObject*)obj_srv_uid)->net_srv_uid,
@@ -184,7 +184,6 @@ PyObject *wrapping_dap_chain_net_srv_order_find(PyObject *self, PyObject *args){
                                       "as the second argument. ");
     return NULL;
 }
-
 PyObject *wrapping_dap_chain_net_srv_order_delete(PyObject *self, PyObject *args){
     (void)self;
     PyObject *obj_net;
@@ -215,9 +214,9 @@ PyObject *wrapping_dap_chain_net_srv_order_delete(PyObject *self, PyObject *args
                                       "as the second argument. ");
     return NULL;
 }
-
-PyObject *wrapping_dap_chain_net_srv_order_find_all_by(PyObject *self, PyObject *args){return Py_None;}
-
+PyObject *wrapping_dap_chain_net_srv_order_find_all_by(PyObject *self, PyObject *args){
+    return Py_None;
+}
 PyObject *wrapping_dap_chain_net_srv_order_save(PyObject *self, PyObject *args){
     PyObject *obj_net;
     if(!PyArg_ParseTuple(args, "O", &obj_net)){
@@ -229,10 +228,10 @@ PyObject *wrapping_dap_chain_net_srv_order_save(PyObject *self, PyObject *args){
                                           "an instance of an object of type ChainNet.");
         return NULL;
     }
-    int res = -1;
+    char *res = NULL;
     res = dap_chain_net_srv_order_save(((PyDapChainNetObject *) self)->chain_net,
                                            WRAPPING_DAP_CHAIN_NET_SRV_ORDER(self)->order);
-    return Py_BuildValue("i", res);
+    return Py_BuildValue("s", res);
 }
 PyObject *wrapping_dap_chain_net_srv_order_get_gdb_group(PyObject *self, PyObject *args){
     (void)self;
