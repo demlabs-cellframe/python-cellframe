@@ -24,11 +24,11 @@ PyObject *wrapping_dap_chain_net_srv_client_remote_get_bytes_send(PyObject *self
 //PyObject *wrapping_dap_chain_net_srv_client_remote_get_bytes_prev(PyObject *self, void *closure);
 //PyObject *wrapping_dap_chain_net_srv_client_remote_get_bytes_next(PyObject *self, void *closure);
 
-static PyMethodDef DapChainNetSrvClientMethods[]={
+static PyMethodDef DapChainNetSrvClientRemoteMethods[]={
         {NULL, NULL, 0, NULL}
 };
 
-static PyGetSetDef DapChaiNetSrvClientGetsSets[] = {
+static PyGetSetDef DapChaiNetSrvClientRemoteGetsSets[] = {
         {"ch", (getter)wrapping_dap_chain_net_srv_client_remote_get_ch, NULL, NULL, NULL},
         {"tsCreated", (getter)wrapping_dap_chain_net_srv_client_remote_get_ts_created, NULL, NULL, NULL},
         {"created", (getter)wrapping_dap_chain_net_srv_client_remote_get_created, NULL, NULL, NULL},
@@ -39,7 +39,7 @@ static PyGetSetDef DapChaiNetSrvClientGetsSets[] = {
         {NULL}
 };
 
-static PyTypeObject DapChainNetSrvClientObject_DapChainNetSrvClientObjectType = {
+static PyTypeObject DapChainNetSrvClientRemoteObject_DapChainNetSrvClientRemoteObjectType = {
         PyVarObject_HEAD_INIT(NULL, 0)
         "CellFrame.ChainNetSrvClientRemote",        /* tp_name */
         sizeof(PyDapChainNetSrvClientRemoteObject), /* tp_basicsize */
@@ -61,16 +61,16 @@ static PyTypeObject DapChainNetSrvClientObject_DapChainNetSrvClientObjectType = 
         0,                                /* tp_as_buffer */
         Py_TPFLAGS_DEFAULT |
         Py_TPFLAGS_BASETYPE,          /* tp_flags */
-        "Chain net srv client object",               /* tp_doc */
+        "Chain net srv client remote object",               /* tp_doc */
         0,		                          /* tp_traverse */
         0,		                          /* tp_clear */
         0,		                          /* tp_richcompare */
         0,                                /* tp_weaklistoffset */
         0,		                          /* tp_iter */
         0,		                          /* tp_iternext */
-        DapChainNetSrvClientMethods,        /* tp_methods */
+        DapChainNetSrvClientRemoteMethods,/* tp_methods */
         0,                                /* tp_members */
-        DapChaiNetSrvClientGetsSets,        /* tp_getset */
+        DapChaiNetSrvClientRemoteGetsSets,  /* tp_getset */
         0,                                /* tp_base */
         0,                                /* tp_dict */
         0,                                /* tp_descr_get */

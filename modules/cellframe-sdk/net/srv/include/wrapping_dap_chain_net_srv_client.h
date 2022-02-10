@@ -11,8 +11,12 @@ typedef struct PyDapChainNetSrvClient{
 
 int PyDapChainNetSrvClient_init(PyDapChainNetSrvClientObject* self, PyObject *args, PyObject *kwds);
 PyObject *wrapping_dap_chain_net_srv_client_write(PyObject *self, PyObject *args);
+PyObject *wrapping_dap_chain_net_srv_client_send_data(PyObject *self, PyObject *args);
+PyObject *wrapping_dap_chain_net_srv_client_test(PyObject *self, PyObject *args);
 
 static PyMethodDef DapChainNetSrvClientMethods[]={
+        {"send", (PyCFunction)wrapping_dap_chain_net_srv_client_send_data, METH_VARARGS, ""},
+        {"test", (PyCFunction)wrapping_dap_chain_net_srv_client_test, METH_NOARGS, ""},
         {NULL, NULL, 0, NULL}
 };
 
@@ -24,7 +28,7 @@ static PyGetSetDef DapChaiNetSrvClientGetsSets[] = {
 
 static PyTypeObject DapChainNetSrvClientObject_DapChainNetSrvClientObjectType = {
         PyVarObject_HEAD_INIT(NULL, 0)
-        "CellFrame.ChainNetSrv",        /* tp_name */
+        "CellFrame.ChainNetSrvClient",        /* tp_name */
         sizeof(PyDapChainNetSrvClientObject), /* tp_basicsize */
         0,                                /* tp_itemsize */
         0,                                /* tp_dealloc */
@@ -53,7 +57,7 @@ static PyTypeObject DapChainNetSrvClientObject_DapChainNetSrvClientObjectType = 
         0,		                          /* tp_iternext */
         DapChainNetSrvClientMethods,        /* tp_methods */
         0,                                /* tp_members */
-        0,        /* tp_getset */
+        DapChaiNetSrvClientGetsSets,        /* tp_getset */
         0,                                /* tp_base */
         0,                                /* tp_dict */
         0,                                /* tp_descr_get */

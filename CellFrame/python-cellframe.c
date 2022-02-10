@@ -426,10 +426,11 @@ PyMODINIT_FUNC PyInit_libCellFrame(void){
             // =============
             // === Chain net srv ===
             PyType_Ready(&DapChainNetSrvObject_DapChainNetSrvObjectType) < 0 ||
-            PyType_Ready(&DapChainNetSrvClientObject_DapChainNetSrvClientObjectType) < 0 ||
+            PyType_Ready(&DapChainNetSrvClientRemoteObject_DapChainNetSrvClientRemoteObjectType) < 0 ||
             PyType_Ready(&DapChainNetSrvOrderObject_DapChainNetSrvOrderObjectType) < 0 ||
             PyType_Ready(&DapChainNetSrvOrderDirectionObject_DapChainNetSrvOrderDirectionObjectType) < 0 ||
             PyType_Ready(&DapChainNetSrvPriceObject_DapChainNetSrvPriceObjectType) < 0 ||
+            PyType_Ready(&DapChainNetSrvClientObject_DapChainNetSrvClientObjectType) < 0 ||
             // =============
             // === Client ===
             PyType_Ready(&dapClientObject_dapClientType) < 0 ||
@@ -551,6 +552,7 @@ PyMODINIT_FUNC PyInit_libCellFrame(void){
     PyModule_AddObject(module, "ClientError", (PyObject*)&dapClientErrorObject_dapClientErrorType);
     PyModule_AddObject(module, "ClientStage", (PyObject*)&dapClientStageObject_dapClientStageType);
     PyModule_AddObject(module, "ClientStageStatus", (PyObject*)&dapClientStageStatusObject_dapClientStageStatusType);
+    PyModule_AddObject(module, "ChainNetSrvClient", (PyObject*)&DapChainNetSrvClientObject_DapChainNetSrvClientObjectType);
 
     PyModule_AddObject(module, "ChainGDB", (PyObject*)&DapChainGDBObject_DapChainGDBType);
     PyModule_AddObject(module, "ChainGlobalDB", (PyObject*)&DapChainGlobalDBObject_DapChainDlobalDBType);
