@@ -30,7 +30,7 @@ PyObject *wrapping_dap_chain_net_srv_order_get_srv_price(PyObject *self, void *c
 PyObject *wrapping_dap_chain_net_srv_order_get_srv_price_ticker(PyObject *self, void *closure);
 //PyObject *wrapping_dap_chain_net_srv_order_get_srv_free_space(PyObject *self, void *closure);
 PyObject *wrapping_dap_chain_net_srv_order_get_srv_ext_size(PyObject *self, void *closure);
-PyObject *wrapping_dap_chain_net_srv_order_get_srv_ext_n_sign(PyObject *self, void *closure);
+PyObject *wrapping_dap_chain_net_srv_order_get_srv_ext(PyObject *self, void *closure);
 //Functions
 PyObject *wrapping_dap_chain_net_srv_order_get_size(PyObject *self, PyObject *args);
 //PyObject *wrapping_dap_chain_net_srv_order_set_continent_region(PyObject *self, PyObject *args);
@@ -73,7 +73,7 @@ static PyGetSetDef DapChaiNetSrvOrderGetsSets[] = {
         {"srvPrice", (getter)wrapping_dap_chain_net_srv_order_get_srv_price, NULL, NULL, NULL},
         {"srvPriceTicker", (getter)wrapping_dap_chain_net_srv_order_get_srv_price_ticker, NULL, NULL, NULL},
         {"extSize", (getter)wrapping_dap_chain_net_srv_order_get_srv_ext_size, NULL, NULL, NULL},
-        {"extSign", (getter)wrapping_dap_chain_net_srv_order_get_srv_ext_n_sign, NULL, NULL, NULL},
+        {"ext", (getter)wrapping_dap_chain_net_srv_order_get_srv_ext, NULL, NULL, NULL},
         {NULL}
 };
 

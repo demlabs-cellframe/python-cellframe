@@ -139,20 +139,14 @@ PyObject *wrapping_dap_chain_net_srv_order_get_srv_ext_size(PyObject *self, void
         return Py_BuildValue("I", WRAPPING_DAP_CHAIN_NET_SRV_ORDER(self)->order->ext_size);
     }
 }
-PyObject *wrapping_dap_chain_net_srv_order_get_srv_ext_n_sign(PyObject *self, void *closure) {
+PyObject *wrapping_dap_chain_net_srv_order_get_srv_ext(PyObject *self, void *closure) {
     (void) closure;
-    if (WRAPPING_DAP_CHAIN_NET_SRV_ORDER(self)->order != NULL) {
-        dap_sign_t *l_sign = WRAPPING_DAP_CHAIN_NET_SRV_ORDER(self)->order->ext[WRAPPING_DAP_CHAIN_NET_SRV_ORDER(
-                self)->order->ext_size];
-        if (dap_sign_verify_size(l_sign, WRAPPING_DAP_CHAIN_NET_SRV_ORDER(self)->order->ext_size)) {
-            PyDapSignObject *obj_sign = PyObject_New(PyDapSignObject, &DapSignObject_DapSignObjectType);
-            PyObject_Dir((PyObject *) obj_sign);
-            obj_sign->sign = l_sign;
-            return (PyObject *) obj_sign;
-        }
+    if (WRAPPING_DAP_CHAIN_NET_SRV_ORDER(self)->order->ext_size == 0){
         return Py_None;
     }
-    return Py_None;
+    PyObject *obj_bytes = PyBytes_FromStringAndSize((char*)WRAPPING_DAP_CHAIN_NET_SRV_ORDER(self)->order->ext,
+                                                    WRAPPING_DAP_CHAIN_NET_SRV_ORDER(self)->order->ext_size);
+    return obj_bytes;
 }
 
 //Functions
