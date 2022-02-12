@@ -282,7 +282,6 @@ void PyDapChainNetSrv_dealloc(PyDapChainNetSrvObject* self){
         l_key_requested->srv = self->srv;
         callback = _wrapping_dap_chain_net_srv_search_el(l_key_requested);
         _wrapping_dap_chain_net_srv_del(callback);
-        DAP_FREE(callback);
         DAP_FREE(l_key_requested);
         _wrapping_dap_chain_net_srv_callbacks_key_t *l_key_success = DAP_NEW(_wrapping_dap_chain_net_srv_callbacks_key_t);;
         l_key_success->type = WRAPPING_DAP_CHAIN_NET_SERV_CALLBACK_DATA_RESPONSE_SUCCESS;
