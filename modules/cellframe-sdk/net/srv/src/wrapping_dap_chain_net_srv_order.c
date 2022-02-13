@@ -48,30 +48,30 @@ int PyDapChainNetSrvOrder_init(PyDapChainNetSrvOrderObject *self, PyObject *args
     PyObject *obj_net, *obj_direction, *obj_srv_uid, *obj_node_addr, *obj_tx_cond_hash, *obj_price_unit;
     uint64_t price;
     char *price_ticker;
-    unsigned long expires;
+    time_t expires;
     PyObject *obj_ext, *obj_key;
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "OOOOOkOOO", (char **)kwlist, &obj_net, &obj_direction, &obj_srv_uid,
+    //OOOOOOkskOO
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "OOOOOkOsfOO", kwlist, &obj_net, &obj_direction, &obj_srv_uid,
                                      &obj_node_addr, &obj_tx_cond_hash, &price, &obj_price_unit, &price_ticker,
                                      &expires, &obj_ext, &obj_key)){
         return -1;
     }
     void* l_ext = (void*)PyBytes_AsString(obj_ext);
     size_t l_ext_size = PyBytes_Size(obj_ext);
-    if (obj_tx_cond_hash == Py_None){
-        dap_chain_hash_fast_t *l_tx_cond_hash = NULL;
-    }else {
-        dap_chain_hash_fast_t *l_tx_cond_hash = ((PyDapHashFastObject *) obj_tx_cond_hash)->hash_fast;
+    dap_chain_hash_fast_t l_tx_cond_hash;
+    if (obj_tx_cond_hash != Py_None){
+        l_tx_cond_hash = *((PyDapHashFastObject *) obj_tx_cond_hash)->hash_fast;
     }
     self->order = dap_chain_net_srv_order_compose(
             ((PyDapChainNetObject*)obj_net)->chain_net,
             ((PyDapChainNetSrvOrderDirectionObject*)obj_direction)->direction,
             ((PyDapChainNetSrvUIDObject*)obj_srv_uid)->net_srv_uid,
             *((PyDapChainNodeAddrObject*)obj_node_addr)->node_addr,
-            *((PyDapHashFastObject*)obj_tx_cond_hash)->hash_fast,
+            l_tx_cond_hash,
             price,
             ((PyDapChainNetSrvPriceUnitUIDObject*)obj_price_unit)->price_unit_uid,
             price_ticker,
-            (time_t)expires,
+            expires,
             l_ext,
             l_ext_size,
             "",
