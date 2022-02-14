@@ -48,12 +48,13 @@ int PyDapChainNetSrvOrder_init(PyDapChainNetSrvOrderObject *self, PyObject *args
     PyObject *obj_net, *obj_direction, *obj_srv_uid, *obj_node_addr, *obj_tx_cond_hash, *obj_price_unit;
     uint64_t price;
     char *price_ticker;
+    float f_expires;
     time_t expires;
     PyObject *obj_ext, *obj_key;
     //OOOOOOkskOO
     if (!PyArg_ParseTupleAndKeywords(args, kwds, "OOOOOkOsfOO", kwlist, &obj_net, &obj_direction, &obj_srv_uid,
                                      &obj_node_addr, &obj_tx_cond_hash, &price, &obj_price_unit, &price_ticker,
-                                     &expires, &obj_ext, &obj_key)){
+                                     &f_expires, &obj_ext, &obj_key)){
         return -1;
     }
     void* l_ext = (void*)PyBytes_AsString(obj_ext);
@@ -62,6 +63,12 @@ int PyDapChainNetSrvOrder_init(PyDapChainNetSrvOrderObject *self, PyObject *args
     if (obj_tx_cond_hash != Py_None){
         l_tx_cond_hash = *((PyDapHashFastObject *) obj_tx_cond_hash)->hash_fast;
     }
+//    int de = 10;
+//    for (int i=1; i <= 9;i++){
+//        de *= 10;
+//    }
+    expires = (time_t)f_expires;
+//    expires = (time_t)(f_expires * (10 * e);
     self->order = dap_chain_net_srv_order_compose(
             ((PyDapChainNetObject*)obj_net)->chain_net,
             ((PyDapChainNetSrvOrderDirectionObject*)obj_direction)->direction,
@@ -152,6 +159,25 @@ PyObject *wrapping_dap_chain_net_srv_order_get_srv_ext(PyObject *self, void *clo
     PyObject *obj_bytes = PyBytes_FromStringAndSize((char*)WRAPPING_DAP_CHAIN_NET_SRV_ORDER(self)->order->ext,
                                                     WRAPPING_DAP_CHAIN_NET_SRV_ORDER(self)->order->ext_size);
     return obj_bytes;
+}
+
+PyObject *wrapping_dap_chain_net_srv_order_get_srv_sign(PyObject *self, void *closure){
+    dap_chain_net_srv_order_t *l_order = WRAPPING_DAP_CHAIN_NET_SRV_ORDER(self)->order;
+    if (l_order->version != 2){
+        return Py_None;
+    }
+    dap_sign_t *l_sign_ptr = l_order->ext[l_order->ext_size];
+    size_t l_sign_size = dap_sign_get_size(l_sign_ptr);
+    dap_sign_t *l_sign = l_sign_ptr;
+    if(!dap_sign_verify_size(l_sign, sizeof(dap_sign_t))){
+        return Py_None;
+    }else{
+        PyDapSignObject* obj_sign = PyObject_New(PyDapSignObject, &DapSignObject_DapSignObjectType);
+        PyObject_Dir((PyObject*)obj_sign);
+        obj_sign->sign = l_sign;
+        return (PyObject*)obj_sign;
+    }
+    //TODO
 }
 
 //Functions
@@ -252,8 +278,9 @@ PyObject *wrapping_dap_chain_net_srv_order_save(PyObject *self, PyObject *args){
                                           "an instance of an object of type ChainNet.");
         return NULL;
     }
+    dap_chain_net_t *l_net = ((PyDapChainNetObject*)self)->chain_net;
     char *res = NULL;
-    res = dap_chain_net_srv_order_save(((PyDapChainNetObject *) self)->chain_net,
+    res = dap_chain_net_srv_order_save(l_net,
                                            WRAPPING_DAP_CHAIN_NET_SRV_ORDER(self)->order);
     return Py_BuildValue("s", res);
 }
