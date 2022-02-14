@@ -100,12 +100,13 @@ void element_py_func_del_all(){
 }
 
 static int wrapping_cmdfunc(int argc, char **argv, char **str_reply){
+    PyGILState_STATE state = PyGILState_Ensure();
     size_t id_str_replay = elements_str_reply_add(str_reply);
     PyObject *obj_argv = stringToPyList(argc, argv);
-    PyObject *obj_id_str_replay = PyLong_FromSize_t(id_str_replay);
-    PyObject *arglist = Py_BuildValue("OO", obj_argv, obj_id_str_replay);
-    Py_XINCREF(arglist);
+    PyObject *arglist = Py_BuildValue("On", obj_argv, id_str_replay);
+    Py_INCREF(arglist);
     PyObject *binden_obj_cmdfunc = element_py_func_get(argv[0]);
+    Py_INCREF(binden_obj_cmdfunc);
     PyObject *result = PyObject_CallObject(binden_obj_cmdfunc, arglist);
     if (!result){
         log_it(L_DEBUG, "Function can't called");
@@ -113,6 +114,8 @@ static int wrapping_cmdfunc(int argc, char **argv, char **str_reply){
     }
     Py_XDECREF(arglist);
     Py_XDECREF(obj_argv);
+    Py_XDECREF(binden_obj_cmdfunc);
+    PyGILState_Release(state);
     elements_str_reply_delete(id_str_replay);
     return 0;
 }
