@@ -4,6 +4,9 @@ from string import Template
 def getJsonString(app_name):
     tmp_dir = os.getcwd() + "/tmp"
     var_dir = os.getcwd() + "/var"
+    if os.path.isdir(var_dir) is False and os.path.isdir(var_dir+"/log") is False:
+        os.mkdir(var_dir)
+        os.mkdir(var_dir+"/log")
     ret_tpl = Template("""
     {
         "modules": [

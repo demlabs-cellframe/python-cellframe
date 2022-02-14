@@ -423,8 +423,15 @@ PyMODINIT_FUNC PyInit_libCellFrame(void){
             PyType_Ready(&DapChainNetNodeObject_DapChainNetNodeObjectType) < 0 ||
             PyType_Ready(&DapChainNetStateObject_DapChainNetStateObjectType) < 0 ||
             // =============
+            // === Chain net srv ===
+            PyType_Ready(&DapChainNetSrvObject_DapChainNetSrvObjectType) < 0 ||
+            PyType_Ready(&DapChainNetSrvClientObject_DapChainNetSrvClientObjectType) < 0 ||
+            PyType_Ready(&DapChainNetSrvUIDObject_DapChainNetSrvUIDObjectType) < 0 ||
+            // =============
+
 
             PyType_Ready(&DapChainGDBObject_DapChainGDBType) < 0 ||
+            PyType_Ready(&DapChainGlobalDBObject_DapChainDlobalDBType) < 0 ||
 
             PyType_Ready(&DapHTTP_DapHTTPType) < 0 ||
             PyType_Ready(&DapEncServer_DapEncServerType) < 0 ||
@@ -437,6 +444,8 @@ PyMODINIT_FUNC PyInit_libCellFrame(void){
             PyType_Ready(&HTTPCode_HTTPCodeType) < 0 ||
             PyType_Ready(&DapJSONRPCRequest_DapJSONRPCRequestType) < 0 ||
             PyType_Ready(&DapJSONRPCResponse_DapJSONRPCResponseType) < 0 ||
+            PyType_Ready(&DapChainCsDag_DapChainCsDagType) < 0 ||
+            PyType_Ready(&DapChainCsDagEvent_DapChainCsDagEventType) < 0 ||
             #ifdef DAP_SUPPORT_PYTHON_PLUGINS
                 PyType_Ready(&DapHTTPSimple_DapHTTPSimpleType) < 0 ||
                 PyType_Ready(&dapAppContext_dapAppContextType) < 0
@@ -524,8 +533,18 @@ PyMODINIT_FUNC PyInit_libCellFrame(void){
     PyModule_AddObject(module, "ChainNetNode", (PyObject*)&DapChainNetNodeObject_DapChainNetNodeObjectType);
     PyModule_AddObject(module, "ChainNetState", (PyObject*)&DapChainNetStateObject_DapChainNetStateObjectType);
     // =============
+    // === Chain net srv ===
+    PyModule_AddObject(module, "ChainNetSrv", (PyObject*)&DapChainNetSrvObject_DapChainNetSrvObjectType);
+    PyModule_AddObject(module, "ChainNetSrvClient", (PyObject*)&DapChainNetSrvClientObject_DapChainNetSrvClientObjectType);
+    PyModule_AddObject(module, "ChainNetSrvUID", (PyObject*)&DapChainNetSrvUIDObject_DapChainNetSrvUIDObjectType);
+    // =============
+    // === Chain type dag ===
+    PyModule_AddObject(module, "ChainCsDag", (PyObject*)&DapChainCsDag_DapChainCsDagType);
+    PyModule_AddObject(module, "ChainCsDagEvent", (PyObject*)&DapChainCsDagEvent_DapChainCsDagEventType);
+    // ============
 
     PyModule_AddObject(module, "ChainGDB", (PyObject*)&DapChainGDBObject_DapChainGDBType);
+    PyModule_AddObject(module, "ChainGlobalDB", (PyObject*)&DapChainGlobalDBObject_DapChainDlobalDBType);
     PyModule_AddObject(module, "ChainWallet", (PyObject*)&DapChainWallet_dapChainWalletType);
 
     PyModule_AddObject(module, "Http", (PyObject*)&DapHTTP_DapHTTPType);
