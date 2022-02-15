@@ -12,11 +12,15 @@ _wrapping_list_func_callables_t *_s_callbacks = NULL;
 
 void _wrapping_handler_add_order_notify(void * a_arg, const char a_op_code, const char * a_group,
                                         const char * a_key, const void * a_value, const size_t a_value_len){
-    PyDapChainNetSrvOrderObject *l_obj_order = PyObject_New(PyDapChainNetSrvOrderObject, &DapChainNetSrvOrderObject_DapChainNetSrvOrderObjectType);
-    PyObject_Dir((PyObject*)l_obj_order);
-    l_obj_order->order = DAP_NEW_Z_SIZE(void, a_value_len);
-    memcpy(l_obj_order->order, a_value, a_value_len);
-//    PyObject *l_bytes = PyBytes_FromStringAndSize(a_value, a_value_len);
+    PyObject *l_obj_order = Py_None;
+    if (a_value_len != 0) {
+        PyDapChainNetSrvOrderObject *l_obj_order_tmp = PyObject_New(PyDapChainNetSrvOrderObject,
+                                                                &DapChainNetSrvOrderObject_DapChainNetSrvOrderObjectType);
+        PyObject_Dir((PyObject *) l_obj_order_tmp);
+        l_obj_order_tmp->order = DAP_NEW_Z_SIZE(void, a_value_len);
+        memcpy(l_obj_order_tmp->order, a_value, a_value_len);
+        l_obj_order = (PyObject*)l_obj_order_tmp;
+    }
     char *l_op_code = DAP_NEW_Z_SIZE(char, 2);
     l_op_code[0] = a_op_code;
     l_op_code[1] = '\0';
