@@ -12,8 +12,17 @@ _wrapping_list_func_callables_t *_s_callbacks = NULL;
 
 void _wrapping_handler_add_order_notify(void * a_arg, const char a_op_code, const char * a_group,
                                         const char * a_key, const void * a_value, const size_t a_value_len){
-    PyObject *l_bytes = PyBytes_FromStringAndSize(a_value, a_value_len);
-    PyObject *l_args = Py_BuildValue("sssO", a_op_code, a_group, a_key, l_bytes);
+    PyDapChainNetSrvOrderObject *l_obj_order = PyObject_New(PyDapChainNetSrvOrderObject, &DapChainNetSrvOrderObject_DapChainNetSrvOrderObjectType);
+    PyObject_Dir((PyObject*)l_obj_order);
+    l_obj_order->order = DAP_NEW_Z_SIZE(void, a_value_len);
+    memcpy(l_obj_order->order, a_value, a_value_len);
+//    PyObject *l_bytes = PyBytes_FromStringAndSize(a_value, a_value_len);
+    char *l_op_code = DAP_NEW_Z_SIZE(char, 2);
+    l_op_code[0] = a_op_code;
+    l_op_code[1] = '\0';
+    char *l_group = dap_strdup(a_group);
+    char *l_key = dap_strdup(a_key);
+    PyObject *l_args = Py_BuildValue("sssO", l_op_code, l_group, l_key, l_obj_order);
     Py_INCREF(l_args);
     _wrapping_list_func_callables_t *callbacks = NULL;
     PyGILState_STATE state = PyGILState_Ensure();
@@ -273,12 +282,14 @@ PyObject *wrapping_dap_chain_net_srv_order_save(PyObject *self, PyObject *args){
         PyErr_SetString(PyExc_ValueError, "This function must take one arguments. ");
         return NULL;
     }
-    if(!PyDapChainNet_Check(obj_net)){
+    dap_chain_net_t *l_net = NULL;
+    if (PyDapChainNet_Check(obj_net)){
+        l_net = ((PyDapChainNetObject*)obj_net)->chain_net;
+    } else {
         PyErr_SetString(PyExc_ValueError, "As the first argument, this function takes "
                                           "an instance of an object of type ChainNet.");
         return NULL;
     }
-    dap_chain_net_t *l_net = ((PyDapChainNetObject*)self)->chain_net;
     char *res = NULL;
     res = dap_chain_net_srv_order_save(l_net,
                                            WRAPPING_DAP_CHAIN_NET_SRV_ORDER(self)->order);
