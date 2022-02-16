@@ -13,6 +13,7 @@ int PyDapChainNetSrvClient_init(PyDapChainNetSrvClientObject* self, PyObject *ar
 PyObject *wrapping_dap_chain_net_srv_client_write(PyObject *self, PyObject *args);
 
 static PyMethodDef DapChainNetSrvClientMethods[]={
+        {"write", (PyCFunction)wrapping_dap_chain_net_srv_client_write, METH_VARARGS, ""},
         {NULL, NULL, 0, NULL}
 };
 
