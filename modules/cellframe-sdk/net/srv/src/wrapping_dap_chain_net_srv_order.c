@@ -65,7 +65,7 @@ int PyDapChainNetSrvOrder_init(PyDapChainNetSrvOrderObject *self, PyObject *args
     time_t expires;
     PyObject *obj_ext, *obj_key;
     //OOOOOOkskOO
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "OOOOOkOsfOO", kwlist, &obj_net, &obj_direction, &obj_srv_uid,
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "OOOOOkOsfOO", (char **)kwlist, &obj_net, &obj_direction, &obj_srv_uid,
                                      &obj_node_addr, &obj_tx_cond_hash, &price, &obj_price_unit, &price_ticker,
                                      &f_expires, &obj_ext, &obj_key)){
         return -1;
@@ -179,9 +179,7 @@ PyObject *wrapping_dap_chain_net_srv_order_get_srv_sign(PyObject *self, void *cl
     if (l_order->version != 2){
         return Py_None;
     }
-    dap_sign_t *l_sign_ptr = l_order->ext[l_order->ext_size];
-    size_t l_sign_size = dap_sign_get_size(l_sign_ptr);
-    dap_sign_t *l_sign = l_sign_ptr;
+    dap_sign_t *l_sign = (dap_sign_t *)l_order->ext[l_order->ext_size];
     if(!dap_sign_verify_size(l_sign, sizeof(dap_sign_t))){
         return Py_None;
     }else{
