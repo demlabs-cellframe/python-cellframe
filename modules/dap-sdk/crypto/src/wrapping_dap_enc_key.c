@@ -74,27 +74,56 @@ PyObject* dap_enc_key_new_py(PyObject *self, PyObject *args){
 /// default gen key
 PyObject *dap_enc_key_new_generate_py(PyObject *self, PyObject *args){
     uint8_t in_type_key;
-    PyBytesObject *in_kex_buf;
-    size_t in_kex_size;
-    PyBytesObject *in_seed;
-    size_t in_seed_size;
+    PyObject *obj_kex_buf;
+    PyObject *obj_seed = NULL;
     size_t in_key_size;
-    if (!PyArg_ParseTuple(args, "h|S|n|S|n|n", &in_type_key, &in_kex_buf, &in_kex_size, &in_seed,
-                         &in_seed_size, &in_key_size)){
+    if (!PyArg_ParseTuple(args, "iOn|O", &in_type_key, &obj_kex_buf, &in_key_size, &obj_seed)){
         return NULL;
     }
-    if (in_type_key > 16){
-        return PyLong_FromLong(-1);
+    void *l_kex_buf = NULL;
+    size_t l_kex_buf_size = 0;
+    void *l_seed = NULL;
+    size_t l_seed_size = 0;
+    if (PyUnicode_Check(obj_kex_buf)){
+        const char *l_kex_buf_str = PyUnicode_AsUTF8(obj_kex_buf);
+        l_kex_buf_size = dap_strlen(l_kex_buf_str);
+        if (l_kex_buf_size < 1){
+            PyErr_SetString(PyExc_SyntaxError, "The kex buffer size must be grater than one character");
+            return NULL;
+        }
+        l_kex_buf = DAP_NEW_SIZE(char, l_kex_buf_size);
+    } else {
+        if (PyBytes_Check(obj_kex_buf)) {
+            l_kex_buf = PyBytes_AsString(obj_kex_buf);
+            l_kex_buf_size = PyBytes_Size(obj_kex_buf);
+        } else {
+            PyErr_SetString(PyExc_SyntaxError, "The second argument to this function can be either "
+                                               "a unicode string ot an object of type bytes");
+            return NULL;
+        }
     }
-    void *kex_buf = NULL;
-    void *seed = NULL;
-    if (in_kex_size != 0)
-        kex_buf = PyBytes_AsString((PyObject*)in_kex_buf);
-    if (in_seed_size != 0)
-        seed = PyBytes_AsString((PyObject*)in_seed);
-    PyCryptoKeyObject *obj_key = (PyCryptoKeyObject*)_PyObject_New(&PyCryptoKeyObject_PyCryptoKeyType);
-    obj_key->key = dap_enc_key_new_generate(in_type_key, kex_buf, in_kex_size, seed, in_seed_size, in_key_size);
-    return  Py_BuildValue("O", (PyObject*)obj_key);
+    if (obj_seed != NULL){
+        if (PyUnicode_Check(obj_seed)){
+            const char *l_seed_buf_str = PyUnicode_AsUTF8(obj_seed);
+            l_seed_size = dap_strlen(l_seed_buf_str);
+            l_seed = DAP_NEW_SIZE(char, l_seed_size);
+            memcpy(l_seed, l_seed_buf_str, l_seed_size);
+        }else{
+            if (PyBytes_Check(obj_seed)){
+                l_seed = PyBytes_AsString(obj_seed);
+                l_seed_size = PyBytes_Size(obj_seed);
+            }else{
+                PyErr_SetString(PyExc_SyntaxError, "The fourth argument to this function can be either "
+                                                   "a unicode string ot an object of type bytes");
+                return NULL;
+            }
+        }
+    }
+    PyCryptoKeyObject *obj_key = PyObject_New(PyCryptoKeyObject, &PyCryptoKeyObject_PyCryptoKeyType);
+    PyObject_Dir((PyObject*)obj_key);
+    obj_key->key = dap_enc_key_new_generate(in_type_key, l_kex_buf, l_kex_buf_size,
+                                            l_seed, l_seed_size, in_key_size);
+    return (PyObject*)obj_key;
 }
 
 // update struct dap_enc_key_t after insert foreign keys

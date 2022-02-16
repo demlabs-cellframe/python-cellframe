@@ -230,6 +230,7 @@ typedef struct PyDapChainNetSrvUID{
 }PyDapChainNetSrvUIDObject;
 
 PyObject *dap_chain_net_srv_uid_from_str_py(PyObject *self, PyObject *args);
+PyObject *PyDapChainNetSrvUID_str(PyObject *self);
 
 static PyMethodDef DapChainNetSrvUIDObject[] = {
     {"fromStr", (PyCFunction)dap_chain_net_srv_uid_from_str_py, METH_VARARGS | METH_STATIC, ""},
@@ -252,7 +253,7 @@ static PyTypeObject DapChainNetSrvUIDObject_DapChainNetSrvUIDObjectType = {
     0,                               /* tp_as_mapping */
     0,                               /* tp_hash  */
     0,                               /* tp_call */
-    0,                               /* tp_str */
+    PyDapChainNetSrvUID_str,         /* tp_str */
     0,                               /* tp_getattro */
     0,                               /* tp_setattro */
     0,                               /* tp_as_buffer */
@@ -284,11 +285,30 @@ static bool PyDapChainNetSrvUid_Check(PyObject *a_obj){
     return PyObject_TypeCheck(a_obj, &DapChainNetSrvUIDObject_DapChainNetSrvUIDObjectType);
 }
 
-/* Chain net srv uid */
+/* Chain net srv price uid */
 typedef struct PyDapChainNetSrvPriceUnitUID{
     PyObject_HEAD
     dap_chain_net_srv_price_unit_uid_t price_unit_uid;
 }PyDapChainNetSrvPriceUnitUIDObject;
+
+PyObject *PyDapChainNetSrvPriceUnitUID_str(PyObject *self);
+
+PyObject *wrapping_dap_chain_net_srv_price_unit_uid_get_undefined(PyObject *self, PyObject *args);
+PyObject *wrapping_dap_chain_net_srv_price_unit_uid_get_mb(PyObject *self, PyObject *args);
+PyObject *wrapping_dap_chain_net_srv_price_unit_uid_get_sec(PyObject *self, PyObject *args);
+PyObject *wrapping_dap_chain_net_srv_price_unit_uid_get_day(PyObject *self, PyObject *args);
+PyObject *wrapping_dap_chain_net_srv_price_unit_uid_get_kb(PyObject *self, PyObject *args);
+PyObject *wrapping_dap_chain_net_srv_price_unit_uid_get_b(PyObject *self, PyObject *args);
+
+static PyMethodDef PyDapChainNetSrvPriceUnitUID_Methods[] = {
+        {"undefined", (PyCFunction)wrapping_dap_chain_net_srv_price_unit_uid_get_undefined, METH_NOARGS | METH_STATIC, ""},
+        {"mb", (PyCFunction)wrapping_dap_chain_net_srv_price_unit_uid_get_mb, METH_NOARGS | METH_STATIC, ""},
+        {"sec", (PyCFunction)wrapping_dap_chain_net_srv_price_unit_uid_get_sec, METH_NOARGS | METH_STATIC, ""},
+        {"day", (PyCFunction)wrapping_dap_chain_net_srv_price_unit_uid_get_day, METH_NOARGS | METH_STATIC, ""},
+        {"kb", (PyCFunction)wrapping_dap_chain_net_srv_price_unit_uid_get_kb, METH_NOARGS | METH_STATIC, ""},
+        {"b", (PyCFunction)wrapping_dap_chain_net_srv_price_unit_uid_get_b, METH_NOARGS | METH_STATIC, ""},
+        {NULL, NULL, 0, NULL}
+};
 
 static PyTypeObject DapChainNetSrvPriceUnitUIDObject_DapChainNetSrvPriceUnitUIDObjectType = {
     PyVarObject_HEAD_INIT(NULL, 0)
@@ -306,7 +326,7 @@ static PyTypeObject DapChainNetSrvPriceUnitUIDObject_DapChainNetSrvPriceUnitUIDO
     0,                                               /* tp_as_mapping */
     0,                                               /* tp_hash  */
     0,                                               /* tp_call */
-    0,                                               /* tp_str */
+    PyDapChainNetSrvPriceUnitUID_str,                                               /* tp_str */
     0,                                               /* tp_getattro */
     0,                                               /* tp_setattro */
     0,                                               /* tp_as_buffer */
@@ -319,7 +339,7 @@ static PyTypeObject DapChainNetSrvPriceUnitUIDObject_DapChainNetSrvPriceUnitUIDO
     0,                                               /* tp_weaklistoffset */
     0,		                                         /* tp_iter */
     0,		                                         /* tp_iternext */
-    0,                                               /* tp_methods */
+    PyDapChainNetSrvPriceUnitUID_Methods,             /* tp_methods */
     0,                                               /* tp_members */
     0,                                               /* tp_getset */
     0,                                               /* tp_base */
@@ -439,11 +459,13 @@ static PyTypeObject DapChainCellIDObject_DapChainCellIDType = {
 
 /*=================*/
 
-/* Chain cell id */
+/* Chain node addr */
 typedef struct PyDapChainNodeAddr{
     PyObject_HEAD
     dap_chain_node_addr_t *node_addr;
 }PyDapChainNodeAddrObject;
+
+PyObject *PyDapChainNodeAddrObject_str(PyObject* self);
 
 static PyTypeObject DapChainNodeAddrObject_DapChainNodeAddrObjectType = {
         PyVarObject_HEAD_INIT(NULL, 0)
@@ -461,7 +483,7 @@ static PyTypeObject DapChainNodeAddrObject_DapChainNodeAddrObjectType = {
         0,                               /* tp_as_mapping */
         0,                               /* tp_hash  */
         0,                               /* tp_call */
-        0,                               /* tp_str */
+        PyDapChainNodeAddrObject_str,    /* tp_str */
         0,                               /* tp_getattro */
         0,                               /* tp_setattro */
         0,                               /* tp_as_buffer */
