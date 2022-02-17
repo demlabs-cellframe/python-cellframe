@@ -179,7 +179,7 @@ PyObject *wrapping_dap_chain_net_srv_order_get_srv_sign(PyObject *self, void *cl
     if (l_order->version != 2){
         return Py_None;
     }
-    dap_sign_t *l_sign = (dap_sign_t *)l_order->ext[l_order->ext_size];
+    dap_sign_t *l_sign = (dap_sign_t *)&l_order->ext[l_order->ext_size];
     if(!dap_sign_verify_size(l_sign, sizeof(dap_sign_t))){
         return Py_None;
     }else{
