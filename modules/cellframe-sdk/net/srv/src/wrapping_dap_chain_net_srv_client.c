@@ -63,7 +63,12 @@ void _wrapping_dap_chain_net_srv_client_callback_deleted(dap_chain_net_srv_clien
         log_it(L_ERROR, "Can't called handler Python in callback delete");
     }
 }
-void _wrapping_dap_chain_net_srv_client_callback_pkt_it(dap_chain_net_srv_client_t* a_client, void *a_arg){}
+void _wrapping_dap_chain_net_srv_client_callback_pkt_it(void *a_arg,
+                                                        uint8_t a_type,
+                                                        dap_stream_ch_pkt_t *a_pkt,
+                                                        void *a_pkt_size){
+    log_it(L_NOTICE, "Callback srv client pkt_it");
+}
 
 int PyDapChainNetSrvClient_init(PyDapChainNetSrvClientObject* self, PyObject *args, PyObject *kwds){
     const char *kwlist[] = {
@@ -86,7 +91,7 @@ int PyDapChainNetSrvClient_init(PyDapChainNetSrvClientObject* self, PyObject *ar
     callbacks.connected = _wrapping_dap_chain_net_srv_client_callback_connected;
     callbacks.disconnected = _wrapping_dap_chain_net_srv_client_callback_disconnected;
     callbacks.deleted = _wrapping_dap_chain_net_srv_client_callback_deleted;
-//    callbacks.
+    callbacks.pkt_in = _wrapping_dap_chain_net_srv_client_callback_pkt_it;
     dap_chain_net_srv_client_create_n_connect(((PyDapChainNetObject*)obj_net)->chain_net, (char *)addr, port, &callbacks, obj_hander);
     return 0;
 }
