@@ -39,22 +39,22 @@ _wrapping_dap_chain_net_srv_callback_struct_t *_wrapping_dap_chain_net_srv_callb
     _wrapping_dap_chain_net_srv_callback_struct_t *l_callback = NULL;
     switch(a_type){
         case WRAPPING_DAP_CHAIN_NET_SERV_CALLBACK_DATA_RECEIPT_NEXT_SUCCESS:
-            HASH_FIND_PTR(_s_callbacks_receipt_next_success_t, a_srv, l_callback);
+            HASH_FIND_PTR(_s_callbacks_receipt_next_success_t, &a_srv, l_callback);
             break;
         case WRAPPING_DAP_CHAIN_NET_SERV_CALLBACK_DATA_RESPONSE_ERROR:
-            HASH_FIND_PTR(_s_callbacks_response_error_t, a_srv, l_callback);
+            HASH_FIND_PTR(_s_callbacks_response_error_t, &a_srv, l_callback);
             break;
         case WRAPPING_DAP_CHAIN_NET_SERV_CALLBACK_DATA_RESPONSE_SUCCESS:
-            HASH_FIND_PTR(_s_callbacks_response_success_t, a_srv, l_callback);
+            HASH_FIND_PTR(_s_callbacks_response_success_t, &a_srv, l_callback);
             break;
         case WRAPPING_DAP_CHAIN_NET_SERV_CALLBACK_DATA_REQUESTED:
-            HASH_FIND_PTR(_s_callbacks_requested_t, a_srv, l_callback);
+            HASH_FIND_PTR(_s_callbacks_requested_t, &a_srv, l_callback);
             break;
         case WRAPPING_DAP_CHAIN_NET_SERV_CALLBACK_DATA_STREAM_CH_READ:
-            HASH_FIND_PTR(_s_callbacks_stream_ch_read_t, a_srv, l_callback);
+            HASH_FIND_PTR(_s_callbacks_stream_ch_read_t, &a_srv, l_callback);
             break;
         case WRAPPING_DAP_CHAIN_NET_SERV_CALLBACK_DATA_STREAM_CH_READ_WITH_OUT_DATA:
-            HASH_FIND_PTR(_s_callbacks_stream_ch_read_with_out_data_t, a_srv, l_callback);
+            HASH_FIND_PTR(_s_callbacks_stream_ch_read_with_out_data_t, &a_srv, l_callback);
             break;
         default:
             return NULL;

@@ -273,7 +273,7 @@ static PyTypeObject DapChainNetSrvUIDObject_DapChainNetSrvUIDObjectType = {
     0,                               /* tp_descr_get */
     0,                               /* tp_descr_set */
     0,                               /* tp_dictoffset */
-    0,                               /* tp_init */
+    (initproc)PyDapChainNetSrvUIDObject_init, /* tp_init */
     0,                               /* tp_alloc */
     PyType_GenericNew,               /* tp_new */
 };
