@@ -186,7 +186,7 @@ PyObject *wrapping_dap_chain_net_srv_price_unit_uid_get_b(PyObject *self, PyObje
 
 /* Chain node addr */
 PyObject *PyDapChainNodeAddrObject_str(PyObject* self){
-    char *ret = dap_strdup_printf(NODE_ADDR_FP_STR, NODE_ADDR_FPS_ARGS(((PyDapChainNodeAddrObject *) self)->node_addr));
+    char *ret = dap_strdup_printf(NODE_ADDR_FP_STR, NODE_ADDR_FP_ARGS(((PyDapChainNodeAddrObject *) self)->node_addr));
     return Py_BuildValue("s", ret);
 }
 
