@@ -8,6 +8,7 @@ typedef enum _wrapping_dap_chain_net_srv_type_callbacks{
     WRAPPING_DAP_CHAIN_NET_SERV_CALLBACK_DATA_RESPONSE_ERROR,
     WRAPPING_DAP_CHAIN_NET_SERV_CALLBACK_DATA_RECEIPT_NEXT_SUCCESS,
     WRAPPING_DAP_CHAIN_NET_SERV_CALLBACK_DATA_STREAM_CH_READ,
+    WRAPPING_DAP_CHAIN_NET_SERV_CALLBACK_DATA_STREAM_CH_READ_WITH_OUT_DATA,
     WRAPPING_DAP_CHAIN_NET_SERV_CALLBACK_DATA_CLIENT_SUCCESS
 }_wrapping_dap_chain_net_srv_type_callbacks_t;
 
@@ -18,6 +19,8 @@ typedef struct _wrapping_dap_chain_net_srv_callback_struct{
 }_wrapping_dap_chain_net_srv_callback_struct_t;
 
 _wrapping_dap_chain_net_srv_callback_struct_t *_s_callbacks_stream_ch_read_t = NULL;
+
+_wrapping_dap_chain_net_srv_callback_struct_t *_s_callbacks_stream_ch_read_with_out_data_t = NULL;
 
 _wrapping_dap_chain_net_srv_callback_struct_t *_s_callbacks_requested_t = NULL;
 
@@ -47,6 +50,9 @@ void _wrapping_dap_chain_net_srv_del(
             case WRAPPING_DAP_CHAIN_NET_SERV_CALLBACK_DATA_STREAM_CH_READ:
                 HASH_DEL(_s_callbacks_stream_ch_read_t, a_callback);
                 break;
+            case WRAPPING_DAP_CHAIN_NET_SERV_CALLBACK_DATA_STREAM_CH_READ_WITH_OUT_DATA:
+                HASH_DEL(_s_callbacks_stream_ch_read_with_out_data_t, a_callback);
+                break;
         }
 //        HASH_DEL(_s_callbacks, a_callback);
         Py_XINCREF(a_callback->func);
@@ -73,6 +79,9 @@ _wrapping_dap_chain_net_srv_callback_struct_t *_wrapping_dap_chain_net_srv_callb
             break;
         case WRAPPING_DAP_CHAIN_NET_SERV_CALLBACK_DATA_STREAM_CH_READ:
             HASH_FIND_PTR(_s_callbacks_stream_ch_read_t, a_srv, l_callback);
+            break;
+        case WRAPPING_DAP_CHAIN_NET_SERV_CALLBACK_DATA_STREAM_CH_READ_WITH_OUT_DATA:
+            HASH_FIND_PTR(_s_callbacks_stream_ch_read_with_out_data_t, a_srv, l_callback);
             break;
         default:
             return Py_None;
@@ -115,6 +124,9 @@ int _wrapping_dap_chain_net_srv_add(
                 break;
             case WRAPPING_DAP_CHAIN_NET_SERV_CALLBACK_DATA_REQUESTED:
                 HASH_ADD_PTR(_s_callbacks_requested_t, srv, l_callback);
+                break;
+            case WRAPPING_DAP_CHAIN_NET_SERV_CALLBACK_DATA_STREAM_CH_READ_WITH_OUT_DATA:
+                HASH_ADD_PTR(_s_callbacks_stream_ch_read_with_out_data_t, srv, l_callback);
                 break;
             default:
                 return -2;
@@ -275,6 +287,33 @@ int _w_dap_chain_callback_data_t_stream_ch_read(
     PyGILState_Release(state);
     return res_int;
 }
+
+int _w_dap_chain_callback_data_t_stream_ch_read_with_out_data(
+        dap_chain_net_srv_t *a_srv,
+        uint32_t a_usage_id,
+        dap_chain_net_srv_client_remote_t * a_srv_client,
+        const void *a_custom_data,
+        size_t a_custom_data_size){
+    PyGILState_STATE state = PyGILState_Ensure();
+    PyObject *l_func = _wrapping_dap_chain_net_srv_callback_search(
+            WRAPPING_DAP_CHAIN_NET_SERV_CALLBACK_DATA_STREAM_CH_READ_WITH_OUT_DATA, &a_srv);
+    Py_INCREF(l_func);
+    PyObject *l_arg = _wrapping_dac_chain_callback_data_t_get_tuple(a_srv, a_usage_id, a_srv_client, a_custom_data, a_custom_data_size);
+    PyObject *result = PyObject_CallObject(l_func, l_arg);
+    if(result == NULL){
+        PyErr_Print();
+        return -1;
+    }
+    Py_XINCREF(l_func);
+    Py_XINCREF(l_arg);
+    if (!PyLong_Check(result)){
+        return -1;
+    }
+    int res_int = _PyLong_AsInt(result);
+    PyGILState_Release(state);
+    return res_int;
+}
+
 int _w_dap_chain_callback_data_t_client_success(
         dap_chain_net_srv_t *a_srv,
         uint32_t a_usage_id,
@@ -298,6 +337,7 @@ int PyDapChainNetSrv_init(PyDapChainNetSrvObject* self, PyObject *args, PyObject
             "callbackResponseError",
             "callbackReceiptNextSuccess",
             "callbackInData",
+            "callbackInDataAndOutData",
             NULL};
     PyObject *obj_uid;
     PyObject *obj_callback_requested;
@@ -305,13 +345,15 @@ int PyDapChainNetSrv_init(PyDapChainNetSrvObject* self, PyObject *args, PyObject
     PyObject *obj_callback_response_error;
     PyObject *obj_callback_receipt_next_success;
     PyObject *obj_callback_in_data;
-    if(!PyArg_ParseTupleAndKeywords(args, kwds, "OOOOOO", (char **)kwlist,
+    PyObject *obj_callback_in_data_and_out_data;
+    if(!PyArg_ParseTupleAndKeywords(args, kwds, "OOOOOOO", (char **)kwlist,
                                     &obj_uid,
                                     &obj_callback_requested,
                                     &obj_callback_response_success,
                                     &obj_callback_response_error,
                                     &obj_callback_receipt_next_success,
-                                    &obj_callback_in_data)) {
+                                    &obj_callback_in_data,
+                                    &obj_callback_in_data_and_out_data)) {
         return -1;
     }
     if (
@@ -320,7 +362,8 @@ int PyDapChainNetSrv_init(PyDapChainNetSrvObject* self, PyObject *args, PyObject
             PyCallable_Check(obj_callback_response_success)||
             PyCallable_Check(obj_callback_response_error)||
             PyCallable_Check(obj_callback_receipt_next_success)||
-            PyCallable_Check(obj_callback_in_data)) {
+            PyCallable_Check(obj_callback_in_data)||
+            PyCallable_Check(obj_callback_in_data_and_out_data)) {
         self->srv = dap_chain_net_srv_add(
                 ((PyDapChainNetSrvUIDObject*)obj_uid)->net_srv_uid,
                 _w_dap_chain_callback_data_t_requested,
@@ -330,7 +373,8 @@ int PyDapChainNetSrv_init(PyDapChainNetSrvObject* self, PyObject *args, PyObject
                 );
         dap_chain_net_srv_set_ch_callbacks(((PyDapChainNetSrvUIDObject*)obj_uid)->net_srv_uid,
                                            NULL,
-                                           _w_dap_chain_callback_data_t_stream_ch_read, NULL, NULL, NULL);
+                                           _w_dap_chain_callback_data_t_stream_ch_read,
+                                           _w_dap_chain_callback_data_t_stream_ch_read_with_out_data, NULL, NULL);
         if (self->srv == NULL){
             return -3;
         }
@@ -358,6 +402,10 @@ int PyDapChainNetSrv_init(PyDapChainNetSrvObject* self, PyObject *args, PyObject
                                         self->srv,
                                         ((PyDapChainNetSrvUIDObject*)self)->net_srv_uid,
                                         obj_callback_in_data);
+        _wrapping_dap_chain_net_srv_add(WRAPPING_DAP_CHAIN_NET_SERV_CALLBACK_DATA_STREAM_CH_READ_WITH_OUT_DATA,
+                                        self->srv,
+                                        ((PyDapChainNetSrvUIDObject*)self)->net_srv_uid,
+                                        obj_callback_in_data);
         self->original = true;
         return 0;
     }
@@ -367,6 +415,7 @@ int PyDapChainNetSrv_init(PyDapChainNetSrvObject* self, PyObject *args, PyObject
 void PyDapChainNetSrv_dealloc(PyDapChainNetSrvObject* self){
     if(self->original == true){
         _wrapping_dap_chain_net_srv_del(WRAPPING_DAP_CHAIN_NET_SERV_CALLBACK_DATA_STREAM_CH_READ, self->srv);
+        _wrapping_dap_chain_net_srv_del(WRAPPING_DAP_CHAIN_NET_SERV_CALLBACK_DATA_STREAM_CH_READ_WITH_OUT_DATA, self->srv);
         _wrapping_dap_chain_net_srv_del(WRAPPING_DAP_CHAIN_NET_SERV_CALLBACK_DATA_RECEIPT_NEXT_SUCCESS, self->srv);
         _wrapping_dap_chain_net_srv_del(WRAPPING_DAP_CHAIN_NET_SERV_CALLBACK_DATA_RESPONSE_ERROR, self->srv);
         _wrapping_dap_chain_net_srv_del(WRAPPING_DAP_CHAIN_NET_SERV_CALLBACK_DATA_RESPONSE_SUCCESS, self->srv);
