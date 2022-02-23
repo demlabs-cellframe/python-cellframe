@@ -293,7 +293,8 @@ int _w_dap_chain_callback_data_t_stream_ch_read_with_out_data(
         uint32_t a_usage_id,
         dap_chain_net_srv_client_remote_t * a_srv_client,
         const void *a_custom_data,
-        size_t a_custom_data_size){
+        size_t a_custom_data_size,
+        size_t a_out_data_size){
     PyGILState_STATE state = PyGILState_Ensure();
     PyObject *l_func = _wrapping_dap_chain_net_srv_callback_search(
             WRAPPING_DAP_CHAIN_NET_SERV_CALLBACK_DATA_STREAM_CH_READ_WITH_OUT_DATA, &a_srv);
@@ -306,12 +307,13 @@ int _w_dap_chain_callback_data_t_stream_ch_read_with_out_data(
     }
     Py_XINCREF(l_func);
     Py_XINCREF(l_arg);
-    if (!PyLong_Check(result)){
-        return -1;
+    if (!PyBytes_Check(result)){
+        return NULL;
     }
-    int res_int = _PyLong_AsInt(result);
+    void *l_data = PyBytes_AsString(result);
+    a_out_data_size = (size_t)PyBytes_Size(result);
     PyGILState_Release(state);
-    return res_int;
+    return l_data;
 }
 
 int _w_dap_chain_callback_data_t_client_success(
