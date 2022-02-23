@@ -221,11 +221,11 @@ int dap_chain_plugins_reload_plugin(const char * a_name_plugin){
             log_it(L_NOTICE, "%s plugin has unresolved dependencys, restart all plagins", l_manifest->name);
             return -2;
         }else{
-            dap_chain_plugins_load_plugin(dap_strjoin("", s_plugins_root_path, l_manifest->name, "/", NULL), l_manifest->name);
+            dap_chain_plugins_load_plugin_importing(dap_strjoin("", s_plugins_root_path, l_manifest->name, "/", NULL), l_manifest->name);
             return 0;
         }
     }else{
-        dap_chain_plugins_load_plugin(dap_strjoin("", s_plugins_root_path, l_manifest->name, "/", NULL), l_manifest->name);
+        dap_chain_plugins_load_plugin_importing(dap_strjoin("", s_plugins_root_path, l_manifest->name, "/", NULL), l_manifest->name);
         return 0;
     }
 
