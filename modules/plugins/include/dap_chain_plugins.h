@@ -38,6 +38,8 @@ void dap_chain_plugins_deinit();
 void dap_chain_plugins_load_plugin_importing(const char *a_dir_path, const char *a_name);
 void dap_chain_plugins_load_plugin_initialization();
 void dap_chain_plugins_loading();
+void dap_chain_plugins_load_plugin_importing(const char *a_dir_path, const char *a_name);
+void dap_chain_plugins_load_plugin_initialization();
 void dap_chain_plugins_load_plugin(const char *a_dir_path, const char *a_name);
 int dap_chain_plugins_reload_plugin(const char * a_name_plugin);
 

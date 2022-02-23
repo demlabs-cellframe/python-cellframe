@@ -63,7 +63,12 @@ void _wrapping_dap_chain_net_srv_client_callback_deleted(dap_chain_net_srv_clien
         log_it(L_ERROR, "Can't called handler Python in callback delete");
     }
 }
-void _wrapping_dap_chain_net_srv_client_callback_pkt_it(dap_chain_net_srv_client_t* a_client, void *a_arg){}
+void _wrapping_dap_chain_net_srv_client_callback_pkt_it(void *a_arg,
+                                                        uint8_t a_type,
+                                                        dap_stream_ch_pkt_t *a_pkt,
+                                                        void *a_pkt_size){
+    log_it(L_NOTICE, "Callback srv client pkt_it");
+}
 
 int PyDapChainNetSrvClient_init(PyDapChainNetSrvClientObject* self, PyObject *args, PyObject *kwds){
     const char *kwlist[] = {
@@ -76,7 +81,7 @@ int PyDapChainNetSrvClient_init(PyDapChainNetSrvClientObject* self, PyObject *ar
     PyObject *obj_net, *obj_hander;
     const char *addr;
     uint16_t port;
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "OsH", (char **)kwlist, &obj_net, &addr, &port, &obj_hander)){
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "OsHO", (char **)kwlist, &obj_net, &addr, &port, &obj_hander)){
         return -1;
     }
     if (!PyCallable_Check(obj_hander)){
@@ -86,11 +91,42 @@ int PyDapChainNetSrvClient_init(PyDapChainNetSrvClientObject* self, PyObject *ar
     callbacks.connected = _wrapping_dap_chain_net_srv_client_callback_connected;
     callbacks.disconnected = _wrapping_dap_chain_net_srv_client_callback_disconnected;
     callbacks.deleted = _wrapping_dap_chain_net_srv_client_callback_deleted;
-//    callbacks.
+//    callbacks.pkt_in = _wrapping_dap_chain_net_srv_client_callback_pkt_it;
     dap_chain_net_srv_client_create_n_connect(((PyDapChainNetObject*)obj_net)->chain_net, (char *)addr, port, &callbacks, obj_hander);
     return 0;
 }
 
 PyObject *wrapping_dap_chain_net_srv_client_write(PyObject *self, PyObject *args){
+    uint8_t version;
+    uint32_t usage_id;
+    PyObject *obj_srv_uid;
+    PyObject *obj_bytes;
+    if (!PyArg_ParseTuple(args, "bIOO", &version, &usage_id, &obj_srv_uid, &obj_bytes)){
+        return NULL;
+    }
+    if (!PyDapChainNetSrvUid_Check(obj_srv_uid)){
+        return NULL;
+    }
+    if (!PyBytes_Check(obj_bytes)){
+        return NULL;
+    }
+    //Generate HDR
+    dap_stream_ch_chain_net_srv_pkt_data_hdr_t l_pkt_hdr;
+    l_pkt_hdr.version = version;
+    l_pkt_hdr.usage_id = usage_id;
+    l_pkt_hdr.offset[0] = 0;
+    l_pkt_hdr.offset[1] = 0;
+    l_pkt_hdr.offset[2] = 0;
+    l_pkt_hdr.srv_uid = ((PyDapChainNetSrvUIDObject*)obj_srv_uid)->net_srv_uid;
+    //Generate packet
+    size_t l_bytes_size = PyBytes_Size(obj_bytes);
+    void *l_bytes = PyBytes_AsString(obj_bytes);
+    dap_stream_ch_chain_net_srv_pkt_data_t *l_data = DAP_NEW_S_SIZE(void, sizeof(l_pkt_hdr) + l_bytes_size);
+    l_data->hdr = l_pkt_hdr;
+    memcpy(l_data->data, l_bytes, l_bytes_size);
+    dap_chain_net_srv_client_write(
+            ((PyDapChainNetSrvClientObject*)self)->srv_client,
+            DAP_STREAM_CH_CHAIN_NET_SRV_PKT_TYPE_DATA,
+            l_data, sizeof(l_pkt_hdr) + l_bytes_size);
     return Py_None;
 }

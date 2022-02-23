@@ -426,6 +426,7 @@ PyMODINIT_FUNC PyInit_libCellFrame(void){
             // === Chain net srv ===
             PyType_Ready(&DapChainNetSrvObject_DapChainNetSrvObjectType) < 0 ||
             PyType_Ready(&DapChainNetSrvClientObject_DapChainNetSrvClientObjectType) < 0 ||
+            PyType_Ready(&DapChainNetSrvClientRemoteObject_DapChainNetSrvClientRemoteObjectType) < 0 ||
             PyType_Ready(&DapChainNetSrvUIDObject_DapChainNetSrvUIDObjectType) < 0 ||
             PyType_Ready(&DapChainNetSrvOrderObject_DapChainNetSrvOrderObjectType) < 0 ||
             PyType_Ready(&DapChainNetSrvOrderDirectionObject_DapChainNetSrvOrderDirectionObjectType) < 0 ||
@@ -539,6 +540,7 @@ PyMODINIT_FUNC PyInit_libCellFrame(void){
     // === Chain net srv ===
     PyModule_AddObject(module, "ChainNetSrv", (PyObject*)&DapChainNetSrvObject_DapChainNetSrvObjectType);
     PyModule_AddObject(module, "ChainNetSrvClient", (PyObject*)&DapChainNetSrvClientObject_DapChainNetSrvClientObjectType);
+    PyModule_AddObject(module, "ChainNetSrvClientRemote", (PyObject*)&DapChainNetSrvClientRemoteObject_DapChainNetSrvClientRemoteObjectType);
     PyModule_AddObject(module, "ChainNetSrvUID", (PyObject*)&DapChainNetSrvUIDObject_DapChainNetSrvUIDObjectType);
     PyModule_AddObject(module, "ChainNetSrvOrder", (PyObject*)&DapChainNetSrvOrderObject_DapChainNetSrvOrderObjectType);
     PyModule_AddObject(module, "ChainNetSrvOrderDirection", (PyObject*)&DapChainNetSrvOrderDirectionObject_DapChainNetSrvOrderDirectionObjectType);

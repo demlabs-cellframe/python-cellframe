@@ -14,7 +14,6 @@
 PyObject *s_sys_path = NULL;
 const char *s_plugins_root_path = NULL;
 
-
 typedef struct _dap_chain_plugins_module{
     PyObject *module;
     char *name;
@@ -172,41 +171,6 @@ void dap_chain_plugins_load_plugin_initialization(){
     }
 }
 
-void dap_chain_plugins_load_plugin(const char *a_dir_path, const char *a_name){
-    log_it(L_NOTICE, "Loading %s plugin directory %s", a_name, a_dir_path);
-    PyErr_Clear();
-
-    PyObject *l_obj_dir_path = PyUnicode_FromString(a_dir_path);
-    PyList_Append(s_sys_path, l_obj_dir_path);
-    Py_XDECREF(l_obj_dir_path);
-    PyObject *l_module = PyImport_ImportModule(a_name);
-    PyErr_Print();
-    PyObject *l_func_init = PyObject_GetAttrString(l_module, "init");
-    PyObject *l_func_deinit = PyObject_GetAttrString(l_module, "deinit");
-    PyObject *l_res_int = NULL;
-    PyErr_Clear();
-    if (l_func_init != NULL && PyCallable_Check(l_func_init)){
-        l_res_int = PyEval_CallObject(l_func_init, NULL);
-        if (l_res_int && PyLong_Check(l_res_int)){
-            if (_PyLong_AsInt(l_res_int) == 0){
-                dap_chain_plugins_list_add(l_module, a_name);
-            } else {
-                PyErr_Print();
-                log_it(L_ERROR, "Code error %i at initialization %s plugin", _PyLong_AsInt(l_res_int), a_name);
-            }
-        } else {
-            PyErr_Print();
-            log_it(L_ERROR, "Function initialization %s plugin don't reterned integer value", a_name);
-        }
-        Py_XDECREF(l_res_int);
-    }else {
-        log_it(L_ERROR, "For plugins %s don't found function init", a_name);
-    }
-    if (l_func_deinit == NULL || !PyCallable_Check(l_func_deinit)){
-        log_it(L_WARNING, "For plugins %s don't found function deinit", a_name);
-    }
-}
-
 void dap_chain_plugins_deinit(){
     log_it(L_NOTICE, "Deinit python plugins");
     dap_chain_plugin_list_module_t *l_plugins = dap_chain_plugins_list_get();
@@ -227,6 +191,7 @@ void dap_chain_plugins_deinit(){
     dap_chain_plugins_manifest_list_delete_all();
     Py_Finalize();
 }
+
 int dap_chain_plugins_reload_plugin(const char * a_name_plugin){
     log_it(L_NOTICE, "Reload plugin %s", a_name_plugin);
     dap_chain_plugin_list_module_t *l_plugins = dap_chain_plugins_list_get();
@@ -258,14 +223,13 @@ int dap_chain_plugins_reload_plugin(const char * a_name_plugin){
             log_it(L_NOTICE, "%s plugin has unresolved dependencys, restart all plagins", l_manifest->name);
             return -2;
         }else{
-            dap_chain_plugins_load_plugin(dap_strjoin("", s_plugins_root_path, l_manifest->name, "/", NULL), l_manifest->name);
+            dap_chain_plugins_load_plugin_importing(dap_strjoin("", s_plugins_root_path, l_manifest->name, "/", NULL), l_manifest->name);
             return 0;
         }
     }else{
-        dap_chain_plugins_load_plugin(dap_strjoin("", s_plugins_root_path, l_manifest->name, "/", NULL), l_manifest->name);
+        dap_chain_plugins_load_plugin_importing(dap_strjoin("", s_plugins_root_path, l_manifest->name, "/", NULL), l_manifest->name);
         return 0;
     }
 
     return -1;
 }
-
