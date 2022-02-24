@@ -23,6 +23,7 @@ PyObject *wrapping_dap_chain_net_srv_get_ban_list(PyObject *self, void *closure)
 PyObject *wrapping_dap_chain_net_srv_get_grace_period(PyObject *self, void *closure);
 
 //Function
+PyObject *wrapping_dap_chain_net_srv_set_callback_channel(PyObject *self, PyObject *args);
 //PyObject *wrapping_dap_chain_net_srv_issue_receipt(PyObject *self, PyObject *args);
 
 static PyMethodDef DapChainNetSrvMethods[]={
@@ -40,7 +41,7 @@ static PyTypeObject DapChainNetSrvObject_DapChainNetSrvObjectType = {
         "CellFrame.ChainNetSrv",        /* tp_name */
         sizeof(PyDapChainNetSrvObject), /* tp_basicsize */
         0,                                /* tp_itemsize */
-        (destructor)PyDapChainNetSrv_dealloc,                                /* tp_dealloc */
+        0,                                /* tp_dealloc */
         0,                                /* tp_print */
         0,                                /* tp_getattr */
         0,                                /* tp_setattr */
