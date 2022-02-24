@@ -5,15 +5,20 @@
 #include "dap_chain_mempool.h"
 #include "dap_server_python.h"
 #include "dap_http.h"
+#include "libdap-chain-python.h"
+#include "wrapping_dap_pkey.h"
+#include "wrapping_dap_chain_common.h"
 
 typedef struct PyDapMempool{
     PyObject_HEAD
 }PyDapMempoolObject;
 
 PyObject *dap_chain_mempool_add_proc_py(PyObject *self, PyObject *args);
+PyObject *dap_chain_mempool_tx_create_py(PyObject *self, PyObject *args);
 
 static PyMethodDef  DapMempoolMethods[] = {
         {"addProc", dap_chain_mempool_add_proc_py, METH_VARARGS | METH_STATIC, ""},
+        {"txCreate", dap_chain_mempool_tx_create_py, METH_VARARGS | METH_STATIC, ""},
         {NULL,NULL,0,NULL}
 };
 
