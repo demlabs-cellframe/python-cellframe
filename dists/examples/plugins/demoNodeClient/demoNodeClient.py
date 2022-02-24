@@ -1,11 +1,18 @@
 from API_CellFrame import ChainNetSrvClient, logItNotice, logItInfo, ChainNet, ChainNetSrv, ChainNetSrvUID
 
-def handler(nodeClient, type):
-    print (type)
-    print ("HANDLER OK")
-    if type == 0:
-        ch_uid = ChainNetSrvUID(156)
-        nodeClient.write(1, 301, ch_uid, "HELLO I TEST SERV".encode('utf-8'))
+def callback_connected(serviceClient, arg):
+    print("Python client connected")
+    ch_uid = ChainNetSrvUID(156)
+    serviceClient.write(1, 301, ch_uid, "HELLO I TEST SERV".encode('utf-8'))
+
+def callback_read(serviceClient, data):
+    print("Python client read back \'{:s}\'".format(data))
+
+def callback_disconnected(serviceClient, arg):
+    print("Python client disconnected")
+
+def callback_deleted(serviceClient, arg):
+    print("Python client deleted")
 
 #def clientCMD(argv, indexStrReply):
 #    reply = "Connected to ..."
@@ -18,8 +25,8 @@ def init():
 #    Command for working cmd client
 #"""
 #)
-    net = ChainNet.byName("kelvin-testnet")
-    client = ChainNetSrvClient(net, "127.0.0.1", 8079, handler)
+    net = ChainNet.byName("subzero")
+    client = ChainNetSrvClient(net, "192.168.1.10", 8079, callback_connected, callback_read, callback_disconnected, callback_deleted, net)
 #    client.test()
 #    ch_uid = ChainNetSrvUID(156)
 #    ch_uid2 = ChainNetSrvUID.fromStr("0x1101")
