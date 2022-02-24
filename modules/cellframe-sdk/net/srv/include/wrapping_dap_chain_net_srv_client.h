@@ -7,6 +7,10 @@
 typedef struct PyDapChainNetSrvClient{
     PyObject_HEAD
     dap_chain_net_srv_client_t *srv_client;
+    PyObject *callback_connected;
+    PyObject *callback_disconnected;
+    PyObject *callback_deleted;
+    PyObject *callback_read;
 }PyDapChainNetSrvClientObject;
 
 int PyDapChainNetSrvClient_init(PyDapChainNetSrvClientObject* self, PyObject *args, PyObject *kwds);
