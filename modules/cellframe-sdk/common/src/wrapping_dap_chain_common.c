@@ -100,13 +100,15 @@ PyObject *dap_chain_net_id_from_str_py(PyObject *self, PyObject *args){
     return Py_BuildValue("O", obj_net_id);
 }
 
-PyObject *dap_chain_net_srv_uid_from_str_py(PyObject *self, PyObject *args){
-    const char *str;
-    if (!PyArg_ParseTuple(args, "s", &str))
-        return NULL;
-    PyObject *obj = _PyObject_New(&DapChainNetSrvUIDObject_DapChainNetSrvUIDObjectType);
-    ((PyDapChainNetSrvUIDObject*)obj)->net_srv_uid = dap_chain_net_srv_uid_from_str(str);
-    return Py_BuildValue("O", obj);
+int PyDapChainNetSrvUIDObject_init(PyObject *self, PyObject *args, PyObject *kwds){
+    (void)kwds;
+    uint64_t uid;
+    if (!PyArg_ParseTuple(args, "k", &uid)){
+        return -1;
+    }
+    PyDapChainNetSrvUIDObject *l_obj_srv_uid = (PyDapChainNetSrvUIDObject*)self;
+    l_obj_srv_uid->net_srv_uid.uint64 = uid;
+    return 0;
 }
 
 PyObject * dap_chain_balance_to_coins_py(PyObject *self, PyObject *args){
@@ -186,7 +188,7 @@ PyObject *wrapping_dap_chain_net_srv_price_unit_uid_get_b(PyObject *self, PyObje
 
 /* Chain node addr */
 PyObject *PyDapChainNodeAddrObject_str(PyObject* self){
-    char *ret = dap_strdup_printf(NODE_ADDR_FP_STR, NODE_ADDR_FPS_ARGS(((PyDapChainNodeAddrObject *) self)->node_addr));
+    char *ret = dap_strdup_printf(NODE_ADDR_FP_STR, NODE_ADDR_FP_ARGS(((PyDapChainNodeAddrObject *) self)->node_addr));
     return Py_BuildValue("s", ret);
 }
 
