@@ -100,6 +100,7 @@ void element_py_func_del_all(){
 }
 
 static int wrapping_cmdfunc(int argc, char **argv, char **str_reply){
+    PyGILState_STATE l_state = PyGILState_Ensure();
     size_t id_str_replay = elements_str_reply_add(str_reply);
     PyObject *obj_argv = stringToPyList(argc, argv);
     PyObject *obj_id_str_replay = PyLong_FromSize_t(id_str_replay);
@@ -113,6 +114,7 @@ static int wrapping_cmdfunc(int argc, char **argv, char **str_reply){
     }
     Py_XDECREF(arglist);
     Py_XDECREF(obj_argv);
+    PyGILState_Release(l_state);
     elements_str_reply_delete(id_str_replay);
     return 0;
 }
