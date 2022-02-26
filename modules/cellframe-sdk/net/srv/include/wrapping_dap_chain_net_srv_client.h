@@ -15,8 +15,10 @@ typedef struct PyDapChainNetSrvClient{
 
 int PyDapChainNetSrvClient_init(PyDapChainNetSrvClientObject* self, PyObject *args, PyObject *kwds);
 PyObject *wrapping_dap_chain_net_srv_client_write(PyObject *self, PyObject *args);
+PyObject *wrapping_dap_chain_net_srv_client_request(PyObject *self, PyObject *args);
 
 static PyMethodDef DapChainNetSrvClientMethods[]={
+        {"request", (PyCFunction)wrapping_dap_chain_net_srv_client_request, METH_VARARGS, ""},
         {"write", (PyCFunction)wrapping_dap_chain_net_srv_client_write, METH_VARARGS, ""},
         {NULL, NULL, 0, NULL}
 };

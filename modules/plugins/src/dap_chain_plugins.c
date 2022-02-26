@@ -159,14 +159,14 @@ void dap_chain_plugins_load_plugin_initialization(){
                 }
             } else {
                 PyErr_Print();
-                log_it(L_ERROR, "Function initialization %s plugin don't reterned integer value", l_container->name);
+                log_it(L_ERROR, "Initialization function of plugin %s didn't return an integer value", l_container->name);
             }
             Py_XDECREF(l_res_int);
         } else {
-            log_it(L_ERROR, "For plugins %s don't found function init", l_container->name);
+            log_it(L_ERROR, "Can't find function init for plugin %s", l_container->name);
         }
         if (l_func_deinit == NULL || !PyCallable_Check(l_func_deinit)){
-            log_it(L_WARNING, "For plugins %s don't found function deinit", l_container->name);
+            log_it(L_WARNING, "Can't find function deinit for plugin %s", l_container->name);
         }
     }
 }

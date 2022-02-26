@@ -280,7 +280,7 @@ static PyTypeObject DapChainNetSrvUIDObject_DapChainNetSrvUIDObjectType = {
 
 /*=================*/
 
-static bool PyDapChainNetSrvUid_Check(PyObject *a_obj){
+static bool PyDapChainNetSrvUid_Check(PyDapChainNetSrvUIDObject *a_obj){
     int ret = PyObject_TypeCheck(a_obj, &DapChainNetSrvUIDObject_DapChainNetSrvUIDObjectType);
     if (ret == 0){
         return true;
