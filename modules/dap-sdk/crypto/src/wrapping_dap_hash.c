@@ -75,6 +75,6 @@ PyObject *wrapping_dap_hash_to_str(PyObject *self){
         Py_BuildValue("s", "Hash is missing.");
     }
     int res = dap_chain_hash_fast_to_str(((PyDapHashFastObject*)self)->hash_fast, str, 70);
-    PyObject *obj_str = PyUnicode_FromStringAndSize(str, res);
+    PyObject *obj_str = PyUnicode_FromString(str);
     return obj_str;
 }
