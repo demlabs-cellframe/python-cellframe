@@ -426,9 +426,11 @@ PyMODINIT_FUNC PyInit_libCellFrame(void){
             // === Chain net srv ===
             PyType_Ready(&DapChainNetSrvObject_DapChainNetSrvObjectType) < 0 ||
             PyType_Ready(&DapChainNetSrvClientObject_DapChainNetSrvClientObjectType) < 0 ||
-            PyType_Ready(&DapChainNetSrvPriceObject_DapChainNetSrvPriceObjectType) < 0 ||
             PyType_Ready(&DapChainNetSrvOrderDirectionObject_DapChainNetSrvOrderDirectionObjectType) < 0 ||
             PyType_Ready(&DapChainNetSrvOrderObject_DapChainNetSrvOrderObjectType) < 0 ||
+            PyType_Ready(&DapChainNetSrvUIDObject_DapChainNetSrvUIDObjectType) < 0 ||
+            PyType_Ready(&DapChainNetSrvPriceObject_DapChainNetSrvPriceObjectType) < 0 ||
+            PyType_Ready(&DapChainNetSrvPriceUnitUIDObject_DapChainNetSrvPriceUnitUIDObjectType) < 0 ||
             // =============
 
             PyType_Ready(&DapChainGDBObject_DapChainGDBType) < 0 ||
@@ -537,6 +539,8 @@ PyMODINIT_FUNC PyInit_libCellFrame(void){
     PyModule_AddObject(module , "ChainNetSrvPrice", (PyObject*)&DapChainNetSrvPriceObject_DapChainNetSrvPriceObjectType);
     PyModule_AddObject(module, "ChainNetSrvOrder", (PyObject*)&DapChainNetSrvOrderObject_DapChainNetSrvOrderObjectType);
     PyModule_AddObject(module, "ChainNetSrvOrderDirection", (PyObject*)&DapChainNetSrvOrderDirectionObject_DapChainNetSrvOrderDirectionObjectType);
+    PyModule_AddObject(module, "ChainNetSrvUID", (PyObject*)&DapChainNetSrvUIDObject_DapChainNetSrvUIDObjectType);
+    PyModule_AddObject(module, "ChainNetSrvPriceUnitUID", (PyObject*)&DapChainNetSrvPriceUnitUIDObject_DapChainNetSrvPriceUnitUIDObjectType);
     // =============
 
     PyModule_AddObject(module, "ChainGDB", (PyObject*)&DapChainGDBObject_DapChainGDBType);
