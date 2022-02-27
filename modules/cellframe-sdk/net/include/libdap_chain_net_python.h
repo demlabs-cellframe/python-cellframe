@@ -152,6 +152,14 @@ static PyTypeObject DapChainNetObject_DapChainNetObjectType = {
     PyType_GenericNew,               /* tp_new */
 };
 
+static bool PyDapChainNet_Check(PyObject *self){
+    if (PyObject_TypeCheck(self, &DapChainNetObject_DapChainNetObjectType) == 0){
+        return true;
+    } else {
+        return false;
+    }
+}
+
 #ifdef __cplusplus
 }
 #endif
