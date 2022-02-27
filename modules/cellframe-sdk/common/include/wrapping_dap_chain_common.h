@@ -229,10 +229,9 @@ typedef struct PyDapChainNetSrvUID{
     dap_chain_net_srv_uid_t net_srv_uid;
 }PyDapChainNetSrvUIDObject;
 
-PyObject *dap_chain_net_srv_uid_from_str_py(PyObject *self, PyObject *args);
+int PyDapChainNetSrvUIDObject_init(PyObject *self, PyObject *args, PyObject *kwds);
 
 static PyMethodDef DapChainNetSrvUIDObject[] = {
-    {"fromStr", (PyCFunction)dap_chain_net_srv_uid_from_str_py, METH_VARARGS | METH_STATIC, ""},
     {NULL, NULL, 0, NULL}
 };
 
@@ -273,7 +272,7 @@ static PyTypeObject DapChainNetSrvUIDObject_DapChainNetSrvUIDObjectType = {
     0,                               /* tp_descr_get */
     0,                               /* tp_descr_set */
     0,                               /* tp_dictoffset */
-    0,                               /* tp_init */
+    (initproc)PyDapChainNetSrvUIDObject_init, /* tp_init */
     0,                               /* tp_alloc */
     PyType_GenericNew,               /* tp_new */
 };

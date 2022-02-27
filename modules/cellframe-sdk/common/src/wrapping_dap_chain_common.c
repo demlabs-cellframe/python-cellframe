@@ -100,11 +100,13 @@ PyObject *dap_chain_net_id_from_str_py(PyObject *self, PyObject *args){
     return Py_BuildValue("O", obj_net_id);
 }
 
-PyObject *dap_chain_net_srv_uid_from_str_py(PyObject *self, PyObject *args){
-    const char *str;
-    if (!PyArg_ParseTuple(args, "s", &str))
-        return NULL;
-    PyObject *obj = _PyObject_New(&DapChainNetSrvUIDObject_DapChainNetSrvUIDObjectType);
-    ((PyDapChainNetSrvUIDObject*)obj)->net_srv_uid = dap_chain_net_srv_uid_from_str(str);
-    return Py_BuildValue("O", obj);
+int PyDapChainNetSrvUIDObject_init(PyObject *self, PyObject *args, PyObject *kwds){
+    (void)kwds;
+    uint64_t uid;
+    if (!PyArg_ParseTuple(args, "k", &uid)){
+        return -1;
+    }
+    PyDapChainNetSrvUIDObject *l_obj_srv_uid = (PyDapChainNetSrvUIDObject*)self;
+    l_obj_srv_uid->net_srv_uid.uint64 = uid;
+    return 0;
 }
