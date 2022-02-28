@@ -209,13 +209,12 @@ PyObject *wrapping_dap_chain_net_srv_order_find(PyObject *self, PyObject *args){
     PyObject *obj_net;
     PyObject *obj_order_hash;
     if (!PyArg_ParseTuple(args, "OO", &obj_net, &obj_order_hash)){
-        PyErr_SetString(PyExc_ValueError, "This function must take two arguments. ");
+        PyErr_SetString(PyExc_ValueError, "function takes exactly two arguments");
         return NULL;
     }
     dap_chain_net_srv_order_t *l_order = NULL;
     if(!PyDapChainNet_Check(obj_net)){
-        PyErr_SetString(PyExc_ValueError, "As the first argument, this function takes "
-                                          "an instance of an object of type ChainNet.");
+        PyErr_SetString(PyExc_ValueError, "the first argument must be ChainNet object");
         return NULL;
     }
     if (PyUnicode_Check(obj_order_hash)){
@@ -240,9 +239,7 @@ PyObject *wrapping_dap_chain_net_srv_order_find(PyObject *self, PyObject *args){
         l_obj_order->order = l_order;
         return (PyObject*)l_obj_order;
     }
-    PyErr_SetString(PyExc_ValueError, "An invalid argument type was passed to this function. "
-                                      "This function can take a string or an object of the HashFast type "
-                                      "as the second argument. ");
+    PyErr_SetString(PyExc_ValueError, "the second argument must be a string or HashFast object");
     return NULL;
 }
 PyObject *wrapping_dap_chain_net_srv_order_delete(PyObject *self, PyObject *args){
@@ -250,12 +247,11 @@ PyObject *wrapping_dap_chain_net_srv_order_delete(PyObject *self, PyObject *args
     PyObject *obj_net;
     PyObject *obj_order_hash;
     if (!PyArg_ParseTuple(args, "OO", &obj_net, &obj_order_hash)){
-        PyErr_SetString(PyExc_ValueError, "This function must take two arguments. ");
+        PyErr_SetString(PyExc_ValueError, "function takes exactly two arguments");
         return NULL;
     }
     if(!PyDapChainNet_Check(obj_net)){
-        PyErr_SetString(PyExc_ValueError, "As the first argument, this function takes "
-                                          "an instance of an object of type ChainNet.");
+        PyErr_SetString(PyExc_TypeError, "the first argument must be ChainNet object");
         return NULL;
     }
     int res = -1;
@@ -270,9 +266,7 @@ PyObject *wrapping_dap_chain_net_srv_order_delete(PyObject *self, PyObject *args
                                                ((PyDapHashFastObject*)obj_order_hash)->hash_fast);
         return Py_BuildValue("i", res);
     }
-    PyErr_SetString(PyExc_ValueError, "An invalid argument type was passed to this function. "
-                                      "This function can take a string or an object of the HashFast type "
-                                      "as the second argument. ");
+    PyErr_SetString(PyExc_ValueError, "the second argument must be a string or HashFast object");
     return NULL;
 }
 PyObject *wrapping_dap_chain_net_srv_order_find_all_by(PyObject *self, PyObject *args){
@@ -281,15 +275,14 @@ PyObject *wrapping_dap_chain_net_srv_order_find_all_by(PyObject *self, PyObject 
 PyObject *wrapping_dap_chain_net_srv_order_save(PyObject *self, PyObject *args){
     PyObject *obj_net;
     if(!PyArg_ParseTuple(args, "O", &obj_net)){
-        PyErr_SetString(PyExc_ValueError, "This function must take one arguments. ");
+        PyErr_SetString(PyExc_ValueError, "function takes exactly one argument");
         return NULL;
     }
     dap_chain_net_t *l_net = NULL;
     if (PyDapChainNet_Check(obj_net)){
         l_net = ((PyDapChainNetObject*)obj_net)->chain_net;
     } else {
-        PyErr_SetString(PyExc_ValueError, "As the first argument, this function takes "
-                                          "an instance of an object of type ChainNet.");
+        PyErr_SetString(PyExc_ValueError, "an argument must be ChainNet object");
         return NULL;
     }
     char *res = NULL;
@@ -301,12 +294,11 @@ PyObject *wrapping_dap_chain_net_srv_order_get_gdb_group(PyObject *self, PyObjec
     (void)self;
     PyObject *obj_net;
     if(!PyArg_ParseTuple(args, "O", &obj_net)){
-        PyErr_SetString(PyExc_ValueError, "This function must take one arguments. ");
+        PyErr_SetString(PyExc_ValueError, "function takes exactly one argument");
         return NULL;
     }
     if(!PyDapChainNet_Check(obj_net)){
-        PyErr_SetString(PyExc_ValueError, "As the first argument, this function takes "
-                                          "an instance of an object of type ChainNet.");
+        PyErr_SetString(PyExc_ValueError, "an argument must be ChainNet object");
         return NULL;
     }
     return Py_BuildValue("s", dap_chain_net_srv_order_get_gdb_group(((PyDapChainNetObject*)obj_net)->chain_net));
@@ -315,12 +307,11 @@ PyObject *wrapping_dap_chain_net_srv_order_get_nodelist_group(PyObject *self, Py
     (void)self;
     PyObject *obj_net;
     if(!PyArg_ParseTuple(args, "O", &obj_net)){
-        PyErr_SetString(PyExc_ValueError, "This function must take one arguments. ");
+        PyErr_SetString(PyExc_ValueError, "function takes exactly one argument");
         return NULL;
     }
     if(!PyDapChainNet_Check(obj_net)){
-        PyErr_SetString(PyExc_ValueError, "As the first argument, this function takes "
-                                          "an instance of an object of type ChainNet.");
+        PyErr_SetString(PyExc_ValueError, "an argument must be ChainNet object");
         return NULL;
     }
     return Py_BuildValue("s",
@@ -335,12 +326,11 @@ PyObject *wrapping_dap_chain_net_srv_order_add_notify_callback(PyObject *self, P
         return NULL;
     }
     if (!PyDapChainNet_Check(obj_net)){
-        PyErr_SetString(PyExc_AttributeError, "The first argument must be an object of type ChainNet");
+        PyErr_SetString(PyExc_AttributeError, "the first  argument must be ChainNet object");
         return NULL;
     }
     if (!PyCallable_Check(func_call)){
-        PyErr_SetString(PyExc_AttributeError, "The second argument to the function must be callable, i. e."
-                                              "it must be a callback function.");
+        PyErr_SetString(PyExc_AttributeError, "the second argument must be a callable");
         return NULL;
     }
     _wrapping_list_func_callables_t *callback = DAP_NEW(_wrapping_list_func_callables_t);

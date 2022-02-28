@@ -91,11 +91,11 @@ PyObject *dap_chain_python_create_atom_iter(PyObject *self, PyObject *args){
 PyObject *dap_chain_python_atom_iter_get_first(PyObject *self, PyObject *args){
     PyObject *obj_iter;
     if (!PyArg_ParseTuple(args, "O", &obj_iter)){
-        PyErr_SetString(PyExc_AttributeError, "This function must take one argument.");
+        PyErr_SetString(PyExc_AttributeError, "function takes exactly one argument");
         return NULL;
     }
     if (!PyDapChainAtomIter_Check(obj_iter)){
-        PyErr_SetString(PyExc_ValueError, "The type of the first argument is not valid. The first argument accepted by this function must be of type ChainAtomIter.");
+        PyErr_SetString(PyExc_TypeError, "argument must be ChainAtomIter object");
         return NULL;
     }
     PyObject *obj_atom_ptr = _PyObject_New(&DapChainAtomPtr_DapChainAtomPtrType);
@@ -115,7 +115,7 @@ PyObject *dap_chain_python_atom_get_datums(PyObject *self, PyObject *args){
     PyObject *obj_atom = NULL;
     size_t atom_size = 0;
     if(!PyArg_ParseTuple(args, "On", &obj_atom, &atom_size)){
-        PyErr_SetString(PyExc_AttributeError, "The given function was passed incorrect arguments, it must accept an atom and its size.");
+        PyErr_SetString(PyExc_AttributeError, "the second argument must be an integer");
         return NULL;
     }
     size_t datums_count = 0;
@@ -136,11 +136,11 @@ PyObject *dap_chain_python_atom_iter_get_next(PyObject *self, PyObject *args){
     size_t atom_size = 0;
     PyObject *atom_iter = NULL;
     if(!PyArg_ParseTuple(args, "O", &atom_iter)){
-        PyErr_SetString(PyExc_AttributeError, "This function must take only one argument.");
+        PyErr_SetString(PyExc_AttributeError, "function takes exactly one argument");
         return NULL;
     }
     if (!PyDapChainAtomIter_Check(atom_iter)){
-        PyErr_SetString(PyExc_AttributeError, "The first argument to this function must be of type ChainAtomIter.");
+        PyErr_SetString(PyExc_AttributeError, "the first argument must be ChainAtomIter object.");
         return NULL;
     }
     PyObject *obj_atom_ptr = _PyObject_New(&DapChainAtomPtr_DapChainAtomPtrType);

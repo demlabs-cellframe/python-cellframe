@@ -40,7 +40,7 @@ PyObject *dap_chain_cs_add_py (PyObject *self, PyObject *args){
     } else {
         if (!PyCallable_Check(obj_callback_init))
         {
-            PyErr_SetString(PyExc_TypeError, "paramentr must be callable");
+            PyErr_SetString(PyExc_TypeError, "the second argument must be a callable");
             return NULL;
         }
     }
@@ -66,7 +66,7 @@ PyObject *dap_chain_class_add_py (PyObject *self, PyObject *args){
     } else {
         if (!PyCallable_Check(obj_callback_init))
         {
-            PyErr_SetString(PyExc_TypeError, "paramentr must be callable");
+            PyErr_SetString(PyExc_TypeError, "the second argument must be a callable");
             return NULL;
         }
     }

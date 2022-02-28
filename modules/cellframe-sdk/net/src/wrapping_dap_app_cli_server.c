@@ -3,7 +3,7 @@
 #define LOG_TAG "wrapping_dap_app_cli_server"
 
 int dap_chain_node_cli_init_py(dap_config_t *g_config){
-    log_it(L_DEBUG, "Init app cli server");
+    log_it(L_DEBUG, "Initializing application client server");
     dap_chain_node_cli_init(g_config);
     l_str_reply_list = NULL;
     l_element_py_func_list = NULL;
@@ -109,7 +109,7 @@ static int wrapping_cmdfunc(int argc, char **argv, char **str_reply){
     Py_INCREF(binden_obj_cmdfunc);
     PyObject *result = PyObject_CallObject(binden_obj_cmdfunc, arglist);
     if (!result){
-        log_it(L_DEBUG, "Function can't called");
+        log_it(L_DEBUG, "Function can't be called");
         PyErr_Print();
     }
     Py_XDECREF(arglist);
@@ -134,7 +134,7 @@ PyObject *dap_chain_node_cli_cmd_item_create_py(PyObject *a_self, PyObject *a_ar
             return NULL;
     }else {
         if (!PyCallable_Check(obj_cmdfunc)){
-            PyErr_SetString(PyExc_TypeError, "parameter must be callable");
+            PyErr_SetString(PyExc_TypeError, "the second argumnet must be a callable");
             return NULL;
         }
     }

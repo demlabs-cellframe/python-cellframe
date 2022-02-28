@@ -57,7 +57,7 @@ PyObject *wrapping_dap_chain_datum_get_datum_token(PyObject *self, PyObject *arg
         memcpy(obj_token->token, ((PyDapChainDatumObject*)self)->datum->data, l_size_token);
         return (PyObject*)obj_token;
     }else{
-        PyErr_SetString(PyExc_Exception, "Due to the type of this datum, it is not possible to get the token datum.");
+        PyErr_SetString(PyExc_Exception, "incorrect of a datum type. Can't get a token datum");
         return NULL;
     }
 }
@@ -86,7 +86,7 @@ PyObject *wrapping_dap_chain_datum_get_datum_token_emission(PyObject *self, PyOb
         return (PyObject*)obj_emission;
 
     }else{
-        PyErr_SetString(PyExc_Exception, "Due to the type of this datum, it is not possible to get the token datum.");
+        PyErr_SetString(PyExc_Exception, "incorrect of a datum type. Can't get a token datum");
         return NULL;
     }
 }
@@ -100,7 +100,7 @@ PyObject *wrapping_dap_chain_datum_get_datum_tx(PyObject *self, PyObject *args){
         ((PyDapChainDatumTxObject*)obj_datum_tx)->datum_tx = (dap_chain_datum_tx_t *)((PyDapChainDatumObject*)self)->datum->data;
         return obj_datum_tx;
     }else{
-        PyErr_SetString(PyExc_Exception, "Due to the type of this datum, it is not possible to get the transaction datum.");
+        PyErr_SetString(PyExc_Exception, "incorrect of a datum type. Can't get a transaction datum.");
         return NULL;
     }
 }
