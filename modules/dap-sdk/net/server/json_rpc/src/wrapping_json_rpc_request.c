@@ -72,15 +72,15 @@ PyObject* dap_json_rpc_request_reg_handler_py(PyObject *self, PyObject *args){
     PyObject *obj_func = NULL;
     char *method = NULL;
     if (!PyArg_ParseTuple(args, "sO", &method, &obj_func)) {
-        PyErr_SetString(PyExc_ValueError, "function takes two arguments, a string and a callable");
+        PyErr_SetString(PyExc_ValueError, "Function takes two arguments, a string and a callable");
         return NULL;
     }
     if(!PyCallable_Check(obj_func)){
-        PyErr_SetString(PyExc_ValueError, "the second argument must be a callable");
+        PyErr_SetString(PyExc_ValueError, "The second argument must be a callable");
         return NULL;
     }
     if (dap_json_rpc_registration_request_handler(method, _w_dap_json_rpc_request_handler) != 0){
-        PyErr_SetString(PyExc_IndexError, "this handler name is already registered");
+        PyErr_SetString(PyExc_IndexError, "This handler name is already registered");
         return NULL;
     }
     struct _w_json_rpc_handler *handler = DAP_NEW(struct _w_json_rpc_handler);

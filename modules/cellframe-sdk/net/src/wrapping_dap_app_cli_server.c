@@ -134,7 +134,7 @@ PyObject *dap_chain_node_cli_cmd_item_create_py(PyObject *a_self, PyObject *a_ar
             return NULL;
     }else {
         if (!PyCallable_Check(obj_cmdfunc)){
-            PyErr_SetString(PyExc_TypeError, "the second argumnet must be a callable");
+            PyErr_SetString(PyExc_TypeError, "The second argumnet must be a callable");
             return NULL;
         }
     }
