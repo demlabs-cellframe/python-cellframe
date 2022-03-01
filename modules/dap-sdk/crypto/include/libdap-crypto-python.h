@@ -51,11 +51,11 @@ int dap_crypto_init(void);
 void dap_crypto_deinit(void);
 
 static PyMethodDef g_crypto_methods_py[] = {
-        {"encodeBase58", dap_encode_base58_py, METH_VARARGS | METH_STATIC, "Encrypts information using the base58 algorithm from the DAP crypto library"},
-        {"decodeBase58", dap_decode_base58_py, METH_VARARGS | METH_STATIC, "Dencrypts information using the base58 algorithm from the DAP crypto library"},
-        {"encodeBase64", dap_encode_base64_py, METH_VARARGS | METH_STATIC, "Encrypts information using the base64 algorithm from the DAP crypto library"},
-        {"decodeBase64", dap_decode_base64_py, METH_VARARGS | METH_STATIC, "Dencrypts information using the base64 algorithm from the DAP crypto library"},
-        {"newKey", dap_enc_key_new_py, METH_VARARGS | METH_STATIC, "The function creates a new key, and returns it with PyObject."},
+        {"encodeBase58", dap_encode_base58_py, METH_VARARGS | METH_STATIC, "Encrypts information using the base58 algorithm"},
+        {"decodeBase58", dap_decode_base58_py, METH_VARARGS | METH_STATIC, "Dencrypts information using the base58 algorithm"},
+        {"encodeBase64", dap_encode_base64_py, METH_VARARGS | METH_STATIC, "Encrypts information using the base64 algorithm"},
+        {"decodeBase64", dap_decode_base64_py, METH_VARARGS | METH_STATIC, "Dencrypts information using the base64 algorithm"},
+        {"newKey", dap_enc_key_new_py, METH_VARARGS | METH_STATIC, "Creates a new key"},
         {"generateNewKey", dap_enc_key_new_generate_py, METH_VARARGS | METH_STATIC, ""},
         {"getEncSizeKey", dap_enc_key_get_enc_size_py, METH_VARARGS | METH_STATIC, ""},
         {"getDecSizeKey", dap_enc_key_get_dec_size_py, METH_VARARGS | METH_STATIC, ""},
@@ -100,7 +100,7 @@ static PyTypeObject g_crypto_type_py = {
     0,                         /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT |
         Py_TPFLAGS_BASETYPE,   /* tp_flags */
-    "Crypto objects",           /* tp_doc */
+    "Crypto object",           /* tp_doc */
     0,		               /* tp_traverse */
     0,		               /* tp_clear */
     0,		               /* tp_richcompare */

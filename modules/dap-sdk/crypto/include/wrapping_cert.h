@@ -56,10 +56,10 @@ PyObject* dap_cert_folder_add_py(PyObject *self, PyObject *args);
 PyObject* dap_cert_folder_get_py(PyObject *self, PyObject *args);
 
 static PyMethodDef g_crypto_cert_methods_py[] = {
-        {"generate",dap_cert_generate_py , METH_VARARGS | METH_STATIC, "Generate from seed or randomly the new certificate"},
+        {"generate",dap_cert_generate_py , METH_VARARGS | METH_STATIC, "Generates a new certificate from a seed or randomly"},
         {"find", dap_cert_find_py, METH_VARARGS | METH_STATIC, ""},
-        {"folderAdd", dap_cert_folder_add_py, METH_VARARGS | METH_STATIC, "Add folders with .dcert files in it"},
-        {"folderGet", dap_cert_folder_get_py, METH_VARARGS | METH_STATIC, "Get folder by number or the default one"},
+        {"folderAdd", dap_cert_folder_add_py, METH_VARARGS | METH_STATIC, "Adds folders with .dcert files in it"},
+        {"folderGet", dap_cert_folder_get_py, METH_VARARGS | METH_STATIC, "Gets folder by number or the default one"},
         {"load", dap_cert_load_py, METH_VARARGS | METH_STATIC ,""},
         {"dump", dap_cert_dump_py, METH_VARARGS , ""},
         {"pkey", dap_cert_pkey_py, METH_VARARGS , ""},

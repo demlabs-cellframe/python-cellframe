@@ -24,7 +24,7 @@ PyObject *_w_simple_proc_find(const char *url){
 }
 
 void wrapping_dap_http_simple_callback(dap_http_simple_t *sh, void *obj){
-    log_it(L_DEBUG, "Handling C module request");
+    log_it(L_DEBUG, "Handling C module request ...");
     PyGILState_STATE gstate;
     gstate = PyGILState_Ensure();
     PyObject *obj_func = _w_simple_proc_find(sh->http_client->url_path);
@@ -39,7 +39,7 @@ void wrapping_dap_http_simple_callback(dap_http_simple_t *sh, void *obj){
     PyErr_Print();
     PyObject *result = PyObject_CallObject(obj_func, obj_argv);
     if (!result){
-        log_it(L_DEBUG, "Function can't called");
+        log_it(L_DEBUG, "Function can't be called");
         PyErr_Print();
         *ret = Http_Status_InternalServerError;
     }
@@ -60,7 +60,7 @@ PyObject *dap_http_simple_add_proc_py(PyObject *self, PyObject *args){
         return NULL;
     } else {
         if (!PyCallable_Check(func_callback)){
-            PyErr_SetString(PyExc_TypeError, "parameter must be callable");
+            PyErr_SetString(PyExc_TypeError, "Fourth argument must be a callable");
             return NULL;
         }
     }
@@ -70,7 +70,7 @@ PyObject *dap_http_simple_add_proc_py(PyObject *self, PyObject *args){
                              url,
                              reply_size_max,
                              wrapping_dap_http_simple_callback);
-    log_it(L_NOTICE, "Add proc URL %s, python plugin", url);
+    log_it(L_NOTICE, "Add processor for \"%s\"", url);
     return Py_BuildValue("(O)", Py_None);
 }
 PyObject *dap_http_simple_module_init_py(PyObject *self, PyObject *args){
@@ -105,7 +105,7 @@ PyObject *dap_http_simple_reply_py(PyObject *self, PyObject *args){
         return  NULL;
     }
     if (!PyBytes_Check(l_obj_bytes)){
-        PyErr_SetString(PyExc_TypeError, "The passed parameter is not byte");
+        PyErr_SetString(PyExc_TypeError, "Function takes exactly bytes");
         return NULL;
     }
     size_t l_bytes_size = (size_t)PyBytes_Size(l_obj_bytes);

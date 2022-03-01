@@ -30,11 +30,11 @@
 
 int dap_crypto_init(void){
     if(dap_enc_init()!=0){
-        log_it(L_CRITICAL,"Can't init encryption module");
+        log_it(L_CRITICAL,"Can't initialize \"encryption\" module");
         return -1;
     }
     if(dap_enc_key_init()!=0){
-        log_it(L_CRITICAL,"Can't init encryption key module");
+        log_it(L_CRITICAL,"Can't initialize \"encryption\" key module");
         return -2;
     }
     PyCryptoKeyObject_PyCryptoKeyType.tp_new = PyType_GenericNew;
