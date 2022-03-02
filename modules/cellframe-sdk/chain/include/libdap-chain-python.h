@@ -41,6 +41,9 @@ PyObject *dap_chain_python_atom_get_datums(PyObject *self, PyObject *args);
 PyObject *dap_chain_python_atom_iter_get_next(PyObject *self, PyObject *args);
 PyObject *dap_chain_python_atom_iter_get_dag(PyObject *self, PyObject *args);
 
+PyObject *dap_chain_python_get_count_tx(PyObject *self, PyObject *args);
+PyObject *dap_chain_python_get_txs(PyObject *self, PyObject *args);
+
 static PyMethodDef DapChainMethods[] = {
     {"findById", (PyCFunction)dap_chain_find_by_id_py, METH_VARARGS|METH_STATIC, ""},
     {"loadFromCfg", (PyCFunction)dap_chain_has_file_store_py, METH_VARARGS|METH_STATIC, ""},
@@ -52,7 +55,9 @@ static PyMethodDef DapChainMethods[] = {
     {"atomGetDatums", (PyCFunction) dap_chain_python_atom_get_datums, METH_VARARGS, ""},
     {"atomIterGetNext", (PyCFunction)dap_chain_python_atom_iter_get_next, METH_VARARGS, ""},
     {"getDag", (PyCFunction)dap_chain_python_atom_iter_get_dag, METH_NOARGS},
-    //{"close", (PyCFunction)dap_chain_close_py, METH_NOARGS, ""},
+    {"countTx", (PyCFunction)dap_chain_python_get_count_tx, METH_NOARGS, ""},
+    {"getTransactions", (PyCFunction)dap_chain_python_get_txs, METH_VARARGS, ""},
+        //{"close", (PyCFunction)dap_chain_close_py, METH_NOARGS, ""},
     {NULL, NULL, 0, NULL}
 };
 
