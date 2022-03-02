@@ -5,7 +5,7 @@
 int dap_server_core_init(uint32_t l_thread_cnt, size_t conn_t){
     int result = dap_server_init();
     if ( result != 0 ) {
-       log_it( L_CRITICAL, "Can't init socket server module" );
+       log_it( L_CRITICAL, "Can't initialize \"socket server\" module" );
     }
     dap_events_init(l_thread_cnt, conn_t);
     return result;

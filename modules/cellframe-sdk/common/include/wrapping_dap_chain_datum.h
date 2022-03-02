@@ -44,7 +44,7 @@ typedef struct PyDapChainDatumTypeId{
 
 static PyTypeObject DapChainDatumTypeIdObject_DapChainDatumTypeIdObjectType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "CellFrame.Chain.DatumTypeId",          /* tp_name */
+    "CellFrame.ChainDatumTypeId",          /* tp_name */
     sizeof(PyDapChainDatumTypeIdObject),   /* tp_basicsize */
     0,                               /* tp_itemsize */
     0,                               /* tp_dealloc */
@@ -64,7 +64,7 @@ static PyTypeObject DapChainDatumTypeIdObject_DapChainDatumTypeIdObjectType = {
     0,                               /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT |
         Py_TPFLAGS_BASETYPE,         /* tp_flags */
-    "Chain datum type id object",           /* tp_doc */
+    "Chain datum type ID object",           /* tp_doc */
     0,		                         /* tp_traverse */
     0,		                         /* tp_clear */
     0,		                         /* tp_richcompare */
@@ -123,7 +123,7 @@ static PyGetSetDef  DapChainDatumGetSet[] = {
 
 static PyTypeObject DapChainDatumObject_DapChainDatumObjectType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "CellFrame.Chain.Datum",          /* tp_name */
+    "CellFrame.ChainDatum",          /* tp_name */
     sizeof(PyDapChainDatumObject),   /* tp_basicsize */
     0,                               /* tp_itemsize */
     0,                               /* tp_dealloc */
@@ -172,7 +172,7 @@ typedef struct PyDapChainDatumIter{
 
 static PyTypeObject DapChainDatumIterObject_DapChainDatumIterObjectType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "CellFrame.Chain.DatumIter",          /* tp_name */
+    "CellFrame.ChainDatumIter",          /* tp_name */
     sizeof(PyDapChainDatumIterObject),   /* tp_basicsize */
     0,                               /* tp_itemsize */
     0,                               /* tp_dealloc */
@@ -192,7 +192,7 @@ static PyTypeObject DapChainDatumIterObject_DapChainDatumIterObjectType = {
     0,                               /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT |
         Py_TPFLAGS_BASETYPE,         /* tp_flags */
-    "Chain datum iter object",           /* tp_doc */
+    "Chain datum iterator object",           /* tp_doc */
     0,		                         /* tp_traverse */
     0,		                         /* tp_clear */
     0,		                         /* tp_richcompare */

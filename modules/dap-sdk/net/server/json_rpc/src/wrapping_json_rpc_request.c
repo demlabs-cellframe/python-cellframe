@@ -52,16 +52,16 @@ void _w_dap_json_rpc_request_handler(dap_json_rpc_params_t *a_params, dap_json_r
         PyErr_Print();
         PyGILState_Release(GILState);
         if (!obj_result){
-            log_it(L_ERROR, "Can't called method: %s", a_method);
+            log_it(L_ERROR, "Can't call method: %s", a_method);
             a_response->type_result = TYPE_RESPONSE_NULL;
             a_response->error = DAP_NEW(dap_json_rpc_error_t);
             a_response->error->code_error = 0xF1;
-            a_response->error->msg = "Can't called method";
+            a_response->error->msg = "Can't call method";
             //a_response->error = dap_json_rpc_error_search_by_code(1);
             return;
         }
     } else {
-        log_it(L_WARNING, "%s method can't be called, it is not in the python function call table.", a_method);
+        log_it(L_WARNING, "Can't call method: %s. It isn't in the python function table.", a_method);
         a_response->type_result = TYPE_RESPONSE_NULL;
         a_response->error = dap_json_rpc_error_search_by_code(1);
     }
@@ -72,16 +72,15 @@ PyObject* dap_json_rpc_request_reg_handler_py(PyObject *self, PyObject *args){
     PyObject *obj_func = NULL;
     char *method = NULL;
     if (!PyArg_ParseTuple(args, "sO", &method, &obj_func)) {
-        PyErr_SetString(PyExc_ValueError, "The function was called with invalid arguments , this function must take two"
-                                          "arguments, a string and a callback function.");
+        PyErr_SetString(PyExc_ValueError, "Function takes two arguments, a string and a callable");
         return NULL;
     }
     if(!PyCallable_Check(obj_func)){
-        PyErr_SetString(PyExc_ValueError, "The second argument is not a callback function.");
+        PyErr_SetString(PyExc_ValueError, "The second argument must be a callable");
         return NULL;
     }
     if (dap_json_rpc_registration_request_handler(method, _w_dap_json_rpc_request_handler) != 0){
-        PyErr_SetString(PyExc_IndexError, "A handler with this name has already been registered.");
+        PyErr_SetString(PyExc_IndexError, "This handler name is already registered");
         return NULL;
     }
     struct _w_json_rpc_handler *handler = DAP_NEW(struct _w_json_rpc_handler);

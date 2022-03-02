@@ -22,7 +22,7 @@ PyObject *dap_chain_client_connect_py(PyObject *self, PyObject *args){
 
 PyObject *dap_chain_node_client_connect_py(PyObject *self, PyObject *args){
     if (self != NULL){
-        PyErr_SetString(PyExc_SyntaxWarning, "This is method called statically");
+        PyErr_SetString(PyExc_SyntaxWarning, "Method must be called statically");
         return NULL;
     }
     PyObject *obj_net;

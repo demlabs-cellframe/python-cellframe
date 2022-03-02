@@ -27,11 +27,11 @@ PyObject *dap_http_simple_reply_py(PyObject *self, PyObject *args);
 
 static PyMethodDef PyDapHttpSimpleMethods[] = {
     //{"addProc", enc_http_add_proc_py, METH_VARARGS | METH_STATIC, ""},
-    {"init", dap_http_simple_module_init_py, METH_NOARGS | METH_STATIC, "Initialization module http simple"},
-    {"deinit", dap_http_simple_module_deinit_py,  METH_NOARGS | METH_STATIC, "Deinitialization module http simple"},
-    {"addProc", dap_http_simple_add_proc_py, METH_VARARGS | METH_STATIC, "Add HTTP URL"},
+    {"init", dap_http_simple_module_init_py, METH_NOARGS | METH_STATIC, "Initialize a \"HttpSimple\" module"},
+    {"deinit", dap_http_simple_module_deinit_py,  METH_NOARGS | METH_STATIC, "Deinitialize a \"HttpSimple\" module"},
+    {"addProc", dap_http_simple_add_proc_py, METH_VARARGS | METH_STATIC, "Add a processor for URL"},
     {"setPassUnknownUserAgents", dap_http_simple_set_pass_unknown_user_agents_py, METH_VARARGS | METH_STATIC, ""},
-    {"replyAdd", dap_http_simple_reply_py, METH_VARARGS, "Reply for request"},
+    {"replyAdd", dap_http_simple_reply_py, METH_VARARGS, "Add a reply for a request"},
     {NULL, NULL, 0, NULL}
 };
 
@@ -42,10 +42,10 @@ PyObject *dap_http_simple_url_path_py(PyDapHttpSimpleObject *self, void *clouser
 PyObject *dap_http_simple_query_py(PyDapHttpSimpleObject *self, void *clouser);
 
 static PyGetSetDef PyDapHttpSimpleGetSetDef[] = {
-    {"action", (getter)dap_http_simple_method_py, NULL, "Return action request", NULL},
-    {"request", (getter)dap_http_simple_request_py, NULL, "Return request in view bytes", NULL},
-    {"urlPath", (getter)dap_http_simple_url_path_py, NULL, "Return request in view bytes", NULL},
-    {"query", (getter)dap_http_simple_query_py, NULL, "Return request in view bytes", NULL},
+    {"action", (getter)dap_http_simple_method_py, NULL, "Get an action request", NULL},
+    {"request", (getter)dap_http_simple_request_py, NULL, "Get a request", NULL},
+    {"urlPath", (getter)dap_http_simple_url_path_py, NULL, "Get an URL string", NULL},
+    {"query", (getter)dap_http_simple_query_py, NULL, "Get a query string", NULL},
     {NULL}
 };
 
@@ -73,7 +73,7 @@ static PyTypeObject DapHTTPSimple_DapHTTPSimpleType = {
     0,                                                 /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT |
         Py_TPFLAGS_BASETYPE,                           /* tp_flags */
-    "Dap http simple object",                         /* tp_doc */
+    "HTTP simple object",                         /* tp_doc */
     0,		                                       /* tp_traverse */
     0,                        		               /* tp_clear */
     0,		                                       /* tp_richcompare */

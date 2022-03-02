@@ -31,7 +31,7 @@ static PyMethodDef ServerCorePythonMethods[] = {
 
 static PyTypeObject ServerCore_ServerCoreType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "ServerCore",             /* tp_name */
+    "CellFrame.ServerCore",             /* tp_name */
     sizeof(PyServerCoreObject),         /* tp_basicsize */
     0,                                  /* tp_itemsize */
     0,                                  /* tp_dealloc */
@@ -51,7 +51,7 @@ static PyTypeObject ServerCore_ServerCoreType = {
     0,                                  /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT |
         Py_TPFLAGS_BASETYPE,            /* tp_flags */
-    "ServerCore objects",               /* tp_doc */
+    "ServerCore object",               /* tp_doc */
     0,		                        /* tp_traverse */
     0,         		                /* tp_clear */
     0,		                        /* tp_richcompare */
