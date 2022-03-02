@@ -29,7 +29,7 @@ static PyMethodDef DapChainTypeMethods[] = {
 
 static PyTypeObject dapChainTypeObject_dapChainTypeType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "CellFrame.Chain.Type",         /* tp_name */
+    "CellFrame.ChainType",         /* tp_name */
     sizeof(PyChainTypeObject),  /* tp_basicsize */
     0,                         /* tp_itemsize */
     0,                         /* tp_dealloc */
@@ -49,7 +49,7 @@ static PyTypeObject dapChainTypeObject_dapChainTypeType = {
     0,                         /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT |
         Py_TPFLAGS_BASETYPE,   /* tp_flags */
-    "Chain type objects",      /* tp_doc */
+    "Chain type object",      /* tp_doc */
     0,		                   /* tp_traverse */
     0,		                   /* tp_clear */
     0,		                   /* tp_richcompare */

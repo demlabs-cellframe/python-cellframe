@@ -200,7 +200,7 @@ int _w_dap_chain_callback_data_t_response_success(
             WRAPPING_DAP_CHAIN_NET_SERV_CALLBACK_DATA_RESPONSE_SUCCESS,
             a_srv);
     if (!PyCallable_Check(l_func)){
-        log_it(L_ERROR, "Function python is not callabel");
+        log_it(L_ERROR, "python function isn't a callable");
         return -1;
     }
     Py_INCREF(l_func);

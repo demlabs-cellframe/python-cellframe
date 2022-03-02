@@ -19,7 +19,7 @@ static void PyCryptoKeyObject_dealloc(PyCryptoKeyObject *cryptoObject){
 
 static PyTypeObject PyCryptoKeyObject_PyCryptoKeyType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "CellFrame.Crypto.Key",                            /* tp_name */
+    "CellFrame.CryptoKey",                            /* tp_name */
     sizeof(PyCryptoKeyObject),                         /* tp_basicsize */
     0,                                                 /* tp_itemsize */
     (destructor)PyCryptoKeyObject_dealloc,             /* tp_dealloc */
@@ -38,7 +38,7 @@ static PyTypeObject PyCryptoKeyObject_PyCryptoKeyType = {
     0,                                                 /* tp_setattro */
     0,                                                 /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT,                                /* tp_flags */
-    "Crypto key objects",                              /* tp_doc */
+    "Crypto key object",                              /* tp_doc */
 };
 
 #ifdef __cplusplus

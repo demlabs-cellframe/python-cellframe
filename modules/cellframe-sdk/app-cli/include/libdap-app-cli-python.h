@@ -21,7 +21,7 @@ static PyMethodDef AppCliMethods[] = {
 
 static PyTypeObject DapAppCli_dapAppCliType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "AppCli",             /* tp_name */
+    "CellFrame.AppCli",             /* tp_name */
     sizeof(PyAppCliObject),         /* tp_basicsize */
     0,                         /* tp_itemsize */
     0,                         /* tp_dealloc */

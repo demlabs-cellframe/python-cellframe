@@ -59,7 +59,7 @@ void dap_chain_plugins_list_name_del(const char *a_name){
         }
     }
     if (!plugin_searcging){
-        log_it(L_WARNING, "Can't searching plugins %s for delete", a_name);
+        log_it(L_WARNING, "Can't find \"%s\" plugin", a_name);
     }
 }
 

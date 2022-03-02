@@ -41,7 +41,7 @@ static PyMethodDef PyDapEventsObjectSocket_methods[] = {
 
 static PyTypeObject dapEventsSocket_dapEventsSocketType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "CellFrame.ServerCore.DapEventsSocket",             /* tp_name */
+    "CellFrame.EventsSocket",             /* tp_name */
     sizeof(PyDapEventsSocketObject),                   /* tp_basicsize */
     0,                                                 /* tp_itemsize */
     0,                                                 /* tp_dealloc */
@@ -61,7 +61,7 @@ static PyTypeObject dapEventsSocket_dapEventsSocketType = {
     0,                                                 /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT |
         Py_TPFLAGS_BASETYPE,                           /* tp_flags */
-    "DapEventsSocket objects",                         /* tp_doc */
+    "Events socket object",                         /* tp_doc */
     0,		                                       /* tp_traverse */
     0,                        		               /* tp_clear */
     0,		                                       /* tp_richcompare */

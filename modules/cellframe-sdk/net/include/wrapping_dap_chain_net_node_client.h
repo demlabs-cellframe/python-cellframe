@@ -38,7 +38,7 @@ static PyMethodDef DapChainNodeClientMethods[] = {
 
 static PyTypeObject DapChainNodeClientObject_DapChainNodeClientObjectType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "CellFrame.Chain.Node.Client",            /* tp_name */
+    "CellFrame.ChainNodeClient",            /* tp_name */
     sizeof(PyDapChainNodeClientObject),     /* tp_basicsize */
     0,                               /* tp_itemsize */
     0,                               /* tp_dealloc */

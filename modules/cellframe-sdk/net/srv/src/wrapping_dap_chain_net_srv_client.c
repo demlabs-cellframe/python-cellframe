@@ -16,7 +16,7 @@ static void _wrapping_dap_chain_net_srv_client_callback_connected(dap_chain_net_
         Py_XDECREF(l_call);
         PyGILState_Release(state);
     }else{
-        log_it(L_ERROR, "Can't call handler Python in callback connected");
+        log_it(L_ERROR, "Can't call a python handler on connected event");
     }
 }
 
@@ -34,7 +34,7 @@ static void _wrapping_dap_chain_net_srv_client_callback_disconnected(dap_chain_n
         Py_XDECREF(l_call);
         PyGILState_Release(state);
     }else{
-        log_it(L_ERROR, "Can't call handler Python in callback disconnected");
+        log_it(L_ERROR, "Can't call a python handler on disconnected event");
     }
 }
 
@@ -52,7 +52,7 @@ static void _wrapping_dap_chain_net_srv_client_callback_deleted(dap_chain_net_sr
         Py_XDECREF(l_call);
         PyGILState_Release(state);
     }else{
-        log_it(L_ERROR, "Can't call handler Python in callback delete");
+        log_it(L_ERROR, "Can't call a python handler Python on deleted event");
     }
 }
 
@@ -64,7 +64,7 @@ static void _wrapping_dap_chain_net_srv_client_callback_pkt_in(void *a_chain_net
     dap_chain_net_srv_client_t *l_srv_client = (dap_chain_net_srv_client_t *)a_arg;
     PyDapChainNetSrvClientObject *py_client = (PyDapChainNetSrvClientObject *)l_srv_client->_inheritor;
     if (a_type != DAP_STREAM_CH_CHAIN_NET_SRV_PKT_TYPE_DATA) {
-        log_it(L_ERROR, "Can't process packet type %u", a_type);
+        log_it(L_ERROR, "Can't process a %u packet type", a_type);
         return;
     }
     dap_stream_ch_chain_net_srv_pkt_data_t *l_response = (dap_stream_ch_chain_net_srv_pkt_data_t *)a_pkt->data;
@@ -79,9 +79,9 @@ static void _wrapping_dap_chain_net_srv_client_callback_pkt_in(void *a_chain_net
         Py_XDECREF(l_call);
         PyGILState_Release(state);
     }else{
-        log_it(L_ERROR, "Can't call handler Python in callback read");
+        log_it(L_ERROR, "Can't call python handler on read event");
     }
-    log_it(L_NOTICE, "Callback srv client pkt_it");
+    log_it(L_NOTICE, "Callback pkt_in function of service client was called");
 }
 
 int PyDapChainNetSrvClient_init(PyDapChainNetSrvClientObject* self, PyObject *args, PyObject *kwds){

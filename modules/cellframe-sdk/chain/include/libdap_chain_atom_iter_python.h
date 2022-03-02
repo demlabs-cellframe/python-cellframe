@@ -18,7 +18,7 @@ static PyMethodDef DapChainAtomIterMethods[] = {
 
 static PyTypeObject DapChainAtomIter_DapChainAtomIterType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "CellFrame.Chain.AtomIter",     /* tp_name */
+    "CellFrame.ChainAtomIter",     /* tp_name */
     sizeof(PyChainAtomIterObject),       /* tp_basicsize */
     0,                                  /* tp_itemsize */
     0,                                  /* tp_dealloc */
@@ -38,7 +38,7 @@ static PyTypeObject DapChainAtomIter_DapChainAtomIterType = {
     0,                                  /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT |
         Py_TPFLAGS_BASETYPE,            /* tp_flags */
-    "Chain atom iter objects",           /* tp_doc */
+    "Chain atom iter object",           /* tp_doc */
     0,		                            /* tp_traverse */
     0,		                            /* tp_clear */
     0,		                            /* tp_richcompare */
