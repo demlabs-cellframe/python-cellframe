@@ -61,10 +61,10 @@ int dap_chain_plugins_manifest_name_cmp(dap_chain_plugins_list_manifest_t *man, 
 
 dap_chain_plugins_list_manifest_t* dap_chain_plugins_add_manifest_from_file(const char *file_path){
     //READ File in char
-    log_it(L_INFO, "Parse json file");
+    log_it(L_INFO, "Parse JSON file");
     FILE *file = fopen(file_path, "rt");
     if (file == NULL){
-        log_it(L_ERROR, "Error open manifest files along the way %s", file_path);
+        log_it(L_ERROR, "Can't open manifest file on path: %s", file_path);
         return NULL;
     }
     fseek(file, 0, SEEK_END);

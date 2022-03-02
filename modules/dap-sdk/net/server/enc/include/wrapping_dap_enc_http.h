@@ -35,10 +35,10 @@ PyObject *enc_http_get_url_path_py(PyDapEncServerObject *self, void *clouser);
 PyObject *enc_http_get_in_query_py(PyDapEncServerObject *self, void *clouser);
 
 static PyGetSetDef PyDapEncServerGetSet[] = {
-    {"action", (getter)enc_http_get_action_py, NULL, "Return action request", NULL},
-    {"request", (getter)enc_http_get_request_py, NULL, "Return request in view bytes", NULL},
-    {"urlPath", (getter)enc_http_get_url_path_py, NULL, "Return request in view bytes", NULL},
-    {"query", (getter)enc_http_get_in_query_py, NULL, "Return request in view bytes", NULL},
+    {"action", (getter)enc_http_get_action_py, NULL, "Get an action request", NULL},
+    {"request", (getter)enc_http_get_request_py, NULL, "Get a request", NULL},
+    {"urlPath", (getter)enc_http_get_url_path_py, NULL, "Get an URL string", NULL},
+    {"query", (getter)enc_http_get_in_query_py, NULL, "Get a query string", NULL},
     {NULL}
 };
 
@@ -64,7 +64,7 @@ static PyTypeObject DapEncServer_DapEncServerType = {
     0,                                                 /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT |
         Py_TPFLAGS_BASETYPE,                           /* tp_flags */
-    "Dap enc server object",                         /* tp_doc */
+    "Encrypting server object",                         /* tp_doc */
     0,		                                       /* tp_traverse */
     0,                        		               /* tp_clear */
     0,		                                       /* tp_richcompare */

@@ -41,14 +41,14 @@ PyObject* dap_cert_generate_py(PyObject *self, PyObject *args)
     const char *l_arg_seed_string = NULL;
 
     if (!PyArg_ParseTuple(args, "sis", &l_arg_cert_name, &l_arg_cert_key_type, &l_arg_seed_string) ){
-        PyErr_SetString(PyExc_SyntaxError, "Wrong arguments list in function call");
+        PyErr_SetString(PyExc_SyntaxError, "Wrong argument list");
         return NULL;
     }
 
     if (l_arg_cert_name != 0)
         l_cert_name = l_arg_cert_name;
     else {
-        PyErr_SetString(PyExc_SyntaxError, "Certificate name is NULL");
+        PyErr_SetString(PyExc_SyntaxError, "Certificate name is None");
         return NULL;
     }
 

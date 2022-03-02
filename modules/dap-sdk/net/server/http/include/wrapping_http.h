@@ -23,7 +23,7 @@ static PyMethodDef DapHttpMethods[] = {
 
 static PyTypeObject DapHTTP_DapHTTPType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "CellFrame.DapHttp",             /* tp_name */
+    "CellFrame.Http",             /* tp_name */
     sizeof(PyDapHttpObject),                   /* tp_basicsize */
     0,                                                 /* tp_itemsize */
     0,                                                 /* tp_dealloc */
@@ -43,7 +43,7 @@ static PyTypeObject DapHTTP_DapHTTPType = {
     0,                                                 /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT |
         Py_TPFLAGS_BASETYPE,                           /* tp_flags */
-    "Dap Http object",                         /* tp_doc */
+    "Http object",                         /* tp_doc */
     0,		                                       /* tp_traverse */
     0,                        		               /* tp_clear */
     0,		                                       /* tp_richcompare */

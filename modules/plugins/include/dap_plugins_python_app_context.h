@@ -24,8 +24,8 @@ PyObject *dap_plugins_python_app_context_get_server(PyObject *self, PyObject *ar
 PyObject *dap_plugins_python_app_context_get_http(PyObject *self, PyObject *args);
 
 static PyMethodDef DapAppContextMethods[] = {
-    {"getServer", (PyCFunction)dap_plugins_python_app_context_get_server, METH_VARARGS | METH_STATIC, "Get main server from node"},
-    {"getHttp", (PyCFunction)dap_plugins_python_app_context_get_http, METH_NOARGS | METH_STATIC, "Get main server from node"},
+    {"getServer", (PyCFunction)dap_plugins_python_app_context_get_server, METH_VARARGS | METH_STATIC, "Get a main server from a node"},
+    {"getHttp", (PyCFunction)dap_plugins_python_app_context_get_http, METH_NOARGS | METH_STATIC, "Get a main server from a node"},
     {NULL, NULL, 0, NULL}
 };
 
@@ -52,7 +52,7 @@ static PyTypeObject dapAppContext_dapAppContextType = {
     0,                                                 /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT |
         Py_TPFLAGS_BASETYPE,                           /* tp_flags */
-    "Dap App Context object",                         /* tp_doc */
+    "Application context object",                         /* tp_doc */
     0,		                                       /* tp_traverse */
     0,                        		               /* tp_clear */
     0,		                                       /* tp_richcompare */

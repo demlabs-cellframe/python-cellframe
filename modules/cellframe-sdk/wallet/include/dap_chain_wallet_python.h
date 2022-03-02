@@ -58,7 +58,7 @@ static PyMethodDef ChainWalletMethods[] = {
 
 static PyTypeObject DapChainWallet_dapChainWalletType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "ChainWallet",             /* tp_name */
+    "CellFrame.ChainWallet",             /* tp_name */
     sizeof(PyDapChainWalletObject),         /* tp_basicsize */
     0,                         /* tp_itemsize */
     (destructor)dap_chain_wallet_close_py, /* tp_dealloc */

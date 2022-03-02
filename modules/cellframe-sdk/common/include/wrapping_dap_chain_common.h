@@ -121,7 +121,7 @@ static PyMethodDef DapChainAddrMethods[] = {
 
 static PyTypeObject DapChainAddrObject_DapChainAddrObjectType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "CellFrame.Chain.Addr",       /* tp_name */
+    "CellFrame.ChainAddr",       /* tp_name */
     sizeof(PyDapChainAddrObject),/* tp_basicsize */
     0,                               /* tp_itemsize */
     0,                               /* tp_dealloc */
@@ -141,7 +141,7 @@ static PyTypeObject DapChainAddrObject_DapChainAddrObjectType = {
     0,                               /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT |
         Py_TPFLAGS_BASETYPE,         /* tp_flags */
-    "Chain addr object",             /* tp_doc */
+    "Chain address object",             /* tp_doc */
     0,		                         /* tp_traverse */
     0,		                         /* tp_clear */
     0,		                         /* tp_richcompare */
@@ -180,7 +180,7 @@ static PyMethodDef DapChainNetIdObjectMethods[] = {
 
 static PyTypeObject DapChainNetIdObject_DapChainNetIdObjectType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "CellFrame.Chain.NetID",          /* tp_name */
+    "CellFrame.ChainNetID",          /* tp_name */
     sizeof(PyDapChainNetIdObject),   /* tp_basicsize */
     0,                               /* tp_itemsize */
     0,                               /* tp_dealloc */
@@ -200,7 +200,7 @@ static PyTypeObject DapChainNetIdObject_DapChainNetIdObjectType = {
     0,                               /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT |
         Py_TPFLAGS_BASETYPE,         /* tp_flags */
-    "Chain net id object",           /* tp_doc */
+    "Chain net ID object",           /* tp_doc */
     0,		                         /* tp_traverse */
     0,		                         /* tp_clear */
     0,		                         /* tp_richcompare */
@@ -258,7 +258,7 @@ static PyTypeObject DapChainNetSrvUIDObject_DapChainNetSrvUIDObjectType = {
     0,                               /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT |
         Py_TPFLAGS_BASETYPE,         /* tp_flags */
-    "Chain net srv uid object",           /* tp_doc */
+    "Chain net service UID object",           /* tp_doc */
     0,		                         /* tp_traverse */
     0,		                         /* tp_clear */
     0,		                         /* tp_richcompare */
@@ -336,7 +336,7 @@ static PyTypeObject DapChainNetSrvPriceUnitUIDObject_DapChainNetSrvPriceUnitUIDO
     0,                                               /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT |
         Py_TPFLAGS_BASETYPE,                         /* tp_flags */
-    "Chain net srv price unit uid object",           /* tp_doc */
+    "Chain net service price unit UID object",           /* tp_doc */
     0,		                                         /* tp_traverse */
     0,		                                         /* tp_clear */
     0,		                                         /* tp_richcompare */
@@ -387,7 +387,7 @@ static PyTypeObject DapChainIDObject_DapChainIDType = {
     0,                               /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT |
         Py_TPFLAGS_BASETYPE,         /* tp_flags */
-    "Chain id object",          /* tp_doc */
+    "Chain ID object",          /* tp_doc */
     0,		                         /* tp_traverse */
     0,		                         /* tp_clear */
     0,		                         /* tp_richcompare */
@@ -440,7 +440,7 @@ static PyTypeObject DapChainCellIDObject_DapChainCellIDType = {
     0,                               /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT |
         Py_TPFLAGS_BASETYPE,         /* tp_flags */
-    "Chain cell id object",          /* tp_doc */
+    "Chain cell ID object",          /* tp_doc */
     0,		                         /* tp_traverse */
     0,		                         /* tp_clear */
     0,		                         /* tp_richcompare */
@@ -493,7 +493,7 @@ static PyTypeObject DapChainNodeAddrObject_DapChainNodeAddrObjectType = {
         0,                               /* tp_as_buffer */
         Py_TPFLAGS_DEFAULT |
         Py_TPFLAGS_BASETYPE,         /* tp_flags */
-        "Chain node addr object",          /* tp_doc */
+        "Chain node address object",          /* tp_doc */
         0,		                         /* tp_traverse */
         0,		                         /* tp_clear */
         0,		                         /* tp_richcompare */
