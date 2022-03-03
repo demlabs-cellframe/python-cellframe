@@ -62,7 +62,7 @@ static void _wrapping_dap_chain_net_srv_client_callback_check(dap_chain_net_srv_
                                                               void *a_arg) {
     UNUSED(a_pkt);
     PyDapChainNetSrvClientObject *py_client = (PyDapChainNetSrvClientObject *)a_srv_client->_inheritor;
-    PyObject *l_call = py_client->callback_data;
+    PyObject *l_call = py_client->callback_check;
     if(PyCallable_Check(l_call)) {
         PyObject *l_args = Py_BuildValue("OO", py_client, (PyObject *)a_arg);
         PyGILState_STATE state = PyGILState_Ensure();
@@ -82,7 +82,7 @@ static dap_chain_datum_tx_receipt_t * _wrapping_dap_chain_net_srv_client_callbac
                                                              dap_chain_datum_tx_receipt_t *a_receipt,
                                                              void *a_arg) {
     PyDapChainNetSrvClientObject *py_client = (PyDapChainNetSrvClientObject *)a_srv_client->_inheritor;
-    PyObject *l_call = py_client->callback_data;
+    PyObject *l_call = py_client->callback_sign;
     PyDapChainTXReceiptObject *py_ret = NULL;
     if(PyCallable_Check(l_call)) {
         PyDapChainTXReceiptObject *py_receipt = PyObject_New(PyDapChainTXReceiptObject,
@@ -109,7 +109,7 @@ static void _wrapping_dap_chain_net_srv_client_callback_success(dap_chain_net_sr
                                                                 size_t a_pkt_size,
                                                                 void *a_arg) {
     PyDapChainNetSrvClientObject *py_client = (PyDapChainNetSrvClientObject *)a_srv_client->_inheritor;
-    PyObject *l_call = py_client->callback_data;
+    PyObject *l_call = py_client->callback_success;
     if(PyCallable_Check(l_call)) {
         PyDapHashFastObject *py_cond_hash = PyObject_New(PyDapHashFastObject,
                                                          &DapHashTypeObject_DapChainHashTypeObjectType);
@@ -135,7 +135,7 @@ static void _wrapping_dap_chain_net_srv_client_callback_error(dap_chain_net_srv_
                                                               int a_error_code,
                                                               void *a_arg) {
     PyDapChainNetSrvClientObject *py_client = (PyDapChainNetSrvClientObject *)a_srv_client->_inheritor;
-    PyObject *l_call = py_client->callback_data;
+    PyObject *l_call = py_client->callback_error;
     if(PyCallable_Check(l_call)) {
         PyObject *l_args = Py_BuildValue("OiO", py_client, a_error_code, (PyObject *)a_arg);
         PyGILState_STATE state = PyGILState_Ensure();
