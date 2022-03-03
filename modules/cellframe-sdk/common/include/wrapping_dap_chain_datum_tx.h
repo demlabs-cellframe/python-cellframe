@@ -186,6 +186,7 @@ static PyTypeObject DapChainTxCondType_DapChainTxCondTypeObject = {
 typedef struct PyDapChainDatumTx{
     PyObject_HEAD
     dap_chain_datum_tx_t *datum_tx;
+    bool original;
 }PyDapChainDatumTxObject;
 
 PyObject *PyDapChainDatumTxObject_create(PyTypeObject *type_object, PyObject *args, PyObject *kwds);
@@ -228,7 +229,7 @@ static PyTypeObject DapChainDatumTx_DapChainDatumTxObjectType = {
     "CellFrame.ChainDatumTx",                      /* tp_name */
     sizeof(PyDapChainDatumTxObject),               /* tp_basicsize */
     0,                                             /* tp_itemsize */
-    0,//(destructor)PyDapChainDatumTxObject_delete,    /* tp_dealloc */
+    (destructor)PyDapChainDatumTxObject_delete,    /* tp_dealloc */
     0,                                              /* tp_print */
     0,                                              /* tp_getattr */
     0,                                              /* tp_setattr */
