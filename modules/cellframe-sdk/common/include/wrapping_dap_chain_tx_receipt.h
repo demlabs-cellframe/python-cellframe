@@ -63,6 +63,12 @@ static PyGetSetDef DapChainTxReceiptGetSetDefs[] = {
         {NULL}
 };
 
+static PyMethodDef DapChainTxReceiptMethods[] = {
+        {"sign", (PyCFunction)wrapping_dap_chain_tx_receipt_sign, METH_VARARGS, ""},
+        {NULL, NULL, 0, NULL}
+};
+
+
 static PyTypeObject DapChainTxReceiptObject_DapChainTxReceiptTypeObjectType = {
         PyVarObject_HEAD_INIT(NULL, 0)
         "CellFrame.ChainTxReceipt",        /* tp_name */
@@ -84,17 +90,17 @@ static PyTypeObject DapChainTxReceiptObject_DapChainTxReceiptTypeObjectType = {
         0,                                  /* tp_setattro */
         0,                                  /* tp_as_buffer */
         Py_TPFLAGS_DEFAULT |
-        Py_TPFLAGS_BASETYPE,            /* tp_flags */
-        "Chain tx item receipt object",        /* tp_doc */
+        Py_TPFLAGS_BASETYPE,                /* tp_flags */
+        "Chain tx item receipt object",     /* tp_doc */
         0,		                            /* tp_traverse */
         0,		                            /* tp_clear */
         0,		                            /* tp_richcompare */
         0,                                  /* tp_weaklistoffset */
         0,		                            /* tp_iter */
         0,		                            /* tp_iternext */
-        0,  /* tp_methods */
+        DapChainTxReceiptMethods,           /* tp_methods */
         0,                                  /* tp_members */
-        DapChainTxReceiptGetSetDefs,                                  /* tp_getset */
+        DapChainTxReceiptGetSetDefs,        /* tp_getset */
         0,                                  /* tp_base */
         0,                                  /* tp_dict */
         0,                                  /* tp_descr_get */

@@ -147,12 +147,11 @@ int _w_dap_chain_callback_data_t_receipt_next_success(
     return 0;
 }
 
-void *_w_dap_chain_callback_data_t_stream_ch_read_with_out_data(
-        dap_chain_net_srv_t *a_srv,
-        dap_chain_net_srv_usage_t *a_usage,
-        const void *a_custom_data,
-        size_t a_custom_data_size,
-        size_t *a_out_data_size){
+void *_w_dap_chain_callback_data_t_custom_data(dap_chain_net_srv_t *a_srv,
+                                               dap_chain_net_srv_usage_t *a_usage,
+                                               const void *a_custom_data,
+                                               size_t a_custom_data_size,
+                                               size_t *a_out_data_size){
     PyDapChainNetSrvObject *pyNetSrvObj = (PyDapChainNetSrvObject *)a_srv->_inheritor;
     PyObject *l_func = pyNetSrvObj->callbackReadWithOutData;
     if (!PyCallable_Check(l_func)){
@@ -194,15 +193,18 @@ int _w_dap_chain_callback_data_t_client_success(
 int PyDapChainNetSrv_init(PyDapChainNetSrvObject* self, PyObject *args, PyObject *kwds){
     const char *kwlist[] = {
             "uid",
+            "section"
             "callbackRequested",
             "callbackResponseSuccess",
             "callbackResponseError",
             "callbackReceiptNextSuccess",
-            "callbackReadWithOutData",
+            "callbackCustomData",
             NULL};
     PyDapChainNetSrvUIDObject *obj_uid;
-    if(!PyArg_ParseTupleAndKeywords(args, kwds, "OOOOOO", (char **)kwlist,
+    const char *l_section;
+    if(!PyArg_ParseTupleAndKeywords(args, kwds, "OsOOOOO", (char **)kwlist,
                                     &obj_uid,
+                                    &l_section,
                                     &self->callbackRequested,
                                     &self->callbackSuccess,
                                     &self->callbackError,
@@ -218,14 +220,13 @@ int PyDapChainNetSrv_init(PyDapChainNetSrvObject* self, PyObject *args, PyObject
             PyCallable_Check(self->callbackReadWithOutData)) {
         self->srv = dap_chain_net_srv_add(
                 obj_uid->net_srv_uid,
+                l_section,
                 _w_dap_chain_callback_data_t_requested,
                 _w_dap_chain_callback_data_t_response_success,
                 _w_dap_chain_callback_data_t_response_error,
-                _w_dap_chain_callback_data_t_receipt_next_success
+                _w_dap_chain_callback_data_t_receipt_next_success,
+                _w_dap_chain_callback_data_t_custom_data
                 );
-        dap_chain_net_srv_set_ch_callbacks(((PyDapChainNetSrvUIDObject*)obj_uid)->net_srv_uid,
-                                           NULL, _w_dap_chain_callback_data_t_stream_ch_read_with_out_data,
-                                           NULL, NULL);
         if (self->srv == NULL){
             return -3;
         }
@@ -258,14 +259,14 @@ PyObject *wrapping_dap_chain_net_srv_get_grace_period(PyObject *self, void *clos
 /* callbacks stream ch */
 
 PyObject *wrapping_dap_chain_net_srv_set_callback_channel(PyObject *self, PyObject *args){
-    PyObject *obj_ch_open, *obj_ch_read, *obj_ch_write, *obj_ch_closed;
-    if (!PyArg_ParseTuple(args, "OOOO", &obj_ch_open, &obj_ch_read, &obj_ch_write, &obj_ch_closed))
+    PyObject *obj_ch_open, *obj_ch_write, *obj_ch_closed;
+    if (!PyArg_ParseTuple(args, "OOO", &obj_ch_open, &obj_ch_write, &obj_ch_closed))
         return Py_None;
     if (
             !PyCallable_Check(obj_ch_open) ||
-            !PyCallable_Check(obj_ch_read) ||
             !PyCallable_Check(obj_ch_write) ||
             !PyCallable_Check(obj_ch_closed)){
+        // TODO wrap channel callbacks
         return Py_None;
     }
     return Py_None;
