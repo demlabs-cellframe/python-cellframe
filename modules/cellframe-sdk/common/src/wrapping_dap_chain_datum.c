@@ -98,6 +98,7 @@ PyObject *wrapping_dap_chain_datum_get_datum_tx(PyObject *self, PyObject *args){
         obj_datum_tx = PyObject_Init(obj_datum_tx, &DapChainDatumTx_DapChainDatumTxObjectType);
         PyObject_Dir(obj_datum_tx);
         ((PyDapChainDatumTxObject*)obj_datum_tx)->datum_tx = (dap_chain_datum_tx_t *)((PyDapChainDatumObject*)self)->datum->data;
+        ((PyDapChainDatumTxObject*)obj_datum_tx)->original = false;
         return obj_datum_tx;
     }else{
         PyErr_SetString(PyExc_Exception, "Incorrect of a datum type. Can't get a transaction datum.");
