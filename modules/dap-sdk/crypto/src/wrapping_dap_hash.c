@@ -14,12 +14,18 @@ PyObject *DAP_HASH_TYPE_SLOW_0_PY(){
 PyObject *dap_chain_str_to_hash_fast_py(PyObject *self, PyObject *args){
     const char *hash_str;
     if (!PyArg_ParseTuple(args, "s", &hash_str))
-        return NULL;
-    PyDapHashFastObject *obj_hash_fast = PyObject_New(PyDapHashFastObject, &DapHashFastObject_DapHashFastObjectType);
-    PyObject_Dir((PyObject*)obj_hash_fast);
-    obj_hash_fast->hash_fast = DAP_NEW(dap_hash_fast_t);
-    int res = dap_chain_hash_fast_from_str(hash_str, obj_hash_fast->hash_fast);
-    return Py_BuildValue("nO", res, (PyObject*)obj_hash_fast);
+        return self;
+    dap_hash_fast_t *l_hash = DAP_NEW(dap_hash_fast_t);
+    if (dap_chain_hash_fast_from_str(hash_str, l_hash)) {
+        DAP_DEL_Z(l_hash);
+        return self;
+    }
+    if (!self) {
+        self = _PyObject_New(&DapHashFastObject_DapHashFastObjectType);
+        Py_INCREF(self);
+    }
+    ((PyDapHashFastObject *)self)->hash_fast = l_hash;
+    return self;
 }
 
 PyObject *dap_hash_fast_py(PyObject *self, PyObject *args){

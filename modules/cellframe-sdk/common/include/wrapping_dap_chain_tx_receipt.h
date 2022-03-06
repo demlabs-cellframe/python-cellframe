@@ -63,6 +63,8 @@ static PyGetSetDef DapChainTxReceiptGetSetDefs[] = {
         {NULL}
 };
 
+PyObject *wrapping_dap_chain_tx_receipt_sign(PyObject *self, PyObject *args);
+
 static PyMethodDef DapChainTxReceiptMethods[] = {
         {"sign", (PyCFunction)wrapping_dap_chain_tx_receipt_sign, METH_VARARGS, ""},
         {NULL, NULL, 0, NULL}

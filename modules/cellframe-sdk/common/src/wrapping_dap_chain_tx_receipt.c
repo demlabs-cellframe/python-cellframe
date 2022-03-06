@@ -1,4 +1,5 @@
 #include "wrapping_dap_chain_tx_receipt.h"
+#include "wrapping_cert.h"
 
 PyObject *wrapping_dap_chain_tx_receipt_get_size(PyObject *self, void *closure){
     (void)closure;
@@ -30,15 +31,16 @@ PyObject *wrapping_dap_chain_tx_receipt_get_sig_provider(PyObject *self, void *c
     dap_chain_datum_tx_receipt_t *l_receipt = ((PyDapChainTXReceiptObject*)self)->tx_receipt;
     uint64_t l_signs_size = l_receipt->size - l_receipt->exts_size;
     if (l_signs_size) {
-        dap_sign_t *l_sign = &l_receipt->exts_n_signs[l_receipt->exts_size];
+        dap_sign_t *l_sign = (dap_sign_t *)&l_receipt->exts_n_signs[l_receipt->exts_size];
         if (!dap_sign_verify_size(l_sign, l_signs_size))
             return Py_None;
         size_t l_sign_size = dap_sign_get_size(l_sign);
         PyDapSignObject *obj_sign_provider = PyObject_New(PyDapSignObject, &DapSignObject_DapSignObjectType);
-        obj_sign_provider = PyObject_Init(obj_sign_provider, &DapSignObject_DapSignObjectType);
-        PyObject_Dir(obj_sign_provider);
+        obj_sign_provider = (PyDapSignObject *)PyObject_Init((PyObject *)obj_sign_provider,
+                                                             &DapSignObject_DapSignObjectType);
+        PyObject_Dir((PyObject *)obj_sign_provider);
         obj_sign_provider->sign = DAP_DUP_SIZE(l_sign, l_sign_size);
-        return obj_sign_provider;
+        return (PyObject *)obj_sign_provider;
     }
     return Py_None;
 }
@@ -47,41 +49,35 @@ PyObject *wrapping_dap_chain_tx_receipt_get_sig_client(PyObject *self, void *clo
     dap_chain_datum_tx_receipt_t *l_receipt = ((PyDapChainTXReceiptObject*)self)->tx_receipt;
     uint64_t l_signs_size = l_receipt->size - l_receipt->exts_size;
     if (l_signs_size) {
-        dap_sign_t *l_sign = &l_receipt->exts_n_signs[l_receipt->exts_size];
+        dap_sign_t *l_sign = (dap_sign_t *)&l_receipt->exts_n_signs[l_receipt->exts_size];
         if (!dap_sign_verify_size(l_sign, l_signs_size))
             return Py_None;
         size_t l_sign_size = dap_sign_get_size(l_sign);
         if (l_receipt->exts_size + l_sign_size >= l_receipt->size)
             return Py_None;
-        l_sign = &l_receipt->exts_n_signs[l_receipt->exts_size + l_sign_size];
+        l_sign = (dap_sign_t *)&l_receipt->exts_n_signs[l_receipt->exts_size + l_sign_size];
         if (!dap_sign_verify_size(l_sign, l_signs_size - l_sign_size))
             return Py_None;
         l_sign_size = dap_sign_get_size(l_sign);
         PyDapSignObject *obj_sign_client = PyObject_New(PyDapSignObject, &DapSignObject_DapSignObjectType);
-        obj_sign_client = PyObject_Init(obj_sign_provider, &DapSignObject_DapSignObjectType);
-        PyObject_Dir(obj_sign_client);
+        obj_sign_client = (PyDapSignObject *)PyObject_Init((PyObject *)obj_sign_client,
+                                                             &DapSignObject_DapSignObjectType);
+        PyObject_Dir((PyObject *)obj_sign_client);
         obj_sign_client->sign = DAP_DUP_SIZE(l_sign, l_sign_size);
-        return obj_sign_client;
+        return (PyObject *)obj_sign_client;
     }
     return Py_None;
 }
 
 PyObject *wrapping_dap_chain_tx_receipt_sign(PyObject *self, PyObject *args) {
-    PyDapSignObject *obj_sign_ret;
-    PyDapChainNetSrvUIDObject *obj_srv_uid;
-    PyObject *obj_bytes;
-    if (!PyArg_ParseTuple(args, "OOO", &obj_net_id, &obj_srv_uid, &obj_bytes)) {
+    PyCryptoCertObject *obj_cert;
+    if (!PyArg_ParseTuple(args, "O", &obj_cert))
         return Py_None;
-    }
-    if (!PyDapChainNetSrvUid_Check(obj_srv_uid))
-        return Py_None;
-    if (!PyObject_TypeCheck(obj_net_id, &DapChainNetIdObject_DapChainNetIdObjectType))
+    if (!PyObject_TypeCheck(obj_cert, &g_crypto_cert_type_py))
        return Py_None;
-    if (!PyBytes_Check(obj_bytes)) {
+    if (!obj_cert->cert || !obj_cert->cert->enc_key)
         return Py_None;
-    }
-    //Generate packet
-    size_t l_bytes_size = PyBytes_Size(obj_bytes);
-    void *l_bytes = PyBytes_AsString(obj_bytes);
-    size_t l_request_size = sizeof(dap_stream_ch_chain_net_srv_pkt_test_t) + l_bytes_size;
+    dap_chain_datum_tx_receipt_t *l_receipt = ((PyDapChainTXReceiptObject*)self)->tx_receipt;
+    ((PyDapChainTXReceiptObject*)self)->tx_receipt = dap_chain_datum_tx_receipt_sign_add(l_receipt, obj_cert->cert->enc_key);
+    return self;
 }

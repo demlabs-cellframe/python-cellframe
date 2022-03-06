@@ -189,11 +189,11 @@ int _w_dap_chain_callback_data_t_client_success(
     return 0;
 }
 
-//Conructor
+//Constructor
 int PyDapChainNetSrv_init(PyDapChainNetSrvObject* self, PyObject *args, PyObject *kwds){
     const char *kwlist[] = {
             "uid",
-            "section"
+            "section",
             "callbackRequested",
             "callbackResponseSuccess",
             "callbackResponseError",
@@ -212,11 +212,11 @@ int PyDapChainNetSrv_init(PyDapChainNetSrvObject* self, PyObject *args, PyObject
                                     &self->callbackReadWithOutData)) {
         return -1;
     }
-    if (PyDapChainNetSrvUid_Check(obj_uid)||
-            PyCallable_Check(self->callbackRequested)||
-            PyCallable_Check(self->callbackSuccess)||
-            PyCallable_Check(self->callbackError)||
-            PyCallable_Check(self->callbackReceiptNext)||
+    if (PyDapChainNetSrvUid_Check(obj_uid) &&
+            PyCallable_Check(self->callbackRequested) &&
+            PyCallable_Check(self->callbackSuccess) &&
+            PyCallable_Check(self->callbackError) &&
+            PyCallable_Check(self->callbackReceiptNext) &&
             PyCallable_Check(self->callbackReadWithOutData)) {
         self->srv = dap_chain_net_srv_add(
                 obj_uid->net_srv_uid,

@@ -187,7 +187,8 @@ int PyDapChainNetSrvClient_init(PyDapChainNetSrvClientObject* self, PyObject *ar
             "callback_arg",
             NULL
     };
-    PyObject *py_net, *py_cb_conn, *py_cb_disc, *py_cb_del, *py_cb_check, *py_cb_sign;
+    PyDapChainNetObject *py_net;
+    PyObject *py_cb_conn, *py_cb_disc, *py_cb_del, *py_cb_check, *py_cb_sign;
     PyObject *py_cb_success, *py_cb_error, *py_cb_data, *py_cb_arg;
     const char *addr;
     uint16_t port;
@@ -200,6 +201,18 @@ int PyDapChainNetSrvClient_init(PyDapChainNetSrvClientObject* self, PyObject *ar
                 )){
         return -1;
     }
+    if (!PyDapChainNet_Check(py_net))
+       return -2;
+    if (!PyCallable_Check(py_cb_conn) ||
+            !PyCallable_Check(py_cb_disc) ||
+            !PyCallable_Check(py_cb_del) ||
+            !PyCallable_Check(py_cb_check) ||
+            !PyCallable_Check(py_cb_sign) ||
+            !PyCallable_Check(py_cb_success) ||
+            !PyCallable_Check(py_cb_error) ||
+            !PyCallable_Check(py_cb_data)) {
+        return -3;
+    }
     dap_chain_net_srv_client_callbacks_t callbacks = {0};
     callbacks.connected = _wrapping_dap_chain_net_srv_client_callback_connected;
     callbacks.disconnected = _wrapping_dap_chain_net_srv_client_callback_disconnected;
@@ -210,7 +223,7 @@ int PyDapChainNetSrvClient_init(PyDapChainNetSrvClientObject* self, PyObject *ar
     callbacks.error = _wrapping_dap_chain_net_srv_client_callback_error;
     callbacks.data = _wrapping_dap_chain_net_srv_client_callback_data;
     dap_chain_net_srv_client_t *l_client =
-            dap_chain_net_srv_client_create_n_connect(((PyDapChainNetObject*)py_net)->chain_net,
+            dap_chain_net_srv_client_create_n_connect(py_net->chain_net,
                                                       (char *)addr, port, &callbacks, py_cb_arg);
     self->srv_client = l_client;
     self->callback_connected = py_cb_conn;
@@ -236,7 +249,7 @@ PyObject *wrapping_dap_chain_net_srv_client_check(PyObject *self, PyObject *args
     }
     if (!PyDapChainNetSrvUid_Check(obj_srv_uid))
         return Py_None;
-    if (!PyObject_TypeCheck(obj_net_id, &DapChainNetIdObject_DapChainNetIdObjectType))
+    if (PyObject_TypeCheck(obj_net_id, &DapChainNetIdObject_DapChainNetIdObjectType))
        return Py_None;
     if (!PyBytes_Check(obj_bytes)) {
         return Py_None;
@@ -250,7 +263,7 @@ PyObject *wrapping_dap_chain_net_srv_client_check(PyObject *self, PyObject *args
     memset(l_request, 0, sizeof(dap_stream_ch_chain_net_srv_pkt_test_t));
     l_request->net_id.uint64 = obj_net_id->net_id.uint64;
     l_request->srv_uid.uint64 = obj_srv_uid->net_srv_uid.uint64;
-    l_request->data_size_send = l_bytes_size;
+    l_request->data_size_send = l_request->data_size_recv = l_bytes_size;
     l_request->data_size = l_bytes_size;
     gettimeofday(&l_request->send_time1, NULL);
     memcpy(l_request->data, l_bytes, l_bytes_size);
@@ -266,14 +279,13 @@ PyObject *wrapping_dap_chain_net_srv_client_request(PyObject *self, PyObject *ar
     PyDapChainNetIdObject *obj_net_id;
     PyDapChainNetSrvUIDObject *obj_srv_uid;
     PyDapHashFastObject *obj_tx_cond_hash;
-    const char *l_ticker;
-    if (!PyArg_ParseTuple(args, "OOOs", &obj_net_id, &obj_srv_uid, &obj_tx_cond_hash, &l_ticker))
+    if (!PyArg_ParseTuple(args, "OOO", &obj_net_id, &obj_srv_uid, &obj_tx_cond_hash))
         return Py_None;
     if (!PyDapChainNetSrvUid_Check(obj_srv_uid))
         return Py_None;
-    if (!PyObject_TypeCheck(obj_net_id, &DapChainNetIdObject_DapChainNetIdObjectType))
+    if (PyObject_TypeCheck(obj_net_id, &DapChainNetIdObject_DapChainNetIdObjectType))
        return Py_None;
-    if (!PyObject_TypeCheck(obj_tx_cond_hash, &DapHashTypeObject_DapChainHashTypeObjectType)){
+    if (PyObject_TypeCheck(obj_tx_cond_hash, &DapHashTypeObject_DapChainHashTypeObjectType)){
         return Py_None;
     }
     //Generate packet
@@ -281,8 +293,6 @@ PyObject *wrapping_dap_chain_net_srv_client_request(PyObject *self, PyObject *ar
     l_hdr.net_id = obj_net_id->net_id;
     l_hdr.srv_uid = obj_srv_uid->net_srv_uid;
     memcpy(&l_hdr.tx_cond, obj_tx_cond_hash->hash_fast, sizeof(dap_chain_hash_fast_t));
-    strncpy(l_hdr.token, l_ticker, DAP_CHAIN_TICKER_SIZE_MAX);
-    l_hdr.token[DAP_CHAIN_TICKER_SIZE_MAX - 1] = '\0';
     ssize_t l_res = dap_chain_net_srv_client_write(
                         ((PyDapChainNetSrvClientObject*)self)->srv_client,
                         DAP_STREAM_CH_CHAIN_NET_SRV_PKT_TYPE_REQUEST,
@@ -291,10 +301,9 @@ PyObject *wrapping_dap_chain_net_srv_client_request(PyObject *self, PyObject *ar
 }
 
 PyObject *wrapping_dap_chain_net_srv_client_write(PyObject *self, PyObject *args) {
-    uint32_t usage_id;
     PyDapChainNetSrvUIDObject *obj_srv_uid;
     PyObject *obj_bytes;
-    if (!PyArg_ParseTuple(args, "IOO", &usage_id, &obj_srv_uid, &obj_bytes)) {
+    if (!PyArg_ParseTuple(args, "OO", &obj_srv_uid, &obj_bytes)) {
         return Py_None;
     }
     if (!PyDapChainNetSrvUid_Check(obj_srv_uid)) {
@@ -310,7 +319,7 @@ PyObject *wrapping_dap_chain_net_srv_client_write(PyObject *self, PyObject *args
                                                         sizeof(dap_stream_ch_chain_net_srv_pkt_data_t) + l_bytes_size);
     l_data->hdr.version = 1;
     l_data->hdr.data_size = (uint16_t)l_bytes_size;
-    l_data->hdr.usage_id = usage_id;
+    l_data->hdr.usage_id = 0;
     l_data->hdr.srv_uid = obj_srv_uid->net_srv_uid;
     memcpy(l_data->data, l_bytes, l_bytes_size);
     ssize_t l_res = dap_chain_net_srv_client_write(
