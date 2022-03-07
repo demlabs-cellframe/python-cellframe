@@ -1,4 +1,4 @@
-project(dap_chain_service_datum C)
+project(dap_chain_service_datum_python C)
 cmake_minimum_required(VERSION 3.0)
 
 set(CMAKE_VERBOSE_MAKEFILE ON)
