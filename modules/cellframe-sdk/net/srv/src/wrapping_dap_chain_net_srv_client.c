@@ -3,19 +3,15 @@
 #define LOG_TAG "wrapping_dap_chain_net_srv_client"
 
 static void _wrapping_dap_chain_net_srv_client_callback_connected(dap_chain_net_srv_client_t* a_client, void *a_arg){
-    UNUSED(a_client);
     PyDapChainNetSrvClientObject *py_client = (PyDapChainNetSrvClientObject *)a_client->_inheritor;
     PyObject *l_call = py_client->callback_connected;
-    if(PyCallable_Check(l_call)) {
+    if (PyCallable_Check(l_call)) {
         PyObject *l_args = Py_BuildValue("OO", py_client, a_arg);
         PyGILState_STATE state = PyGILState_Ensure();
-        Py_INCREF(l_args);
-        Py_INCREF(l_call);
         PyEval_CallObject(l_call, l_args);
-        Py_XDECREF(l_args);
-        Py_XDECREF(l_call);
+        Py_DECREF(l_args);
         PyGILState_Release(state);
-    }else{
+    } else {
         log_it(L_ERROR, "Can't call handler Python in callback connected");
     }
 }
@@ -24,16 +20,13 @@ static void _wrapping_dap_chain_net_srv_client_callback_disconnected(dap_chain_n
     UNUSED(a_client);
     PyDapChainNetSrvClientObject *py_client = (PyDapChainNetSrvClientObject *)a_client->_inheritor;
     PyObject *l_call = py_client->callback_disconnected;
-    if(PyCallable_Check(l_call)) {
+    if (PyCallable_Check(l_call)) {
         PyObject *l_args = Py_BuildValue("OO", py_client, a_arg);
         PyGILState_STATE state = PyGILState_Ensure();
-        Py_INCREF(l_args);
-        Py_INCREF(l_call);
         PyEval_CallObject(l_call, l_args);
-        Py_XDECREF(l_args);
-        Py_XDECREF(l_call);
+        Py_DECREF(l_args);
         PyGILState_Release(state);
-    }else{
+    } else {
         log_it(L_ERROR, "Can't call handler Python in callback disconnected");
     }
 }
@@ -42,16 +35,13 @@ static void _wrapping_dap_chain_net_srv_client_callback_deleted(dap_chain_net_sr
     UNUSED(a_client);
     PyDapChainNetSrvClientObject *py_client = (PyDapChainNetSrvClientObject *)a_client->_inheritor;
     PyObject *l_call = py_client->callback_deleted;
-    if(PyCallable_Check(l_call)) {
+    if (PyCallable_Check(l_call)) {
         PyObject *l_args = Py_BuildValue("OO", py_client, a_arg);
         PyGILState_STATE state = PyGILState_Ensure();
-        Py_INCREF(l_args);
-        Py_INCREF(l_call);
         PyEval_CallObject(l_call, l_args);
-        Py_XDECREF(l_args);
-        Py_XDECREF(l_call);
+        Py_DECREF(l_args);
         PyGILState_Release(state);
-    }else{
+    } else {
         log_it(L_ERROR, "Can't call handler Python in callback delete");
     }
 }
@@ -63,14 +53,11 @@ static void _wrapping_dap_chain_net_srv_client_callback_check(dap_chain_net_srv_
     UNUSED(a_pkt);
     PyDapChainNetSrvClientObject *py_client = (PyDapChainNetSrvClientObject *)a_srv_client->_inheritor;
     PyObject *l_call = py_client->callback_check;
-    if(PyCallable_Check(l_call)) {
+    if (PyCallable_Check(l_call)) {
         PyObject *l_args = Py_BuildValue("OO", py_client, (PyObject *)a_arg);
         PyGILState_STATE state = PyGILState_Ensure();
-        Py_INCREF(l_args);
-        Py_INCREF(l_call);
         PyEval_CallObject(l_call, l_args);
-        Py_XDECREF(l_args);
-        Py_XDECREF(l_call);
+        Py_DECREF(l_args);
         PyGILState_Release(state);
     } else {
         log_it(L_ERROR, "Can't call handler Python in callback check");
@@ -84,17 +71,14 @@ static dap_chain_datum_tx_receipt_t * _wrapping_dap_chain_net_srv_client_callbac
     PyDapChainNetSrvClientObject *py_client = (PyDapChainNetSrvClientObject *)a_srv_client->_inheritor;
     PyObject *l_call = py_client->callback_sign;
     PyDapChainTXReceiptObject *py_ret = NULL;
-    if(PyCallable_Check(l_call)) {
+    if (PyCallable_Check(l_call)) {
         PyDapChainTXReceiptObject *py_receipt = PyObject_New(PyDapChainTXReceiptObject,
                                                              &DapChainTxReceiptObject_DapChainTxReceiptTypeObjectType);
         py_receipt->tx_receipt = a_receipt;
         PyObject *l_args = Py_BuildValue("OOO", py_client, py_receipt, (PyObject *)a_arg);
         PyGILState_STATE state = PyGILState_Ensure();
-        Py_INCREF(l_args);
-        Py_INCREF(l_call);
         py_ret = (PyDapChainTXReceiptObject *)PyEval_CallObject(l_call, l_args);
-        Py_XDECREF(l_args);
-        Py_XDECREF(l_call);
+        Py_DECREF(l_args);
         PyGILState_Release(state);
     } else {
         log_it(L_ERROR, "Can't call handler Python in callback sign");
@@ -110,7 +94,7 @@ static void _wrapping_dap_chain_net_srv_client_callback_success(dap_chain_net_sr
                                                                 void *a_arg) {
     PyDapChainNetSrvClientObject *py_client = (PyDapChainNetSrvClientObject *)a_srv_client->_inheritor;
     PyObject *l_call = py_client->callback_success;
-    if(PyCallable_Check(l_call)) {
+    if (PyCallable_Check(l_call)) {
         PyDapHashFastObject *py_cond_hash = PyObject_New(PyDapHashFastObject,
                                                          &DapHashTypeObject_DapChainHashTypeObjectType);
         if (a_pkt_size == sizeof(dap_stream_ch_chain_net_srv_pkt_success_t) + sizeof(dap_chain_hash_fast_t)) {
@@ -118,13 +102,10 @@ static void _wrapping_dap_chain_net_srv_client_callback_success(dap_chain_net_sr
             memcpy(py_cond_hash->hash_fast, a_pkt->custom_data, sizeof(dap_chain_hash_fast_t));
         } else
             py_cond_hash->hash_fast = NULL;
-        PyObject *l_args = Py_BuildValue("OIOO", py_client, a_pkt->hdr.usage_id, py_cond_hash, (PyObject *)a_arg);
+        PyObject *l_args = Py_BuildValue("OOO", py_client, py_cond_hash, (PyObject *)a_arg);
         PyGILState_STATE state = PyGILState_Ensure();
-        Py_INCREF(l_args);
-        Py_INCREF(l_call);
         PyEval_CallObject(l_call, l_args);
-        Py_XDECREF(l_args);
-        Py_XDECREF(l_call);
+        Py_DECREF(l_args);
         PyGILState_Release(state);
     } else {
         log_it(L_ERROR, "Can't call handler Python in callback success");
@@ -136,14 +117,11 @@ static void _wrapping_dap_chain_net_srv_client_callback_error(dap_chain_net_srv_
                                                               void *a_arg) {
     PyDapChainNetSrvClientObject *py_client = (PyDapChainNetSrvClientObject *)a_srv_client->_inheritor;
     PyObject *l_call = py_client->callback_error;
-    if(PyCallable_Check(l_call)) {
+    if (PyCallable_Check(l_call)) {
         PyObject *l_args = Py_BuildValue("OiO", py_client, a_error_code, (PyObject *)a_arg);
         PyGILState_STATE state = PyGILState_Ensure();
-        Py_INCREF(l_args);
-        Py_INCREF(l_call);
         PyEval_CallObject(l_call, l_args);
-        Py_XDECREF(l_args);
-        Py_XDECREF(l_call);
+        Py_DECREF(l_args);
         PyGILState_Release(state);
     } else {
         log_it(L_ERROR, "Can't call handler Python in callback error");
@@ -156,15 +134,12 @@ static void _wrapping_dap_chain_net_srv_client_callback_data(dap_chain_net_srv_c
                                                              void *a_arg) {
     PyDapChainNetSrvClientObject *py_client = (PyDapChainNetSrvClientObject *)a_srv_client->_inheritor;
     PyObject *l_call = py_client->callback_data;
-    if(PyCallable_Check(l_call)) {
+    if (PyCallable_Check(l_call)) {
         PyObject *l_data = PyBytes_FromStringAndSize((char *)a_data, a_data_size);
         PyObject *l_args = Py_BuildValue("OOO", py_client, l_data, (PyObject *)a_arg);
         PyGILState_STATE state = PyGILState_Ensure();
-        Py_INCREF(l_args);
-        Py_INCREF(l_call);
         PyEval_CallObject(l_call, l_args);
-        Py_XDECREF(l_args);
-        Py_XDECREF(l_call);
+        Py_DECREF(l_args);
         PyGILState_Release(state);
     } else {
         log_it(L_ERROR, "Can't call handler Python in callback data");
@@ -201,7 +176,7 @@ int PyDapChainNetSrvClient_init(PyDapChainNetSrvClientObject* self, PyObject *ar
                 )){
         return -1;
     }
-    if (!PyDapChainNet_Check(py_net))
+    if (!PyDapChainNet_Check((PyObject *)py_net))
        return -2;
     if (!PyCallable_Check(py_cb_conn) ||
             !PyCallable_Check(py_cb_disc) ||
@@ -250,7 +225,7 @@ PyObject *wrapping_dap_chain_net_srv_client_check(PyObject *self, PyObject *args
     if (!PyDapChainNetSrvUid_Check(obj_srv_uid))
         return Py_None;
     if (PyObject_TypeCheck(obj_net_id, &DapChainNetIdObject_DapChainNetIdObjectType))
-       return Py_None;
+        return Py_None;
     if (!PyBytes_Check(obj_bytes)) {
         return Py_None;
     }
@@ -276,21 +251,21 @@ PyObject *wrapping_dap_chain_net_srv_client_check(PyObject *self, PyObject *args
 }
 
 PyObject *wrapping_dap_chain_net_srv_client_request(PyObject *self, PyObject *args) {
-    PyDapChainNetIdObject *obj_net_id;
+    PyDapChainNetObject *obj_net;
     PyDapChainNetSrvUIDObject *obj_srv_uid;
     PyDapHashFastObject *obj_tx_cond_hash;
-    if (!PyArg_ParseTuple(args, "OOO", &obj_net_id, &obj_srv_uid, &obj_tx_cond_hash))
+    if (!PyArg_ParseTuple(args, "OOO", &obj_net, &obj_srv_uid, &obj_tx_cond_hash))
         return Py_None;
     if (!PyDapChainNetSrvUid_Check(obj_srv_uid))
         return Py_None;
-    if (PyObject_TypeCheck(obj_net_id, &DapChainNetIdObject_DapChainNetIdObjectType))
-       return Py_None;
+    if (!PyDapChainNet_Check((PyObject *)obj_net))
+        return Py_None;
     if (PyObject_TypeCheck(obj_tx_cond_hash, &DapHashTypeObject_DapChainHashTypeObjectType)){
         return Py_None;
     }
     //Generate packet
     dap_stream_ch_chain_net_srv_pkt_request_hdr_t l_hdr = {};
-    l_hdr.net_id = obj_net_id->net_id;
+    l_hdr.net_id = obj_net->chain_net->pub.id;
     l_hdr.srv_uid = obj_srv_uid->net_srv_uid;
     memcpy(&l_hdr.tx_cond, obj_tx_cond_hash->hash_fast, sizeof(dap_chain_hash_fast_t));
     ssize_t l_res = dap_chain_net_srv_client_write(

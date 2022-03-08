@@ -15,7 +15,6 @@ PyObject *_wrapping_dac_chain_callback_data_t_get_tuple(
     } else {
         l_obj_srv_client = PyObject_New(PyDapChainNetSrvClientRemoteObject,
                                         &DapChainNetSrvClientRemoteObject_DapChainNetSrvClientRemoteObjectType);
-        PyObject_Dir((PyObject *) l_obj_srv_client);
         l_obj_srv_client->srv_client_remote = a_srv_client;
     }
     PyObject *l_obj_custom_data = NULL;
