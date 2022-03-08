@@ -29,6 +29,8 @@ PyObject *wrapping_dap_chain_net_srv_datum_create(PyObject *self, PyObject *args
     }
     void *l_data = PyBytes_AsString(obj_data_in_datum);
     size_t l_data_size = PyBytes_Size(obj_data_in_datum);
-    int res = dap_chain_net_srv_datum_custom_add(((PyDapChainObject*)obj_chain)->chain_t, l_data, l_data_size);
-    return Py_BuildValue("i", res);
+    char* res = dap_chain_net_srv_datum_custom_add(((PyDapChainObject*)obj_chain)->chain_t, l_data, l_data_size);
+    if (res == NULL)
+        return Py_None;
+    return Py_BuildValue("s", res);
 }
