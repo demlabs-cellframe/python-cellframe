@@ -55,18 +55,19 @@ PyObject *dap_chain_net_by_name_py(PyObject *self, PyObject *args){
     if (!PyArg_ParseTuple(args, "s", &a_name)) {
         PyErr_SetString(PyExc_AttributeError,
                         "Invalid argument specified. The first argument for this function must be a string. ");
-        return NULL;
+        return self;
     }
-    PyObject *obj_chain_net = _PyObject_New(&DapChainNetObject_DapChainNetObjectType);
-    obj_chain_net = PyObject_Init(obj_chain_net, &DapChainNetObject_DapChainNetObjectType);
-    PyObject_Dir(obj_chain_net);
-    ((PyDapChainNetObject*)obj_chain_net)->chain_net = dap_chain_net_by_name(a_name);
-    if (((PyDapChainNetObject*)obj_chain_net)->chain_net == NULL){
-        PyObject_Del(obj_chain_net);
-        return Py_None;
+    dap_chain_net_t *l_net = dap_chain_net_by_name(a_name);
+    if (!l_net)
+        return self;
+    if (!self) {
+        self = _PyObject_New(&DapChainNetObject_DapChainNetObjectType);
+        Py_INCREF(self);
     }
-    return Py_BuildValue("O", obj_chain_net);
+    ((PyDapChainNetObject *)self)->chain_net = l_net;
+    return self;
 }
+
 PyObject *dap_chain_net_by_id_py(PyObject *self, PyObject *args){
     PyObject *obj_net_id;
     if (!PyArg_ParseTuple(args, "O", &obj_net_id))

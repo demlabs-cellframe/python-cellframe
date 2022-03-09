@@ -28,39 +28,75 @@
 
 #include "wrapping_cert.h"
 #include "libdap_crypto_key_type_python.h"
-#include "wrapping_dap_pkey.h"
-#include "wrapping_dap_sign.h"
 #define LOG_TAG "wrapping_cert"
 
+PyMethodDef g_crypto_cert_methods_py[] = {
+        {"generate",dap_cert_generate_py , METH_VARARGS | METH_STATIC, "Generate from seed or randomly the new certificate"},
+        {"find", dap_cert_find_py, METH_VARARGS | METH_STATIC, ""},
+        {"folderAdd", dap_cert_folder_add_py, METH_VARARGS | METH_STATIC, "Add folders with .dcert files in it"},
+        {"folderGet", dap_cert_folder_get_py, METH_VARARGS | METH_STATIC, "Get folder by number or the default one"},
+        {"load", dap_cert_load_py, METH_VARARGS | METH_STATIC ,""},
+        {"dump", dap_cert_dump_py, METH_VARARGS , ""},
+        {"pkey", dap_cert_pkey_py, METH_VARARGS , ""},
+        {"sign", dap_cert_sign_py, METH_VARARGS , ""},
+        {"certSignAdd", dap_cert_cert_sign_add_py, METH_VARARGS,  ""},
+        {"certSigns", dap_cert_cert_signs_py, METH_VARARGS , ""},
+        {"compare", dap_cert_compare_py, METH_VARARGS, ""},
+        {"save", dap_cert_save_py, METH_VARARGS , "Save to the first directory in cert folders list"},
+        {NULL, NULL, 0, NULL}
+};
 
-PyObject* dap_cert_new_py(PyTypeObject *type_object, PyObject *args, PyObject *kwds){
-    const char *l_cert_name = NULL;
-    if (!PyArg_ParseTuple(args, "s", &l_cert_name)) {
-        PyErr_SetString(PyExc_SyntaxError, "Wrong arguments list in function call");
-        return NULL;
-    }
-    PyCryptoCertObject *obj = (PyCryptoCertObject*)PyType_GenericNew(type_object, args, kwds);
-    obj->cert = dap_cert_new(l_cert_name);
-    return (PyObject *)obj;
-}
-
-void dap_cert_delete_py(PyObject *self)
-{
-    PyCryptoCertObject *certObject = (PyCryptoCertObject *)self;
-    dap_cert_delete( certObject->cert );
-    Py_TYPE(certObject)->tp_free((PyObject*)certObject);
-}
-
-PyObject* dap_cert_delete_by_name_py(PyObject *self, PyObject *args){
-    (void)self;
-    const char *l_cert_name = NULL;
-    if (!PyArg_ParseTuple(args, "s", &l_cert_name)){
-        PyErr_SetString(PyExc_SyntaxError, "Wrong arguments list in function call");
-        return NULL;
-    }
-    dap_cert_delete_by_name(l_cert_name);
-    return Py_None;
-}
+PyTypeObject g_crypto_cert_type_py = {
+    PyVarObject_HEAD_INIT(NULL, 0)
+    "CellFrame.Cert",             /* tp_name */
+    sizeof(PyCryptoCertObject),         /* tp_basicsize */
+    0,                         /* tp_itemsize */
+    dap_cert_delete_py,                         /* tp_dealloc */
+    0,                         /* tp_print */
+    0,                         /* tp_getattr */
+    0,                         /* tp_setattr */
+    0,                         /* tp_reserved */
+    0,                         /* tp_repr */
+    0,                         /* tp_as_number */
+    0,                         /* tp_as_sequence */
+    0,                         /* tp_as_mapping */
+    0,                         /* tp_hash  */
+    0,                         /* tp_call */
+    0,                         /* tp_str */
+    0,                         /* tp_getattro */
+    0,                         /* tp_setattro */
+    0,                         /* tp_as_buffer */
+    Py_TPFLAGS_DEFAULT |
+        Py_TPFLAGS_BASETYPE,   /* tp_flags */
+    "Crypto cert object",           /* tp_doc */
+    0,		               /* tp_traverse */
+    0,		               /* tp_clear */
+    0,		               /* tp_richcompare */
+    0,		               /* tp_weaklistoffset */
+    0,		               /* tp_iter */
+    0,		               /* tp_iternext */
+    g_crypto_cert_methods_py,             /* tp_methods */
+    0,                         /* tp_members */
+    0,                         /* tp_getset */
+    0,                         /* tp_base */
+    0,                         /* tp_dict */
+    0,                         /* tp_descr_get */
+    0,                         /* tp_descr_set */
+    0,                         /* tp_dictoffset */
+    0,                         /* tp_init */
+    0,                         /* tp_alloc */
+    PyType_GenericNew,         /* tp_new */
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+};
 
 PyObject* dap_cert_generate_py(PyObject *self, PyObject *args)
 {
@@ -88,180 +124,71 @@ PyObject* dap_cert_generate_py(PyObject *self, PyObject *args)
 
     PyCryptoCertObject *obj_cert = (PyCryptoCertObject*)_PyObject_New(&g_crypto_cert_type_py);
     obj_cert->cert = l_seed ? dap_cert_generate_mem_with_seed( l_cert_name, l_arg_cert_key_type, l_seed, strlen(l_seed) )
-                            :dap_cert_generate_mem( l_cert_name,l_arg_cert_key_type );
+              :dap_cert_generate_mem( l_cert_name,l_arg_cert_key_type );
     return  Py_BuildValue("O", (PyObject*)obj_cert);
-}
-
-PyObject* dap_cert_generate_mem_py(PyObject *self, PyObject *args){
-    (void)self;
-    PyObject *l_obj_key_type = NULL;
-    const char *l_cert_name = NULL;
-    if (!PyArg_ParseTuple(args, "sO", &l_cert_name, &l_obj_key_type)){
-        PyErr_SetString(PyExc_SyntaxError, "Wrong arguments list in function call");
-        return NULL;
-    }
-    dap_cert_t *l_tmp_cert = dap_cert_generate_mem(l_cert_name, ((PyCryptoKeyTypeObject*)l_obj_key_type)->key_type);
-    if (l_tmp_cert) {
-        PyObject *l_cert = _PyObject_New(&g_crypto_cert_type_py);
-        ((PyCryptoCertObject*)l_cert)->cert = l_tmp_cert;
-        return Py_BuildValue("O", l_cert);
-    } else {
-        return Py_None;
-    }
-}
-
-PyObject* dap_cert_generate_mem_with_seed_py(PyObject *self, PyObject *args){
-    (void)self;
-    const char *l_name_cert = NULL;
-    PyObject *l_obj_key_type = NULL;
-    PyObject *l_obj_seed_bytes = NULL;
-    size_t l_seed_size;
-    if (!PyArg_ParseTuple(args, "sOO", &l_name_cert, l_obj_key_type, l_obj_seed_bytes)){
-        PyErr_SetString(PyExc_SyntaxError, "Wrong arguments list in function call");
-        return NULL;
-    }
-    if (!PyBytes_Check(l_obj_seed_bytes)){
-        PyErr_SetString(PyExc_BytesWarning, "The first agrument the is not a bytes object");
-        return NULL;
-    }
-    void *l_seed_data = PyBytes_AsString(l_obj_seed_bytes);
-    l_seed_size = (size_t)PyBytes_Size(l_obj_seed_bytes);
-    dap_cert_t *l_cert = dap_cert_generate_mem_with_seed(l_name_cert,
-                                                         ((PyCryptoKeyTypeObject*)l_obj_key_type)->key_type,
-                                                         l_seed_data,
-                                                         l_seed_size);
-    if (l_cert) {
-        PyObject *l_obj_cert = _PyObject_New(&g_crypto_cert_type_py);
-        ((PyCryptoCertObject*)l_obj_cert)->cert = l_cert;
-        return Py_BuildValue("O", l_obj_cert);
-    } else {
-        return Py_None;
-    }
-}
-
-PyObject* dap_cert_add_file_py(PyObject *self, PyObject *args){
-    const char *l_cert_name = NULL;
-    const char *l_folder_path = NULL;
-    dap_cert_t *l_cert_tmp = NULL;
-    if (!PyArg_ParseTuple(args, "ss", &l_cert_name, &l_folder_path)){
-        PyErr_SetString(PyExc_SyntaxError, "Wrong arguments list in function call");
-        return NULL;
-    }
-    l_cert_tmp = dap_cert_add_file(l_cert_name, l_folder_path);
-    if (l_cert_tmp) {
-        PyObject *l_obj_cert = _PyObject_New(&g_crypto_cert_type_py);
-        ((PyCryptoCertObject*)l_obj_cert)->cert = l_cert_tmp;
-        return Py_BuildValue("O", l_obj_cert);
-    } else {
-        return Py_None;
-    }
-}
-
-PyObject* dap_cert_save_to_folder_py(PyObject *self, PyObject *args){
-    const char *l_folder = NULL;
-    if (!PyArg_ParseTuple(args, "s", &l_folder)){
-        PyErr_SetString(PyExc_SyntaxError, "Wrong arguments list in function call");
-        return NULL;
-    }
-    int res = dap_cert_save_to_folder(((PyCryptoCertObject*)self)->cert, l_folder);
-    return res ? Py_BuildValue("O", Py_True) : Py_BuildValue("O", Py_False);
 }
 
 PyObject* dap_cert_dump_py(PyObject *self, PyObject *args)
 {
+    (void) self;
     (void) args;
-    dap_cert_dump(((PyCryptoCertObject*)self)->cert);
-    return Py_BuildValue("O", Py_None);
+    /// TODO: Implement it!
+    PyErr_SetString(PyExc_TypeError, "Unimplemented function");
+    return NULL;
 }
 
-PyObject* dap_cert_to_pkey_py(PyObject *self, PyObject *args)
-{
-    (void) args;
-    PyObject *l_obj = _PyObject_New(&DapPkeyObject_DapPkeyObjectType);
-    ((PyDapPkeyObject*)l_obj)->pkey = dap_cert_to_pkey(((PyCryptoCertObject*)self)->cert);
-    return Py_BuildValue("O", l_obj);
-}
-
-PyObject* dap_cert_find_by_name_py(PyObject *self, PyObject *args)
+PyObject* dap_cert_pkey_py(PyObject *self, PyObject *args)
 {
     (void) self;
-    const char *l_name = NULL;
-    if (!PyArg_ParseTuple(args, "s", l_name)){
-        PyErr_SetString(PyExc_SyntaxError, "Wrong arguments list in function call");
-        return NULL;
-    }
-    dap_cert_t *l_tmp_cert = dap_cert_find_by_name(l_name);
-    if (l_tmp_cert) {
-        PyObject *l_obj_cert = _PyObject_New(&g_crypto_cert_type_py);
-        ((PyCryptoCertObject*)l_obj_cert)->cert = l_tmp_cert;
-        return Py_BuildValue("O", l_obj_cert);
-    } else {
-        return Py_None;
-    }
+    (void) args;
+    /// TODO: Implement it!
+    PyErr_SetString(PyExc_TypeError, "Unimplemented function");
+    return NULL;
+}
+
+PyObject* dap_cert_find_py(PyObject *self, PyObject *args)
+{
+    (void) self;
+    (void) args;
+    /// TODO: Implement it!
+    PyErr_SetString(PyExc_TypeError, "Unimplemented function");
+    return NULL;
 }
 
 PyObject* dap_cert_sign_py(PyObject *self, PyObject *args)
 {
-    PyObject *l_data_byte;
-    size_t l_data_size;
-    size_t l_output_size_wished;
-    if (!PyArg_ParseTuple(args, "On", &l_data_byte, &l_output_size_wished)){
-        PyErr_SetString(PyExc_SyntaxError, "Wrong arguments list in function call");
-        return NULL;
-    }
-    if (!PyBytes_Check(l_data_byte)){
-        PyErr_SetString(PyExc_BytesWarning, "The first agrument the is not a bytes object");
-        return NULL;
-    }
-    l_data_size = (size_t)PyBytes_Size(l_data_byte);
-    void *l_data = PyBytes_AsString(l_data_byte);
-    dap_sign_t *l_sign = dap_cert_sign(((PyCryptoCertObject*)self)->cert, l_data, l_data_size, l_output_size_wished);
-    if(l_sign) {
-        PyObject *l_obj_sign = _PyObject_New(&DapSignObject_DapSignObjectType);
-        ((PyDapSignObject*)l_obj_sign)->sign = l_sign;
-        return Py_BuildValue("O", l_obj_sign);
-    } else {
-        return Py_None;
-    }
+    (void) self;
+    (void) args;
+    /// TODO: Implement it!
+    PyErr_SetString(PyExc_TypeError, "Unimplemented function");
+    return NULL;
 }
 
-//PyObject* dap_cert_cert_sign_add_py(PyObject *self, PyObject *args)
-//{
-//    (void) self;
-//    (void) args;
-//    /// TODO: Implement it!
-//    PyErr_SetString(PyExc_TypeError, "Unimplemented function");
-//    return NULL;
-//}
-
-//PyObject* dap_cert_cert_signs_py(PyObject *self, PyObject *args)
-//{
-//    (void) self;
-//    (void) args;
-//    /// TODO: Implement it!
-//    PyErr_SetString(PyExc_TypeError, "Unimplemented function");
-//    return NULL;
-//}
-
-PyObject* dap_cert_compare_with_sign_py(PyObject *self, PyObject *args)
+PyObject* dap_cert_cert_sign_add_py(PyObject *self, PyObject *args)
 {
-    PyObject *l_obj_sign = NULL;
-    if (!PyArg_ParseTuple(args, "O", &l_obj_sign)){
-        PyErr_SetString(PyExc_SyntaxError, "Wrong arguments list in function call");
-        return NULL;
-    }
-    int res = dap_cert_compare_with_sign(((PyCryptoCertObject*)self)->cert, ((PyDapSignObject*)l_obj_sign)->sign);
-    return Py_BuildValue("i", res);
+    (void) self;
+    (void) args;
+    /// TODO: Implement it!
+    PyErr_SetString(PyExc_TypeError, "Unimplemented function");
+    return NULL;
 }
 
-PyObject* dap_cert_sign_output_size_py(PyObject *self, PyObject *args){
-    int l_size_wished;
-    if (!PyArg_ParseTuple(args, "i", &l_size_wished)){
-        PyErr_SetString(PyExc_SyntaxError, "Wrong arguments list in function call");
-        return NULL;
-    }
-    Py_ssize_t l_sign_output_size = (Py_ssize_t)dap_cert_sign_output_size(((PyCryptoCertObject*)self)->cert, l_size_wished);
-    return Py_BuildValue("n", l_sign_output_size);
+PyObject* dap_cert_cert_signs_py(PyObject *self, PyObject *args)
+{
+    (void) self;
+    (void) args;
+    /// TODO: Implement it!
+    PyErr_SetString(PyExc_TypeError, "Unimplemented function");
+    return NULL;
+}
+
+PyObject* dap_cert_compare_py(PyObject *self, PyObject *args)
+{
+    (void) self;
+    (void) args;
+    /// TODO: Implement it!
+    PyErr_SetString(PyExc_TypeError, "Unimplemented function");
+    return NULL;
 }
 
 PyObject* dap_cert_save_py(PyObject *self, PyObject *args)
@@ -271,104 +198,54 @@ PyObject* dap_cert_save_py(PyObject *self, PyObject *args)
     return PyLong_FromLong(res);
 }
 
-//PyObject* dap_cert_load_py(PyObject *self, PyObject *args)
-//{
-//    (void) self;
-//    (void) args;
-//    /// TODO: Implement it!
-//    PyErr_SetString(PyExc_TypeError, "Unimplemented function");
-//    return NULL;
-//}
+PyObject* dap_cert_load_py(PyObject *self, PyObject *args)
+{
+    const char *l_cert_name;
+    if (!PyArg_ParseTuple(args, "s", &l_cert_name)) {
+        return Py_None;
+    }
+    if (!self) {
+        self = _PyObject_New(&g_crypto_cert_type_py);
+    }
+    ((PyCryptoCertObject *)self)->cert = dap_cert_find_by_name(l_cert_name);
+    return self;
+}
 
-//PyObject* dap_cert_close_py(PyObject *self, PyObject *args)
-//{
-//    (void) self;
-//    (void) args;
-//    /// TODO: Implement it!
-//    PyErr_SetString(PyExc_TypeError, "Unimplemented function");
-//    return NULL;
-//}
+PyObject* dap_cert_close_py(PyObject *self, PyObject *args)
+{
+    (void) self;
+    (void) args;
+    /// TODO: Implement it!
+    PyErr_SetString(PyExc_TypeError, "Unimplemented function");
+    return NULL;
+}
 
 
+void dap_cert_delete_py(PyObject *self)
+{
+    PyCryptoCertObject *certObject = (PyCryptoCertObject *)self;
+    dap_cert_delete( certObject->cert );
+    Py_TYPE(certObject)->tp_free((PyObject*)certObject);
+}
 
 
 PyObject* dap_cert_folder_add_py(PyObject *self, PyObject *args)
 {
     (void) self;
-    const char *l_path_folder = NULL;
-    if (!PyArg_ParseTuple(args, "s", &l_path_folder)){
-        PyErr_SetString(PyExc_SyntaxError, "Wrong arguments list in function call");
-        return NULL;
-    }
-    dap_cert_add_folder(l_path_folder);
-    return Py_None;
+    (void) args;
+    /// TODO: Implement it!
+    PyErr_SetString(PyExc_TypeError, "Unimplemented function");
+    return NULL;
 }
 
 PyObject* dap_cert_folder_get_py(PyObject *self, PyObject *args)
 {
     (void)self;
-    int l_n_folder_path;
-    if (!PyArg_ParseTuple(args, "i", &l_n_folder_path)){
-        PyErr_SetString(PyExc_SyntaxError, "Wrong arguments list in function call");
+    const char *a_folder_path;
+    if(!PyArg_ParseTuple(args, "s", &a_folder_path))
         return NULL;
-    }
-    const char *l_path_folder = dap_cert_get_folder(l_n_folder_path);
-    return Py_BuildValue("s", l_path_folder);
-}
-
-PyObject* dap_cert_add_cert_sign_py(PyObject *self, PyObject *args){
-    PyObject *l_obj_cert_signer = NULL;
-    if (!PyArg_ParseTuple(args, "O", &l_obj_cert_signer)){
-        PyErr_SetString(PyExc_SyntaxError, "Wrong arguments list in function call");
-        return NULL;
-    }
-    return dap_cert_add_cert_sign(((PyCryptoCertObject*)self)->cert, ((PyCryptoCertObject*)l_obj_cert_signer)->cert) == 0 ?
-           Py_BuildValue("O", Py_True) : Py_BuildValue("O", Py_False);
-}
-
-PyObject* dap_cert_count_cert_sign_py(PyObject *self, PyObject *args){
-    (void)args;
-    Py_ssize_t l_count = (Py_ssize_t)dap_cert_count_cert_sign(((PyCryptoCertObject*)self)->cert);
-    return Py_BuildValue("n", l_count);
-}
-
-PyObject* dap_cert_encrypt_py(PyObject *self, PyObject *args){
-    PyObject *l_obj_bytes = NULL;
-    if (!PyArg_ParseTuple(args, "O", &l_obj_bytes)){
-        PyErr_SetString(PyExc_SyntaxError, "Wrong arguments list in function call");
-        return NULL;
-    }
-    if (!PyBytes_AsString(l_obj_bytes)){
-        PyErr_SetString(PyExc_BytesWarning, "The first agrument the is not a bytes object");
-        return NULL;
-    }
-    size_t l_len_data = (size_t)PyBytes_Size(l_obj_bytes);
-    void *l_in_data = PyBytes_AsString(l_obj_bytes);
-    void *l_out_data = NULL;
-    size_t l_size_out_data = ((PyCryptoCertObject*)self)->cert->enc_key->enc(((PyCryptoCertObject*)self)->cert->enc_key,
-                                                                             l_in_data,
-                                                                             l_len_data,
-                                                                             &l_out_data);
-    PyObject *l_obj_out_data = PyBytes_FromStringAndSize(l_out_data, l_size_out_data);
-    return Py_BuildValue("O", l_obj_out_data);
-}
-
-PyObject* dap_cert_decrypt_py(PyObject *self, PyObject *args){
-    PyObject *l_obj_bytes = NULL;
-    if (!PyArg_ParseTuple(args, "O", &l_obj_bytes)){
-        PyErr_SetString(PyExc_SyntaxError, "Wrong arguments list in function call");
-        return NULL;
-    }
-    if (!PyBytes_AsString(l_obj_bytes)){
-        PyErr_SetString(PyExc_BytesWarning, "The first agrument the is not a bytes object");
-        return NULL;
-    }
-    size_t l_len_data = (size_t)PyBytes_Size(l_obj_bytes);
-    void *l_in_data = PyBytes_AsString(l_obj_bytes);
-    void *l_out_data = NULL;
-    size_t l_size_out_data = ((PyCryptoCertObject*)self)->cert->enc_key->dec(((PyCryptoCertObject*)self)->cert->enc_key, l_in_data, l_len_data, &l_out_data);
-    PyObject *l_obj_out_data = PyBytes_FromStringAndSize(l_out_data, l_size_out_data);
-    return Py_BuildValue("O", l_obj_out_data);
+    dap_cert_add_folder(a_folder_path);
+    return PyLong_FromLong(0);
 }
 
 int dap_cert_init_py(void)
@@ -380,3 +257,4 @@ void dap_cert_deinit_py(void)
 {
     dap_cert_deinit();
 }
+

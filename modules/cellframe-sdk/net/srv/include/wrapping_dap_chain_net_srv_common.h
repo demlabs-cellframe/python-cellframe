@@ -2,7 +2,7 @@
 
 
 #include "Python.h"
-#include "dap_chain_net_srv_common.h"
+#include "dap_chain_net_srv.h"
 #include "wrapping_dap_chain_common.h"
 #include "libdap_chain_net_python.h"
 
