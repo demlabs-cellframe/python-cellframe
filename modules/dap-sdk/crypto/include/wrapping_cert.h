@@ -28,6 +28,7 @@
 #include <Python.h>
 #include "dap_common.h"
 #include "dap_cert.h"
+#include "wrapping_dap_sign.h"
 
 #ifdef __cplusplus
 extern "C" {
