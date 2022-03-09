@@ -46,7 +46,6 @@ int _w_dap_chain_callback_data_t_requested(
         PyErr_Print();
         return -1;
     }
-    Py_DECREF(l_arg);
     if (!PyLong_Check(result)){
         return -1;
     }
@@ -73,7 +72,6 @@ int _w_dap_chain_callback_data_t_response_success(
         PyErr_Print();
         return -1;
     }
-    Py_DECREF(l_arg);
     if (!PyLong_Check(result)){
         return -1;
     }
@@ -101,7 +99,6 @@ int _w_dap_chain_callback_data_t_response_error(
         PyErr_Print();
         return -1;
     }
-    Py_DECREF(l_arg);
     if (!PyLong_Check(result)){
         return -1;
     }
@@ -129,7 +126,6 @@ int _w_dap_chain_callback_data_t_receipt_next_success(
         PyErr_Print();
         return -1;
     }
-    Py_DECREF(l_arg);
     if (!PyLong_Check(result)){
         return -1;
     }
@@ -159,7 +155,6 @@ void *_w_dap_chain_callback_data_t_custom_data(dap_chain_net_srv_t *a_srv,
         PyErr_Print();
         return NULL;
     }
-    Py_DECREF(l_arg);
     if (!PyBytes_Check(result)){
         return NULL;
     }
