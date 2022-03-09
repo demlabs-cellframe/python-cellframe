@@ -83,7 +83,7 @@ static dap_chain_datum_tx_receipt_t * _wrapping_dap_chain_net_srv_client_callbac
     } else {
         log_it(L_ERROR, "Can't call handler Python in callback sign");
     }
-    if (!py_ret || !py_ret->tx_receipt)
+    if (!py_ret || (PyObject *)py_ret == Py_None || !py_ret->tx_receipt)
         return NULL;
     return DAP_DUP_SIZE(py_ret->tx_receipt, py_ret->tx_receipt->size);
 }
@@ -260,7 +260,7 @@ PyObject *wrapping_dap_chain_net_srv_client_request(PyObject *self, PyObject *ar
         return Py_None;
     if (!PyDapChainNet_Check((PyObject *)obj_net))
         return Py_None;
-    if (PyObject_TypeCheck(obj_tx_cond_hash, &DapHashTypeObject_DapChainHashTypeObjectType)){
+    if (!PyObject_TypeCheck(obj_tx_cond_hash, &DapHashFastObject_DapHashFastObjectType)){
         return Py_None;
     }
     //Generate packet

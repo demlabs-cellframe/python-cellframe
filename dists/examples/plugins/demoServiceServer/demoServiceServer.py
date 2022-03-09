@@ -1,20 +1,21 @@
-from API_CellFrame import logItNotice, logItInfo, ChainNet, ChainNetSrv, ChainNetSrvUID
-
-server_object = None
+from API_CellFrame import logItNotice, logItWarning, ChainNet, ChainNetSrv, ChainNetSrvUID
 
 def requested(srv, usage_id, client_remote, data):
-    logItInfo("[server] func requested")
+    logItNotice("[server] func requested")
+    return 0
 
 def response_success(srv, usage_id, client_remote, data):
-    logItInfo("[server] func response success")
+    logItNotice("[server] func response success")
+    return 0
 
 def response_error(srv, usage_id, client_remote, data):
-    logItInfo("[server] func response error")
+    logItWarning("[server] func response error")
 
 def next_success(srv, usage_id, client_remote, data):
-    logItInfo("[server] func next success")
+    logItNotice("[server] func next success")
+    return 0
 
-def in_data_with_return_data(srv, usage_id, client_remote, data):
+def custom_data(srv, usage_id, client_remote, data):
     logItNotice("[server] Input data: " + data.decode("utf-8"))
     return data
 
@@ -24,10 +25,11 @@ def init():
     ch_uid = ChainNetSrvUID(123)
     srv_object = ChainNetSrv(
         ch_uid,
+        "py_service",
         requested,
         response_success,
         response_error,
         next_success,
-        in_data_with_return_data
+        custom_data
     )
     return 0

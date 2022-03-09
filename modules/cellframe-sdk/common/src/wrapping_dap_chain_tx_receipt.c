@@ -132,7 +132,7 @@ PyObject *wrapping_dap_chain_tx_receipt_sign(PyObject *self, PyObject *args) {
     PyCryptoCertObject *obj_cert;
     if (!PyArg_ParseTuple(args, "O", &obj_cert))
         return Py_None;
-    if (PyObject_TypeCheck(obj_cert, &g_crypto_cert_type_py))
+    if (!PyObject_TypeCheck(obj_cert, &g_crypto_cert_type_py))
        return Py_None;
     if (!obj_cert->cert || !obj_cert->cert->enc_key)
         return Py_None;

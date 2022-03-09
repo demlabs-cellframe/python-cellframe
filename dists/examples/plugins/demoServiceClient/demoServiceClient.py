@@ -1,41 +1,42 @@
-from API_CellFrame import ChainNetSrvClient, logItNotice, logItInfo, logItWarning, ChainNet, ChainNetSrv, ChainNetSrvUID
+from API_CellFrame import ChainNetSrvClient, logIt, NOTICE, WARNING, ChainNet, ChainNetSrvUID, Cert, ChainTxReceipt, ChainHashFast
 
 def callback_connected(serviceClient, arg):
-    logItInfo("Python client connected")
-    ch_uid = ChainNetSrvUID(1234)
-    serviceClient.write(0, ch_uid, "HELLO I TEST SERV".encode('utf-8'))
+    logIt(NOTICE, "Python client connected")
+    ch_uid = ChainNetSrvUID(123)
+    net = ChainNet.byName("private")
+    #serviceClient.write(ch_uid, "Greetings from test client".encode('utf-8'))
+    #serviceClient.check(net, ch_uid, "Any data".encode('utf-8'))
+    condHash = ChainHashFast.fromString("0x058EE1DDFAD16776A1B40A9C7AC69837D96F4B466F5D5EC973D04BE046F2E131");
+    serviceClient.request(net, ch_uid, condHash)
 
 def callback_disconnected(serviceClient, arg):
-    logItNotice("Python client disconnected")
+    logIt(NOTICE, "Python client disconnected")
 
 def callback_deleted(serviceClient, arg):
-    logItNotice("Python client deleted")
+    logIt(NOTICE, "Python client deleted")
 
 def callback_check(serviceClient, arg):
-    logItNotice("Python client successfully checked the service")
+    logIt(NOTICE, "Python client successfully checked the service")
 
-def callback_sign(serviceClient, txCondReceipt, arg):
-#    return txCondReceipt.sign
-    return null
+def callback_sign(serviceClient, txCondRec, arg):
+    logIt(NOTICE, "Sing receipt by python client")
+    signCert = Cert.load("svc_client")
+    return txCondRec.sign(signCert)
 
 def callback_success(serviceClient, txCondHash, arg):
-    logItNotice("Python client successfully requested the service")
+    logIt(NOTICE, "Python client successfully requested the service")
 
 def callback_error(serviceClient, errorNum, arg):
-    logItWarning(f"Python client got error {errorNum:#x}")
+    logIt(WARNING, f"Python client got error {errorNum:#x}")
 
 def callback_data(serviceClient, data, arg):
-    logItNotice(f"Python client custom data read back \'{data.decode('utf-8')}\'")
+    logIt(NOTICE, f"Python client custom data read back \'{data.decode('utf-8')}\'")
 
 def init():
-    logItNotice("Init demoServer")
-#    AppCliServer.cmdItemCreate("myClient", clientCMD, "Command for working cmd",
-#
+    logIt(NOTICE, "Init demoClient")
 #    Command for working cmd client
-#"""
-#) 
-    net = ChainNet.byName("subzero")
-    
+#    AppCliServer.cmdItemCreate("myClient", clientCMD, "Command for working cmd",
+    net = ChainNet.byName("private")
     client = ChainNetSrvClient(net, "127.0.0.1", 8089, callback_connected,
                                                        callback_disconnected,
                                                        callback_deleted,
@@ -44,5 +45,5 @@ def init():
                                                        callback_success,
                                                        callback_error,
                                                        callback_data,
-                                                       net)
+                                                       0)
     return 0
