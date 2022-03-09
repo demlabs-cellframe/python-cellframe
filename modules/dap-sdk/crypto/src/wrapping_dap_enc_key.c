@@ -97,8 +97,8 @@ PyObject *dap_enc_key_new_generate_py(PyObject *self, PyObject *args){
             l_kex_buf = PyBytes_AsString(obj_kex_buf);
             l_kex_buf_size = PyBytes_Size(obj_kex_buf);
         } else {
-            PyErr_SetString(PyExc_SyntaxError, "The second argument to this function can be either "
-                                               "a unicode string ot an object of type bytes");
+            PyErr_SetString(PyExc_SyntaxError, "The second argument must be either "
+                                               "a string or bytes");
             return NULL;
         }
     }
@@ -113,8 +113,8 @@ PyObject *dap_enc_key_new_generate_py(PyObject *self, PyObject *args){
                 l_seed = PyBytes_AsString(obj_seed);
                 l_seed_size = PyBytes_Size(obj_seed);
             }else{
-                PyErr_SetString(PyExc_SyntaxError, "The fourth argument to this function can be either "
-                                                   "a unicode string ot an object of type bytes");
+                PyErr_SetString(PyExc_SyntaxError, "The fourth argument must be either "
+                                                   "a string or bytes");
                 return NULL;
             }
         }

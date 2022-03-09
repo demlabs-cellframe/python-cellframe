@@ -63,7 +63,7 @@ static PyMethodDef DapChainNodeCliMethods[] = {
 
 static PyTypeObject DapChainNodeCliObject_DapChainNodeCliObjectType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "AppCliServer",            /* tp_name */
+    "CellFrame.AppCliServer",            /* tp_name */
     sizeof(PyDapAppCliServerObject),     /* tp_basicsize */
     0,                               /* tp_itemsize */
     0,                               /* tp_dealloc */
@@ -83,7 +83,7 @@ static PyTypeObject DapChainNodeCliObject_DapChainNodeCliObjectType = {
     0,                               /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT |
         Py_TPFLAGS_BASETYPE,         /* tp_flags */
-    "Chain net node cli object",              /* tp_doc */
+    "Application client server object",              /* tp_doc */
     0,		                         /* tp_traverse */
     0,		                         /* tp_clear */
     0,		                         /* tp_richcompare */

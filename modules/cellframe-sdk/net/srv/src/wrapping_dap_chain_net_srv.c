@@ -38,7 +38,6 @@ int _w_dap_chain_callback_data_t_requested(
         log_it(L_ERROR, "Python function is not callable");
         return -1;
     }
-    Py_INCREF(l_func);
     PyObject *l_arg = _wrapping_dac_chain_callback_data_t_get_tuple(a_srv, a_usage_id, a_srv_client, a_custom_data, a_custom_data_size);
     PyGILState_STATE state = PyGILState_Ensure();
     PyObject *result = PyObject_CallObject(l_func, l_arg);
@@ -47,8 +46,7 @@ int _w_dap_chain_callback_data_t_requested(
         PyErr_Print();
         return -1;
     }
-    Py_XINCREF(l_func);
-    Py_XINCREF(l_arg);
+    Py_DECREF(l_arg);
     if (!PyLong_Check(result)){
         return -1;
     }
@@ -67,7 +65,6 @@ int _w_dap_chain_callback_data_t_response_success(
         log_it(L_ERROR, "Python function is not callable");
         return -1;
     }
-    Py_INCREF(l_func);
     PyObject *l_arg = _wrapping_dac_chain_callback_data_t_get_tuple(a_srv, a_usage_id, a_srv_client, a_custom_data, a_custom_data_size);
     PyGILState_STATE state = PyGILState_Ensure();
     PyObject *result = PyObject_CallObject(l_func, l_arg);
@@ -76,8 +73,7 @@ int _w_dap_chain_callback_data_t_response_success(
         PyErr_Print();
         return -1;
     }
-    Py_XINCREF(l_func);
-    Py_XINCREF(l_arg);
+    Py_DECREF(l_arg);
     if (!PyLong_Check(result)){
         return -1;
     }
@@ -97,7 +93,6 @@ int _w_dap_chain_callback_data_t_response_error(
         log_it(L_ERROR, "Python function is not callable");
         return -1;
     }
-    Py_INCREF(l_func);
     PyObject *l_arg = _wrapping_dac_chain_callback_data_t_get_tuple(a_srv, a_usage_id, a_srv_client, a_custom_data, a_custom_data_size);
     PyGILState_STATE state = PyGILState_Ensure();
     PyObject *result = PyObject_CallObject(l_func, l_arg);
@@ -106,8 +101,7 @@ int _w_dap_chain_callback_data_t_response_error(
         PyErr_Print();
         return -1;
     }
-    Py_XINCREF(l_func);
-    Py_XINCREF(l_arg);
+    Py_DECREF(l_arg);
     if (!PyLong_Check(result)){
         return -1;
     }
@@ -127,7 +121,6 @@ int _w_dap_chain_callback_data_t_receipt_next_success(
         log_it(L_ERROR, "Python function is not callable");
         return -1;
     }
-    Py_INCREF(l_func);
     PyObject *l_arg = _wrapping_dac_chain_callback_data_t_get_tuple(a_srv, a_usage_id, a_srv_client, a_custom_data, a_custom_data_size);
     PyGILState_STATE state = PyGILState_Ensure();
     PyObject *result = PyObject_CallObject(l_func, l_arg);
@@ -136,8 +129,7 @@ int _w_dap_chain_callback_data_t_receipt_next_success(
         PyErr_Print();
         return -1;
     }
-    Py_XINCREF(l_func);
-    Py_XINCREF(l_arg);
+    Py_DECREF(l_arg);
     if (!PyLong_Check(result)){
         return -1;
     }
@@ -157,7 +149,6 @@ void *_w_dap_chain_callback_data_t_custom_data(dap_chain_net_srv_t *a_srv,
         log_it(L_ERROR, "Python function is not callable");
         return NULL;
     }
-    Py_INCREF(l_func);
     PyObject *l_arg = _wrapping_dac_chain_callback_data_t_get_tuple(a_srv, a_usage ? a_usage->id : 0,
                                                                     a_usage ? a_usage->client : NULL,
                                                                     a_custom_data, a_custom_data_size);
@@ -168,8 +159,7 @@ void *_w_dap_chain_callback_data_t_custom_data(dap_chain_net_srv_t *a_srv,
         PyErr_Print();
         return NULL;
     }
-    Py_XINCREF(l_func);
-    Py_XINCREF(l_arg);
+    Py_DECREF(l_arg);
     if (!PyBytes_Check(result)){
         return NULL;
     }

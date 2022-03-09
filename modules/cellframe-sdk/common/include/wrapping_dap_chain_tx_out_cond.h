@@ -73,7 +73,7 @@ static PyTypeObject DapChainTxOutCond_DapChainTxOutCondType = {
         0,                                       /* tp_as_buffer */
         Py_TPFLAGS_DEFAULT |
         Py_TPFLAGS_BASETYPE,                 /* tp_flags */
-        "Chain tx out cond object",              /* tp_doc */
+        "Chain transaction out condition object",              /* tp_doc */
         0,		                                 /* tp_traverse */
         0,		                                 /* tp_clear */
         0,		                                 /* tp_richcompare */

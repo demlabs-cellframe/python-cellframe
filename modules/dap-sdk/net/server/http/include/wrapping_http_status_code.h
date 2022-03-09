@@ -117,9 +117,9 @@ static PyObject *wrapping_http_code_set_bad_request(PyObject *self, PyObject *ar
     return Py_None;
 }
 static PyMethodDef PyDapHttpCodeMethods[] = {
-    {"set", wrapping_http_status_code_set_py, METH_VARARGS, "Set status code Http response"},
-    {"OK", wrapping_http_code_set_ok, METH_NOARGS, "Set status code OK for this object"},
-    {"BadRequest", wrapping_http_code_set_bad_request, METH_NOARGS, "Set status code Bad request for this object"},
+    {"set", wrapping_http_status_code_set_py, METH_VARARGS, "Set a status code for a HTTP response"},
+    {"OK", wrapping_http_code_set_ok, METH_NOARGS, "Set an \"OK\" status code"},
+    {"BadRequest", wrapping_http_code_set_bad_request, METH_NOARGS, "Set a \"Bad request\" status code"},
     {NULL, NULL, 0, NULL}
 };
 
@@ -147,7 +147,7 @@ static PyTypeObject HTTPCode_HTTPCodeType = {
     0,                                                 /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT |
         Py_TPFLAGS_BASETYPE,                           /* tp_flags */
-    "Dap http code",                         /* tp_doc */
+    "HTTP code object",                         /* tp_doc */
     0,		                                       /* tp_traverse */
     0,                        		               /* tp_clear */
     0,		                                       /* tp_richcompare */

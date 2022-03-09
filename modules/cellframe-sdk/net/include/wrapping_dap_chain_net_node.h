@@ -27,7 +27,7 @@ static PyMethodDef DapChainNetNodeMethods[] = {
 
 static PyTypeObject DapChainNetNodeObject_DapChainNetNodeObjectType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "CellFrame.Chain.Node",            /* tp_name */
+    "CellFrame.ChainNode",            /* tp_name */
     sizeof(PyDapChainNodeObject),     /* tp_basicsize */
     0,                               /* tp_itemsize */
     0,                               /* tp_dealloc */

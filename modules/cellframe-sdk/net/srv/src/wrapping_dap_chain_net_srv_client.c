@@ -12,7 +12,7 @@ static void _wrapping_dap_chain_net_srv_client_callback_connected(dap_chain_net_
         Py_DECREF(l_args);
         PyGILState_Release(state);
     } else {
-        log_it(L_ERROR, "Can't call handler Python in callback connected");
+        log_it(L_ERROR, "Can't call a python handler on connected event");
     }
 }
 
@@ -27,7 +27,7 @@ static void _wrapping_dap_chain_net_srv_client_callback_disconnected(dap_chain_n
         Py_DECREF(l_args);
         PyGILState_Release(state);
     } else {
-        log_it(L_ERROR, "Can't call handler Python in callback disconnected");
+        log_it(L_ERROR, "Can't call a python handler on disconnected event");
     }
 }
 
@@ -42,7 +42,7 @@ static void _wrapping_dap_chain_net_srv_client_callback_deleted(dap_chain_net_sr
         Py_DECREF(l_args);
         PyGILState_Release(state);
     } else {
-        log_it(L_ERROR, "Can't call handler Python in callback delete");
+        log_it(L_ERROR, "Can't call a python handler on delete event");
     }
 }
 
@@ -60,7 +60,7 @@ static void _wrapping_dap_chain_net_srv_client_callback_check(dap_chain_net_srv_
         Py_DECREF(l_args);
         PyGILState_Release(state);
     } else {
-        log_it(L_ERROR, "Can't call handler Python in callback check");
+        log_it(L_ERROR, "Can't call a python handler on check response event");
     }
 }
 

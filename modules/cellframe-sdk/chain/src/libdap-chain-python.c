@@ -91,11 +91,11 @@ PyObject *dap_chain_python_create_atom_iter(PyObject *self, PyObject *args){
 PyObject *dap_chain_python_atom_iter_get_first(PyObject *self, PyObject *args){
     PyObject *obj_iter;
     if (!PyArg_ParseTuple(args, "O", &obj_iter)){
-        PyErr_SetString(PyExc_AttributeError, "This function must take one argument.");
+        PyErr_SetString(PyExc_AttributeError, "Function takes exactly one argument");
         return NULL;
     }
     if (!PyDapChainAtomIter_Check(obj_iter)){
-        PyErr_SetString(PyExc_ValueError, "The type of the first argument is not valid. The first argument accepted by this function must be of type ChainAtomIter.");
+        PyErr_SetString(PyExc_TypeError, "Argument must be ChainAtomIter object");
         return NULL;
     }
     PyObject *obj_atom_ptr = _PyObject_New(&DapChainAtomPtr_DapChainAtomPtrType);
@@ -115,7 +115,7 @@ PyObject *dap_chain_python_atom_get_datums(PyObject *self, PyObject *args){
     PyObject *obj_atom = NULL;
     size_t atom_size = 0;
     if(!PyArg_ParseTuple(args, "On", &obj_atom, &atom_size)){
-        PyErr_SetString(PyExc_AttributeError, "The given function was passed incorrect arguments, it must accept an atom and its size.");
+        PyErr_SetString(PyExc_AttributeError, "The second argument must be an integer");
         return NULL;
     }
     size_t datums_count = 0;
@@ -136,11 +136,11 @@ PyObject *dap_chain_python_atom_iter_get_next(PyObject *self, PyObject *args){
     size_t atom_size = 0;
     PyObject *atom_iter = NULL;
     if(!PyArg_ParseTuple(args, "O", &atom_iter)){
-        PyErr_SetString(PyExc_AttributeError, "This function must take only one argument.");
+        PyErr_SetString(PyExc_AttributeError, "Function takes exactly one argument");
         return NULL;
     }
     if (!PyDapChainAtomIter_Check(atom_iter)){
-        PyErr_SetString(PyExc_AttributeError, "The first argument to this function must be of type ChainAtomIter.");
+        PyErr_SetString(PyExc_AttributeError, "The first argument must be ChainAtomIter object.");
         return NULL;
     }
     PyObject *obj_atom_ptr = _PyObject_New(&DapChainAtomPtr_DapChainAtomPtrType);
@@ -161,4 +161,32 @@ PyObject *dap_chain_python_atom_iter_get_dag(PyObject *self, PyObject *args){
     PyObject_Dir((PyObject*)obj_dag);
     obj_dag->dag = DAP_CHAIN_CS_DAG(((PyDapChainObject*)self)->chain_t);
     return (PyObject*)obj_dag;
+}
+
+PyObject *dap_chain_python_get_count_tx(PyObject *self, PyObject *args){
+    (void)args;
+    dap_chain_t *l_chain = ((PyDapChainObject*)self)->chain_t;
+    size_t cnt = l_chain->callback_count_tx(l_chain);
+    return Py_BuildValue("n", cnt);
+}
+PyObject *dap_chain_python_get_txs(PyObject *self, PyObject *args){
+    dap_chain_t *l_chain = ((PyDapChainObject*)self)->chain_t;
+    size_t count = 0, page = 0;
+    if (!PyArg_ParseTuple(args, "nn", &count, &page)){
+        return NULL;
+    }
+    dap_list_t *l_list = l_chain->callback_get_txs(l_chain, count, page);
+    if (l_list != NULL){
+        PyObject *l_obj_list = PyList_New(0);
+        for (dap_list_t *l_ptr = l_list; l_ptr != NULL; l_ptr = l_ptr->next){
+            PyDapChainDatumTxObject *l_obj_tx = PyObject_New(PyDapChainDatumTxObject, &DapChainDatumTx_DapChainDatumTxObjectType);
+            PyObject_Dir((PyObject*)l_obj_tx);
+            l_obj_tx->datum_tx = l_ptr->data;
+            l_obj_tx->original = false;
+            PyList_Append(l_obj_list, l_obj_tx);
+        }
+        dap_list_free(l_list);
+        return l_obj_list;
+    }
+    return Py_None;
 }

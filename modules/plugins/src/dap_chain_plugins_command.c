@@ -40,7 +40,7 @@ int dap_chain_plugins_command_handler(int a_argc, char **a_argv, char **a_str_re
     char *l_str = NULL;
     switch (l_cmd_name) {
     case CMD_LIST:
-        l_str = dap_strdup("|\tName plugin\t|\tVersion\t|\tAuthor(s)\t|\n");
+        l_str = dap_strdup("|\tPlugin name\t|\tVersion\t|\tAuthor(s)\t|\n");
         LL_FOREACH(dap_chain_plugins_manifests_get_list(), l_element){
             l_str = dap_strjoin(NULL,
                               l_str, "|\t",l_element->name, "\t|\t", l_element->version, "\t|\t", l_element->author, "\t|\n", NULL);
@@ -65,33 +65,33 @@ int dap_chain_plugins_command_handler(int a_argc, char **a_argv, char **a_str_re
                                                   l_element->name, l_element->version, l_element->author, l_element->description);
             }
         } else {
-            dap_chain_node_cli_set_reply_text(a_str_reply, "Can't searching plugin with name %s", l_name_plugin);
+            dap_chain_node_cli_set_reply_text(a_str_reply, "Can't find a plugin named %s", l_name_plugin);
         }
         break;
     case CMD_RESTART:
-        log_it(L_NOTICE, "Start procedure restart python plugins module");
+        log_it(L_NOTICE, "Restart python plugin module");
         dap_chain_plugins_deinit();
         dap_chain_plugins_init(g_config);
-        log_it(L_NOTICE, "Done procedure restart python plugins module");
-        dap_chain_node_cli_set_reply_text(a_str_reply, "Done procedure restart python plugins module.");
+        log_it(L_NOTICE, "Restart is completed");
+        dap_chain_node_cli_set_reply_text(a_str_reply, "Restart is completed.");
         break;
     case CMD_RELOAD_NAME:
         dap_chain_node_cli_find_option_val(a_argv, l_arg_index, a_argc, "--name", &l_name_plugin);
         int l_result = dap_chain_plugins_reload_plugin(l_name_plugin);
         switch (l_result) {
         case 0:
-            dap_chain_node_cli_set_reply_text(a_str_reply, "Restarting the plugin %s completed successfully.", l_name_plugin);
+            dap_chain_node_cli_set_reply_text(a_str_reply, "Restart \"%s\" plugin is completed successfully.", l_name_plugin);
             break;
         case -2:
             dap_chain_node_cli_set_reply_text(a_str_reply,
-                                              "%s plugin has unresolved dependencys, restart all plagins",
+                                              "\"%s\" plugin has unresolved dependencies. Restart all plugins.",
                                               l_name_plugin);
             break;
         case -3:
-            dap_chain_node_cli_set_reply_text(a_str_reply, "Registration %s manifest for %s plugin fail", l_name_plugin);
+            dap_chain_node_cli_set_reply_text(a_str_reply, "Registration \"%s\" manifest for \"%s\" plugin is failed.", l_name_plugin);
             break;
         case -4:
-            dap_chain_node_cli_set_reply_text(a_str_reply, "A plugin named %s will not find", l_name_plugin);
+            dap_chain_node_cli_set_reply_text(a_str_reply, "A plugin named \"%s\" was not found.", l_name_plugin);
             break;
         default:
             dap_chain_node_cli_set_reply_text(a_str_reply, "An unforeseen error has occurred.");
@@ -99,7 +99,7 @@ int dap_chain_plugins_command_handler(int a_argc, char **a_argv, char **a_str_re
         }
         break;
     default:
-        dap_chain_node_cli_set_reply_text(a_str_reply, "Not validation parameters");
+        dap_chain_node_cli_set_reply_text(a_str_reply, "Arguments are incorrect.");
         break;
 
     }

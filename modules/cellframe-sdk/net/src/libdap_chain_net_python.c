@@ -195,5 +195,6 @@ PyObject *dap_chain_net_get_tx_by_hash_py(PyObject *self, PyObject *args){
         Py_TYPE(l_tx)->tp_free((PyObject*)l_tx);
         return Py_None;
     }
+    l_tx->original = false;
     return (PyObject*)l_tx;
 }
