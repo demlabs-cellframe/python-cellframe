@@ -204,10 +204,13 @@ PyObject* dap_cert_load_py(PyObject *self, PyObject *args)
     if (!PyArg_ParseTuple(args, "s", &l_cert_name)) {
         return Py_None;
     }
+    dap_cert_t *l_ret = dap_cert_find_by_name(l_cert_name);
+    if (!l_ret)
+        return self;
     if (!self) {
         self = _PyObject_New(&g_crypto_cert_type_py);
     }
-    ((PyCryptoCertObject *)self)->cert = dap_cert_find_by_name(l_cert_name);
+    ((PyCryptoCertObject *)self)->cert = l_ret;
     return self;
 }
 
@@ -224,7 +227,6 @@ PyObject* dap_cert_close_py(PyObject *self, PyObject *args)
 void dap_cert_delete_py(PyObject *self)
 {
     PyCryptoCertObject *certObject = (PyCryptoCertObject *)self;
-    dap_cert_delete( certObject->cert );
     Py_TYPE(certObject)->tp_free((PyObject*)certObject);
 }
 
