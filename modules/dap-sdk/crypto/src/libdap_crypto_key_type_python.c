@@ -27,7 +27,7 @@ PyMethodDef PyCryptoKeyTypeObjectMethods[] = {
 PyTypeObject CryptoKeyTypeObject_CryptoKeyTypeObjectType = {
         PyVarObject_HEAD_INIT(NULL, 0)
         "CellFrame.CryptoKeyType",           /* tp_name */
-        sizeof(PyCryptoKeyTypeObjecy),       /* tp_basicsize */
+        sizeof(PyCryptoKeyTypeObject),       /* tp_basicsize */
         0,		                         /* tp_itemsize */
         0,		   			 /* tp_dealloc */
         0,            		         /* tp_print */
@@ -61,10 +61,83 @@ PyTypeObject CryptoKeyTypeObject_CryptoKeyTypeObjectType = {
         0,                                   /* tp_descr_get */
         0,                                   /* tp_descr_set */
         0,                                   /* tp_dictoffset */
-        0,                                   /* tp_init */
+        (initproc)dap_crypto_key_type_py_create, /* tp_init */
         0,                                   /* tp_alloc */
         PyType_GenericNew,                   /* tp_new */
 };
+
+int dap_crypto_key_type_py_create(PyCryptoKeyTypeObject *self, PyObject *args, PyObject *kwds){
+    const char *kwlist[] = {
+            "type",
+            NULL
+    };
+    PyObject *obj_type = NULL;
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O", (char**)kwlist, &obj_type)){
+        return -1;
+    }
+    if (PyUnicode_Check(obj_type)) {
+        const char *l_str = PyUnicode_AsUTF8(obj_type);
+        if (dap_strcmp(l_str, "IAES") == 0) {
+            self->type = DAP_ENC_KEY_TYPE_IAES;
+        } else if (dap_strcmp(l_str, "OAES") == 0) {
+            self->type = DAP_ENC_KEY_TYPE_OAES;
+        } else if (dap_strcmp(l_str, "BF_CBC") == 0) {
+            self->type = DAP_ENC_KEY_TYPE_BF_CBC;
+        } else if (dap_strcmp(l_str, "BF_OFB") == 0) {
+            self->type = DAP_ENC_KEY_TYPE_BF_OFB;
+        } else if (dap_strcmp(l_str, "GOST_OFB") == 0) {
+            self->type = DAP_ENC_KEY_TYPE_GOST_OFB;
+        } else if (dap_strcmp(l_str, "KUZN_OFB") == 0) {
+            self->type = DAP_ENC_KEY_TYPE_KUZN_OFB;
+        } else if (dap_strcmp(l_str, "SALSA2012") == 0) {
+            self->type = DAP_ENC_KEY_TYPE_SALSA2012;
+        } else if (dap_strcmp(l_str, "SEED_OFB") == 0) {
+            self->type = DAP_ENC_KEY_TYPE_SEED_OFB;
+        } else if (dap_strcmp(l_str, "RLWE_NEWHOPE_CPA_KEM") == 0) {
+            self->type = DAP_ENC_KEY_TYPE_RLWE_NEWHOPE_CPA_KEM;
+        } else if (dap_strcmp(l_str, "SIDH_CLN16") == 0) {
+            self->type = DAP_ENC_KEY_TYPE_SIDH_CLN16;
+        } else if (dap_strcmp(l_str, "DEFEO") == 0) {
+            self->type = DAP_ENC_KEY_TYPE_DEFEO;
+        } else if (dap_strcmp(l_str, "MSRLN") == 0) {
+            self->type = DAP_ENC_KEY_TYPE_MSRLN;
+        } else if (dap_strcmp(l_str, "RLWE_MSRLN16") == 0) {
+            self->type = DAP_ENC_KEY_TYPE_RLWE_MSRLN16;
+        } else if (dap_strcmp(l_str, "RLWE_BCNS15") == 0) {
+            self->type = DAP_ENC_KEY_TYPE_RLWE_BCNS15;
+        } else if (dap_strcmp(l_str, "LWE_FRODO") == 0) {
+            self->type = DAP_ENC_KEY_TYPE_LWE_FRODO;
+        } else if (dap_strcmp(l_str, "SIDH_IQC_REF") == 0) {
+            self->type = DAP_ENC_KEY_TYPE_SIDH_IQC_REF;
+        } else if (dap_strcmp(l_str, "CODE_MCBITS") == 0) {
+            self->type = DAP_ENC_KEY_TYPE_CODE_MCBITS;
+        } else if (dap_strcmp(l_str, "NTRU") == 0) {
+            self->type = DAP_ENC_KEY_TYPE_NTRU;
+        } else if (dap_strcmp(l_str, "MLWE_KYBER") == 0) {
+            self->type = DAP_ENC_KEY_TYPE_MLWE_KYBER;
+        } else if (dap_strcmp(l_str, "SIG_PICNIC") == 0) {
+            self->type = DAP_ENC_KEY_TYPE_SIG_PICNIC;
+        } else if (dap_strcmp(l_str, "SIG_BLISS") == 0) {
+            self->type = DAP_ENC_KEY_TYPE_SIG_BLISS;
+        } else if (dap_strcmp(l_str, "SIG_TESLA") == 0) {
+            self->type = DAP_ENC_KEY_TYPE_SIG_TESLA;
+        } else if (dap_strcmp(l_str, "SIG_DILITHIUM") == 0) {
+            self->type = DAP_ENC_KEY_TYPE_SIG_DILITHIUM;
+        } else if (dap_strcmp(l_str, "SIG_RINGCT20") == 0) {
+            self->type = DAP_ENC_KEY_TYPE_SIG_RINGCT20;
+        } else if (dap_strcmp(l_str, "LAST") == 0) {
+            self->type = DAP_ENC_KEY_TYPE_LAST;
+        } else {
+            return -1;
+        }
+        return 0;
+    }
+//    } else if (PyLong_Check(obj_type)){
+//        int code = PyLong_AsInt
+//        return 0;
+//    }
+    return -1;
+}
 
 PyObject *get_ENC_KEY_TYPE_IAES(){
     return PyLong_FromLong(DAP_ENC_KEY_TYPE_IAES);

@@ -26,6 +26,7 @@
 #pragma once
 #include "Python.h"
 #include "dap_enc_key.h"
+#include "dap_strfuncs.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -33,8 +34,10 @@ extern "C" {
 
 typedef struct PyCryptoKeyType{
     PyObject_HEAD
-}PyCryptoKeyTypeObjecy;
+    dap_enc_key_type_t type;
+}PyCryptoKeyTypeObject;
 
+int dap_crypto_key_type_py_create(PyCryptoKeyTypeObject *self, PyObject *args, PyObject *kwds);
 PyObject *get_ENC_KEY_TYPE_IAES();
 PyObject *get_ENC_KEY_TYPE_OAES();
 PyObject *get_ENC_KEY_TYPE_RLWE_NEWHOPE();
