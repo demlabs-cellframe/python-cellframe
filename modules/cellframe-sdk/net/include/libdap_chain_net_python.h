@@ -77,6 +77,7 @@ PyObject *dap_chain_net_get_chain_by_chain_type_py(PyObject *self, PyObject *arg
 PyObject *dap_chain_net_get_ledger_py(PyObject *self, PyObject *args);
 PyObject *dap_chain_net_get_name_py(PyObject *self, PyObject *args);
 PyObject *dap_chain_net_get_tx_by_hash_py(PyObject *self, PyObject *args);
+PyObject *dap_chain_net_add_notify_py(PyObject *self, PyObject *args);
 
 static PyMethodDef DapChainNetMethods[] = {
     {"loadAll", dap_chain_net_load_all_py, METH_NOARGS | METH_STATIC, ""},
@@ -102,6 +103,7 @@ static PyMethodDef DapChainNetMethods[] = {
     {"getLedger", dap_chain_net_get_ledger_py, METH_NOARGS, ""},
     {"getName", dap_chain_net_get_name_py, METH_NOARGS, ""},
     {"getTxByHash", dap_chain_net_get_tx_by_hash_py, METH_VARARGS, ""},
+    {"addNotify", (PyCFunction)dap_chain_net_add_notify_py, METH_VARARGS, ""},
     {NULL, NULL, 0, NULL}
 };
 
