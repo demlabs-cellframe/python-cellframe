@@ -130,12 +130,18 @@ PyObject *wrapping_dap_chain_tx_receipt_get_sig_client(PyObject *self, void *clo
 
 PyObject *wrapping_dap_chain_tx_receipt_sign(PyObject *self, PyObject *args) {
     PyCryptoCertObject *obj_cert;
-    if (!PyArg_ParseTuple(args, "O", &obj_cert))
+    if (!PyArg_ParseTuple(args, "O", &obj_cert)) {
+        log_it(L_ERROR, "Certificate for receipt signing not provided");
         return Py_None;
-    if (!PyObject_TypeCheck(obj_cert, &g_crypto_cert_type_py))
-       return Py_None;
-    if (!obj_cert->cert || !obj_cert->cert->enc_key)
+    }
+    if (!PyObject_TypeCheck(obj_cert, &g_crypto_cert_type_py)) {
+        log_it(L_ERROR, "Certificate for receipt signing has invalid object type");
         return Py_None;
+    }
+    if (!obj_cert->cert || !obj_cert->cert->enc_key) {
+        log_it(L_ERROR, "Certificate for receipt signing has no cert object or private key");
+        return Py_None;
+    }
     dap_chain_datum_tx_receipt_t *l_receipt = ((PyDapChainTXReceiptObject*)self)->tx_receipt;
     ((PyDapChainTXReceiptObject*)self)->tx_receipt = dap_chain_datum_tx_receipt_sign_add(l_receipt, obj_cert->cert->enc_key);
     return self;
