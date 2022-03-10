@@ -1,6 +1,8 @@
 #include "wrapping_dap_chain_tx_receipt.h"
 #include "wrapping_cert.h"
 
+#define LOG_TAG "wrapping_dap_chain_tx_receipt"
+
 PyGetSetDef DapChainTxReceiptGetSetDefs[] = {
         {"size", (getter)wrapping_dap_chain_tx_receipt_get_size, NULL, NULL, NULL},
         {"extSize", (getter)wrapping_dap_chain_tx_receipt_get_ext_size, NULL, NULL, NULL},
