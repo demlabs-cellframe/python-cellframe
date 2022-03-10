@@ -230,7 +230,6 @@ void PyDapChainNetSrv_dealloc(PyDapChainNetSrvObject* self){
 PyObject *wrapping_dap_chain_net_srv_get_uid(PyObject *self, void *closure){
     (void)closure;
     PyDapChainNetSrvUIDObject *l_obj_srv_uid = PyObject_New(PyDapChainNetSrvUIDObject, &DapChainNetSrvUIDObject_DapChainNetSrvUIDObjectType);
-    PyObject_Dir((PyObject*)l_obj_srv_uid);
     l_obj_srv_uid->net_srv_uid = ((PyDapChainNetSrvObject *)self)->srv->uid;
     return (PyObject*)l_obj_srv_uid;
 }
