@@ -260,7 +260,7 @@ PyObject *wrapping_dap_chain_net_srv_client_request(PyObject *self, PyObject *ar
         return Py_None;
     if (!PyDapChainNet_Check((PyObject *)obj_net))
         return Py_None;
-    if (!PyObject_TypeCheck(obj_tx_cond_hash, &DapHashFastObject_DapHashFastObjectType)){
+    if (!PyDapHashFast_Check((PyObject *)obj_tx_cond_hash)) {
         return Py_None;
     }
     //Generate packet

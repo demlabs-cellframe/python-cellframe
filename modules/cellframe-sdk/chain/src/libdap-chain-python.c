@@ -183,7 +183,7 @@ PyObject *dap_chain_python_get_txs(PyObject *self, PyObject *args){
             PyObject_Dir((PyObject*)l_obj_tx);
             l_obj_tx->datum_tx = l_ptr->data;
             l_obj_tx->original = false;
-            PyList_Append(l_obj_list, l_obj_tx);
+            PyList_Append(l_obj_list, (PyObject *)l_obj_tx);
         }
         dap_list_free(l_list);
         return l_obj_list;
