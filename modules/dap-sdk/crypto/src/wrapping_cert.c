@@ -224,7 +224,6 @@ PyObject* dap_cert_close_py(PyObject *self, PyObject *args)
 void dap_cert_delete_py(PyObject *self)
 {
     PyCryptoCertObject *certObject = (PyCryptoCertObject *)self;
-    dap_cert_delete( certObject->cert );
     Py_TYPE(certObject)->tp_free((PyObject*)certObject);
 }
 
