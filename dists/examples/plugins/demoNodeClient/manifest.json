@@ -1,8 +1,0 @@
-{ 
-        "name": "demoNodeClient",
-        "version": "1.0",
-        "author": "DEMLABS (C) 2021",
-        "dependencys": [],
-        "description": "This plugin have demoServer."
-}
-

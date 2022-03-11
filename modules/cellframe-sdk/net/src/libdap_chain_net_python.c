@@ -1,5 +1,80 @@
 #include "libdap_chain_net_python.h"
 
+PyMethodDef DapChainNetMethods[] = {
+    {"loadAll", dap_chain_net_load_all_py, METH_NOARGS | METH_STATIC, ""},
+    {"stateGoTo", dap_chain_net_state_go_to_py, METH_VARARGS, ""},
+    {"start", dap_chain_net_start_py, METH_VARARGS, ""},
+    {"stop", dap_chain_net_stop_py, METH_VARARGS, ""},
+    {"linksEstablish", dap_chain_net_links_establish_py, METH_VARARGS, ""},
+    {"syncChains", dap_chain_net_sync_all_py, METH_VARARGS, ""},
+    {"syncGdb", dap_chain_net_sync_gdb_py, METH_VARARGS, ""},
+    {"syncAll", dap_chain_net_sync_all_py, METH_VARARGS, ""},
+    {"procDatapool", dap_chain_net_proc_datapool_py, METH_VARARGS, ""},
+    {"byName", dap_chain_net_by_name_py, METH_VARARGS | METH_STATIC, ""},
+    {"byId", dap_chain_net_by_id_py, METH_VARARGS | METH_STATIC, ""},
+    {"idByName", dap_chain_net_id_by_name_py, METH_VARARGS | METH_STATIC, ""},
+    {"ledgerByNetName", dap_chain_ledger_by_net_name_py, METH_VARARGS | METH_STATIC, ""},
+    {"getChainByName", dap_chain_net_get_chain_by_name_py, METH_VARARGS, ""},
+    {"getCurAddr", dap_chain_net_get_cur_addr_py, METH_VARARGS, ""},
+    {"getCurCell", dap_chain_net_get_cur_cell_py, METH_VARARGS, ""},
+    {"getGdbGroupMempool", dap_chain_net_get_gdb_group_mempool_py, METH_VARARGS | METH_STATIC, ""},
+    {"getGdbGroupMempoolByChainType", dap_chain_net_get_gdb_group_mempool_by_chain_type_py, METH_VARARGS, ""},
+    {"linksConnect", dap_chain_net_links_connect_py, METH_VARARGS, ""},
+    {"getChainByChainType", dap_chain_net_get_chain_by_chain_type_py, METH_VARARGS, ""},
+    {"getLedger", dap_chain_net_get_ledger_py, METH_NOARGS, ""},
+    {"getName", dap_chain_net_get_name_py, METH_NOARGS, ""},
+    {"getTxByHash", dap_chain_net_get_tx_by_hash_py, METH_VARARGS, ""},
+    {"addNotify", (PyCFunction)dap_chain_net_add_notify_py, METH_VARARGS, ""},
+    {NULL, NULL, 0, NULL}
+};
+
+PyGetSetDef DapChainNetGetsSetsDef[] = {
+        {"id", (getter)dap_chain_net_python_get_id, NULL, NULL, NULL},
+    {NULL}
+};
+
+PyTypeObject DapChainNetObject_DapChainNetObjectType = {
+    PyVarObject_HEAD_INIT(NULL, 0)
+    "CellFrame.ChainNet",            /* tp_name */
+    sizeof(PyDapChainNetObject),     /* tp_basicsize */
+    0,                               /* tp_itemsize */
+    0,                               /* tp_dealloc */
+    0,                               /* tp_print */
+    0,                               /* tp_getattr */
+    0,                               /* tp_setattr */
+    0,                               /* tp_reserved */
+    0,                               /* tp_repr */
+    0,                               /* tp_as_number */
+    0,                               /* tp_as_sequence */
+    0,                               /* tp_as_mapping */
+    0,                               /* tp_hash  */
+    0,                               /* tp_call */
+    0,                               /* tp_str */
+    0,                               /* tp_getattro */
+    0,                               /* tp_setattro */
+    0,                               /* tp_as_buffer */
+    Py_TPFLAGS_DEFAULT |
+        Py_TPFLAGS_BASETYPE,         /* tp_flags */
+    "Chain net object",              /* tp_doc */
+    0,		                         /* tp_traverse */
+    0,		                         /* tp_clear */
+    0,		                         /* tp_richcompare */
+    0,                               /* tp_weaklistoffset */
+    0,		                         /* tp_iter */
+    0,		                         /* tp_iternext */
+    DapChainNetMethods,              /* tp_methods */
+    0,                               /* tp_members */
+    DapChainNetGetsSetsDef,                               /* tp_getset */
+    0,                               /* tp_base */
+    0,                               /* tp_dict */
+    0,                               /* tp_descr_get */
+    0,                               /* tp_descr_set */
+    0,                               /* tp_dictoffset */
+    0,                               /* tp_init */
+    0,                               /* tp_alloc */
+    PyType_GenericNew,               /* tp_new */
+};
+
 int dap_chain_net_init_py(void){
     int res = dap_chain_net_init();
     return res;
@@ -55,18 +130,18 @@ PyObject *dap_chain_net_by_name_py(PyObject *self, PyObject *args){
     if (!PyArg_ParseTuple(args, "s", &a_name)) {
         PyErr_SetString(PyExc_AttributeError,
                         "Invalid argument specified. The first argument for this function must be a string. ");
-        return NULL;
+        return self;
     }
-    PyObject *obj_chain_net = _PyObject_New(&DapChainNetObject_DapChainNetObjectType);
-    obj_chain_net = PyObject_Init(obj_chain_net, &DapChainNetObject_DapChainNetObjectType);
-    PyObject_Dir(obj_chain_net);
-    ((PyDapChainNetObject*)obj_chain_net)->chain_net = dap_chain_net_by_name(a_name);
-    if (((PyDapChainNetObject*)obj_chain_net)->chain_net == NULL){
-        PyObject_Del(obj_chain_net);
-        return Py_None;
+    dap_chain_net_t *l_net = dap_chain_net_by_name(a_name);
+    if (!l_net)
+        return self;
+    if (!self) {
+        self = _PyObject_New(&DapChainNetObject_DapChainNetObjectType);
     }
-    return Py_BuildValue("O", obj_chain_net);
+    ((PyDapChainNetObject *)self)->chain_net = l_net;
+    return self;
 }
+
 PyObject *dap_chain_net_by_id_py(PyObject *self, PyObject *args){
     PyObject *obj_net_id;
     if (!PyArg_ParseTuple(args, "O", &obj_net_id))
@@ -196,4 +271,60 @@ PyObject *dap_chain_net_get_tx_by_hash_py(PyObject *self, PyObject *args){
     }
     l_tx->original = false;
     return (PyObject*)l_tx;
+}
+
+typedef struct pvt_wrapping_dap_chain_net_notify_callback_list{
+    dap_chain_net_t *net;
+    PyObject *func;
+    struct pvt_wrapping_dap_chain_net_notify_callback_list *next;
+}pvt_wrapping_dap_chain_net_notify_callback_list_t;
+
+pvt_wrapping_dap_chain_net_notify_callback_list_t *pvt_list_notify = NULL;
+
+
+void pvt_dap_chain_net_py_notify_handler(void * a_arg, const char a_op_code, const char * a_group,
+                                         const char * a_key, const void * a_value, const size_t a_value_len){
+    PyGILState_STATE state = PyGILState_Ensure();
+    PyObject *l_obj_value = NULL;
+    char *l_op_code = DAP_NEW_Z_SIZE(char, 1);
+    l_op_code[0] = a_op_code;
+    if (a_value == NULL || a_value_len == 0){
+        l_obj_value = Py_None;
+    } else {
+        l_obj_value = PyBytes_FromStringAndSize(a_value, (Py_ssize_t)a_value_len);
+    }
+    PyObject *argv = Py_BuildValue("sssO", l_op_code, a_group, a_key, l_obj_value);
+    Py_INCREF(argv);
+    for (pvt_wrapping_dap_chain_net_notify_callback_list_t *pvt = pvt_list_notify; pvt != NULL; pvt = pvt->next){
+        if (pvt->net == a_arg){
+            Py_INCREF(pvt->func);
+            PyEval_CallObject(pvt->func, argv);
+            Py_XDECREF(pvt->func);
+        }
+    }
+    Py_XDECREF(argv);
+    DAP_FREE(l_op_code);
+    PyGILState_Release(state);
+}
+
+PyObject *dap_chain_net_add_notify_py(PyObject *self, PyObject *args){
+    PyObject *obj_func = NULL;
+    if (!PyArg_ParseTuple(args, "O", &obj_func)){
+        return NULL;
+    }
+    if (!PyCallable_Check(obj_func)){
+        PyErr_SetString(PyExc_AttributeError, "The argument passed is not a function that can be called.");
+        return NULL;
+    }
+    for(pvt_wrapping_dap_chain_net_notify_callback_list_t *list = pvt_list_notify; list != NULL; list = list->next){
+        if (list->net == ((PyDapChainNetObject*)self)->chain_net)
+            break;
+        dap_chain_net_add_notify_callback(((PyDapChainNetObject*)self)->chain_net, pvt_dap_chain_net_py_notify_handler);
+    }
+    pvt_wrapping_dap_chain_net_notify_callback_list_t *l_element = DAP_NEW(pvt_wrapping_dap_chain_net_notify_callback_list_t);
+    l_element->net = ((PyDapChainNetObject*)self)->chain_net;
+    l_element->func = obj_func;
+    Py_INCREF(obj_func);
+    LL_APPEND(pvt_list_notify, l_element);
+    return Py_None;
 }

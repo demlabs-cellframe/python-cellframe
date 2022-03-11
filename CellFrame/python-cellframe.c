@@ -479,15 +479,15 @@ PyMODINIT_FUNC PyInit_libCellFrame(void){
 
     PyModule_AddObject(module, "error", CellFrame_error);
 
-    PyModule_AddObject(module, "DEBUG", PyLong_FromLong(L_DEBUG));
-    PyModule_AddObject(module, "INFO", PyLong_FromLong(L_INFO));
-    PyModule_AddObject(module, "NOTICE", PyLong_FromLong(L_NOTICE));
-    PyModule_AddObject(module, "MESSAGE", PyLong_FromLong(L_MSG));
-    PyModule_AddObject(module, "DAP", PyLong_FromLong(L_DAP));
-    PyModule_AddObject(module, "WARNING", PyLong_FromLong(L_WARNING));
-    PyModule_AddObject(module, "ATT", PyLong_FromLong(L_ATT));
-    PyModule_AddObject(module, "ERROR", PyLong_FromLong(L_ERROR));
-    PyModule_AddObject(module, "CRITICAL", PyLong_FromLong(L_CRITICAL));
+    PyModule_AddIntConstant(module, "DEBUG", L_DEBUG);
+    PyModule_AddIntConstant(module, "INFO", L_INFO);
+    PyModule_AddIntConstant(module, "NOTICE", L_NOTICE);
+    PyModule_AddIntConstant(module, "MESSAGE", L_MSG);
+    PyModule_AddIntConstant(module, "DAP", L_DAP);
+    PyModule_AddIntConstant(module, "WARNING", L_WARNING);
+    PyModule_AddIntConstant(module, "ATT", L_ATT);
+    PyModule_AddIntConstant(module, "ERROR", L_ERROR);
+    PyModule_AddIntConstant(module, "CRITICAL", L_CRITICAL);
 
     PyModule_AddObject(module, "Crypto", (PyObject*)&g_crypto_type_py);
     PyModule_AddObject(module, "Cert", (PyObject*)&g_crypto_cert_type_py);

@@ -114,7 +114,7 @@ PyObject *dap_chain_datum_tx_add_out_cond_item_py(PyObject *self, PyObject *args
         return NULL;
     void *cond = (void*)PyBytes_AsString(obj_cond_bytes);
     int res = dap_chain_datum_tx_add_out_cond_item(&(((PyDapChainDatumTxObject*)self)->datum_tx),
-                                                   ((PyCryptoKeyObject*)obj_key)->key,
+                                                   ((PyDapPkeyObject*)obj_key)->pkey,
                                                    ((PyDapChainNetSrvUIDObject*)obj_srv_uid)->net_srv_uid,
                                                    value, value_max_per_unit,
                                                    ((PyDapChainNetSrvPriceUnitUIDObject*)obj_srv_price_unit_uid)->price_unit_uid,
