@@ -278,8 +278,8 @@ static PyTypeObject DapChainNetSrvUIDObject_DapChainNetSrvUIDObjectType = {
     PyType_GenericNew,               /* tp_new */
 };
 
-static bool PyDapChainNetSrvUid_Check(PyObject *a_obj){
-    return PyObject_TypeCheck(a_obj, &DapChainNetSrvUIDObject_DapChainNetSrvUIDObjectType);
+static bool PyDapChainNetSrvUid_Check(PyDapChainNetSrvUIDObject *a_obj){
+    return !PyObject_TypeCheck(a_obj, &DapChainNetSrvUIDObject_DapChainNetSrvUIDObjectType);
 }
 
 /*=================*/
