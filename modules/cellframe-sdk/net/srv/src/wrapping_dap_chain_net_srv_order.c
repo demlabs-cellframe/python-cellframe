@@ -36,25 +36,46 @@ int PyDapChainNetSrvOrder_init(PyDapChainNetSrvOrderObject *self, PyObject *args
     void* l_ext = (void*)PyBytes_AsString(obj_ext);
     size_t l_ext_size = PyBytes_Size(obj_ext);
     uint256_t l_price = dap_chain_uint256_from(price);
-    dap_chain_net_srv_order_direction_t l_direction = ((PyDapChainNetSrvOrderDirectionObject*)obj_direction)->direction;
-    dap_chain_net_t *l_net = ((PyDapChainNetObject*)obj_net)->chain_net;
+//    dap_chain_net_srv_order_direction_t l_direction = ;
+//    dap_chain_net_t *l_net = ;
 //    dap_chain_net_srv_order_compose()
-    self->order = dap_chain_net_srv_order_compose(
-            l_net,
-            l_direction,
-            ((PyDapChainNetSrvUIDObject*)obj_srv_uid)->net_srv_uid,
-            *((PyDapChainNodeAddrObject*)obj_node_addr)->node_addr,
-            *((PyDapHashFastObject*)obj_tx_cond_hash)->hash_fast,
-            l_price,
-            ((PyDapChainNetSrvPriceUnitUIDObject*)obj_price_unit)->price_unit_uid,
-            price_ticker,
-            (time_t)expires,
-            l_ext,
-            l_ext_size,
-            "",
-            0,
-            ((PyCryptoKeyObject*)obj_key)->key
-            );
+//    dap_chain_node_addr_t l_addr = ;
+    if (obj_tx_cond_hash == Py_None){
+        dap_chain_hash_fast_t l_hf = {0};
+        self->order = dap_chain_net_srv_order_compose(
+                ((PyDapChainNetObject *) obj_net)->chain_net,
+                ((PyDapChainNetSrvOrderDirectionObject *) obj_direction)->direction,
+                ((PyDapChainNetSrvUIDObject *) obj_srv_uid)->net_srv_uid,
+                *((PyDapChainNodeAddrObject *) obj_node_addr)->node_addr,
+                l_hf,
+                l_price,
+                ((PyDapChainNetSrvPriceUnitUIDObject *) obj_price_unit)->price_unit_uid,
+                price_ticker,
+                (time_t) expires,
+                l_ext,
+                l_ext_size,
+                "",
+                0,
+                ((PyCryptoKeyObject *) obj_key)->key
+        );
+    } else {
+        self->order = dap_chain_net_srv_order_compose(
+                ((PyDapChainNetObject *) obj_net)->chain_net,
+                ((PyDapChainNetSrvOrderDirectionObject *) obj_direction)->direction,
+                ((PyDapChainNetSrvUIDObject *) obj_srv_uid)->net_srv_uid,
+                *((PyDapChainNodeAddrObject *) obj_node_addr)->node_addr,
+                *((PyDapHashFastObject *) obj_tx_cond_hash)->hash_fast,
+                l_price,
+                ((PyDapChainNetSrvPriceUnitUIDObject *) obj_price_unit)->price_unit_uid,
+                price_ticker,
+                (time_t) expires,
+                l_ext,
+                l_ext_size,
+                "",
+                0,
+                ((PyCryptoKeyObject *) obj_key)->key
+        );
+    }
     return 0;
 }
 
