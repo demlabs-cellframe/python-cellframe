@@ -2,15 +2,19 @@
 
 #include "Python.h"
 #include "dap_chain_net_srv.h"
+#include "dap_chain_net_srv_stream_session.h"
 #include "uthash.h"
-#include "wrapping_dap_chain_net_srv_client.h"
 #include "wrapping_dap_chain_common.h"
-//#include "wrapping_dap_chain_net_srv_common.h"
+#include "wrapping_dap_chain_net_srv_client_remote.h"
 
 typedef struct PyDapChainNetSrv{
     PyObject_HEAD
     dap_chain_net_srv_t *srv;
-    bool original;
+    PyObject *callbackRequested;
+    PyObject *callbackSuccess;
+    PyObject *callbackError;
+    PyObject *callbackReceiptNext;
+    PyObject *callbackReadWithOutData;
 }PyDapChainNetSrvObject;
 
 int PyDapChainNetSrv_init(PyDapChainNetSrvObject* self, PyObject *args, PyObject *kwds);
@@ -21,6 +25,10 @@ PyObject *wrapping_dap_chain_net_srv_get_abstract(PyObject *self, void *closure)
 PyObject *wrapping_dap_chain_net_srv_get_price_list(PyObject *self, void *closure);
 PyObject *wrapping_dap_chain_net_srv_get_ban_list(PyObject *self, void *closure);
 PyObject *wrapping_dap_chain_net_srv_get_grace_period(PyObject *self, void *closure);
+
+//Function
+PyObject *wrapping_dap_chain_net_srv_set_callback_channel(PyObject *self, PyObject *args);
+//PyObject *wrapping_dap_chain_net_srv_issue_receipt(PyObject *self, PyObject *args);
 
 static PyMethodDef DapChainNetSrvMethods[]={
         {NULL, NULL, 0, NULL}
@@ -37,7 +45,7 @@ static PyTypeObject DapChainNetSrvObject_DapChainNetSrvObjectType = {
         "CellFrame.ChainNetSrv",        /* tp_name */
         sizeof(PyDapChainNetSrvObject), /* tp_basicsize */
         0,                                /* tp_itemsize */
-        (destructor)PyDapChainNetSrv_dealloc,                                /* tp_dealloc */
+        0,                                /* tp_dealloc */
         0,                                /* tp_print */
         0,                                /* tp_getattr */
         0,                                /* tp_setattr */
@@ -54,7 +62,7 @@ static PyTypeObject DapChainNetSrvObject_DapChainNetSrvObjectType = {
         0,                                /* tp_as_buffer */
         Py_TPFLAGS_DEFAULT |
         Py_TPFLAGS_BASETYPE,          /* tp_flags */
-        "Chain net srv object",               /* tp_doc */
+        "Chain net service object",               /* tp_doc */
         0,		                          /* tp_traverse */
         0,		                          /* tp_clear */
         0,		                          /* tp_richcompare */
