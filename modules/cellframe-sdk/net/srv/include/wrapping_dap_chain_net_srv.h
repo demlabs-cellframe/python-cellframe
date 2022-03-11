@@ -2,15 +2,19 @@
 
 #include "Python.h"
 #include "dap_chain_net_srv.h"
+#include "dap_chain_net_srv_stream_session.h"
 #include "uthash.h"
 #include "wrapping_dap_chain_net_srv_client_remote.h"
 #include "wrapping_dap_chain_common.h"
-//#include "wrapping_dap_chain_net_srv_common.h"
 
 typedef struct PyDapChainNetSrv{
     PyObject_HEAD
     dap_chain_net_srv_t *srv;
-    bool original;
+    PyObject *callbackRequested;
+    PyObject *callbackSuccess;
+    PyObject *callbackError;
+    PyObject *callbackReceiptNext;
+    PyObject *callbackReadWithOutData;
 }PyDapChainNetSrvObject;
 
 int PyDapChainNetSrv_init(PyDapChainNetSrvObject* self, PyObject *args, PyObject *kwds);

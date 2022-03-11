@@ -27,7 +27,9 @@ PyObject *dap_chain_mempool_tx_create_py(PyObject *self, PyObject *args){
     dap_enc_key_t *l_key_from = ((PyCryptoKeyObject*)obj_key_from)->key;
     dap_chain_addr_t *l_addr_from = ((PyDapChainAddrObject*)obj_addr_from)->addr;
     dap_chain_addr_t *l_addr_to = ((PyDapChainAddrObject*)obj_addr_to)->addr;
-    dap_chain_addr_t *l_addr_fee = ((PyDapChainAddrObject*)obj_addr_fee)->addr;
+    dap_chain_addr_t *l_addr_fee = NULL;
+    if (obj_addr_fee != Py_None)
+        l_addr_fee = ((PyDapChainAddrObject*)obj_addr_fee)->addr;
     dap_chain_hash_fast_t  *l_hash_tx = dap_chain_mempool_tx_create(l_chain, l_key_from,
                                                                     l_addr_from, l_addr_to,
                                                                     l_addr_fee, l_token_ticker,

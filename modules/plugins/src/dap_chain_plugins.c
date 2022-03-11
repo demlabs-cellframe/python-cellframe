@@ -154,8 +154,8 @@ void dap_chain_plugins_load_plugin_initialization(){
                     Py_INCREF(l_container->module);
                 } else {
                     PyErr_Print();
-                    log_it(L_ERROR, "Can't initialize \"%s\" plugin. Code error: %i", _PyLong_AsInt(l_res_int),
-                           l_container->name);
+                    log_it(L_ERROR, "Can't initialize \"%s\" plugin. Code error: %i", l_container->name,
+                           _PyLong_AsInt(l_res_int));
                 }
             } else {
                 PyErr_Print();

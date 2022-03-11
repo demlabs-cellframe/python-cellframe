@@ -110,7 +110,7 @@ def init():
     logItNotice("Node list group: "+node_list_group)
 #Create order
     print("net: "+ str(net))
-    net_srv = ChainNetSrvUID.fromStr("0x0a")
+    net_srv = ChainNetSrvUID(0xa)
     direction = ChainNetSrvOrderDirection.getDirSell()
     print("direction" + str(direction))
     node_addr = net.getCurAddr()
