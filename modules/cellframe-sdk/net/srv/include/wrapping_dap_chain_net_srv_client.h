@@ -1,42 +1,32 @@
-//
-// Created by blus on 05.02.2022.
-//
+#pragma once
 
 #include "Python.h"
-#include "datetime.h"
-#include "dap_chain_net_srv.h"
-
-#ifndef WRAPPING_DAP_CHAIN_NET_SRV_CLIENT_H
-#define WRAPPING_DAP_CHAIN_NET_SRV_CLIENT_H
+#include "dap_chain_net_srv_client.h"
+#include "libdap_chain_net_python.h"
 
 typedef struct PyDapChainNetSrvClient{
     PyObject_HEAD
-    dap_chain_net_srv_client_remote_t *srv_client;
+    dap_chain_net_srv_client_t *srv_client;
+    PyObject *callback_connected;
+    PyObject *callback_disconnected;
+    PyObject *callback_deleted;
+    PyObject *callback_check;
+    PyObject *callback_sign;
+    PyObject *callback_success;
+    PyObject *callback_error;
+    PyObject *callback_data;
 }PyDapChainNetSrvClientObject;
 
-PyObject *wrapping_dap_chain_net_srv_client_get_ch(PyObject *self, void *closure);
-PyObject *wrapping_dap_chain_net_srv_client_get_ts_created(PyObject *self, void *closure);
-PyObject *wrapping_dap_chain_net_srv_client_get_created(PyObject *self, void *closure);
-PyObject *wrapping_dap_chain_net_srv_client_get_stream_worker(PyObject *self, void *closure);
-PyObject *wrapping_dap_chain_net_srv_client_get_session_id(PyObject *self, void *closure);
-PyObject *wrapping_dap_chain_net_srv_client_get_bytes_received(PyObject *self, void *closure);
-PyObject *wrapping_dap_chain_net_srv_client_get_bytes_send(PyObject *self, void *closure);
-//PyObject *wrapping_dap_chain_net_srv_client_get_bytes_prev(PyObject *self, void *closure);
-//PyObject *wrapping_dap_chain_net_srv_client_get_bytes_next(PyObject *self, void *closure);
+int PyDapChainNetSrvClient_init(PyDapChainNetSrvClientObject* self, PyObject *args, PyObject *kwds);
+PyObject *wrapping_dap_chain_net_srv_client_check(PyObject *self, PyObject *args);
+PyObject *wrapping_dap_chain_net_srv_client_request(PyObject *self, PyObject *args);
+PyObject *wrapping_dap_chain_net_srv_client_write(PyObject *self, PyObject *args);
 
 static PyMethodDef DapChainNetSrvClientMethods[]={
+        {"check", (PyCFunction)wrapping_dap_chain_net_srv_client_check, METH_VARARGS, ""},
+        {"request", (PyCFunction)wrapping_dap_chain_net_srv_client_request, METH_VARARGS, ""},
+        {"write", (PyCFunction)wrapping_dap_chain_net_srv_client_write, METH_VARARGS, ""},
         {NULL, NULL, 0, NULL}
-};
-
-static PyGetSetDef DapChaiNetSrvClientGetsSets[] = {
-        {"ch", (getter)wrapping_dap_chain_net_srv_client_get_ch, NULL, NULL, NULL},
-        {"tsCreated", (getter)wrapping_dap_chain_net_srv_client_get_ts_created, NULL, NULL, NULL},
-        {"created", (getter)wrapping_dap_chain_net_srv_client_get_created, NULL, NULL, NULL},
-        {"streamWorker", (getter)wrapping_dap_chain_net_srv_client_get_stream_worker, NULL, NULL, NULL},
-        {"sessionId", (getter)wrapping_dap_chain_net_srv_client_get_session_id, NULL, NULL, NULL},
-        {"bytesReceived", (getter)wrapping_dap_chain_net_srv_client_get_bytes_received, NULL, NULL, NULL},
-        {"bytesSend", (getter)wrapping_dap_chain_net_srv_client_get_bytes_send, NULL, NULL, NULL},
-        {NULL}
 };
 
 static PyTypeObject DapChainNetSrvClientObject_DapChainNetSrvClientObjectType = {
@@ -60,25 +50,23 @@ static PyTypeObject DapChainNetSrvClientObject_DapChainNetSrvClientObjectType = 
         0,                                /* tp_setattro */
         0,                                /* tp_as_buffer */
         Py_TPFLAGS_DEFAULT |
-        Py_TPFLAGS_BASETYPE,          /* tp_flags */
-        "Chain net srv client object",               /* tp_doc */
+        Py_TPFLAGS_BASETYPE,              /* tp_flags */
+        "Chain net service client object",/* tp_doc */
         0,		                          /* tp_traverse */
         0,		                          /* tp_clear */
         0,		                          /* tp_richcompare */
         0,                                /* tp_weaklistoffset */
         0,		                          /* tp_iter */
         0,		                          /* tp_iternext */
-        DapChainNetSrvClientMethods,        /* tp_methods */
+        DapChainNetSrvClientMethods,      /* tp_methods */
         0,                                /* tp_members */
-        DapChaiNetSrvClientGetsSets,        /* tp_getset */
+        0,                                /* tp_getset */
         0,                                /* tp_base */
         0,                                /* tp_dict */
         0,                                /* tp_descr_get */
         0,                                /* tp_descr_set */
         0,                                /* tp_dictoffset */
-        0,                                /* tp_init */
+        (initproc)PyDapChainNetSrvClient_init,      /* tp_init */
         0,                                /* tp_alloc */
         PyType_GenericNew,                /* tp_new */
 };
-
-#endif //WRAPPING_DAP_CHAIN_NET_SRV_CLIENT_H
