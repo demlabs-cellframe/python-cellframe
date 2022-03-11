@@ -22,20 +22,26 @@ int PyDapChainNetSrvOrder_init(PyDapChainNetSrvOrderObject *self, PyObject *args
     };
     PyObject *obj_net, *obj_direction, *obj_srv_uid, *obj_node_addr, *obj_tx_cond_hash, *obj_price_unit;
     uint64_t price;
-    char price_ticker;
+    char *price_ticker;
     unsigned long expires;
     PyObject *obj_ext, *obj_key;
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "OOOOOkOOO", kwlist, &obj_net, &obj_direction, &obj_srv_uid,
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "OOOOOkOsOOO", kwlist, &obj_net, &obj_direction, &obj_srv_uid,
                                      &obj_node_addr, &obj_tx_cond_hash, &price, &obj_price_unit, &price_ticker,
                                      &expires, &obj_ext, &obj_key)){
+        return -1;
+    }
+    if (!PyDapChainNet_Check(obj_net)){
         return -1;
     }
     void* l_ext = (void*)PyBytes_AsString(obj_ext);
     size_t l_ext_size = PyBytes_Size(obj_ext);
     uint256_t l_price = dap_chain_uint256_from(price);
-    self->order = dap_chain_net_srv_order_create(
-            ((PyDapChainNetObject*)obj_net)->chain_net,
-            ((PyDapChainNetSrvOrderDirectionObject*)obj_direction)->direction,
+    dap_chain_net_srv_order_direction_t l_direction = ((PyDapChainNetSrvOrderDirectionObject*)obj_direction)->direction;
+    dap_chain_net_t *l_net = ((PyDapChainNetObject*)obj_net)->chain_net;
+//    dap_chain_net_srv_order_compose()
+    self->order = dap_chain_net_srv_order_compose(
+            l_net,
+            l_direction,
             ((PyDapChainNetSrvUIDObject*)obj_srv_uid)->net_srv_uid,
             *((PyDapChainNodeAddrObject*)obj_node_addr)->node_addr,
             *((PyDapHashFastObject*)obj_tx_cond_hash)->hash_fast,
