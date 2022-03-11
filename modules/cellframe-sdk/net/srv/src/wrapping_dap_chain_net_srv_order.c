@@ -2,6 +2,44 @@
 
 #define WRAPPING_DAP_CHAIN_NET_SRV_ORDER(a) ((PyDapChainNetSrvOrderObject*)a)
 
+
+typedef struct _wrapping_list_func_callables{
+    PyObject *func;
+    struct _wrapping_list_func_callables *next;
+}_wrapping_list_func_callables_t;
+
+_wrapping_list_func_callables_t *_s_callbacks = NULL;
+
+void _wrapping_handler_add_order_notify(void * a_arg, const char a_op_code, const char * a_group,
+                                        const char * a_key, const void * a_value, const size_t a_value_len){
+    PyObject *l_obj_order = Py_None;
+    if (a_value_len != 0) {
+        PyDapChainNetSrvOrderObject *l_obj_order_tmp = PyObject_New(PyDapChainNetSrvOrderObject,
+                                                                    &DapChainNetSrvOrderObject_DapChainNetSrvOrderObjectType);
+        PyObject_Dir((PyObject *) l_obj_order_tmp);
+        l_obj_order_tmp->order = DAP_NEW_Z_SIZE(void, a_value_len);
+        memcpy(l_obj_order_tmp->order, a_value, a_value_len);
+        l_obj_order = (PyObject*)l_obj_order_tmp;
+    }
+    char *l_op_code = DAP_NEW_Z_SIZE(char, 2);
+    l_op_code[0] = a_op_code;
+    l_op_code[1] = '\0';
+    char *l_group = dap_strdup(a_group);
+    char *l_key = dap_strdup(a_key);
+    PyObject *l_args = Py_BuildValue("sssO", l_op_code, l_group, l_key, l_obj_order);
+    Py_INCREF(l_args);
+    _wrapping_list_func_callables_t *callbacks = NULL;
+    PyGILState_STATE state = PyGILState_Ensure();
+    LL_FOREACH(_s_callbacks, callbacks){
+        PyObject *l_call = callbacks->func;
+        Py_INCREF(l_call);
+        PyEval_CallObject(l_call, l_args);
+        Py_XDECREF(l_call);
+    }
+    PyGILState_Release(state);
+    Py_DECREF(l_args);
+}
+
 int PyDapChainNetSrvOrder_init(PyDapChainNetSrvOrderObject *self, PyObject *args, PyObject *kwds){
     const char *kwlist[] = {
             "net",
@@ -334,4 +372,27 @@ PyObject *wrapping_dap_chain_net_srv_order_get_nodelist_group(PyObject *self, Py
     }
     return Py_BuildValue("s",
                          dap_chain_net_srv_order_get_nodelist_group(((PyDapChainNetObject*)obj_net)->chain_net));
+}
+
+PyObject *wrapping_dap_chain_net_srv_order_add_notify_callback(PyObject *self, PyObject *args){
+    (void)self;
+    PyObject *obj_net;
+    PyObject *func_call;
+    if (!PyArg_ParseTuple(args, "OO", &obj_net, &func_call)){
+        return NULL;
+    }
+    if (!PyDapChainNet_Check(obj_net)){
+        PyErr_SetString(PyExc_AttributeError, "The first  argument must be ChainNet object");
+        return NULL;
+    }
+    if (!PyCallable_Check(func_call)){
+        PyErr_SetString(PyExc_AttributeError, "The second argument must be a callable");
+        return NULL;
+    }
+    _wrapping_list_func_callables_t *callback = DAP_NEW(_wrapping_list_func_callables_t);
+    callback->func = func_call;
+    dap_chain_net_srv_order_add_notify_callback(((PyDapChainNetObject*)obj_net)->chain_net,
+                                                _wrapping_handler_add_order_notify);
+    LL_APPEND(_s_callbacks, callback);
+    return Py_None;
 }
