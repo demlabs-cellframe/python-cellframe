@@ -224,15 +224,11 @@ PyObject *wrapping_dap_chain_net_srv_order_get_srv_ext_size(PyObject *self, void
 PyObject *wrapping_dap_chain_net_srv_order_get_srv_ext_n_sign(PyObject *self, void *closure) {
     (void) closure;
     if (WRAPPING_DAP_CHAIN_NET_SRV_ORDER(self)->order != NULL) {
-        dap_sign_t *l_sign = WRAPPING_DAP_CHAIN_NET_SRV_ORDER(self)->order->ext_n_sign[WRAPPING_DAP_CHAIN_NET_SRV_ORDER(
-                self)->order->ext_size];
-        if (dap_sign_verify_size(l_sign, WRAPPING_DAP_CHAIN_NET_SRV_ORDER(self)->order->ext_size)) {
-            PyDapSignObject *obj_sign = PyObject_New(PyDapSignObject, &DapSignObject_DapSignObjectType);
-            PyObject_Dir((PyObject *) obj_sign);
-            obj_sign->sign = l_sign;
-            return (PyObject *) obj_sign;
-        }
-        return Py_None;
+        dap_sign_t *l_sign = (dap_sign_t*)&WRAPPING_DAP_CHAIN_NET_SRV_ORDER(self)->order->ext_n_sign[WRAPPING_DAP_CHAIN_NET_SRV_ORDER(self)->order->ext_size];
+        PyDapSignObject *obj_sign = PyObject_New(PyDapSignObject, &DapSignObject_DapSignObjectType);
+        PyObject_Dir((PyObject *) obj_sign);
+        obj_sign->sign = l_sign;
+        return (PyObject *) obj_sign;
     }
     return Py_None;
 }
@@ -339,11 +335,13 @@ PyObject *wrapping_dap_chain_net_srv_order_save(PyObject *self, PyObject *args){
                                           "an instance of an object of type ChainNet.");
         return NULL;
     }
-    int res = -1;
+    char* res = NULL;
     dap_chain_net_t *l_net = ((PyDapChainNetObject*)obj_net)->chain_net;
     res = dap_chain_net_srv_order_save(l_net,
                                            WRAPPING_DAP_CHAIN_NET_SRV_ORDER(self)->order);
-    return Py_BuildValue("i", res);
+    if (res == NULL)
+        return Py_None;
+    return Py_BuildValue("s", res);
 }
 PyObject *wrapping_dap_chain_net_srv_order_get_gdb_group(PyObject *self, PyObject *args){
     (void)self;
