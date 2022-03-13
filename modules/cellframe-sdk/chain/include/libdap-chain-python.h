@@ -100,4 +100,12 @@ static PyTypeObject dapChainObject_dapChainType = {
 
 };
 
+static inline bool PyDapChain_Check(PyObject* self){
+    if (PyObject_TypeCheck(self, &dapChainObject_dapChainType) == 0){
+        return true;
+    } else {
+        return false;
+    }
+}
+
 

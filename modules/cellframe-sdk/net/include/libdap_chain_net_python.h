@@ -85,6 +85,11 @@ static bool PyDapChainNet_Check(PyObject *self){
     return PyObject_TypeCheck(self, &DapChainNetObject_DapChainNetObjectType);
 }
 
+static bool PyDapChainNet_Check(PyDapChainNetObject *pyNet)
+{
+    return !PyObject_TypeCheck(pyNet, &DapChainNetObject_DapChainNetObjectType);
+}
+
 #ifdef __cplusplus
 }
 #endif
