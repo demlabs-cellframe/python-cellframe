@@ -38,6 +38,7 @@ typedef struct PyCryptoKeyType{
 }PyCryptoKeyTypeObject;
 
 int dap_crypto_key_type_py_create(PyCryptoKeyTypeObject *self, PyObject *args, PyObject *kwds);
+PyObject *PyCryptoKeyType_str(PyObject *self);
 PyObject *get_ENC_KEY_TYPE_IAES();
 PyObject *get_ENC_KEY_TYPE_OAES();
 PyObject *get_ENC_KEY_TYPE_RLWE_NEWHOPE();

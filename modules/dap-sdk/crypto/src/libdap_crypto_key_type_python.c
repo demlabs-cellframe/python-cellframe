@@ -19,8 +19,6 @@ PyMethodDef PyCryptoKeyTypeObjectMethods[] = {
         {"DAP_ENC_KEY_TYPE_SIG_TESLA", (PyCFunction)get_ENC_KEY_TYPE_SIG_TESLA, METH_NOARGS | METH_STATIC, ""},
         {"DAP_ENC_KEY_TYPE_SIG_DILITHIUM", (PyCFunction)get_ENC_KEY_TYPE_SIG_DILITHIUM, METH_NOARGS | METH_STATIC, ""},
         {"DAP_ENC_KEY_TYPE_NULL", (PyCFunction)get_ENC_KEY_TYPE_NULL, METH_NOARGS | METH_STATIC, ""},
-
-
         {NULL, NULL, 0, NULL}
 };
 
@@ -40,7 +38,7 @@ PyTypeObject CryptoKeyTypeObject_CryptoKeyTypeObjectType = {
         0,                                   /* tp_as_mapping */
         0,                                   /* tp_hash  */
         0,                                   /* tp_call */
-        0,                                   /* tp_str */
+        PyCryptoKeyType_str,                 /* tp_str */
         0,                                   /* tp_getattro */
         0,                                   /* tp_setattro */
         0,                                   /* tp_as_buffer */
@@ -65,6 +63,88 @@ PyTypeObject CryptoKeyTypeObject_CryptoKeyTypeObjectType = {
         0,                                   /* tp_alloc */
         PyType_GenericNew,                   /* tp_new */
 };
+
+PyObject *PyCryptoKeyType_str(PyObject *self){
+    char *str;
+    switch (((PyCryptoKeyTypeObject*)self)->type) {
+        case DAP_ENC_KEY_TYPE_SIG_DILITHIUM:
+            str = "DAP_ENC_KEY_TYPE_SIG_DILITHIUM";
+            break;
+        case DAP_ENC_KEY_TYPE_SIG_TESLA:
+            str = "DAP_ENC_KEY_TYPE_SIG_TESLA";
+            break;
+        case DAP_ENC_KEY_TYPE_SIG_BLISS:
+            str = "DAP_ENC_KEY_TYPE_SIG_BLISS";
+            break;
+        case DAP_ENC_KEY_TYPE_SIG_PICNIC:
+            str = "DAP_ENC_KEY_TYPE_SIG_PICNIC";
+            break;
+        case DAP_ENC_KEY_TYPE_MLWE_KYBER:
+            str = "DAP_ENC_KEY_TYPE_MLWE_KYBER";
+            break;
+        case DAP_ENC_KEY_TYPE_NTRU:
+            str = "DAP_ENC_KEY_TYPE_NTRU";
+            break;
+        case DAP_ENC_KEY_TYPE_CODE_MCBITS:
+            str = "DAP_ENC_KEY_TYPE_CODE_MCBITS";
+            break;
+        case DAP_ENC_KEY_TYPE_SIDH_IQC_REF:
+            str = "DAP_ENC_KEY_TYPE_SIDH_IQC_REF";
+            break;
+        case  DAP_ENC_KEY_TYPE_LWE_FRODO:
+            str = "DAP_ENC_KEY_TYPE_LWE_FRODO";
+            break;
+        case DAP_ENC_KEY_TYPE_RLWE_BCNS15:
+            str = "DAP_ENC_KEY_TYPE_RLWE_BCNS15";
+            break;
+        case DAP_ENC_KEY_TYPE_RLWE_MSRLN16:
+            str = "DAP_ENC_KEY_TYPE_RLWE_MSRLN16";
+            break;
+        case DAP_ENC_KEY_TYPE_MSRLN:
+            str = "DAP_ENC_KEY_TYPE_MSRLN";
+            break;
+        case DAP_ENC_KEY_TYPE_DEFEO:
+            str = "DAP_ENC_KEY_TYPE_DEFEO";
+            break;
+        case DAP_ENC_KEY_TYPE_SIDH_CLN16:
+            str = "DAP_ENC_KEY_TYPE_SIDH_CLN16";
+            break;
+        case DAP_ENC_KEY_TYPE_RLWE_NEWHOPE_CPA_KEM:
+            str = "DAP_ENC_KEY_TYPE_RLWE_NEWHOPE_CPA_KEM";
+            break;
+        case DAP_ENC_KEY_TYPE_OAES:
+            str = "DAP_ENC_KEY_TYPE_OAES";
+            break;
+        case DAP_ENC_KEY_TYPE_IAES:
+            str = "DAP_ENC_KEY_TYPE_IAES";
+            break;
+        case DAP_ENC_KEY_TYPE_SIG_RINGCT20:
+            str = "DAP_ENC_KEY_TYPE_SIG_RINGCT20";
+            break;
+        case DAP_ENC_KEY_TYPE_SEED_OFB:
+            str = "DAP_ENC_KEY_TYPE_SEED_OFB";
+            break;
+        case DAP_ENC_KEY_TYPE_SALSA2012:
+            str = "DAP_ENC_KEY_TYPE_SALSA2012";
+            break;
+        case DAP_ENC_KEY_TYPE_KUZN_OFB:
+            str = "DAP_ENC_KEY_TYPE_KUZN_OFB";
+            break;
+        case DAP_ENC_KEY_TYPE_GOST_OFB:
+            str = "DAP_ENC_KEY_TYPE_GOST_OFB";
+            break;
+        case DAP_ENC_KEY_TYPE_BF_OFB:
+            str = "DAP_ENC_KEY_TYPE_BF_OFB";
+            break;
+        case DAP_ENC_KEY_TYPE_BF_CBC:
+            str = "DAP_ENC_KEY_TYPE_BF_CBC";
+            break;
+        case DAP_ENC_KEY_TYPE_INVALID:
+            str = "DAP_ENC_KEY_TYPE_INVALID";
+            break;
+    }
+    return Py_BuildValue("s", str);
+}
 
 int dap_crypto_key_type_py_create(PyCryptoKeyTypeObject *self, PyObject *args, PyObject *kwds){
     const char *kwlist[] = {
@@ -132,10 +212,6 @@ int dap_crypto_key_type_py_create(PyCryptoKeyTypeObject *self, PyObject *args, P
         }
         return 0;
     }
-//    } else if (PyLong_Check(obj_type)){
-//        int code = PyLong_AsInt
-//        return 0;
-//    }
     return -1;
 }
 
