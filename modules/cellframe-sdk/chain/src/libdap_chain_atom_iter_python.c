@@ -46,3 +46,7 @@ PyTypeObject DapChainAtomIter_DapChainAtomIterType = {
         PyType_GenericNew,                  /* tp_new */
 
 };
+
+bool PyDapChainAtomIter_Check(PyObject *obj){
+    return PyObject_TypeCheck(obj, &DapChainAtomIter_DapChainAtomIterType);
+}

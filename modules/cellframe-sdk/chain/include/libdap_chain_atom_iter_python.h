@@ -14,9 +14,7 @@ typedef struct PyChainAtomIter{
 
 extern PyTypeObject DapChainAtomIter_DapChainAtomIterType;
 
-static bool PyDapChainAtomIter_Check(PyObject *obj){
-    return PyObject_TypeCheck(obj, &DapChainAtomIter_DapChainAtomIterType);
-}
+bool PyDapChainAtomIter_Check(PyObject *obj);
 
 #ifdef __cplusplus
 }
