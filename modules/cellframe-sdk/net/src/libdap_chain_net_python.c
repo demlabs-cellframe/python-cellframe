@@ -48,7 +48,7 @@ PyTypeObject DapChainNetObject_DapChainNetObjectType = {
         0,                               /* tp_as_mapping */
         0,                               /* tp_hash  */
         0,                               /* tp_call */
-        0,                               /* tp_str */
+        PyDapChainNet_str,               /* tp_str */
         0,                               /* tp_getattro */
         0,                               /* tp_setattro */
         0,                               /* tp_as_buffer */
@@ -80,6 +80,10 @@ int dap_chain_net_init_py(void){
 }
 void dap_chain_net_deinit_py(void){
     dap_chain_net_deinit();
+}
+
+PyObject* PyDapChainNet_str(PyObject *self){
+    return Py_BuildValue("s", ((PyDapChainNetObject*)self)->chain_net->pub.name);
 }
 
 PyObject *dap_chain_net_load_all_py(PyObject *self, PyObject *args){

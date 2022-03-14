@@ -48,6 +48,8 @@ typedef struct PyDapChainNet{
 int dap_chain_net_init_py(void);
 void dap_chain_net_deinit_py(void);
 
+PyObject* PyDapChainNet_str(PyObject *self);
+
 PyObject *dap_chain_net_load_all_py(PyObject *self, PyObject *args);
 PyObject *dap_chain_net_state_go_to_py(PyObject *self, PyObject *args);
 PyObject *dap_chain_net_start_py(PyObject *self, PyObject *args);
