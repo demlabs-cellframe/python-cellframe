@@ -373,8 +373,8 @@ PyMODINIT_FUNC PyInit_libCellFrame(void){
             PyType_Ready( &ServerCore_ServerCoreType ) < 0 ||
             PyType_Ready( &dapEvents_dapEventsType ) < 0 ||
             PyType_Ready( &dapEventsSocket_dapEventsSocketType ) < 0 ||
-            PyType_Ready( &CryptoKeyTypeObjecy_CryptoKeyTypeObjecyType ) < 0 ||
-            PyType_Ready( &CryptoDataTypeObjecy_CryptoDataTypeObjecyType ) < 0 ||
+            PyType_Ready( &CryptoKeyTypeObject_CryptoKeyTypeObjectType ) < 0 ||
+            PyType_Ready( &CryptoDataTypeObject_CryptoDataTypeObjectType ) < 0 ||
             PyType_Ready(&DapSignObject_DapSignObjectType) < 0 ||
             PyType_Ready(&DapSignTypeObject_DapSignTypeObjectType) < 0 ||
             // === Chain ===
@@ -427,6 +427,11 @@ PyMODINIT_FUNC PyInit_libCellFrame(void){
             PyType_Ready(&DapChainNetSrvObject_DapChainNetSrvObjectType) < 0 ||
             PyType_Ready(&DapChainNetSrvClientObject_DapChainNetSrvClientObjectType) < 0 ||
             PyType_Ready(&DapChainNetSrvDatumObject_DapChainNetSrvDatumObjectType) < 0 ||
+            PyType_Ready(&DapChainNetSrvOrderDirectionObject_DapChainNetSrvOrderDirectionObjectType) < 0 ||
+            PyType_Ready(&DapChainNetSrvOrderObject_DapChainNetSrvOrderObjectType) < 0 ||
+            PyType_Ready(&DapChainNetSrvUIDObject_DapChainNetSrvUIDObjectType) < 0 ||
+            PyType_Ready(&DapChainNetSrvPriceObject_DapChainNetSrvPriceObjectType) < 0 ||
+            PyType_Ready(&DapChainNetSrvPriceUnitUIDObject_DapChainNetSrvPriceUnitUIDObjectType) < 0 ||
             // =============
 
             PyType_Ready(&DapChainGDBObject_DapChainGDBType) < 0 ||
@@ -480,8 +485,8 @@ PyMODINIT_FUNC PyInit_libCellFrame(void){
     PyModule_AddObject(module, "Events", (PyObject*)&dapEvents_dapEventsType);
     PyModule_AddObject(module, "EventsSocket", (PyObject*)&dapEventsSocket_dapEventsSocketType);
 
-    PyModule_AddObject(module, "CryptoKeyType", (PyObject*)&CryptoKeyTypeObjecy_CryptoKeyTypeObjecyType);
-    PyModule_AddObject(module, "CryptoDataType", (PyObject*)&CryptoDataTypeObjecy_CryptoDataTypeObjecyType);
+    PyModule_AddObject(module, "CryptoKeyType", (PyObject*)&CryptoKeyTypeObject_CryptoKeyTypeObjectType);
+    PyModule_AddObject(module, "CryptoDataType", (PyObject*)&CryptoDataTypeObject_CryptoDataTypeObjectType);
 
     // === Chain ===
     PyModule_AddObject(module, "Chain", (PyObject*)&dapChainObject_dapChainType);
@@ -533,6 +538,11 @@ PyMODINIT_FUNC PyInit_libCellFrame(void){
     PyModule_AddObject(module, "ChainNetSrv", (PyObject*)&DapChainNetSrvObject_DapChainNetSrvObjectType);
     PyModule_AddObject(module, "ChainNetSrvClient", (PyObject*)&DapChainNetSrvClientObject_DapChainNetSrvClientObjectType);
     PyModule_AddObject(module, "ChainNetSrvDatum", (PyObject*)&DapChainNetSrvDatumObject_DapChainNetSrvDatumObjectType);
+    PyModule_AddObject(module , "ChainNetSrvPrice", (PyObject*)&DapChainNetSrvPriceObject_DapChainNetSrvPriceObjectType);
+    PyModule_AddObject(module, "ChainNetSrvOrder", (PyObject*)&DapChainNetSrvOrderObject_DapChainNetSrvOrderObjectType);
+    PyModule_AddObject(module, "ChainNetSrvOrderDirection", (PyObject*)&DapChainNetSrvOrderDirectionObject_DapChainNetSrvOrderDirectionObjectType);
+    PyModule_AddObject(module, "ChainNetSrvUID", (PyObject*)&DapChainNetSrvUIDObject_DapChainNetSrvUIDObjectType);
+    PyModule_AddObject(module, "ChainNetSrvPriceUnitUID", (PyObject*)&DapChainNetSrvPriceUnitUIDObject_DapChainNetSrvPriceUnitUIDObjectType);
     // =============
 
     PyModule_AddObject(module, "ChainGDB", (PyObject*)&DapChainGDBObject_DapChainGDBType);

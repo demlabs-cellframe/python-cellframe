@@ -14,6 +14,13 @@
 PyObject *s_sys_path = NULL;
 const char *s_plugins_root_path = NULL;
 
+typedef struct _dap_chain_plugins_module{
+    PyObject *module;
+    char *name;
+    struct _dap_chain_plugins_module *next;
+}_dap_chain_plugins_module_t;
+
+_dap_chain_plugins_module_t *_s_modules = NULL;
 
 int dap_chain_plugins_init(dap_config_t *a_config){
     if(dap_config_get_item_bool_default(a_config, "plugins", "py_load", false)){
@@ -76,10 +83,10 @@ void dap_chain_plugins_loading(){
                 log_it(L_NOTICE, "Plugin %s add treshold", l_man->name);
                 LL_APPEND(l_treshold, l_man);
             }else{
-                dap_chain_plugins_load_plugin(dap_strjoin("", s_plugins_root_path, l_man->name, "/", NULL), l_man->name);
+                dap_chain_plugins_load_plugin_importing(dap_strjoin("", s_plugins_root_path, l_man->name, "/", NULL), l_man->name);
             }
         }else{
-            dap_chain_plugins_load_plugin(dap_strjoin("", s_plugins_root_path, l_man->name, "/", NULL), l_man->name);
+            dap_chain_plugins_load_plugin_importing(dap_strjoin("", s_plugins_root_path, l_man->name, "/", NULL), l_man->name);
         }
     }
 
@@ -91,7 +98,7 @@ void dap_chain_plugins_loading(){
         LL_FOREACH_SAFE(l_treshold, l_man, l_tmp){
             if (dap_chain_plugins_list_check_load_plugins(l_man->dependencys)){
                 log_it(L_NOTICE, "For plugin %s loading all dependecys", l_man->name);
-                dap_chain_plugins_load_plugin(dap_strjoin("", s_plugins_root_path, l_man->name, "/", NULL), l_man->name);
+                dap_chain_plugins_load_plugin_importing(dap_strjoin("", s_plugins_root_path, l_man->name, "/", NULL), l_man->name);
                 LL_DELETE(l_treshold, l_man);
                 l_c_processed++;
                 l_step_processed = 0;
@@ -99,6 +106,7 @@ void dap_chain_plugins_loading(){
         }
         l_step_processed++;
     }while(l_c_processed < l_len && l_step_processed <= 2);
+    dap_chain_plugins_load_plugin_initialization();
     //Check loading all treshold
     LL_COUNT(l_treshold, l_man, l_len);
     if (l_len > 0){
@@ -108,6 +116,57 @@ void dap_chain_plugins_loading(){
         }
     }
 }
+
+void dap_chain_plugins_load_plugin_importing(const char *a_dir_path, const char *a_name){
+    log_it(L_NOTICE, "Import module %s from %s", a_name, a_dir_path);
+    PyObject *l_obj_dir_path = PyUnicode_FromString(a_dir_path);
+    PyList_Append(s_sys_path, l_obj_dir_path);
+    Py_XDECREF(l_obj_dir_path);
+    PyObject *l_module = PyImport_ImportModule(a_name);
+    if (!l_module){
+        PyErr_Print();
+        PyErr_Clear();
+        return;
+    }
+    _dap_chain_plugins_module_t *module = DAP_NEW(_dap_chain_plugins_module_t);
+    module->module = l_module;
+    module->name = dap_strdup(a_name);
+    Py_INCREF(l_module);
+    LL_APPEND(_s_modules, module);
+}
+
+void dap_chain_plugins_load_plugin_initialization(){
+    _dap_chain_plugins_module_t  *l_container = NULL;
+    LL_FOREACH(_s_modules, l_container){
+        PyObject *l_func_init = PyObject_GetAttrString(l_container->module, "init");
+        PyObject *l_func_deinit = PyObject_GetAttrString(l_container->module, "deinit");
+        PyObject *l_res_int = NULL;
+        PyErr_Clear();
+        if (PyCallable_Check(l_func_init)) {
+            l_res_int = PyEval_CallObject(l_func_init, NULL);
+            if (l_res_int && PyLong_Check(l_res_int)) {
+                if (_PyLong_AsInt(l_res_int) == 0) {
+                    dap_chain_plugins_list_add(l_container->module, l_container->name);
+                    Py_INCREF(l_container->module);
+                } else {
+                    PyErr_Print();
+                    log_it(L_ERROR, "Code error %i at initialization %s plugin", _PyLong_AsInt(l_res_int),
+                           l_container->name);
+                }
+            } else {
+                PyErr_Print();
+                log_it(L_ERROR, "Function initialization %s plugin don't reterned integer value", l_container->name);
+            }
+            Py_XDECREF(l_res_int);
+        } else {
+            log_it(L_ERROR, "For plugins %s don't found function init", l_container->name);
+        }
+        if (l_func_deinit == NULL || !PyCallable_Check(l_func_deinit)){
+            log_it(L_WARNING, "For plugins %s don't found function deinit", l_container->name);
+        }
+    }
+}
+
 void dap_chain_plugins_load_plugin(const char *a_dir_path, const char *a_name){
     log_it(L_NOTICE, "Loading %s plugin directory %s", a_name, a_dir_path);
     PyErr_Clear();

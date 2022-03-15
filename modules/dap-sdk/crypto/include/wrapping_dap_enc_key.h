@@ -28,6 +28,7 @@
 #include "Python.h"
 #include "dap_common.h"
 #include "libdap_crypto_key_python.h"
+#include "dap_strfuncs.h"
 
 #ifdef __cplusplus
 extern "C" {

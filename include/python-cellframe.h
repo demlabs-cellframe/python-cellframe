@@ -41,6 +41,8 @@
 #include "wrapping_dap_chain_net_srv.h"
 #include "wrapping_dap_chain_net_srv_client.h"
 #include "wrapping_dap_chain_net_srv_datum.h"
+#include "wrapping_dap_chain_net_srv_common.h"
+#include "wrapping_dap_chain_net_srv_order.h"
 // ============
 
 
