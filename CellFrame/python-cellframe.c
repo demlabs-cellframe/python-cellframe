@@ -374,7 +374,7 @@ PyMODINIT_FUNC PyInit_libCellFrame(void){
             PyType_Ready( &dapEvents_dapEventsType ) < 0 ||
             PyType_Ready( &dapEventsSocket_dapEventsSocketType ) < 0 ||
             PyType_Ready( &CryptoKeyTypeObjecy_CryptoKeyTypeObjecyType ) < 0 ||
-            PyType_Ready( &CryptoDataTypeObjecy_CryptoDataTypeObjecyType ) < 0 ||
+            PyType_Ready( &CryptoDataTypeObject_CryptoDataTypeObjectType ) < 0 ||
             PyType_Ready(&DapSignObject_DapSignObjectType) < 0 ||
             PyType_Ready(&DapSignTypeObject_DapSignTypeObjectType) < 0 ||
             // === Chain ===
@@ -486,7 +486,7 @@ PyMODINIT_FUNC PyInit_libCellFrame(void){
     PyModule_AddObject(module, "EventsSocket", (PyObject*)&dapEventsSocket_dapEventsSocketType);
 
     PyModule_AddObject(module, "CryptoKeyType", (PyObject*)&CryptoKeyTypeObjecy_CryptoKeyTypeObjecyType);
-    PyModule_AddObject(module, "CryptoDataType", (PyObject*)&CryptoDataTypeObjecy_CryptoDataTypeObjecyType);
+    PyModule_AddObject(module, "CryptoDataType", (PyObject*)&CryptoDataTypeObject_CryptoDataTypeObjectType);
 
     // === Chain ===
     PyModule_AddObject(module, "Chain", (PyObject*)&dapChainObject_dapChainType);
