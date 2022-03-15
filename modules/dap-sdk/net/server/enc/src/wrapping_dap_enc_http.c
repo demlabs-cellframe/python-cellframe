@@ -1,6 +1,6 @@
 #include "wrapping_dap_enc_http.h"
 
-static PyMethodDef PyDapEncServerMethods[] = {
+PyMethodDef PyDapEncServerMethods[] = {
         {"requestDecode", enc_http_request_decode_py, METH_VARARGS | METH_STATIC, ""},
         {"isNull", enc_http_is_null_py, METH_NOARGS, ""},
         {"reply", enc_http_reply_py, METH_VARARGS, ""},
@@ -9,7 +9,7 @@ static PyMethodDef PyDapEncServerMethods[] = {
         {NULL, NULL, 0, NULL}
 };
 
-static PyGetSetDef PyDapEncServerGetSet[] = {
+PyGetSetDef PyDapEncServerGetSet[] = {
         {"action", (getter)enc_http_get_action_py, NULL, "Return action request", NULL},
         {"request", (getter)enc_http_get_request_py, NULL, "Return request in view bytes", NULL},
         {"urlPath", (getter)enc_http_get_url_path_py, NULL, "Return request in view bytes", NULL},
@@ -17,7 +17,7 @@ static PyGetSetDef PyDapEncServerGetSet[] = {
         {NULL}
 };
 
-static PyTypeObject DapEncServer_DapEncServerType = {
+PyTypeObject DapEncServer_DapEncServerType = {
         PyVarObject_HEAD_INIT(NULL, 0)
         "CellFrame.EncHttp",             /* tp_name */
         sizeof(PyDapEncServerObject),                   /* tp_basicsize */

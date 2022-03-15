@@ -25,4 +25,4 @@ PyObject *enc_http_get_request_py(PyDapEncServerObject *self, void *clouser);
 PyObject *enc_http_get_url_path_py(PyDapEncServerObject *self, void *clouser);
 PyObject *enc_http_get_in_query_py(PyDapEncServerObject *self, void *clouser);
 
-
+extern PyTypeObject DapEncServer_DapEncServerType;
