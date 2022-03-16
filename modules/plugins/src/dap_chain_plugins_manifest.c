@@ -28,15 +28,15 @@ dap_chain_plugins_list_manifest_t *dap_chain_plugins_manifest_new(const char *a_
     l_man->author = dap_strdup(a_author);
     l_man->version = dap_strdup(a_version);
     l_man->description = dap_strdup(a_description);
-    l_man->dependencys = NULL;
-    //copy informantion from dep to man->dependencys
+    l_man->dependencies = NULL;
+    //copy informantion from dep to man->dependencies
     int l_len_dep;
     dap_chain_plugins_list_char_t *l_char_t;
     LL_COUNT((dap_chain_plugins_list_char_t*)a_dep, l_char_t, l_len_dep);
     LL_FOREACH((dap_chain_plugins_list_char_t*)a_dep, l_char_t){
-        LL_APPEND(l_man->dependencys, l_char_t);
+        LL_APPEND(l_man->dependencies, l_char_t);
     }
-    l_man->dependencys = (dap_chain_plugins_list_char_t*)a_dep;
+    l_man->dependencies = (dap_chain_plugins_list_char_t*)a_dep;
     return l_man;
 }
 
@@ -77,14 +77,14 @@ dap_chain_plugins_list_manifest_t* dap_chain_plugins_add_manifest_from_file(cons
     json_object *j_obj = json_tokener_parse(json);
     json_object *j_name;
     json_object *j_version;
-    json_object *j_dependencys;
+    json_object *j_dependencies;
     json_object *j_author;
     json_object *j_description;
     if (!json_object_object_get_ex(j_obj, "name", &j_name))
         return NULL;
     if (!json_object_object_get_ex(j_obj, "version", &j_version))
         return NULL;
-    if (!json_object_object_get_ex(j_obj, "dependencys", &j_dependencys))
+    if (!json_object_object_get_ex(j_obj, "dependencies", &j_dependencies))
         return NULL;
     if (!json_object_object_get_ex(j_obj, "author", &j_author))
         return NULL;
@@ -95,9 +95,9 @@ dap_chain_plugins_list_manifest_t* dap_chain_plugins_add_manifest_from_file(cons
     version = json_object_get_string(j_version);
     author = json_object_get_string(j_author);
     description = json_object_get_string(j_description);
-    dap_chain_plugins_list_char_t *dep = JSON_array_to_dap_list_char(j_dependencys);
+    dap_chain_plugins_list_char_t *dep = JSON_array_to_dap_list_char(j_dependencies);
     dap_chain_plugins_list_manifest_t *manifest = dap_chain_plugins_manifest_new(name, version, dep, author, description);
-    json_object_put(j_dependencys);
+    json_object_put(j_dependencies);
     json_object_put(j_description);
     json_object_put(j_author);
     json_object_put(j_version);
@@ -122,15 +122,15 @@ dap_chain_plugins_list_manifest_t *dap_chain_plugins_manifest_list_get_name(cons
 }
 
 char* dap_chain_plugins_manifests_get_list_dependencyes(dap_chain_plugins_list_manifest_t *a_element){
-    if (a_element->dependencys == NULL) {
+    if (a_element->dependencies == NULL) {
         return NULL;
     } else {
         char *l_result = "";
         dap_chain_plugins_list_char_t *l_el;
         int l_max_count_list = 0;
-        LL_COUNT(a_element->dependencys, l_el, l_max_count_list);
+        LL_COUNT(a_element->dependencies, l_el, l_max_count_list);
         int l_count_list = 1;
-        LL_FOREACH(a_element->dependencys, l_el){
+        LL_FOREACH(a_element->dependencies, l_el){
             if (l_count_list != l_max_count_list)
                 l_result = dap_strjoin(NULL, l_result, l_el->value, ", ", NULL);
             else
@@ -157,7 +157,7 @@ bool dap_chain_plugins_manifest_list_delete_name(const char *a_name){
     DAP_FREE(l_element->version);
     DAP_FREE(l_element->author);
     DAP_FREE(l_element->description);
-    dap_chain_plugins_list_char_delete_all(l_element->dependencys);
+    dap_chain_plugins_list_char_delete_all(l_element->dependencies);
     LL_DELETE(s_manifests, l_element);
     return true;
 }
@@ -169,7 +169,7 @@ void dap_chain_plugins_manifest_list_delete_all(void){
         DAP_FREE(l_element->version);
         DAP_FREE(l_element->author);
         DAP_FREE(l_element->description);
-        dap_chain_plugins_list_char_delete_all(l_element->dependencys);
+        dap_chain_plugins_list_char_delete_all(l_element->dependencies);
         LL_DELETE(s_manifests, l_element);
     }
 }
