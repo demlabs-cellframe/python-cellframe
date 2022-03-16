@@ -11,6 +11,63 @@ void deinit_chain_py(){
     dap_chain_deinit();
 }
 
+static PyMethodDef DapChainMethods[] = {
+        {"findById", (PyCFunction)dap_chain_find_by_id_py, METH_VARARGS|METH_STATIC, ""},
+        {"loadFromCfg", (PyCFunction)dap_chain_load_from_cfg_py, METH_VARARGS|METH_STATIC, ""},
+        {"hasFileStore", (PyCFunction)dap_chain_has_file_store_py, METH_NOARGS, ""},
+        {"saveAll", (PyCFunction) dap_chain_save_all_py, METH_NOARGS, ""},
+        {"loadAll", (PyCFunction)dap_chain_load_all_py, METH_NOARGS, ""},
+        {"createAtomItem", (PyCFunction) dap_chain_python_create_atom_iter, METH_VARARGS, ""},
+        {"atomIterGetFirst", (PyCFunction) dap_chain_python_atom_iter_get_first, METH_VARARGS, ""},
+        {"atomGetDatums", (PyCFunction) dap_chain_python_atom_get_datums, METH_VARARGS, ""},
+        {"atomIterGetNext", (PyCFunction)dap_chain_python_atom_iter_get_next, METH_VARARGS, ""},
+        {"getDag", (PyCFunction)dap_chain_python_atom_iter_get_dag, METH_NOARGS},
+        //{"close", (PyCFunction)dap_chain_close_py, METH_NOARGS, ""},
+        {NULL, NULL, 0, NULL}
+};
+
+PyTypeObject dapChainObject_dapChainType = {
+        PyVarObject_HEAD_INIT(NULL, 0)
+        "CellFrame.Chain",                                            /* tp_name */
+        sizeof(PyDapChainObject),                                     /* tp_basicsize */
+        0,                                                            /* tp_itemsize */
+        (destructor)PyDapChainObject_dealloc,                         /* tp_dealloc */
+        0,                                                            /* tp_print */
+        0,                                                            /* tp_getattr */
+        0,                                                            /* tp_setattr */
+        0,                                                            /* tp_reserved */
+        0,                                                            /* tp_repr */
+        0,                                                            /* tp_as_number */
+        0,                                                            /* tp_as_sequence */
+        0,                                                            /* tp_as_mapping */
+        0,                                                            /* tp_hash  */
+        0,                                                            /* tp_call */
+        0,                                                            /* tp_str */
+        0,                                                            /* tp_getattro */
+        0,                                                            /* tp_setattro */
+        0,                                                            /* tp_as_buffer */
+        Py_TPFLAGS_DEFAULT |
+        Py_TPFLAGS_BASETYPE,                                      /* tp_flags */
+        "Chain objects",                                              /* tp_doc */
+        0,		                                                      /* tp_traverse */
+        0,		                                                      /* tp_clear */
+        0,		                                                      /* tp_richcompare */
+        0,		                                                      /* tp_weaklistoffset */
+        0,		                                                      /* tp_iter */
+        0,		                                                      /* tp_iternext */
+        DapChainMethods,                                              /* tp_methods */
+        0,                                                            /* tp_members */
+        0,                                                            /* tp_getset */
+        0,                                                            /* tp_base */
+        0,                                                            /* tp_dict */
+        0,                                                            /* tp_descr_get */
+        0,                                                            /* tp_descr_set */
+        0,                                                            /* tp_dictoffset */
+        0,                                                            /* tp_init */
+        0,                                                            /* tp_alloc */
+        PyDapChainObject_new,                                            /* tp_new */
+};
+
 PyObject *dap_chain_find_by_id_py(PyObject *self, PyObject *args){
     PyObject *obj_net_id;
     PyObject *obj_chain_id;
@@ -96,7 +153,6 @@ PyObject *dap_chain_python_create_atom_iter(PyObject *self, PyObject *args){
     bool with_treshold = (obj_boolean == Py_True) ? 1 : 0;
     PyObject *obj_atom_iter = _PyObject_New(&DapChainAtomIter_DapChainAtomIterType);
     PyObject_Init(obj_atom_iter, &DapChainAtomIter_DapChainAtomIterType);
-    PyObject_Dir(obj_atom_iter);
     ((PyChainAtomIterObject*)obj_atom_iter)->atom_iter =
             ((PyDapChainObject*)self)->chain_t->callback_atom_iter_create(
                     ((PyDapChainObject*)self)->chain_t,
@@ -116,7 +172,6 @@ PyObject *dap_chain_python_atom_iter_get_first(PyObject *self, PyObject *args){
     }
     PyObject *obj_atom_ptr = _PyObject_New(&DapChainAtomPtr_DapChainAtomPtrType);
     obj_atom_ptr = PyObject_Init(obj_atom_ptr, &DapChainAtomPtr_DapChainAtomPtrType);
-    PyObject_Dir(obj_atom_ptr);
     size_t l_atom_size = 0;
     ((PyChainAtomPtrObject*)obj_atom_ptr)->ptr = ((PyDapChainObject*)self)->chain_t->callback_atom_iter_get_first(
             ((PyChainAtomIterObject*)obj_iter)->atom_iter, &l_atom_size
@@ -140,7 +195,6 @@ PyObject *dap_chain_python_atom_get_datums(PyObject *self, PyObject *args){
     for (int i=0; i < datums_count; i++){
         PyObject *obj_datum = _PyObject_New(&DapChainDatumObject_DapChainDatumObjectType);
         obj_datum = PyObject_Init(obj_datum, &DapChainDatumObject_DapChainDatumObjectType);
-        PyObject_Dir(obj_datum);
         ((PyDapChainDatumObject*)obj_datum)->datum = l_datums[i];
         PyList_SetItem(list_datums, i, obj_datum);
     }
@@ -161,7 +215,6 @@ PyObject *dap_chain_python_atom_iter_get_next(PyObject *self, PyObject *args){
     }
     PyObject *obj_atom_ptr = _PyObject_New(&DapChainAtomPtr_DapChainAtomPtrType);
     obj_atom_ptr = PyObject_Init(obj_atom_ptr, &DapChainAtomPtr_DapChainAtomPtrType);
-    PyObject_Dir(obj_atom_ptr);
     ((PyChainAtomPtrObject*)obj_atom_ptr)->ptr = ((PyDapChainObject*)self)->chain_t->callback_atom_iter_get_next(
             ((PyChainAtomIterObject*)atom_iter)->atom_iter,
             &atom_size);
@@ -174,7 +227,6 @@ PyObject *dap_chain_python_atom_iter_get_next(PyObject *self, PyObject *args){
 PyObject *dap_chain_python_atom_iter_get_dag(PyObject *self, PyObject *args){
     (void)args;
     PyDapChainCsDagObject *obj_dag = PyObject_New(PyDapChainCsDagObject, &DapChainCsDag_DapChainCsDagType);
-    PyObject_Dir((PyObject*)obj_dag);
     obj_dag->dag = DAP_CHAIN_CS_DAG(((PyDapChainObject*)self)->chain_t);
     return (PyObject*)obj_dag;
 }
