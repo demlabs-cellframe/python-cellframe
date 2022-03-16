@@ -41,7 +41,7 @@ typedef struct dap_list_manifest{
     char *version;
     char *author;
     char *description;
-    dap_chain_plugins_list_char_t *dependencys;
+    dap_chain_plugins_list_char_t *dependencies;
     struct dap_list_manifest *next;
 }dap_chain_plugins_list_manifest_t;
 

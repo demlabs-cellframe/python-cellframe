@@ -11,7 +11,6 @@
 typedef struct PyDapChainNetSrvOrder{
     PyObject_HEAD
     dap_chain_net_srv_order_t *order;
-    dap_chain_net_srv_order_old_t *order_old;
 }PyDapChainNetSrvOrderObject;
 
 //constructor

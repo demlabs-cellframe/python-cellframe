@@ -254,57 +254,46 @@ PyObject *dap_chain_net_get_name_py(PyObject *self, PyObject *args){
     return obj_name;
 }
 
-typedef struct pvt_wrapping_dap_chain_net_notify_callback_list{
-    dap_chain_net_t *net;
+typedef struct _wrapping_dap_chain_net_notify_callback{
+    PyObject *arg;
     PyObject *func;
-    struct pvt_wrapping_dap_chain_net_notify_callback_list *next;
-}pvt_wrapping_dap_chain_net_notify_callback_list_t;
-
-pvt_wrapping_dap_chain_net_notify_callback_list_t *pvt_list_notify = NULL;
+}_wrapping_dap_chain_net_notify_callback_t;
 
 void pvt_dap_chain_net_py_notify_handler(void * a_arg, const char a_op_code, const char * a_group,
                                          const char * a_key, const void * a_value, const size_t a_value_len){
-    PyGILState_STATE state = PyGILState_Ensure();
+    if (!a_arg)
+        return;
+    _wrapping_dap_chain_net_notify_callback_t *l_callback = (_wrapping_dap_chain_net_notify_callback_t *)a_arg;
     PyObject *l_obj_value = NULL;
-    char *l_op_code = DAP_NEW_Z_SIZE(char, 1);
+    char l_op_code[2];
     l_op_code[0] = a_op_code;
+    l_op_code[1] = '\0';
     if (a_value == NULL || a_value_len == 0){
         l_obj_value = Py_None;
     } else {
         l_obj_value = PyBytes_FromStringAndSize(a_value, (Py_ssize_t)a_value_len);
     }
-    PyObject *argv = Py_BuildValue("sssO", l_op_code, a_group, a_key, l_obj_value);
-    Py_INCREF(argv);
-    for (pvt_wrapping_dap_chain_net_notify_callback_list_t *pvt = pvt_list_notify; pvt != NULL; pvt = pvt->next){
-        if (pvt->net == a_arg){
-            Py_INCREF(pvt->func);
-            PyEval_CallObject(pvt->func, argv);
-            Py_XDECREF(pvt->func);
-        }
-    }
-    Py_XDECREF(argv);
-    DAP_FREE(l_op_code);
+    PyObject *argv = Py_BuildValue("sssOO", l_op_code, a_group, a_key, l_obj_value, l_callback->arg);
+    PyGILState_STATE state = PyGILState_Ensure();
+    PyEval_CallObject(l_callback->func, argv);
+    Py_DECREF(argv);
     PyGILState_Release(state);
 }
 
 PyObject *dap_chain_net_add_notify_py(PyObject *self, PyObject *args){
-    PyObject *obj_func = NULL;
-    if (!PyArg_ParseTuple(args, "O", &obj_func)){
+    PyObject *obj_func = NULL, *obj_arg;
+    if (!PyArg_ParseTuple(args, "OO", &obj_func, &obj_arg)){
         return NULL;
     }
     if (!PyCallable_Check(obj_func)){
         PyErr_SetString(PyExc_AttributeError, "Argument must be callable");
         return NULL;
     }
-    for(pvt_wrapping_dap_chain_net_notify_callback_list_t *list = pvt_list_notify; list != NULL; list = list->next){
-        if (list->net == ((PyDapChainNetObject*)self)->chain_net)
-            break;
-        dap_chain_net_add_gdb_notify_callback(((PyDapChainNetObject*)self)->chain_net, pvt_dap_chain_net_py_notify_handler, NULL);
-    }
-    pvt_wrapping_dap_chain_net_notify_callback_list_t *l_element = DAP_NEW(pvt_wrapping_dap_chain_net_notify_callback_list_t);
-    l_element->net = ((PyDapChainNetObject*)self)->chain_net;
-    l_element->func = obj_func;
+    _wrapping_dap_chain_net_notify_callback_t *l_callback = DAP_NEW(_wrapping_dap_chain_net_notify_callback_t);
+    l_callback->func = obj_func;
+    l_callback->arg = obj_arg;
     Py_INCREF(obj_func);
-    LL_APPEND(pvt_list_notify, l_element);
+    Py_INCREF(obj_arg);
+    dap_chain_net_add_gdb_notify_callback(((PyDapChainNetObject*)self)->chain_net, pvt_dap_chain_net_py_notify_handler, l_callback);
     return Py_None;
 }
