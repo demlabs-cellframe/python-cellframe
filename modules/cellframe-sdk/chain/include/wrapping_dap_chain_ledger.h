@@ -48,6 +48,7 @@ PyObject *dap_chain_ledger_tx_find_by_addr_py(PyObject *self, PyObject *args);
 PyObject *dap_chain_ledger_tx_find_by_pkey_py(PyObject *self, PyObject *args);
 PyObject *dap_chain_ledger_tx_cache_find_out_cond_py(PyObject *self, PyObject *args);
 PyObject *dap_chain_ledger_tx_cache_get_out_cond_value_py(PyObject *self, PyObject *args);
+PyObject *dap_chain_ledger_get_txs_py(PyObject *self, PyObject *args);
 
 static PyMethodDef DapChainLedgerMethods[] = {
     {"setLocalCellId", (PyCFunction)dap_chain_ledger_set_local_cell_id_py, METH_VARARGS, ""},
@@ -73,6 +74,7 @@ static PyMethodDef DapChainLedgerMethods[] = {
     {"txFindByPkey", (PyCFunction)dap_chain_ledger_tx_find_by_pkey_py, METH_VARARGS, ""},
     {"txCacheFindOutCond", (PyCFunction)dap_chain_ledger_tx_cache_find_out_cond_py, METH_VARARGS, ""},
     {"txCacheGetOutCondValue", (PyCFunction)dap_chain_ledger_tx_cache_get_out_cond_value_py, METH_VARARGS, ""},
+    {"getTransactions", (PyCFunction) dap_chain_ledger_get_txs_py, METH_VARARGS, ""},
 
     {NULL, NULL, 0, NULL}
 };
