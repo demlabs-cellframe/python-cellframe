@@ -29,7 +29,7 @@ PyObject *dap_chain_ledger_set_local_cell_id_py(PyObject *self, PyObject *args);
 PyObject *dap_chain_node_datum_tx_calc_hash_py(PyObject *self, PyObject *args);
 PyObject *dap_chain_ledger_tx_add_py(PyObject *self, PyObject *args);
 PyObject *dap_chain_ledger_token_add_py(PyObject *self, PyObject *args);
-PyObject *dap_chain_ledger_token_emission_add_py(PyObject *self, PyObject *args);
+PyObject *dap_chain_ledger_token_emission_load_py(PyObject *self, PyObject *args);
 PyObject *dap_chain_ledger_token_emission_find_py(PyObject *self, PyObject *args);
 PyObject *dap_chain_ledger_tx_get_token_ticker_by_hash_py(PyObject *self, PyObject *args);
 PyObject *dap_chain_ledger_addr_get_token_ticker_all_py(PyObject *self, PyObject *args);

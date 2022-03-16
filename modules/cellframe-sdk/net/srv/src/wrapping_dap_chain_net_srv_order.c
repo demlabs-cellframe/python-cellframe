@@ -132,7 +132,7 @@ int PyDapChainNetSrvOrder_init(PyDapChainNetSrvOrderObject *self, PyObject *args
     char *price_ticker;
     unsigned long expires;
     PyObject *obj_ext, *obj_key;
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "OOOOOkOsOOO", kwlist, &obj_net, &obj_direction, &obj_srv_uid,
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "OOOOOkOsOOO", (char **)kwlist, &obj_net, &obj_direction, &obj_srv_uid,
                                      &obj_node_addr, &obj_tx_cond_hash, &price, &obj_price_unit, &price_ticker,
                                      &expires, &obj_ext, &obj_key)){
         return -1;
@@ -361,7 +361,7 @@ PyObject *wrapping_dap_chain_net_srv_order_find(PyObject *self, PyObject *args){
 PyObject *wrapping_dap_chain_net_srv_order_delete(PyObject *self, PyObject *args){
     (void)self;
     PyObject *obj_net;
-    PyObject *obj_order_hash;
+    PyDapHashFastObject *obj_order_hash;
     if (!PyArg_ParseTuple(args, "OO", &obj_net, &obj_order_hash)){
         PyErr_SetString(PyExc_ValueError, "Function takes exactly two arguments");
         return NULL;
@@ -386,7 +386,10 @@ PyObject *wrapping_dap_chain_net_srv_order_delete(PyObject *self, PyObject *args
     return NULL;
 }
 
-PyObject *wrapping_dap_chain_net_srv_order_find_all_by(PyObject *self, PyObject *args){}
+PyObject *wrapping_dap_chain_net_srv_order_find_all_by(PyObject *self, PyObject *args){
+    return NULL;
+}
+
 PyObject *wrapping_dap_chain_net_srv_order_save(PyObject *self, PyObject *args){
     PyObject *obj_net;
     if(!PyArg_ParseTuple(args, "O", &obj_net)){
@@ -451,7 +454,7 @@ PyObject *wrapping_dap_chain_net_srv_order_add_notify_callback(PyObject *self, P
     _wrapping_list_func_callables_t *callback = DAP_NEW(_wrapping_list_func_callables_t);
     callback->func = func_call;
     dap_chain_net_srv_order_add_notify_callback(((PyDapChainNetObject*)obj_net)->chain_net,
-                                                _wrapping_handler_add_order_notify);
+                                                _wrapping_handler_add_order_notify, NULL);
     LL_APPEND(_s_callbacks, callback);
     return Py_None;
 }

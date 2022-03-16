@@ -88,7 +88,7 @@ typedef struct PyDapChainNetSrvUID{
 }PyDapChainNetSrvUIDObject;
 
 int PyDapChainNetSrvUIDObject_init(PyObject *self, PyObject *args, PyObject *kwds);
-PyObject* PyDapChainNetSrvUIDObject_str(PyDapChainNetSrvUIDObject *self);
+PyObject* PyDapChainNetSrvUIDObject_str(PyObject *self);
 
 extern PyTypeObject DapChainNetSrvUIDObject_DapChainNetSrvUIDObjectType;
 

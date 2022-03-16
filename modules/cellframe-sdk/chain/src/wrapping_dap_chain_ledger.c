@@ -5,7 +5,7 @@ PyMethodDef DapChainLedgerMethods[] = {
         {"nodeDatumTxCalcHash", (PyCFunction)dap_chain_node_datum_tx_calc_hash_py, METH_VARARGS, ""},
         {"txAdd", (PyCFunction)dap_chain_ledger_tx_add_py, METH_VARARGS, ""},
         {"tokenAdd", (PyCFunction)dap_chain_ledger_token_add_py, METH_VARARGS, ""},
-        {"tokenEmissionAdd", (PyCFunction)dap_chain_ledger_token_emission_add_py, METH_VARARGS, ""},
+        {"tokenEmissionLoad", (PyCFunction)dap_chain_ledger_token_emission_load_py, METH_VARARGS, ""},
         {"tokenEmissionFind", (PyCFunction)dap_chain_ledger_token_emission_find_py, METH_VARARGS, ""},
         {"txGetTokenTickerByHash", (PyCFunction)dap_chain_ledger_tx_get_token_ticker_by_hash_py, METH_VARARGS, ""},
         {"addrGetTokenTickerAll", (PyCFunction)dap_chain_ledger_addr_get_token_ticker_all_py, METH_VARARGS, ""},
@@ -120,12 +120,12 @@ PyObject *dap_chain_ledger_token_add_py(PyObject *self, PyObject *args)
                                          ((PyDapChainDatumTokenObject*)token)->token, token_size);
     return PyLong_FromLong(res);
 }
-PyObject *dap_chain_ledger_token_emission_add_py(PyObject *self, PyObject *args){
+PyObject *dap_chain_ledger_token_emission_load_py(PyObject *self, PyObject *args){
     PyObject *token_emission;
     size_t token_emissiom_size;
     if (!PyArg_ParseTuple(args, "O|n", &token_emission, &token_emissiom_size))
         return NULL;
-    int res = dap_chain_ledger_token_emission_add(((PyDapChainLedgerObject*)self)->ledger, (byte_t *)((PyDapChainDatumTokenEmissionObject*)token_emission)->token_emission, token_emissiom_size);
+    int res = dap_chain_ledger_token_emission_load(((PyDapChainLedgerObject*)self)->ledger, (byte_t *)((PyDapChainDatumTokenEmissionObject*)token_emission)->token_emission, token_emissiom_size);
     return PyLong_FromLong(res);
 }
 PyObject *dap_chain_ledger_token_emission_find_py(PyObject *self, PyObject *args){

@@ -299,7 +299,7 @@ PyObject *dap_chain_net_add_notify_py(PyObject *self, PyObject *args){
     for(pvt_wrapping_dap_chain_net_notify_callback_list_t *list = pvt_list_notify; list != NULL; list = list->next){
         if (list->net == ((PyDapChainNetObject*)self)->chain_net)
             break;
-        dap_chain_net_add_notify_callback(((PyDapChainNetObject*)self)->chain_net, pvt_dap_chain_net_py_notify_handler);
+        dap_chain_net_add_gdb_notify_callback(((PyDapChainNetObject*)self)->chain_net, pvt_dap_chain_net_py_notify_handler, NULL);
     }
     pvt_wrapping_dap_chain_net_notify_callback_list_t *l_element = DAP_NEW(pvt_wrapping_dap_chain_net_notify_callback_list_t);
     l_element->net = ((PyDapChainNetObject*)self)->chain_net;

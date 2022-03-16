@@ -603,7 +603,7 @@ PyObject* PyDapChainNodeAddrObject_str(PyObject* self){
 }
 
 /* wrapping dap_chain_net_srv_uid_t */
-PyObject* PyDapChainNetSrvUIDObject_str(PyDapChainNetSrvUIDObject *self){
+PyObject* PyDapChainNetSrvUIDObject_str(PyObject *self){
     char *res = dap_strdup_printf("0x%016"DAP_UINT64_FORMAT_X, ((PyDapChainNetSrvUIDObject*)self)->net_srv_uid.uint64);
     return Py_BuildValue("s", res);
 }
