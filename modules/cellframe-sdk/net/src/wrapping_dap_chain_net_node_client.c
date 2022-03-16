@@ -19,7 +19,7 @@ PyMethodDef DapChainNodeClientMethods[] = {
 
 PyTypeObject DapChainNodeClientObject_DapChainNodeClientObjectType = {
         PyVarObject_HEAD_INIT(NULL, 0)
-        "CellFrame.Chain.Node.Client",            /* tp_name */
+        "CellFrame.ChainNodeClient",            /* tp_name */
         sizeof(PyDapChainNodeClientObject),     /* tp_basicsize */
         0,                               /* tp_itemsize */
         0,                               /* tp_dealloc */
@@ -74,7 +74,7 @@ PyObject *dap_chain_client_connect_py(PyObject *self, PyObject *args){
 
 PyObject *dap_chain_node_client_connect_py(PyObject *self, PyObject *args){
     if (self != NULL){
-        PyErr_SetString(PyExc_SyntaxWarning, "This is method called statically");
+        PyErr_SetString(PyExc_SyntaxWarning, "Method must be called statically");
         return NULL;
     }
     PyObject *obj_net;

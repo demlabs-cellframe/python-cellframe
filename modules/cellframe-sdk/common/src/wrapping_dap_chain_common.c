@@ -8,7 +8,7 @@ PyMethodDef DapChainHashSlowMethod[] = {
 
 PyTypeObject DapChainHashSlowObject_DapChainHashSlowObjectType = {
         PyVarObject_HEAD_INIT(NULL, 0)
-        "CellFrame.Chain.HashSlow",       /* tp_name */
+        "CellFrame.ChainHashSlow",       /* tp_name */
         sizeof(PyDapChainHashSlowObject),/* tp_basicsize */
         0,                               /* tp_itemsize */
         0,                               /* tp_dealloc */
@@ -104,7 +104,7 @@ PyMethodDef DapChainAddrMethods[] = {
 
 PyTypeObject DapChainAddrObject_DapChainAddrObjectType = {
         PyVarObject_HEAD_INIT(NULL, 0)
-        "CellFrame.Chain.Addr",       /* tp_name */
+        "CellFrame.ChainAddr",       /* tp_name */
         sizeof(PyDapChainAddrObject),/* tp_basicsize */
         0,                               /* tp_itemsize */
         0,                               /* tp_dealloc */
@@ -124,7 +124,7 @@ PyTypeObject DapChainAddrObject_DapChainAddrObjectType = {
         0,                               /* tp_as_buffer */
         Py_TPFLAGS_DEFAULT |
         Py_TPFLAGS_BASETYPE,         /* tp_flags */
-        "Chain addr object",             /* tp_doc */
+        "Chain address object",             /* tp_doc */
         0,		                         /* tp_traverse */
         0,		                         /* tp_clear */
         0,		                         /* tp_richcompare */
@@ -152,7 +152,7 @@ PyMethodDef DapChainNetIdObjectMethods[] = {
 
 PyTypeObject DapChainNetIdObject_DapChainNetIdObjectType = {
         PyVarObject_HEAD_INIT(NULL, 0)
-        "CellFrame.Chain.NetID",          /* tp_name */
+        "CellFrame.ChainNetID",          /* tp_name */
         sizeof(PyDapChainNetIdObject),   /* tp_basicsize */
         0,                               /* tp_itemsize */
         0,                               /* tp_dealloc */
@@ -172,7 +172,7 @@ PyTypeObject DapChainNetIdObject_DapChainNetIdObjectType = {
         0,                               /* tp_as_buffer */
         Py_TPFLAGS_DEFAULT |
         Py_TPFLAGS_BASETYPE,         /* tp_flags */
-        "Chain net id object",           /* tp_doc */
+        "Chain net ID object",           /* tp_doc */
         0,		                         /* tp_traverse */
         0,		                         /* tp_clear */
         0,		                         /* tp_richcompare */
@@ -368,7 +368,7 @@ PyObject *dap_chain_addr_fill_py(PyObject *self, PyObject *args){
     PyObject *obj_pkey_hash;
     PyObject *obj_chain_net_id;
     if (!PyArg_ParseTuple(args, "OOO", &obj_sign_type, &obj_pkey_hash, &obj_chain_net_id)){
-        PyErr_SetString(PyExc_AttributeError, "This function takes three arguments, signature type, public key hash, chain network ID.");
+        PyErr_SetString(PyExc_AttributeError, "Function takes three arguments, signature type, public key hash, chain network ID.");
         return NULL;
     }
     if (self == NULL){

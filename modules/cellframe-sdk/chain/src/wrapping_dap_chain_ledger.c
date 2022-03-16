@@ -30,7 +30,7 @@ PyMethodDef DapChainLedgerMethods[] = {
 
 PyTypeObject DapChainLedger_DapChainLedgerType = {
         PyVarObject_HEAD_INIT(NULL, 0)
-        "CellFrame.Chain.Ledger",                                      /* tp_name */
+        "CellFrame.ChainLedger",                                      /* tp_name */
         sizeof(PyDapChainLedgerObject),                               /* tp_basicsize */
         0,                                                            /* tp_itemsize */
         0,                                                            /* tp_dealloc */
@@ -141,7 +141,7 @@ PyObject *dap_chain_ledger_token_emission_find_py(PyObject *self, PyObject *args
 PyObject *dap_chain_ledger_tx_get_token_ticker_by_hash_py(PyObject *self, PyObject *args){
     PyObject *obj_hash;
     if (!PyArg_ParseTuple(args, "O", &obj_hash)){
-        PyErr_SetString(PyExc_AttributeError, "This function takes one argument, it is an instance of an object of type HashFast.");
+        PyErr_SetString(PyExc_AttributeError, "Function takes exactly one argument which must be HashFast object");
         return NULL;
     }
     const char *l_ticker = dap_chain_ledger_tx_get_token_ticker_by_hash(
@@ -163,7 +163,7 @@ PyObject *dap_chain_ledger_addr_get_token_ticker_all_py(PyObject *self, PyObject
 PyObject *dap_chain_ledger_addr_get_token_ticker_all_fast_py(PyObject *self, PyObject *args){
     PyObject *obj_addr;
     if (!PyArg_ParseTuple(args, "O", &obj_addr)) {
-        PyErr_SetString(PyExc_AttributeError, "This function must take an object of type ChainAddr as its first argument. ");
+        PyErr_SetString(PyExc_AttributeError, "Function takes exactly one argument which must be ChainAddr object");
         return NULL;
     }
     char **tickers = NULL;

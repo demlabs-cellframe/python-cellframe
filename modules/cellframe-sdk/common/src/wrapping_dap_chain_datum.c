@@ -191,7 +191,7 @@ PyObject *wrapping_dap_chain_datum_get_datum_token_emission(PyObject *self, PyOb
         return (PyObject*)obj_emission;
 
     }else{
-        PyErr_SetString(PyExc_Exception, "Due to the type of this datum, it is not possible to get the token datum.");
+        PyErr_SetString(PyExc_Exception, "Incorrect of a datum type. Can't get a token datum");
         return NULL;
     }
 }

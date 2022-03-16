@@ -11,7 +11,7 @@ PyMethodDef DapChainNodeCliMethods[] = {
 
 PyTypeObject DapChainNodeCliObject_DapChainNodeCliObjectType = {
         PyVarObject_HEAD_INIT(NULL, 0)
-        "AppCliServer",            /* tp_name */
+        "CellFrame.AppCliServer",            /* tp_name */
         sizeof(PyDapAppCliServerObject),     /* tp_basicsize */
         0,                               /* tp_itemsize */
         0,                               /* tp_dealloc */
@@ -52,7 +52,7 @@ PyTypeObject DapChainNodeCliObject_DapChainNodeCliObjectType = {
 };
 
 int dap_chain_node_cli_init_py(dap_config_t *g_config){
-    log_it(L_DEBUG, "Init app cli server");
+    log_it(L_DEBUG, "Initializing application client server.");
     dap_chain_node_cli_init(g_config);
     l_str_reply_list = NULL;
     l_element_py_func_list = NULL;
@@ -158,7 +158,7 @@ static int wrapping_cmdfunc(int argc, char **argv, char **str_reply){
     PyObject *binden_obj_cmdfunc = element_py_func_get(argv[0]);
     PyObject *result = PyObject_CallObject(binden_obj_cmdfunc, arglist);
     if (!result){
-        log_it(L_DEBUG, "Function can't called");
+        log_it(L_DEBUG, "Function can't be called");
         PyErr_Print();
     }
     Py_XDECREF(arglist);
@@ -182,7 +182,7 @@ PyObject *dap_chain_node_cli_cmd_item_create_py(PyObject *a_self, PyObject *a_ar
             return NULL;
     }else {
         if (!PyCallable_Check(obj_cmdfunc)){
-            PyErr_SetString(PyExc_TypeError, "parameter must be callable");
+            PyErr_SetString(PyExc_TypeError, "The second argumnet must be a callable");
             return NULL;
         }
     }

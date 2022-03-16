@@ -69,9 +69,9 @@ void writeContectSectorToFile(FILE *file, PyObject *sector){
 }
 
 void writeSectorsToFile(FILE *file, PyObject *sectors, int count, ...){
-    log_it(L_DEBUG, "Write_sector start");
+    log_it(L_DEBUG, "writeSectorToFile function has started...");
     if (!PyDict_Check(sectors)){
-        log_it(L_ERROR, "input object don't have sector");
+        log_it(L_ERROR, "An input object doesn't have a sector");
         return;
     }
     PyObject *list_sectors = PyDict_Keys(sectors);
@@ -107,7 +107,7 @@ void writeChainFiles(char *base_path, PyObject *chains_conf){
         FILE *file_chain;
         char *path_file = dap_strjoin(NULL, base_path, name, ".cfg", NULL);
         if ((file_chain = fopen(path_file, "w")) == NULL){
-            log_it(L_WARNING,"Can't create file \"%s\"", path_file);
+            log_it(L_WARNING,"Can't create a \"%s\" file", path_file);
             break;
         }
         writeSectorsToFile(file_chain, cfg, 0);
@@ -116,7 +116,7 @@ void writeChainFiles(char *base_path, PyObject *chains_conf){
 }
 
 void createConfNetworks(char *base_path, PyObject *nets){
-    log_it(L_DEBUG, "Create network settings");
+    log_it(L_DEBUG, "Creating network settings ...");
     PyObject *name_nets = PyDict_Keys(nets);
     Py_ssize_t count_nets = PyList_Size(name_nets);
     char *name_net_dir;
@@ -136,7 +136,7 @@ void createConfNetworks(char *base_path, PyObject *nets){
         dap_mkdir_with_parents(name_net_dir);
         FILE *cfg_file_net;
         if ((cfg_file_net = fopen(name_net_cfg, "w")) == NULL){
-            log_it(L_WARNING,"Can't create file \"%s\"", name_net_cfg);
+            log_it(L_WARNING,"Can't create a \"%s\" file", name_net_cfg);
             break;
         }
         DAP_FREE(name_net_cfg);
@@ -158,7 +158,7 @@ int gen_config_files(const char *cfgDir, const char *app_name, PyObject *cfg_JSO
     char *main_config_files = dap_strjoin(NULL, cfgDir, "//", app_name, ".cfg", NULL);
     FILE *main_file;
     if ((main_file = fopen(main_config_files, "w")) == NULL){
-        log_it(L_WARNING, "Can't open file %s", main_config_files);
+        log_it(L_WARNING, "Can't open a \"%s\" file", main_config_files);
         return -3;
     }
     writeSectorsToFile(main_file, cfg_JSON, 1, "networks");
