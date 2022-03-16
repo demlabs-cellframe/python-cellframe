@@ -10,7 +10,7 @@ PyMethodDef DapChainCSMethods[] = {
 
 PyTypeObject DapChainCsObject_DapChainCsObjectType = {
         PyVarObject_HEAD_INIT(NULL, 0)
-        "CellFrame.Chain.CS",             /* tp_name */
+        "CellFrame.ChainCS",             /* tp_name */
         sizeof(PyDapChainCsObject),      /* tp_basicsize */
         0,                               /* tp_itemsize */
         0,                               /* tp_dealloc */
@@ -90,7 +90,7 @@ PyObject *dap_chain_cs_add_py (PyObject *self, PyObject *args){
     } else {
         if (!PyCallable_Check(obj_callback_init))
         {
-            PyErr_SetString(PyExc_TypeError, "paramentr must be callable");
+            PyErr_SetString(PyExc_TypeError, "The second argument must be a callable");
             return NULL;
         }
     }
@@ -116,7 +116,7 @@ PyObject *dap_chain_class_add_py (PyObject *self, PyObject *args){
     } else {
         if (!PyCallable_Check(obj_callback_init))
         {
-            PyErr_SetString(PyExc_TypeError, "paramentr must be callable");
+            PyErr_SetString(PyExc_TypeError, "The second argument must be a callable");
             return NULL;
         }
     }

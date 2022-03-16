@@ -30,7 +30,7 @@ PyObject* CellFrame_error = NULL;
 
 BOOL WINAPI consoleHandler(DWORD dwType){
     if (dwType == CTRL_C_EVENT){
-        log_it(L_NOTICE, "Handler Ctrl+C");
+        log_it(L_NOTICE, "Execution terminated. Ctrl+C is pressed");
         dap_server_loop_stop();
         deinit_modules();
     }
@@ -40,7 +40,7 @@ BOOL WINAPI consoleHandler(DWORD dwType){
 
 void sigfunc(int sig){
     if (sig == SIGINT){
-        log_it(L_NOTICE, "Handler Ctrl+C");
+        log_it(L_NOTICE, "Execution terminated. Ctrl+C is pressed");
         dap_events_stop_all();
         deinit_modules();
     }
@@ -66,31 +66,31 @@ PyObject *python_cellframe_init(PyObject *self, PyObject *args){
     #endif
 
     if (!PyArg_ParseTuple(args, "s", &JSON_str)){
-        PyErr_SetString(CellFrame_error, "ERROR in function call signature: can't get one String argument");
+        PyErr_SetString(CellFrame_error, "Argument must be a string");
         return NULL;
     }
 
     PyObject *JSON_Module = PyImport_ImportModule("json");
     if (JSON_Module == NULL) {
-        PyErr_SetString(CellFrame_error, "ERROR importing module");
+        PyErr_SetString(CellFrame_error, "json module was not imported");
         return NULL;
     }
 
     PyObject* JSONLoadsFunction = PyObject_GetAttrString(JSON_Module, "loads");
     if (JSONLoadsFunction == NULL) {
-        PyErr_SetString(CellFrame_error, "Can't find \"loads\" section");
+        PyErr_SetString(CellFrame_error, "json.loads function was not imported");
         return NULL;
     }
 
     PyObject* argsInLoadsJSON = PyTuple_Pack(1,PyUnicode_FromString(JSON_str));
     PyObject* result = PyObject_CallObject(JSONLoadsFunction, argsInLoadsJSON);
     if (result == NULL){
-        PyErr_SetString(CellFrame_error, "ERROR in JSONLoadsFunction");
+        PyErr_SetString(CellFrame_error, "Erron in \"json.loads\" function. Argument must be a JSON format string");
         return NULL;
     }
     PyObject* getModules = PyDict_GetItemString(result, "modules");
     if (getModules == NULL){
-        PyErr_SetString(CellFrame_error, "Can't find \"modules\" section");
+        PyErr_SetString(CellFrame_error, "Can't find \"modules\" object in JSON string");
         return NULL;
     }
 
@@ -101,18 +101,29 @@ PyObject *python_cellframe_init(PyObject *self, PyObject *args){
         getDap = PyDict_GetItemString(result, "Core");
 
     if( getDap == NULL ){
-        PyErr_SetString(CellFrame_error, "Can't find \"Core\" or \"DAP\" section");
+        PyErr_SetString(CellFrame_error, "Can't find \"Core\" or \"DAP\" object in JSON string");
         return NULL;
     }
 
     /*Parse DAP*/
     PyObject* config_dir_PyObject = PyDict_GetItemString(getDap, "config_dir");
+    if (config_dir_PyObject == NULL) {
+        PyErr_SetString(CellFrame_error, "Can't find \"config_dir\" key in \"DAP\" object");
+        return NULL;
+    }
     PyObject* application_name_PyObject = PyDict_GetItemString(getDap, "application_name");
+    if (application_name_PyObject == NULL) {
+        PyErr_SetString(CellFrame_error, "Can't find \"application_name\" key in \"DAP\" object");
+        return NULL;
+    }
     PyObject* file_name_log_PyObject = PyDict_GetItemString(getDap, "file_name_log");
+    if (file_name_log_PyObject == NULL) {
+        PyErr_SetString(CellFrame_error, "Can't find \"file_name_log\" key in \"DAP\" object");
+        return NULL;
+    }
     PyObject* logLevel_PyObject = PyDict_GetItemString(getDap, "log_level");
-    if (config_dir_PyObject == NULL || application_name_PyObject == NULL ||
-            logLevel_PyObject == NULL || file_name_log_PyObject == NULL){
-        PyErr_SetString(CellFrame_error, "config_dir or application_name or file_name_log or log_level");
+    if (logLevel_PyObject == NULL) {
+        PyErr_SetString(CellFrame_error, "Can't find \"log_level\" key in \"DAP\" object");
         return NULL;
     }
     app_name = PyUnicode_AsUTF8(application_name_PyObject);
@@ -120,8 +131,8 @@ PyObject *python_cellframe_init(PyObject *self, PyObject *args){
     config_dir = PyUnicode_AsUTF8(config_dir_PyObject);
     log_level = PyUnicode_AsUTF8(logLevel_PyObject);
 
-    if (dap_common_init(app_name, file_name_log,NULL ) != 0){
-        PyErr_SetString(CellFrame_error, "Can't init common functions module");
+    if (dap_common_init(app_name, file_name_log, NULL ) != 0){
+        PyErr_SetString(CellFrame_error, "Can't initialize CellFrame SDK library");
         return NULL;
     }
     dap_set_appname(app_name);
@@ -149,16 +160,16 @@ PyObject *python_cellframe_init(PyObject *self, PyObject *args){
     int res_gen_config_file = gen_config_files(config_dir, app_name, configure);
     switch (res_gen_config_file) {
     case -1:
-        PyErr_SetString(CellFrame_error, "Can't generate configuration files. Can name directory path contains not ASCII simbols.");
+        PyErr_SetString(CellFrame_error, "Can't generate configuration files. Directory path must contain only ASCII simbols");
         return NULL;
     case -3:
-        PyErr_SetString(CellFrame_error, "Can't generate configuration files. Can't open file stream.");
+        PyErr_SetString(CellFrame_error, "Can't generate configuration files. Can't open a file stream");
         return NULL;
     }
     //Init config
     dap_config_init(config_dir);
     if ((g_config = dap_config_open(app_name) ) == NULL){
-        PyErr_SetString(CellFrame_error, "Can't init general configurations");
+        PyErr_SetString(CellFrame_error, "Can't inititialize general configurations");
         return NULL;
     }
     //Init modules
@@ -171,12 +182,12 @@ PyObject *python_cellframe_init(PyObject *self, PyObject *args){
     for (int i=0; i < size_list;i++){
         PyObject *value = PyList_GetItem(getModules, i);
         const char *c_value = PyUnicode_AsUTF8(value);
-        log_it(L_INFO, "Initializing the %s module ", c_value);
+        log_it(L_INFO, "Initializing \"%s\" module ...", c_value);
         if (strcmp(c_value, "Crypto") == 0){            //Init crypto
 //            log_it(L_INFO, "Initializing the %s module", c_value);
             s_init_crypto = true;
             if (dap_crypto_init() != 0){
-                PyErr_SetString(CellFrame_error, "An error occurred while initializing the libdap-crypto-python module.");
+                PyErr_SetString(CellFrame_error, "Failed to initialize \"Crypto\" module");
                 return NULL;
             }
             dap_cert_init();
@@ -187,22 +198,22 @@ PyObject *python_cellframe_init(PyObject *self, PyObject *args){
             dap_events_start(((PyDapEventsObject*)events)->t_events);
         } else if (strcmp(c_value, "Server") == 0){
             if(dap_server_init() != 0 ){
-                PyErr_SetString(CellFrame_error, "Failed to initialize Server.");
+                PyErr_SetString(CellFrame_error, "Failed to initialize \"Server\" module");
                 return NULL;
             }
         }else if (strcmp(c_value, "ServerCore") == 0){
             PyObject* getServerCoreData = PyDict_GetItemString(result, "ServerCore");
             if (getServerCoreData == NULL){
-                PyErr_SetString(CellFrame_error, "Initialization failed. ServerCore object not found in JSON."
-                                " No settings are specified for initializing libdap-server-core-python.");
+                PyErr_SetString(CellFrame_error, "Failed to initialize \"ServerCore\" module."
+                                "Can't find \"ServerCore\" object in JSON string");
                 return NULL;
             }
             PyObject* Nl_thread_cnt = PyDict_GetItemString(getServerCoreData, "thread_cnt");
             PyObject* Nl_conn = PyDict_GetItemString(getServerCoreData, "conn");
             if ( (Nl_thread_cnt == NULL || Nl_conn == NULL) || !PyNumber_Check(Nl_thread_cnt) ||
                  !PyNumber_Check(Nl_conn)){
-                PyErr_SetString(CellFrame_error, "Failed to initialize ServerCore. "
-                                                 "Fields thread_cnt and conn are not numerical or absent.");
+                PyErr_SetString(CellFrame_error, "Failed to initialize \"ServerCore\" module."
+                                                 "Values of \"thread_cnt\" and \"conn\" keys aren't numerical or are absent");
                 return NULL;
             }
             PyObject *ll_thread_cnt= PyNumber_Long(Nl_thread_cnt);
@@ -210,71 +221,69 @@ PyObject *python_cellframe_init(PyObject *self, PyObject *args){
             uint32_t ul_thread_cnt = (uint32_t)PyLong_AsUnsignedLong(ll_thread_cnt);
             size_t ul_conn = PyLong_AsSize_t(ll_conn);
             if(dap_server_core_init(ul_thread_cnt, ul_conn) != 0 ){
-                PyErr_SetString(CellFrame_error, "Failed to initialize ServerCore.");
+                PyErr_SetString(CellFrame_error, "Failed to initialize \"ServerCore\" module");
                 return NULL;
             }
             s_init_server_core = true;
         } else if (strcmp(c_value, "Chain") == 0){
             if(init_chain_py() != 0){
-                PyErr_SetString(CellFrame_error, "Failed to initialize Chain. "
-                                                 "Fields thread_cnt and conn are not numerical or absent.");
+                PyErr_SetString(CellFrame_error, "Failed to initialize \"Chain\" module");
                 return NULL;
             }
             if (dap_chain_cs_init_py() != 0){
-                PyErr_SetString(CellFrame_error, "Failed to initialize Chain CS. "
-                                                 "Fields thread_cnt and conn are not numerical or absent.");
+                PyErr_SetString(CellFrame_error, "Failed to initialize \"ChainCS\" module");
                 return NULL;
             }
         } else if (strcmp(c_value, "Http") == 0){
             if(dap_http_init() != 0){
-                PyErr_SetString(CellFrame_error, "Failed to initialize Http module. ");
+                PyErr_SetString(CellFrame_error, "Failed to initialize \"Http\" module");
                 return NULL;
             }
             s_init_http = true;
         } else if (strcmp(c_value, "HttpSimple") == 0){
             if (dap_http_simple_module_init() != 0){
-                PyErr_SetString(CellFrame_error, "Failed to initialize HttpSimple module. ");
+                PyErr_SetString(CellFrame_error, "Failed to initialize \"HttpSimple\" module");
                 return NULL;
             }
         } else if (strcmp(c_value, "EncHttp") == 0){
             if(enc_http_init() != 0){
-                PyErr_SetString(CellFrame_error, "Failed to initialize EncHttp module. ");
+                PyErr_SetString(CellFrame_error, "Failed to initialize \"EncHttp\" module");
                 return NULL;
             }
             s_init_http_enc = true;
         } else if (strcmp(c_value, "HttpFolder") == 0){
             if (dap_http_folder_init() !=0){
-                PyErr_SetString(CellFrame_error, "Failed to initialize http folder module. ");
+                PyErr_SetString(CellFrame_error, "Failed to initialize \"HttpFolder\" module");
                 return NULL;
             }
             s_init_http_folder = true;
         } else if (strcmp(c_value, "Stream") == 0){
             PyObject* getStreamData = PyDict_GetItemString(result, "Stream");
             if (getStreamData == NULL){
-                PyErr_SetString(CellFrame_error, "Initialization failed. Stream object not found in JSON."
-                                " No settings are specified for initializing libdap-stream-python.");
+                PyErr_SetString(CellFrame_error, "Failed to initialize \"Stream\" module."
+                                "Can't find \"ServerCore\" object in JSON string");
                 return NULL;
             }
             PyObject *debugDumpStreamHeadersObj = PyDict_GetItemString(getStreamData, "DebugDumpStreamHeaders");
             if (debugDumpStreamHeadersObj == NULL || !PyBool_Check(debugDumpStreamHeadersObj)){
-                PyErr_SetString(CellFrame_error, "Failed to initialize Stream. "
-                                                 "Fields DebugDumpStreamHeaders are not boolean type.");
+                PyErr_SetString(CellFrame_error, "Failed to initialize \"Stream\" module."
+                                                 "Value of \"DebugDumpStreamHeaders\" key isn't boolean");
                 return NULL;
             }
             if(dap_stream_init(g_config) != 0){
-                PyErr_SetString(CellFrame_error, "Failed to initialize Stream module. ");
+                PyErr_SetString(CellFrame_error, "Failed to initialize \"Stream\" module");
                 return NULL;
             }
             s_init_stream = true;
         } else if (strcmp(c_value, "StreamCtl") == 0){
             if (dap_stream_ctl_init_py(32) != 0){
-                PyErr_SetString(CellFrame_error, "Failed to initialize StreamCtl module. ");
+                PyErr_SetString(CellFrame_error, "Failed to initialize \"StreamCtl\" module");
                 return NULL;
             }
             s_init_stream_ctl = true;
         } else if (strcmp(c_value, "Mempool") == 0){
             if (dap_datum_mempool_init() != 0){
-                PyErr_SetString(CellFrame_error, "Failed to initialize Mempool module. ");
+                PyErr_SetString(CellFrame_error, "Failed to initialize \"Mempool\" module");
                 return NULL;
             }
             s_init_mempool = true;
@@ -287,7 +296,7 @@ PyObject *python_cellframe_init(PyObject *self, PyObject *args){
             s_init_http_client_simple = true;*/
         } else if (strcmp(c_value, "Wallet") == 0){
             if (dap_chain_wallet_init_py() != 0){
-                PyErr_SetString(CellFrame_error, "Failed to initialize Wallet module. ");
+                PyErr_SetString(CellFrame_error, "Failed to initialize \"Wallet\" module");
                 return NULL;
             }
             s_init_wallet = true;
@@ -309,22 +318,22 @@ PyObject *python_cellframe_init(PyObject *self, PyObject *args){
             } */
         } else if (strcmp(c_value, "ChainNetSrv") == 0){
             if (dap_chain_net_srv_init(g_config) != 0){
-                PyErr_SetString(CellFrame_error, "Failed to initialize ChainNetSrv module. ");
+                PyErr_SetString(CellFrame_error, "Failed to initialize \"ChainNetSrv\" module");
                 return NULL;
             }
         }else if (strcmp(c_value, "StreamChChain") == 0){
             if (dap_stream_ch_chain_init() != 0 ){
-                PyErr_SetString(CellFrame_error, "Failed to initialize StreamChChain module. ");
+                PyErr_SetString(CellFrame_error, "Failed to initialize \"StreamChChain\" module");
                 return NULL;
             }
         } else if (strcmp(c_value, "StreamChChainNet") == 0){
             if (dap_stream_ch_chain_net_init() != 0 ){
-                PyErr_SetString(CellFrame_error, "Failed to initialize StreamChChainNet module. ");
+                PyErr_SetString(CellFrame_error, "Failed to initialize \"StreamChChainNet\" module");
                 return NULL;
             }
         }else if (strcmp(c_value, "StreamChChainNetSrv") == 0){
             if (dap_stream_ch_chain_net_init() != 0 ){
-                PyErr_SetString(CellFrame_error, "Failed to initialize StreamChChainNetSrv module. ");
+                PyErr_SetString(CellFrame_error, "Failed to initialize \"StreamChChainNetSrv\" module");
                 return NULL;
             }
         }else if (strcmp(c_value, "EncKS") == 0){
@@ -332,32 +341,33 @@ PyObject *python_cellframe_init(PyObject *self, PyObject *args){
 //            if (dap_enc_ks_
         } else if (strcmp(c_value, "GlobalDB") == 0){
             if (dap_chain_global_db_init(g_config) != 0){
-                PyErr_SetString(CellFrame_error, "Failed to initialize GlobalDB module. ");
+                PyErr_SetString(CellFrame_error, "Failed to initialize \"GlobalDB\" module");
                 return NULL;
             }
         }else if (strcmp(c_value, "Client") == 0){
             if (dap_client_init() != 0){
-                PyErr_SetString(CellFrame_error, "Failed to initialize Client module. ");
+                PyErr_SetString(CellFrame_error, "Failed to initialize \"Client\" module");
                 return NULL;
             }
         }else if (strcmp(c_value, "GDB") == 0){
             if (dap_chain_gdb_init_py() != 0){
-                PyErr_SetString(CellFrame_error, "Failed to initialize GDB module. ");
+                PyErr_SetString(CellFrame_error, "Failed to initialize \"GDB\" module");
                 return NULL;
             }
         }else if (strcmp(c_value, "Net") == 0){
             if (dap_chain_net_init_py() != 0 ){
-                PyErr_SetString(CellFrame_error, "Failed to initialize chain net module. ");
+                PyErr_SetString(CellFrame_error, "Failed to initialize \"Net\" module");
                 return NULL;
             }
         }else if (strcmp(c_value, "AppCliServer") == 0){
             if (dap_chain_node_cli_init(g_config) != 0 ){
-                PyErr_SetString(CellFrame_error, "Failed to initialize AppCliServer " );
+                PyErr_SetString(CellFrame_error, "Failed to initialize \"AppCliServer\" module" );
                 return NULL;
             }
         }else{
-            log_it(L_WARNING,"Unknown module \"%s\"", c_value);
+            log_it(L_WARNING,"Unknown module: \"%s\"", c_value);
         }
+        log_it(L_INFO, "Initialization of module is completed");
     }
     if (events == NULL)
         return PyLong_FromLong(0);
@@ -454,7 +464,7 @@ PyMODINIT_FUNC PyInit_libCellFrame(void){
                 PyType_Ready(&DapHTTPSimple_DapHTTPSimpleType) < 0
             #endif
             ){
-        log_it(L_CRITICAL,"Not all py modules are ready for init");
+        log_it(L_CRITICAL,"Not all python type objects are initialized");
         return NULL;
     }
 
@@ -570,7 +580,7 @@ PyMODINIT_FUNC PyInit_libCellFrame(void){
 
 void deinit_modules(void){
     if (!submodules_deint){
-        log_it(L_NOTICE, "Start deint submodules");
+        log_it(L_NOTICE, "Deintializing modules ...");
         if (s_init_crypto){
             dap_crypto_deinit();
             dap_cert_deinit();
@@ -601,6 +611,7 @@ void deinit_modules(void){
         dap_config_deinit();
         dap_common_deinit();
         submodules_deint = true;
+        log_it(L_INFO, "Deinitialization of modules is completed");
     }
     if (s_init_wallet){
         dap_chain_wallet_deinit_py();
@@ -619,7 +630,7 @@ PyObject *python_cellframe_deinit(PyObject *self, PyObject *args){
 int main(int argc, char **argv) {
     wchar_t *program = Py_DecodeLocale(argv[0], NULL);
     if (program == NULL) {
-        fprintf(stderr, "Fatal error: cannot decode argv[0]\n");
+        fprintf(stderr, "Fatal error: cann't decode argv[0]\n");
         exit(1);
     }
 

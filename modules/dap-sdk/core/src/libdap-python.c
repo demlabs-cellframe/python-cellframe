@@ -107,7 +107,7 @@ PyObject* py_m_dap_config_get_item(PyObject *self, PyObject *args){
         return NULL;
     const char *res = dap_config_get_item_str(g_config, section_path, item_name);
     if (res == NULL){
-        PyErr_SetString(PyExc_ValueError, "The value could not be obtained. Or there is no section. Or missing key in the section.");
+        PyErr_SetString(PyExc_ValueError, "Value can't be obtained. Either no such section or a key is missing in section");
         return NULL;
     }
     return Py_BuildValue("s", res);

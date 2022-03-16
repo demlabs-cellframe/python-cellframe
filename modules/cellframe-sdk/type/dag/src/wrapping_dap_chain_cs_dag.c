@@ -52,7 +52,7 @@ PyObject *dap_chain_cs_dag_find_event_by_hash_py(PyObject *self, PyObject *args)
     PyObject *obj_hash;
     PyObject *obj_atom_iter;
     if (!PyArg_ParseTuple(args, "O", &obj_hash)){
-        PyErr_SetString(PyExc_AttributeError, "This function must take two arguments. ");
+        PyErr_SetString(PyExc_AttributeError, "Function takes exactly two arguments. ");
         return NULL;
     }
     bool isCheck = PyObject_TypeCheck(obj_hash, &DapHashFastObject_DapHashFastObjectType);

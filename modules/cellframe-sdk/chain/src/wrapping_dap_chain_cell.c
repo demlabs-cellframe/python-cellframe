@@ -11,7 +11,7 @@ PyMethodDef PyDapChainCellObjectMethods[] ={
 
 PyTypeObject DapChainCell_DapChainCellObjectType = {
         PyVarObject_HEAD_INIT(NULL, 0)
-        "CellFrame.Chain.Cell",       /* tp_name */
+        "CellFrame.ChainCell",       /* tp_name */
         sizeof(PyDapChainCellObject),      /* tp_basicsize */
         0,                                       /* tp_itemsize */
         0,                                       /* tp_dealloc */
