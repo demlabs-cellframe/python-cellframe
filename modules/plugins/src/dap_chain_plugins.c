@@ -77,9 +77,9 @@ void dap_chain_plugins_loading(){
             break;
         }
         log_it(L_NOTICE, "Check dependencies for plugin: %s", l_man->name);
-        if (l_man->dependencys != NULL){
+        if (l_man->dependencies != NULL){
             log_it(L_NOTICE, "Plugin has dependencies");
-            if (!dap_chain_plugins_list_check_load_plugins(l_man->dependencys)){
+            if (!dap_chain_plugins_list_check_load_plugins(l_man->dependencies)){
                 log_it(L_NOTICE, "Plugin %s add treshold", l_man->name);
                 LL_APPEND(l_treshold, l_man);
             }else{
@@ -96,7 +96,7 @@ void dap_chain_plugins_loading(){
     LL_COUNT(l_treshold, l_man, l_len);
     do{
         LL_FOREACH_SAFE(l_treshold, l_man, l_tmp){
-            if (dap_chain_plugins_list_check_load_plugins(l_man->dependencys)){
+            if (dap_chain_plugins_list_check_load_plugins(l_man->dependencies)){
                 log_it(L_NOTICE, "For \"%s\" plugin all dependecies is loaded", l_man->name);
                 dap_chain_plugins_load_plugin_importing(dap_strjoin("", s_plugins_root_path, l_man->name, "/", NULL), l_man->name);
                 LL_DELETE(l_treshold, l_man);
@@ -248,9 +248,9 @@ int dap_chain_plugins_reload_plugin(const char * a_name_plugin){
     }
     DAP_FREE(l_name_file_manifest);
     dap_chain_plugins_list_manifest_t *l_manifest =  dap_chain_plugins_manifest_list_get_name(a_name_plugin);
-    if (l_manifest->dependencys != NULL){
-        if (!dap_chain_plugins_list_check_load_plugins(l_manifest->dependencys)){
-            log_it(L_NOTICE, ""\"%s\" plugin has unresolved dependencies, restart all plugins", l_manifest->name);
+    if (l_manifest->dependencies != NULL){
+        if (!dap_chain_plugins_list_check_load_plugins(l_manifest->dependencies)){
+            log_it(L_NOTICE, "\"%s\" plugin has unresolved dependencies, restart all plugins", l_manifest->name);
             return -2;
         }else{
             dap_chain_plugins_load_plugin(dap_strjoin("", s_plugins_root_path, l_manifest->name, "/", NULL), l_manifest->name);
