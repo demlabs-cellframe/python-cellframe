@@ -29,7 +29,7 @@ PyObject *dap_chain_ledger_set_local_cell_id_py(PyObject *self, PyObject *args);
 PyObject *dap_chain_node_datum_tx_calc_hash_py(PyObject *self, PyObject *args);
 PyObject *dap_chain_ledger_tx_add_py(PyObject *self, PyObject *args);
 PyObject *dap_chain_ledger_token_add_py(PyObject *self, PyObject *args);
-PyObject *dap_chain_ledger_token_emission_add_py(PyObject *self, PyObject *args);
+PyObject *dap_chain_ledger_token_emission_load_py(PyObject *self, PyObject *args);
 PyObject *dap_chain_ledger_token_emission_find_py(PyObject *self, PyObject *args);
 PyObject *dap_chain_ledger_tx_get_token_ticker_by_hash_py(PyObject *self, PyObject *args);
 PyObject *dap_chain_ledger_addr_get_token_ticker_all_py(PyObject *self, PyObject *args);
@@ -54,7 +54,7 @@ static PyMethodDef DapChainLedgerMethods[] = {
     {"nodeDatumTxCalcHash", (PyCFunction)dap_chain_node_datum_tx_calc_hash_py, METH_VARARGS, ""},
     {"txAdd", (PyCFunction)dap_chain_ledger_tx_add_py, METH_VARARGS, ""},
     {"tokenAdd", (PyCFunction)dap_chain_ledger_token_add_py, METH_VARARGS, ""},
-    {"tokenEmissionAdd", (PyCFunction)dap_chain_ledger_token_emission_add_py, METH_VARARGS, ""},
+    {"tokenEmissionLoad", (PyCFunction)dap_chain_ledger_token_emission_load_py, METH_VARARGS, ""},
     {"tokenEmissionFind", (PyCFunction)dap_chain_ledger_token_emission_find_py, METH_VARARGS, ""},
     {"txGetTokenTickerByHash", (PyCFunction)dap_chain_ledger_tx_get_token_ticker_by_hash_py, METH_VARARGS, ""},
     {"addrGetTokenTickerAll", (PyCFunction)dap_chain_ledger_addr_get_token_ticker_all_py, METH_VARARGS, ""},
