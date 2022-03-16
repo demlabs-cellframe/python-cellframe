@@ -87,7 +87,7 @@ int _w_dap_chain_callback_data_t_requested(
     PyDapChainNetSrvObject *pyNetSrvObj = (PyDapChainNetSrvObject *)a_srv->_inheritor;
     PyObject *l_func = pyNetSrvObj->callbackRequested;
     if (!PyCallable_Check(l_func)){
-        log_it(L_ERROR, "Python function is not callable");
+        log_it(L_ERROR, "Python function must be a callable");
         return -1;
     }
     PyObject *l_arg = _wrapping_dac_chain_callback_data_t_get_tuple(a_srv, a_usage_id, a_srv_client, a_custom_data, a_custom_data_size);
@@ -113,7 +113,7 @@ int _w_dap_chain_callback_data_t_response_success(
     PyDapChainNetSrvObject *pyNetSrvObj = (PyDapChainNetSrvObject *)a_srv->_inheritor;
     PyObject *l_func = pyNetSrvObj->callbackSuccess;
     if (!PyCallable_Check(l_func)){
-        log_it(L_ERROR, "Python function is not callable");
+        log_it(L_ERROR, "Python function must be a callable");
         return -1;
     }
     PyObject *l_arg = _wrapping_dac_chain_callback_data_t_get_tuple(a_srv, a_usage_id, a_srv_client, a_custom_data, a_custom_data_size);
@@ -140,7 +140,7 @@ int _w_dap_chain_callback_data_t_response_error(
     PyDapChainNetSrvObject *pyNetSrvObj = (PyDapChainNetSrvObject *)a_srv->_inheritor;
     PyObject *l_func = pyNetSrvObj->callbackError;
     if (!PyCallable_Check(l_func)){
-        log_it(L_ERROR, "Python function is not callable");
+        log_it(L_ERROR, "Python function must be a callable");
         return -1;
     }
     PyObject *l_arg = _wrapping_dac_chain_callback_data_t_get_tuple(a_srv, a_usage_id, a_srv_client, a_custom_data, a_custom_data_size);
@@ -167,7 +167,7 @@ int _w_dap_chain_callback_data_t_receipt_next_success(
     PyDapChainNetSrvObject *pyNetSrvObj = (PyDapChainNetSrvObject *)a_srv->_inheritor;
     PyObject *l_func = pyNetSrvObj->callbackReceiptNext;
     if (!PyCallable_Check(l_func)){
-        log_it(L_ERROR, "Python function is not callable");
+        log_it(L_ERROR, "Python function must be a callable");
         return -1;
     }
     PyObject *l_arg = _wrapping_dac_chain_callback_data_t_get_tuple(a_srv, a_usage_id, a_srv_client, a_custom_data, a_custom_data_size);
@@ -194,7 +194,7 @@ void *_w_dap_chain_callback_data_t_custom_data(dap_chain_net_srv_t *a_srv,
     PyDapChainNetSrvObject *pyNetSrvObj = (PyDapChainNetSrvObject *)a_srv->_inheritor;
     PyObject *l_func = pyNetSrvObj->callbackReadWithOutData;
     if (!PyCallable_Check(l_func)){
-        log_it(L_ERROR, "Python function is not callable");
+        log_it(L_ERROR, "Python function must be a callable");
         return NULL;
     }
     PyObject *l_arg = _wrapping_dac_chain_callback_data_t_get_tuple(a_srv, a_usage ? a_usage->id : 0,

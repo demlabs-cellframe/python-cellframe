@@ -10,7 +10,7 @@ PyMethodDef ServerCorePythonMethods[] = {
 
 PyTypeObject ServerCore_ServerCoreType = {
         PyVarObject_HEAD_INIT(NULL, 0)
-        "ServerCore",             /* tp_name */
+        "CellFrame.ServerCore",             /* tp_name */
         sizeof(PyServerCoreObject),         /* tp_basicsize */
         0,                                  /* tp_itemsize */
         0,                                  /* tp_dealloc */
@@ -53,7 +53,7 @@ PyTypeObject ServerCore_ServerCoreType = {
 int dap_server_core_init(uint32_t l_thread_cnt, size_t conn_t){
     int result = dap_server_init();
     if ( result != 0 ) {
-       log_it( L_CRITICAL, "Can't init socket server module" );
+       log_it( L_CRITICAL, "Can't initialize \"socket server\" module" );
     }
     dap_events_init(l_thread_cnt, conn_t);
     return result;

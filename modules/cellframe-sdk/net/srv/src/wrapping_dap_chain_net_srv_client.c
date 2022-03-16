@@ -130,7 +130,7 @@ static dap_chain_datum_tx_receipt_t * _wrapping_dap_chain_net_srv_client_callbac
         Py_DECREF(l_args);
         PyGILState_Release(state);
     } else {
-        log_it(L_ERROR, "Can't call handler Python in callback sign");
+        log_it(L_ERROR, "Can't call handler Python in sign callback");
     }
     if (!py_ret || (PyObject *)py_ret == Py_None || !py_ret->tx_receipt)
         return NULL;
@@ -157,7 +157,7 @@ static void _wrapping_dap_chain_net_srv_client_callback_success(dap_chain_net_sr
         Py_DECREF(l_args);
         PyGILState_Release(state);
     } else {
-        log_it(L_ERROR, "Can't call handler Python in callback success");
+        log_it(L_ERROR, "Can't call handler Python in success callback");
     }
 }
 
@@ -173,7 +173,7 @@ static void _wrapping_dap_chain_net_srv_client_callback_error(dap_chain_net_srv_
         Py_DECREF(l_args);
         PyGILState_Release(state);
     } else {
-        log_it(L_ERROR, "Can't call handler Python in callback error");
+        log_it(L_ERROR, "Can't call handler Python in error callback");
     }
 }
 
@@ -191,7 +191,7 @@ static void _wrapping_dap_chain_net_srv_client_callback_data(dap_chain_net_srv_c
         Py_DECREF(l_args);
         PyGILState_Release(state);
     } else {
-        log_it(L_ERROR, "Can't call handler Python in callback data");
+        log_it(L_ERROR, "Can't call handler Python in data callback");
     }
 }
 

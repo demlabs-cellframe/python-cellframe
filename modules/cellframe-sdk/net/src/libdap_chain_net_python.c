@@ -175,7 +175,7 @@ PyObject *dap_chain_ledger_by_net_name_py(PyObject *self, PyObject *args){
 PyObject *dap_chain_net_get_chain_by_name_py(PyObject *self, PyObject *args){
     const char* chain_name;
     if (!PyArg_ParseTuple(args, "s", &chain_name)) {
-        PyErr_SetString(PyExc_AttributeError, "This function takes one argument, which must be a string.");
+        PyErr_SetString(PyExc_AttributeError, "Function takes exactly one argument, which must be a string.");
         return NULL;
     }
     PyObject *obj_chain = _PyObject_New(&dapChainObject_dapChainType);
@@ -293,7 +293,7 @@ PyObject *dap_chain_net_add_notify_py(PyObject *self, PyObject *args){
         return NULL;
     }
     if (!PyCallable_Check(obj_func)){
-        PyErr_SetString(PyExc_AttributeError, "The argument passed is not a function that can be called.");
+        PyErr_SetString(PyExc_AttributeError, "Argument must be callable");
         return NULL;
     }
     for(pvt_wrapping_dap_chain_net_notify_callback_list_t *list = pvt_list_notify; list != NULL; list = list->next){

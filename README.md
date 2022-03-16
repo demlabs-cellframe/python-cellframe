@@ -9,7 +9,7 @@ Use the following command to fix it
 dpkg-statoverride --remove /etc/exim4/passwd.client
 Now repeat sudo apt-get install pip3
 
-## Build and Run tests:
+## Build:
 ```
 git clone https://gitlab.demlabs.net/cellframe/python-cellframe.git
 cd python-cellframe
@@ -18,7 +18,6 @@ cd cellframe-sdk
 git submodule update --init
 cd ..
 sudo python3.7 setup.py install
-python3.7 test/main_test.py
 ```
 
 ## How to package 

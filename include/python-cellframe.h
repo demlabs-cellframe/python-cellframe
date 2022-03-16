@@ -106,22 +106,22 @@ void deinit_modules(void);
 PyObject *python_cellframe_deinit(PyObject *self, PyObject *args);
 
 static PyMethodDef CellFramePythonMethods[] = {
-        {"init", python_cellframe_init, METH_VARARGS, "Initialization of the python-cellframe interface DAP (Deus Applicaions Prototypes)"},
-        {"deinit", python_cellframe_deinit, METH_VARARGS, "Deinitialization of the python-cellframe interface DAP (Deus Applicaions Prototypes)"},
-        {"setLogLevel", (PyCFunction)dap_set_log_level, METH_VARARGS, "Setting the logging level"},
-        {"logIt", (PyCFunction)dap_log_it, METH_VARARGS, "The wrapper of the log_it function for the libdap library"},
-        {"logItDebug", (PyCFunction)dap_log_it_debug, METH_VARARGS, "The log_it wrapper for the libdap library displays information with the logging level DEBUG"},
-        {"logItInfo", (PyCFunction)dap_log_it_info, METH_VARARGS, "The log_it wrapper for the libdap library displays information with the logging level INFO"},
-        {"logItNotice", (PyCFunction)dap_log_it_notice, METH_VARARGS, "The log_it wrapper for the libdap library displays information with the logging level NOTICE"},
-        {"logItMessage", (PyCFunction)dap_log_it_message, METH_VARARGS, "The log_it wrapper for the libdap library displays information with the logging level MESSAGE"},
-        {"logItDap", (PyCFunction)dap_log_it_dap, METH_VARARGS, "The log_it wrapper for the libdap library displays information with the logging level DAP"},
-        {"logItWarning", (PyCFunction)dap_log_it_warning, METH_VARARGS, "The log_it wrapper for the libdap library displays information with the logging level WARNING"},
-        {"logItAtt", (PyCFunction)dap_log_it_att, METH_VARARGS, "The log_it wrapper for the libdap library displays information with the logging level ATT"},
-        {"logItError", (PyCFunction)dap_log_it_error, METH_VARARGS, "The log_it wrapper for the libdap library displays information with the logging level ERROR"},
-        {"logItCritical", (PyCFunction)dap_log_it_critical, METH_VARARGS, "The log_it wrapper for the libdap library displays information with the logging level CRITICAL"},
+        {"init", python_cellframe_init, METH_VARARGS, "Initialization of the Python Cellframe library."},
+        {"deinit", python_cellframe_deinit, METH_VARARGS, "Deinitialization of the Python Cellframe library."},
+        {"setLogLevel", (PyCFunction)dap_set_log_level, METH_VARARGS, "Setting the logging level."},
+        {"logIt", (PyCFunction)dap_log_it, METH_VARARGS, "Log a message."},
+        {"logItDebug", (PyCFunction)dap_log_it_debug, METH_VARARGS, "Log a message with the DEBUG level."},
+        {"logItInfo", (PyCFunction)dap_log_it_info, METH_VARARGS, "Log a message with the INFO level."},
+        {"logItNotice", (PyCFunction)dap_log_it_notice, METH_VARARGS, "Log a message with the NOTICE level."},
+        {"logItMessage", (PyCFunction)dap_log_it_message, METH_VARARGS, "Log a message with the MESSAGE level."},
+        {"logItDap", (PyCFunction)dap_log_it_dap, METH_VARARGS, "Log a message with the DAP level."},
+        {"logItWarning", (PyCFunction)dap_log_it_warning, METH_VARARGS, "Log a message with the WARNING level WARNING."},
+        {"logItAtt", (PyCFunction)dap_log_it_att, METH_VARARGS, "Log a message with the ATT level."},
+        {"logItError", (PyCFunction)dap_log_it_error, METH_VARARGS, "Log a message with the ERROR level."},
+        {"logItCritical", (PyCFunction)dap_log_it_critical, METH_VARARGS, "Log a message with the CRITICAL level."},
 
-        {"configGetItem", (PyCFunction)py_m_dap_config_get_item, METH_VARARGS, ""},
-        {"configGetItemDefault", (PyCFunction)py_m_dap_config_get_item_default, METH_VARARGS, ""},
+        {"configGetItem", (PyCFunction)py_m_dap_config_get_item, METH_VARARGS, "Get an item from a configuration."},
+        {"configGetItemDefault", (PyCFunction)py_m_dap_config_get_item_default, METH_VARARGS, "Get an item from a configuration with a default value."},
         {NULL, NULL, 0, NULL}
 };
 
