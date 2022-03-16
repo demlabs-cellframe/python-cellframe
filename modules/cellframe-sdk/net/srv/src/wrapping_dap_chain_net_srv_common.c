@@ -58,7 +58,7 @@ PyTypeObject DapChainNetSrvPriceObject_DapChainNetSrvPriceObjectType = {
 
 PyObject *wrapping_dap_chain_net_srv_get_wallet(PyObject *self, void *closure){
     (void)closure;
-
+    return NULL;
 }
 PyObject *wrapping_dap_chain_net_srv_get_net_name(PyObject *self, void *closure){
     (void)closure;

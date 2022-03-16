@@ -83,7 +83,7 @@ PyObject *dap_chain_net_add_notify_py(PyObject *self, PyObject *args);
 
 extern PyTypeObject DapChainNetObject_DapChainNetObjectType;
 
-static bool PyDapChainNet_Check(PyObject *self){
+static bool PyDapChainNet_Check(PyDapChainNetObject *self){
     return PyObject_TypeCheck(self, &DapChainNetObject_DapChainNetObjectType);
 }
 
