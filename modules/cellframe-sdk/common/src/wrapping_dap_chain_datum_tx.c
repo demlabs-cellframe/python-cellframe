@@ -4,12 +4,12 @@
 
 PyMethodDef PyDapChainTxItemTypeObjectMethods[] ={
         {"TX_ITEM_TYPE_IN", (PyCFunction)TX_ITEM_TYPE_IN_PY, METH_NOARGS | METH_STATIC, ""},
-        {"TX_ITEM_TYPE_OUT", (PyCFunction)TX_ITEM_TYPE_OUT_PY, METH_NOARGS | METH_STATIC, ""},
+        {"TX_ITEM_TYPE_OUT_OLD", (PyCFunction)TX_ITEM_TYPE_OUT_OLD_PY, METH_NOARGS | METH_STATIC, ""},
         {"TX_ITEM_TYPE_PKEY", (PyCFunction)TX_ITEM_TYPE_PKEY_PY, METH_NOARGS | METH_STATIC, ""},
         {"TX_ITEM_TYPE_SIG", (PyCFunction)TX_ITEM_TYPE_SIG_PY, METH_NOARGS | METH_STATIC, ""},
         {"TX_ITEM_TYPE_TOKEN", (PyCFunction)TX_ITEM_TYPE_TOKEN_PY, METH_NOARGS | METH_STATIC, ""},
         {"TX_ITEM_TYPE_IN_COND", (PyCFunction)TX_ITEM_TYPE_IN_COND_PY, METH_NOARGS | METH_STATIC, ""},
-        {"TX_ITEM_TYPE_OUT_COND", (PyCFunction)TX_ITEM_TYPE_OUT_COND_PY, METH_NOARGS | METH_STATIC, ""},
+        {"TX_ITEM_TYPE_OUT_COND_OLD", (PyCFunction)TX_ITEM_TYPE_OUT_COND_OLD_PY, METH_NOARGS | METH_STATIC, ""},
         {"TX_ITEM_TYPE_RECEIPT", (PyCFunction)TX_ITEM_TYPE_RECEIPT_PY,
                 METH_NOARGS | METH_STATIC, ""},
         {NULL, NULL, 0, NULL}
@@ -60,8 +60,8 @@ PyTypeObject DapChainTxItemObject_DapChainTxItemTypeObjectType = {
 PyObject *TX_ITEM_TYPE_IN_PY(void){
     return PyLong_FromLong(TX_ITEM_TYPE_IN);
 }
-PyObject *TX_ITEM_TYPE_OUT_PY(void){
-        return PyLong_FromLong(TX_ITEM_TYPE_OUT);
+PyObject *TX_ITEM_TYPE_OUT_OLD_PY(void){
+        return PyLong_FromLong(TX_ITEM_TYPE_OUT_OLD);
 }
 PyObject *TX_ITEM_TYPE_PKEY_PY(void){
         return PyLong_FromLong(TX_ITEM_TYPE_PKEY);
@@ -75,8 +75,8 @@ PyObject *TX_ITEM_TYPE_TOKEN_PY(void){
 PyObject *TX_ITEM_TYPE_IN_COND_PY(void){
         return PyLong_FromLong(TX_ITEM_TYPE_IN_COND);
 }
-PyObject *TX_ITEM_TYPE_OUT_COND_PY(void){
-        return PyLong_FromLong(TX_ITEM_TYPE_OUT_COND);
+PyObject *TX_ITEM_TYPE_OUT_COND_OLD_PY(void){
+        return PyLong_FromLong(TX_ITEM_TYPE_OUT_COND_OLD);
 }
 PyObject *TX_ITEM_TYPE_RECEIPT_PY(void){
         return PyLong_FromLong(TX_ITEM_TYPE_RECEIPT);
@@ -333,9 +333,9 @@ PyObject *wrapping_dap_chain_datum_tx_get_items(PyObject *self, PyObject *args){
                 obj_tx_item = (PyObject*)PyObject_New(PyDapChainTXInObject, &DapChainTxInObject_DapChainTxInTypeObjectType);
                 ((PyDapChainTXInObject*)obj_tx_item)->tx_in = ((dap_chain_tx_in_t*)item);
                 break;
-            case TX_ITEM_TYPE_OUT:
+            case TX_ITEM_TYPE_OUT_OLD:
                 obj_tx_item = (PyObject*)PyObject_New(PyDapChainTXOutObject, &DapChainTxOutObject_DapChainTxOutTypeObjectType);
-                ((PyDapChainTXOutObject*)obj_tx_item)->tx_out = ((dap_chain_tx_out_t*)item);
+                ((PyDapChainTXOutObject*)obj_tx_item)->tx_out = ((dap_chain_tx_out_old_t*)item);
                 break;
             case TX_ITEM_TYPE_TOKEN:
                 obj_tx_item = (PyObject*)PyObject_New(PyDapChainTxTokenObject, &DapChainTxToken_DapChainTxTokenType);
@@ -361,7 +361,7 @@ PyObject *wrapping_dap_chain_datum_tx_get_items(PyObject *self, PyObject *args){
                 obj_tx_item = (PyObject*)PyObject_New(PyDapChainTXInCondObject, &DapChainTxInCondObject_DapChainTxInCondTypeObjectType);
                 ((PyDapChainTXInCondObject*)obj_tx_item)->tx_in_cond = (dap_chain_tx_in_cond_t*)item;
                 break;
-            case TX_ITEM_TYPE_OUT_COND:
+            case TX_ITEM_TYPE_OUT_COND_OLD:
                 switch (((dap_chain_tx_out_cond_t*)item)->header.subtype) {
                     case DAP_CHAIN_TX_OUT_COND_SUBTYPE_SRV_PAY:
                         obj_tx_item = (PyObject*)PyObject_New(PyDapChainTxOutCondObject, &DapChainTxOutCondSubTypeSrvPay_DapChainTxOutCondSubTypeSrvPayObject);

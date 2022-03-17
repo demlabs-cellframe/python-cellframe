@@ -58,12 +58,12 @@ typedef struct PyDapChainTxItemType{
 }PyDapChainTxItemTypeObject;
 
 PyObject *TX_ITEM_TYPE_IN_PY(void);
-PyObject *TX_ITEM_TYPE_OUT_PY(void);
+PyObject *TX_ITEM_TYPE_OUT_OLD_PY(void);
 PyObject *TX_ITEM_TYPE_PKEY_PY(void);
 PyObject *TX_ITEM_TYPE_SIG_PY(void);
 PyObject *TX_ITEM_TYPE_TOKEN_PY(void);
 PyObject *TX_ITEM_TYPE_IN_COND_PY(void);
-PyObject *TX_ITEM_TYPE_OUT_COND_PY(void);
+PyObject *TX_ITEM_TYPE_OUT_COND_OLD_PY(void);
 PyObject *TX_ITEM_TYPE_RECEIPT_PY(void);
 
 extern PyTypeObject DapChainTxItemObject_DapChainTxItemTypeObjectType;

@@ -35,7 +35,7 @@
 
 typedef struct PyDapChainTXOut{
     PyObject_HEAD
-    dap_chain_tx_out_t *tx_out;
+    dap_chain_tx_out_old_t *tx_out;
 }PyDapChainTXOutObject;
 
 PyObject *wrapping_dap_chain_tx_out_get_addr(PyObject *self, void *closure);
