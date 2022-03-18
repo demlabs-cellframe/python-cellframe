@@ -22,6 +22,7 @@ static PyMethodDef DapChainMethods[] = {
         {"atomGetDatums", (PyCFunction) dap_chain_python_atom_get_datums, METH_VARARGS, ""},
         {"atomIterGetNext", (PyCFunction)dap_chain_python_atom_iter_get_next, METH_VARARGS, ""},
         {"getDag", (PyCFunction)dap_chain_python_atom_iter_get_dag, METH_NOARGS},
+        {"addMempoolNotify", (PyCFunction)dap_chain_python_add_mempool_notify_callback, METH_VARARGS, ""},
         //{"close", (PyCFunction)dap_chain_close_py, METH_NOARGS, ""},
         {NULL, NULL, 0, NULL}
 };
@@ -229,4 +230,51 @@ PyObject *dap_chain_python_atom_iter_get_dag(PyObject *self, PyObject *args){
     PyDapChainCsDagObject *obj_dag = PyObject_New(PyDapChainCsDagObject, &DapChainCsDag_DapChainCsDagType);
     obj_dag->dag = DAP_CHAIN_CS_DAG(((PyDapChainObject*)self)->chain_t);
     return (PyObject*)obj_dag;
+}
+
+typedef struct _wrapping_chain_mempool_notify_callback{
+    PyObject *func;
+    PyObject *arg;
+}_wrapping_chain_mempool_notify_callback_t;
+
+void _wrapping_dap_chain_mempool_notify_handler(void * a_arg, const char a_op_code, const char * a_group,
+                                                const char * a_key, const void * a_value, const size_t a_value_len){
+    if (!a_arg){
+        return;
+    }
+    _wrapping_chain_mempool_notify_callback_t *l_callback = (_wrapping_chain_mempool_notify_callback_t*)a_arg;
+    PyObject *l_value = Py_None;
+    if (a_value_len != 0) {
+        l_value = PyBytes_FromStringAndSize(a_value, (Py_ssize_t)a_value_len);
+    }
+    char l_op_code[2];
+    l_op_code[0] = a_op_code;
+    l_op_code[1] = '\0';
+    PyObject *l_args = Py_BuildValue("sssOO", l_op_code, a_group, a_key, l_value, l_callback->arg);
+    PyGILState_STATE state = PyGILState_Ensure();
+    PyEval_CallObject(l_callback->func, l_args);
+    Py_DECREF(l_args);
+    PyGILState_Release(state);
+}
+
+PyObject *dap_chain_python_add_mempool_notify_callback(PyObject *self, PyObject *args){
+    dap_chain_t *l_chain = ((PyDapChainObject*)self)->chain_t;
+    PyObject *obj_func;
+    PyObject *obj_arg;
+    if (!PyArg_ParseTuple(args, "OO", &obj_func, &obj_arg)){
+        PyErr_SetString(PyExc_AttributeError, "Argument must be callable");
+        return NULL;
+    }
+    if (!PyCallable_Check(obj_func)){
+        PyErr_SetString(PyExc_AttributeError, "Invalid first parameter passed to function. The first "
+                                              "argument must be an instance of an object of type Chain. ");
+        return NULL;
+    }
+    _wrapping_chain_mempool_notify_callback_t *l_callback = DAP_NEW(_wrapping_chain_mempool_notify_callback_t);
+    l_callback->func = obj_func;
+    l_callback->arg = obj_arg;
+    Py_INCREF(obj_func);
+    Py_INCREF(obj_arg);
+    dap_chain_add_mempool_notify_callback(l_chain, _wrapping_dap_chain_mempool_notify_handler, l_callback);
+    return Py_None;
 }
