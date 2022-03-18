@@ -44,6 +44,9 @@
 #include "wrapping_dap_chain_net_srv_common.h"
 #include "wrapping_dap_chain_net_srv_order.h"
 // ============
+// === Chain cs dag poa ===
+#include "wrapping_dap_chain_cs_dag_poa.h"
+// ============
 
 
 #include "wrapping_http.h"
