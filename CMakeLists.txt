@@ -47,6 +47,7 @@ add_subdirectory(modules/cellframe-sdk/chain)
 add_subdirectory(modules/cellframe-sdk/app-cli)
 add_subdirectory(modules/cellframe-sdk/wallet)
 add_subdirectory(modules/cellframe-sdk/type/dag)
+add_subdirectory(modules/cellframe-sdk/consensus/dag_poa)
 
     target_compile_options(dap_chain_common_python_module PRIVATE "-fpic")
     target_compile_options(dap_python_module PRIVATE "-fpic" )
@@ -189,6 +190,7 @@ target_link_libraries(${PROJECT_NAME} cellframe-sdk dap_python_module
                       dap_chain_wallet_python_module
                       dap_server_json_rpc_python_module
                       dap_chain_service_datum_python
+                      dap_chain_cs_dag_poa_python_module
                       ${PYTHON_LIBRARIES}
                      )
 

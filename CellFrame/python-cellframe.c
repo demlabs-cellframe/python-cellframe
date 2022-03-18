@@ -443,6 +443,9 @@ PyMODINIT_FUNC PyInit_libCellFrame(void){
             PyType_Ready(&DapChainNetSrvPriceObject_DapChainNetSrvPriceObjectType) < 0 ||
             PyType_Ready(&DapChainNetSrvPriceUnitUIDObject_DapChainNetSrvPriceUnitUIDObjectType) < 0 ||
             // =============
+            // === Chain cs dag poa
+            PyType_Ready(&DapChainCsDagPoaObject_DapChainCsDagPoaObjectType) < 0 ||
+            // =============
 
             PyType_Ready(&DapChainGDBObject_DapChainGDBType) < 0 ||
 
@@ -553,6 +556,9 @@ PyMODINIT_FUNC PyInit_libCellFrame(void){
     PyModule_AddObject(module, "ChainNetSrvOrderDirection", (PyObject*)&DapChainNetSrvOrderDirectionObject_DapChainNetSrvOrderDirectionObjectType);
     PyModule_AddObject(module, "ChainNetSrvUID", (PyObject*)&DapChainNetSrvUIDObject_DapChainNetSrvUIDObjectType);
     PyModule_AddObject(module, "ChainNetSrvPriceUnitUID", (PyObject*)&DapChainNetSrvPriceUnitUIDObject_DapChainNetSrvPriceUnitUIDObjectType);
+    // =============
+    // === Chain cs dag poa
+    PyModule_AddObject(module, "ChainCsDagPoa", (PyObject*)&DapChainCsDagPoaObject_DapChainCsDagPoaObjectType);
     // =============
 
     PyModule_AddObject(module, "ChainGDB", (PyObject*)&DapChainGDBObject_DapChainGDBType);
