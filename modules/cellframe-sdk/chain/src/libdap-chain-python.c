@@ -272,7 +272,7 @@ PyObject *dap_chain_python_add_mempool_notify_callback(PyObject *self, PyObject 
     }
     _wrapping_chain_mempool_notify_callback_t *l_callback = DAP_NEW(_wrapping_chain_mempool_notify_callback_t);
     l_callback->func = obj_func;
-    l_callback->arg = obj_func;
+    l_callback->arg = obj_arg;
     Py_INCREF(obj_func);
     Py_INCREF(obj_arg);
     dap_chain_add_mempool_notify_callback(l_chain, _wrapping_dap_chain_mempool_notify_handler, l_callback);
