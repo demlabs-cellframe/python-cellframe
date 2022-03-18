@@ -62,7 +62,7 @@ PyObject *DAP_HASH_TYPE_SLOW_0_PY(){
 
 /* Chain hash fast */
 PyMethodDef DapHashFastMethods[] = {
-        {"strToHashFast", (PyCFunction)dap_chain_str_to_hash_fast_py, METH_VARARGS | METH_STATIC, ""},
+        {"fromString", (PyCFunction)dap_chain_str_to_hash_fast_py, METH_VARARGS | METH_STATIC, ""},
         {"hashFast", (PyCFunction)dap_hash_fast_py, METH_VARARGS, ""},
         {"compare", (PyCFunction)dap_hash_fast_compare_py, METH_VARARGS | METH_STATIC, ""},
         {"isBlank", (PyCFunction)dap_hash_fast_is_blank_py, METH_VARARGS, ""},
@@ -118,11 +118,12 @@ PyObject *dap_chain_str_to_hash_fast_py(PyObject *self, PyObject *args){
     const char *hash_str;
     if (!PyArg_ParseTuple(args, "s", &hash_str))
         return NULL;
-    PyDapHashFastObject *obj_hash_fast = PyObject_New(PyDapHashFastObject, &DapHashFastObject_DapHashFastObjectType);
-    PyObject_Dir((PyObject*)obj_hash_fast);
+    PyDapHashFastObject *obj_hash_fast = self ? (PyDapHashFastObject *)self :
+                                                 PyObject_New(PyDapHashFastObject, &DapHashFastObject_DapHashFastObjectType);
     obj_hash_fast->hash_fast = DAP_NEW(dap_hash_fast_t);
-    int res = dap_chain_hash_fast_from_str(hash_str, obj_hash_fast->hash_fast);
-    return Py_BuildValue("nO", res, (PyObject*)obj_hash_fast);
+    if (dap_chain_hash_fast_from_str(hash_str, obj_hash_fast->hash_fast))
+        DAP_DEL_Z(obj_hash_fast->hash_fast);
+    return (PyObject*)obj_hash_fast;
 }
 
 PyObject *dap_hash_fast_py(PyObject *self, PyObject *args){
