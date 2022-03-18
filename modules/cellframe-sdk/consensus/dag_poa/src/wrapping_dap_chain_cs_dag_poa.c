@@ -51,6 +51,7 @@ PyTypeObject DapChainCsDagPoaObject_DapChainCsDagPoaObjectType = {
 
 int _wrapping_callback_handler(dap_chain_t *a_chain, dap_chain_cs_dag_event_t *a_event, size_t a_event_size, void* a_arg){
     if(!PyCallable_Check(a_arg)){
+        log_it(L_ERROR, "The Python function cannot be run because the argument passed is not a function. ");
         return -1;
     }
     PyGILState_STATE state = PyGILState_Ensure();
@@ -71,9 +72,11 @@ int _wrapping_callback_handler(dap_chain_t *a_chain, dap_chain_cs_dag_event_t *a
             int l_res = _PyLong_AsInt(res);
             return l_res;
         } else {
+            log_it(L_ERROR, "Python function was executed but returned not a number.");
             return -3;
         }
     }else{
+        log_it(L_ERROR, "An error occurred while executing a Python function. ");
         return -2;
     }
 }
@@ -87,11 +90,13 @@ PyObject* wrapping_dap_chain_cs_dag_poa_presign_callback_set(PyObject *self, PyO
         return NULL;
     }
     if (!PyDapChain_Check(obj_chain)){
-        PyErr_SetString(PyExc_AttributeError, "Argument must be callable");
+        PyErr_SetString(PyExc_AttributeError, "Invalid first parameter passed to function. The first "
+                                              "argument must be an instance of an object of type Chain. ");
         return NULL;
     }
     if (!PyCallable_Check(obj_func)){
-        PyErr_SetString(PyExc_AttributeError, "Argument must be callable");
+        PyErr_SetString(PyExc_AttributeError, "The second argument is not correct. This function must "
+                                              "accept a function that will be called from the callback. ");
         return NULL;
     }
     dap_chain_cs_dag_poa_presign_callback_set(((PyDapChainObject*)self)->chain_t, _wrapping_callback_handler, obj_func);
