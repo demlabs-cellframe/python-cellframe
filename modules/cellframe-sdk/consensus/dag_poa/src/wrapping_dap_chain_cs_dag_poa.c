@@ -71,7 +71,7 @@ int _wrapping_callback_handler(dap_chain_t *a_chain, dap_chain_cs_dag_event_t *a
     PyObject *res = PyEval_CallObject(l_callback->func, argv);
     Py_XDECREF(argv);
     PyGILState_Release(state);
-    if (res){
+    if (!res){
         if (PyLong_AsLong(res)){
             int l_res = _PyLong_AsInt(res);
             return l_res;
