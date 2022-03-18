@@ -90,7 +90,7 @@ PyObject* wrapping_dap_chain_cs_dag_poa_presign_callback_set(PyObject *self, PyO
     PyObject *obj_chain;
     PyObject *obj_func;
     PyObject *obj_arg;
-    if (!PyArg_ParseTuple(args, "OO", &obj_chain, &obj_func, &obj_arg)){
+    if (!PyArg_ParseTuple(args, "OOO", &obj_chain, &obj_func, &obj_arg)){
         PyErr_SetString(PyExc_AttributeError, "Argument must be callable");
         return NULL;
     }
@@ -109,6 +109,6 @@ PyObject* wrapping_dap_chain_cs_dag_poa_presign_callback_set(PyObject *self, PyO
     l_callback->arg = obj_arg;
     Py_INCREF(obj_func);
     Py_INCREF(obj_arg);
-    dap_chain_cs_dag_poa_presign_callback_set(((PyDapChainObject*)self)->chain_t, _wrapping_callback_handler, l_callback);
+    dap_chain_cs_dag_poa_presign_callback_set(((PyDapChainObject*)obj_chain)->chain_t, _wrapping_callback_handler, l_callback);
     return Py_None;
 }
