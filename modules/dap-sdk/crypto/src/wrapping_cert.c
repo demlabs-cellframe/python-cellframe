@@ -200,11 +200,18 @@ PyObject* dap_cert_save_py(PyObject *self, PyObject *args)
 
 PyObject* dap_cert_load_py(PyObject *self, PyObject *args)
 {
-    (void) self;
-    (void) args;
-    /// TODO: Implement it!
-    PyErr_SetString(PyExc_TypeError, "Unimplemented function");
-    return NULL;
+    const char *l_cert_name;
+    if (!PyArg_ParseTuple(args, "s", &l_cert_name)) {
+        return Py_None;
+    }
+    dap_cert_t *l_ret = dap_cert_find_by_name(l_cert_name);
+    if (!l_ret)
+        return self;
+    if (!self) {
+        self = _PyObject_New(&g_crypto_cert_type_py);
+    }
+    ((PyCryptoCertObject *)self)->cert = l_ret;
+    return self;
 }
 
 PyObject* dap_cert_close_py(PyObject *self, PyObject *args)

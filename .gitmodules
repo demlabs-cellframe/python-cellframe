@@ -1,4 +1,4 @@
 [submodule "cellframe-sdk"]
 	path = cellframe-sdk
-	url = https://gitlab.demlabs.net/cellframe/cellframe-sdk
+	url = ../cellframe-sdk
 	branch = master
