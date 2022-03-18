@@ -49,22 +49,26 @@ PyTypeObject DapChainCsDagPoaObject_DapChainCsDagPoaObjectType = {
         PyType_GenericNew,               /* tp_new */
 };
 
+typedef struct _wrapping_dap_chain_cs_dag_poa_callback{
+    PyObject *func;
+    PyObject *arg;
+}_wrapping_dap_chain_cs_dag_poa_callback_t;
+
 int _wrapping_callback_handler(dap_chain_t *a_chain, dap_chain_cs_dag_event_t *a_event, size_t a_event_size, void* a_arg){
-    if(!PyCallable_Check(a_arg)){
+    if(!a_arg){
         log_it(L_ERROR, "The Python function cannot be run because the argument passed is not a function. ");
-        return -1;
+        return  -1;
     }
+    _wrapping_dap_chain_cs_dag_poa_callback_t *l_callback = (_wrapping_dap_chain_cs_dag_poa_callback_t*)a_arg;
+
     PyGILState_STATE state = PyGILState_Ensure();
     PyDapChainObject *l_obj_chain = PyObject_New(PyDapChainObject, &dapChainObject_dapChainType);
     l_obj_chain->chain_t = a_chain;
     PyDapChainCsDagEventObject *l_obj_event = PyObject_New(PyDapChainCsDagEventObject, &DapChainCsDagEvent_DapChainCsDagEventType);
     l_obj_event->event = a_event;
     l_obj_event->event_size = a_event_size;
-    PyObject *argv = Py_BuildValue("OO", l_obj_chain, l_obj_event);
-    Py_INCREF(argv);
-    Py_INCREF(a_arg);
-    PyObject *res = PyEval_CallObject(a_arg, argv);
-    Py_XDECREF(a_arg);
+    PyObject *argv = Py_BuildValue("OOO", l_obj_chain, l_obj_event, l_callback->arg);
+    PyObject *res = PyEval_CallObject(l_callback->func, argv);
     Py_XDECREF(argv);
     PyGILState_Release(state);
     if (res){
@@ -85,7 +89,8 @@ PyObject* wrapping_dap_chain_cs_dag_poa_presign_callback_set(PyObject *self, PyO
     (void)self;
     PyObject *obj_chain;
     PyObject *obj_func;
-    if (!PyArg_ParseTuple(args, "OO", &obj_chain, &obj_func)){
+    PyObject *obj_arg;
+    if (!PyArg_ParseTuple(args, "OO", &obj_chain, &obj_func, &obj_arg)){
         PyErr_SetString(PyExc_AttributeError, "Argument must be callable");
         return NULL;
     }
@@ -99,6 +104,11 @@ PyObject* wrapping_dap_chain_cs_dag_poa_presign_callback_set(PyObject *self, PyO
                                               "accept a function that will be called from the callback. ");
         return NULL;
     }
-    dap_chain_cs_dag_poa_presign_callback_set(((PyDapChainObject*)self)->chain_t, _wrapping_callback_handler, obj_func);
+    _wrapping_dap_chain_cs_dag_poa_callback_t *l_callback = DAP_NEW(_wrapping_dap_chain_cs_dag_poa_callback_t);
+    l_callback->func = obj_func;
+    l_callback->arg = obj_arg;
+    Py_INCREF(obj_func);
+    Py_INCREF(obj_arg);
+    dap_chain_cs_dag_poa_presign_callback_set(((PyDapChainObject*)self)->chain_t, _wrapping_callback_handler, l_callback);
     return Py_None;
 }
