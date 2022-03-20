@@ -254,3 +254,24 @@ PyObject *wrapping_dap_chain_net_srv_set_callback_channel(PyObject *self, PyObje
     }
     return Py_None;
 }
+
+PyObject *wrapping_dap_chain_net_srv_issue_receipt(PyObject *self, PyObject *args){
+    PyObject *obj_price;
+    PyObject *obj_ext;
+    if (!PyArg_ParseTuple(args, "OO", &obj_price, &obj_ext)){
+        PyErr_SetString(PyExc_AttributeError, "Function takes exactly five arguments.");
+        return NULL;
+    }
+    void *l_ext = PyBytes_AsString(obj_ext);
+    size_t l_ext_size = PyBytes_Size(obj_ext);
+    dap_chain_datum_tx_receipt_t *l_receipt = dap_chain_net_srv_issue_receipt(
+            ((PyDapChainNetSrvObject*)self)->srv,
+            &((PyDapChainNetSrvPriceObject*)obj_price)->price,
+            l_ext, l_ext_size);
+    if (!l_receipt){
+        return Py_None;
+    }
+    PyDapChainTXReceiptObject *l_tx_receipt = PyObject_New(PyDapChainTXReceiptObject, &DapChainTxReceiptObject_DapChainTxReceiptTypeObjectType);
+    l_tx_receipt->tx_receipt = l_receipt;
+    return (PyObject*)l_tx_receipt;
+}

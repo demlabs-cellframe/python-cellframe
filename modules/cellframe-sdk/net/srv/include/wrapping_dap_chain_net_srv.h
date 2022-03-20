@@ -6,6 +6,8 @@
 #include "uthash.h"
 #include "wrapping_dap_chain_net_srv_client_remote.h"
 #include "wrapping_dap_chain_common.h"
+#include "wrapping_dap_chain_net_srv_common.h"
+#include "wrapping_dap_chain_tx_receipt.h"
 
 typedef struct PyDapChainNetSrv{
     PyObject_HEAD
@@ -28,9 +30,10 @@ PyObject *wrapping_dap_chain_net_srv_get_grace_period(PyObject *self, void *clos
 
 //Function
 PyObject *wrapping_dap_chain_net_srv_set_callback_channel(PyObject *self, PyObject *args);
-//PyObject *wrapping_dap_chain_net_srv_issue_receipt(PyObject *self, PyObject *args);
+PyObject *wrapping_dap_chain_net_srv_issue_receipt(PyObject *self, PyObject *args);
 
 static PyMethodDef DapChainNetSrvMethods[]={
+        {"issueReceipt", (PyCFunction)wrapping_dap_chain_net_srv_issue_receipt, METH_VARARGS, ""},
         {NULL, NULL, 0, NULL}
 };
 
