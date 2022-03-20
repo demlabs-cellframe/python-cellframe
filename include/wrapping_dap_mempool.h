@@ -8,6 +8,9 @@
 #include "libdap-chain-python.h"
 #include "wrapping_dap_pkey.h"
 #include "wrapping_dap_chain_common.h"
+#include "libdap_chain_net_python.h"
+#include "libdap_crypto_key_python.h"
+#include "wrapping_dap_pkey.h"
 
 typedef struct PyDapMempool{
     PyObject_HEAD
@@ -15,10 +18,14 @@ typedef struct PyDapMempool{
 
 PyObject *dap_chain_mempool_add_proc_py(PyObject *self, PyObject *args);
 PyObject *dap_chain_mempool_tx_create_py(PyObject *self, PyObject *args);
+PyObject *dap_chain_mempool_tx_create_cond_py(PyObject *self, PyObject *args);
+PyObject *dap_chain_mempool_tx_create_cond_input_py(PyObject *self, PyObject *args);
 
 static PyMethodDef  DapMempoolMethods[] = {
         {"addProc", dap_chain_mempool_add_proc_py, METH_VARARGS | METH_STATIC, ""},
         {"txCreate", dap_chain_mempool_tx_create_py, METH_VARARGS | METH_STATIC, ""},
+        {"txCreateCond", dap_chain_mempool_tx_create_cond_py, METH_VARARGS | METH_STATIC, ""},
+        {"txCreateCondInput", dap_chain_mempool_tx_create_cond_input_py, METH_VARARGS | METH_STATIC, ""},
         {NULL,NULL,0,NULL}
 };
 
