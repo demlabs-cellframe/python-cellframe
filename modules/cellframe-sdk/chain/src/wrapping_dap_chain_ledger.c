@@ -170,10 +170,19 @@ PyObject *dap_chain_ledger_count_py(PyObject *self, PyObject *args){
     return PyLong_FromLongLong(res);
 }
 PyObject *dap_chain_ledger_count_from_to_py(PyObject *self, PyObject *args){
-    long ts_from, ts_to;
-    if (!PyArg_ParseTuple(args, "l|l", &ts_from, &ts_to))
+    long ts_from = 0, ts_to = 0;
+    if (!PyArg_ParseTuple(args, "|ll", &ts_from, &ts_to))
         return NULL;
-    uint64_t res = dap_chain_ledger_count_from_to(((PyDapChainLedgerObject*)self)->ledger, (time_t)ts_from, (time_t)ts_to);
+    uint64_t res = 0;
+    if (ts_from && ts_to){
+        res = dap_chain_ledger_count_from_to(((PyDapChainLedgerObject*)self)->ledger, (time_t)ts_from, (time_t)ts_to);
+    }else if(ts_from){
+        res = dap_chain_ledger_count_from_to(((PyDapChainLedgerObject*)self)->ledger, (time_t)ts_from, 0);
+    }else if (ts_to){
+        res = dap_chain_ledger_count_from_to(((PyDapChainLedgerObject*)self)->ledger, 0, ts_to);
+    } else {
+        res = dap_chain_ledger_count_from_to(((PyDapChainLedgerObject*)self)->ledger, 0, 0);
+    }
     return PyLong_FromUnsignedLongLong(res);
 }
 PyObject *dap_chain_ledger_tx_hash_is_used_out_item_py(PyObject *self, PyObject *args){
@@ -304,4 +313,26 @@ static size_t *ListIntToSizeT(PyObject *list){
         res_size_t[i] = (size_t)PyLong_AsSsize_t(obj);
     }
     return res_size_t;
+}
+
+PyObject *dap_chain_ledger_get_txs_py(PyObject *self, PyObject *args){
+    size_t count, page;
+    if (!PyArg_ParseTuple(args, "nn",&count, &page)){
+        return NULL;
+    }
+    dap_list_t *l_txs = dap_chain_ledger_get_txs(
+            ((PyDapChainLedgerObject*)self)->ledger,
+            count,
+            page);
+    if (!l_txs){
+        return Py_None;
+    }
+    PyObject *obj_list = PyList_New(0);
+    for (dap_list_t *l_iter = l_txs; l_iter != NULL; l_iter = l_iter->next){
+        PyDapChainDatumTxObject *obj_tx = PyObject_New(PyDapChainDatumTxObject, &DapChainDatumTx_DapChainDatumTxObjectType);
+        obj_tx->datum_tx = l_iter->data;
+        PyObject_Dir((PyObject*) obj_tx);
+        PyList_Append(obj_list, (PyObject*)obj_tx);
+    }
+    return obj_list;
 }
