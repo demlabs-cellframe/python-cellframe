@@ -14,7 +14,7 @@ PyGetSetDef DapChainNetSrvPrice_GetsSetsDef[] = {
         {NULL}
 };
 
-PyTypeObject DapChainNetSrvPriceObject_DapChainNetSrvPriceObjectType = {
+PyTypeObject DapChainNetSrvPriceObjectType = {
         PyVarObject_HEAD_INIT(NULL, 0)
         "CellFrame.ChainNetSrvPrice",        /* tp_name */
         sizeof(PyDapChainNetSrvPriceObject), /* tp_basicsize */
@@ -66,7 +66,7 @@ PyObject *wrapping_dap_chain_net_srv_get_net_name(PyObject *self, void *closure)
 }
 PyObject *wrapping_dap_chain_net_srv_get_net(PyObject *self, void *closure){
     (void)closure;
-    PyDapChainNetObject *l_obj_net = PyObject_New(PyDapChainNetObject, &DapChainNetObject_DapChainNetObjectType);
+    PyDapChainNetObject *l_obj_net = PyObject_New(PyDapChainNetObject, &DapChainNetObjectType);
     PyObject_Dir((PyObject*)l_obj_net);
     l_obj_net->chain_net = WRAPPING_DAP_CHAIN_NET_SRV_PRICE(self)->price.net;
     return (PyObject*)l_obj_net;
@@ -85,7 +85,7 @@ PyObject *wrapping_dap_chain_net_srv_get_units(PyObject *self, void *closure){
 }
 PyObject *wrapping_dap_chain_net_srv_get_units_uid(PyObject *self, void *closure){
     (void)closure;
-    PyDapChainNetSrvPriceUnitUIDObject *l_price_unit_uid = PyObject_New(PyDapChainNetSrvPriceUnitUIDObject, &DapChainNetSrvPriceUnitUIDObject_DapChainNetSrvPriceUnitUIDObjectType);
+    PyDapChainNetSrvPriceUnitUIDObject *l_price_unit_uid = PyObject_New(PyDapChainNetSrvPriceUnitUIDObject, &DapChainNetSrvPriceUnitUidObjectType);
     PyObject_Dir((PyObject*)l_price_unit_uid);
     l_price_unit_uid->price_unit_uid = WRAPPING_DAP_CHAIN_NET_SRV_PRICE(self)->price.units_uid;
     return (PyObject*)l_price_unit_uid;
@@ -99,7 +99,7 @@ PyMethodDef DapChainNetSrvOrderDirection_Methods[] = {
         {NULL, NULL, 0, NULL}
 };
 
-PyTypeObject DapChainNetSrvOrderDirectionObject_DapChainNetSrvOrderDirectionObjectType = {
+PyTypeObject DapChainNetSrvOrderDirectionObjectType = {
         PyVarObject_HEAD_INIT(NULL, 0)
         "CellFrame.ChainNetSrvOrderDirection",        /* tp_name */
         sizeof(PyDapChainNetSrvOrderDirectionObject), /* tp_basicsize */
@@ -162,7 +162,7 @@ PyObject *wrapping_dap_chain_net_srv_order_direction_get_serv_dir_buy(PyObject *
     (void)args;
     PyDapChainNetSrvOrderDirectionObject *l_obj = PyObject_New(
             PyDapChainNetSrvOrderDirectionObject,
-            &DapChainNetSrvOrderDirectionObject_DapChainNetSrvOrderDirectionObjectType);
+            &DapChainNetSrvOrderDirectionObjectType);
     PyObject_Dir((PyObject*)l_obj);
     l_obj->direction = SERV_DIR_BUY;
     return (PyObject*)l_obj;
@@ -172,7 +172,7 @@ PyObject *wrapping_dap_chain_net_srv_order_direction_get_serv_dir_sell(PyObject 
     (void)args;
     PyDapChainNetSrvOrderDirectionObject *l_obj = PyObject_New(
             PyDapChainNetSrvOrderDirectionObject,
-            &DapChainNetSrvOrderDirectionObject_DapChainNetSrvOrderDirectionObjectType);
+            &DapChainNetSrvOrderDirectionObjectType);
     PyObject_Dir((PyObject*)l_obj);
     l_obj->direction = SERV_DIR_SELL;
     return (PyObject*)l_obj;
@@ -182,7 +182,7 @@ PyObject *wrapping_dap_chain_net_srv_order_direction_get_serv_dir_undefined(PyOb
     (void)args;
     PyDapChainNetSrvOrderDirectionObject *l_obj = PyObject_New(
             PyDapChainNetSrvOrderDirectionObject,
-            &DapChainNetSrvOrderDirectionObject_DapChainNetSrvOrderDirectionObjectType);
+            &DapChainNetSrvOrderDirectionObjectType);
     PyObject_Dir((PyObject*)l_obj);
     l_obj->direction = SERV_DIR_UNDEFINED;
     return (PyObject*)l_obj;

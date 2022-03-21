@@ -23,7 +23,7 @@ void dap_server_core_deinit(void);
 PyObject *dap_server_core_loop(PyObject *self, PyObject *args);
 PyObject *dap_server_core_listen(PyObject *self, PyObject *args);
 
-extern PyTypeObject ServerCore_ServerCoreType;
+extern PyTypeObject DapServerCoreObjectType;
 
 #ifdef __cplusplus
 }

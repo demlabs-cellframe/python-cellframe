@@ -12,7 +12,7 @@ PyMethodDef PyDapChainTxPkeyObjectMethods[] ={
         {NULL, NULL, 0, NULL}
 };
 
-PyTypeObject DapChainTxPkeyObject_DapChainTxPkeyTypeObjectType = {
+PyTypeObject DapChainTxPkeyObjectType = {
         PyVarObject_HEAD_INIT(NULL, 0)
         "CellFrame.ChainTxPkey",        /* tp_name */
         sizeof(PyDapChainTXPkeyObject), /* tp_basicsize */
@@ -56,8 +56,8 @@ PyTypeObject DapChainTxPkeyObject_DapChainTxPkeyTypeObjectType = {
 
 PyObject *wrapping_dap_chain_tx_pkey_sig_type(PyObject *self, void *closure){
     (void)closure;
-    PyObject *obj_sign_type = _PyObject_New(&DapSignTypeObject_DapSignTypeObjectType);
-    obj_sign_type = PyObject_Init(obj_sign_type, &DapSignTypeObject_DapSignTypeObjectType);
+    PyObject *obj_sign_type = _PyObject_New(&DapCryproSignTypeObjectType);
+    obj_sign_type = PyObject_Init(obj_sign_type, &DapCryproSignTypeObjectType);
     PyObject_Dir(obj_sign_type);
     ((PyDapSignTypeObject*)obj_sign_type)->sign_type= &((PyDapChainTXPkeyObject*)self)->tx_pkey->header.sig_type;
     return obj_sign_type;

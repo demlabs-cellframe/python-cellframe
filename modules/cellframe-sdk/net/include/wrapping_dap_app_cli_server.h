@@ -54,7 +54,7 @@ PyObject *dap_chain_node_cli_set_reply_text_py(PyObject *self, PyObject *args);
 
 PyObject *dap_chain_node_addr_get_by_alias_py(PyObject *self, PyObject *args);
 
-extern PyTypeObject DapChainNodeCliObject_DapChainNodeCliObjectType;
+extern PyTypeObject DapChainNodeCliObjectType;
 
 char **PyListToString(PyObject *list);
 //PyObject *stringToPyList(char **list);

@@ -6,7 +6,7 @@ PyMethodDef DapChainHashSlowMethod[] = {
         {NULL, NULL, 0, NULL}
 };
 
-PyTypeObject DapChainHashSlowObject_DapChainHashSlowObjectType = {
+PyTypeObject DapChainHashSlowObjectType = {
         PyVarObject_HEAD_INIT(NULL, 0)
         "CellFrame.ChainHashSlow",       /* tp_name */
         sizeof(PyDapChainHashSlowObject),/* tp_basicsize */
@@ -102,7 +102,7 @@ PyMethodDef DapChainAddrMethods[] = {
         {NULL, NULL, 0, NULL}
 };
 
-PyTypeObject DapChainAddrObject_DapChainAddrObjectType = {
+PyTypeObject DapChainAddrObjectType = {
         PyVarObject_HEAD_INIT(NULL, 0)
         "CellFrame.ChainAddr",       /* tp_name */
         sizeof(PyDapChainAddrObject),/* tp_basicsize */
@@ -150,7 +150,7 @@ PyMethodDef DapChainNetIdObjectMethods[] = {
         {NULL, NULL, 0, NULL}
 };
 
-PyTypeObject DapChainNetIdObject_DapChainNetIdObjectType = {
+PyTypeObject DapChainNetIdObjectType = {
         PyVarObject_HEAD_INIT(NULL, 0)
         "CellFrame.ChainNetID",          /* tp_name */
         sizeof(PyDapChainNetIdObject),   /* tp_basicsize */
@@ -197,7 +197,7 @@ PyMethodDef DapChainNetSrvUIDObject[] = {
         {NULL, NULL, 0, NULL}
 };
 
-PyTypeObject DapChainNetSrvUIDObject_DapChainNetSrvUIDObjectType = {
+PyTypeObject DapChainNetSrvUidObjectType = {
         PyVarObject_HEAD_INIT(NULL, 0)
         "CellFrame.ChainNetSrvUID",          /* tp_name */
         sizeof(dap_chain_net_srv_uid_t),   /* tp_basicsize */
@@ -240,7 +240,7 @@ PyTypeObject DapChainNetSrvUIDObject_DapChainNetSrvUIDObjectType = {
 };
 
 /* Chain id */
-PyTypeObject DapChainIDObject_DapChainIDType = {
+PyTypeObject DapChainIdObjectType = {
         PyVarObject_HEAD_INIT(NULL, 0)
         "CellFrame.ChainID"  ,       /* tp_name */
         sizeof(PyDapChainIDObject),  /* tp_basicsize */
@@ -287,7 +287,7 @@ PyObject *DapChainIdObject_str(PyObject *self){
 }
 
 /* Dap chain cell id */
-PyTypeObject DapChainCellIDObject_DapChainCellIDType = {
+PyTypeObject DapChainCellIdObjectType = {
         PyVarObject_HEAD_INIT(NULL, 0)
         "CellFrame.ChainCellID"  ,       /* tp_name */
         sizeof(PyDapChainCellIDObject),  /* tp_basicsize */
@@ -356,8 +356,8 @@ PyObject *dap_chain_addr_from_str_py(PyObject *self, PyObject *args){
     const char *str;
     if (!PyArg_ParseTuple(args, "s", &str))
         return NULL;
-    PyObject *obj = _PyObject_New(&DapChainAddrObject_DapChainAddrObjectType);
-    obj = PyObject_Init(obj, &DapChainAddrObject_DapChainAddrObjectType);
+    PyObject *obj = _PyObject_New(&DapChainAddrObjectType);
+    obj = PyObject_Init(obj, &DapChainAddrObjectType);
     ((PyDapChainAddrObject*)obj)->addr = dap_chain_addr_from_str(str);
     PyObject_Dir(obj);
     return Py_BuildValue("O", obj);
@@ -372,7 +372,7 @@ PyObject *dap_chain_addr_fill_py(PyObject *self, PyObject *args){
         return NULL;
     }
     if (self == NULL){
-        PyDapChainAddrObject *obj_addr = PyObject_New(PyDapChainAddrObject, &DapChainAddrObject_DapChainAddrObjectType);
+        PyDapChainAddrObject *obj_addr = PyObject_New(PyDapChainAddrObject, &DapChainAddrObjectType);
         PyObject_Dir((PyObject*)obj_addr);
         obj_addr->addr = DAP_NEW(dap_chain_addr_t);
         dap_chain_addr_fill(
@@ -411,7 +411,7 @@ PyObject *obj_addr_str(PyObject *self){
 
 PyObject* dap_chain_addr_get_net_id_py(PyObject *self, PyObject *args){
     (void)args;
-    PyObject *obj_net_id = _PyObject_New(&DapChainNetIdObject_DapChainNetIdObjectType);
+    PyObject *obj_net_id = _PyObject_New(&DapChainNetIdObjectType);
     ((PyDapChainNetIdObject*)obj_net_id)->net_id = ((PyDapChainAddrObject*)self)->addr->net_id;
     return Py_BuildValue("O", obj_net_id);
 }
@@ -420,7 +420,7 @@ PyObject *dap_chain_net_id_from_str_py(PyObject *self, PyObject *args){
     const char *str;
     if (!PyArg_ParseTuple(args, "s", &str))
         return NULL;
-    PyObject *obj_net_id = _PyObject_New(&DapChainNetIdObject_DapChainNetIdObjectType);
+    PyObject *obj_net_id = _PyObject_New(&DapChainNetIdObjectType);
     ((PyDapChainNetIdObject*)obj_net_id)->net_id = dap_chain_net_id_from_str(str);
     return Py_BuildValue("O", obj_net_id);
 }
@@ -436,7 +436,7 @@ PyMethodDef PyDapChainNetSrvPriceUnitUID_Methods[] = {
         {NULL, NULL, 0, NULL}
 };
 
-PyTypeObject DapChainNetSrvPriceUnitUIDObject_DapChainNetSrvPriceUnitUIDObjectType = {
+PyTypeObject DapChainNetSrvPriceUnitUidObjectType = {
         PyVarObject_HEAD_INIT(NULL, 0)
         "CellFrame.ChainNetSrvPriceUnitUID",             /* tp_name */
         sizeof(PyDapChainNetSrvPriceUnitUIDObject),      /* tp_basicsize */
@@ -497,7 +497,7 @@ PyObject *wrapping_dap_chain_net_srv_price_unit_uid_get_undefined(PyObject *self
     (void)self;
     (void)args;
     PyDapChainNetSrvPriceUnitUIDObject *obj_srv_price_uid = PyObject_New(PyDapChainNetSrvPriceUnitUIDObject,
-                                                                         &DapChainNetSrvPriceUnitUIDObject_DapChainNetSrvPriceUnitUIDObjectType);
+                                                                         &DapChainNetSrvPriceUnitUidObjectType);
     PyObject_Dir((PyObject*)obj_srv_price_uid);
     obj_srv_price_uid->price_unit_uid.uint32 = SERV_UNIT_UNDEFINED;
     obj_srv_price_uid->price_unit_uid.enm = SERV_UNIT_UNDEFINED;
@@ -507,7 +507,7 @@ PyObject *wrapping_dap_chain_net_srv_price_unit_uid_get_mb(PyObject *self, PyObj
     (void)self;
     (void)args;
     PyDapChainNetSrvPriceUnitUIDObject *obj_srv_price_uid = PyObject_New(PyDapChainNetSrvPriceUnitUIDObject,
-                                                                         &DapChainNetSrvPriceUnitUIDObject_DapChainNetSrvPriceUnitUIDObjectType);
+                                                                         &DapChainNetSrvPriceUnitUidObjectType);
     PyObject_Dir((PyObject*)obj_srv_price_uid);
     obj_srv_price_uid->price_unit_uid.uint32 = SERV_UNIT_MB;
     obj_srv_price_uid->price_unit_uid.enm = SERV_UNIT_MB;
@@ -517,7 +517,7 @@ PyObject *wrapping_dap_chain_net_srv_price_unit_uid_get_sec(PyObject *self, PyOb
     (void)self;
     (void)args;
     PyDapChainNetSrvPriceUnitUIDObject *obj_srv_price_uid = PyObject_New(PyDapChainNetSrvPriceUnitUIDObject,
-                                                                         &DapChainNetSrvPriceUnitUIDObject_DapChainNetSrvPriceUnitUIDObjectType);
+                                                                         &DapChainNetSrvPriceUnitUidObjectType);
     PyObject_Dir((PyObject*)obj_srv_price_uid);
     obj_srv_price_uid->price_unit_uid.uint32 = SERV_UNIT_SEC;
     obj_srv_price_uid->price_unit_uid.enm = SERV_UNIT_SEC;
@@ -527,7 +527,7 @@ PyObject *wrapping_dap_chain_net_srv_price_unit_uid_get_day(PyObject *self, PyOb
     (void)self;
     (void)args;
     PyDapChainNetSrvPriceUnitUIDObject *obj_srv_price_uid = PyObject_New(PyDapChainNetSrvPriceUnitUIDObject,
-                                                                         &DapChainNetSrvPriceUnitUIDObject_DapChainNetSrvPriceUnitUIDObjectType);
+                                                                         &DapChainNetSrvPriceUnitUidObjectType);
     PyObject_Dir((PyObject*)obj_srv_price_uid);
     obj_srv_price_uid->price_unit_uid.uint32 = SERV_UNIT_DAY;
     obj_srv_price_uid->price_unit_uid.enm = SERV_UNIT_DAY;
@@ -537,7 +537,7 @@ PyObject *wrapping_dap_chain_net_srv_price_unit_uid_get_kb(PyObject *self, PyObj
     (void)self;
     (void)args;
     PyDapChainNetSrvPriceUnitUIDObject *obj_srv_price_uid = PyObject_New(PyDapChainNetSrvPriceUnitUIDObject,
-                                                                         &DapChainNetSrvPriceUnitUIDObject_DapChainNetSrvPriceUnitUIDObjectType);
+                                                                         &DapChainNetSrvPriceUnitUidObjectType);
     PyObject_Dir((PyObject*)obj_srv_price_uid);
     obj_srv_price_uid->price_unit_uid.uint32 = SERV_UNIT_KB;
     obj_srv_price_uid->price_unit_uid.enm = SERV_UNIT_KB;
@@ -547,7 +547,7 @@ PyObject *wrapping_dap_chain_net_srv_price_unit_uid_get_b(PyObject *self, PyObje
     (void)self;
     (void)args;
     PyDapChainNetSrvPriceUnitUIDObject *obj_srv_price_uid = PyObject_New(PyDapChainNetSrvPriceUnitUIDObject,
-                                                                         &DapChainNetSrvPriceUnitUIDObject_DapChainNetSrvPriceUnitUIDObjectType);
+                                                                         &DapChainNetSrvPriceUnitUidObjectType);
     PyObject_Dir((PyObject*)obj_srv_price_uid);
     obj_srv_price_uid->price_unit_uid.uint32 = SERV_UNIT_B;
     obj_srv_price_uid->price_unit_uid.enm = SERV_UNIT_B;
@@ -555,7 +555,7 @@ PyObject *wrapping_dap_chain_net_srv_price_unit_uid_get_b(PyObject *self, PyObje
 }
 
 /*  wrapping dap_chain_node_addr_t */
-PyTypeObject DapChainNodeAddrObject_DapChainNodeAddrObjectType = {
+PyTypeObject DapChainNodeAddrObjectType = {
         PyVarObject_HEAD_INIT(NULL, 0)
         "CellFrame.ChainNodeAddr"  ,       /* tp_name */
         sizeof(PyDapChainCellIDObject),  /* tp_basicsize */

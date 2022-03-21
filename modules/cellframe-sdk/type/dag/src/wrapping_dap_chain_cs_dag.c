@@ -55,7 +55,7 @@ PyObject *dap_chain_cs_dag_find_event_by_hash_py(PyObject *self, PyObject *args)
         PyErr_SetString(PyExc_AttributeError, "Function takes exactly two arguments. ");
         return NULL;
     }
-    bool isCheck = PyObject_TypeCheck(obj_hash, &DapHashFastObject_DapHashFastObjectType);
+    bool isCheck = PyObject_TypeCheck(obj_hash, &DapChainHashFastObjectType);
 //    if (!isCheck){
 //        PyErr_SetString(PyExc_AttributeError, "The first argument to this function is not a DapHash object.");
 //        return NULL;

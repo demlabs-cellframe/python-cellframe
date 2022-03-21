@@ -49,4 +49,4 @@ PyObject *wrapping_dap_chain_net_srv_order_get_gdb_group(PyObject *self, PyObjec
 PyObject *wrapping_dap_chain_net_srv_order_get_nodelist_group(PyObject *self, PyObject *args);
 PyObject *wrapping_dap_chain_net_srv_order_add_notify_callback(PyObject *self, PyObject *args);
 
-extern PyTypeObject DapChainNetSrvOrderObject_DapChainNetSrvOrderObjectType;
+extern PyTypeObject DapChainNetSrvOrderObjectType;

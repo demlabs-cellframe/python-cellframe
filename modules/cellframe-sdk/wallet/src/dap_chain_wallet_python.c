@@ -22,7 +22,7 @@ PyMethodDef ChainWalletMethods[] = {
         {NULL, NULL, 0, NULL}
 };
 
-PyTypeObject DapChainWallet_dapChainWalletType = {
+PyTypeObject DapChainWalletObjectType = {
         PyVarObject_HEAD_INIT(NULL, 0)
         "CellFrame.ChainWallet",             /* tp_name */
         sizeof(PyDapChainWalletObject),         /* tp_basicsize */
@@ -95,7 +95,7 @@ PyObject *dap_chain_wallet_create_with_seed_py(PyObject *self, PyObject *argv){
     }
     void *seed = (void *)PyBytes_AsString(obj_seed);
     size_t seed_size = PyBytes_Size(obj_seed);
-    PyObject *obj_wallet = _PyObject_New(&DapChainWallet_dapChainWalletType);
+    PyObject *obj_wallet = _PyObject_New(&DapChainWalletObjectType);
     PyObject_Dir(obj_wallet);
     ((PyDapChainWalletObject*)obj_wallet)->wallet = dap_chain_wallet_create_with_seed(
                 wallet_name,
@@ -128,7 +128,7 @@ PyObject *dap_chain_wallet_open_file_py(PyObject *self, PyObject *argv){
     const char *file_path;
     if (!PyArg_ParseTuple(argv, "s", &file_path))
         return NULL;
-    PyObject *obj_wallet = _PyObject_New(&DapChainWallet_dapChainWalletType);
+    PyObject *obj_wallet = _PyObject_New(&DapChainWalletObjectType);
     PyObject_Dir(obj_wallet);
     ((PyDapChainWalletObject*)obj_wallet)->wallet = dap_chain_wallet_open_file(file_path);
     return Py_BuildValue("O", obj_wallet);
@@ -139,7 +139,7 @@ PyObject *dap_chain_wallet_open_py(PyObject *self, PyObject *argv){
     const char *wallet_path;
     if (!PyArg_ParseTuple(argv, "ss", &wallet_name, &wallet_path))
         return NULL;
-    PyObject *obj_wallet = _PyObject_New(&DapChainWallet_dapChainWalletType);
+    PyObject *obj_wallet = _PyObject_New(&DapChainWalletObjectType);
     PyObject_Dir(obj_wallet);
     ((PyDapChainWalletObject*)obj_wallet)->wallet = dap_chain_wallet_open(wallet_name, wallet_path);
     return Py_BuildValue("O", obj_wallet);
@@ -161,7 +161,7 @@ PyObject *dap_cert_to_addr_py(PyObject *self, PyObject *argv){
     PyObject *obj_net_id;
     if (!PyArg_ParseTuple(argv, "OO", &obj_cert, &obj_net_id))
         return NULL;
-    PyObject *obj_addr = _PyObject_New(&DapChainAddrObject_DapChainAddrObjectType);
+    PyObject *obj_addr = _PyObject_New(&DapChainAddrObjectType);
     PyObject_Dir(obj_addr);
     ((PyDapChainAddrObject*)obj_addr)->addr = dap_cert_to_addr(
                 ((PyCryptoCertObject*)obj_cert)->cert,
@@ -174,7 +174,7 @@ PyObject *dap_chain_wallet_get_addr_py(PyObject *self, PyObject *argv){
     PyObject *obj_net_id;
     if (!PyArg_ParseTuple(argv, "O", &obj_net_id))
         return NULL;
-    PyObject *obj_addr = _PyObject_New(&DapChainAddrObject_DapChainAddrObjectType);
+    PyObject *obj_addr = _PyObject_New(&DapChainAddrObjectType);
     PyObject_Dir(obj_addr);
     ((PyDapChainAddrObject*)obj_addr)->addr = dap_chain_wallet_get_addr(
                 ((PyDapChainWalletObject*)self)->wallet,

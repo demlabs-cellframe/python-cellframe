@@ -66,7 +66,7 @@ PyObject *TX_ITEM_TYPE_IN_COND_PY(void);
 PyObject *TX_ITEM_TYPE_OUT_COND_PY(void);
 PyObject *TX_ITEM_TYPE_RECEIPT_PY(void);
 
-extern PyTypeObject DapChainTxItemObject_DapChainTxItemTypeObjectType;
+extern PyTypeObject DapChainTxItemTypeObjectType;
 
 /* -------------------------------------- */
 
@@ -79,7 +79,7 @@ typedef struct PyDapChainTxCondType{
 PyObject *COND_SERVICE_PROVIDE_PY();
 PyObject *COND_SERVICE_BILL_PY();
 
-extern PyTypeObject DapChainTxCondType_DapChainTxCondTypeObject;
+extern PyTypeObject DapChainTxCondTypeObjectType;
 
 /* -------------------------------------- */
 
@@ -105,7 +105,7 @@ PyObject *wrapping_dap_chain_datum_tx_get_items(PyObject *self, PyObject *args);
 PyObject *wrapping_dap_chain_datum_tx_get_hash(PyObject *self, void* closure);
 PyObject *wrapping_dap_chain_datum_tx_get_tsCreated(PyObject *self, void* closure);
 
-extern PyTypeObject DapChainDatumTx_DapChainDatumTxObjectType;
+extern PyTypeObject DapChainDatumTxObjectType;
 
 /* -------------------------------------- */
 

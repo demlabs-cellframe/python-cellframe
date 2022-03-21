@@ -9,7 +9,7 @@ PyMethodDef DapChainNetSrvClientMethods[]={
         {NULL, NULL, 0, NULL}
 };
 
-PyTypeObject DapChainNetSrvClientObject_DapChainNetSrvClientObjectType = {
+PyTypeObject DapChainNetSrvClientObjectType = {
         PyVarObject_HEAD_INIT(NULL, 0)
         "CellFrame.ChainNetSrvClient",        /* tp_name */
         sizeof(PyDapChainNetSrvClientObject), /* tp_basicsize */
@@ -122,7 +122,7 @@ static dap_chain_datum_tx_receipt_t * _wrapping_dap_chain_net_srv_client_callbac
     PyDapChainTXReceiptObject *py_ret = NULL;
     if (PyCallable_Check(l_call)) {
         PyDapChainTXReceiptObject *py_receipt = PyObject_New(PyDapChainTXReceiptObject,
-                                                             &DapChainTxReceiptObject_DapChainTxReceiptTypeObjectType);
+                                                             &DapChainTxReceiptObjectType);
         py_receipt->tx_receipt = a_receipt;
         PyObject *l_args = Py_BuildValue("OOO", py_client, py_receipt, (PyObject *)a_arg);
         PyGILState_STATE state = PyGILState_Ensure();
@@ -273,7 +273,7 @@ PyObject *wrapping_dap_chain_net_srv_client_check(PyObject *self, PyObject *args
     }
     if (!PyDapChainNetSrvUid_Check(obj_srv_uid))
         return Py_None;
-    if (PyObject_TypeCheck(obj_net_id, &DapChainNetIdObject_DapChainNetIdObjectType))
+    if (PyObject_TypeCheck(obj_net_id, &DapChainNetIdObjectType))
         return Py_None;
     if (!PyBytes_Check(obj_bytes)) {
         return Py_None;

@@ -109,7 +109,7 @@ PyObject *wrapping_dap_pkey_get_type(PyObject *self, void *closure){
 }
 PyObject *wrapping_dap_pkey_get_hash(PyObject *self, void *closure){
     (void)closure;
-    PyDapHashFastObject *obj_hash = PyObject_New(PyDapHashFastObject, &DapHashFastObject_DapHashFastObjectType);
+    PyDapHashFastObject *obj_hash = PyObject_New(PyDapHashFastObject, &DapChainHashFastObjectType);
     PyObject_Dir((PyObject*)obj_hash);
     dap_hash_fast(((PyDapPkeyObject*)self)->pkey->pkey, ((PyDapPkeyObject*)self)->pkey->header.size, obj_hash->hash_fast);
     return (PyObject*)obj_hash;

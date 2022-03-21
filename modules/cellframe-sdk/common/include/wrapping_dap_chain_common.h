@@ -43,7 +43,7 @@ typedef struct PyDapChainHashSlow{
 
 PyObject *dap_chain_hash_slow_to_str_py(PyObject *self, PyObject *args);
 
-extern PyTypeObject DapChainHashSlowObject_DapChainHashSlowObjectType;
+extern PyTypeObject DapChainHashSlowObjectType;
 
 /*=================*/
 
@@ -63,7 +63,7 @@ PyObject *dap_chain_addr_get_net_id_py(PyObject *self, PyObject *args);
 
 PyObject *obj_addr_str(PyObject *self);
 
-extern PyTypeObject DapChainAddrObject_DapChainAddrObjectType;
+extern PyTypeObject DapChainAddrObjectType;
 
 /*=================*/
 
@@ -76,7 +76,7 @@ typedef struct PyDapChainNetId{
 
 PyObject *dap_chain_net_id_from_str_py(PyObject *self, PyObject *args);
 
-extern PyTypeObject DapChainNetIdObject_DapChainNetIdObjectType;
+extern PyTypeObject DapChainNetIdObjectType;
 
 /*=================*/
 
@@ -90,10 +90,10 @@ typedef struct PyDapChainNetSrvUID{
 int PyDapChainNetSrvUIDObject_init(PyObject *self, PyObject *args, PyObject *kwds);
 PyObject* PyDapChainNetSrvUIDObject_str(PyObject *self);
 
-extern PyTypeObject DapChainNetSrvUIDObject_DapChainNetSrvUIDObjectType;
+extern PyTypeObject DapChainNetSrvUidObjectType;
 
 static bool PyDapChainNetSrvUid_Check(PyDapChainNetSrvUIDObject *a_obj){
-    return PyObject_TypeCheck(a_obj, &DapChainNetSrvUIDObject_DapChainNetSrvUIDObjectType);
+    return PyObject_TypeCheck(a_obj, &DapChainNetSrvUidObjectType);
 }
 
 /*=================*/
@@ -113,7 +113,7 @@ PyObject *wrapping_dap_chain_net_srv_price_unit_uid_get_day(PyObject *self, PyOb
 PyObject *wrapping_dap_chain_net_srv_price_unit_uid_get_kb(PyObject *self, PyObject *args);
 PyObject *wrapping_dap_chain_net_srv_price_unit_uid_get_b(PyObject *self, PyObject *args);
 
-extern PyTypeObject DapChainNetSrvPriceUnitUIDObject_DapChainNetSrvPriceUnitUIDObjectType;
+extern PyTypeObject DapChainNetSrvPriceUnitUidObjectType;
 /*=================*/
 
 /* Chain cell id */
@@ -124,7 +124,7 @@ typedef struct PyDapChainID{
 
 PyObject *DapChainIdObject_str(PyObject *self);
 
-extern PyTypeObject DapChainIDObject_DapChainIDType;
+extern PyTypeObject DapChainIdObjectType;
 
 /*=================*/
 
@@ -136,7 +136,7 @@ typedef struct PyDapChainCellID{
 
 PyObject *PyDapChainCellIdObject_str(PyObject *self);
 
-extern PyTypeObject DapChainCellIDObject_DapChainCellIDType;
+extern PyTypeObject DapChainCellIdObjectType;
 
 /*=================*/
 
@@ -148,7 +148,7 @@ typedef struct PyDapChainNodeAddr{
 
 PyObject* PyDapChainNodeAddrObject_str(PyObject* self);
 
-extern PyTypeObject DapChainNodeAddrObject_DapChainNodeAddrObjectType;
+extern PyTypeObject DapChainNodeAddrObjectType;
 
 /*=================*/
 

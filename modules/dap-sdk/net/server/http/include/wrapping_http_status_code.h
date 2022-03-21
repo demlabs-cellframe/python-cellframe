@@ -19,7 +19,7 @@ PyObject *wrapping_http_code_set_ok(PyObject *self, PyObject *args);
 
 PyObject *wrapping_http_code_set_bad_request(PyObject *self, PyObject *args);
 
-extern PyTypeObject HTTPCode_HTTPCodeType;
+extern PyTypeObject DapHttpCodeObjectType;
 
 #ifdef __cplusplus
 }

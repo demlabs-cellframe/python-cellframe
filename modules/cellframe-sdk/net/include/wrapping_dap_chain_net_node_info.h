@@ -17,7 +17,7 @@ typedef struct PyDapChainNodeInfo{
 PyObject *dap_chain_node_info_save_py(PyObject *self, PyObject *args);
 PyObject *dap_chain_node_info_read_py(PyObject *self, PyObject *args);
 
-extern PyTypeObject DapChainNodeInfoObject_DapChainNodeInfoObjectType;
+extern PyTypeObject DapChainNodeInfoObjectType;
 
 #ifdef __cplusplus
 }

@@ -14,4 +14,4 @@ typedef struct PyAppCli{
 
 PyObject* dap_app_cli_main_py(PyObject *self, PyObject *args);
 
-extern PyTypeObject DapAppCli_dapAppCliType;
+extern PyTypeObject DapAppCliObjectType;

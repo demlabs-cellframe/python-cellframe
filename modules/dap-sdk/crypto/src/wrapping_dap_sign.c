@@ -1,7 +1,7 @@
 #include "wrapping_dap_sign.h"
 
 /* Sign type*/
-PyTypeObject DapSignTypeObject_DapSignTypeObjectType = {
+PyTypeObject DapCryproSignTypeObjectType = {
         PyVarObject_HEAD_INIT(NULL, 0)
         "CellFrame.SignType",       /* tp_name */
         sizeof(PyDapSignTypeObject),/* tp_basicsize */
@@ -56,7 +56,7 @@ PyGetSetDef DapSignObjectGetsSetsDef[] = {
         {NULL}
 };
 
-PyTypeObject DapSignObject_DapSignObjectType = {
+PyTypeObject DapCryptoSignObjectType = {
         PyVarObject_HEAD_INIT(NULL, 0)
         "DAP.Sign",       /* tp_name */
         sizeof(PyDapSignObject),/* tp_basicsize */
@@ -100,7 +100,7 @@ PyTypeObject DapSignObject_DapSignObjectType = {
 
 PyObject *wrapping_dap_sign_get_type(PyObject *self, void *closure){
     (void)closure;
-    PyDapSignTypeObject *obj_type_sign = PyObject_New(PyDapSignTypeObject, &DapSignTypeObject_DapSignTypeObjectType);
+    PyDapSignTypeObject *obj_type_sign = PyObject_New(PyDapSignTypeObject, &DapCryproSignTypeObjectType);
     PyObject_Dir((PyObject*)obj_type_sign);
     obj_type_sign->sign_type = &((PyDapSignObject*)self)->sign->header.type;
     return (PyObject*)obj_type_sign;
@@ -115,7 +115,7 @@ PyObject *wrapping_dap_sign_get_pkey(PyObject *self, void *closure){
 
 PyObject *wrapping_dap_sign_get_pkey_hash(PyObject *self, void *closure){
     (void)closure;
-    PyDapHashFastObject *obj_hash = PyObject_New(PyDapHashFastObject, &DapHashFastObject_DapHashFastObjectType);
+    PyDapHashFastObject *obj_hash = PyObject_New(PyDapHashFastObject, &DapChainHashFastObjectType);
     PyObject_Dir((PyObject*)obj_hash);
     obj_hash->hash_fast = DAP_NEW(dap_chain_hash_fast_t);
     dap_sign_get_pkey_hash(((PyDapSignObject*)self)->sign, obj_hash->hash_fast);

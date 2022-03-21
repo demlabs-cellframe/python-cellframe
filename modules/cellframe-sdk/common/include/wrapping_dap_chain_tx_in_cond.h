@@ -42,7 +42,7 @@ PyObject *wrapping_dap_chain_tx_in_cond_get_receipt_prev_idx(PyObject *self, voi
 PyObject *wrapping_dap_chain_tx_in_cond_get_prev_hash(PyObject *self, void *closure);
 PyObject *wrapping_dap_chain_tx_in_cond_get_out_prev_idx(PyObject *self, void *closure);
 
-extern PyTypeObject DapChainTxInCondObject_DapChainTxInCondTypeObjectType;
+extern PyTypeObject DapChainTxInCondObjectType;
 
 #ifdef __cplusplus
 extern "C"{

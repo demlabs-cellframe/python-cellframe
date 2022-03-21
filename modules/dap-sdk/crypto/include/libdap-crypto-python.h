@@ -50,7 +50,7 @@ int dap_crypto_init(void);
 
 void dap_crypto_deinit(void);
 
-extern PyTypeObject g_crypto_type_py;
+extern PyTypeObject DapCryptoObjectType;
 
 #ifdef  __cplusplus
 }

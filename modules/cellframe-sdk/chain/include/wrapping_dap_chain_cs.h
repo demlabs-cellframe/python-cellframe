@@ -27,7 +27,7 @@ PyObject *dap_chain_cs_create_py(PyObject *self, PyObject *args);
 PyObject *dap_chain_class_add_py (PyObject *self, PyObject *args);
 PyObject *dap_chain_class_create_py(PyObject *self, PyObject *args);
 
-extern PyTypeObject DapChainCsObject_DapChainCsObjectType;
+extern PyTypeObject DapChainCsObjectType;
 
 #ifdef __cplusplus
 }

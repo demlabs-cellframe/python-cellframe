@@ -24,7 +24,7 @@ PyMethodDef PyCryptoKeyTypeObjectMethods[] = {
         {NULL, NULL, 0, NULL}
 };
 
-PyTypeObject CryptoKeyTypeObject_CryptoKeyTypeObjectType = {
+PyTypeObject DapCryptoKeyTypeObjectType = {
         PyVarObject_HEAD_INIT(NULL, 0)
         "CellFrame.CryptoKeyType",           /* tp_name */
         sizeof(PyCryptoKeyTypeObject),       /* tp_basicsize */

@@ -9,7 +9,7 @@ PyMethodDef DapChainNetNodeMethods[] = {
         {NULL, NULL, 0, NULL}
 };
 
-PyTypeObject DapChainNetNodeObject_DapChainNetNodeObjectType = {
+PyTypeObject DapChainNodeObjectType = {
         PyVarObject_HEAD_INIT(NULL, 0)
         "CellFrame.ChainNode",            /* tp_name */
         sizeof(PyDapChainNodeObject),     /* tp_basicsize */
@@ -56,7 +56,7 @@ PyObject *dap_chain_node_gen_addr_py(PyObject *self, PyObject *args){
     PyObject *obj_cell_id;
     if (!PyArg_ParseTuple(args, "O|O", &obj_net, &obj_cell_id))
         return NULL;
-    PyObject *obj_node_addr = _PyObject_New(&DapChainNodeAddrObject_DapChainNodeAddrObjectType);
+    PyObject *obj_node_addr = _PyObject_New(&DapChainNodeAddrObjectType);
     ((PyDapChainNodeAddrObject*)obj_node_addr)->node_addr = dap_chain_node_gen_addr(((PyDapChainNetObject*)obj_net)->chain_net->pub.id);
     return Py_BuildValue("O", obj_node_addr);
 }
@@ -77,7 +77,7 @@ PyObject *dap_chain_node_alias_find_py(PyObject *self, PyObject *args){
     const char *alias;
     if (!PyArg_ParseTuple(args, "O|s", &obj_chain_net, &alias))
         return NULL;
-    PyObject *obj_node_addr = _PyObject_New(&DapChainNodeAddrObject_DapChainNodeAddrObjectType);
+    PyObject *obj_node_addr = _PyObject_New(&DapChainNodeAddrObjectType);
     ((PyDapChainNodeAddrObject*)obj_node_addr)->node_addr = dap_chain_node_alias_find(((PyDapChainNetObject*)obj_node_addr)->chain_net, alias);
     return Py_BuildValue("O", &obj_node_addr);
 }

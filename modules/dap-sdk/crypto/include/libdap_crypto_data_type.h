@@ -39,7 +39,7 @@ PyObject *get_ENC_DATA_TYPE_RAW();
 PyObject *get_ENC_DATA_TYPE_B64();
 PyObject *get_ENC_DATA_TYPE_B64_URLSAFE();
 
-extern PyTypeObject CryptoDataTypeObject_CryptoDataTypeObjectType;
+extern PyTypeObject DapCryptoDataTypeObjectType;
 
 #ifdef __cplusplus
 }

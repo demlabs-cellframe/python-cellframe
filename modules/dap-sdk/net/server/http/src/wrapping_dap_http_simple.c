@@ -89,7 +89,7 @@ void wrapping_dap_http_simple_callback(dap_http_simple_t *sh, void *obj){
     gstate = PyGILState_Ensure();
     PyObject *obj_func = _w_simple_proc_find(sh->http_client->url_path);
     PyDapHttpSimpleObject *obj_http_simple = PyObject_NEW(PyDapHttpSimpleObject, &DapHTTPSimple_DapHTTPSimpleType);
-    PyObject *obj_http_status_code = _PyObject_New(&HTTPCode_HTTPCodeType);
+    PyObject *obj_http_status_code = _PyObject_New(&DapHttpCodeObjectType);
     ((PyDapHttpSimpleObject*)obj_http_simple)->sh = sh;
     PyObject_Dir((PyObject*)obj_http_simple);
     http_status_code_t *ret = (http_status_code_t*)obj;

@@ -4,7 +4,7 @@ PyMethodDef DapChainAtomIterMethods[] = {
         {NULL, NULL, 0, NULL}
 };
 
-PyTypeObject DapChainAtomIter_DapChainAtomIterType = {
+PyTypeObject DapChainAtomIterObjectType = {
         PyVarObject_HEAD_INIT(NULL, 0)
         "CellFrame.ChainAtomIter",     /* tp_name */
         sizeof(PyChainAtomIterObject),       /* tp_basicsize */
@@ -48,5 +48,5 @@ PyTypeObject DapChainAtomIter_DapChainAtomIterType = {
 };
 
 bool PyDapChainAtomIter_Check(PyObject *obj){
-    return PyObject_TypeCheck(obj, &DapChainAtomIter_DapChainAtomIterType);
+    return PyObject_TypeCheck(obj, &DapChainAtomIterObjectType);
 }

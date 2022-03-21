@@ -7,7 +7,7 @@ PyMethodDef DapChainCsDagPoaMethods[] = {
         {NULL, NULL, 0, NULL}
 };
 
-PyTypeObject DapChainCsDagPoaObject_DapChainCsDagPoaObjectType = {
+PyTypeObject DapChainCsDagPoaObjectType = {
         PyVarObject_HEAD_INIT(NULL, 0)
         "CellFrame.ChainCsDagPoa",            /* tp_name */
         sizeof(PyDapChainCsDagPoaObject),     /* tp_basicsize */
@@ -62,7 +62,7 @@ int _wrapping_callback_handler(dap_chain_t *a_chain, dap_chain_cs_dag_event_t *a
     _wrapping_dap_chain_cs_dag_poa_callback_t *l_callback = (_wrapping_dap_chain_cs_dag_poa_callback_t*)a_arg;
 
     PyGILState_STATE state = PyGILState_Ensure();
-    PyDapChainObject *l_obj_chain = PyObject_New(PyDapChainObject, &dapChainObject_dapChainType);
+    PyDapChainObject *l_obj_chain = PyObject_New(PyDapChainObject, &DapChainObjectType);
     l_obj_chain->chain_t = a_chain;
     PyDapChainCsDagEventObject *l_obj_event = PyObject_New(PyDapChainCsDagEventObject, &DapChainCsDagEvent_DapChainCsDagEventType);
     l_obj_event->event = a_event;

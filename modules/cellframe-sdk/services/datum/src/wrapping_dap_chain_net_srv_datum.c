@@ -6,7 +6,7 @@ PyMethodDef DapChainNetSrvDatum_method[] = {
         {NULL, NULL, 0, NULL}
 };
 
-PyTypeObject DapChainNetSrvDatumObject_DapChainNetSrvDatumObjectType = {
+PyTypeObject DapChainDatumCustomObjectType = {
         PyVarObject_HEAD_INIT(NULL, 0)
         "CellFrame.ChainNetSrvDatum",            /* tp_name */
         sizeof(PyDapChainNetSrvDatumObject),     /* tp_basicsize */

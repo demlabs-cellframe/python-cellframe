@@ -2,6 +2,85 @@
 
 #define LOG_TAG "libdap-python"
 
+PyMethodDef DapCoreMethods[] = {
+        {NULL, NULL, 0, NULL}
+};
+
+PyTypeObject DapCoreObjectType = {
+    PyVarObject_HEAD_INIT(NULL, 0)
+    "Dap",             /* tp_name */
+    sizeof(PyDapObject),             /* tp_basicsize */
+    0,                         /* tp_itemsize */
+    0,			       /* tp_dealloc */
+    0,                         /* tp_print */
+    0,                         /* tp_getattr */
+    0,                         /* tp_setattr */
+    0,                         /* tp_reserved */
+    0,                         /* tp_repr */
+    0,                         /* tp_as_number */
+    0,                         /* tp_as_sequence */
+    0,                         /* tp_as_mapping */
+    0,                         /* tp_hash  */
+    0,                         /* tp_call */
+    0,                         /* tp_str */
+    0,                         /* tp_getattro */
+    0,                         /* tp_setattro */
+    0,                         /* tp_as_buffer */
+    Py_TPFLAGS_DEFAULT |
+        Py_TPFLAGS_BASETYPE,   /* tp_flags */
+    "Dap objects",           /* tp_doc */
+    0,		               /* tp_traverse */
+    0,		               /* tp_clear */
+    0,		               /* tp_richcompare */
+    0,		               /* tp_weaklistoffset */
+    0,		               /* tp_iter */
+    0,		               /* tp_iternext */
+    DapCoreMethods,                /* tp_methods */
+    0,                         /* tp_members */
+    0,                         /* tp_getset */
+    0,                         /* tp_base */
+    0,                         /* tp_dict */
+    0,                         /* tp_descr_get */
+    0,                         /* tp_descr_set */
+    0,                         /* tp_dictoffset */
+    0,                         /* tp_init */
+    0,                         /* tp_alloc */
+    PyType_GenericNew,         /* tp_new */
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+};
+
+static PyMethodDef DapLogitMethods[] = {
+    {"debug", (PyCFunction)dap_log_it_debug, METH_VARARGS | METH_STATIC, "Log a message with the DEBUG level."},
+    {"info", (PyCFunction)dap_log_it_info, METH_VARARGS | METH_STATIC, "Log a message with the INFO level."},
+    {"notice", (PyCFunction)dap_log_it_notice, METH_VARARGS | METH_STATIC, "Log a message with the NOTICE level."},
+    {"message", (PyCFunction)dap_log_it_message, METH_VARARGS | METH_STATIC, "Log a message with the MESSAGE level."},
+    {"dap", (PyCFunction)dap_log_it_dap, METH_VARARGS | METH_STATIC, "Log a message with the DAP level."},
+    {"warning", (PyCFunction)dap_log_it_warning, METH_VARARGS | METH_STATIC, "Log a message with the WARNING level."},
+    {"att", (PyCFunction)dap_log_it_att, METH_VARARGS | METH_STATIC, "Log a message with the ATT level."},
+    {"error", (PyCFunction)dap_log_it_error, METH_VARARGS | METH_STATIC, "Log a message with the ERROR level."},
+    {"critical", (PyCFunction)dap_log_it_critical, METH_VARARGS | METH_STATIC, "Log a message with the CRITICAL level."},
+    {NULL, NULL, 0, NULL}
+};
+
+PyTypeObject DapLogitObjectType = {
+    PyVarObject_HEAD_INIT(NULL, 0)
+    .tp_name = "Dap.logIt",
+    .tp_basicsize = sizeof(PyDapObject),
+    .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
+    .tp_doc = "Dap LogIt methods",
+    .tp_methods = DapLogitMethods,
+    .tp_new = PyType_GenericNew,
+};
+
 PyObject *dap_set_log_level(PyObject *self, PyObject *args){
     short int new_log_level;
     if (!PyArg_ParseTuple(args, "h", &new_log_level))

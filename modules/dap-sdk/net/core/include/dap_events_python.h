@@ -24,7 +24,7 @@ PyObject *dap_events_socket_kill_socket_py(PyDapEventsObject *self, PyObject *ar
 PyObject *dap_events_start_py(PyDapEventsObject *self);
 PyObject *dap_events_wait_py(PyDapEventsObject *self);
 
-extern PyTypeObject dapEvents_dapEventsType;
+extern PyTypeObject DapEventsObjectType;
 
 #ifdef __cplusplus
 }

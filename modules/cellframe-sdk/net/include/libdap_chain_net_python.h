@@ -81,10 +81,10 @@ PyObject *dap_chain_net_get_name_py(PyObject *self, PyObject *args);
 PyObject *dap_chain_net_python_get_id(PyObject *self, void *closure);
 PyObject *dap_chain_net_add_notify_py(PyObject *self, PyObject *args);
 
-extern PyTypeObject DapChainNetObject_DapChainNetObjectType;
+extern PyTypeObject DapChainNetObjectType;
 
 static bool PyDapChainNet_Check(PyDapChainNetObject *self){
-    return PyObject_TypeCheck(self, &DapChainNetObject_DapChainNetObjectType);
+    return PyObject_TypeCheck(self, &DapChainNetObjectType);
 }
 
 #ifdef __cplusplus

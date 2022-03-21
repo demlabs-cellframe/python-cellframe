@@ -37,7 +37,7 @@ typedef struct PyDapSignType{
 
 PyObject *PyDapSignType_to_str(PyObject *self);
 
-extern PyTypeObject DapSignTypeObject_DapSignTypeObjectType;
+extern PyTypeObject DapCryproSignTypeObjectType;
 
 typedef struct PyDapSign{
     PyObject_HEAD
@@ -49,10 +49,10 @@ PyObject *wrapping_dap_sign_get_pkey(PyObject *self, void *closure);
 PyObject *wrapping_dap_sign_get_pkey_hash(PyObject *self, void *closure);
 PyObject *wrapping_dap_sign_get_size(PyObject *self, void *closure);
 
-extern PyTypeObject DapSignObject_DapSignObjectType;
+extern PyTypeObject DapCryptoSignObjectType;
 
 static bool PyDapSignObject_Check(PyObject *self){
-    return PyObject_TypeCheck(self, &DapSignObject_DapSignObjectType);
+    return PyObject_TypeCheck(self, &DapCryptoSignObjectType);
 }
 
 #endif // _WRAPPING_DAP_SIGN_

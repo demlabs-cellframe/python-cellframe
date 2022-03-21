@@ -54,7 +54,7 @@ PyObject *get_ENC_KEY_TYPE_SIG_TESLA();
 PyObject *get_ENC_KEY_TYPE_SIG_DILITHIUM();
 PyObject *get_ENC_KEY_TYPE_NULL();
 
-extern PyTypeObject CryptoKeyTypeObject_CryptoKeyTypeObjectType;
+extern PyTypeObject DapCryptoKeyTypeObjectType;
 
 #ifdef __cplusplus
 }

@@ -22,4 +22,4 @@ PyObject *wrapping_dap_chain_net_srv_client_check(PyObject *self, PyObject *args
 PyObject *wrapping_dap_chain_net_srv_client_request(PyObject *self, PyObject *args);
 PyObject *wrapping_dap_chain_net_srv_client_write(PyObject *self, PyObject *args);
 
-extern PyTypeObject DapChainNetSrvClientObject_DapChainNetSrvClientObjectType;
+extern PyTypeObject DapChainNetSrvClientObjectType;

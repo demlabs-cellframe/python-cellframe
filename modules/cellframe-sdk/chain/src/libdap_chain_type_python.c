@@ -9,7 +9,7 @@ PyMethodDef DapChainTypeMethods[] = {
         {NULL, NULL, 0, NULL}
 };
 
-PyTypeObject dapChainTypeObject_dapChainTypeType = {
+PyTypeObject DapChainTypeObjectType = {
         PyVarObject_HEAD_INIT(NULL, 0)
         "CellFrame.ChainType",         /* tp_name */
         sizeof(PyChainTypeObject),  /* tp_basicsize */
@@ -53,27 +53,27 @@ PyTypeObject dapChainTypeObject_dapChainTypeType = {
 };
 
 PyObject* CHAIN_TYPE_FIRST_PY(){
-    PyObject *dap_chain_obj = _PyObject_New(&dapChainTypeObject_dapChainTypeType);
+    PyObject *dap_chain_obj = _PyObject_New(&DapChainTypeObjectType);
     ((PyChainTypeObject*)dap_chain_obj)->chain_type = CHAIN_TYPE_FIRST;
     return Py_BuildValue("O", &dap_chain_obj);
 }
 PyObject* CHAIN_TYPE_TOKEN_PY(){
-    PyObject *dap_chain_obj = _PyObject_New(&dapChainTypeObject_dapChainTypeType);
+    PyObject *dap_chain_obj = _PyObject_New(&DapChainTypeObjectType);
     ((PyChainTypeObject*)dap_chain_obj)->chain_type = CHAIN_TYPE_TOKEN;
     return Py_BuildValue("O", &dap_chain_obj);
 }
 PyObject* CHAIN_TYPE_EMISSION_PY(){
-    PyObject *dap_chain_obj = _PyObject_New(&dapChainTypeObject_dapChainTypeType);
+    PyObject *dap_chain_obj = _PyObject_New(&DapChainTypeObjectType);
     ((PyChainTypeObject*)dap_chain_obj)->chain_type = CHAIN_TYPE_EMISSION;
     return Py_BuildValue("O", &dap_chain_obj);
 }
 PyObject* CHAIN_TYPE_TX_PY(){
-    PyObject *dap_chain_obj = _PyObject_New(&dapChainTypeObject_dapChainTypeType);
+    PyObject *dap_chain_obj = _PyObject_New(&DapChainTypeObjectType);
     ((PyChainTypeObject*)dap_chain_obj)->chain_type = CHAIN_TYPE_TX;
     return Py_BuildValue("O", &dap_chain_obj);
 }
 PyObject* CHAIN_TYPE_LAST_PY(){
-    PyObject *dap_chain_obj = _PyObject_New(&dapChainTypeObject_dapChainTypeType);
+    PyObject *dap_chain_obj = _PyObject_New(&DapChainTypeObjectType);
     ((PyChainTypeObject*)dap_chain_obj)->chain_type = CHAIN_TYPE_LAST;
     return Py_BuildValue("O", &dap_chain_obj);
 }

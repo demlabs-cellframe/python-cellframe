@@ -12,7 +12,7 @@ PyGetSetDef DapChaiNetSrvGetsSets[] = {
         {NULL}
 };
 
-PyTypeObject DapChainNetSrvObject_DapChainNetSrvObjectType = {
+PyTypeObject DapChainNetSrvObjectType = {
         PyVarObject_HEAD_INIT(NULL, 0)
         "CellFrame.ChainNetSrv",        /* tp_name */
         sizeof(PyDapChainNetSrvObject), /* tp_basicsize */
@@ -281,7 +281,7 @@ void PyDapChainNetSrv_dealloc(PyDapChainNetSrvObject* self){
 
 PyObject *wrapping_dap_chain_net_srv_get_uid(PyObject *self, void *closure){
     (void)closure;
-    PyDapChainNetSrvUIDObject *l_obj_srv_uid = PyObject_New(PyDapChainNetSrvUIDObject, &DapChainNetSrvUIDObject_DapChainNetSrvUIDObjectType);
+    PyDapChainNetSrvUIDObject *l_obj_srv_uid = PyObject_New(PyDapChainNetSrvUIDObject, &DapChainNetSrvUidObjectType);
     l_obj_srv_uid->net_srv_uid = ((PyDapChainNetSrvObject *)self)->srv->uid;
     return (PyObject*)l_obj_srv_uid;
 }

@@ -8,7 +8,7 @@ PyGetSetDef DapChainTxOutCondSubtypeSrvXchangeGetsSetsDef[]={
         {NULL}
 };
 
-PyTypeObject DapChainTxOutCondSubTypeSrvXchange_DapChainTxOutCondSubTypeSrvXchangeObject = {
+PyTypeObject DapChainTxOutCondSubTypeSrvXchangeObjectType = {
         PyVarObject_HEAD_INIT(NULL, 0)
         "CellFrame.ChainTxOutCondSubTypeSrvXchange",       /* tp_name */
         sizeof(PyDapChainTxOutCondObject),/* tp_basicsize */
@@ -40,7 +40,7 @@ PyTypeObject DapChainTxOutCondSubTypeSrvXchange_DapChainTxOutCondSubTypeSrvXchan
         0,       /* tp_methods */
         0,                               /* tp_members */
         DapChainTxOutCondSubtypeSrvXchangeGetsSetsDef,                               /* tp_getset */
-        &DapChainTxOutCond_DapChainTxOutCondType,                               /* tp_base */
+        &DapChainTxOutCondObjectType,                               /* tp_base */
         0,                               /* tp_dict */
         0,                               /* tp_descr_get */
         0,                               /* tp_descr_set */
@@ -52,14 +52,14 @@ PyTypeObject DapChainTxOutCondSubTypeSrvXchange_DapChainTxOutCondSubTypeSrvXchan
 
 PyObject *wrapping_dap_chain_tx_out_cond_subtype_srv_xchange_get_uid(PyObject *self, void *closure){
     (void)closure;
-    PyDapChainNetSrvUIDObject *obj_net_srv_uid = PyObject_New(PyDapChainNetSrvUIDObject, &DapChainNetSrvUIDObject_DapChainNetSrvUIDObjectType);
+    PyDapChainNetSrvUIDObject *obj_net_srv_uid = PyObject_New(PyDapChainNetSrvUIDObject, &DapChainNetSrvUidObjectType);
     PyObject_Dir((PyObject*)obj_net_srv_uid);
     obj_net_srv_uid->net_srv_uid = ((PyDapChainTxOutCondObject*)self)->out_cond->subtype.srv_stake.srv_uid;
     return (PyObject*)obj_net_srv_uid;
 }
 PyObject *wrapping_dap_chain_tx_out_cond_subtype_srv_xchange_get_net_id(PyObject *self, void *closure){
     (void)closure;
-    PyDapChainNetIdObject *obj_net_id = PyObject_New(PyDapChainNetIdObject, &DapChainNetIdObject_DapChainNetIdObjectType);
+    PyDapChainNetIdObject *obj_net_id = PyObject_New(PyDapChainNetIdObject, &DapChainNetIdObjectType);
     PyObject_Dir((PyObject*)obj_net_id);
     obj_net_id->net_id = ((PyDapChainTxOutCondObject*)self)->out_cond->subtype.srv_xchange.net_id;
     return (PyObject*)obj_net_id;

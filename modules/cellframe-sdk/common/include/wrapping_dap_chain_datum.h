@@ -41,7 +41,7 @@ typedef struct PyDapChainDatumTypeId{
     dap_chain_datum_typeid_t *type_id;
 }PyDapChainDatumTypeIdObject;
 
-extern PyTypeObject DapChainDatumTypeIdObject_DapChainDatumTypeIdObjectType;
+extern PyTypeObject DapChainDatumTypeIdObjectType;
 
 /* -------------------------------- */
 
@@ -63,7 +63,7 @@ PyObject *wrapping_dap_chain_datum_get_datum_token_emission(PyObject *self, PyOb
 PyObject *dap_chain_datum_get_type_str_py(PyObject *self, PyObject *args);
 PyObject *wrapping_dap_chain_datum_get_version_str_py(PyObject *self, void* closure);
 
-extern PyTypeObject DapChainDatumObject_DapChainDatumObjectType;
+extern PyTypeObject DapChainDatumObjectType;
 /* -------------------------------- */
 
 /* DAP Chain datum iter*/
@@ -72,7 +72,7 @@ typedef struct PyDapChainDatumIter{
     dap_chain_datum_iter_t *datum_iter;
 }PyDapChainDatumIterObject;
 
-extern PyTypeObject DapChainDatumIterObject_DapChainDatumIterObjectType;
+extern PyTypeObject DapChainDatumIterObjectType;
 /* -------------------------------- */
 
 #ifdef __cplusplus

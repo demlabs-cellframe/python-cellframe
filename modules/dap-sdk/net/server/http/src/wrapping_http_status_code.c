@@ -9,7 +9,7 @@ PyMethodDef PyDapHttpCodeMethods[] = {
         {NULL, NULL, 0, NULL}
 };
 
-PyTypeObject HTTPCode_HTTPCodeType = {
+PyTypeObject DapHttpCodeObjectType = {
         PyVarObject_HEAD_INIT(NULL, 0)
         "CellFrame.HTTPCode",             /* tp_name */
         sizeof(PyHttpStatusCodeObject),                   /* tp_basicsize */

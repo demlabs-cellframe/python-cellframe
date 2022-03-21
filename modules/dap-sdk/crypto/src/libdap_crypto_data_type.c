@@ -18,7 +18,7 @@ PyMethodDef PyCryptoDataTypeObjectMethods[] = {
         {NULL, NULL, 0, NULL}
 };
 
-PyTypeObject CryptoDataTypeObject_CryptoDataTypeObjectType = {
+PyTypeObject DapCryptoDataTypeObjectType = {
         PyVarObject_HEAD_INIT(NULL, 0)
         "CellFrame.CryptoDataType",      /* tp_name */
         sizeof(PyCryptoDataTypeObjecy),  /* tp_basicsize */

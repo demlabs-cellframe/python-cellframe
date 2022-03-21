@@ -12,7 +12,7 @@ PyMethodDef PyDapChainTxOutExtObjectMethods[] ={
 };
 
 
-PyTypeObject DapChainTxOutExtObject_DapChainTxOutExtTypeObjectType = {
+PyTypeObject DapChainTxOutExtObjectType = {
         PyVarObject_HEAD_INIT(NULL, 0)
         "CellFrame.ChainTxOutExt",        /* tp_name */
         sizeof(PyDapChainTXOutExtObject), /* tp_basicsize */
@@ -56,8 +56,8 @@ PyTypeObject DapChainTxOutExtObject_DapChainTxOutExtTypeObjectType = {
 
 PyObject *wrapping_dap_chain_tx_out_ext_get_addr(PyObject *self, void *closure){
     (void)closure;
-    PyObject *obj_addr = _PyObject_New(&DapChainAddrObject_DapChainAddrObjectType);
-    obj_addr = PyObject_Init(obj_addr, &DapChainAddrObject_DapChainAddrObjectType);
+    PyObject *obj_addr = _PyObject_New(&DapChainAddrObjectType);
+    obj_addr = PyObject_Init(obj_addr, &DapChainAddrObjectType);
     ((PyDapChainAddrObject*)obj_addr)->addr = &((PyDapChainTXOutExtObject*)self)->out_ext->addr;
     return obj_addr;
 }

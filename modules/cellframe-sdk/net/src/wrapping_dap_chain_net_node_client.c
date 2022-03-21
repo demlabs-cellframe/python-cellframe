@@ -17,7 +17,7 @@ PyMethodDef DapChainNodeClientMethods[] = {
         {NULL, NULL, 0, NULL}
 };
 
-PyTypeObject DapChainNodeClientObject_DapChainNodeClientObjectType = {
+PyTypeObject DapChainNodeClientObjectType = {
         PyVarObject_HEAD_INIT(NULL, 0)
         "CellFrame.ChainNodeClient",            /* tp_name */
         sizeof(PyDapChainNodeClientObject),     /* tp_basicsize */
@@ -65,7 +65,7 @@ PyObject *dap_chain_client_connect_py(PyObject *self, PyObject *args){
     const char *active_channels;
     if (!PyArg_ParseTuple(args, "O|O|s",&obj_net, &obj_node_info, &active_channels))
         return NULL;
-    PyObject *obj_node_client = _PyObject_New(&DapChainNodeClientObject_DapChainNodeClientObjectType);
+    PyObject *obj_node_client = _PyObject_New(&DapChainNodeClientObjectType);
     ((PyDapChainNodeClientObject*)obj_node_client)->node_client =dap_chain_node_client_connect_channels(
                 ((PyDapChainNetObject*) obj_net)->chain_net,
                 ((PyDapChainNodeInfoObject*)obj_node_info)->node_info, active_channels);
@@ -81,7 +81,7 @@ PyObject *dap_chain_node_client_connect_py(PyObject *self, PyObject *args){
     PyObject *obj_node_info;
     if (!PyArg_ParseTuple(args, "O|O",&obj_net, &obj_node_info))
         return NULL;
-    PyObject *obj_node_client = _PyObject_New(&DapChainNodeClientObject_DapChainNodeClientObjectType);
+    PyObject *obj_node_client = _PyObject_New(&DapChainNodeClientObjectType);
     ((PyDapChainNodeClientObject*)obj_node_client)->node_client = dap_chain_node_client_connect(
                 ((PyDapChainNetObject*) obj_net)->chain_net,
                 ((PyDapChainNodeInfoObject*)obj_node_info)->node_info);

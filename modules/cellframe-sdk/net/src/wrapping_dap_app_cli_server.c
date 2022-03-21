@@ -9,7 +9,7 @@ PyMethodDef DapChainNodeCliMethods[] = {
         {NULL, NULL, 0, NULL}
 };
 
-PyTypeObject DapChainNodeCliObject_DapChainNodeCliObjectType = {
+PyTypeObject DapChainNodeCliObjectType = {
         PyVarObject_HEAD_INIT(NULL, 0)
         "CellFrame.AppCliServer",            /* tp_name */
         sizeof(PyDapAppCliServerObject),     /* tp_basicsize */
@@ -208,7 +208,7 @@ PyObject *dap_chain_node_addr_get_by_alias_py(PyObject *self, PyObject *args){
     const char *alias;
     if (!PyArg_ParseTuple(args, "O|s", &chain_net, &alias))
         return NULL;
-    PyObject *obj_node_addr = _PyObject_New(&DapChainNodeAddrObject_DapChainNodeAddrObjectType);
+    PyObject *obj_node_addr = _PyObject_New(&DapChainNodeAddrObjectType);
     ((PyDapChainNodeAddrObject*)obj_node_addr)->node_addr = dap_chain_node_addr_get_by_alias(((PyDapChainNetObject*)chain_net)->chain_net, alias);
     return Py_BuildValue("O", obj_node_addr);
 }

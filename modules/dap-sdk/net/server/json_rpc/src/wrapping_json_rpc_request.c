@@ -7,7 +7,7 @@ PyMethodDef PyDapJSONRPCRequestMethods[] = {
         {NULL, NULL, 0, NULL}
 };
 
-PyTypeObject DapJSONRPCRequest_DapJSONRPCRequestType = {
+PyTypeObject DapJsonRpcRequestObjectType = {
         PyVarObject_HEAD_INIT(NULL, 0)
         "CellFrame.JSONRPCRequest",             /* tp_name */
         sizeof(PyDAPJsonRPCRequestObject),                   /* tp_basicsize */
@@ -53,8 +53,8 @@ struct _w_json_rpc_handler *handlers = NULL;
 
 void _w_dap_json_rpc_request_handler(dap_json_rpc_params_t *a_params, dap_json_rpc_response_t *a_response, const char *a_method){
     int count_params = a_params->lenght;
-    PyDapJSONRPCResponseObject *obj_response = PyObject_NEW(PyDapJSONRPCResponseObject, &DapJSONRPCResponse_DapJSONRPCResponseType);
-    obj_response = (PyDapJSONRPCResponseObject *)PyObject_Init((PyObject*)obj_response, &DapJSONRPCResponse_DapJSONRPCResponseType);
+    PyDapJSONRPCResponseObject *obj_response = PyObject_NEW(PyDapJSONRPCResponseObject, &DapJsonRpcResponseobjectType);
+    obj_response = (PyDapJSONRPCResponseObject *)PyObject_Init((PyObject*)obj_response, &DapJsonRpcResponseobjectType);
     obj_response->response = a_response;
     PyObject *obj_params = PyList_New(count_params);
     for (int i=0; i < count_params; i++) {

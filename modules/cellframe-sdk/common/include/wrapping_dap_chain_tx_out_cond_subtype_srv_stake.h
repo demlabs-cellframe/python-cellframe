@@ -37,7 +37,7 @@ PyObject *wrapping_dap_chain_tx_out_cond_subtype_srv_stake_get_uid(PyObject *sel
 PyObject *wrapping_dap_chain_tx_out_cond_subtype_srv_stake_get_addr(PyObject *self, void *closure);
 PyObject *wrapping_dap_chain_tx_out_cond_subtype_srv_stake_get_value(PyObject *self, void *closure);
 
-extern PyTypeObject DapChainTxOutCondSubTypeSrvStake_DapChainTxOutCondSubTypeSrvStakeObject;
+extern PyTypeObject DapChainTxOutCondSubTypeSrvStakeObjectType;
 
 #ifdef __cplusplus
 };

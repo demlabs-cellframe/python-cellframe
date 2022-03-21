@@ -23,10 +23,10 @@ PyObject *dap_chain_cell_load_py(PyObject *self, PyObject *args);
 PyObject *dap_chain_cell_file_update_py(PyObject *self, PyObject *args);
 PyObject *dap_chain_cell_file_append_py(PyObject *self, PyObject *args);
 
-extern PyTypeObject DapChainCell_DapChainCellObjectType;
+extern PyTypeObject DapChainCellObjectType;
 
 static bool PyDapChainCell_Check(PyObject *self){
-    return PyObject_TypeCheck(self, &DapChainCell_DapChainCellObjectType);
+    return PyObject_TypeCheck(self, &DapChainCellObjectType);
 }
 
 /* ------------------------------------------- */

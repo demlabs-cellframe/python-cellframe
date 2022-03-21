@@ -13,7 +13,7 @@ PyGetSetDef PyDapJSONRPCResponseGetsSets[] = {
         {NULL, NULL, NULL, NULL, NULL}
 };
 
-PyTypeObject DapJSONRPCResponse_DapJSONRPCResponseType = {
+PyTypeObject DapJsonRpcResponseobjectType = {
         PyVarObject_HEAD_INIT(NULL, 0)
         "CellFrame.JSONRPCResponse",             /* tp_name */
         sizeof(PyDapJSONRPCResponseObject),                   /* tp_basicsize */

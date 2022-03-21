@@ -8,7 +8,7 @@ PyGetSetDef PyDapChainTxOutCondGetsSetsDef[] = {
         {NULL}
 };
 
-PyTypeObject DapChainTxOutCond_DapChainTxOutCondType = {
+PyTypeObject DapChainTxOutCondObjectType = {
         PyVarObject_HEAD_INIT(NULL, 0)
         "CellFrame.ChainTxOutCond",       /* tp_name */
         sizeof(PyDapChainTxOutCondObject),      /* tp_basicsize */

@@ -37,7 +37,7 @@ PyObject *dap_chain_mempool_tx_create_py(PyObject *self, PyObject *args){
     if (l_hash_tx == NULL){
         return Py_None;
     } else {
-        PyDapHashFastObject *obj_hf = PyObject_New(PyDapHashFastObject, &DapHashFastObject_DapHashFastObjectType);
+        PyDapHashFastObject *obj_hf = PyObject_New(PyDapHashFastObject, &DapChainHashFastObjectType);
         PyObject_Dir((PyObject*)obj_hf);
         obj_hf->hash_fast = l_hash_tx;
         return (PyObject*)obj_hf;

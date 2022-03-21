@@ -12,7 +12,7 @@ typedef struct PyChainAtomPtr{
     dap_chain_atom_ptr_t ptr;
 }PyChainAtomPtrObject;
 
-extern PyTypeObject DapChainAtomPtr_DapChainAtomPtrType;
+extern PyTypeObject DapChainAtomPtrObjectType;
 
 bool PyDapChainAtomIter_Check(PyObject *obj);
 

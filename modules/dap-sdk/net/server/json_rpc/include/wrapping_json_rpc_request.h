@@ -27,7 +27,7 @@ struct _w_json_rpc_handler{
 PyObject* dap_json_roc_request_send_py(PyObject *self, PyObject *args);
 PyObject* dap_json_rpc_request_reg_handler_py(PyObject *self, PyObject *args);
 
-extern PyTypeObject DapJSONRPCRequest_DapJSONRPCRequestType;
+extern PyTypeObject DapJsonRpcRequestObjectType;
 
 #ifdef __cplusplus
 }

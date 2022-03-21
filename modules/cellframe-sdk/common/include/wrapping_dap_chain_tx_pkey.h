@@ -44,7 +44,7 @@ PyObject *wrapping_dap_chain_tx_pkey_seq_no(PyObject *self, void *closure);
 PyObject *wrapping_dap_chain_tx_pkey_get_pkey(PyObject *self, void *closure);
 
 
-extern PyTypeObject DapChainTxPkeyObject_DapChainTxPkeyTypeObjectType;
+extern PyTypeObject DapChainTxPkeyObjectType;
 
 #ifdef __cplusplus
 extern "C"{

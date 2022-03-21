@@ -11,4 +11,4 @@ typedef struct PyDapChainNetSrvDatum{
 PyObject *wrapping_dap_chain_net_srv_datum_create(PyObject *self, PyObject *args);
 PyObject *wrapping_dap_chain_net_srv_datum_read(PyObject *self, PyObject *args);
 
-extern PyTypeObject DapChainNetSrvDatumObject_DapChainNetSrvDatumObjectType;
+extern PyTypeObject DapChainDatumCustomObjectType;

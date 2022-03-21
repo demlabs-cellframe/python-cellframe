@@ -55,7 +55,7 @@ void dap_cert_delete_py(PyObject *self);
 PyObject* dap_cert_folder_add_py(PyObject *self, PyObject *args);
 PyObject* dap_cert_folder_get_py(PyObject *self, PyObject *args);
 
-extern PyTypeObject g_crypto_cert_type_py;
+extern PyTypeObject DapCryptoCertObjectType;
 
 #ifdef __cplusplus
 }

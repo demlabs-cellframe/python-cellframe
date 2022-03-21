@@ -32,7 +32,7 @@ PyGetSetDef DapChainNetGetsSetsDef[] = {
         {NULL}
 };
 
-PyTypeObject DapChainNetObject_DapChainNetObjectType = {
+PyTypeObject DapChainNetObjectType = {
         PyVarObject_HEAD_INIT(NULL, 0)
         "CellFrame.ChainNet",            /* tp_name */
         sizeof(PyDapChainNetObject),     /* tp_basicsize */
@@ -135,8 +135,8 @@ PyObject *dap_chain_net_by_name_py(PyObject *self, PyObject *args){
                         "Invalid argument specified. The first argument for this function must be a string. ");
         return NULL;
     }
-    PyObject *obj_chain_net = _PyObject_New(&DapChainNetObject_DapChainNetObjectType);
-    obj_chain_net = PyObject_Init(obj_chain_net, &DapChainNetObject_DapChainNetObjectType);
+    PyObject *obj_chain_net = _PyObject_New(&DapChainNetObjectType);
+    obj_chain_net = PyObject_Init(obj_chain_net, &DapChainNetObjectType);
     PyObject_Dir(obj_chain_net);
     ((PyDapChainNetObject*)obj_chain_net)->chain_net = dap_chain_net_by_name(a_name);
     if (((PyDapChainNetObject*)obj_chain_net)->chain_net == NULL){
@@ -149,8 +149,8 @@ PyObject *dap_chain_net_by_id_py(PyObject *self, PyObject *args){
     PyObject *obj_net_id;
     if (!PyArg_ParseTuple(args, "O", &obj_net_id))
         return NULL;
-    PyObject *obj_net = _PyObject_New(&DapChainNetObject_DapChainNetObjectType);
-    obj_net = PyObject_Init(obj_net, &DapChainNetObject_DapChainNetObjectType);
+    PyObject *obj_net = _PyObject_New(&DapChainNetObjectType);
+    obj_net = PyObject_Init(obj_net, &DapChainNetObjectType);
     ((PyDapChainNetObject*)obj_net)->chain_net = dap_chain_net_by_id(((PyDapChainNetIdObject*)obj_net_id)->net_id);
     PyObject_Dir(obj_net);
     return Py_BuildValue("O", obj_net);
@@ -159,7 +159,7 @@ PyObject *dap_chain_net_id_by_name_py(PyObject *self, PyObject *args){
     const char *name;
     if (!PyArg_ParseTuple(args, "s", &name))
         return NULL;
-    PyObject *obj_net_id = _PyObject_New(&DapChainNetIdObject_DapChainNetIdObjectType);
+    PyObject *obj_net_id = _PyObject_New(&DapChainNetIdObjectType);
     ((PyDapChainNetIdObject*)obj_net_id)->net_id = dap_chain_net_id_by_name(name);
     return Py_BuildValue("O", obj_net_id);
 }
@@ -167,7 +167,7 @@ PyObject *dap_chain_ledger_by_net_name_py(PyObject *self, PyObject *args){
     const char *net_name;
     if (!PyArg_ParseTuple(args, "s", &net_name))
         return NULL;
-    PyObject *obj_ledger = _PyObject_New(&DapChainLedger_DapChainLedgerType);
+    PyObject *obj_ledger = _PyObject_New(&DapChainLedgerObjectType);
     ((PyDapChainLedgerObject*)obj_ledger)->ledger = dap_chain_ledger_by_net_name(net_name);
     return Py_BuildValue("O", obj_ledger);
 }
@@ -178,8 +178,8 @@ PyObject *dap_chain_net_get_chain_by_name_py(PyObject *self, PyObject *args){
         PyErr_SetString(PyExc_AttributeError, "Function takes exactly one argument, which must be a string.");
         return NULL;
     }
-    PyObject *obj_chain = _PyObject_New(&dapChainObject_dapChainType);
-    obj_chain = PyObject_Init(obj_chain, &dapChainObject_dapChainType);
+    PyObject *obj_chain = _PyObject_New(&DapChainObjectType);
+    obj_chain = PyObject_Init(obj_chain, &DapChainObjectType);
     PyObject_Dir(obj_chain);
     ((PyDapChainObject*)obj_chain)->chain_t = dap_chain_net_get_chain_by_name(((PyDapChainNetObject*)self)->chain_net, chain_name);
     return Py_BuildValue("O", obj_chain);
@@ -187,19 +187,19 @@ PyObject *dap_chain_net_get_chain_by_name_py(PyObject *self, PyObject *args){
 
 PyObject *dap_chain_net_python_get_id(PyObject *self, void *closure){
     (void)closure;
-    PyDapChainNetIdObject *obj_net_id = PyObject_New(PyDapChainNetIdObject, &DapChainNetIdObject_DapChainNetIdObjectType);
+    PyDapChainNetIdObject *obj_net_id = PyObject_New(PyDapChainNetIdObject, &DapChainNetIdObjectType);
     PyObject_Dir((PyObject*)obj_net_id);
     obj_net_id->net_id = ((PyDapChainNetObject*)self)->chain_net->pub.id;
     return (PyObject*)obj_net_id;
 }
 
 PyObject *dap_chain_net_get_cur_addr_py(PyObject *self, PyObject *args){
-    PyObject *obj_node_addr = _PyObject_New(&DapChainNodeAddrObject_DapChainNodeAddrObjectType);
+    PyObject *obj_node_addr = _PyObject_New(&DapChainNodeAddrObjectType);
     ((PyDapChainNodeAddrObject*)obj_node_addr)->node_addr = dap_chain_net_get_cur_addr(((PyDapChainNetObject*)self)->chain_net);
     return Py_BuildValue("O", obj_node_addr);
 }
 PyObject *dap_chain_net_get_cur_cell_py(PyObject *self, PyObject *args){
-    PyObject *obj_cell_id = _PyObject_New(&DapChainNodeAddrObject_DapChainNodeAddrObjectType);
+    PyObject *obj_cell_id = _PyObject_New(&DapChainNodeAddrObjectType);
     ((PyDapChainCellIDObject*)obj_cell_id)->cell_id = *(dap_chain_net_get_cur_cell(((PyDapChainNetObject*)self)->chain_net));
     return Py_BuildValue("O", obj_cell_id);
 }
@@ -233,7 +233,7 @@ PyObject *dap_chain_net_get_chain_by_chain_type_py(PyObject *self, PyObject *arg
     PyObject *obj_chain_type;
     if(!PyArg_ParseTuple(args, "O", &obj_chain_type))
         return NULL;
-    PyObject *obj_chain = _PyObject_New(&dapChainObject_dapChainType);
+    PyObject *obj_chain = _PyObject_New(&DapChainObjectType);
     ((PyDapChainObject*)obj_chain)->chain_t = dap_chain_net_get_chain_by_chain_type(
                 ((PyDapChainNetObject*)self)->chain_net,
                 ((PyChainTypeObject*)obj_chain_type)->chain_type);
@@ -242,7 +242,7 @@ PyObject *dap_chain_net_get_chain_by_chain_type_py(PyObject *self, PyObject *arg
 
 PyObject *dap_chain_net_get_ledger_py(PyObject *self, PyObject *args){
     (void)args;
-    PyObject *obj_ledger = (PyObject *)PyObject_New(PyDapChainLedgerObject, &DapChainLedger_DapChainLedgerType);
+    PyObject *obj_ledger = (PyObject *)PyObject_New(PyDapChainLedgerObject, &DapChainLedgerObjectType);
     PyObject_Dir(obj_ledger);
     ((PyDapChainLedgerObject*)obj_ledger)->ledger = ((PyDapChainNetObject*)self)->chain_net->pub.ledger;
     return obj_ledger;

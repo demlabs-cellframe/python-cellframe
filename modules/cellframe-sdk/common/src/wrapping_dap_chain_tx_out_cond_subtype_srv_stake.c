@@ -7,7 +7,7 @@ PyGetSetDef DapChainTxOutCondSubtypeSrvStakeGetsSetsDef[]={
         {NULL}
 };
 
-PyTypeObject DapChainTxOutCondSubTypeSrvStake_DapChainTxOutCondSubTypeSrvStakeObject = {
+PyTypeObject DapChainTxOutCondSubTypeSrvStakeObjectType = {
         PyVarObject_HEAD_INIT(NULL, 0)
         "CellFrame.ChainTxOutCondSubTypeSrvStake",       /* tp_name */
         sizeof(PyDapChainTxOutCondObject),/* tp_basicsize */
@@ -39,7 +39,7 @@ PyTypeObject DapChainTxOutCondSubTypeSrvStake_DapChainTxOutCondSubTypeSrvStakeOb
         0,       /* tp_methods */
         0,                               /* tp_members */
         DapChainTxOutCondSubtypeSrvStakeGetsSetsDef,                               /* tp_getset */
-        &DapChainTxOutCond_DapChainTxOutCondType,                               /* tp_base */
+        &DapChainTxOutCondObjectType,                               /* tp_base */
         0,                               /* tp_dict */
         0,                               /* tp_descr_get */
         0,                               /* tp_descr_set */
@@ -51,14 +51,14 @@ PyTypeObject DapChainTxOutCondSubTypeSrvStake_DapChainTxOutCondSubTypeSrvStakeOb
 
 PyObject *wrapping_dap_chain_tx_out_cond_subtype_srv_stake_get_uid(PyObject *self, void *closure){
     (void)closure;
-    PyDapChainNetSrvUIDObject *obj_net_srv_uid = PyObject_New(PyDapChainNetSrvUIDObject, &DapChainNetSrvUIDObject_DapChainNetSrvUIDObjectType);
+    PyDapChainNetSrvUIDObject *obj_net_srv_uid = PyObject_New(PyDapChainNetSrvUIDObject, &DapChainNetSrvUidObjectType);
     PyObject_Dir((PyObject*)obj_net_srv_uid);
     obj_net_srv_uid->net_srv_uid = ((PyDapChainTxOutCondObject*)self)->out_cond->subtype.srv_stake.srv_uid;
     return (PyObject*)obj_net_srv_uid;
 }
 PyObject *wrapping_dap_chain_tx_out_cond_subtype_srv_stake_get_addr(PyObject *self, void *closure){
     (void)closure;
-    PyDapChainAddrObject *obj_addr = PyObject_New(PyDapChainAddrObject, &DapChainAddrObject_DapChainAddrObjectType);
+    PyDapChainAddrObject *obj_addr = PyObject_New(PyDapChainAddrObject, &DapChainAddrObjectType);
     PyObject_Dir((PyObject*)obj_addr);
     obj_addr->addr = &((PyDapChainTxOutCondObject*)self)->out_cond->subtype.srv_stake.fee_addr;
     return (PyObject*)obj_addr;

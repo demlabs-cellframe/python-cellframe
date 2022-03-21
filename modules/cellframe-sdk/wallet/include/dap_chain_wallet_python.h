@@ -42,7 +42,7 @@ PyObject *dap_chain_wallet_get_key_py(PyObject *self, PyObject *argv);
 
 //PyObject *dap_chain_wallet_save_file_py(PyObject *self, PyObject *argv);
 
-extern PyTypeObject DapChainWallet_dapChainWalletType;
+extern PyTypeObject DapChainWalletObjectType;
 
 
 #ifdef __cplusplus

@@ -9,4 +9,4 @@ typedef struct PyDapChainCsDagPoa{
 
 PyObject* wrapping_dap_chain_cs_dag_poa_presign_callback_set(PyObject *self, PyObject *args);
 
-extern PyTypeObject DapChainCsDagPoaObject_DapChainCsDagPoaObjectType;
+extern PyTypeObject DapChainCsDagPoaObjectType;

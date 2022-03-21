@@ -11,7 +11,7 @@ PyMethodDef  DapChainTxInCondMethodsDef[] = {
         {NULL, NULL, 0, NULL}
 };
 
-PyTypeObject DapChainTxInCondObject_DapChainTxInCondTypeObjectType = {
+PyTypeObject DapChainTxInCondObjectType = {
         PyVarObject_HEAD_INIT(NULL, 0)
         "CellFrame.ChainTxInCond",        /* tp_name */
         sizeof(PyDapChainTXInCondObject), /* tp_basicsize */
@@ -59,8 +59,8 @@ PyObject *wrapping_dap_chain_tx_in_cond_get_receipt_prev_idx(PyObject *self, voi
 }
 PyObject *wrapping_dap_chain_tx_in_cond_get_prev_hash(PyObject *self, void *closure){
     (void)closure;
-    PyObject *obj_hash = _PyObject_New(&DapHashFastObject_DapHashFastObjectType);
-    obj_hash = PyObject_Init(obj_hash, &DapHashFastObject_DapHashFastObjectType);
+    PyObject *obj_hash = _PyObject_New(&DapChainHashFastObjectType);
+    obj_hash = PyObject_Init(obj_hash, &DapChainHashFastObjectType);
     PyObject_Dir(obj_hash);
     ((PyDapHashFastObject*)obj_hash)->hash_fast = &((PyDapChainTXInCondObject*)self)->tx_in_cond->header.tx_prev_hash;
     return obj_hash;

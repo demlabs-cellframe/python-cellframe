@@ -47,7 +47,7 @@ PyObject *wrapping_dap_chain_tx_token_get_net_id(PyObject *self, void *closure);
 PyObject *wrapping_dap_chain_tx_token_get_tx_hash(PyObject *self, void *closure);
 PyObject *wrapping_dap_chain_tx_token_get_tx_out_idx(PyObject *self, void *closure);
 
-extern PyTypeObject DapChainTxTokenExt_DapChainTxTokenExtType;
+extern PyTypeObject DapChainTxTokenExtType;
 
 #ifdef __cplusplus
 }

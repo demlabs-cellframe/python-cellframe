@@ -43,7 +43,7 @@ PyObject *wrapping_dap_chain_tx_out_cond_get_value(PyObject *self, void *closure
 PyObject *wrapping_dap_chain_tx_out_cond_get_type_subtype(PyObject *self, void *closure);
 PyObject *wrapping_dap_chain_tx_out_cond_get_subtype(PyObject *self, void *closure);
 
-extern PyTypeObject DapChainTxOutCond_DapChainTxOutCondType;
+extern PyTypeObject DapChainTxOutCondObjectType;
 
 //============= DapChaTxOutCondSubtype
 typedef struct PyDapChainTxOutCondSubType{

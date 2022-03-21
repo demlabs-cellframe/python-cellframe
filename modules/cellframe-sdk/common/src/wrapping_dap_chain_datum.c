@@ -5,7 +5,7 @@
 
 /* Dap chain datum type id */
 
-PyTypeObject DapChainDatumTypeIdObject_DapChainDatumTypeIdObjectType = {
+PyTypeObject DapChainDatumTypeIdObjectType = {
         PyVarObject_HEAD_INIT(NULL, 0)
         "CellFrame.Chain.DatumTypeId",          /* tp_name */
         sizeof(PyDapChainDatumTypeIdObject),   /* tp_basicsize */
@@ -66,7 +66,7 @@ PyGetSetDef  DapChainDatumGetSet[] = {
         {NULL}
 };
 
-PyTypeObject DapChainDatumObject_DapChainDatumObjectType = {
+PyTypeObject DapChainDatumObjectType = {
         PyVarObject_HEAD_INIT(NULL, 0)
         "CellFrame.Chain.Datum",          /* tp_name */
         sizeof(PyDapChainDatumObject),   /* tp_basicsize */
@@ -156,7 +156,7 @@ PyObject *wrapping_dap_chain_datum_get_datum_token(PyObject *self, PyObject *arg
     (void)args;
     if (((PyDapChainDatumObject*)self)->datum->header.type_id == DAP_CHAIN_DATUM_TOKEN_DECL ){
         PyDapChainDatumTokenObject *obj_token = PyObject_New(PyDapChainDatumTokenObject,
-                                                             &DapChainDatumToken_DapChainDatumTokenObjectType);
+                                                             &DapChainDatumTokenObjectType);
         PyObject_Dir((PyObject*)obj_token);
         size_t l_size_token = ((PyDapChainDatumObject*)self)->datum->header.data_size;
         obj_token->token = dap_chain_datum_token_read(((PyDapChainDatumObject*)self)->datum->data,
@@ -182,7 +182,7 @@ PyObject *wrapping_dap_chain_datum_get_datum_token_emission(PyObject *self, PyOb
     if (((PyDapChainDatumObject*)self)->datum->header.type_id == DAP_CHAIN_DATUM_TOKEN_EMISSION ){
         PyDapChainDatumTokenEmissionObject *obj_emission = PyObject_New(
                 PyDapChainDatumTokenEmissionObject,
-                &DapChainDatumTokenEmission_DapChainDatumTokenEmissionObjectType
+                &DapChainDatumTokenEmissionObjectType
                 );
         PyObject_Dir((PyObject*)obj_emission);
         size_t l_token_emission_size = ((PyDapChainDatumObject*)self)->datum->header.data_size;
@@ -199,8 +199,8 @@ PyObject *wrapping_dap_chain_datum_get_datum_token_emission(PyObject *self, PyOb
 PyObject *wrapping_dap_chain_datum_get_datum_tx(PyObject *self, PyObject *args){
     (void)args;
     if(((PyDapChainDatumObject *)self)->datum->header.type_id == DAP_CHAIN_DATUM_TX){
-        PyObject *obj_datum_tx = _PyObject_New(&DapChainDatumTx_DapChainDatumTxObjectType);
-        obj_datum_tx = PyObject_Init(obj_datum_tx, &DapChainDatumTx_DapChainDatumTxObjectType);
+        PyObject *obj_datum_tx = _PyObject_New(&DapChainDatumTxObjectType);
+        obj_datum_tx = PyObject_Init(obj_datum_tx, &DapChainDatumTxObjectType);
         PyObject_Dir(obj_datum_tx);
         ((PyDapChainDatumTxObject*)obj_datum_tx)->datum_tx = (dap_chain_datum_tx_t *)((PyDapChainDatumObject*)self)->datum->data;
         return obj_datum_tx;
@@ -225,7 +225,7 @@ PyObject *wrapping_dap_chain_datum_get_version_str_py(PyObject *self, void* clos
 }
 
 /* DAP chain datum iter */
-PyTypeObject DapChainDatumIterObject_DapChainDatumIterObjectType = {
+PyTypeObject DapChainDatumIterObjectType = {
         PyVarObject_HEAD_INIT(NULL, 0)
         "CellFrame.Chain.DatumIter",          /* tp_name */
         sizeof(PyDapChainDatumIterObject),   /* tp_basicsize */

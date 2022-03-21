@@ -11,7 +11,7 @@ PyMethodDef DapChainGDBMethod[] = {
         {NULL, NULL, 0, NULL}
 };
 
-PyTypeObject DapChainGDBObject_DapChainGDBType = {
+PyTypeObject DapChainGdbObjectType = {
         PyVarObject_HEAD_INIT(NULL, 0)
         "CellFrame.ChainGDB",                                            /* tp_name */
         sizeof(PyDapChainGDBObject),                                     /* tp_basicsize */

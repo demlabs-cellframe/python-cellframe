@@ -6,7 +6,7 @@ PyMethodDef DapChainNetNodeInfoMethods[] = {
         {NULL, NULL, 0, NULL}
 };
 
-PyTypeObject DapChainNodeInfoObject_DapChainNodeInfoObjectType = {
+PyTypeObject DapChainNodeInfoObjectType = {
         PyVarObject_HEAD_INIT(NULL, 0)
         "CellFrame.ChainNodeInfo",            /* tp_name */
         sizeof(PyDapChainNodeInfoObject),     /* tp_basicsize */
@@ -61,7 +61,7 @@ PyObject *dap_chain_node_info_read_py(PyObject *self, PyObject *args){
     PyObject *obj_node_addr;
     if (!PyArg_ParseTuple(args, "O|O", &obj_net, &obj_node_addr))
         return  NULL;
-    PyObject *obj_node_info = _PyObject_New(&DapChainNodeInfoObject_DapChainNodeInfoObjectType);
+    PyObject *obj_node_info = _PyObject_New(&DapChainNodeInfoObjectType);
     ((PyDapChainNodeInfoObject*)obj_node_info)->node_info = dap_chain_node_info_read(((PyDapChainNetObject*)obj_net)->chain_net, ((PyDapChainNodeAddrObject*)obj_node_addr)->node_addr);
     return Py_BuildValue("O", &obj_node_info);
 }

@@ -27,7 +27,7 @@ PyObject *dap_events_socket_delete_py(PyDapEventsSocketObject *self, PyObject *a
 
 PyObject *dap_events_socket_shrink_buf_in_py(PyDapEventsSocketObject *self, PyObject *args);
 
-extern PyTypeObject dapEventsSocket_dapEventsSocketType;
+extern PyTypeObject DapEventsSocketObjectType;
 
 #ifdef __cplusplus
 }

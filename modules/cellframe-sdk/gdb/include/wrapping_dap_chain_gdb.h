@@ -19,7 +19,7 @@ PyObject* dap_chain_gdb_new_py(PyObject* self, PyObject *args);
 PyObject *dap_chain_gdb_delete_py(PyObject *self, PyObject *args);
 PyObject *dap_chain_gdb_get_group_py(PyObject *self, PyObject *args);
 
-extern PyTypeObject DapChainGDBObject_DapChainGDBType;
+extern PyTypeObject DapChainGdbObjectType;
 
 #ifdef __cplusplus
 }

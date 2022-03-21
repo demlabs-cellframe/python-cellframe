@@ -193,7 +193,7 @@ PyObject *python_cellframe_init(PyObject *self, PyObject *args){
             dap_cert_init();
         } else if (strcmp(c_value, "Events") == 0){
             dap_events_init(0,0);
-            events = _PyObject_New(&dapEvents_dapEventsType);
+            events = _PyObject_New(&DapEventsObjectType);
             ((PyDapEventsObject*)events)->t_events = dap_events_new();
             dap_events_start(((PyDapEventsObject*)events)->t_events);
         } else if (strcmp(c_value, "Server") == 0){
@@ -317,7 +317,7 @@ PyObject *python_cellframe_init(PyObject *self, PyObject *args){
                 return NULL;
             } */
         } else if (strcmp(c_value, "ChainNetSrv") == 0){
-            if (dap_chain_net_srv_init(g_config) != 0){
+            if (dap_chain_net_srv_init() != 0){
                 PyErr_SetString(CellFrame_error, "Failed to initialize \"ChainNetSrv\" module");
                 return NULL;
             }
@@ -376,96 +376,94 @@ PyObject *python_cellframe_init(PyObject *self, PyObject *args){
 }
 
 PyMODINIT_FUNC PyInit_libCellFrame(void){
-
+            /* === DAP === */
+            // === Core ===
     if (    PyType_Ready( &DapCoreObjectType ) < 0 ||
-            PyType_Ready( &g_crypto_type_py ) < 0 ||
-            PyType_Ready( &g_crypto_cert_type_py ) < 0 ||
-            PyType_Ready( &ServerCore_ServerCoreType ) < 0 ||
-            PyType_Ready( &dapEvents_dapEventsType ) < 0 ||
-            PyType_Ready( &dapEventsSocket_dapEventsSocketType ) < 0 ||
-            PyType_Ready( &CryptoKeyTypeObject_CryptoKeyTypeObjectType ) < 0 ||
-            PyType_Ready( &CryptoDataTypeObject_CryptoDataTypeObjectType ) < 0 ||
-            PyType_Ready(&DapSignObject_DapSignObjectType) < 0 ||
-            PyType_Ready(&DapSignTypeObject_DapSignTypeObjectType) < 0 ||
+            PyType_Ready( &DapLogitObjectType ) < 0 ||
+#ifdef DAP_SUPPORT_PYTHON_PLUGINS
+            PyType_Ready(&DapAppContextObjectType) < 0 ||
+#endif
+            // === Network ==
+            PyType_Ready( &DapServerCoreObjectType ) < 0 ||
+            PyType_Ready( &DapEventsObjectType ) < 0 ||
+            PyType_Ready( &DapEventsSocketObjectType ) < 0 ||
+            PyType_Ready( &DapHttpCodeObjectType) < 0 ||
+            PyType_Ready( &DapHttpObjectType) < 0 ||
+            PyType_Ready( &DapEncServerObjectType) < 0 ||
+            PyType_Ready( &DapStreamObjectType) < 0 ||
+            PyType_Ready( &DapStreamCtlObjectType) < 0 ||
+            // === Crypto ===
+            PyType_Ready( &DapCryptoObjectType ) < 0 ||
+            PyType_Ready( &DapCryptoCertObjectType ) < 0 ||
+            PyType_Ready( &DapCryptoKeyTypeObjectType ) < 0 ||
+            PyType_Ready( &DapCryptoDataTypeObjectType ) < 0 ||
+            PyType_Ready( &DapCryproSignTypeObjectType ) < 0 ||
+            PyType_Ready( &DapCryptoSignObjectType ) < 0 ||
+            /* === Cellframe === */
+            // ==== Common ===
+            PyType_Ready(&DapAppCliObjectType ) < 0 ||
+            PyType_Ready(&DapChainWalletObjectType) < 0 ||
+            PyType_Ready(&DapJsonRpcRequestObjectType) < 0 ||
+            PyType_Ready(&DapJsonRpcResponseobjectType) < 0 ||
             // === Chain ===
-            PyType_Ready( &dapChainObject_dapChainType ) < 0 ||
-            PyType_Ready( &dapChainTypeObject_dapChainTypeType ) < 0 ||
-            PyType_Ready( &DapChainAtomIter_DapChainAtomIterType ) < 0 ||
-            PyType_Ready(&DapChainAtomPtr_DapChainAtomPtrType) < 0 ||
-            PyType_Ready( &DapChainCell_DapChainCellObjectType ) < 0 ||
-//            PyType_Ready(&ChainCommonObject_ChainCommonType) < 0 ||
-
-            PyType_Ready( &DapChainCellIDObject_DapChainCellIDType) < 0 ||
-            PyType_Ready( &DapChainCellIDObject_DapChainCellIDType) < 0 ||
-            PyType_Ready( &DapChainNodeAddrObject_DapChainNodeAddrObjectType) < 0 ||
-            PyType_Ready( &DapChainHashSlowObject_DapChainHashSlowObjectType) < 0 ||
-            PyType_Ready( &DapHashFastObject_DapHashFastObjectType) < 0 ||
-            PyType_Ready( &DapChainHashSlowObject_DapChainHashSlowObjectType) < 0 ||
-            PyType_Ready( &DapChainAddrObject_DapChainAddrObjectType) < 0 ||
-
-            PyType_Ready( &DapChainCsObject_DapChainCsObjectType) < 0 ||
-            PyType_Ready( &DapChainDatumTypeIdObject_DapChainDatumTypeIdObjectType) < 0 ||
-            PyType_Ready( &DapChainDatumObject_DapChainDatumObjectType) < 0 ||
-            PyType_Ready(&DapChainDatumIterObject_DapChainDatumIterObjectType) < 0 ||
-            PyType_Ready(&DapChainDatumToken_DapChainDatumTokenObjectType) < 0 ||
-            PyType_Ready(&DapChainTxTokenExt_DapChainTxTokenExtType) < 0 ||
-            PyType_Ready(&DapChainDatumTokenEmission_DapChainDatumTokenEmissionObjectType) < 0 ||
-            PyType_Ready(&DapChainTxItemObject_DapChainTxItemTypeObjectType) < 0 ||
-            PyType_Ready(&DapChainTxCondType_DapChainTxCondTypeObject) < 0 ||
-            PyType_Ready(&DapChainDatumTx_DapChainDatumTxObjectType) < 0 ||
-            PyType_Ready(&DapChainTxOutCond_DapChainTxOutCondType) < 0 ||
-            PyType_Ready(&DapChainTxOutCondSubTypeSrvPay_DapChainTxOutCondSubTypeSrvPayObject) < 0 ||
-            PyType_Ready(&DapChainTxOutCondSubTypeSrvStake_DapChainTxOutCondSubTypeSrvStakeObject) < 0 ||
-            PyType_Ready(&DapChainTxOutCondSubTypeSrvXchange_DapChainTxOutCondSubTypeSrvXchangeObject) < 0 ||
-            PyType_Ready(&DapChainLedger_DapChainLedgerType) < 0 ||
-            PyType_Ready(&DapChainTxInObject_DapChainTxInTypeObjectType) < 0 ||
-            PyType_Ready(&DapChainTxInCondObject_DapChainTxInCondTypeObjectType) < 0 ||
-            PyType_Ready(&DapChainTxOutObject_DapChainTxOutTypeObjectType) < 0 ||
-            PyType_Ready(&DapChainTxPkeyObject_DapChainTxPkeyTypeObjectType) < 0 ||
-            PyType_Ready(&DapChainTxReceiptObject_DapChainTxReceiptTypeObjectType) < 0 ||
-            PyType_Ready(&DapChainTxOutExtObject_DapChainTxOutExtTypeObjectType) < 0 ||
-            // =============
+            PyType_Ready( &DapChainObjectType ) < 0 ||
+            PyType_Ready( &DapChainTypeObjectType ) < 0 ||
+            PyType_Ready( &DapChainAtomIterObjectType ) < 0 ||
+            PyType_Ready( &DapChainAtomPtrObjectType ) < 0 ||
+            PyType_Ready( &DapChainCellObjectType ) < 0 ||
+            PyType_Ready( &DapChainGdbObjectType) < 0 ||
+            PyType_Ready( &DapChainMempoolObjectType) < 0 ||
+            PyType_Ready( &DapChainCellIdObjectType) < 0 ||
+            PyType_Ready( &DapChainNodeAddrObjectType) < 0 ||
+            PyType_Ready( &DapChainHashSlowObjectType) < 0 ||
+            PyType_Ready( &DapChainHashFastObjectType) < 0 ||
+            PyType_Ready( &DapChainAddrObjectType) < 0 ||
+            PyType_Ready( &DapChainCsObjectType) < 0 ||
+            PyType_Ready( &DapChainLedgerObjectType) < 0 ||
+            // === Chain datum
+            /// Common
+            PyType_Ready( &DapChainDatumTypeIdObjectType) < 0 ||
+            PyType_Ready( &DapChainDatumObjectType) < 0 ||
+            PyType_Ready( &DapChainDatumIterObjectType) < 0 ||
+            /// Token
+            PyType_Ready( &DapChainDatumTokenObjectType) < 0 ||
+            PyType_Ready( &DapChainDatumTokenEmissionObjectType) < 0 ||
+            /// Custom
+            PyType_Ready( &DapChainDatumCustomObjectType) < 0 ||
+            /// Transaction
+            PyType_Ready( &DapChainDatumTxObjectType) < 0 ||
+            PyType_Ready( &DapChainTxItemTypeObjectType) < 0 ||
+            PyType_Ready( &DapChainTxTokenExtType) < 0 ||
+            PyType_Ready( &DapChainTxCondTypeObjectType) < 0 ||
+            PyType_Ready( &DapChainTxOutCondObjectType) < 0 ||
+            PyType_Ready( &DapChainTxOutCondSubTypeSrvPayObjectType) < 0 ||
+            PyType_Ready( &DapChainTxOutCondSubTypeSrvStakeObjectType) < 0 ||
+            PyType_Ready( &DapChainTxOutCondSubTypeSrvXchangeObjectType) < 0 ||
+            PyType_Ready( &DapChainTxInObjectType) < 0 ||
+            PyType_Ready( &DapChainTxInCondObjectType) < 0 ||
+            PyType_Ready( &DapChainTxOutObjectType) < 0 ||
+            PyType_Ready( &DapChainTxPkeyObjectType) < 0 ||
+            PyType_Ready( &DapChainTxReceiptObjectType) < 0 ||
+            PyType_Ready( &DapChainTxOutExtObjectType) < 0 ||
             // === Chain net ===
-            PyType_Ready(&DapChainNetObject_DapChainNetObjectType) < 0 ||
-            PyType_Ready(&DapChainNodeCliObject_DapChainNodeCliObjectType) < 0 ||
-            PyType_Ready(&DapChainNodeClientObject_DapChainNodeClientObjectType) < 0 ||
-            PyType_Ready(&DapChainNodeInfoObject_DapChainNodeInfoObjectType) < 0 ||
-            PyType_Ready(&DapChainNetNodeObject_DapChainNetNodeObjectType) < 0 ||
-            PyType_Ready(&DapChainNetStateObject_DapChainNetStateObjectType) < 0 ||
-            // =============
-            // === Chain net srv ===
-            PyType_Ready(&DapChainNetSrvObject_DapChainNetSrvObjectType) < 0 ||
-            PyType_Ready(&DapChainNetSrvClientObject_DapChainNetSrvClientObjectType) < 0 ||
-            PyType_Ready(&DapChainNetSrvDatumObject_DapChainNetSrvDatumObjectType) < 0 ||
-            PyType_Ready(&DapChainNetSrvOrderDirectionObject_DapChainNetSrvOrderDirectionObjectType) < 0 ||
-            PyType_Ready(&DapChainNetSrvOrderObject_DapChainNetSrvOrderObjectType) < 0 ||
-            PyType_Ready(&DapChainNetSrvUIDObject_DapChainNetSrvUIDObjectType) < 0 ||
-            PyType_Ready(&DapChainNetSrvPriceObject_DapChainNetSrvPriceObjectType) < 0 ||
-            PyType_Ready(&DapChainNetSrvPriceUnitUIDObject_DapChainNetSrvPriceUnitUIDObjectType) < 0 ||
-            // =============
-            // === Chain cs dag poa
-            PyType_Ready(&DapChainCsDagPoaObject_DapChainCsDagPoaObjectType) < 0 ||
-            // =============
-
-            PyType_Ready(&DapChainGDBObject_DapChainGDBType) < 0 ||
-
-            PyType_Ready(&DapHTTP_DapHTTPType) < 0 ||
-            PyType_Ready(&DapEncServer_DapEncServerType) < 0 ||
-            PyType_Ready(&DapStream_DapStreamType) < 0 ||
-            PyType_Ready(&DapStreamCtl_DapStreamCtlType) < 0 ||
-            PyType_Ready(&DapMempool_DapMempoolType) < 0 ||
-            // ====
-            PyType_Ready(&DapAppCli_dapAppCliType ) < 0 ||
-            PyType_Ready(&DapChainWallet_dapChainWalletType) < 0 ||
-            PyType_Ready(&HTTPCode_HTTPCodeType) < 0 ||
-            PyType_Ready(&DapJSONRPCRequest_DapJSONRPCRequestType) < 0 ||
-            PyType_Ready(&DapJSONRPCResponse_DapJSONRPCResponseType) < 0 ||
-            #ifdef DAP_SUPPORT_PYTHON_PLUGINS
-                PyType_Ready(&DapHTTPSimple_DapHTTPSimpleType) < 0 ||
-                PyType_Ready(&dapAppContext_dapAppContextType) < 0
-            #else
-                PyType_Ready(&DapHTTPSimple_DapHTTPSimpleType) < 0
-            #endif
+            /// Node
+            PyType_Ready( &DapChainNodeObjectType) < 0 ||
+            PyType_Ready( &DapChainNodeCliObjectType) < 0 ||
+            PyType_Ready( &DapChainNodeClientObjectType) < 0 ||
+            PyType_Ready( &DapChainNodeInfoObjectType) < 0 ||
+            /// Net
+            PyType_Ready( &DapChainNetObjectType) < 0 ||
+            PyType_Ready( &DapChainNetStateObjectType) < 0 ||
+            /// Srv
+            PyType_Ready( &DapChainNetSrvObjectType) < 0 ||
+            PyType_Ready( &DapChainNetSrvClientObjectType) < 0 ||
+            PyType_Ready( &DapChainNetSrvOrderDirectionObjectType) < 0 ||
+            PyType_Ready( &DapChainNetSrvOrderObjectType) < 0 ||
+            PyType_Ready( &DapChainNetSrvUidObjectType) < 0 ||
+            PyType_Ready( &DapChainNetSrvPriceObjectType) < 0 ||
+            PyType_Ready( &DapChainNetSrvPriceUnitUidObjectType) < 0 ||
+            // === Chain consensuses
+            PyType_Ready( &DapChainCsDagPoaObjectType) < 0
             ){
         log_it(L_CRITICAL,"Not all python type objects are initialized");
         return NULL;
@@ -479,107 +477,99 @@ PyMODINIT_FUNC PyInit_libCellFrame(void){
 
     PyModule_AddObject(module, "error", CellFrame_error);
 
-    PyModule_AddObject(module, "DEBUG", PyLong_FromLong(L_DEBUG));
-    PyModule_AddObject(module, "INFO", PyLong_FromLong(L_INFO));
-    PyModule_AddObject(module, "NOTICE", PyLong_FromLong(L_NOTICE));
-    PyModule_AddObject(module, "MESSAGE", PyLong_FromLong(L_MSG));
-    PyModule_AddObject(module, "DAP", PyLong_FromLong(L_DAP));
-    PyModule_AddObject(module, "WARNING", PyLong_FromLong(L_WARNING));
-    PyModule_AddObject(module, "ATT", PyLong_FromLong(L_ATT));
-    PyModule_AddObject(module, "ERROR", PyLong_FromLong(L_ERROR));
-    PyModule_AddObject(module, "CRITICAL", PyLong_FromLong(L_CRITICAL));
+    PyModule_AddObject(module, "logIt", (PyObject *)&DapLogitObjectType);
 
-    PyModule_AddObject(module, "Crypto", (PyObject*)&g_crypto_type_py);
-    PyModule_AddObject(module, "Cert", (PyObject*)&g_crypto_cert_type_py);
-    PyModule_AddObject(module, "SignType", (PyObject*)&DapSignTypeObject_DapSignTypeObjectType);
-    PyModule_AddObject(module, "Sign", (PyObject*)&DapSignObject_DapSignObjectType);
+    PyModule_AddObject(module, "Crypto", (PyObject*)&DapCryptoObjectType);
+    PyModule_AddObject(module, "Cert", (PyObject*)&DapCryptoCertObjectType);
+    PyModule_AddObject(module, "SignType", (PyObject*)&DapCryproSignTypeObjectType);
+    PyModule_AddObject(module, "Sign", (PyObject*)&DapCryptoSignObjectType);
 
-    PyModule_AddObject(module, "ServerCore", (PyObject*)&ServerCore_ServerCoreType);
-    PyModule_AddObject(module, "Events", (PyObject*)&dapEvents_dapEventsType);
-    PyModule_AddObject(module, "EventsSocket", (PyObject*)&dapEventsSocket_dapEventsSocketType);
+    PyModule_AddObject(module, "ServerCore", (PyObject*)&DapServerCoreObjectType);
+    PyModule_AddObject(module, "Events", (PyObject*)&DapEventsObjectType);
+    PyModule_AddObject(module, "EventsSocket", (PyObject*)&DapEventsSocketObjectType);
 
-    PyModule_AddObject(module, "CryptoKeyType", (PyObject*)&CryptoKeyTypeObject_CryptoKeyTypeObjectType);
-    PyModule_AddObject(module, "CryptoDataType", (PyObject*)&CryptoDataTypeObject_CryptoDataTypeObjectType);
+    PyModule_AddObject(module, "CryptoKeyType", (PyObject*)&DapCryptoKeyTypeObjectType);
+    PyModule_AddObject(module, "CryptoDataType", (PyObject*)&DapCryptoDataTypeObjectType);
 
     // === Chain ===
-    PyModule_AddObject(module, "Chain", (PyObject*)&dapChainObject_dapChainType);
-    PyModule_AddObject(module, "ChainType", (PyObject*)&dapChainTypeObject_dapChainTypeType);
-    PyModule_AddObject(module, "ChainAtomIter", (PyObject*)&DapChainAtomIter_DapChainAtomIterType);
-    PyModule_AddObject(module, "ChainAtomPtr", (PyObject*)&DapChainAtomPtr_DapChainAtomPtrType);
-    PyModule_AddObject(module, "ChainCell", (PyObject*)&DapChainCell_DapChainCellObjectType);
+    PyModule_AddObject(module, "Chain", (PyObject*)&DapChainObjectType);
+    PyModule_AddObject(module, "ChainType", (PyObject*)&DapChainTypeObjectType);
+    PyModule_AddObject(module, "ChainAtomIter", (PyObject*)&DapChainAtomIterObjectType);
+    PyModule_AddObject(module, "ChainAtomPtr", (PyObject*)&DapChainAtomPtrObjectType);
+    PyModule_AddObject(module, "ChainCell", (PyObject*)&DapChainCellObjectType);
 //    PyModule_AddObject(module, "ChainCommon", (PyObject*)&ChainCommonObject_ChainCommonType);
 
-//    PyModule_AddObject(module, "ChainID", (PyObject*)&DapChainIDObject_DapChainIDType);
-    PyModule_AddObject(module, "ChainCellID", (PyObject*)&DapChainCellIDObject_DapChainCellIDType);
-    PyModule_AddObject(module, "ChainNodeAddr", (PyObject*)&DapChainNodeAddrObject_DapChainNodeAddrObjectType);
-////    PyModule_AddObject(module, "ChainNetID", (PyObject*)&DapChainNetIdObject_DapChainNetIdObjectType);
-    PyModule_AddObject(module, "ChainHashSlow", (PyObject*)&DapChainHashSlowObject_DapChainHashSlowObjectType);
-    PyModule_AddObject(module, "ChainHashFast", (PyObject*)&DapHashFastObject_DapHashFastObjectType);
+    PyModule_AddObject(module, "ChainID", (PyObject*)&DapChainIdObjectType);
+    PyModule_AddObject(module, "ChainCellID", (PyObject*)&DapChainCellIdObjectType);
+    PyModule_AddObject(module, "ChainNodeAddr", (PyObject*)&DapChainNodeAddrObjectType);
+    PyModule_AddObject(module, "ChainNetID", (PyObject*)&DapChainNetIdObjectType);
+    PyModule_AddObject(module, "ChainHashSlow", (PyObject*)&DapChainHashSlowObjectType);
+    PyModule_AddObject(module, "ChainHashFast", (PyObject*)&DapChainHashFastObjectType);
 //    PyModule_AddObject(module, "ChainHAshSlowKind", (PyObject*)&DapChainSlowKindObject_DapChainSlowKindType);
-    PyModule_AddObject(module, "ChainAddr", (PyObject*)&DapChainAddrObject_DapChainAddrObjectType);
+    PyModule_AddObject(module, "ChainAddr", (PyObject*)&DapChainAddrObjectType);
 //
-    PyModule_AddObject(module, "ChainCS", (PyObject*)&DapChainCsObject_DapChainCsObjectType);
-    PyModule_AddObject(module, "ChainDatumTypeID", (PyObject*)&DapChainDatumTypeIdObject_DapChainDatumTypeIdObjectType);
-    PyModule_AddObject(module, "ChainDatum", (PyObject*)&DapChainDatumObject_DapChainDatumObjectType);
-    PyModule_AddObject(module, "ChainDatumIter", (PyObject*)&DapChainDatumIterObject_DapChainDatumIterObjectType);
-    PyModule_AddObject(module, "ChainDatumToken", (PyObject*)&DapChainDatumToken_DapChainDatumTokenObjectType);
-    PyModule_AddObject(module, "ChainDatumTokenExt", (PyObject*)&DapChainTxTokenExt_DapChainTxTokenExtType);
-    PyModule_AddObject(module, "ChainDatumTokenEmisson", (PyObject*)&DapChainDatumTokenEmission_DapChainDatumTokenEmissionObjectType);
-    PyModule_AddObject(module, "ChainTxItemType", (PyObject*)&DapChainTxItemObject_DapChainTxItemTypeObjectType);
-    PyModule_AddObject(module, "ChainTxCondType", (PyObject*)&DapChainTxCondType_DapChainTxCondTypeObject);
-    PyModule_AddObject(module, "ChainDatumTx", (PyObject*)&DapChainDatumTx_DapChainDatumTxObjectType);
-    PyModule_AddObject(module, "ChainTxOutCond", (PyObject*)&DapChainTxOutCond_DapChainTxOutCondType);
-    PyModule_AddObject(module, "ChainTxOutCondSubtypeSrvPay", (PyObject*)&DapChainTxOutCondSubTypeSrvPay_DapChainTxOutCondSubTypeSrvPayObject);
-    PyModule_AddObject(module, "ChainTxOutCondSubtypeSrvStake", (PyObject*)&DapChainTxOutCondSubTypeSrvStake_DapChainTxOutCondSubTypeSrvStakeObject);
-    PyModule_AddObject(module, "ChainTxOutCondSubtypeSrvXchange", (PyObject*)&DapChainTxOutCondSubTypeSrvXchange_DapChainTxOutCondSubTypeSrvXchangeObject);
-    PyModule_AddObject(module, "ChainLedger", (PyObject*)&DapChainLedger_DapChainLedgerType);
-    PyModule_AddObject(module, "ChainTxIn", (PyObject*)&DapChainTxInObject_DapChainTxInTypeObjectType);
-    PyModule_AddObject(module, "ChainTxInCond", (PyObject*)&DapChainTxInCondObject_DapChainTxInCondTypeObjectType);
-    PyModule_AddObject(module, "ChainTxOut", (PyObject*)&DapChainTxOutObject_DapChainTxOutTypeObjectType);
-    PyModule_AddObject(module, "ChainTxPkey", (PyObject*)&DapChainTxPkeyObject_DapChainTxPkeyTypeObjectType);
-    PyModule_AddObject(module, "ChainTxReceipt", (PyObject*)&DapChainTxReceiptObject_DapChainTxReceiptTypeObjectType);
-    PyModule_AddObject(module, "ChainTxOutExt", (PyObject*)&DapChainTxOutExtObject_DapChainTxOutExtTypeObjectType);
+    PyModule_AddObject(module, "ChainCS", (PyObject*)&DapChainCsObjectType);
+    PyModule_AddObject(module, "ChainDatumTypeID", (PyObject*)&DapChainDatumTypeIdObjectType);
+    PyModule_AddObject(module, "ChainDatum", (PyObject*)&DapChainDatumObjectType);
+    PyModule_AddObject(module, "ChainDatumIter", (PyObject*)&DapChainDatumIterObjectType);
+    PyModule_AddObject(module, "ChainDatumToken", (PyObject*)&DapChainDatumTokenObjectType);
+    PyModule_AddObject(module, "ChainDatumTokenExt", (PyObject*)&DapChainTxTokenExtType);
+    PyModule_AddObject(module, "ChainDatumTokenEmisson", (PyObject*)&DapChainDatumTokenEmissionObjectType);
+    PyModule_AddObject(module, "ChainTxItemType", (PyObject*)&DapChainTxItemTypeObjectType);
+    PyModule_AddObject(module, "ChainTxCondType", (PyObject*)&DapChainTxCondTypeObjectType);
+    PyModule_AddObject(module, "ChainDatumTx", (PyObject*)&DapChainDatumTxObjectType);
+    PyModule_AddObject(module, "ChainTxOutCond", (PyObject*)&DapChainTxOutCondObjectType);
+    PyModule_AddObject(module, "ChainTxOutCondSubtypeSrvPay", (PyObject*)&DapChainTxOutCondSubTypeSrvPayObjectType);
+    PyModule_AddObject(module, "ChainTxOutCondSubtypeSrvStake", (PyObject*)&DapChainTxOutCondSubTypeSrvStakeObjectType);
+    PyModule_AddObject(module, "ChainTxOutCondSubtypeSrvXchange", (PyObject*)&DapChainTxOutCondSubTypeSrvXchangeObjectType);
+    PyModule_AddObject(module, "ChainLedger", (PyObject*)&DapChainLedgerObjectType);
+    PyModule_AddObject(module, "ChainTxIn", (PyObject*)&DapChainTxInObjectType);
+    PyModule_AddObject(module, "ChainTxInCond", (PyObject*)&DapChainTxInCondObjectType);
+    PyModule_AddObject(module, "ChainTxOut", (PyObject*)&DapChainTxOutObjectType);
+    PyModule_AddObject(module, "ChainTxPkey", (PyObject*)&DapChainTxPkeyObjectType);
+    PyModule_AddObject(module, "ChainTxReceipt", (PyObject*)&DapChainTxReceiptObjectType);
+    PyModule_AddObject(module, "ChainTxOutExt", (PyObject*)&DapChainTxOutExtObjectType);
     // =============
     // === Chain net ===
-    PyModule_AddObject(module, "ChainNet", (PyObject*)&DapChainNetObject_DapChainNetObjectType);
-    PyModule_AddObject(module, "ChainNodeClient", (PyObject*)&DapChainNodeClientObject_DapChainNodeClientObjectType);
-    PyModule_AddObject(module, "ChainNodeInfo", (PyObject*)&DapChainNodeInfoObject_DapChainNodeInfoObjectType);
-    PyModule_AddObject(module, "ChainNetNode", (PyObject*)&DapChainNetNodeObject_DapChainNetNodeObjectType);
-    PyModule_AddObject(module, "ChainNetState", (PyObject*)&DapChainNetStateObject_DapChainNetStateObjectType);
+    PyModule_AddObject(module, "ChainNet", (PyObject*)&DapChainNetObjectType);
+    PyModule_AddObject(module, "ChainNodeClient", (PyObject*)&DapChainNodeClientObjectType);
+    PyModule_AddObject(module, "ChainNodeInfo", (PyObject*)&DapChainNodeInfoObjectType);
+    PyModule_AddObject(module, "ChainNetNode", (PyObject*)&DapChainNodeObjectType);
+    PyModule_AddObject(module, "ChainNetState", (PyObject*)&DapChainNetStateObjectType);
     // =============
     // === Chain net srv ===
-    PyModule_AddObject(module, "ChainNetSrv", (PyObject*)&DapChainNetSrvObject_DapChainNetSrvObjectType);
-    PyModule_AddObject(module, "ChainNetSrvClient", (PyObject*)&DapChainNetSrvClientObject_DapChainNetSrvClientObjectType);
-    PyModule_AddObject(module, "ChainNetSrvDatum", (PyObject*)&DapChainNetSrvDatumObject_DapChainNetSrvDatumObjectType);
-    PyModule_AddObject(module , "ChainNetSrvPrice", (PyObject*)&DapChainNetSrvPriceObject_DapChainNetSrvPriceObjectType);
-    PyModule_AddObject(module, "ChainNetSrvOrder", (PyObject*)&DapChainNetSrvOrderObject_DapChainNetSrvOrderObjectType);
-    PyModule_AddObject(module, "ChainNetSrvOrderDirection", (PyObject*)&DapChainNetSrvOrderDirectionObject_DapChainNetSrvOrderDirectionObjectType);
-    PyModule_AddObject(module, "ChainNetSrvUID", (PyObject*)&DapChainNetSrvUIDObject_DapChainNetSrvUIDObjectType);
-    PyModule_AddObject(module, "ChainNetSrvPriceUnitUID", (PyObject*)&DapChainNetSrvPriceUnitUIDObject_DapChainNetSrvPriceUnitUIDObjectType);
+    PyModule_AddObject(module, "ChainNetSrv", (PyObject*)&DapChainNetSrvObjectType);
+    PyModule_AddObject(module, "ChainNetSrvClient", (PyObject*)&DapChainNetSrvClientObjectType);
+    PyModule_AddObject(module, "ChainNetSrvDatum", (PyObject*)&DapChainDatumCustomObjectType);
+    PyModule_AddObject(module , "ChainNetSrvPrice", (PyObject*)&DapChainNetSrvPriceObjectType);
+    PyModule_AddObject(module, "ChainNetSrvOrder", (PyObject*)&DapChainNetSrvOrderObjectType);
+    PyModule_AddObject(module, "ChainNetSrvOrderDirection", (PyObject*)&DapChainNetSrvOrderDirectionObjectType);
+    PyModule_AddObject(module, "ChainNetSrvUID", (PyObject*)&DapChainNetSrvUidObjectType);
+    PyModule_AddObject(module, "ChainNetSrvPriceUnitUID", (PyObject*)&DapChainNetSrvPriceUnitUidObjectType);
     // =============
     // === Chain cs dag poa
-    PyModule_AddObject(module, "ChainCsDagPoa", (PyObject*)&DapChainCsDagPoaObject_DapChainCsDagPoaObjectType);
+    PyModule_AddObject(module, "ChainCsDagPoa", (PyObject*)&DapChainCsDagPoaObjectType);
     // =============
 
-    PyModule_AddObject(module, "ChainGDB", (PyObject*)&DapChainGDBObject_DapChainGDBType);
-    PyModule_AddObject(module, "ChainWallet", (PyObject*)&DapChainWallet_dapChainWalletType);
+    PyModule_AddObject(module, "ChainGDB", (PyObject*)&DapChainGdbObjectType);
+    PyModule_AddObject(module, "ChainWallet", (PyObject*)&DapChainWalletObjectType);
 
-    PyModule_AddObject(module, "Http", (PyObject*)&DapHTTP_DapHTTPType);
+    PyModule_AddObject(module, "Http", (PyObject*)&DapHttpObjectType);
     PyModule_AddObject(module, "HttpSimple", (PyObject*)&DapHTTPSimple_DapHTTPSimpleType);
-    PyModule_AddObject(module, "HttpCode", (PyObject*)&HTTPCode_HTTPCodeType);
-    PyModule_AddObject(module, "EncHttp", (PyObject*)&DapEncServer_DapEncServerType);
-    PyModule_AddObject(module, "Stream", (PyObject*)&DapStream_DapStreamType);
-    PyModule_AddObject(module, "StreamCtl", (PyObject*)&DapStreamCtl_DapStreamCtlType);
-    PyModule_AddObject(module, "Mempool", (PyObject*)&DapMempool_DapMempoolType);
+    PyModule_AddObject(module, "HttpCode", (PyObject*)&DapHttpCodeObjectType);
+    PyModule_AddObject(module, "EncHttp", (PyObject*)&DapEncServerObjectType);
+    PyModule_AddObject(module, "Stream", (PyObject*)&DapStreamObjectType);
+    PyModule_AddObject(module, "StreamCtl", (PyObject*)&DapStreamCtlObjectType);
+    PyModule_AddObject(module, "Mempool", (PyObject*)&DapChainMempoolObjectType);
 
     // ==============
-    PyModule_AddObject(module, "AppCli", (PyObject*)&DapAppCli_dapAppCliType);
-    PyModule_AddObject(module, "AppCliServer", (PyObject*)&DapChainNodeCliObject_DapChainNodeCliObjectType);
+    PyModule_AddObject(module, "AppCli", (PyObject*)&DapAppCliObjectType);
+    PyModule_AddObject(module, "AppCliServer", (PyObject*)&DapChainNodeCliObjectType);
     #ifdef DAP_SUPPORT_PYTHON_PLUGINS
-        PyModule_AddObject(module, "AppContext", (PyObject*)&dapAppContext_dapAppContextType);
+        PyModule_AddObject(module, "AppContext", (PyObject*)&DapAppContextObjectType);
     #endif
-    PyModule_AddObject(module, "JSONRPCRequest", (PyObject*)&DapJSONRPCRequest_DapJSONRPCRequestType);
-    PyModule_AddObject(module, "JSONRPCResponse", (PyObject*)&DapJSONRPCResponse_DapJSONRPCResponseType);
+    PyModule_AddObject(module, "JSONRPCRequest", (PyObject*)&DapJsonRpcRequestObjectType);
+    PyModule_AddObject(module, "JSONRPCResponse", (PyObject*)&DapJsonRpcResponseobjectType);
 
     return module;
 }

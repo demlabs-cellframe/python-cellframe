@@ -16,7 +16,7 @@ typedef struct PyDapHttp{
 
 PyObject *dap_http_new_py(PyObject *self, PyObject *args);
 
-extern PyTypeObject DapHTTP_DapHTTPType;
+extern PyTypeObject DapHttpObjectType;
 
 #ifdef __cplusplus
 }

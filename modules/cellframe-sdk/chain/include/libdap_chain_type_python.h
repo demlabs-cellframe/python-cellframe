@@ -18,7 +18,7 @@ PyObject* CHAIN_TYPE_EMISSION_PY();
 PyObject* CHAIN_TYPE_TX_PY();
 PyObject* CHAIN_TYPE_LAST_PY();
 
-extern PyTypeObject dapChainTypeObject_dapChainTypeType;
+extern PyTypeObject DapChainTypeObjectType;
 
 #ifdef __cplusplus
 }

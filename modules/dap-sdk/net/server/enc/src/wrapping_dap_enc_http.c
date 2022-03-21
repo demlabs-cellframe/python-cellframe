@@ -17,7 +17,7 @@ PyGetSetDef PyDapEncServerGetSet[] = {
         {NULL}
 };
 
-PyTypeObject DapEncServer_DapEncServerType = {
+PyTypeObject DapEncServerObjectType = {
         PyVarObject_HEAD_INIT(NULL, 0)
         "CellFrame.EncHttp",             /* tp_name */
         sizeof(PyDapEncServerObject),                   /* tp_basicsize */
@@ -76,7 +76,7 @@ PyObject *enc_http_request_decode_py(PyObject *self, PyObject *args){
     if (!PyArg_ParseTuple(args, "O", &obj_sh)){
         return NULL;
     }
-    PyDapEncServerObject *obj_enc_delegate = PyObject_NEW(PyDapEncServerObject, &DapEncServer_DapEncServerType);
+    PyDapEncServerObject *obj_enc_delegate = PyObject_NEW(PyDapEncServerObject, &DapEncServerObjectType);
     PyObject_Dir((PyObject*)obj_enc_delegate);
     obj_enc_delegate->enc_http_delegate = enc_http_request_decode(((PyDapHttpSimpleObject*)obj_sh)->sh);
     return Py_BuildValue("O", obj_enc_delegate);

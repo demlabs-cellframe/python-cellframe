@@ -14,7 +14,7 @@ PyMethodDef PyDapEventsObjectSocket_methods[] = {
         {NULL, NULL, 0, NULL}  /* Sentinel */
 };
 
-PyTypeObject dapEventsSocket_dapEventsSocketType = {
+PyTypeObject DapEventsSocketObjectType = {
         PyVarObject_HEAD_INIT(NULL, 0)
         "CellFrame.ServerCore.DapEventsSocket",             /* tp_name */
         sizeof(PyDapEventsSocketObject),                   /* tp_basicsize */

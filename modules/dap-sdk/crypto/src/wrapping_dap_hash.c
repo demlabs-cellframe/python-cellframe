@@ -72,7 +72,7 @@ PyMethodDef DapHashFastMethods[] = {
         {NULL, NULL, 0, NULL}
 };
 
-PyTypeObject DapHashFastObject_DapHashFastObjectType = {
+PyTypeObject DapChainHashFastObjectType = {
         PyVarObject_HEAD_INIT(NULL, 0)
         "CellFrame.HashFast",          /* tp_name */
         sizeof(PyDapHashFastObject),   /* tp_basicsize */
@@ -119,7 +119,7 @@ PyObject *dap_chain_str_to_hash_fast_py(PyObject *self, PyObject *args){
     if (!PyArg_ParseTuple(args, "s", &hash_str))
         return NULL;
     PyDapHashFastObject *obj_hash_fast = self ? (PyDapHashFastObject *)self :
-                                                 PyObject_New(PyDapHashFastObject, &DapHashFastObject_DapHashFastObjectType);
+                                                 PyObject_New(PyDapHashFastObject, &DapChainHashFastObjectType);
     obj_hash_fast->hash_fast = DAP_NEW(dap_hash_fast_t);
     if (dap_chain_hash_fast_from_str(hash_str, obj_hash_fast->hash_fast))
         DAP_DEL_Z(obj_hash_fast->hash_fast);

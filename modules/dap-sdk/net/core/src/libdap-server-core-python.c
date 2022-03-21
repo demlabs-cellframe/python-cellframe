@@ -8,7 +8,7 @@ PyMethodDef ServerCorePythonMethods[] = {
 };
 
 
-PyTypeObject ServerCore_ServerCoreType = {
+PyTypeObject DapServerCoreObjectType = {
         PyVarObject_HEAD_INIT(NULL, 0)
         "CellFrame.ServerCore",             /* tp_name */
         sizeof(PyServerCoreObject),         /* tp_basicsize */

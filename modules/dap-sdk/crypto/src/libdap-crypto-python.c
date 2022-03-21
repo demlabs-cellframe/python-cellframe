@@ -56,7 +56,7 @@ PyMethodDef g_crypto_methods_py[] = {
         {NULL, NULL, 0, NULL}
 };
 
-PyTypeObject g_crypto_type_py = {
+PyTypeObject DapCryptoObjectType = {
         PyVarObject_HEAD_INIT(NULL, 0)
         "CellFrame.Crypto",             /* tp_name */
         sizeof(PyCryptoObject),         /* tp_basicsize */

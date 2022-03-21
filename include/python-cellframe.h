@@ -112,7 +112,6 @@ static PyMethodDef CellFramePythonMethods[] = {
         {"init", python_cellframe_init, METH_VARARGS, "Initialization of the Python Cellframe library."},
         {"deinit", python_cellframe_deinit, METH_VARARGS, "Deinitialization of the Python Cellframe library."},
         {"setLogLevel", (PyCFunction)dap_set_log_level, METH_VARARGS, "Setting the logging level."},
-        {"logIt", (PyCFunction)dap_log_it, METH_VARARGS, "Log a message."},
         {"logItDebug", (PyCFunction)dap_log_it_debug, METH_VARARGS, "Log a message with the DEBUG level."},
         {"logItInfo", (PyCFunction)dap_log_it_info, METH_VARARGS, "Log a message with the INFO level."},
         {"logItNotice", (PyCFunction)dap_log_it_notice, METH_VARARGS, "Log a message with the NOTICE level."},

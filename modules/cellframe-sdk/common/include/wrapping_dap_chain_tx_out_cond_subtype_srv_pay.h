@@ -38,7 +38,7 @@ PyObject *wrapping_dap_chain_tx_out_cond_subtype_srv_pay_get_uid(PyObject *self,
 PyObject *wrapping_dap_chain_tx_out_cond_subtype_srv_pay_get_pkey(PyObject *self, void *closure);
 PyObject *wrapping_dap_chain_tx_out_cond_subtype_srv_pay_get_map_price(PyObject *self, void *closure);
 
-extern PyTypeObject DapChainTxOutCondSubTypeSrvPay_DapChainTxOutCondSubTypeSrvPayObject;
+extern PyTypeObject DapChainTxOutCondSubTypeSrvPayObjectType;
 
 #ifdef __cplusplus
 };

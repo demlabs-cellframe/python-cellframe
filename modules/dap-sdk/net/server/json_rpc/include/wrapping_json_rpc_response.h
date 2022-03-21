@@ -13,4 +13,4 @@ PyObject *wrapping_json_rpc_response_get_error(PyObject *self, void *closure);
 int wrapping_json_rpc_response_set_error(PyObject *self, PyObject *args, void *closure);
 PyObject *wrapping_json_rpc_response_get_id(PyObject *self, void *closure);
 
-extern PyTypeObject DapJSONRPCResponse_DapJSONRPCResponseType;
+extern PyTypeObject DapJsonRpcResponseobjectType;

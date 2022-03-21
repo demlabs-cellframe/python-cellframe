@@ -30,4 +30,4 @@ PyObject *wrapping_dap_chain_net_srv_get_grace_period(PyObject *self, void *clos
 PyObject *wrapping_dap_chain_net_srv_set_callback_channel(PyObject *self, PyObject *args);
 //PyObject *wrapping_dap_chain_net_srv_issue_receipt(PyObject *self, PyObject *args);
 
-extern PyTypeObject DapChainNetSrvObject_DapChainNetSrvObjectType;
+extern PyTypeObject DapChainNetSrvObjectType;

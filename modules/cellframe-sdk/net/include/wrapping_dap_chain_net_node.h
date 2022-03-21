@@ -16,6 +16,6 @@ PyObject *dap_chain_node_alias_find_py(PyObject *self, PyObject *args);
 PyObject *dap_chain_node_alias_register_py(PyObject *self, PyObject *args);
 PyObject *dap_chain_node_alias_delete_py(PyObject *self, PyObject *args);
 
-extern PyTypeObject DapChainNetNodeObject_DapChainNetNodeObjectType;
+extern PyTypeObject DapChainNodeObjectType;
 
 #endif //_WRAPPING_DAP_CHAIN_NET_NODE_

@@ -8,7 +8,7 @@ PyMethodDef PyDapEventsObject_methods[] = {
         {NULL, NULL, 0, NULL}  /* Sentinel */
 };
 
-PyTypeObject dapEvents_dapEventsType = {
+PyTypeObject DapEventsObjectType = {
         PyVarObject_HEAD_INIT(NULL, 0)
         "CellFrame.ServerCore.DapEvents",           /* tp_name */
         sizeof(PyDapEventsObject),		        /* tp_basicsize */

@@ -57,11 +57,11 @@ PyObject *dap_chain_hash_fast_to_str_py(PyObject *self, PyObject *args);
 PyObject *dap_chain_hash_fast_to_str_new_py(PyObject *self, PyObject *args);
 PyObject *wrapping_dap_hash_to_str(PyObject *self);
 
-extern PyTypeObject DapHashFastObject_DapHashFastObjectType;
+extern PyTypeObject DapChainHashFastObjectType;
 
 static bool PyDapHashFast_Check(PyDapHashFastObject *pyHash)
 {
-    return PyObject_TypeCheck(pyHash, &DapHashFastObject_DapHashFastObjectType);
+    return PyObject_TypeCheck(pyHash, &DapChainHashFastObjectType);
 }
 
 #ifdef __cplusplus

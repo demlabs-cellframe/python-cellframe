@@ -8,7 +8,7 @@ PyMethodDef AppCliMethods[] = {
         {NULL, NULL, 0, NULL}
 };
 
-PyTypeObject DapAppCli_dapAppCliType = {
+PyTypeObject DapAppCliObjectType = {
         PyVarObject_HEAD_INIT(NULL, 0)
         "CellFrame.AppCli",             /* tp_name */
         sizeof(PyAppCliObject),         /* tp_basicsize */

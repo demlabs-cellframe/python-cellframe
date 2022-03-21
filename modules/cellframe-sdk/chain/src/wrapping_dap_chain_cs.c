@@ -8,7 +8,7 @@ PyMethodDef DapChainCSMethods[] = {
         {NULL, NULL, 0, NULL}
 };
 
-PyTypeObject DapChainCsObject_DapChainCsObjectType = {
+PyTypeObject DapChainCsObjectType = {
         PyVarObject_HEAD_INIT(NULL, 0)
         "CellFrame.ChainCS",             /* tp_name */
         sizeof(PyDapChainCsObject),      /* tp_basicsize */
@@ -55,7 +55,7 @@ static int wrapping_dap_chain_callback_new_cfg(dap_chain_t* chain, dap_config_t*
 {
     PyObject *arglist;
     PyObject *result;
-    PyObject *obj_chain= _PyObject_New(&dapChainObject_dapChainType);
+    PyObject *obj_chain= _PyObject_New(&DapChainObjectType);
     ((PyDapChainObject*)obj_chain)->chain_t = chain;
     arglist = Py_BuildValue("O", obj_chain);
     result = PyObject_CallObject(binded_object_callback_new_cfg, arglist);

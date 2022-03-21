@@ -30,7 +30,7 @@ static PyMethodDef DapAppContextMethods[] = {
 };
 
 
-static PyTypeObject dapAppContext_dapAppContextType = {
+static PyTypeObject DapAppContextObjectType = {
     PyVarObject_HEAD_INIT(NULL, 0)
     "CellFrame.AppContext",             /* tp_name */
     sizeof(PyDapAppContextObject),                   /* tp_basicsize */

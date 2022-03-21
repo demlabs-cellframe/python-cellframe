@@ -19,7 +19,7 @@ PyObject *wrapping_dap_chain_net_srv_get_token(PyObject *self, void *closure);
 PyObject *wrapping_dap_chain_net_srv_get_units(PyObject *self, void *closure);
 PyObject *wrapping_dap_chain_net_srv_get_units_uid(PyObject *self, void *closure);
 
-extern PyTypeObject DapChainNetSrvPriceObject_DapChainNetSrvPriceObjectType;
+extern PyTypeObject DapChainNetSrvPriceObjectType;
 
 /*wrapping dap_chain_net_srv_order_direction*/
 typedef struct PyDapChainNetSrvOrderDirection{
@@ -33,4 +33,4 @@ PyObject *wrapping_dap_chain_net_srv_order_direction_get_serv_dir_buy(PyObject *
 PyObject *wrapping_dap_chain_net_srv_order_direction_get_serv_dir_sell(PyObject *self, PyObject *args);
 PyObject *wrapping_dap_chain_net_srv_order_direction_get_serv_dir_undefined(PyObject *self, PyObject *args);
 
-extern PyTypeObject DapChainNetSrvOrderDirectionObject_DapChainNetSrvOrderDirectionObjectType;
+extern PyTypeObject DapChainNetSrvOrderDirectionObjectType;

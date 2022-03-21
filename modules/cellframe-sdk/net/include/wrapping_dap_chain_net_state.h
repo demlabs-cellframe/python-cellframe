@@ -21,7 +21,7 @@ PyObject *NET_STATE_ONLINE_PY(void);
 PyObject *NET_STATE_SYNC_GDB_PY(void);
 PyObject *NET_STATE_SYNC_CHAINS_PY(void);
 
-extern PyTypeObject DapChainNetStateObject_DapChainNetStateObjectType;
+extern PyTypeObject DapChainNetStateObjectType;
 
 #ifdef __cplusplus
 }

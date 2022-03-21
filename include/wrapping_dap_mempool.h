@@ -22,7 +22,7 @@ static PyMethodDef  DapMempoolMethods[] = {
         {NULL,NULL,0,NULL}
 };
 
-static PyTypeObject DapMempool_DapMempoolType = {
+static PyTypeObject DapChainMempoolObjectType = {
         PyVarObject_HEAD_INIT(NULL, 0)
         "CellFrame.DapMempool",             /* tp_name */
         sizeof(PyDapMempoolObject),                   /* tp_basicsize */

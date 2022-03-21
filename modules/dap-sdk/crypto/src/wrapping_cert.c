@@ -46,7 +46,7 @@ PyMethodDef g_crypto_cert_methods_py[] = {
         {NULL, NULL, 0, NULL}
 };
 
-PyTypeObject g_crypto_cert_type_py = {
+PyTypeObject DapCryptoCertObjectType = {
         PyVarObject_HEAD_INIT(NULL, 0)
         "CellFrame.Cert",             /* tp_name */
         sizeof(PyCryptoCertObject),         /* tp_basicsize */
@@ -122,7 +122,7 @@ PyObject* dap_cert_generate_py(PyObject *self, PyObject *args)
     if (l_arg_seed_string != 0)
         l_seed = l_arg_seed_string;
 
-    PyCryptoCertObject *obj_cert = (PyCryptoCertObject*)_PyObject_New(&g_crypto_cert_type_py);
+    PyCryptoCertObject *obj_cert = (PyCryptoCertObject*)_PyObject_New(&DapCryptoCertObjectType);
     obj_cert->cert = l_seed ? dap_cert_generate_mem_with_seed( l_cert_name, l_arg_cert_key_type, l_seed, strlen(l_seed) )
               :dap_cert_generate_mem( l_cert_name,l_arg_cert_key_type );
     return  Py_BuildValue("O", (PyObject*)obj_cert);
@@ -208,7 +208,7 @@ PyObject* dap_cert_load_py(PyObject *self, PyObject *args)
     if (!l_ret)
         return self;
     if (!self) {
-        self = _PyObject_New(&g_crypto_cert_type_py);
+        self = _PyObject_New(&DapCryptoCertObjectType);
     }
     ((PyCryptoCertObject *)self)->cert = l_ret;
     return self;
