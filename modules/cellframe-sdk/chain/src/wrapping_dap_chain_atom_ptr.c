@@ -6,7 +6,7 @@ PyMethodDef DapChainAtomPtrMethods[] = {
 
 PyTypeObject DapChainAtomPtr_DapChainAtomPtrType = {
         PyVarObject_HEAD_INIT(NULL, 0)
-        "CellFrame.ChainAtomPtr",     /* tp_name */
+        "CellFrame.AtomPtr",     /* tp_name */
         sizeof(PyChainAtomPtrObject),       /* tp_basicsize */
         0,                                  /* tp_itemsize */
         0,                                  /* tp_dealloc */

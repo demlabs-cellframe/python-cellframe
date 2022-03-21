@@ -504,8 +504,8 @@ PyMODINIT_FUNC PyInit_libCellFrame(void){
     // === Chain ===
     PyModule_AddObject(module, "Chain", (PyObject*)&dapChainObject_dapChainType);
     PyModule_AddObject(module, "ChainType", (PyObject*)&dapChainTypeObject_dapChainTypeType);
-    PyModule_AddObject(module, "ChainAtomIter", (PyObject*)&DapChainAtomIter_DapChainAtomIterType);
-    PyModule_AddObject(module, "ChainAtomPtr", (PyObject*)&DapChainAtomPtr_DapChainAtomPtrType);
+    PyModule_AddObject(module, "AtomIter", (PyObject*)&DapChainAtomIter_DapChainAtomIterType);
+    PyModule_AddObject(module, "AtomPtr", (PyObject*)&DapChainAtomPtr_DapChainAtomPtrType);
     PyModule_AddObject(module, "ChainCell", (PyObject*)&DapChainCell_DapChainCellObjectType);
 //    PyModule_AddObject(module, "ChainCommon", (PyObject*)&ChainCommonObject_ChainCommonType);
 
