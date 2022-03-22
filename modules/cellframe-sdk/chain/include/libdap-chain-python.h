@@ -13,6 +13,7 @@
 #include "wrapping_dap_chain_datum.h"
 #include "wrapping_dap_chain_cell.h"
 #include "wrapping_dap_chain_cs_dag.h"
+#include "wrapping_dap_chain_datum_tx.h"
 
 
 typedef struct PyDapChain{
@@ -42,6 +43,9 @@ PyObject *dap_chain_python_atom_get_datums(PyObject *self, PyObject *args);
 PyObject *dap_chain_python_atom_iter_get_next(PyObject *self, PyObject *args);
 PyObject *dap_chain_python_atom_iter_get_dag(PyObject *self, PyObject *args);
 PyObject *dap_chain_python_add_mempool_notify_callback(PyObject *self, PyObject *args);
+
+PyObject *dap_chain_python_get_count_tx(PyObject *self, PyObject *args);
+PyObject *dap_chain_python_get_txs(PyObject *self, PyObject *args);
 
 extern PyTypeObject DapChainObjectType;
 

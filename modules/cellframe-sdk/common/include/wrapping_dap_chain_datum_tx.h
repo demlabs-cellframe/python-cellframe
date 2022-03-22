@@ -87,6 +87,7 @@ extern PyTypeObject DapChainTxCondTypeObjectType;
 typedef struct PyDapChainDatumTx{
     PyObject_HEAD
     dap_chain_datum_tx_t *datum_tx;
+    bool original;
 }PyDapChainDatumTxObject;
 
 PyObject *PyDapChainDatumTxObject_create(PyTypeObject *type_object, PyObject *args, PyObject *kwds);

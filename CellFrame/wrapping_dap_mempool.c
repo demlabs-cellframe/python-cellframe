@@ -1,5 +1,55 @@
 #include "wrapping_dap_mempool.h"
 
+PyMethodDef  DapMempoolMethods[] = {
+        {"addProc", dap_chain_mempool_add_proc_py, METH_VARARGS | METH_STATIC, ""},
+        {"txCreate", dap_chain_mempool_tx_create_py, METH_VARARGS | METH_STATIC, ""},
+        {"txCreateCond", dap_chain_mempool_tx_create_cond_py, METH_VARARGS | METH_STATIC, ""},
+        {"txCreateCondInput", dap_chain_mempool_tx_create_cond_input_py, METH_VARARGS | METH_STATIC, ""},
+        {NULL,NULL,0,NULL}
+};
+
+PyTypeObject DapChainMempoolObjectType = {
+        PyVarObject_HEAD_INIT(NULL, 0)
+        "CellFrame.DapMempool",             /* tp_name */
+        sizeof(PyDapMempoolObject),                   /* tp_basicsize */
+        0,                                                 /* tp_itemsize */
+        0,                                                 /* tp_dealloc */
+        0,                                                 /* tp_print */
+        0,                                                 /* tp_getattr */
+        0,                                                 /* tp_setattr */
+        0,                                                 /* tp_reserved */
+        0,                                                 /* tp_repr */
+        0,                                                 /* tp_as_number */
+        0,                                                 /* tp_as_sequence */
+        0,                                                 /* tp_as_mapping */
+        0,                                                 /* tp_hash  */
+        0,                                                 /* tp_call */
+        0,                                                 /* tp_str */
+        0,                                                 /* tp_getattro */
+        0,                                                 /* tp_setattro */
+        0,                                                 /* tp_as_buffer */
+        Py_TPFLAGS_DEFAULT |
+        Py_TPFLAGS_BASETYPE,                           /* tp_flags */
+        "Dap mempool object",                         /* tp_doc */
+        0,		                                       /* tp_traverse */
+        0,                        		               /* tp_clear */
+        0,		                                       /* tp_richcompare */
+        0,                        		               /* tp_weaklistoffset */
+        0,		                                       /* tp_iter */
+        0,                        		               /* tp_iternext */
+        DapMempoolMethods,                   /* tp_methods */
+        0,                                                 /* tp_members */
+        0,                                                 /* tp_getset */
+        0,                                                 /* tp_base */
+        0,                                                 /* tp_dict */
+        0,                                                 /* tp_descr_get */
+        0,                                                 /* tp_descr_set */
+        0,                                                 /* tp_dictoffset */
+        0,                                                 /* tp_init */
+        0,                                                 /* tp_alloc */
+        PyType_GenericNew,                                 /* tp_new */
+};
+
 PyObject *dap_chain_mempool_add_proc_py(PyObject *self, PyObject *args){
     PyObject *obj_server;
     const char *MEMPOOL_URL;
@@ -42,4 +92,91 @@ PyObject *dap_chain_mempool_tx_create_py(PyObject *self, PyObject *args){
         obj_hf->hash_fast = l_hash_tx;
         return (PyObject*)obj_hf;
     }
+}
+
+PyObject *dap_chain_mempool_tx_create_cond_py(PyObject *self, PyObject *args){
+    (void)self;
+    PyObject *obj_net;
+    PyObject* obj_key_from;
+    PyObject* obj_key_cond;
+    char *l_token_ticker;
+    uint64_t l_value;
+    uint64_t l_value_per_unit_max;
+    PyObject *obj_unit;
+    PyObject *obj_srv_uid;
+    uint64_t l_fee;
+    PyObject *obj_cond;
+    if (!PyArg_ParseTuple(args, "OOOskkOOkO", &obj_net, &obj_key_from, &obj_key_cond, &l_token_ticker, &l_value,
+                          &l_value_per_unit_max, &obj_unit, &obj_srv_uid, &l_fee, &obj_cond)){
+        PyErr_SetString(PyExc_AttributeError, "Function takes exactly ten arguments.");
+        return NULL;
+    }
+    if (!PyDapChainNet_Check(obj_net)){
+        PyErr_SetString(PyExc_AttributeError, "Invalid first argument passed. The first argument must "
+                                              "be an instance of an object of type ChainNet. ");
+        return NULL;
+    }
+    void *l_bytes_cond = PyBytes_AsString(obj_cond);
+    size_t l_bytes_cond_size = PyBytes_Size(obj_cond);
+    uint256_t l_value_256 = dap_chain_uint256_from(l_value);
+    uint256_t l_value_per_unit_max_256 = dap_chain_uint256_from(l_value_per_unit_max);
+    uint256_t l_fee_256  = dap_chain_uint256_from(l_fee);
+    dap_hash_fast_t *l_hf = dap_chain_mempool_tx_create_cond(
+            ((PyDapChainNetObject*)obj_net)->chain_net,
+            ((PyCryptoKeyObject*)obj_key_from)->key,
+            ((PyDapPkeyObject *)obj_key_cond)->pkey,
+            l_token_ticker,
+            l_value_256,
+            l_value_per_unit_max_256,
+            ((PyDapChainNetSrvPriceUnitUIDObject*)obj_unit)->price_unit_uid,
+            ((PyDapChainNetSrvUIDObject*)obj_srv_uid)->net_srv_uid,
+            l_fee_256,
+            l_bytes_cond,
+            l_bytes_cond_size
+    );
+    if (!l_hf){
+        return Py_None;
+    }
+    PyDapHashFastObject *l_obj_hf = PyObject_New(PyDapHashFastObject, &DapChainHashFastObjectType);
+    l_obj_hf->hash_fast = l_hf;
+    return (PyObject*)l_hf;
+}
+PyObject *dap_chain_mempool_tx_create_cond_input_py(PyObject *self, PyObject *args){
+    (void)self;
+    PyObject *obj_net;
+    PyObject *obj_tx_prev_hash;
+    PyObject *obj_addr_to;
+    PyObject *obj_key_tx_sign;
+    PyObject *obj_receipt;
+    if (!PyArg_ParseTuple(args, "OOOOO", &obj_net, &obj_tx_prev_hash, &obj_addr_to, &obj_key_tx_sign, &obj_receipt)){
+        PyErr_SetString(PyExc_AttributeError, "Function takes exactly five arguments.");
+        return NULL;
+    }
+    if (!PyDapChainNet_Check(obj_net)) {
+        PyErr_SetString(PyExc_AttributeError, "Invalid first argument passed. The first argument must "
+                                              "be an instance of an object of type ChainNet. ");
+        return NULL;
+    }
+    if (!PyDapHashFast_Check(obj_tx_prev_hash)){
+        PyErr_SetString(PyExc_AttributeError, "Invalid second argument passed. The first argument must "
+                                              "be an instance of an object of type ChainNet. ");
+        return NULL;
+    }
+    if (!PyDapSignObject_Check(obj_key_tx_sign)){
+        PyErr_SetString(PyExc_AttributeError, "Invalid fourth argument passed. The first argument must "
+                                              "be an instance of an object of type DapSign.");
+        return NULL;
+    }
+    dap_chain_hash_fast_t *l_hf =dap_chain_mempool_tx_create_cond_input(
+            ((PyDapChainNetObject*)obj_net)->chain_net,
+            ((PyDapHashFastObject*)obj_tx_prev_hash)->hash_fast,
+            ((PyDapChainAddrObject *)obj_addr_to)->addr,
+            ((PyCryptoKeyObject*)obj_key_tx_sign)->key,
+            ((PyDapChainTXReceiptObject*)obj_receipt)->tx_receipt);
+    if (!l_hf){
+        return Py_None;
+    }
+    PyDapHashFastObject *l_obj_hf = PyObject_New(PyDapHashFastObject, &DapChainHashFastObjectType);
+    l_obj_hf->hash_fast = l_hf;
+    return (PyObject*)l_hf;
 }
