@@ -7,7 +7,7 @@
 
 PyTypeObject DapChainDatumTypeIdObject_DapChainDatumTypeIdObjectType = {
         PyVarObject_HEAD_INIT(NULL, 0)
-        "CellFrame.Chain.DatumTypeId",          /* tp_name */
+        "CellFrame.DatumTypeId",          /* tp_name */
         sizeof(PyDapChainDatumTypeIdObject),   /* tp_basicsize */
         0,                               /* tp_itemsize */
         0,                               /* tp_dealloc */
@@ -68,7 +68,7 @@ PyGetSetDef  DapChainDatumGetSet[] = {
 
 PyTypeObject DapChainDatumObject_DapChainDatumObjectType = {
         PyVarObject_HEAD_INIT(NULL, 0)
-        "CellFrame.Chain.Datum",          /* tp_name */
+        "CellFrame.Datum",          /* tp_name */
         sizeof(PyDapChainDatumObject),   /* tp_basicsize */
         0,                               /* tp_itemsize */
         0,                               /* tp_dealloc */
@@ -227,7 +227,7 @@ PyObject *wrapping_dap_chain_datum_get_version_str_py(PyObject *self, void* clos
 /* DAP chain datum iter */
 PyTypeObject DapChainDatumIterObject_DapChainDatumIterObjectType = {
         PyVarObject_HEAD_INIT(NULL, 0)
-        "CellFrame.Chain.DatumIter",          /* tp_name */
+        "CellFrame.DatumIter",          /* tp_name */
         sizeof(PyDapChainDatumIterObject),   /* tp_basicsize */
         0,                               /* tp_itemsize */
         0,                               /* tp_dealloc */

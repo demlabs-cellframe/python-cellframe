@@ -14,7 +14,7 @@ PyMethodDef  PyDapChainDatumTokenMethods[] = {
 
 PyTypeObject DapChainDatumToken_DapChainDatumTokenObjectType = {
         PyVarObject_HEAD_INIT(NULL, 0)
-        "CellFrame.Chain.DatumTokenObject",       /* tp_name */
+        "CellFrame.Token",       /* tp_name */
         sizeof(PyDapChainDatumTokenObject),      /* tp_basicsize */
         0,                                       /* tp_itemsize */
         0,                                       /* tp_dealloc */

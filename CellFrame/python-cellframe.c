@@ -506,22 +506,21 @@ PyMODINIT_FUNC PyInit_libCellFrame(void){
     PyModule_AddObject(module, "ChainType", (PyObject*)&dapChainTypeObject_dapChainTypeType);
     PyModule_AddObject(module, "AtomIter", (PyObject*)&DapChainAtomIter_DapChainAtomIterType);
     PyModule_AddObject(module, "AtomPtr", (PyObject*)&DapChainAtomPtr_DapChainAtomPtrType);
-    PyModule_AddObject(module, "ChainCell", (PyObject*)&DapChainCell_DapChainCellObjectType);
-//    PyModule_AddObject(module, "ChainCommon", (PyObject*)&ChainCommonObject_ChainCommonType);
+    PyModule_AddObject(module, "Cell", (PyObject*)&DapChainCell_DapChainCellObjectType);
 
-//    PyModule_AddObject(module, "ChainID", (PyObject*)&DapChainIDObject_DapChainIDType);
-    PyModule_AddObject(module, "ChainCellID", (PyObject*)&DapChainCellIDObject_DapChainCellIDType);
-    PyModule_AddObject(module, "ChainNodeAddr", (PyObject*)&DapChainNodeAddrObject_DapChainNodeAddrObjectType);
+    PyModule_AddObject(module, "ChainID", (PyObject*)&DapChainIDObject_DapChainIDType);
+    PyModule_AddObject(module, "CellID", (PyObject*)&DapChainCellIDObject_DapChainCellIDType);
+    PyModule_AddObject(module, "NodeAddr", (PyObject*)&DapChainNodeAddrObject_DapChainNodeAddrObjectType);
 ////    PyModule_AddObject(module, "ChainNetID", (PyObject*)&DapChainNetIdObject_DapChainNetIdObjectType);
-    PyModule_AddObject(module, "ChainHashSlow", (PyObject*)&DapChainHashSlowObject_DapChainHashSlowObjectType);
-    PyModule_AddObject(module, "ChainHashFast", (PyObject*)&DapHashFastObject_DapHashFastObjectType);
+    PyModule_AddObject(module, "HashSlow", (PyObject*)&DapChainHashSlowObject_DapChainHashSlowObjectType);
+    PyModule_AddObject(module, "HashFast", (PyObject*)&DapHashFastObject_DapHashFastObjectType);
 //    PyModule_AddObject(module, "ChainHAshSlowKind", (PyObject*)&DapChainSlowKindObject_DapChainSlowKindType);
     PyModule_AddObject(module, "ChainAddr", (PyObject*)&DapChainAddrObject_DapChainAddrObjectType);
 //
-    PyModule_AddObject(module, "ChainCS", (PyObject*)&DapChainCsObject_DapChainCsObjectType);
-    PyModule_AddObject(module, "ChainDatumTypeID", (PyObject*)&DapChainDatumTypeIdObject_DapChainDatumTypeIdObjectType);
-    PyModule_AddObject(module, "ChainDatum", (PyObject*)&DapChainDatumObject_DapChainDatumObjectType);
-    PyModule_AddObject(module, "ChainDatumIter", (PyObject*)&DapChainDatumIterObject_DapChainDatumIterObjectType);
+    PyModule_AddObject(module, "CS", (PyObject*)&DapChainCsObject_DapChainCsObjectType);
+    PyModule_AddObject(module, "DatumTypeId", (PyObject*)&DapChainDatumTypeIdObject_DapChainDatumTypeIdObjectType);
+    PyModule_AddObject(module, "Datum", (PyObject*)&DapChainDatumObject_DapChainDatumObjectType);
+    PyModule_AddObject(module, "DatumIter", (PyObject*)&DapChainDatumIterObject_DapChainDatumIterObjectType);
     PyModule_AddObject(module, "ChainDatumToken", (PyObject*)&DapChainDatumToken_DapChainDatumTokenObjectType);
     PyModule_AddObject(module, "ChainDatumTokenExt", (PyObject*)&DapChainTxTokenExt_DapChainTxTokenExtType);
     PyModule_AddObject(module, "ChainDatumTokenEmisson", (PyObject*)&DapChainDatumTokenEmission_DapChainDatumTokenEmissionObjectType);

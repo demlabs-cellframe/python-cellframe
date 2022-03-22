@@ -10,7 +10,7 @@ PyMethodDef DapChainCSMethods[] = {
 
 PyTypeObject DapChainCsObject_DapChainCsObjectType = {
         PyVarObject_HEAD_INIT(NULL, 0)
-        "CellFrame.ChainCS",             /* tp_name */
+        "CellFrame.CS",             /* tp_name */
         sizeof(PyDapChainCsObject),      /* tp_basicsize */
         0,                               /* tp_itemsize */
         0,                               /* tp_dealloc */

@@ -8,7 +8,7 @@ PyMethodDef DapChainHashSlowMethod[] = {
 
 PyTypeObject DapChainHashSlowObject_DapChainHashSlowObjectType = {
         PyVarObject_HEAD_INIT(NULL, 0)
-        "CellFrame.ChainHashSlow",       /* tp_name */
+        "CellFrame.HashSlow",       /* tp_name */
         sizeof(PyDapChainHashSlowObject),/* tp_basicsize */
         0,                               /* tp_itemsize */
         0,                               /* tp_dealloc */
@@ -289,7 +289,7 @@ PyObject *DapChainIdObject_str(PyObject *self){
 /* Dap chain cell id */
 PyTypeObject DapChainCellIDObject_DapChainCellIDType = {
         PyVarObject_HEAD_INIT(NULL, 0)
-        "CellFrame.ChainCellID"  ,       /* tp_name */
+        "CellFrame.CellID"  ,       /* tp_name */
         sizeof(PyDapChainCellIDObject),  /* tp_basicsize */
         0,                               /* tp_itemsize */
         0,                               /* tp_dealloc */
@@ -557,7 +557,7 @@ PyObject *wrapping_dap_chain_net_srv_price_unit_uid_get_b(PyObject *self, PyObje
 /*  wrapping dap_chain_node_addr_t */
 PyTypeObject DapChainNodeAddrObject_DapChainNodeAddrObjectType = {
         PyVarObject_HEAD_INIT(NULL, 0)
-        "CellFrame.ChainNodeAddr"  ,       /* tp_name */
+        "CellFrame.NodeAddr"  ,       /* tp_name */
         sizeof(PyDapChainCellIDObject),  /* tp_basicsize */
         0,                               /* tp_itemsize */
         0,                               /* tp_dealloc */
