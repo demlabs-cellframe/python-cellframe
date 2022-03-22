@@ -390,7 +390,7 @@ PyObject *dap_chain_ledger_get_txs_py(PyObject *self, PyObject *args){
     }
     PyObject *obj_list = PyList_New(0);
     for (dap_list_t *l_iter = l_txs; l_iter != NULL; l_iter = l_iter->next){
-        PyDapChainDatumTxObject *obj_tx = PyObject_New(PyDapChainDatumTxObject, &DapChainDatumTx_DapChainDatumTxObjectType);
+        PyDapChainDatumTxObject *obj_tx = PyObject_New(PyDapChainDatumTxObject, &DapChainDatumTxObjectType);
         obj_tx->datum_tx = l_iter->data;
         obj_tx->original = false;
         PyObject_Dir((PyObject*) obj_tx);
