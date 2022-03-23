@@ -29,6 +29,7 @@
 #include <Python.h>
 #include "dap_chain_datum_tx_in.h"
 #include "wrapping_dap_hash.h"
+#include "dap_chain_datum_tx_items.h"
 
 #ifdef __cplusplus
 extern "C"{
@@ -38,6 +39,8 @@ typedef struct PyDapChainTXIn{
     PyObject_HEAD
     dap_chain_tx_in_t *tx_in;
 }PyDapChainTXInObject;
+
+int PyDapChainTxIn_init(PyObject *self, PyObject *args, PyObject *kwds);
 
 PyObject *wrapping_dap_chain_tx_in_get_prev_hash(PyObject *self, void *closure);
 PyObject *wrapping_dap_chain_tx_in_get_out_prev_idx(PyObject *self, void *closure);

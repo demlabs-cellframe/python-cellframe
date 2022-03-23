@@ -23,6 +23,8 @@ static PyMethodDef DapChainMethods[] = {
         {"atomIterGetNext", (PyCFunction)dap_chain_python_atom_iter_get_next, METH_VARARGS, ""},
         {"getDag", (PyCFunction)dap_chain_python_atom_iter_get_dag, METH_NOARGS},
         {"addMempoolNotify", (PyCFunction)dap_chain_python_add_mempool_notify_callback, METH_VARARGS, ""},
+        {"countTx", (PyCFunction)dap_chain_python_get_count_tx, METH_NOARGS, ""},
+        {"getTransactions", (PyCFunction)dap_chain_python_get_txs, METH_VARARGS, ""},
         //{"close", (PyCFunction)dap_chain_close_py, METH_NOARGS, ""},
         {NULL, NULL, 0, NULL}
 };
@@ -276,5 +278,33 @@ PyObject *dap_chain_python_add_mempool_notify_callback(PyObject *self, PyObject 
     Py_INCREF(obj_func);
     Py_INCREF(obj_arg);
     dap_chain_add_mempool_notify_callback(l_chain, _wrapping_dap_chain_mempool_notify_handler, l_callback);
+    return Py_None;
+}
+
+PyObject *dap_chain_python_get_count_tx(PyObject *self, PyObject *args){
+    (void)args;
+    dap_chain_t *l_chain = ((PyDapChainObject*)self)->chain_t;
+    size_t cnt = l_chain->callback_count_tx(l_chain);
+    return Py_BuildValue("n", cnt);
+}
+PyObject *dap_chain_python_get_txs(PyObject *self, PyObject *args){
+    dap_chain_t *l_chain = ((PyDapChainObject*)self)->chain_t;
+    size_t count = 0, page = 0;
+    if (!PyArg_ParseTuple(args, "nn", &count, &page)){
+        return NULL;
+    }
+    dap_list_t *l_list = l_chain->callback_get_txs(l_chain, count, page);
+    if (l_list != NULL){
+        PyObject *l_obj_list = PyList_New(0);
+        for (dap_list_t *l_ptr = l_list; l_ptr != NULL; l_ptr = l_ptr->next){
+            PyDapChainDatumTxObject *l_obj_tx = PyObject_New(PyDapChainDatumTxObject, &DapChainDatumTxObjectType);
+            PyObject_Dir((PyObject*)l_obj_tx);
+            l_obj_tx->datum_tx = l_ptr->data;
+            l_obj_tx->original = false;
+            PyList_Append(l_obj_list, (PyObject *)l_obj_tx);
+        }
+        dap_list_free(l_list);
+        return l_obj_list;
+    }
     return Py_None;
 }

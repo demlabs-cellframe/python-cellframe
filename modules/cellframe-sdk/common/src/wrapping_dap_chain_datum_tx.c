@@ -212,7 +212,9 @@ PyObject *PyDapChainDatumTxObject_create(PyTypeObject *type_object, PyObject *ar
     return (PyObject *)obj;
 }
 void PyDapChainDatumTxObject_delete(PyDapChainDatumTxObject* datumTx){
-    dap_chain_datum_tx_delete(datumTx->datum_tx);
+    if (!datumTx->original) {
+        dap_chain_datum_tx_delete(datumTx->datum_tx);
+    }
     Py_TYPE(datumTx)->tp_free((PyObject*)datumTx);
 }
 

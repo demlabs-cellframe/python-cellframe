@@ -42,10 +42,29 @@ PyTypeObject DapChainTxInObjectType = {
         0,                                  /* tp_descr_get */
         0,                                  /* tp_descr_set */
         0,                                  /* tp_dictoffset */
-        0,                                  /* tp_init */
+        (initproc)PyDapChainTxIn_init,                                  /* tp_init */
         0,                                  /* tp_alloc */
         PyType_GenericNew,                  /* tp_new */
 };
+
+int PyDapChainTxIn_init(PyObject *self, PyObject *args, PyObject *kwds){
+    const char *kwlist[] = {
+            "prevHash",
+            "prevIdx",
+            NULL
+    };
+    PyObject *obj_prev_hash;
+    uint32_t l_tx_prev_idx;
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "OI", kwlist, &obj_prev_hash, &l_tx_prev_idx)){
+        return -1;
+    }
+    if (!PyDapHashFast_Check(obj_prev_hash)){
+        return -1;
+    }
+    ((PyDapChainTXInObject*)self)->tx_in = dap_chain_datum_tx_item_in_create(
+            ((PyDapHashFastObject*)obj_prev_hash)->hash_fast, l_tx_prev_idx);
+    return 0;
+}
 
 PyObject *wrapping_dap_chain_tx_in_get_prev_hash(PyObject *self, void *closure){
     (void)closure;

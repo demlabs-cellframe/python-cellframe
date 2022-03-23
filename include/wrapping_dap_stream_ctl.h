@@ -12,8 +12,8 @@ typedef struct PyDapStreamCtl{
     PyObject_HEAD
 }PyDapStreamCtlObject;
 
-extern PyTypeObject DapStreamCtlObjectType;
-
 PyObject *dap_stream_ctl_add_proc_py(PyObject *self, PyObject *args);
 int dap_stream_ctl_init_py(uint32_t size);
+
+extern PyTypeObject DapStreamCtlObjectType;
 

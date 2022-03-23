@@ -11,8 +11,8 @@ typedef struct PyDapStream{
     PyObject_HEAD
 }PyDapStreamObject;
 
-extern PyTypeObject DapStreamObjectType;
-
 PyObject *dap_stream_add_proc_http_py(PyObject *self, PyObject *args);
+
+extern PyTypeObject DapStreamObjectType;
 
 #endif // _WRAPPING_DAP_STREAM_

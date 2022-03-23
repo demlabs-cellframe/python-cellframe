@@ -47,7 +47,6 @@ PyTypeObject DapStreamObjectType = {
     PyType_GenericNew,                                 /* tp_new */
 };
 
-
 PyObject *dap_stream_add_proc_http_py(PyObject *self, PyObject *args){
     PyObject *obj_server;
     const char *STREAM_URL;
