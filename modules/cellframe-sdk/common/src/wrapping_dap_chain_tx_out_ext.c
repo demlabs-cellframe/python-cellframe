@@ -49,10 +49,32 @@ PyTypeObject DapChainTxOutExtObjectType = {
         0,                                  /* tp_descr_get */
         0,                                  /* tp_descr_set */
         0,                                  /* tp_dictoffset */
-        0,                                  /* tp_init */
+        (initproc)PyDapChainTxOutExt_init,                                  /* tp_init */
         0,                                  /* tp_alloc */
         PyType_GenericNew,                  /* tp_new */
 };
+
+int PyDapChainTxOutExt_init(PyDapChainTXOutExtObject *self, PyObject *args, PyObject *kwds){
+    const char *kwlist[] = {
+            "addr",
+            "value",
+            "token",
+            NULL
+    };
+    PyObject *obj_addr;
+    uint64_t l_value;
+    char *l_token;
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "Oks", kwlist, &obj_addr, &l_value, &l_token)){
+        return -1;
+    }
+    if (!PyDapChainAddr_Check(obj_addr)){
+        return -1;
+    }
+    uint256_t l_value_256 = dap_chain_uint256_from(l_value);
+    self->out_ext = dap_chain_datum_tx_item_out_ext_create(
+            ((PyDapChainAddrObject*)obj_addr)->addr, l_value_256, l_token);
+    return 0;
+}
 
 PyObject *wrapping_dap_chain_tx_out_ext_get_addr(PyObject *self, void *closure){
     (void)closure;

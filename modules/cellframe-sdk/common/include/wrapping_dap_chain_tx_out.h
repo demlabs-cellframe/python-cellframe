@@ -38,6 +38,8 @@ typedef struct PyDapChainTXOut{
     dap_chain_tx_out_t *tx_out;
 }PyDapChainTXOutObject;
 
+int PyDapChainTxOut_init(PyDapChainTXOutObject* self, PyObject* args, PyObject *kwds);
+
 PyObject *wrapping_dap_chain_tx_out_get_addr(PyObject *self, void *closure);
 PyObject *wrapping_dap_chain_tx_out_get_value(PyObject *self, void *closure);
 
