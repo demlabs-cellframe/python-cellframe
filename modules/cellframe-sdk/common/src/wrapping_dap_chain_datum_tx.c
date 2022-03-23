@@ -161,6 +161,9 @@ PyMethodDef PyDapChainDatumTxObjectMethods[] ={
         {"addSignItem", (PyCFunction)dap_chain_datum_tx_add_sign_item_py, METH_VARARGS, ""},
         {"verifySign", (PyCFunction)dap_chain_datum_tx_verify_sign_py, METH_VARARGS, ""},
         {"getItems", (PyCFunction)wrapping_dap_chain_datum_tx_get_items, METH_NOARGS, ""},
+        {"createItemOut", (PyCFunction)wrapping_dap_chain_datum_tx_out_create, METH_VARARGS, ""},
+        {"createItemOutCond", (PyCFunction)wrapping_dap_chain_datum_tx_out_cond_create, METH_VARARGS, ""},
+        {"createItemOutExt", (PyCFunction)wrapping_dap_chain_datum_tx_out_ext_create, METH_VARARGS, ""},
         {NULL, NULL, 0, NULL}
 };
 
@@ -394,6 +397,75 @@ PyObject *wrapping_dap_chain_datum_tx_get_items(PyObject *self, PyObject *args){
         l_tx_items_count += l_tx_item_size;
     }
     return obj_list;
+}
+
+PyObject *wrapping_dap_chain_datum_tx_out_create(PyObject *self, PyObject *args){
+    PyObject *obj_addr;
+    uint64_t l_value;
+    if (!PyArg_ParseTuple(args, "Ok", &obj_addr, &l_value)){
+        return NULL;
+    }
+    if (!PyDapChainAddr_Check(obj_addr)){
+        return NULL;
+    }
+    uint256_t l_value_256 = dap_chain_uint256_from(l_value);
+    int res = dap_chain_datum_tx_add_out_item(&((PyDapChainDatumTxObject*)self)->datum_tx,
+                                              ((PyDapChainAddrObject*)obj_addr)->addr,
+                                              l_value_256);
+    if (res == 1){
+        return Py_BuildValue("O", Py_True);
+    } else {
+        return Py_BuildValue("O", Py_False);
+    }
+}
+
+PyObject *wrapping_dap_chain_datum_tx_out_cond_create(PyObject *self, PyObject *args){
+    PyObject* obj_key;
+    uint64_t l_value;
+    uint64_t l_value_per_unit_max;
+    PyObject *obj_srv_uid;
+    PyObject *obj_unit;
+    PyObject *obj_cond;
+    if (!PyArg_ParseTuple(args, "OkkOOO", &obj_key, &l_value, &l_value_per_unit_max, &obj_srv_uid, &obj_unit, &obj_cond)){
+        return NULL;
+    }
+    uint256_t l_value_256 = dap_chain_uint256_from(l_value);
+    uint256_t l_value_per_unit_max_256 = dap_chain_uint256_from(l_value_per_unit_max);
+    void *l_cond_data = PyBytes_AsString(obj_cond);
+    size_t l_cond_data_size = PyBytes_Size(obj_cond);
+    int res = dap_chain_datum_tx_add_out_cond_item(
+            &((PyDapChainDatumTxObject*)self)->datum_tx,
+            ((PyDapPkeyObject*)obj_key)->pkey,
+            ((PyDapChainNetSrvUIDObject*)obj_srv_uid)->net_srv_uid,
+            l_value_256, l_value_per_unit_max_256,
+            ((PyDapChainNetSrvPriceUnitUIDObject*)obj_srv_uid)->price_unit_uid,
+            l_cond_data, l_cond_data_size);
+    if (res == 1){
+        return Py_BuildValue("O", Py_True);
+    } else {
+        return Py_BuildValue("O", Py_False);
+    }
+}
+
+PyObject *wrapping_dap_chain_datum_tx_out_ext_create(PyObject *self, PyObject *args){
+    PyObject *obj_addr;
+    uint64_t l_value;
+    char *l_token;
+    if (!PyArg_ParseTuple(args, "Oks", &obj_addr, &l_value, &l_token)){
+        return NULL;
+    }
+    if (!PyDapChainAddr_Check(obj_addr)){
+        return NULL;
+    }
+    uint256_t l_value_256 = dap_chain_uint256_from(l_value);
+    int res = dap_chain_datum_tx_add_out_ext_item(
+            &((PyDapChainDatumTxObject*)self)->datum_tx,
+            ((PyDapChainAddrObject*)obj_addr)->addr, l_value_256, l_token);
+    if (res == 1){
+        return Py_BuildValue("O", Py_True);
+    } else {
+        return Py_BuildValue("O", Py_False);
+    }
 }
 
 /* -------------------------------------- */

@@ -106,6 +106,10 @@ PyObject *wrapping_dap_chain_datum_tx_get_items(PyObject *self, PyObject *args);
 PyObject *wrapping_dap_chain_datum_tx_get_hash(PyObject *self, void* closure);
 PyObject *wrapping_dap_chain_datum_tx_get_tsCreated(PyObject *self, void* closure);
 
+PyObject *wrapping_dap_chain_datum_tx_out_create(PyObject *self, PyObject *args);
+PyObject *wrapping_dap_chain_datum_tx_out_cond_create(PyObject *self, PyObject *args);
+PyObject *wrapping_dap_chain_datum_tx_out_ext_create(PyObject *self, PyObject *args);
+
 extern PyTypeObject DapChainDatumTxObjectType;
 
 /* -------------------------------------- */
