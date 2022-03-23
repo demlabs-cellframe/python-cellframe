@@ -60,17 +60,17 @@ int PyDapChainTxInCond_init(PyDapChainTXInCondObject* self, PyObject *args, PyOb
             "receiptIdx",
             NULL
     };
-    PyObject *obj_tx_prev_hash;
+    PyDapHashFastObject *obj_tx_prev_hash;
     uint32_t l_tx_out_prev_idx;
     uint32_t l_receipt_idx;
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "OII", kwlist, &obj_tx_prev_hash, &l_tx_out_prev_idx, &l_receipt_idx)){
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "OII", (char **)kwlist, &obj_tx_prev_hash, &l_tx_out_prev_idx, &l_receipt_idx)){
         return -1;
     }
     if (!PyDapHashFast_Check(obj_tx_prev_hash)){
         return -1;
     }
     self->tx_in_cond = dap_chain_datum_tx_item_in_cond_create(
-            ((PyDapHashFastObject*)obj_tx_prev_hash)->hash_fast,
+            obj_tx_prev_hash->hash_fast,
             l_tx_out_prev_idx,
             l_receipt_idx);
     return 0;

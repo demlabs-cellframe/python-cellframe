@@ -96,7 +96,7 @@ PyObject *dap_chain_mempool_tx_create_py(PyObject *self, PyObject *args){
 
 PyObject *dap_chain_mempool_tx_create_cond_py(PyObject *self, PyObject *args){
     (void)self;
-    PyObject *obj_net;
+    PyDapChainNetObject *obj_net;
     PyObject* obj_key_from;
     PyObject* obj_key_cond;
     char *l_token_ticker;
@@ -122,7 +122,7 @@ PyObject *dap_chain_mempool_tx_create_cond_py(PyObject *self, PyObject *args){
     uint256_t l_value_per_unit_max_256 = dap_chain_uint256_from(l_value_per_unit_max);
     uint256_t l_fee_256  = dap_chain_uint256_from(l_fee);
     dap_hash_fast_t *l_hf = dap_chain_mempool_tx_create_cond(
-            ((PyDapChainNetObject*)obj_net)->chain_net,
+            obj_net->chain_net,
             ((PyCryptoKeyObject*)obj_key_from)->key,
             ((PyDapPkeyObject *)obj_key_cond)->pkey,
             l_token_ticker,
@@ -143,8 +143,8 @@ PyObject *dap_chain_mempool_tx_create_cond_py(PyObject *self, PyObject *args){
 }
 PyObject *dap_chain_mempool_tx_create_cond_input_py(PyObject *self, PyObject *args){
     (void)self;
-    PyObject *obj_net;
-    PyObject *obj_tx_prev_hash;
+    PyDapChainNetObject *obj_net;
+    PyDapHashFastObject *obj_tx_prev_hash;
     PyObject *obj_addr_to;
     PyObject *obj_key_tx_sign;
     PyObject *obj_receipt;
@@ -168,8 +168,8 @@ PyObject *dap_chain_mempool_tx_create_cond_input_py(PyObject *self, PyObject *ar
         return NULL;
     }
     dap_chain_hash_fast_t *l_hf =dap_chain_mempool_tx_create_cond_input(
-            ((PyDapChainNetObject*)obj_net)->chain_net,
-            ((PyDapHashFastObject*)obj_tx_prev_hash)->hash_fast,
+            obj_net->chain_net,
+            obj_tx_prev_hash->hash_fast,
             ((PyDapChainAddrObject *)obj_addr_to)->addr,
             ((PyCryptoKeyObject*)obj_key_tx_sign)->key,
             ((PyDapChainTXReceiptObject*)obj_receipt)->tx_receipt);
