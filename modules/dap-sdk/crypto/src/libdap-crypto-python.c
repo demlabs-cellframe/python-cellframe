@@ -56,10 +56,10 @@ PyMethodDef g_crypto_methods_py[] = {
         {NULL, NULL, 0, NULL}
 };
 
-PyTypeObject DapCryptoObjectType = {
+PyTypeObject DapCryptoAlgoObjectType = {
         PyVarObject_HEAD_INIT(NULL, 0)
-        "CellFrame.Crypto",             /* tp_name */
-        sizeof(PyCryptoObject),         /* tp_basicsize */
+        "DAP.Crypto.Algo",             /* tp_name */
+        sizeof(PyCryptoAlgoObject),         /* tp_basicsize */
         0,                         /* tp_itemsize */
         0,                         /* tp_dealloc */
         0,                         /* tp_print */
@@ -78,7 +78,7 @@ PyTypeObject DapCryptoObjectType = {
         0,                         /* tp_as_buffer */
         Py_TPFLAGS_DEFAULT |
         Py_TPFLAGS_BASETYPE,   /* tp_flags */
-        "Crypto objects",           /* tp_doc */
+        "Crypto algorithms",           /* tp_doc */
         0,		               /* tp_traverse */
         0,		               /* tp_clear */
         0,		               /* tp_richcompare */
@@ -107,7 +107,7 @@ int dap_crypto_init(void){
         log_it(L_CRITICAL,"Can't init encryption key module");
         return -2;
     }
-    PyCryptoKeyObject_PyCryptoKeyType.tp_new = PyType_GenericNew;
+    PyCryptoKeyObjectType.tp_new = PyType_GenericNew;
     return 0;
 }
 

@@ -8,7 +8,7 @@ PyMethodDef DapCoreMethods[] = {
 
 PyTypeObject DapCoreObjectType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "Dap",             /* tp_name */
+    "DAP.Core",             /* tp_name */
     sizeof(PyDapObject),             /* tp_basicsize */
     0,                         /* tp_itemsize */
     0,			       /* tp_dealloc */

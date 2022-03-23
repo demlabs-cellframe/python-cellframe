@@ -26,7 +26,7 @@ PyMethodDef PyCryptoKeyTypeObjectMethods[] = {
 
 PyTypeObject DapCryptoKeyTypeObjectType = {
         PyVarObject_HEAD_INIT(NULL, 0)
-        "CellFrame.CryptoKeyType",           /* tp_name */
+        "DAP.Crypto.KeyType",           /* tp_name */
         sizeof(PyCryptoKeyTypeObject),       /* tp_basicsize */
         0,		                         /* tp_itemsize */
         0,		   			 /* tp_dealloc */

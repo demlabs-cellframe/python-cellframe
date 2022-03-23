@@ -10,7 +10,7 @@ PyMethodDef ServerCorePythonMethods[] = {
 
 PyTypeObject DapServerCoreObjectType = {
         PyVarObject_HEAD_INIT(NULL, 0)
-        "CellFrame.ServerCore",             /* tp_name */
+        "DAP.Net.ServerCore",             /* tp_name */
         sizeof(PyServerCoreObject),         /* tp_basicsize */
         0,                                  /* tp_itemsize */
         0,                                  /* tp_dealloc */

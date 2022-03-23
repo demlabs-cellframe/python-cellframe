@@ -66,7 +66,7 @@ PyObject* dap_enc_key_new_py(PyObject *self, PyObject *args){
         return PyLong_FromLong(-1);
     }
     dap_enc_key_t *new_key = dap_enc_key_new(type_key);
-    PyObject *obj = _PyObject_New(&PyCryptoKeyObject_PyCryptoKeyType);
+    PyObject *obj = _PyObject_New(&PyCryptoKeyObjectType);
     ((PyCryptoKeyObject*)obj)->key = new_key;
     return  Py_BuildValue("O", obj);
 }
@@ -117,7 +117,7 @@ PyObject *dap_enc_key_new_generate_py(PyObject *self, PyObject *args){
             }
         }
     }
-    PyCryptoKeyObject *obj_key = PyObject_New(PyCryptoKeyObject, &PyCryptoKeyObject_PyCryptoKeyType);
+    PyCryptoKeyObject *obj_key = PyObject_New(PyCryptoKeyObject, &PyCryptoKeyObjectType);
     PyObject_Dir((PyObject*)obj_key);
     obj_key->key = dap_enc_key_new_generate(in_type_key, l_kex_buf, l_kex_buf_size,
                                             l_seed, l_seed_size, in_key_size);

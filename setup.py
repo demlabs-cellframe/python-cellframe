@@ -75,6 +75,7 @@ setup(
     author='Demlabs (2007-2021)',
     license="GNU GPLv3",
     packages=['CellFrame'],
+    ext_package='CellFrame'
     ext_modules=[CMakeExtension('CellFrame/libCellFrame')],
     # add custom build_ext command
     cmdclass={

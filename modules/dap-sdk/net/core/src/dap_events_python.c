@@ -10,7 +10,7 @@ PyMethodDef PyDapEventsObject_methods[] = {
 
 PyTypeObject DapEventsObjectType = {
         PyVarObject_HEAD_INIT(NULL, 0)
-        "CellFrame.ServerCore.DapEvents",           /* tp_name */
+        "DAP.Net.Events",           /* tp_name */
         sizeof(PyDapEventsObject),		        /* tp_basicsize */
         0,			                        /* tp_itemsize */
         (destructor)PyDapEventsObject_dealloc,	/* tp_dealloc */

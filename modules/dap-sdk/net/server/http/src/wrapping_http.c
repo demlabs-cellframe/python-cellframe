@@ -7,7 +7,7 @@ PyMethodDef DapHttpMethods[] = {
 
 PyTypeObject DapHttpObjectType = {
         PyVarObject_HEAD_INIT(NULL, 0)
-        "CellFrame.DapHttp",             /* tp_name */
+        "DAP.Net.Http",             /* tp_name */
         sizeof(PyDapHttpObject),                   /* tp_basicsize */
         0,                                                 /* tp_itemsize */
         0,                                                 /* tp_dealloc */

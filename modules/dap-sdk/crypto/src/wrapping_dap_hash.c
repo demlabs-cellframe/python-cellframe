@@ -9,7 +9,7 @@ PyMethodDef DapHashTypeMethods[] = {
 
 PyTypeObject DapHashTypeObject_DapChainHashTypeObjectType = {
         PyVarObject_HEAD_INIT(NULL, 0)
-        "CellFrame.HashType",          /* tp_name */
+        "DAP.Crypto.HashType",          /* tp_name */
         sizeof(PyDapHashTypeObject),   /* tp_basicsize */
         0,                               /* tp_itemsize */
         0,                               /* tp_dealloc */
@@ -74,7 +74,7 @@ PyMethodDef DapHashFastMethods[] = {
 
 PyTypeObject DapChainHashFastObjectType = {
         PyVarObject_HEAD_INIT(NULL, 0)
-        "CellFrame.HashFast",          /* tp_name */
+        "DAP.Crypto.HashFast",          /* tp_name */
         sizeof(PyDapHashFastObject),   /* tp_basicsize */
         0,                               /* tp_itemsize */
         0,                               /* tp_dealloc */

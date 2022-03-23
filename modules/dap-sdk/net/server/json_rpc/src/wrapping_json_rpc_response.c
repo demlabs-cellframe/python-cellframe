@@ -15,7 +15,7 @@ PyGetSetDef PyDapJSONRPCResponseGetsSets[] = {
 
 PyTypeObject DapJsonRpcResponseobjectType = {
         PyVarObject_HEAD_INIT(NULL, 0)
-        "CellFrame.JSONRPCResponse",             /* tp_name */
+        "DAP.Net.JSONRPCResponse",             /* tp_name */
         sizeof(PyDapJSONRPCResponseObject),                   /* tp_basicsize */
         0,                                                 /* tp_itemsize */
         0,                                                 /* tp_dealloc */

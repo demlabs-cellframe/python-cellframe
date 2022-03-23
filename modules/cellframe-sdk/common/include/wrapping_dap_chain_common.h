@@ -158,7 +158,7 @@ typedef struct PyDapChainHashSlowKind{
     dap_chain_hash_slow_kind_t *slow_kind;
 }PyDapChainHashSlowKindObject;
 
-extern PyTypeObject DapChainSlowKindObject_DapChainSlowKindType;
+extern PyTypeObject DapChainHashSlowKindObjectType;
 
 /*=================*/
 

@@ -20,9 +20,9 @@ PyGetSetDef PyDapHttpSimpleGetSetDef[] = {
         {NULL}
 };
 
-PyTypeObject DapHTTPSimple_DapHTTPSimpleType = {
+PyTypeObject DapHttpSimpleObjectType = {
         PyVarObject_HEAD_INIT(NULL, 0)
-        "CellFrame.HttpSimple",             /* tp_name */
+        "DAP.Met.HttpSimple",             /* tp_name */
         sizeof(PyDapHttpSimpleObject),                   /* tp_basicsize */
         0,                                                 /* tp_itemsize */
         0,                                                 /* tp_dealloc */
@@ -88,7 +88,7 @@ void wrapping_dap_http_simple_callback(dap_http_simple_t *sh, void *obj){
     PyGILState_STATE gstate;
     gstate = PyGILState_Ensure();
     PyObject *obj_func = _w_simple_proc_find(sh->http_client->url_path);
-    PyDapHttpSimpleObject *obj_http_simple = PyObject_NEW(PyDapHttpSimpleObject, &DapHTTPSimple_DapHTTPSimpleType);
+    PyDapHttpSimpleObject *obj_http_simple = PyObject_NEW(PyDapHttpSimpleObject, &DapHttpSimpleObjectType);
     PyObject *obj_http_status_code = _PyObject_New(&DapHttpCodeObjectType);
     ((PyDapHttpSimpleObject*)obj_http_simple)->sh = sh;
     PyObject_Dir((PyObject*)obj_http_simple);

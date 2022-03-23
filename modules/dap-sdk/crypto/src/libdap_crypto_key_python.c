@@ -1,8 +1,8 @@
 #include "libdap_crypto_key_python.h"
 
-PyTypeObject PyCryptoKeyObject_PyCryptoKeyType = {
+PyTypeObject PyCryptoKeyObjectType = {
         PyVarObject_HEAD_INIT(NULL, 0)
-        "CellFrame.Crypto.Key",                            /* tp_name */
+        "DAP.Crypto.Key",                            /* tp_name */
         sizeof(PyCryptoKeyObject),                         /* tp_basicsize */
         0,                                                 /* tp_itemsize */
         (destructor)PyCryptoKeyObject_dealloc,             /* tp_dealloc */

@@ -3,7 +3,7 @@
 /* Sign type*/
 PyTypeObject DapCryproSignTypeObjectType = {
         PyVarObject_HEAD_INIT(NULL, 0)
-        "CellFrame.SignType",       /* tp_name */
+        "DAP.Crypto.SignType",       /* tp_name */
         sizeof(PyDapSignTypeObject),/* tp_basicsize */
         0,                               /* tp_itemsize */
         0,                               /* tp_dealloc */
@@ -58,7 +58,7 @@ PyGetSetDef DapSignObjectGetsSetsDef[] = {
 
 PyTypeObject DapCryptoSignObjectType = {
         PyVarObject_HEAD_INIT(NULL, 0)
-        "DAP.Sign",       /* tp_name */
+        "DAP.Crypto.Sign",       /* tp_name */
         sizeof(PyDapSignObject),/* tp_basicsize */
         0,                               /* tp_itemsize */
         0,                               /* tp_dealloc */

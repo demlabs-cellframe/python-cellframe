@@ -1,10 +1,7 @@
 cmake_minimum_required(VERSION 3.0)
 
-if (SUPPORT_PYTHON_PLUGINS)
-    project(API_CellFrame C)
-else()
-    project(CellFrame C)
-endif()
+project(CellFrame C)
+
 set(CMAKE_VERBOSE_MAKEFILE ON)
 set(CMAKE_COLOR_MAKEFILE   ON)
 set(CMAKE_C_STANDARD 11)

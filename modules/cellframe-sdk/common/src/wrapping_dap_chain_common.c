@@ -49,7 +49,7 @@ PyTypeObject DapChainHashSlowObjectType = {
 };
 
 /* Hash slow kind */
-PyTypeObject DapChainSlowKindObject_DapChainSlowKindType = {
+PyTypeObject DapChainHashSlowKindObjectType = {
         PyVarObject_HEAD_INIT(NULL, 0)
         "CellFrame.ChainSlowKind"  ,       /* tp_name */
         sizeof(PyDapChainHashSlowKindObject),  /* tp_basicsize */

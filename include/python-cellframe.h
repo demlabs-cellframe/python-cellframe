@@ -102,45 +102,12 @@ BOOL WINAPI consoleHandler(DWORD);
 void sigfunc(int sig);
 #endif
 
+PyObject *python_dap_init(PyObject *self, PyObject *args);
 PyObject *python_cellframe_init(PyObject *self, PyObject *args);
 
 void deinit_modules(void);
 
-PyObject *python_cellframe_deinit(PyObject *self, PyObject *args);
+PyObject *python_dap_deinit(PyObject *self, PyObject *args);
 
-static PyMethodDef CellFramePythonMethods[] = {
-        {"init", python_cellframe_init, METH_VARARGS, "Initialization of the Python Cellframe library."},
-        {"deinit", python_cellframe_deinit, METH_VARARGS, "Deinitialization of the Python Cellframe library."},
-        {"setLogLevel", (PyCFunction)dap_set_log_level, METH_VARARGS, "Setting the logging level."},
-        {"logItDebug", (PyCFunction)dap_log_it_debug, METH_VARARGS, "Log a message with the DEBUG level."},
-        {"logItInfo", (PyCFunction)dap_log_it_info, METH_VARARGS, "Log a message with the INFO level."},
-        {"logItNotice", (PyCFunction)dap_log_it_notice, METH_VARARGS, "Log a message with the NOTICE level."},
-        {"logItMessage", (PyCFunction)dap_log_it_message, METH_VARARGS, "Log a message with the MESSAGE level."},
-        {"logItDap", (PyCFunction)dap_log_it_dap, METH_VARARGS, "Log a message with the DAP level."},
-        {"logItWarning", (PyCFunction)dap_log_it_warning, METH_VARARGS, "Log a message with the WARNING level WARNING."},
-        {"logItAtt", (PyCFunction)dap_log_it_att, METH_VARARGS, "Log a message with the ATT level."},
-        {"logItError", (PyCFunction)dap_log_it_error, METH_VARARGS, "Log a message with the ERROR level."},
-        {"logItCritical", (PyCFunction)dap_log_it_critical, METH_VARARGS, "Log a message with the CRITICAL level."},
-
-        {"configGetItem", (PyCFunction)py_m_dap_config_get_item, METH_VARARGS, "Get an item from a configuration."},
-        {"configGetItemDefault", (PyCFunction)py_m_dap_config_get_item_default, METH_VARARGS, "Get an item from a configuration with a default value."},
-        {NULL, NULL, 0, NULL}
-};
-
-static char CellFramePythonModuleDoc[]=
-"CellFrame SDK.Python v"DAP_VERSION" welcomes you!"
-"";
-static struct PyModuleDef CellFramePythonModule = {
-        PyModuleDef_HEAD_INIT,
-        "CellFrame",   /* name of module */
-        CellFramePythonModuleDoc, /* module documentation, may be NULL */
-        -1,       /* size of per-interpreter state of the module,
-                 or -1 if the module keeps state in global variables. */
-        CellFramePythonMethods,
-        NULL,
-        NULL,
-        NULL,
-        NULL
-};
-
+PyMODINIT_FUNC PyInit_libDAP();
 PyMODINIT_FUNC PyInit_libCellFrame(void);

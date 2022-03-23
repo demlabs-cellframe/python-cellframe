@@ -9,7 +9,7 @@ PyMethodDef PyDapJSONRPCRequestMethods[] = {
 
 PyTypeObject DapJsonRpcRequestObjectType = {
         PyVarObject_HEAD_INIT(NULL, 0)
-        "CellFrame.JSONRPCRequest",             /* tp_name */
+        "DAP.Net.JSONRPCRequest",             /* tp_name */
         sizeof(PyDAPJsonRPCRequestObject),                   /* tp_basicsize */
         0,                                                 /* tp_itemsize */
         0,                                                 /* tp_dealloc */

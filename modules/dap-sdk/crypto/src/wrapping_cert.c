@@ -48,7 +48,7 @@ PyMethodDef g_crypto_cert_methods_py[] = {
 
 PyTypeObject DapCryptoCertObjectType = {
         PyVarObject_HEAD_INIT(NULL, 0)
-        "CellFrame.Cert",             /* tp_name */
+        "DAP.Crypto.Cert",             /* tp_name */
         sizeof(PyCryptoCertObject),         /* tp_basicsize */
         0,                         /* tp_itemsize */
         dap_cert_delete_py,                         /* tp_dealloc */

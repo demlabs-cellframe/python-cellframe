@@ -33,7 +33,8 @@ int dap_chain_plugins_init(dap_config_t *a_config){
             log_it(L_ERROR, "Can't find \"%s\" directory", s_plugins_root_path);
             return -1;
         }
-        PyImport_AppendInittab("API_CellFrame", PyInit_libCellFrame);
+        PyImport_AppendInittab("DAP", PyInit_libDAP);
+        PyImport_AppendInittab("CellFrame", PyInit_libCellFrame);
         Py_Initialize();
         PyEval_InitThreads();
         PyObject *l_sys_module = PyImport_ImportModule("sys");

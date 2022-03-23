@@ -201,7 +201,7 @@ PyObject *dap_chain_wallet_get_key_py(PyObject *self, PyObject *argv){
     uint32_t key_idx;
     if (!PyArg_ParseTuple(argv, "I", &key_idx))
             return NULL;
-    PyObject *obj_key = _PyObject_New(&PyCryptoKeyObject_PyCryptoKeyType);
+    PyObject *obj_key = _PyObject_New(&PyCryptoKeyObjectType);
     PyObject_Dir(obj_key);
     ((PyCryptoKeyObject*)obj_key)->key = dap_chain_wallet_get_key(
                 ((PyDapChainWalletObject*)self)->wallet,

@@ -14,7 +14,7 @@ typedef struct PyCryptoKey{
 
 void PyCryptoKeyObject_dealloc(PyCryptoKeyObject *cryptoObject);
 
-extern PyTypeObject PyCryptoKeyObject_PyCryptoKeyType;
+extern PyTypeObject PyCryptoKeyObjectType;
 
 #ifdef __cplusplus
 }

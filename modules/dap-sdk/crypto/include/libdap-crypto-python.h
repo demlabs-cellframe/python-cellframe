@@ -42,15 +42,15 @@ extern "C" {
 #endif
 
 
-typedef struct PyCrypto{
+typedef struct PyCryptoAlgo{
     PyObject_HEAD
-}PyCryptoObject;
+}PyCryptoAlgoObject;
 
 int dap_crypto_init(void);
 
 void dap_crypto_deinit(void);
 
-extern PyTypeObject DapCryptoObjectType;
+extern PyTypeObject DapCryptoAlgoObjectType;
 
 #ifdef  __cplusplus
 }
