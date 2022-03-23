@@ -144,6 +144,10 @@ PyTypeObject DapChainAddrObjectType = {
         PyType_GenericNew,               /* tp_new */
 };
 
+bool PyDapChainAddr_Check(PyObject *self){
+    return PyObject_TypeCheck(self, &DapChainAddrObjectType);
+}
+
 /* Chain net id */
 PyMethodDef DapChainNetIdObjectMethods[] = {
         {"fromStr", (PyCFunction)dap_chain_net_id_from_str_py, METH_VARARGS | METH_STATIC, ""},
@@ -601,6 +605,7 @@ PyObject* PyDapChainNodeAddrObject_str(PyObject* self){
     char *ret = dap_strdup_printf(NODE_ADDR_FP_STR, NODE_ADDR_FP_ARGS(((PyDapChainNodeAddrObject *) self)->node_addr));
     return Py_BuildValue("s", ret);
 }
+
 
 /* wrapping dap_chain_net_srv_uid_t */
 PyObject* PyDapChainNetSrvUIDObject_str(PyObject *self){

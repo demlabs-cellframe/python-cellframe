@@ -63,6 +63,8 @@ PyObject *dap_chain_addr_get_net_id_py(PyObject *self, PyObject *args);
 
 PyObject *obj_addr_str(PyObject *self);
 
+bool PyDapChainAddr_Check(PyObject *self);
+
 extern PyTypeObject DapChainAddrObjectType;
 
 /*=================*/
