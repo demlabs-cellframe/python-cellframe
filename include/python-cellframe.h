@@ -29,6 +29,7 @@
 #include "wrapping_dap_chain_tx_pkey.h"
 #include "wrapping_dap_chain_tx_receipt.h"
 #include "wrapping_dap_chain_tx_out_ext.h"
+#include "wrapping_dap_chain_global_db.h"
 // ============
 // === Chain net ===
 #include "libdap_chain_net_python.h"
