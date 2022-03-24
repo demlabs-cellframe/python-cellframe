@@ -75,7 +75,7 @@ The infoCMD function is a handler for a command that displays information about 
 def infoCMD(argv, indexStrReply):
     if (len(argv) == 2):
         # We get an object of type HashFast from the 16-ary string representation of the hash.
-        hash = HashFast.strToHashFast(argv[1])
+        hash = HashFast.fromString(argv[1])
         order = ServiceOrder.find(hash)
         reply = "Order: \n"
         order_reply = infoOrder(order)
