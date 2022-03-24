@@ -1,4 +1,5 @@
-from API_CellFrame import logItNotice, AppCliServer
+from DAP.Core import logIt
+from CellFrame import AppCliServer
 
 """
 This function takes two arguments
@@ -16,7 +17,7 @@ def cmdDemo2(argv, indexStrReply):
     AppCliServer.setReplyText("I simple demo command", indexStrReply)
 
 def init():
-    logItNotice("Running plugin order")
+    logIt.notice("Running plugin order")
     """
           The cmdItemCreate function creates a CLI command. 
           This function takes four arguments.

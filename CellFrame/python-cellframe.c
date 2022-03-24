@@ -580,7 +580,6 @@ PyMODINIT_FUNC PyInit_libCellFrame(void)
         PyType_Ready( &DapChainAtomIterObjectType ) < 0 ||
         PyType_Ready( &DapChainAtomPtrObjectType ) < 0 ||
         PyType_Ready( &DapChainCellObjectType ) < 0 ||
-        PyType_Ready( &DapChainGdbObjectType ) < 0 ||
         PyType_Ready( &DapChainMempoolObjectType ) < 0 ||
         PyType_Ready( &DapChainCellIdObjectType ) < 0 ||
         PyType_Ready( &DapChainNodeAddrObjectType ) < 0 ||
@@ -590,6 +589,7 @@ PyMODINIT_FUNC PyInit_libCellFrame(void)
         PyType_Ready( &DapChainCsObjectType ) < 0 ||
         PyType_Ready( &DapChainLedgerObjectType ) < 0 ||
         PyType_Ready( &DapChainWalletObjectType ) < 0 ||
+        PyType_Ready(&DapChainGlobalDBObjectType) < 0 ||
         // === Chain datum
         /// Common
         PyType_Ready( &DapChainDatumTypeIdObjectType ) < 0 ||
@@ -634,7 +634,8 @@ PyMODINIT_FUNC PyInit_libCellFrame(void)
         PyType_Ready( &DapChainNetSrvPriceObjectType ) < 0 ||
         PyType_Ready( &DapChainNetSrvPriceUnitUidObjectType ) < 0 ||
         // === Chain consensuses
-        PyType_Ready( &DapChainCsDagPoaObjectType ) < 0
+        PyType_Ready( &DapChainCsDagPoaObjectType ) < 0 ||
+        PyType_Ready( &DapChainGdbObjectType ) < 0
         ) {
         log_it(L_CRITICAL,"Not all python type objects are initialized for CellFrame module");
         return NULL;
@@ -652,7 +653,7 @@ PyMODINIT_FUNC PyInit_libCellFrame(void)
     PyModule_AddObject(chainModule, "ChainHashSlowKind", (PyObject*)&DapChainHashSlowKindObjectType);
     PyModule_AddObject(chainModule, "ChainAddr", (PyObject*)&DapChainAddrObjectType);
     PyModule_AddObject(chainModule, "ChainCS", (PyObject*)&DapChainCsObjectType);
-    PyModule_AddObject(chainModule, "GDB", (PyObject*)&DapChainGdbObjectType);
+    PyModule_AddObject(chainModule, "GlobalDB", (PyObject*)&DapChainGlobalDBObjectType);
     PyModule_AddObject(chainModule, "Wallet", (PyObject*)&DapChainWalletObjectType);
     PyModule_AddObject(chainModule, "Mempool", (PyObject*)&DapChainMempoolObjectType);
     PyModule_AddObject(chainModule, "Ledger", (PyObject*)&DapChainLedgerObjectType);
@@ -700,6 +701,7 @@ PyMODINIT_FUNC PyInit_libCellFrame(void)
     PyObject *csModule = PyModule_Create(&CellframeConsensusPythonModule);
     // === Chain cs dag poa
     PyModule_AddObject(csModule, "DagPoa", (PyObject*)&DapChainCsDagPoaObjectType);
+    PyModule_AddObject(csModule, "GDB", (PyObject*)&DapChainGdbObjectType);
 
     PyObject *cellframeModule = PyModule_Create(&CellFramePythonModule);
     PyModule_AddStringConstant(cellframeModule, "__author__", "Alexey Stratulat <alexey.stratulat@demlabs.net>");
