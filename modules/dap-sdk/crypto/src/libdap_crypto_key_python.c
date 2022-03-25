@@ -24,6 +24,10 @@ PyTypeObject PyCryptoKeyObject_PyCryptoKeyType = {
         "Crypto key objects",                              /* tp_doc */
 };
 
+bool PyCryptoKey_check(PyObject *obj_key){
+    return PyObject_TypeCheck(obj_key, &PyCryptoKeyObject_PyCryptoKeyType);
+}
+
 void PyCryptoKeyObject_dealloc(PyCryptoKeyObject *cryptoObject){
     dap_enc_key_delete(cryptoObject->key);
     Py_TYPE(cryptoObject)->tp_free((PyObject*)cryptoObject);
