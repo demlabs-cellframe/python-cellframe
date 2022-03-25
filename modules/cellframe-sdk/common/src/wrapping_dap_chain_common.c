@@ -286,6 +286,10 @@ PyTypeObject DapChainIdObjectType = {
         PyType_GenericNew,               /* tp_new */
 };
 
+bool DapChainIdObject_Check(PyObject* obj_chainId){
+    return PyObject_TypeCheck(obj_chainId, &DapChainIdObjectType);
+}
+
 PyObject *DapChainIdObject_str(PyObject *self){
     return Py_BuildValue("s", dap_strdup_printf("0x%016"DAP_UINT64_FORMAT_x, ((PyDapChainIDObject*)self)->chain_id->uint64));
 }

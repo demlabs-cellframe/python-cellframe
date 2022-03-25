@@ -124,6 +124,8 @@ typedef struct PyDapChainID{
     dap_chain_id_t *chain_id;
 }PyDapChainIDObject;
 
+bool DapChainIdObject_Check(PyObject* obj_chainId);
+
 PyObject *DapChainIdObject_str(PyObject *self);
 
 extern PyTypeObject DapChainIdObjectType;
