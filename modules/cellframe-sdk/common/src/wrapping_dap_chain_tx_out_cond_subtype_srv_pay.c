@@ -45,10 +45,41 @@ PyTypeObject DapChainTxOutCondSubTypeSrvPayObjectType = {
         0,                               /* tp_descr_get */
         0,                               /* tp_descr_set */
         0,                               /* tp_dictoffset */
-        0,                               /* tp_init */
+        (initproc)DapChainTxOutCondSubTypeSrvPay_init,                               /* tp_init */
         0,                               /* tp_alloc */
         PyType_GenericNew,               /* tp_new */
 };
+
+int DapChainTxOutCondSubTypeSrvPay_init(PyDapChainTxOutCondObject* self, PyObject *arg, PyObject *kwds){
+    const char *kwlist[] = {
+            "pkey",
+            "srvUID",
+            "value",
+            "valueMaxPerUnit",
+            "unit",
+            "params",
+            NULL
+    };
+    PyObject *obj_pkey;
+    PyObject *obj_srv_uid;
+    uint64_t l_value;
+    uint64_t l_value_max_per_unit;
+    PyObject *obj_unit;
+    PyObject *obj_params;
+    if (!PyArg_ParseTupleAndKeywords(arg, kwds, "OOkkOO", (char**)kwlist, &obj_pkey, &obj_srv_uid, &l_value, &l_value_max_per_unit, &obj_unit, &obj_params)){
+        return -1;
+    }
+    uint256_t l_value_256 = dap_chain_uint256_from(l_value);
+    uint256_t l_value_max_per_unit_256 = dap_chain_uint256_from(l_value_max_per_unit);
+    void *l_params = PyBytes_AsString(obj_params);
+    size_t l_params_size = PyBytes_Size(obj_params);
+    self->out_cond = dap_chain_datum_tx_item_out_cond_create_srv_pay(
+            ((PyDapPkeyObject*)obj_pkey)->pkey,
+            ((PyDapChainNetSrvUIDObject*)obj_srv_uid)->net_srv_uid,
+            l_value_256, l_value_max_per_unit_256,
+            ((PyDapChainNetSrvPriceUnitUIDObject*)obj_unit)->price_unit_uid, l_params, l_params_size);
+    return 0;
+}
 
 PyObject *wrapping_dap_chain_tx_out_cond_subtype_srv_pay_get_unit(PyObject *self, void *closure){
     (void)closure;

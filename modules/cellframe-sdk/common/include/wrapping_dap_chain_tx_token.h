@@ -30,6 +30,8 @@
 #include "dap_chain_datum_tx_token.h"
 #include "wrapping_dap_hash.h"
 #include "wrapping_dap_chain_common.h"
+#include "dap_chain_datum_tx_items.h"
+#include "libdap-chain-python.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -39,6 +41,8 @@ typedef struct PyDapChainTxToken{
     PyObject_HEAD
     dap_chain_tx_token_t *token;
 }PyDapChainTxTokenObject;
+
+int PyDapChainTxTokenObject_init(PyDapChainTxTokenObject *self, PyObject *args, PyObject *kwds);
 
 PyObject *wrapping_dap_chain_tx_token_get_ticker(PyObject *self, void *closure);
 PyObject *wrapping_dap_chain_tx_token_get_token_emission_hash(PyObject *self, void *closure);

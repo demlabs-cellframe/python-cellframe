@@ -47,10 +47,28 @@ PyTypeObject DapChainTxSigObject_DapChainTxSigTypeObjectType = {
         0,                                  /* tp_descr_get */
         0,                                  /* tp_descr_set */
         0,                                  /* tp_dictoffset */
-        0,                                  /* tp_init */
+        (initproc)PyDapChainTXSigObject_init,   /* tp_init */
         0,                                  /* tp_alloc */
         PyType_GenericNew,                  /* tp_new */
 };
+
+int PyDapChainTXSigObject_init(PyDapChainTXSigObject* self, PyObject *argv, PyObject *kwds){
+    const char *kwlist[] = {
+            "key",
+            "data",
+            NULL
+    };
+    PyObject *obj_key;
+    PyObject *obj_data;
+    if (!PyArg_ParseTupleAndKeywords(argv, kwds, "OO", kwlist, &obj_key, &obj_data)){
+        return -1;
+    }
+    void *l_data = PyBytes_AsString(obj_data);
+    size_t l_data_size = PyBytes_Size(obj_data);
+    self->tx_sig = dap_chain_datum_tx_item_sign_create(
+            ((PyCryptoKeyObject*)obj_key)->key, l_data, l_data_size);
+    return 0;
+}
 
 PyObject *wrapping_dap_chain_tx_sig_get_sign(PyObject *self, void *closure){
     (void)closure;

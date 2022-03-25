@@ -49,6 +49,39 @@ PyTypeObject DapChainTxToken_DapChainTxTokenType = {
         PyType_GenericNew,                       /* tp_new */
 };
 
+int PyDapChainTxTokenObject_init(PyDapChainTxTokenObject *self, PyObject *args, PyObject *kwds){
+    const char* kwlist[] = {
+            "chain",
+            "tokenHash",
+            "ticker",
+            NULL
+    };
+    PyObject *obj_chain;
+    PyObject *obj_datum_token_hash;
+    char *l_ticker;
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "OOs", (char**)kwlist, &obj_chain, &obj_datum_token_hash, &l_ticker)){
+        return -1;
+    }
+    if (!PyDapHashFast_Check((PyDapHashFastObject*)obj_datum_token_hash)){
+        return  -1;
+    }
+    if (PyDapChain_Check(obj_chain)){
+        self->token = dap_chain_datum_tx_item_token_create(
+                ((PyDapChainObject*)obj_chain)->chain_t->id,
+                ((PyDapHashFastObject*)obj_datum_token_hash)->hash_fast,
+                l_ticker);
+        return  0;
+    }
+    if (DapChainIdObject_Check(obj_chain)){
+        self->token = dap_chain_datum_tx_item_token_create(
+                *((PyDapChainIDObject *)obj_chain)->chain_id,
+                ((PyDapHashFastObject*)obj_datum_token_hash)->hash_fast,
+                l_ticker);
+        return 0;
+    }
+    return -1;
+}
+
 PyObject *wrapping_dap_chain_tx_token_get_ticker(PyObject *self, void *closure){
     (void)closure;
     return Py_BuildValue("s", ((PyDapChainTxTokenObject*)self)->token->header.ticker);

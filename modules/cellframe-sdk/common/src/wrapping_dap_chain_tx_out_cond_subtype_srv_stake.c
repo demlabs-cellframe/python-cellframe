@@ -44,10 +44,44 @@ PyTypeObject DapChainTxOutCondSubTypeSrvStakeObjectType = {
         0,                               /* tp_descr_get */
         0,                               /* tp_descr_set */
         0,                               /* tp_dictoffset */
-        0,                               /* tp_init */
+        (initproc)DapChainTxOutCondSubTypeSrvStake_init,       /* tp_init */
         0,                               /* tp_alloc */
         PyType_GenericNew,               /* tp_new */
 };
+
+int DapChainTxOutCondSubTypeSrvStake_init(PyDapChainTxOutCondObject* self, PyObject* args, PyObject *kwds){
+    const char* kwlist[] = {
+            "srvUID",
+            "value",
+            "feeValue",
+            "feeAddr",
+            "hldrAddr",
+            "signingAddr",
+            "signerNodeAddr",
+            NULL
+    };
+    PyObject *obj_srv_uid;
+    uint64_t l_value;
+    long double l_fee_value;
+    PyObject *obj_fee_addr;
+    PyObject *obj_hldr_addr;
+    PyObject *obj_signing_addr;
+    PyObject *obj_signer_node_addr;
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "OkdOOOO", (char**)kwlist, &obj_srv_uid, &l_value, &l_fee_value,
+                                     &obj_fee_addr, &obj_hldr_addr, &obj_signing_addr, &obj_signer_node_addr)){
+        return -1;
+    }
+    uint256_t l_value_256 = dap_chain_uint256_from(l_value);
+    self->out_cond = dap_chain_datum_tx_item_out_cond_create_srv_stake(
+            ((PyDapChainNetSrvUIDObject*)obj_srv_uid)->net_srv_uid,
+            l_value_256,
+            l_fee_value,
+            ((PyDapChainAddrObject*)obj_fee_addr)->addr,
+            ((PyDapChainAddrObject*)obj_hldr_addr)->addr,
+            ((PyDapChainAddrObject*)obj_signing_addr)->addr,
+            ((PyDapChainNodeAddrObject*)obj_signer_node_addr)->node_addr);
+    return 0;
+}
 
 PyObject *wrapping_dap_chain_tx_out_cond_subtype_srv_stake_get_uid(PyObject *self, void *closure){
     (void)closure;

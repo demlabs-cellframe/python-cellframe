@@ -31,6 +31,8 @@
 #include "dap_chain_datum_tx_sig.h"
 #include "wrapping_dap_sign.h"
 #include "dap_sign.h"
+#include "dap_chain_datum_tx_items.h"
+#include "libdap_crypto_key_python.h"
 
 //#ifdef __cplusplus
 //extern "C"{
@@ -40,6 +42,8 @@ typedef struct PyDapChainTXSig{
     PyObject_HEAD
     dap_chain_tx_sig_t *tx_sig;
 }PyDapChainTXSigObject;
+
+int PyDapChainTXSigObject_init(PyDapChainTXSigObject* self, PyObject *argv, PyObject *kwds);
 
 PyObject *wrapping_dap_chain_tx_sig_get_sign(PyObject *self, void *closure);
 PyObject *wrapping_dap_chain_tx_sig_get_sig_size(PyObject *self, void *closure);

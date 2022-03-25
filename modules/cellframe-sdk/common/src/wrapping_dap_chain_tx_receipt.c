@@ -1,5 +1,6 @@
 #include "wrapping_dap_chain_tx_receipt.h"
 #include "wrapping_cert.h"
+#include "wrapping_dap_chain_common.h"
 
 #define LOG_TAG "wrapping_dap_chain_tx_receipt"
 
@@ -57,10 +58,37 @@ PyTypeObject DapChainTxReceiptObjectType = {
         0,                                  /* tp_descr_get */
         0,                                  /* tp_descr_set */
         0,                                  /* tp_dictoffset */
-        0,                                  /* tp_init */
+        (initproc)PyDapChainTXReceipt_init,                                  /* tp_init */
         0,                                  /* tp_alloc */
         PyType_GenericNew,                  /* tp_new */
 };
+
+int PyDapChainTXReceipt_init(PyDapChainTXReceiptObject *self, PyObject *args, PyObject *kwds){
+    const char* kwlist[] = {
+            "srvUID",
+            "unitsType",
+            "units",
+            "value",
+            "ext",
+            NULL
+    };
+    PyObject *obj_srv_uid;
+    PyObject *obj_units_type;
+    uint64_t l_units;
+    uint64_t l_value;
+    PyObject *obj_ext;
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "OOkkO", (char**)kwlist, &obj_srv_uid, &obj_units_type, &l_units, &l_value, &obj_ext)){
+        return -1;
+    }
+    uint256_t l_value_256 = dap_chain_uint256_from(l_value);
+    void *l_bytes_ext = PyBytes_AsString(obj_ext);
+    size_t l_bytes_ext_size = PyBytes_Size(obj_ext);
+    self->tx_receipt = dap_chain_datum_tx_receipt_create(
+            ((PyDapChainNetSrvUIDObject*)obj_srv_uid)->net_srv_uid,
+            ((PyDapChainNetSrvPriceUnitUIDObject*)obj_units_type)->price_unit_uid,
+            l_units, l_value_256, l_bytes_ext, l_bytes_ext_size);
+    return 0;
+}
 
 PyObject *wrapping_dap_chain_tx_receipt_get_size(PyObject *self, void *closure){
     (void)closure;

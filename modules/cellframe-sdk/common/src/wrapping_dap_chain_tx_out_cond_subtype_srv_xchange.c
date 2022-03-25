@@ -45,10 +45,40 @@ PyTypeObject DapChainTxOutCondSubTypeSrvXchangeObjectType = {
         0,                               /* tp_descr_get */
         0,                               /* tp_descr_set */
         0,                               /* tp_dictoffset */
-        0,                               /* tp_init */
+        (initproc)DapChainTxOutCondSubTypeSrvXchange,                               /* tp_init */
         0,                               /* tp_alloc */
         PyType_GenericNew,               /* tp_new */
 };
+
+int DapChainTxOutCondSubTypeSrvXchange(PyDapChainTxOutCondObject *self, PyObject *arg, PyObject *kwds){
+    const char *kwlist[] = {
+            "srvUID",
+            "netID",
+            "token",
+            "value",
+            "params",
+            NULL
+    };
+    PyObject *obj_srv_uid;
+    PyObject *obj_net_id;
+    char *l_token;
+    uint64_t l_value;
+    PyObject *obj_params;
+    if (!PyArg_ParseTupleAndKeywords(arg, kwds, "OOskO", (char**)kwlist,
+                                     &obj_srv_uid, &obj_net_id, &l_token, &l_value, &obj_params)){
+        return -1;
+    }
+    uint256_t l_value_256 = dap_chain_uint256_from(l_value);
+    void *l_params = PyBytes_AsString(obj_params);
+    size_t l_params_size = PyBytes_Size(obj_params);
+    self->out_cond = dap_chain_datum_tx_item_out_cond_create_srv_xchange(
+            ((PyDapChainNetSrvUIDObject*)obj_srv_uid)->net_srv_uid,
+            ((PyDapChainNetIdObject*)obj_net_id)->net_id,
+            l_token,
+            l_value_256,
+            l_params, l_params_size);
+    return 0;
+}
 
 PyObject *wrapping_dap_chain_tx_out_cond_subtype_srv_xchange_get_uid(PyObject *self, void *closure){
     (void)closure;
