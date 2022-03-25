@@ -66,6 +66,10 @@ int PyDapChainTxIn_init(PyObject *self, PyObject *args, PyObject *kwds){
     return 0;
 }
 
+bool PyDapChainTxIn_check(PyObject *self){
+    return PyObject_TypeCheck(self, &DapChainTxInObjectType);
+}
+
 PyObject *wrapping_dap_chain_tx_in_get_prev_hash(PyObject *self, void *closure){
     (void)closure;
     PyObject *obj_hash = _PyObject_New(&DapChainHashFastObjectType);
