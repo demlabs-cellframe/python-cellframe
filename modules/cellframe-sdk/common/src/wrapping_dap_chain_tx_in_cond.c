@@ -76,6 +76,10 @@ int PyDapChainTxInCond_init(PyDapChainTXInCondObject* self, PyObject *args, PyOb
     return 0;
 }
 
+bool PyDapChainTxInCond_check(PyObject *self){
+    return PyObject_TypeCheck(self, &DapChainTxInCondObjectType);
+}
+
 PyObject *wrapping_dap_chain_tx_in_cond_get_receipt_prev_idx(PyObject *self, void *closure){
     (void)closure;
     return Py_BuildValue("I", ((PyDapChainTXInCondObject*)self)->tx_in_cond->header.receipt_idx);

@@ -90,6 +90,10 @@ int PyDapChainTXReceipt_init(PyDapChainTXReceiptObject *self, PyObject *args, Py
     return 0;
 }
 
+bool PyDapChainTXReceipt_check(PyObject *self){
+    return PyObject_TypeCheck(self,&DapChainTxReceiptObjectType);
+}
+
 PyObject *wrapping_dap_chain_tx_receipt_get_size(PyObject *self, void *closure){
     (void)closure;
     return Py_BuildValue("H", ((PyDapChainTXReceiptObject*)self)->tx_receipt->size);

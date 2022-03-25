@@ -81,6 +81,10 @@ int DapChainTxOutCondSubTypeSrvPay_init(PyDapChainTxOutCondObject* self, PyObjec
     return 0;
 }
 
+bool DapChainTxOutCondSubTypeSrvPay_check(PyObject *self){
+    return PyObject_TypeCheck(self, &DapChainTxOutCondSubTypeSrvPayObjectType);
+}
+
 PyObject *wrapping_dap_chain_tx_out_cond_subtype_srv_pay_get_unit(PyObject *self, void *closure){
     (void)closure;
     return Py_BuildValue("I", ((PyDapChainTxOutCondObject*)self)->out_cond->subtype.srv_pay.unit.uint32);

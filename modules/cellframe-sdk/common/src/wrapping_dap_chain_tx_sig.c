@@ -69,6 +69,9 @@ int PyDapChainTXSigObject_init(PyDapChainTXSigObject* self, PyObject *argv, PyOb
             ((PyCryptoKeyObject*)obj_key)->key, l_data, l_data_size);
     return 0;
 }
+bool PyDapChainTXSigObject_check(PyObject *self){
+    return PyObject_TypeCheck(self, &DapChainTxSigObject_DapChainTxSigTypeObjectType);
+}
 
 PyObject *wrapping_dap_chain_tx_sig_get_sign(PyObject *self, void *closure){
     (void)closure;

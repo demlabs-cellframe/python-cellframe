@@ -47,6 +47,7 @@
 #include "wrapping_dap_chain_tx_receipt.h"
 #include "wrapping_dap_chain_tx_token.h"
 #include "wrapping_dap_chain_tx_token_ext.h"
+#include "libdap_crypto_key_python.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -107,6 +108,7 @@ PyObject *wrapping_dap_chain_datum_tx_get_hash(PyObject *self, void* closure);
 PyObject *wrapping_dap_chain_datum_tx_get_tsCreated(PyObject *self, void* closure);
 
 PyObject *wrapping_dap_chain_datum_tx_out_create(PyObject *self, PyObject *args);
+PyObject *wrapping_dap_chain_datum_tx_sign_create(PyObject *self, PyObject *args);
 PyObject *wrapping_dap_chain_datum_tx_out_cond_create(PyObject *self, PyObject *args);
 PyObject *wrapping_dap_chain_datum_tx_out_ext_create(PyObject *self, PyObject *args);
 

@@ -38,6 +38,8 @@ typedef struct PyDapChainTxOutCond{
     dap_chain_tx_out_cond_t *out_cond;
 }PyDapChainTxOutCondObject;
 
+bool PyDapChainTxOutCondObject_check(PyObject *self);
+
 PyObject *wrapping_dap_chain_tx_out_cond_get_ts_expires(PyObject *self, void *closure);
 PyObject *wrapping_dap_chain_tx_out_cond_get_value(PyObject *self, void *closure);
 PyObject *wrapping_dap_chain_tx_out_cond_get_type_subtype(PyObject *self, void *closure);

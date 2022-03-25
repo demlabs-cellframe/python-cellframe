@@ -43,6 +43,7 @@ typedef struct PyDapChainTXReceipt{
 }PyDapChainTXReceiptObject;
 
 int PyDapChainTXReceipt_init(PyDapChainTXReceiptObject *self, PyObject *args, PyObject *kwds);
+bool PyDapChainTXReceipt_check(PyObject *self);
 
 PyObject *wrapping_dap_chain_tx_receipt_get_size(PyObject *self, void *closure);
 PyObject *wrapping_dap_chain_tx_receipt_get_ext_size(PyObject *self, void *closure);

@@ -44,6 +44,7 @@ typedef struct PyDapChainTXSig{
 }PyDapChainTXSigObject;
 
 int PyDapChainTXSigObject_init(PyDapChainTXSigObject* self, PyObject *argv, PyObject *kwds);
+bool PyDapChainTXSigObject_check(PyObject *self);
 
 PyObject *wrapping_dap_chain_tx_sig_get_sign(PyObject *self, void *closure);
 PyObject *wrapping_dap_chain_tx_sig_get_sig_size(PyObject *self, void *closure);

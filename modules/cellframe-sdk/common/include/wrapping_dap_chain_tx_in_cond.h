@@ -40,6 +40,7 @@ typedef struct PyDapChainTXInCond{
 }PyDapChainTXInCondObject;
 
 int PyDapChainTxInCond_init(PyDapChainTXInCondObject* self, PyObject *args, PyObject *kwds);
+bool PyDapChainTxInCond_check(PyObject *self);
 
 PyObject *wrapping_dap_chain_tx_in_cond_get_receipt_prev_idx(PyObject *self, void *closure);
 PyObject *wrapping_dap_chain_tx_in_cond_get_prev_hash(PyObject *self, void *closure);

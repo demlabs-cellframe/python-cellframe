@@ -43,6 +43,7 @@ typedef struct PyDapChainTxToken{
 }PyDapChainTxTokenObject;
 
 int PyDapChainTxTokenObject_init(PyDapChainTxTokenObject *self, PyObject *args, PyObject *kwds);
+bool PyDapChainTxTokenObject_check(PyObject *self);
 
 PyObject *wrapping_dap_chain_tx_token_get_ticker(PyObject *self, void *closure);
 PyObject *wrapping_dap_chain_tx_token_get_token_emission_hash(PyObject *self, void *closure);

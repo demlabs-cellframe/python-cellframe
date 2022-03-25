@@ -54,6 +54,10 @@ PyTypeObject DapChainTxPkeyObjectType = {
         PyType_GenericNew,                  /* tp_new */
 };
 
+bool PyDapChainTxPkeyObject_check(PyObject *self){
+    return PyObject_TypeCheck(self, &DapChainTxPkeyObjectType);
+}
+
 PyObject *wrapping_dap_chain_tx_pkey_sig_type(PyObject *self, void *closure){
     (void)closure;
     PyObject *obj_sign_type = _PyObject_New(&DapCryproSignTypeObjectType);

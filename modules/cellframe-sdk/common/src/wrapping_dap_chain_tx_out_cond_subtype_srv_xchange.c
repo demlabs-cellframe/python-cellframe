@@ -80,6 +80,10 @@ int DapChainTxOutCondSubTypeSrvXchange(PyDapChainTxOutCondObject *self, PyObject
     return 0;
 }
 
+bool DapChainTxOutCondSubTypeSrvXchange_check(PyObject *self){
+    return PyObject_TypeCheck(self, &DapChainTxOutCondSubTypeSrvXchangeObjectType);
+}
+
 PyObject *wrapping_dap_chain_tx_out_cond_subtype_srv_xchange_get_uid(PyObject *self, void *closure){
     (void)closure;
     PyDapChainNetSrvUIDObject *obj_net_srv_uid = PyObject_New(PyDapChainNetSrvUIDObject, &DapChainNetSrvUidObjectType);

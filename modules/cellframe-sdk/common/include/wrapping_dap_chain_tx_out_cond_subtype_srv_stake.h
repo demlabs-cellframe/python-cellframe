@@ -34,6 +34,7 @@ extern "C"{
 #endif
 
 int DapChainTxOutCondSubTypeSrvStake_init(PyDapChainTxOutCondObject* self, PyObject* args, PyObject *kwds);
+bool DapChainTxOutCondSubTypeSrvStake_check(PyObject *self);
 
 PyObject *wrapping_dap_chain_tx_out_cond_subtype_srv_stake_get_uid(PyObject *self, void *closure);
 PyObject *wrapping_dap_chain_tx_out_cond_subtype_srv_stake_get_addr(PyObject *self, void *closure);

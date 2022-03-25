@@ -50,6 +50,10 @@ PyTypeObject DapChainTxOutCondObjectType = {
         PyType_GenericNew,                       /* tp_new */
 };
 
+bool PyDapChainTxOutCondObject_check(PyObject *self){
+    return PyObject_TypeCheck(self, &DapChainTxOutCondObjectType);
+}
+
 PyObject *wrapping_dap_chain_tx_out_cond_get_ts_expires(PyObject *self, void *closure){
     (void)closure;
     PyDateTime_IMPORT;

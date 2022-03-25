@@ -39,6 +39,7 @@ typedef struct PyDapChainTxTokenExt{
     dap_chain_tx_token_ext_t *token_ext;
 }PyDapChainTxTokenExtObject;
 
+bool PyDapChainTxTokenExtObject_check(PyObject *self);
 
 PyObject *wrapping_dap_chain_tx_token_ext_get_version(PyObject *self, void *closure);
 PyObject *wrapping_dap_chain_tx_token_ext_get_ticker(PyObject *self, void *closure);

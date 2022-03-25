@@ -82,6 +82,10 @@ int PyDapChainTxTokenObject_init(PyDapChainTxTokenObject *self, PyObject *args, 
     return -1;
 }
 
+bool PyDapChainTxTokenObject_check(PyObject *self){
+    return PyObject_TypeCheck(self, &DapChainTxToken_DapChainTxTokenType);
+}
+
 PyObject *wrapping_dap_chain_tx_token_get_ticker(PyObject *self, void *closure){
     (void)closure;
     return Py_BuildValue("s", ((PyDapChainTxTokenObject*)self)->token->header.ticker);

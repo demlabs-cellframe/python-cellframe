@@ -34,6 +34,7 @@ extern "C"{
 #endif
 
 int DapChainTxOutCondSubTypeSrvXchange(PyDapChainTxOutCondObject *self, PyObject *arg, PyObject *kwds);
+bool DapChainTxOutCondSubTypeSrvXchange_check(PyObject *self);
 
 PyObject *wrapping_dap_chain_tx_out_cond_subtype_srv_xchange_get_uid(PyObject *self, void *closure);
 PyObject *wrapping_dap_chain_tx_out_cond_subtype_srv_xchange_get_net_id(PyObject *self, void *closure);

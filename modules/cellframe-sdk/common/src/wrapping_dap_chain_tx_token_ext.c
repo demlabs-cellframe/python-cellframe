@@ -52,6 +52,10 @@ PyTypeObject DapChainTxTokenExtType = {
         PyType_GenericNew,                       /* tp_new */
 };
 
+bool PyDapChainTxTokenExtObject_check(PyObject *self){
+    return PyObject_TypeCheck(self, &DapChainTxTokenExtType);
+}
+
 PyObject *wrapping_dap_chain_tx_token_ext_get_version(PyObject *self, void *closure){
     (void)closure;
     return Py_BuildValue("B", ((PyDapChainTxTokenExtObject*)self)->token_ext->header.version);

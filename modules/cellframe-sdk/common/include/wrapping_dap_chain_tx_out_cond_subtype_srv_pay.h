@@ -34,6 +34,7 @@ extern "C"{
 #endif
 
 int DapChainTxOutCondSubTypeSrvPay_init(PyDapChainTxOutCondObject* self, PyObject *arg, PyObject *kwds);
+bool DapChainTxOutCondSubTypeSrvPay_check(PyObject *self);
 
 PyObject *wrapping_dap_chain_tx_out_cond_subtype_srv_pay_get_unit(PyObject *self, void *closure);
 PyObject *wrapping_dap_chain_tx_out_cond_subtype_srv_pay_get_uid(PyObject *self, void *closure);
