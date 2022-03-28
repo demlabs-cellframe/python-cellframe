@@ -91,6 +91,8 @@ typedef struct PyDapChainDatumTx{
     bool original;
 }PyDapChainDatumTxObject;
 
+bool PyDapChainDatumTxObject_check(PyObject *self);
+
 PyObject *PyDapChainDatumTxObject_create(PyTypeObject *type_object, PyObject *args, PyObject *kwds);
 void PyDapChainDatumTxObject_delete(PyDapChainDatumTxObject* datumTx);
 PyObject *dap_chain_datum_tx_get_size_py(PyObject *self, PyObject *args);
