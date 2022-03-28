@@ -1,6 +1,7 @@
 #include "wrapping_dap_mempool.h"
 
 PyMethodDef  DapMempoolMethods[] = {
+        {"addDatum", dap_chain_mempool_datum_add_py, METH_VARARGS | METH_STATIC, ""},
         {"addProc", dap_chain_mempool_add_proc_py, METH_VARARGS | METH_STATIC, ""},
         {"txCreate", dap_chain_mempool_tx_create_py, METH_VARARGS | METH_STATIC, ""},
         {"txCreateCond", dap_chain_mempool_tx_create_cond_py, METH_VARARGS | METH_STATIC, ""},
@@ -49,6 +50,27 @@ PyTypeObject DapChainMempoolObjectType = {
         0,                                                 /* tp_alloc */
         PyType_GenericNew,                                 /* tp_new */
 };
+
+PyObject *dap_chain_mempool_datum_add_py(PyObject *self, PyObject *args){
+    PyObject *obj_chain;
+    PyObject *obj_datum;
+    if (!PyArg_ParseTuple(args, "OO", &obj_chain, &obj_datum)){
+        return NULL;
+    }
+    if (!PyDapChain_Check(obj_chain)){
+        return NULL;
+    }
+    if (!DapChainDatum_check(obj_datum)){
+        return NULL;
+    }
+    char *hash = dap_chain_mempool_datum_add(((PyDapChainDatumObject*)obj_datum)->datum,
+                                ((PyDapChainObject*)obj_chain)->chain_t);
+    if (hash == NULL) {
+        return Py_None;
+    } else {
+        return Py_BuildValue("s", hash);
+    }
+}
 
 PyObject *dap_chain_mempool_add_proc_py(PyObject *self, PyObject *args){
     PyObject *obj_server;

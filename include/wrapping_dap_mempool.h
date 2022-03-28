@@ -10,11 +10,13 @@
 #include "wrapping_dap_chain_common.h"
 #include "libdap_chain_net_python.h"
 #include "wrapping_dap_hash.h"
+#include "libdap-chain-python.h"
 
 typedef struct PyDapMempool{
     PyObject_HEAD
 }PyDapMempoolObject;
 
+PyObject *dap_chain_mempool_datum_add_py(PyObject *self, PyObject *args);
 PyObject *dap_chain_mempool_add_proc_py(PyObject *self, PyObject *args);
 PyObject *dap_chain_mempool_tx_create_py(PyObject *self, PyObject *args);
 PyObject *dap_chain_mempool_tx_create_cond_py(PyObject *self, PyObject *args);
