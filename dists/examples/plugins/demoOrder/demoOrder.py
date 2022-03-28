@@ -47,7 +47,6 @@ def infoOrder(order):
     return reply
 
 def pwoCMD(argv, indexStrReply):
-    print(indexStrReply)
     if (len(argv) == 5):
         net = Net.byName(argv[2])
         if argv[3] == "find":
@@ -68,22 +67,6 @@ def pwoCMD(argv, indexStrReply):
     else:
         AppCliServer.setReplyText("This command takes only four arguments.", indexStrReply)
 
-
-"""
-The infoCMD function is a handler for a command that displays information about an order by its hash. 
-"""
-def infoCMD(argv, indexStrReply):
-    if (len(argv) == 2):
-        # We get an object of type HashFast from the 16-ary string representation of the hash.
-        hash = HashFast.fromString(argv[1])
-        order = ServiceOrder.find(hash)
-        reply = "Order: \n"
-        order_reply = infoOrder(order)
-        reply += order_reply
-        AppCliServer.setReplyText(reply, indexStrReply)
-    else:
-        AppCliServer.setReplyText("Order hash not set", indexStrReply)
-
 """
 This function generates the key required to create an order
 """
@@ -102,15 +85,15 @@ It takes the following arguments as input
     * the object that was set when setting the notifier, it can be a string, a number, a function, etc. In this case, it is a string. 
 """
 def order_notify(op_code, group, key, order, arg):
-    print("Arg: "+arg)
-    print("Notify: \n")
-    print("op_code: "+op_code+"\n")
-    print("group: "+group+"\n")
-    print("key: "+key+"\n")
+    logIt.notice("Arg: "+arg)
+    logIt.notice("Notify: \n")
+    logIt.notice("op_code: "+op_code+"\n")
+    logIt.notice("group: "+group+"\n")
+    logIt.notice("key: "+key+"\n")
     if order is not None:
-        print(infoOrder(order))
+        logIt.notice(infoOrder(order))
     else:
-        print("No order.")
+        logIt.notice("No order.")
 
 def init():
     logIt.notice("Running plugin order")
@@ -124,11 +107,9 @@ def init():
     node_list_group = ServiceOrder.getNodelistGroup(net)
     logIt.notice("Node list group: "+node_list_group)
 # Creating a new order
-    print("net: " + str(net))
 #   Set the direction of the order and the UID of the service.
     net_srv = ServiceUID(12345)
     direction = ServiceOrderDirection.getDirSell()
-    print("direction" + str(direction))
 #   We get the address of the node.
     node_addr = net.getCurAddr()
     """tx_cond  - This should be the address of the conditional transaction, but it is not required to create an order.
@@ -136,16 +117,12 @@ def init():
 #   We set the price and units of measurement, for which you buy for this price.
     price = 531
     priceUnitUid = ServicePriceUnitUID.mb()
-    print("Price Unit UID:" + str(priceUnitUid))
     key = create_key()
 #   We determine the lifetime of the order, at the moment it is not used in the SDK.
     dt_exp = datetime.now()
     dt_delta = timedelta(days=30)
     dt_exp += dt_delta
-    print(dt_exp)
-    print(dt_exp.timestamp())
     ts_expires = dt_exp.timestamp()
-    print(type(ts_expires))
     """
     With the help of this constructor, an order is created. The constructor takes the following parameters as input:
         * Network object.
@@ -170,6 +147,5 @@ def init():
 """)
     return 0
 
-#def deinit():
-#    logItNotice("Plugin client deinit")
+
 
