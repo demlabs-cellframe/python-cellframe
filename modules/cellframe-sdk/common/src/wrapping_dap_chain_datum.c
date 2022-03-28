@@ -103,22 +103,46 @@ PyTypeObject DapChainDatumObjectType = {
         0,                               /* tp_descr_get */
         0,                               /* tp_descr_set */
         0,                               /* tp_dictoffset */
-        0,                               /* tp_init */
+        (initproc)PyDapChainDatumObject_init,                               /* tp_init */
         0,                               /* tp_alloc */
-        PyDapChainDatumObject_new,       /* tp_new */
+        PyType_GenericNew,       /* tp_new */
 };
 
-PyObject *PyDapChainDatumObject_new(PyTypeObject *type_object, PyObject *args, PyObject *kwds){
-    uint16_t type_id;
-    PyBytesObject *bytes;
-    size_t data_size;
-    if (!PyArg_ParseTuple(args, "H|S|n", &type_id, &bytes, &data_size))
-        return NULL;
-    PyDapChainDatumObject *obj = (PyDapChainDatumObject*)PyType_GenericNew(type_object, args, kwds);
-    void* bytes_v = (void *)PyBytes_AsString((PyObject*)bytes);
-    obj->datum = dap_chain_datum_create(type_id, bytes_v, data_size);
-    return (PyObject *)obj;
+int PyDapChainDatumObject_init(PyDapChainDatumObject *self, PyObject *args, PyObject *kwds){
+    PyObject *obj_datum;
+    const char *kwlist[] = {
+            "data",
+            NULL
+    };
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O", (char**)kwlist, &obj_datum)){
+        return -1;
+    }
+    if (PyDapChainDatumTxObject_check(obj_datum)){
+        size_t l_datum_size = dap_chain_datum_tx_get_size(((PyDapChainDatumTxObject*)obj_datum)->datum_tx);
+        self->datum = dap_chain_datum_create(
+                DAP_CHAIN_DATUM_TX,
+                ((PyDapChainDatumTxObject*)obj_datum)->datum_tx,
+                l_datum_size);
+        return 0;
+    }
+    return -1;
 }
+
+bool DapChainDatum_check(PyObject *self){
+    return PyObject_TypeCheck(self, &DapChainDatumObjectType);
+}
+
+//PyObject *PyDapChainDatumObject_new(PyTypeObject *type_object, PyObject *args, PyObject *kwds){
+//    uint16_t type_id;
+//    PyBytesObject *bytes;
+//    size_t data_size;
+//    if (!PyArg_ParseTuple(args, "H|S|n", &type_id, &bytes, &data_size))
+//        return NULL;
+//    PyDapChainDatumObject *obj = (PyDapChainDatumObject*)PyType_GenericNew(type_object, args, kwds);
+//    void* bytes_v = (void *)PyBytes_AsString((PyObject*)bytes);
+//    obj->datum = dap_chain_datum_create(type_id, bytes_v, data_size);
+//    return (PyObject *)obj;
+//}
 
 PyObject *dap_chain_datum_size_py(PyObject *self, PyObject *args){
     (void)args;
