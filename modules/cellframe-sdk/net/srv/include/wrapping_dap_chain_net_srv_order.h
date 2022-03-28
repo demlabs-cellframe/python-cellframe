@@ -43,7 +43,7 @@ PyObject *wrapping_dap_chain_net_srv_order_get_size(PyObject *self, PyObject *ar
 PyObject *wrapping_dap_chain_net_srv_order_find(PyObject *self, PyObject *args);
 PyObject *wrapping_dap_chain_net_srv_order_delete(PyObject *self, PyObject *args);
 
-PyObject *wrapping_dap_chain_net_srv_order_find_all_by(PyObject *self, PyObject *args);
+PyObject *wrapping_dap_chain_net_srv_order_find_all_by(PyObject *self, PyObject *args, PyObject *kwds);
 PyObject *wrapping_dap_chain_net_srv_order_save(PyObject *self, PyObject *args);
 PyObject *wrapping_dap_chain_net_srv_order_get_gdb_group(PyObject *self, PyObject *args);
 PyObject *wrapping_dap_chain_net_srv_order_get_nodelist_group(PyObject *self, PyObject *args);

@@ -10,6 +10,7 @@ PyMethodDef DapChainNetSrvOrderMethods[]={
         {"getGdbGroup", (PyCFunction)wrapping_dap_chain_net_srv_order_get_gdb_group, METH_VARARGS | METH_STATIC, ""},
         {"getNodelistGroup", (PyCFunction)wrapping_dap_chain_net_srv_order_get_nodelist_group, METH_VARARGS | METH_STATIC, ""},
         {"addNotify", (PyCFunction)wrapping_dap_chain_net_srv_order_add_notify_callback, METH_VARARGS | METH_STATIC, ""},
+        {"findAllBy", (PyCFunctionWithKeywords)wrapping_dap_chain_net_srv_order_find_all_by, METH_VARARGS | METH_KEYWORDS | METH_STATIC, ""},
         {NULL, NULL, 0, NULL}
 };
 
@@ -354,8 +355,54 @@ PyObject *wrapping_dap_chain_net_srv_order_delete(PyObject *self, PyObject *args
     return NULL;
 }
 
-PyObject *wrapping_dap_chain_net_srv_order_find_all_by(PyObject *self, PyObject *args){
-    return NULL;
+PyObject *wrapping_dap_chain_net_srv_order_find_all_by(PyObject *self, PyObject *args, PyObject *kwds){
+    const char *kwlist[] = {
+            "net",
+            "direction",
+            "srvUID",
+            "priceUnit",
+            "ticker",
+            "priceMin",
+            "priceMax",
+            NULL
+    };
+    PyObject *obj_net;
+    PyObject *obj_direction = NULL;
+    PyObject *obj_srv_uid = NULL;
+    PyObject *obj_price_uint = NULL;
+    char *l_price_ticker = NULL;
+    uint64_t l_price_min = 0;
+    uint64_t l_price_max = 0;
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|OOOskk", (char**)kwlist, &obj_net, &obj_direction, &obj_srv_uid,
+                                     &obj_price_uint, &l_price_ticker, &l_price_min, &l_price_max)){
+        return NULL;
+    }
+    dap_chain_net_srv_order_t **l_orders = NULL;
+    size_t l_orders_count = 0;
+    uint256_t l_price_min_256 = dap_chain_uint256_from(l_price_min);
+    uint256_t l_price_max_256 = dap_chain_uint256_from(l_price_max);
+    int ret = dap_chain_net_srv_order_find_all_by(
+            ((PyDapChainNetObject*)obj_net)->chain_net,
+            ((PyDapChainNetSrvOrderDirectionObject*)obj_direction)->direction,
+            ((PyDapChainNetSrvUIDObject*)obj_srv_uid)->net_srv_uid,
+            ((PyDapChainNetSrvPriceUnitUIDObject*)obj_price_uint)->price_unit_uid,
+            l_price_ticker,l_price_min_256,
+            l_price_max_256, l_orders, &l_orders_count
+            );
+    if (ret == 0 && l_orders != NULL){
+        PyObject *obj_list = PyList_New((Py_ssize_t)l_orders_count);
+        for (size_t i = 0; i < l_orders_count; i++) {
+            if (l_orders[i] != NULL) {
+                PyDapChainNetSrvOrderObject *obj_order = PyObject_New(PyDapChainNetSrvOrderObject,
+                                                                      &DapChainNetSrvOrderObjectType);
+                dap_chain_net_srv_order_t *l_order = l_orders[i];
+                obj_order->order = l_order;
+                PyList_Append(obj_list, (PyObject *) obj_order);
+            }
+        }
+        return obj_list;
+    }
+    return Py_None;
 }
 
 PyObject *wrapping_dap_chain_net_srv_order_save(PyObject *self, PyObject *args){
