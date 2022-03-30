@@ -8,7 +8,7 @@ PyMethodDef DapChainCsDagMethods[] = {
 
 PyTypeObject DapChainCsDagType = {
         PyVarObject_HEAD_INIT(NULL, 0)
-        "CellFrame.Chain.ChainCSDag",                                            /* tp_name */
+        "CellFrame.Consensus.ChainCSDag",                                            /* tp_name */
         sizeof(PyDapChainCsDagObject),                                     /* tp_basicsize */
         0,                                                            /* tp_itemsize */
         0,                         /* tp_dealloc */
