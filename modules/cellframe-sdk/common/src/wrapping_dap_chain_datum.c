@@ -108,6 +108,10 @@ PyTypeObject DapChainDatumObjectType = {
         PyDapChainDatumObject_new,       /* tp_new */
 };
 
+bool PyDapChainDatum_Check(PyObject *self){
+    return PyObject_TypeCheck(self, &DapChainDatumObjectType);
+}
+
 PyObject *PyDapChainDatumObject_new(PyTypeObject *type_object, PyObject *args, PyObject *kwds){
     uint16_t type_id;
     PyBytesObject *bytes;
