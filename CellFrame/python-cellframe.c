@@ -494,6 +494,7 @@ PyMODINIT_FUNC PyInit_libDAP()
         // === Core ===
         PyType_Ready( &DapCoreObjectType ) < 0 ||
         PyType_Ready( &DapLogitObjectType ) < 0 ||
+        PyType_Ready(&DapMathObjectType) < 0 ||
 #ifdef DAP_SUPPORT_PYTHON_PLUGINS
         PyType_Ready( &DapAppContextObjectType) < 0 ||
 #endif
@@ -523,6 +524,7 @@ PyMODINIT_FUNC PyInit_libDAP()
     }
     PyObject *coreModule = PyModule_Create(&DapCorePythonModule);
     PyModule_AddObject(coreModule, "logIt", (PyObject *)&DapLogitObjectType);
+    PyModule_AddObject(coreModule, "Math", (PyObject *)&DapMathObjectType);
 #ifdef DAP_SUPPORT_PYTHON_PLUGINS
     PyModule_AddObject(coreModule, "AppContext", (PyObject*)&DapAppContextObjectType);
 #endif
@@ -635,6 +637,7 @@ PyMODINIT_FUNC PyInit_libCellFrame(void)
         PyType_Ready( &DapChainNetSrvPriceUnitUidObjectType ) < 0 ||
         // === Chain consensuses
         PyType_Ready( &DapChainCsDagPoaObjectType ) < 0 ||
+        PyType_Ready(&DapChainCsDagType) < 0 ||
         PyType_Ready( &DapChainGdbObjectType ) < 0
         ) {
         log_it(L_CRITICAL,"Not all python type objects are initialized for CellFrame module");
@@ -701,6 +704,7 @@ PyMODINIT_FUNC PyInit_libCellFrame(void)
     PyObject *csModule = PyModule_Create(&CellframeConsensusPythonModule);
     // === Chain cs dag poa
     PyModule_AddObject(csModule, "DagPoa", (PyObject*)&DapChainCsDagPoaObjectType);
+    PyModule_AddObject(csModule, "ChainCSDag", (PyObject*)&DapChainCsDagType);
     PyModule_AddObject(csModule, "GDB", (PyObject*)&DapChainGdbObjectType);
 
     PyObject *cellframeModule = PyModule_Create(&CellFramePythonModule);
