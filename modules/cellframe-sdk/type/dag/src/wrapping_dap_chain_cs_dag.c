@@ -6,9 +6,9 @@ PyMethodDef DapChainCsDagMethods[] = {
         {NULL, NULL, 0, NULL}
 };
 
-PyTypeObject DapChainCsDag_DapChainCsDagType = {
+PyTypeObject DapChainCsDagType = {
         PyVarObject_HEAD_INIT(NULL, 0)
-        "CellFrame.ChainCsDag",                                            /* tp_name */
+        "CellFrame.Chain.ChainCSDag",                                            /* tp_name */
         sizeof(PyDapChainCsDagObject),                                     /* tp_basicsize */
         0,                                                            /* tp_itemsize */
         0,                         /* tp_dealloc */
