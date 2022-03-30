@@ -229,7 +229,7 @@ PyObject *dap_chain_python_atom_iter_get_next(PyObject *self, PyObject *args){
 
 PyObject *dap_chain_python_atom_iter_get_dag(PyObject *self, PyObject *args){
     (void)args;
-    PyDapChainCsDagObject *obj_dag = PyObject_New(PyDapChainCsDagObject, &DapChainCsDag_DapChainCsDagType);
+    PyDapChainCsDagObject *obj_dag = PyObject_New(PyDapChainCsDagObject, &DapChainCsDagType);
     obj_dag->dag = DAP_CHAIN_CS_DAG(((PyDapChainObject*)self)->chain_t);
     return (PyObject*)obj_dag;
 }
