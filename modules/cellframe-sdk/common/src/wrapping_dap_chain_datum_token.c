@@ -125,6 +125,7 @@ PyGetSetDef PyDapChainDatumTokenEmissionGetsSetsDef[]={
 };
 
 PyMethodDef PyDapChainDatumTokenEmissionMethods[]={
+        {"addSign", (PyCFunction)wrapping_dap_chain_datum_emission_add_sign, METH_VARARGS, ""},
         {NULL, NULL, 0, NULL}
 };
 
@@ -300,4 +301,23 @@ PyObject *wrapping_dap_chain_datum_token_emission_get_data(PyObject *self, void 
             return Py_None;
     }
     return obj_dict;
+}
+
+PyObject *wrapping_dap_chain_datum_emission_add_sign(PyObject*self, PyObject *args){
+    PyObject *obj_enc_key;
+    if (!PyArg_ParseTuple(args, "O", &obj_enc_key)){
+        return  NULL;
+    }
+    if (!PyCryptoKeyObject_check(self)){
+        PyErr_SetString(PyExc_AttributeError, "An incorrect argument was passed to the function, it must"
+                                              " be an instance of the DAP.Crypto.Key object.");
+        return NULL;
+    }
+    ((PyDapChainDatumTokenEmissionObject*)self)->token_emission = dap_chain_datum_emission_add_sign(
+            ((PyCryptoKeyObject *)obj_enc_key)->key,
+            ((PyDapChainDatumTokenEmissionObject*)self)->token_emission);
+    ((PyDapChainDatumTokenEmissionObject*)self)->token_size = dap_chain_datum_emission_get_size(
+            (byte_t*)((PyDapChainDatumTokenEmissionObject*)self)->token_emission
+            );
+    return  Py_None;
 }

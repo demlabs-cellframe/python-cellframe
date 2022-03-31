@@ -70,6 +70,8 @@ PyObject *wrapping_dap_chain_datum_token_emission_get_value(PyObject *self, void
 PyObject *wrapping_dap_chain_datum_token_emission_get_nonce(PyObject *self, void *closure);
 PyObject *wrapping_dap_chain_datum_token_emission_get_data(PyObject *self, void *closure);
 
+PyObject *wrapping_dap_chain_datum_emission_add_sign(PyObject*self, PyObject *args);
+
 extern PyTypeObject DapChainDatumTokenEmissionObjectType;
 
 /* ------------------------------------------- */
