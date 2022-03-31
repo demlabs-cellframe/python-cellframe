@@ -126,6 +126,7 @@ PyGetSetDef PyDapChainDatumTokenEmissionGetsSetsDef[]={
 
 PyMethodDef PyDapChainDatumTokenEmissionMethods[]={
         {"addSign", (PyCFunction)wrapping_dap_chain_datum_emission_add_sign, METH_VARARGS, ""},
+        {"addTSD", (PyCFunction)wrapping_dap_chain_datum_emission_add_tsd, METH_VARARGS, ""},
         {NULL, NULL, 0, NULL}
 };
 
@@ -320,4 +321,25 @@ PyObject *wrapping_dap_chain_datum_emission_add_sign(PyObject*self, PyObject *ar
             (byte_t*)((PyDapChainDatumTokenEmissionObject*)self)->token_emission
             );
     return  Py_None;
+}
+
+PyObject *wrapping_dap_chain_datum_emission_add_tsd(PyObject*self, PyObject *args){
+    int l_type;
+    PyObject *obj_data;
+    if (!PyArg_ParseTuple(args, "iO", &l_type, &obj_data)){
+        return NULL;
+    }
+    if (!PyBytes_Check(obj_data)){
+        PyErr_SetString(PyExc_AttributeError, "The second argument was not correctly passed to this "
+                                              "function, the second argument must be an object of the Bytes type.");
+        return NULL;
+    }
+    void *l_data = PyBytes_AsString(obj_data);
+    size_t l_data_size = PyBytes_Size(obj_data);
+    ((PyDapChainDatumTokenEmissionObject*)self)->token_emission = dap_chain_datum_emission_add_tsd(
+            ((PyDapChainDatumTokenEmissionObject*)self)->token_emission,
+            l_type, l_data_size, l_data);
+    ((PyDapChainDatumTokenEmissionObject*)self)->token_size = dap_chain_datum_emission_get_size(
+            (uint8_t*)((PyDapChainDatumTokenEmissionObject*)self)->token_emission);
+    return Py_None;
 }
