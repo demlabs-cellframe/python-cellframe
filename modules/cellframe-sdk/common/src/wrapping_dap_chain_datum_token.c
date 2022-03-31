@@ -64,12 +64,11 @@ PyObject *wrapping_dap_chain_datum_token_get_type_str(PyObject *self, void *clos
         case DAP_CHAIN_DATUM_TOKEN_TYPE_OLD_SIMPLE:
         case DAP_CHAIN_DATUM_TOKEN_TYPE_SIMPLE:
             return Py_BuildValue("s", "SIMPLE");
-        case DAP_CHAIN_DATUM_TOKEN_TYPE_OLD_PRIVATE_UPDATE:
         case DAP_CHAIN_DATUM_TOKEN_TYPE_PRIVATE_UPDATE:
             return Py_BuildValue("s", "PRIVATE_UPDATE");
-        case DAP_CHAIN_DATUM_TOKEN_TYPE_OLD_PRIVATE_DECL:
         case DAP_CHAIN_DATUM_TOKEN_TYPE_PRIVATE_DECL:
             return Py_BuildValue("s", "PRIVATE_DECL");
+        case DAP_CHAIN_DATUM_TOKEN_TYPE_OLD_PUBLIC:
         case DAP_CHAIN_DATUM_TOKEN_TYPE_PUBLIC:
             return Py_BuildValue("s", "PUBLIC");
         default:
@@ -91,14 +90,14 @@ PyObject *wrapping_dap_chain_datum_token_get_data(PyObject *self, void *closure)
     switch(l_token->type){
         case DAP_CHAIN_DATUM_TOKEN_TYPE_OLD_SIMPLE:
         case DAP_CHAIN_DATUM_TOKEN_TYPE_SIMPLE:
-            obj = Py_BuildValue("H", l_token->header_private.signs_total);
+            obj = Py_BuildValue("H", l_token->header_simple.signs_total);
             PyDict_SetItemString(obj_dict, "signs_total", obj);
-            obj = Py_BuildValue("H", l_token->header_private.signs_valid);
+            obj = Py_BuildValue("H", l_token->header_simple.signs_valid);
             PyDict_SetItemString(obj_dict, "signs_valid", obj);
             if (dap_chain_datum_token_is_old(l_token->type))
-                obj = Py_BuildValue("k", l_token->header_private.total_supply);
+                obj = Py_BuildValue("k", l_token->header_simple.total_supply);
             else
-                obj = Py_BuildValue("s", dap_chain_balance_print(l_token->header_private.total_supply_256));
+                obj = Py_BuildValue("s", dap_chain_balance_print(l_token->header_simple.total_supply_256));
             PyDict_SetItemString(obj_dict, "total_supply", obj);
             break;
 //        case DAP_CHAIN_DATUM_TOKEN_TYPE_OLD_PRIVATE_UPDATE:
