@@ -64,12 +64,11 @@ PyObject *wrapping_dap_chain_datum_token_get_type_str(PyObject *self, void *clos
         case DAP_CHAIN_DATUM_TOKEN_TYPE_OLD_SIMPLE:
         case DAP_CHAIN_DATUM_TOKEN_TYPE_SIMPLE:
             return Py_BuildValue("s", "SIMPLE");
-        case DAP_CHAIN_DATUM_TOKEN_TYPE_OLD_PRIVATE_UPDATE:
         case DAP_CHAIN_DATUM_TOKEN_TYPE_PRIVATE_UPDATE:
             return Py_BuildValue("s", "PRIVATE_UPDATE");
-        case DAP_CHAIN_DATUM_TOKEN_TYPE_OLD_PRIVATE_DECL:
         case DAP_CHAIN_DATUM_TOKEN_TYPE_PRIVATE_DECL:
             return Py_BuildValue("s", "PRIVATE_DECL");
+        case DAP_CHAIN_DATUM_TOKEN_TYPE_OLD_PUBLIC:
         case DAP_CHAIN_DATUM_TOKEN_TYPE_PUBLIC:
             return Py_BuildValue("s", "PUBLIC");
         default:
@@ -91,14 +90,14 @@ PyObject *wrapping_dap_chain_datum_token_get_data(PyObject *self, void *closure)
     switch(l_token->type){
         case DAP_CHAIN_DATUM_TOKEN_TYPE_OLD_SIMPLE:
         case DAP_CHAIN_DATUM_TOKEN_TYPE_SIMPLE:
-            obj = Py_BuildValue("H", l_token->header_private.signs_total);
+            obj = Py_BuildValue("H", l_token->header_simple.signs_total);
             PyDict_SetItemString(obj_dict, "signs_total", obj);
-            obj = Py_BuildValue("H", l_token->header_private.signs_valid);
+            obj = Py_BuildValue("H", l_token->header_simple.signs_valid);
             PyDict_SetItemString(obj_dict, "signs_valid", obj);
             if (dap_chain_datum_token_is_old(l_token->type))
-                obj = Py_BuildValue("k", l_token->header_private.total_supply);
+                obj = Py_BuildValue("k", l_token->header_simple.total_supply);
             else
-                obj = Py_BuildValue("s", dap_chain_balance_print(l_token->header_private.total_supply_256));
+                obj = Py_BuildValue("s", dap_chain_balance_print(l_token->header_simple.total_supply_256));
             PyDict_SetItemString(obj_dict, "total_supply", obj);
             break;
 //        case DAP_CHAIN_DATUM_TOKEN_TYPE_OLD_PRIVATE_UPDATE:
@@ -126,6 +125,8 @@ PyGetSetDef PyDapChainDatumTokenEmissionGetsSetsDef[]={
 };
 
 PyMethodDef PyDapChainDatumTokenEmissionMethods[]={
+        {"addSign", (PyCFunction)wrapping_dap_chain_datum_emission_add_sign, METH_VARARGS, ""},
+        {"addTSD", (PyCFunction)wrapping_dap_chain_datum_emission_add_tsd, METH_VARARGS, ""},
         {NULL, NULL, 0, NULL}
 };
 
@@ -170,6 +171,35 @@ PyTypeObject DapChainDatumTokenEmissionObjectType = {
         0,                                               /* tp_alloc */
         PyType_GenericNew,                               /* tp_new */
 };
+
+int PyDapChainDatumTokenEmissionObject_init(PyDapChainDatumTokenEmissionObject *self, PyObject *argv, PyObject *kwds){
+    const char *kwlist[] = {
+            "value",
+            "ticker",
+            "addr",
+            NULL
+    };
+    char* l_value_datoshi;
+    char *l_ticker;
+    PyObject *obj_addr;
+    if (!PyArg_ParseTupleAndKeywords(argv, kwds, "ssO", (char**)kwlist, &l_value_datoshi, &l_ticker, &obj_addr)){
+        return -1;
+    }
+    if (!PyDapChainAddrObject_Check(obj_addr)){
+        PyErr_SetString(PyExc_AttributeError, "The third argument to this function is invalid. "
+                                              "It must be an instance of the Cellframe.Chain.ChainAddr object type.");
+        return -1;
+    }
+    uint256_t l_value = dap_chain_balance_scan(l_value_datoshi);
+    self->token_emission = dap_chain_datum_emission_create(
+            l_value, l_ticker, ((PyDapChainAddrObject*)obj_addr)->addr);
+    self->token_size = dap_chain_datum_emission_get_size((uint8_t*)self->token_emission);
+    return 0;
+}
+
+bool PyDapChainDatumTokenEmissionObject_check(PyObject *self){
+    return PyObject_TypeCheck(self, &DapChainDatumTokenEmissionObjectType);
+}
 
 PyObject *wrapping_dap_chain_datum_token_emission_get_version(PyObject *self, void *closure){
     (void)closure;
@@ -234,7 +264,7 @@ PyObject *wrapping_dap_chain_datum_token_emission_get_data(PyObject *self, void 
     size_t l_offset = 0;
     switch(token_emi->hdr.type){
         case DAP_CHAIN_DATUM_TOKEN_EMISSION_TYPE_AUTH:
-            l_sign_ptr = (dap_sign_t*)token_emi->data.type_auth.signs;
+            l_sign_ptr = (dap_sign_t*)(token_emi->tsd_n_signs + token_emi->data.type_auth.tsd_total_size);
             l_offset = (byte_t*)l_sign_ptr - (byte_t*)token_emi;
             obj_tmp = PyList_New(0);
             for (size_t i = 0; i < token_emi->data.type_auth.signs_count && l_offset < token_emi_size; i++){
@@ -276,4 +306,44 @@ PyObject *wrapping_dap_chain_datum_token_emission_get_data(PyObject *self, void 
             return Py_None;
     }
     return obj_dict;
+}
+
+PyObject *wrapping_dap_chain_datum_emission_add_sign(PyObject*self, PyObject *args){
+    PyObject *obj_enc_key;
+    if (!PyArg_ParseTuple(args, "O", &obj_enc_key)){
+        return  NULL;
+    }
+    if (!PyCryptoKeyObject_check(self)){
+        PyErr_SetString(PyExc_AttributeError, "An incorrect argument was passed to the function, it must"
+                                              " be an instance of the DAP.Crypto.Key object.");
+        return NULL;
+    }
+    ((PyDapChainDatumTokenEmissionObject*)self)->token_emission = dap_chain_datum_emission_add_sign(
+            ((PyCryptoKeyObject *)obj_enc_key)->key,
+            ((PyDapChainDatumTokenEmissionObject*)self)->token_emission);
+    ((PyDapChainDatumTokenEmissionObject*)self)->token_size = dap_chain_datum_emission_get_size(
+            (byte_t*)((PyDapChainDatumTokenEmissionObject*)self)->token_emission
+            );
+    return  Py_None;
+}
+
+PyObject *wrapping_dap_chain_datum_emission_add_tsd(PyObject*self, PyObject *args){
+    int l_type;
+    PyObject *obj_data;
+    if (!PyArg_ParseTuple(args, "iO", &l_type, &obj_data)){
+        return NULL;
+    }
+    if (!PyBytes_Check(obj_data)){
+        PyErr_SetString(PyExc_AttributeError, "The second argument was not correctly passed to this "
+                                              "function, the second argument must be an object of the Bytes type.");
+        return NULL;
+    }
+    void *l_data = PyBytes_AsString(obj_data);
+    size_t l_data_size = PyBytes_Size(obj_data);
+    ((PyDapChainDatumTokenEmissionObject*)self)->token_emission = dap_chain_datum_emission_add_tsd(
+            ((PyDapChainDatumTokenEmissionObject*)self)->token_emission,
+            l_type, l_data_size, l_data);
+    ((PyDapChainDatumTokenEmissionObject*)self)->token_size = dap_chain_datum_emission_get_size(
+            (uint8_t*)((PyDapChainDatumTokenEmissionObject*)self)->token_emission);
+    return Py_None;
 }
