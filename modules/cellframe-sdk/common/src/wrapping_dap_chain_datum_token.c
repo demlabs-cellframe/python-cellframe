@@ -234,7 +234,7 @@ PyObject *wrapping_dap_chain_datum_token_emission_get_data(PyObject *self, void 
     size_t l_offset = 0;
     switch(token_emi->hdr.type){
         case DAP_CHAIN_DATUM_TOKEN_EMISSION_TYPE_AUTH:
-            l_sign_ptr = (dap_sign_t*)token_emi->data.type_auth.signs;
+            l_sign_ptr = (dap_sign_t*)(token_emi->tsd_n_signs + token_emi->data.type_auth.tsd_total_size);
             l_offset = (byte_t*)l_sign_ptr - (byte_t*)token_emi;
             obj_tmp = PyList_New(0);
             for (size_t i = 0; i < token_emi->data.type_auth.signs_count && l_offset < token_emi_size; i++){
