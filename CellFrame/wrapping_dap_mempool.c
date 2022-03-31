@@ -1,6 +1,7 @@
 #include "wrapping_dap_mempool.h"
 
 PyMethodDef  DapMempoolMethods[] = {
+        {"emissionGet", dap_chain_mempool_emission_get_py, METH_VARARGS | METH_STATIC, ""},
         {"addProc", dap_chain_mempool_add_proc_py, METH_VARARGS | METH_STATIC, ""},
         {"txCreate", dap_chain_mempool_tx_create_py, METH_VARARGS | METH_STATIC, ""},
         {"txCreateCond", dap_chain_mempool_tx_create_cond_py, METH_VARARGS | METH_STATIC, ""},
@@ -49,6 +50,27 @@ PyTypeObject DapChainMempoolObjectType = {
         0,                                                 /* tp_alloc */
         PyType_GenericNew,                                 /* tp_new */
 };
+
+PyObject *dap_chain_mempool_emission_get_py(PyObject *self, PyObject * args){
+    (void)self;
+    PyObject *obj_chain;
+    char *l_emission_hash;
+    if (!PyArg_ParseTuple(args, "Os", &obj_chain, &l_emission_hash)){
+        return NULL;
+    }
+    if (!PyDapChain_Check(obj_chain)){
+        PyErr_SetString(PyExc_AttributeError, "The first argument passed to the wrong function, the first"
+                                              " argument must be an object of type Chain.");
+        return NULL;
+    }
+    dap_chain_datum_token_emission_t *l_token = dap_chain_mempool_emission_get(
+            ((PyDapChainObject*)obj_chain)->chain_t, l_emission_hash);
+    PyDapChainDatumTokenEmissionObject *l_emi = PyObject_New(PyDapChainDatumTokenEmissionObject,
+                                                             &DapChainDatumTokenEmissionObjectType);
+    l_emi->token_emission = l_token;
+    l_emi->token_size = dap_chain_datum_emission_get_size((uint8_t*)l_token);
+    return (PyObject*)l_emi;
+}
 
 PyObject *dap_chain_mempool_add_proc_py(PyObject *self, PyObject *args){
     PyObject *obj_server;
