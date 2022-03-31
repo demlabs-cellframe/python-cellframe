@@ -256,7 +256,7 @@ PyObject *dap_chain_net_get_name_py(PyObject *self, PyObject *args){
 }
 
 PyObject *dap_chain_net_get_tx_by_hash_py(PyObject *self, PyObject *args){
-    PyObject *obj_hash;
+    PyDapHashFastObject *obj_hash;
     if (!PyArg_ParseTuple(args, "O", &obj_hash)){
         return NULL;
     }
@@ -266,7 +266,7 @@ PyObject *dap_chain_net_get_tx_by_hash_py(PyObject *self, PyObject *args){
     PyDapChainDatumTxObject *l_tx = PyObject_New(PyDapChainDatumTxObject, &DapChainDatumTxObjectType);
     l_tx->datum_tx = dap_chain_net_get_tx_by_hash(
             ((PyDapChainNetObject*)self)->chain_net,
-            ((PyDapHashFastObject*)obj_hash)->hash_fast,
+            obj_hash->hash_fast,
             TX_SEARCH_TYPE_NET);
     if (l_tx->datum_tx == NULL){
         Py_TYPE(l_tx)->tp_free((PyObject*)l_tx);

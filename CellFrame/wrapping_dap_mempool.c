@@ -1,6 +1,8 @@
 #include "wrapping_dap_mempool.h"
 
 PyMethodDef  DapMempoolMethods[] = {
+        {"emissionPlace", wrapping_dap_mempool_emission_place, METH_VARARGS | METH_STATIC, ""},
+        {"emissionGet", dap_chain_mempool_emission_get_py, METH_VARARGS | METH_STATIC, ""},
         {"addProc", dap_chain_mempool_add_proc_py, METH_VARARGS | METH_STATIC, ""},
         {"txCreate", dap_chain_mempool_tx_create_py, METH_VARARGS | METH_STATIC, ""},
         {"txCreateCond", dap_chain_mempool_tx_create_cond_py, METH_VARARGS | METH_STATIC, ""},
@@ -49,6 +51,58 @@ PyTypeObject DapChainMempoolObjectType = {
         0,                                                 /* tp_alloc */
         PyType_GenericNew,                                 /* tp_new */
 };
+
+PyObject *wrapping_dap_mempool_emission_place(PyObject *self, PyObject *args){
+    (void)self;
+    PyObject *obj_chain;
+    PyObject *obj_emission;
+    if (!PyArg_ParseTuple(args, "OO", &obj_chain, &obj_emission)){
+        return NULL;
+    }
+    if (!PyDapChain_Check(obj_chain)){
+        PyErr_SetString(PyExc_AttributeError, "The second argument was incorrectly passed to this "
+                                              "function, the first argument must be an object of type "
+                                              "CellFrame.Chain.Chain.");
+        return NULL;
+    }
+    if (!PyDapChainDatumTokenEmissionObject_check(obj_emission)){
+        PyErr_SetString(PyExc_AttributeError, "The second argument was incorrectly passed"
+                                              " to this function, the second argument must be an object of "
+                                              "type ChainDatumTokenEmission. ");
+        return NULL;
+    }
+    size_t l_emission_size = dap_chain_datum_emission_get_size(
+            (uint8_t*)((PyDapChainDatumTokenEmissionObject*)obj_emission)->token_emission);
+    dap_chain_datum_t *l_datum = dap_chain_datum_create(
+            DAP_CHAIN_DATUM_TOKEN_EMISSION,
+            ((PyDapChainDatumTokenEmissionObject*)obj_emission)->token_emission, l_emission_size);
+    char *l_str = dap_chain_mempool_datum_add(l_datum, ((PyDapChainObject*)obj_chain)->chain_t);
+    if (l_str == NULL){
+        return Py_None;
+    }
+    return Py_BuildValue("s", l_str);
+}
+
+PyObject *dap_chain_mempool_emission_get_py(PyObject *self, PyObject * args){
+    (void)self;
+    PyObject *obj_chain;
+    char *l_emission_hash;
+    if (!PyArg_ParseTuple(args, "Os", &obj_chain, &l_emission_hash)){
+        return NULL;
+    }
+    if (!PyDapChain_Check(obj_chain)){
+        PyErr_SetString(PyExc_AttributeError, "The first argument passed to the wrong function, the first"
+                                              " argument must be an object of type Chain.");
+        return NULL;
+    }
+    dap_chain_datum_token_emission_t *l_token = dap_chain_mempool_emission_get(
+            ((PyDapChainObject*)obj_chain)->chain_t, l_emission_hash);
+    PyDapChainDatumTokenEmissionObject *l_emi = PyObject_New(PyDapChainDatumTokenEmissionObject,
+                                                             &DapChainDatumTokenEmissionObjectType);
+    l_emi->token_emission = l_token;
+    l_emi->token_size = dap_chain_datum_emission_get_size((uint8_t*)l_token);
+    return (PyObject*)l_emi;
+}
 
 PyObject *dap_chain_mempool_add_proc_py(PyObject *self, PyObject *args){
     PyObject *obj_server;
