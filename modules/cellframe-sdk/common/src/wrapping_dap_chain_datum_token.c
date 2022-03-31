@@ -197,6 +197,10 @@ int PyDapChainDatumTokenEmissionObject_init(PyDapChainDatumTokenEmissionObject *
     return 0;
 }
 
+bool PyDapChainDatumTokenEmissionObject_check(PyObject *self){
+    return PyObject_TypeCheck(self, &DapChainDatumTokenEmissionObjectType);
+}
+
 PyObject *wrapping_dap_chain_datum_token_emission_get_version(PyObject *self, void *closure){
     (void)closure;
     return Py_BuildValue("I", ((PyDapChainDatumTokenEmissionObject*)self)->token_emission->hdr.version);
