@@ -236,10 +236,19 @@ PyObject *dap_chain_ledger_count_py(PyObject *self, PyObject *args){
     return PyLong_FromLongLong(res);
 }
 PyObject *dap_chain_ledger_count_from_to_py(PyObject *self, PyObject *args){
-    long ts_from, ts_to;
-    if (!PyArg_ParseTuple(args, "l|l", &ts_from, &ts_to))
+    long ts_from = 0, ts_to = 0;
+    if (!PyArg_ParseTuple(args, "|ll", &ts_from, &ts_to))
         return NULL;
-    uint64_t res = dap_chain_ledger_count_from_to(((PyDapChainLedgerObject*)self)->ledger, (time_t)ts_from, (time_t)ts_to);
+    uint64_t res = 0;
+    if (ts_from && ts_to){
+        res = dap_chain_ledger_count_from_to(((PyDapChainLedgerObject*)self)->ledger, (time_t)ts_from, (time_t)ts_to);
+    }else if(ts_from){
+        res = dap_chain_ledger_count_from_to(((PyDapChainLedgerObject*)self)->ledger, (time_t)ts_from, 0);
+    }else if (ts_to){
+        res = dap_chain_ledger_count_from_to(((PyDapChainLedgerObject*)self)->ledger, 0, ts_to);
+    } else {
+        res = dap_chain_ledger_count_from_to(((PyDapChainLedgerObject*)self)->ledger, 0, 0);
+    }
     return PyLong_FromUnsignedLongLong(res);
 }
 PyObject *dap_chain_ledger_tx_hash_is_used_out_item_py(PyObject *self, PyObject *args){
