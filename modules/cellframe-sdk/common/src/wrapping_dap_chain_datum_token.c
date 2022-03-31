@@ -170,6 +170,31 @@ PyTypeObject DapChainDatumTokenEmissionObjectType = {
         PyType_GenericNew,                               /* tp_new */
 };
 
+int PyDapChainDatumTokenEmissionObject_init(PyDapChainDatumTokenEmissionObject *self, PyObject *argv, PyObject *kwds){
+    const char *kwlist[] = {
+            "value",
+            "ticker",
+            "addr",
+            NULL
+    };
+    char* l_value_datoshi;
+    char *l_ticker;
+    PyObject *obj_addr;
+    if (!PyArg_ParseTupleAndKeywords(argv, kwds, "ssO", (char**)kwlist, &l_value_datoshi, &l_ticker, &obj_addr)){
+        return -1;
+    }
+    if (!PyDapChainAddrObject_Check(obj_addr)){
+        PyErr_SetString(PyExc_AttributeError, "The third argument to this function is invalid. "
+                                              "It must be an instance of the Cellframe.Chain.ChainAddr object type.");
+        return -1;
+    }
+    uint256_t l_value = dap_chain_balance_scan(l_value_datoshi);
+    self->token_emission = dap_chain_datum_emission_create(
+            l_value, l_ticker, ((PyDapChainAddrObject*)obj_addr)->addr);
+    self->token_size = dap_chain_datum_emission_get_size((uint8_t*)self->token_emission);
+    return 0;
+}
+
 PyObject *wrapping_dap_chain_datum_token_emission_get_version(PyObject *self, void *closure){
     (void)closure;
     return Py_BuildValue("I", ((PyDapChainDatumTokenEmissionObject*)self)->token_emission->hdr.version);
