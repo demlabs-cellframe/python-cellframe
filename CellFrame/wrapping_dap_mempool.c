@@ -80,6 +80,12 @@ PyObject *dap_chain_mempool_proc_py(PyObject *self, PyObject *args){
         size_t l_datum_size = 0;
         l_datum = (dap_chain_datum_t*) dap_chain_global_db_gr_get(l_datum_hash_str,
                                                         &l_datum_size, l_gdb_group_mempool);
+        if (!l_datum){
+            PyErr_SetString(PyExc_AttributeError, dap_strdup_printf("Failed to get data from "
+                                                                    "chain %s on network %s using hash %s",
+                                                                    l_chain->name, l_net->pub.name, l_datum_hash_str));
+            return NULL;
+        }
         size_t l_datum_size2= l_datum? dap_chain_datum_size( l_datum): 0;
         if (l_datum_size != l_datum_size2 ){
             PyErr_SetString(PyExc_RuntimeError, dap_strdup_printf("Error! Corrupted datum %s, size by datum headers is %zd when in mempool is only %zd bytes",
