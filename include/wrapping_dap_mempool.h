@@ -17,7 +17,7 @@ typedef struct PyDapMempool{
 
 PyObject *wrapping_dap_mempool_emission_place(PyObject *self, PyObject *args);
 PyObject *dap_chain_mempool_emission_get_py(PyObject *self, PyObject * args);
-PyObject *dap_chain_mempool_add_proc_py(PyObject *self, PyObject *args);
+PyObject *dap_chain_mempool_proc_py(PyObject *self, PyObject *args);
 PyObject *dap_chain_mempool_tx_create_py(PyObject *self, PyObject *args);
 PyObject *dap_chain_mempool_tx_create_cond_py(PyObject *self, PyObject *args);
 PyObject *dap_chain_mempool_tx_create_cond_input_py(PyObject *self, PyObject *args);
