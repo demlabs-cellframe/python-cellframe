@@ -123,7 +123,7 @@ PyObject *dap_chain_mempool_proc_py(PyObject *self, PyObject *args){
                 DAP_DEL_Z(l_datum_hash_str);
                 if (!res_del_mempool){
                     PyErr_SetString(PyExc_Warning, "Warning! Can't delete datum from mempool!");
-                    return  Py_None;
+                    return  NULL;
                 }
                 return Py_None;
             }
