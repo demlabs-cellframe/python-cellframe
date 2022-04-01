@@ -118,7 +118,7 @@ PyObject *dap_chain_mempool_proc_py(PyObject *self, PyObject *args) {
     dap_chain_t *l_chain = ((PyDapChainObject *) obj_chain)->chain_t;
     dap_chain_net_t *l_net = dap_chain_net_by_id(l_chain->net_id);
 
-    char *l_gdb_group_mempool = NULL, *l_gdb_group_mempool_tmp;
+    char *l_gdb_group_mempool = NULL;
     l_gdb_group_mempool = dap_chain_net_get_gdb_group_mempool(l_chain);
 
     // If full or light it doesnt work
@@ -129,9 +129,9 @@ PyObject *dap_chain_mempool_proc_py(PyObject *self, PyObject *args) {
     }
 
     dap_chain_datum_t *l_datum = NULL;
-
+    const char *l_datum_hash_str;
     if (PyUnicode_Check(obj_datum)){
-        const char *l_datum_hash_str = PyUnicode_AsUTF8(obj_datum);
+        l_datum_hash_str = PyUnicode_AsUTF8(obj_datum);
         size_t l_datum_size = 0;
         l_datum = (dap_chain_datum_t*) dap_chain_global_db_gr_get(l_datum_hash_str,
                                                                   &l_datum_size, l_gdb_group_mempool);
@@ -170,12 +170,7 @@ PyObject *dap_chain_mempool_proc_py(PyObject *self, PyObject *args) {
                 PyErr_SetString(PyExc_RuntimeError, "Error! Datum doesn't pass verifications, examine node log files");
                 return NULL;
             }else{
-                size_t l_datum_size = dap_chain_datum_size(l_datum);
-                dap_hash_fast_t l_datum_hash= {0};
-                dap_hash_fast(l_datum, l_datum_size, &l_datum_hash);
-                char *l_datum_hash_str = dap_chain_hash_fast_to_str_new(&l_datum_hash);
-                bool res_del_mempool = dap_chain_global_db_gr_del( dap_strdup(l_datum_hash_str), l_gdb_group_mempool);
-                DAP_DEL_Z(l_datum_hash_str);
+                bool res_del_mempool = dap_chain_global_db_gr_del(l_datum_hash_str, l_gdb_group_mempool);
                 if (!res_del_mempool){
                     PyErr_SetString(PyExc_Warning, "Warning! Can't delete datum from mempool!");
                     return  NULL;
