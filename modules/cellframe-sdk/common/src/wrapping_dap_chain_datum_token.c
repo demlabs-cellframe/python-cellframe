@@ -1,4 +1,5 @@
 #include "wrapping_dap_chain_datum_token.h"
+#include "wrapping_cert.h"
 
 /* Token */
 PyGetSetDef  PyDapChainDatumTokenGetsSetsDef[]={
@@ -308,23 +309,23 @@ PyObject *wrapping_dap_chain_datum_token_emission_get_data(PyObject *self, void 
     return obj_dict;
 }
 
-PyObject *wrapping_dap_chain_datum_emission_add_sign(PyObject*self, PyObject *args){
-    PyObject *obj_enc_key;
-    if (!PyArg_ParseTuple(args, "O", &obj_enc_key)){
+PyObject *wrapping_dap_chain_datum_emission_add_sign(PyObject *self, PyObject *args){
+    PyCryptoCertObject *pyCert;
+    if (!PyArg_ParseTuple(args, "O", &pyCert)) {
         return  NULL;
     }
-    if (!PyCryptoKeyObject_check(self)){
+    if (!PyObject_TypeCheck(pyCert, &DapCryptoCertObjectType)) {
         PyErr_SetString(PyExc_AttributeError, "An incorrect argument was passed to the function, it must"
                                               " be an instance of the DAP.Crypto.Key object.");
         return NULL;
     }
     ((PyDapChainDatumTokenEmissionObject*)self)->token_emission = dap_chain_datum_emission_add_sign(
-            ((PyCryptoKeyObject *)obj_enc_key)->key,
+            pyCert->cert->enc_key,
             ((PyDapChainDatumTokenEmissionObject*)self)->token_emission);
     ((PyDapChainDatumTokenEmissionObject*)self)->token_size = dap_chain_datum_emission_get_size(
             (byte_t*)((PyDapChainDatumTokenEmissionObject*)self)->token_emission
             );
-    return  Py_None;
+    return Py_None;
 }
 
 PyObject *wrapping_dap_chain_datum_emission_add_tsd(PyObject*self, PyObject *args){

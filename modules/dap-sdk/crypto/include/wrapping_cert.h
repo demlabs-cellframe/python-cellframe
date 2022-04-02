@@ -34,7 +34,7 @@ extern "C" {
 #endif
 
 typedef struct PyCryptoCert{
-    PyObject_HEAD;
+    PyObject_HEAD
     dap_cert_t * cert;
 }PyCryptoCertObject;
 

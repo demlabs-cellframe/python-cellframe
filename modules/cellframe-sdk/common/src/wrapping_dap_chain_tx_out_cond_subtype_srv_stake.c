@@ -53,7 +53,7 @@ PyObject *wrapping_dap_chain_tx_out_cond_subtype_srv_stake_get_uid(PyObject *sel
     (void)closure;
     PyDapChainNetSrvUIDObject *obj_net_srv_uid = PyObject_New(PyDapChainNetSrvUIDObject, &DapChainNetSrvUidObjectType);
     PyObject_Dir((PyObject*)obj_net_srv_uid);
-    obj_net_srv_uid->net_srv_uid = ((PyDapChainTxOutCondObject*)self)->out_cond->subtype.srv_stake.srv_uid;
+    obj_net_srv_uid->net_srv_uid = ((PyDapChainTxOutCondObject*)self)->out_cond->header.srv_uid;
     return (PyObject*)obj_net_srv_uid;
 }
 PyObject *wrapping_dap_chain_tx_out_cond_subtype_srv_stake_get_addr(PyObject *self, void *closure){
@@ -65,5 +65,5 @@ PyObject *wrapping_dap_chain_tx_out_cond_subtype_srv_stake_get_addr(PyObject *se
 }
 PyObject *wrapping_dap_chain_tx_out_cond_subtype_srv_stake_get_value(PyObject *self, void *closure){
     (void)closure;
-    return PyLong_FromDouble(((PyDapChainTxOutCondObject*)self)->out_cond->subtype.srv_stake.fee_value);
+    return Py_None; // TODO return a string with 256 bit representation of (((PyDapChainTxOutCondObject*)self)->out_cond->subtype.srv_stake.fee_value);
 }
