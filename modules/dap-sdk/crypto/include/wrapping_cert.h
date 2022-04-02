@@ -28,6 +28,7 @@
 #include <Python.h>
 #include "dap_common.h"
 #include "dap_cert.h"
+#include "libdap_crypto_key_python.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -54,6 +55,7 @@ PyObject* dap_cert_load_py(PyObject *self, PyObject *args);
 void dap_cert_delete_py(PyObject *self);
 PyObject* dap_cert_folder_add_py(PyObject *self, PyObject *args);
 PyObject* dap_cert_folder_get_py(PyObject *self, PyObject *args);
+PyObject *wrapping_cert_get_enc_key(PyObject *self, void *closure);
 
 extern PyTypeObject DapCryptoCertObjectType;
 
