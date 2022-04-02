@@ -46,6 +46,11 @@ PyMethodDef g_crypto_cert_methods_py[] = {
         {NULL, NULL, 0, NULL}
 };
 
+PyGetSetDef g_crypto_cert_getssets_py[] = {
+        {"key", (getter)wrapping_cert_get_enc_key, NULL, NULL, NULL},
+        {NULL}
+};
+
 PyTypeObject DapCryptoCertObjectType = {
         PyVarObject_HEAD_INIT(NULL, 0)
         "DAP.Crypto.Cert",             /* tp_name */
@@ -249,6 +254,13 @@ PyObject* dap_cert_folder_get_py(PyObject *self, PyObject *args)
         return NULL;
     dap_cert_add_folder(a_folder_path);
     return PyLong_FromLong(0);
+}
+
+PyObject *wrapping_cert_get_enc_key(PyObject *self, void *closure){
+    (void)closure;
+    PyCryptoKeyObject *obj_key = PyObject_New(PyCryptoKeyObject, &PyCryptoKeyObjectType);
+    obj_key->key = ((PyCryptoCertObject*)self)->cert->enc_key;
+    return (PyObject*)obj_key;
 }
 
 int dap_cert_init_py(void)
