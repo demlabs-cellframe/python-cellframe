@@ -168,7 +168,7 @@ PyTypeObject DapChainDatumTokenEmissionObjectType = {
         0,                                               /* tp_descr_get */
         0,                                               /* tp_descr_set */
         0,                                               /* tp_dictoffset */
-        0,                                               /* tp_init */
+        (initproc)PyDapChainDatumTokenEmissionObject_init,   /* tp_init */
         0,                                               /* tp_alloc */
         PyType_GenericNew,                               /* tp_new */
 };
