@@ -71,9 +71,9 @@ int _wrapping_callback_handler(dap_chain_t *a_chain, dap_chain_cs_dag_event_t *a
     PyObject *res = PyEval_CallObject(l_callback->func, argv);
     Py_XDECREF(argv);
     PyGILState_Release(state);
-    if (!res){
-        if (PyLong_AsLong(res)){
-            int l_res = _PyLong_AsInt(res);
+    if (res){
+        if (PyLong_Check(res)){
+            long l_res = PyLong_AsLong(res);
             return l_res;
         } else {
             log_it(L_ERROR, "Python function was executed but returned not a number.");

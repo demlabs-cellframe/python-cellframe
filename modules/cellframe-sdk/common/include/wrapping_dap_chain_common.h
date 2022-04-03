@@ -4,7 +4,7 @@
  * DeM Labs Inc.   https://demlabs.net
  * CellFrame       https://cellframe.net
  * Sources         https://gitlab.demlabs.net/cellframe
- * Copyright  (c) 2017-2021
+ * Copyright  (c) 2017-2022
  * All rights reserved.
 
  This file is part of DAP (Deus Applications Prototypes) the open source project
@@ -52,6 +52,8 @@ typedef struct PyDapChainAddr{
     PyObject_HEAD
     dap_chain_addr_t *addr;
 }PyDapChainAddrObject;
+
+bool PyDapChainAddrObject_Check(PyObject *self);
 
 PyObject *dap_chain_addr_to_str_py(PyObject *self, PyObject *args);
 PyObject *dap_chain_addr_from_str_py(PyObject *self, PyObject *args);
