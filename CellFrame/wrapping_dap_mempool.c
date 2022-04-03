@@ -292,9 +292,9 @@ PyObject *dap_chain_mempool_tx_create_py(PyObject *self, PyObject *args){
     PyObject *obj_addr_from;
     PyObject *obj_addr_to;
     char *l_token_ticker;
-    uint64_t l_value;
-    uint64_t l_value_fee;
-    if (!PyArg_ParseTuple(args, "OOOOskk", &obj_chain, &obj_key_from, &obj_addr_from, &obj_addr_to,
+    char * l_value;
+    char * l_value_fee;
+    if (!PyArg_ParseTuple(args, "OOOOsss", &obj_chain, &obj_key_from, &obj_addr_from, &obj_addr_to,
                           &l_token_ticker, &l_value, &l_value_fee)){
         return NULL;
     }
@@ -302,8 +302,8 @@ PyObject *dap_chain_mempool_tx_create_py(PyObject *self, PyObject *args){
     dap_enc_key_t *l_key_from = ((PyCryptoKeyObject*)obj_key_from)->key;
     dap_chain_addr_t *l_addr_from = ((PyDapChainAddrObject*)obj_addr_from)->addr;
     dap_chain_addr_t *l_addr_to = ((PyDapChainAddrObject*)obj_addr_to)->addr;
-    uint256_t l_value_256 = dap_chain_uint256_from(l_value);
-    uint256_t l_value_fee_256 = dap_chain_uint256_from(l_value_fee);
+    uint256_t l_value_256 = dap_chain_balance_scan(l_value);
+    uint256_t l_value_fee_256 = dap_chain_balance_scan(l_value_fee);
     dap_chain_hash_fast_t  *l_hash_tx = dap_chain_mempool_tx_create(l_chain, l_key_from,
                                                                     l_addr_from, l_addr_to,
                                                                     l_token_ticker,
@@ -324,13 +324,13 @@ PyObject *dap_chain_mempool_tx_create_cond_py(PyObject *self, PyObject *args){
     PyObject* obj_key_from;
     PyObject* obj_key_cond;
     char *l_token_ticker;
-    uint64_t l_value;
-    uint64_t l_value_per_unit_max;
+    char* l_value;
+    char* l_value_per_unit_max;
     PyObject *obj_unit;
     PyObject *obj_srv_uid;
-    uint64_t l_fee;
+    char* l_fee;
     PyObject *obj_cond;
-    if (!PyArg_ParseTuple(args, "OOOskkOOkO", &obj_net, &obj_key_from, &obj_key_cond, &l_token_ticker, &l_value,
+    if (!PyArg_ParseTuple(args, "OOOsssOOsO", &obj_net, &obj_key_from, &obj_key_cond, &l_token_ticker, &l_value,
                           &l_value_per_unit_max, &obj_unit, &obj_srv_uid, &l_fee, &obj_cond)){
         PyErr_SetString(PyExc_AttributeError, "Function takes exactly ten arguments.");
         return NULL;
@@ -342,9 +342,9 @@ PyObject *dap_chain_mempool_tx_create_cond_py(PyObject *self, PyObject *args){
     }
     void *l_bytes_cond = PyBytes_AsString(obj_cond);
     size_t l_bytes_cond_size = PyBytes_Size(obj_cond);
-    uint256_t l_value_256 = dap_chain_uint256_from(l_value);
-    uint256_t l_value_per_unit_max_256 = dap_chain_uint256_from(l_value_per_unit_max);
-    uint256_t l_fee_256  = dap_chain_uint256_from(l_fee);
+    uint256_t l_value_256 = dap_chain_balance_scan(l_value);
+    uint256_t l_value_per_unit_max_256 = dap_chain_balance_scan(l_value_per_unit_max);
+    uint256_t l_fee_256  = dap_chain_balance_scan(l_fee);
     dap_hash_fast_t *l_hf = dap_chain_mempool_tx_create_cond(
             obj_net->chain_net,
             ((PyCryptoKeyObject*)obj_key_from)->key,
