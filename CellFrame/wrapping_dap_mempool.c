@@ -189,14 +189,14 @@ PyObject *dap_chain_mempool_proc_py(PyObject *self, PyObject *args) {
 PyObject *dap_chain_mempool_base_tx_create_py(PyObject *self, PyObject *args){
     (void)self;
     PyObject *obj_chain;
-    PyObject *obj_emi_hash;
+    PyDapHashFastObject *obj_emi_hash;
     PyObject *obj_emi_chain;
     char *l_emission_value;
     char *l_ticker;
     PyObject *obj_addr_to;
     PyObject *obj_certs;
-    if (!PyArg_ParseTuple(args, "OOOssOO", &obj_chain, &obj_emi_hash, &obj_emi_chain, l_emission_value,
-                          l_ticker, &obj_addr_to, &obj_certs)){
+    if (!PyArg_ParseTuple(args, "OOOssOO", &obj_chain, &obj_emi_hash, &obj_emi_chain, &l_emission_value,
+                          &l_ticker, &obj_addr_to, &obj_certs)){
         return NULL;
     }
     if (!PyDapChain_Check(obj_chain)){
