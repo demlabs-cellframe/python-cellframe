@@ -116,12 +116,13 @@ PyObject *wrapping_dap_chain_datum_token_get_data(PyObject *self, void *closure)
 
 /* Token Emission */
 PyGetSetDef PyDapChainDatumTokenEmissionGetsSetsDef[]={
-        {"version", (getter)wrapping_dap_chain_datum_token_emission_get_version, NULL, NULL},
-        {"typeStr", (getter)wrapping_dap_chain_datum_token_emission_get_type_str, NULL, NULL},
-        {"ticker", (getter)wrapping_dap_chain_datum_token_emission_get_ticker, NULL, NULL},
-        {"addr", (getter)wrapping_dap_chain_datum_token_emission_get_addr, NULL, NULL},
-        {"value", (getter)wrapping_dap_chain_datum_token_emission_get_value, NULL, NULL},
-        {"data", (getter)wrapping_dap_chain_datum_token_emission_get_data, NULL, NULL},
+        {"version", (getter)wrapping_dap_chain_datum_token_emission_get_version, NULL, NULL, NULL},
+        {"typeStr", (getter)wrapping_dap_chain_datum_token_emission_get_type_str, NULL, NULL, NULL},
+        {"ticker", (getter)wrapping_dap_chain_datum_token_emission_get_ticker, NULL, NULL, NULL},
+        {"addr", (getter)wrapping_dap_chain_datum_token_emission_get_addr, NULL, NULL, NULL},
+        {"value", (getter)wrapping_dap_chain_datum_token_emission_get_value, NULL, NULL, NULL},
+        {"data", (getter)wrapping_dap_chain_datum_token_emission_get_data, NULL, NULL, NULL},
+        {"signCount", (getter)wrapping_dap_chain_datum_token_emission_get_sign_count, NULL, NULL, NULL},
         {NULL}
 };
 
@@ -307,6 +308,15 @@ PyObject *wrapping_dap_chain_datum_token_emission_get_data(PyObject *self, void 
             return Py_None;
     }
     return obj_dict;
+}
+
+PyObject *wrapping_dap_chain_datum_token_emission_get_sign_count(PyObject *self, void *closure){
+    (void)closure;
+    dap_chain_datum_token_emission_t *l_emi = ((PyDapChainDatumTokenEmissionObject*)self)->token_emission;
+    uint16_t l_sign_count = 0;
+    if (l_emi->hdr.type == DAP_CHAIN_DATUM_TOKEN_EMISSION_TYPE_AUTH)
+        l_sign_count = l_emi->data.type_auth.signs_count;
+    return Py_BuildValue("H", l_sign_count);
 }
 
 PyObject *wrapping_dap_chain_datum_emission_add_sign(PyObject *self, PyObject *args){
