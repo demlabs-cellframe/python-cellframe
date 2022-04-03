@@ -5,6 +5,7 @@ PyMethodDef  DapMempoolMethods[] = {
         {"emissionPlace", wrapping_dap_mempool_emission_place, METH_VARARGS | METH_STATIC, ""},
         {"emissionGet", dap_chain_mempool_emission_get_py, METH_VARARGS | METH_STATIC, ""},
         {"txCreate", dap_chain_mempool_tx_create_py, METH_VARARGS | METH_STATIC, ""},
+        {"baseTxCreate", dap_chain_mempool_base_tx_create_py, METH_VARARGS | METH_STATIC, ""},
         {"txCreateCond", dap_chain_mempool_tx_create_cond_py, METH_VARARGS | METH_STATIC, ""},
         {"txCreateCondInput", dap_chain_mempool_tx_create_cond_input_py, METH_VARARGS | METH_STATIC, ""},
         {NULL,NULL,0,NULL}
@@ -183,6 +184,70 @@ PyObject *dap_chain_mempool_proc_py(PyObject *self, PyObject *args) {
         }
     }
     DAP_DELETE(l_gdb_group_mempool);
+}
+
+PyObject *dap_chain_mempool_base_tx_create_py(PyObject *self, PyObject *args){
+    (void)self;
+    PyObject *obj_chain;
+    PyObject *obj_emi_hash;
+    PyObject *obj_emi_chain;
+    char *l_emission_value;
+    char *l_ticker;
+    PyObject *obj_addr_to;
+    PyObject *obj_certs;
+    if (!PyArg_ParseTuple(args, "OOOssOO", &obj_chain, &obj_emi_hash, &obj_emi_chain, l_emission_value,
+                          l_ticker, &obj_addr_to, &obj_certs)){
+        return NULL;
+    }
+    if (!PyDapChain_Check(obj_chain)){
+        PyErr_SetString(PyExc_AttributeError, "The first argument was not correctly passed to "
+                                              "this function. The first argument must be an instance of an object of type Chain. ");
+        return NULL;
+    }
+    if (!PyDapHashFast_Check(obj_emi_hash)){
+        PyErr_SetString(PyExc_AttributeError, "The second argument was not correctly passed to this "
+                                              "function. The second argument must be an instance of a HashFast object"
+                                              " containing the hash of the emission.");
+        return NULL;
+    }
+    if (!PyDapChain_Check(obj_emi_chain)){
+        PyErr_SetString(PyExc_AttributeError, "The third argument was not correctly passed to this "
+                                              "function. The third argument must be an instance of an object of type "
+                                              "Chain that contains the emission. ");
+        return NULL;
+    }
+    if (!PyDapChainAddrObject_Check(obj_addr_to)){
+        PyErr_SetString(PyExc_AttributeError, "The sixth argument was not correctly passed to this "
+                                              "function. The sixth argument should be an instance of an object of type "
+                                              "ChainAddr , which indicates which wallet address the underlying "
+                                              "transaction should be made to. ");
+        return NULL;
+    }
+    if (!PyList_Check(obj_certs)){
+        PyErr_SetString(PyExc_AttributeError, "The seventh argument was not correctly passed to this "
+                                              "function. The seventh argument must be an instance of an object of type "
+                                              "list, which holds the list of certificates with which the underlying "
+                                              "transaction is to be signed.");
+        return NULL;
+    }
+    uint256_t l_emi_value = dap_chain_balance_scan(l_emission_value);
+    size_t l_certs_count = PyList_Size(obj_certs);
+    dap_cert_t **l_certs = DAP_NEW_Z_SIZE(dap_cert_t*, l_certs_count);
+    for (size_t i=0; i < l_certs_count; i++){
+        PyCryptoCertObject *l_ptr = (PyCryptoCertObject*)PyList_GetItem(obj_certs, (Py_ssize_t)i);
+        l_certs[i] = l_ptr->cert;
+    }
+    dap_chain_hash_fast_t *l_tx_hash = dap_chain_mempool_base_tx_create(
+            ((PyDapChainObject*)obj_chain)->chain_t, ((PyDapHashFastObject*)obj_emi_hash)->hash_fast,
+            ((PyDapChainObject*)obj_emi_chain)->chain_t->id, l_emi_value, l_ticker,
+            ((PyDapChainAddrObject*)obj_addr_to)->addr, l_certs, l_certs_count);
+    DAP_FREE(l_certs);
+    if (l_tx_hash == NULL) {
+        return Py_None;
+    }
+    PyDapHashFastObject *l_obj_hf = PyObject_New(PyDapHashFastObject, &DapChainHashFastObjectType);
+    l_obj_hf->hash_fast = l_tx_hash;
+    return (PyObject*)l_obj_hf;
 }
 
 PyObject *dap_chain_mempool_tx_create_py(PyObject *self, PyObject *args){
