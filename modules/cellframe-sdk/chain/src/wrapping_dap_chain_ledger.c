@@ -291,12 +291,10 @@ PyObject *dap_chain_ledger_tx_find_by_hash_py(PyObject *self, PyObject *args){
     PyObject *h_fast;
     if (!PyArg_ParseTuple(args, "O", &h_fast))
         return NULL;
-    PyObject *res = _PyObject_New(&DapChainDatumTxObjectType);
-    res = PyObject_Init(res, &DapChainDatumTxObjectType);
-    PyObject_Dir(res);
-    ((PyDapChainDatumTxObject*)res)->datum_tx = dap_chain_ledger_tx_find_by_hash(((PyDapChainLedgerObject*)self)->ledger, ((PyDapHashFastObject*)h_fast)->hash_fast);
-    ((PyDapChainDatumTxObject*)res)->original = false;
-    if (((PyDapChainDatumTxObject*)res)->datum_tx == NULL) {
+    PyDapChainDatumTxObject *res = PyObject_NEW(PyDapChainDatumTxObject, &DapChainDatumTxObjectType);
+    res->datum_tx = dap_chain_ledger_tx_find_by_hash(((PyDapChainLedgerObject*)self)->ledger, ((PyDapHashFastObject*)h_fast)->hash_fast);
+    res->original = false;
+    if (res->datum_tx == NULL) {
         PyObject_DEL(res);
         return Py_None;
     }
@@ -402,7 +400,6 @@ PyObject *dap_chain_ledger_get_txs_py(PyObject *self, PyObject *args){
         PyDapChainDatumTxObject *obj_tx = PyObject_New(PyDapChainDatumTxObject, &DapChainDatumTxObjectType);
         obj_tx->datum_tx = l_iter->data;
         obj_tx->original = false;
-        PyObject_Dir((PyObject*) obj_tx);
         PyList_Append(obj_list, (PyObject*)obj_tx);
     }
     return obj_list;
