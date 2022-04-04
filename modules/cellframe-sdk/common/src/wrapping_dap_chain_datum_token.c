@@ -91,14 +91,14 @@ PyObject *wrapping_dap_chain_datum_token_get_data(PyObject *self, void *closure)
     switch(l_token->type){
         case DAP_CHAIN_DATUM_TOKEN_TYPE_OLD_SIMPLE:
         case DAP_CHAIN_DATUM_TOKEN_TYPE_SIMPLE:
-            obj = Py_BuildValue("H", l_token->header_simple.signs_total);
+            obj = Py_BuildValue("H", l_token->signs_total);
             PyDict_SetItemString(obj_dict, "signs_total", obj);
-            obj = Py_BuildValue("H", l_token->header_simple.signs_valid);
+            obj = Py_BuildValue("H", l_token->signs_valid);
             PyDict_SetItemString(obj_dict, "signs_valid", obj);
             if (dap_chain_datum_token_is_old(l_token->type))
-                obj = Py_BuildValue("k", l_token->header_simple.total_supply);
+                obj = Py_BuildValue("k", l_token->total_supply);
             else
-                obj = Py_BuildValue("s", dap_chain_balance_print(l_token->header_simple.total_supply_256));
+                obj = Py_BuildValue("s", dap_chain_balance_print(l_token->total_supply));
             PyDict_SetItemString(obj_dict, "total_supply", obj);
             break;
 //        case DAP_CHAIN_DATUM_TOKEN_TYPE_OLD_PRIVATE_UPDATE:
@@ -116,12 +116,13 @@ PyObject *wrapping_dap_chain_datum_token_get_data(PyObject *self, void *closure)
 
 /* Token Emission */
 PyGetSetDef PyDapChainDatumTokenEmissionGetsSetsDef[]={
-        {"version", (getter)wrapping_dap_chain_datum_token_emission_get_version, NULL, NULL},
-        {"typeStr", (getter)wrapping_dap_chain_datum_token_emission_get_type_str, NULL, NULL},
-        {"ticker", (getter)wrapping_dap_chain_datum_token_emission_get_ticker, NULL, NULL},
-        {"addr", (getter)wrapping_dap_chain_datum_token_emission_get_addr, NULL, NULL},
-        {"value", (getter)wrapping_dap_chain_datum_token_emission_get_value, NULL, NULL},
-        {"data", (getter)wrapping_dap_chain_datum_token_emission_get_data, NULL, NULL},
+        {"version", (getter)wrapping_dap_chain_datum_token_emission_get_version, NULL, NULL, NULL},
+        {"typeStr", (getter)wrapping_dap_chain_datum_token_emission_get_type_str, NULL, NULL, NULL},
+        {"ticker", (getter)wrapping_dap_chain_datum_token_emission_get_ticker, NULL, NULL, NULL},
+        {"addr", (getter)wrapping_dap_chain_datum_token_emission_get_addr, NULL, NULL, NULL},
+        {"value", (getter)wrapping_dap_chain_datum_token_emission_get_value, NULL, NULL, NULL},
+        {"data", (getter)wrapping_dap_chain_datum_token_emission_get_data, NULL, NULL, NULL},
+        {"signCount", (getter)wrapping_dap_chain_datum_token_emission_get_sign_count, NULL, NULL, NULL},
         {NULL}
 };
 
@@ -252,7 +253,9 @@ PyObject *wrapping_dap_chain_datum_token_emission_get_addr(PyObject *self, void 
 }
 PyObject *wrapping_dap_chain_datum_token_emission_get_value(PyObject *self, void *closure){
     (void)closure;
-    return Py_BuildValue("k", ((PyDapChainDatumTokenEmissionObject*)self)->token_emission->hdr.value);
+    DapMathObject *l_math = PyObject_New(DapMathObject, &DapMathObjectType);
+    l_math->value = ((PyDapChainDatumTokenEmissionObject*)self)->token_emission->hdr.value_256;
+    return (PyObject*)l_math;
 }
 PyObject *wrapping_dap_chain_datum_token_emission_get_data(PyObject *self, void *closure){
     (void)closure;
@@ -307,6 +310,15 @@ PyObject *wrapping_dap_chain_datum_token_emission_get_data(PyObject *self, void 
             return Py_None;
     }
     return obj_dict;
+}
+
+PyObject *wrapping_dap_chain_datum_token_emission_get_sign_count(PyObject *self, void *closure){
+    (void)closure;
+    dap_chain_datum_token_emission_t *l_emi = ((PyDapChainDatumTokenEmissionObject*)self)->token_emission;
+    uint16_t l_sign_count = 0;
+    if (l_emi->hdr.type == DAP_CHAIN_DATUM_TOKEN_EMISSION_TYPE_AUTH)
+        l_sign_count = l_emi->data.type_auth.signs_count;
+    return Py_BuildValue("H", l_sign_count);
 }
 
 PyObject *wrapping_dap_chain_datum_emission_add_sign(PyObject *self, PyObject *args){
