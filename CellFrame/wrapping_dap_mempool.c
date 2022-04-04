@@ -112,7 +112,7 @@ PyObject* dap_chain_mempool_datum_emission_extract_py(PyObject *self, PyObject *
     (void)self;
     PyObject *obj_chain;
     PyObject *obj_bytes;
-    if (PyArg_ParseTuple(args, "OO", &obj_chain, &obj_bytes)){
+    if (!PyArg_ParseTuple(args, "OO", &obj_chain, &obj_bytes)){
         return NULL;
     }
     if (!PyDapChain_Check(obj_chain)){
