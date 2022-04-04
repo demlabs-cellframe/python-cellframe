@@ -73,9 +73,9 @@ PyObject *wrapping_dap_chain_datum_token_get_type_str(PyObject *self, void *clos
         case DAP_CHAIN_DATUM_TOKEN_TYPE_PUBLIC:
             return Py_BuildValue("s", "PUBLIC");
         case DAP_CHAIN_DATUM_TOKEN_TYPE_NATIVE_DECL:
-            return Py_BuildValue("s", "CF50_DECL");
+            return Py_BuildValue("s", "CF20_DECL");
         case DAP_CHAIN_DATUM_TOKEN_TYPE_NATIVE_UPDATE:
-            return Py_BuildValue("s", "CF50_UPDATE");
+            return Py_BuildValue("s", "CF20_UPDATE");
         default:
             return Py_BuildValue("s", "UNKNOWN");
     }
