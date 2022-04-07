@@ -117,11 +117,11 @@ PyObject *DAP_HASH_TYPE_SLOW_0_PY(){
 PyObject *dap_chain_str_to_hash_fast_py(PyObject *self, PyObject *args){
     const char *hash_str;
     if (!PyArg_ParseTuple(args, "s", &hash_str))
-        return self;
+        return NULL;
     dap_hash_fast_t *l_hash = DAP_NEW(dap_hash_fast_t);
     if (dap_chain_hash_fast_from_str(hash_str, l_hash)) {
         DAP_DEL_Z(l_hash);
-        return self;
+        return Py_None;
     }
     if (!self) {
         self = _PyObject_New(&DapHashFastObject_DapHashFastObjectType);
