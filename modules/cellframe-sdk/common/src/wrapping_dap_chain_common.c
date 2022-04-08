@@ -360,9 +360,13 @@ PyObject *dap_chain_addr_from_str_py(PyObject *self, PyObject *args){
     const char *str;
     if (!PyArg_ParseTuple(args, "s", &str))
         return NULL;
+    dap_chain_addr_t *l_addr = dap_chain_addr_from_str(str);
+    if (!l_addr){
+        return Py_None;
+    }
     PyObject *obj = _PyObject_New(&DapChainAddrObjectType);
     obj = PyObject_Init(obj, &DapChainAddrObjectType);
-    ((PyDapChainAddrObject*)obj)->addr = dap_chain_addr_from_str(str);
+    ((PyDapChainAddrObject*)obj)->addr = l_addr;
     PyObject_Dir(obj);
     return Py_BuildValue("O", obj);
 }
