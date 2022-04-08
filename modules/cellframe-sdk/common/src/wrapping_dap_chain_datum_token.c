@@ -141,6 +141,7 @@ PyGetSetDef PyDapChainDatumTokenEmissionGetsSetsDef[]={
 PyMethodDef PyDapChainDatumTokenEmissionMethods[]={
         {"addSign", (PyCFunction)wrapping_dap_chain_datum_emission_add_sign, METH_VARARGS, ""},
         {"addTSD", (PyCFunction)wrapping_dap_chain_datum_emission_add_tsd, METH_VARARGS, ""},
+        {"getTSD", (PyCFunction)wrapping_dap_chain_datum_emission_get_tsd, METH_VARARGS, ""},
         {NULL, NULL, 0, NULL}
 };
 
@@ -371,4 +372,19 @@ PyObject *wrapping_dap_chain_datum_emission_add_tsd(PyObject*self, PyObject *arg
     ((PyDapChainDatumTokenEmissionObject*)self)->token_size = dap_chain_datum_emission_get_size(
             (uint8_t*)((PyDapChainDatumTokenEmissionObject*)self)->token_emission);
     return Py_None;
+}
+
+PyObject *wrapping_dap_chain_datum_emission_get_tsd(PyObject*self, PyObject *args)
+{
+    int l_type;
+    if (!PyArg_ParseTuple(args, "i", &l_type))
+        return NULL;
+    dap_chain_datum_token_emission_t *l_ems = ((PyDapChainDatumTokenEmissionObject *)self)->token_emission;
+    if (!l_ems)
+        return NULL;
+    size_t l_data_size = 0;
+    byte_t *l_data = dap_chain_emission_get_tsd(l_ems, l_type, &l_data_size);
+    if (!l_data || !l_data_size)
+        return Py_None;
+    return PyBytes_FromStringAndSize((char *)l_data, (Py_ssize_t)l_data_size);
 }
