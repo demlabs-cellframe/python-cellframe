@@ -246,7 +246,7 @@ void _wrapping_dap_chain_mempool_notify_handler(void * a_arg, const char a_op_co
     }
     _wrapping_chain_mempool_notify_callback_t *l_callback = (_wrapping_chain_mempool_notify_callback_t*)a_arg;
     PyObject *l_value = Py_None;
-    if (a_value_len != 0) {
+    if (a_op_code == DAP_DB$K_OPTYPE_ADD) {
         l_value = PyBytes_FromStringAndSize(a_value, (Py_ssize_t)a_value_len);
     }
     char l_op_code[2];
