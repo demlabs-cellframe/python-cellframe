@@ -5,7 +5,9 @@ PyGetSetDef DapChainCsBlockGetsSetsDef[] = {
         {"cellId", (getter)wrapping_dap_chain_block_get_cell_id, NULL, NULL, NULL},
         {"chainId", (getter)wrapping_dap_chain_block_get_chain_id, NULL, NULL, NULL},
         {"created", (getter)wrapping_dap_chain_block_get_ts_created, NULL, NULL, NULL},
-        {"blockCache", (getter)wrapping_dap_chain_block_get_block_cache, NULL, NULL, NULL},
+        {"metaData", (getter)wrapping_dap_chain_block_get_meta_data, NULL, NULL, NULL},
+        {"datums", (getter)wrapping_dap_chain_block_get_datums, NULL, NULL, NULL},
+//        {"blockCache", (getter)wrapping_dap_chain_block_get_block_cache, NULL, NULL, NULL},
         {NULL}
 };
 
@@ -81,12 +83,66 @@ PyObject *wrapping_dap_chain_block_get_ts_created(PyObject *self, void *closure)
     Py_XDECREF(l_obj_tuple);
     return l_obj_dateTime;
 }
-PyObject *wrapping_dap_chain_block_get_block_cache(PyObject *self, void *closure){
+PyObject *wrapping_dap_chain_block_get_meta_data(PyObject *self, void *closure){
     (void)closure;
-    dap_hash_fast_t *l_hash;
-    dap_hash_fast(((PyDapChainCSBlockObject*)self)->block, sizeof(dap_chain_block_t), &l_hash);
-//    dap_chain_block_cache_new()
-//    dap_chain_block_
-    return Py_None;
-//    ((PyDapChainCSBlockObject*)self)->block->hdr.
+    size_t l_count = 0;
+    dap_chain_block_meta_t **l_meta = dap_chain_block_get_meta(((PyDapChainCSBlockObject*)self)->block,
+            sizeof(dap_chain_block_t),
+            &l_count);
+    dap_chain_hash_fast_t *l_block_prev_hash = NULL;
+    dap_chain_hash_fast_t *l_block_anchor_hash = NULL;
+    dap_chain_hash_fast_t *l_merkle = NULL;
+    dap_chain_hash_fast_t **l_block_links = NULL;
+    size_t l_block_links_count = 0;
+    bool l_is_genesis = false;
+    uint64_t l_nonce = {0}, l_nonce2 = {0};
+    dap_chain_block_meta_extract(
+            l_meta, l_count,
+            l_block_prev_hash, l_block_anchor_hash,
+            l_merkle, l_block_links,
+            &l_block_links_count, &l_is_genesis, &l_nonce, &l_nonce2);
+    PyObject *obj_dict = PyDict_New();
+    if (l_block_prev_hash != NULL){
+        PyDapHashFastObject *l_obj_prev_hash = PyObject_New(PyDapHashFastObject, &DapChainHashFastObjectType);
+        l_obj_prev_hash->hash_fast = l_block_prev_hash;
+        PyDict_SetItemString(obj_dict, "blockPrevHash", (PyObject*)l_obj_prev_hash);
+    } else {
+        PyDict_SetItemString(obj_dict, "blockPrevHash", Py_None);
+    }
+    if (l_block_anchor_hash){
+        PyDapHashFastObject *l_obj_anchor_hash = PyObject_New(PyDapHashFastObject, &DapChainHashFastObjectType);
+        l_obj_anchor_hash->hash_fast = l_block_anchor_hash;
+        PyDict_SetItemString(obj_dict, "blockAnchorHash", (PyObject*)l_obj_anchor_hash);
+    } else {
+        PyDict_SetItemString(obj_dict, "blockAnchorHash", Py_None);
+    }
+    if (l_merkle){
+        PyDapHashFastObject *l_obj_merkle = PyObject_New(PyDapHashFastObject, &DapChainHashFastObjectType);
+        l_obj_merkle->hash_fast = l_merkle;
+        PyDict_SetItemString(obj_dict, "merkle", (PyObject*)l_obj_merkle);
+    } else {
+        PyDict_SetItemString(obj_dict, "merkle", Py_None);
+    }
+    // Get List links
+    PyDict_SetItemString(obj_dict, "links", Py_None);
+    if (l_is_genesis){
+        PyDict_SetItemString(obj_dict, "isGenesis", Py_True);
+    } else {
+        PyDict_SetItemString(obj_dict, "isGenesis", Py_False);
+    }
+    PyObject *obj_nonce = Py_BuildValue("k", l_nonce);
+    PyDict_SetItemString(obj_dict, "nonce", obj_nonce);
+    PyObject *obj_nonce2 = Py_BuildValue("k", l_nonce2);
+    PyDict_SetItemString(obj_dict, "nonce2", obj_nonce2);
+    return obj_dict;
 }
+PyObject *wrapping_dap_chain_block_get_datums(PyObject *self, void *closure){}
+//PyObject *wrapping_dap_chain_block_get_block_cache(PyObject *self, void *closure){
+//    (void)closure;
+//    dap_hash_fast_t *l_hash;
+//    dap_hash_fast(((PyDapChainCSBlockObject*)self)->block, sizeof(dap_chain_block_t), &l_hash);
+////    dap_chain_block_cache_new()
+////    dap_chain_block_
+//    return Py_None;
+////    ((PyDapChainCSBlockObject*)self)->block->hdr.
+//}
