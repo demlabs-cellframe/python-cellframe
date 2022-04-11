@@ -46,6 +46,7 @@ add_subdirectory(modules/cellframe-sdk/chain)
 add_subdirectory(modules/cellframe-sdk/app-cli)
 add_subdirectory(modules/cellframe-sdk/wallet)
 add_subdirectory(modules/cellframe-sdk/type/dag)
+add_subdirectory(modules/cellframe-sdk/type/blocks)
 add_subdirectory(modules/cellframe-sdk/consensus/dag_poa)
 add_subdirectory(modules/cellframe-sdk/global-db)
 
