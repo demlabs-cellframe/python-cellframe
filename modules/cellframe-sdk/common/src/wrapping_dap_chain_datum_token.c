@@ -294,7 +294,7 @@ PyObject *wrapping_dap_chain_datum_token_emission_get_data(PyObject *self, void 
                         return NULL;
                     }
                     l_offset += dap_sign_get_size(l_sign_ptr);
-                    l_sign_ptr = (dap_sign_t*)(byte_t*)token_emi + l_offset;
+                    l_sign_ptr = (dap_sign_t *)((byte_t *)token_emi + l_offset);
                 } else {
                     break;
                 }
