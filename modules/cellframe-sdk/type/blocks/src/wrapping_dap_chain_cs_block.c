@@ -7,6 +7,7 @@ PyGetSetDef DapChainCsBlockGetsSetsDef[] = {
         {"created", (getter)wrapping_dap_chain_block_get_ts_created, NULL, NULL, NULL},
         {"metaData", (getter)wrapping_dap_chain_block_get_meta_data, NULL, NULL, NULL},
         {"datums", (getter)wrapping_dap_chain_block_get_datums, NULL, NULL, NULL},
+        {"signs", (getter)wrapping_dap_chain_block_get_signs, NULL, NULL, NULL},
 //        {"blockCache", (getter)wrapping_dap_chain_block_get_block_cache, NULL, NULL, NULL},
         {NULL}
 };
@@ -149,6 +150,17 @@ PyObject *wrapping_dap_chain_block_get_datums(PyObject *self, void *closure){
         PyList_SetItem(obj_datums, (Py_ssize_t) i, obj_datums);
     }
     return obj_datums;
+}
+PyObject *wrapping_dap_chain_block_get_signs(PyObject *self, void *closure){
+    (void)closure;
+    size_t l_count = dap_chain_block_get_signs_count(((PyDapChainCSBlockObject*)self)->block, sizeof (dap_chain_block_t));
+    PyObject *obj_list = PyList_New((Py_ssize_t)l_count);
+    for (size_t i =0; i < l_count; i++){
+        PyDapSignObject *obj_sign = PyObject_New(PyDapSignObject, &DapCryptoSignObjectType);
+        obj_sign->sign = dap_chain_block_sign_get(((PyDapChainCSBlockObject*)self)->block, sizeof(dap_chain_block_t), i);
+        PyList_SetItem(obj_list, (Py_ssize_t)i, (PyObject*)obj_sign);
+    }
+    return obj_list;
 }
 //PyObject *wrapping_dap_chain_block_get_block_cache(PyObject *self, void *closure){
 //    (void)closure;

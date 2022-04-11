@@ -19,6 +19,7 @@ PyObject *wrapping_dap_chain_block_get_chain_id(PyObject *self, void *closure);
 PyObject *wrapping_dap_chain_block_get_ts_created(PyObject *self, void *closure);
 PyObject *wrapping_dap_chain_block_get_meta_data(PyObject *self, void *closure);
 PyObject *wrapping_dap_chain_block_get_datums(PyObject *self, void *closure);
+PyObject *wrapping_dap_chain_block_get_signs(PyObject *self, void *closure);
 //PyObject *wrapping_dap_chain_block_get_block_cache(PyObject *self, void *closure);
 
 extern PyTypeObject DapChainCsBlockType;
