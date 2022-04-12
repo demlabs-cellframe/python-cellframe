@@ -344,7 +344,7 @@ PyObject *dap_chain_hash_slow_to_str_py(PyObject *self, PyObject *args){
     if (!PyArg_ParseTuple(args, "O|s|n", &obj_hash_slow, &str, &str_max))
             return NULL;
     size_t res = dap_chain_hash_slow_to_str(((PyDapChainHashSlowObject*)obj_hash_slow)->hash_slow, str, str_max);
-    return Py_BuildValue("ns", res, str_max);
+    return Py_BuildValue("(ns)", res, str_max);
 }
 
 PyObject *dap_chain_addr_to_str_py(PyObject *self, PyObject *args){
@@ -362,7 +362,7 @@ PyObject *dap_chain_addr_from_str_py(PyObject *self, PyObject *args){
         return NULL;
     dap_chain_addr_t *l_addr = dap_chain_addr_from_str(str);
     if (!l_addr){
-        return Py_None;
+        Py_RETURN_NONE;
     }
     PyObject *obj = _PyObject_New(&DapChainAddrObjectType);
     obj = PyObject_Init(obj, &DapChainAddrObjectType);
@@ -395,7 +395,7 @@ PyObject *dap_chain_addr_fill_py(PyObject *self, PyObject *args){
                 *((PyDapSignTypeObject*)obj_sign_type)->sign_type,
                 ((PyDapHashFastObject*)obj_pkey_hash)->hash_fast,
                 ((PyDapChainNetIdObject*)obj_chain_net_id)->net_id);
-        return Py_None;
+        Py_RETURN_NONE;
     }
 }
 

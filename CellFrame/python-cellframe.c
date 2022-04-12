@@ -240,7 +240,7 @@ PyObject *python_cellframe_init(PyObject *self, PyObject *args)
         }
         log_it(L_INFO, "Initialization of module is completed");
     }
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 PyObject *python_dap_init(PyObject *self, PyObject *args)
@@ -483,7 +483,7 @@ PyObject *python_dap_init(PyObject *self, PyObject *args)
         return PyLong_FromLong(0);
     else {
         Py_INCREF(events);
-        return Py_BuildValue("iO", 0, events);
+        return Py_BuildValue("(iO)", 0, events);
     }
 }
 

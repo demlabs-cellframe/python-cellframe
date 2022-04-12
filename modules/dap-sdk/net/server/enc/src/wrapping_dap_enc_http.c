@@ -128,7 +128,7 @@ PyObject *enc_http_get_request_py(PyDapEncServerObject *self, void *clouser){
     if (self->enc_http_delegate->request){
         return PyBytes_FromString(self->enc_http_delegate->request);
     }else{
-        return Py_None;
+        Py_RETURN_NONE;
     }
 }
 

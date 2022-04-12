@@ -123,7 +123,7 @@ PyObject *dap_chain_str_to_hash_fast_py(PyObject *self, PyObject *args){
     obj_hash_fast->hash_fast = DAP_NEW(dap_hash_fast_t);
     if (dap_chain_hash_fast_from_str(hash_str, obj_hash_fast->hash_fast)) {
         DAP_DEL_Z(obj_hash_fast->hash_fast);
-        return Py_None;
+        Py_RETURN_NONE;
     }
     return (PyObject*)obj_hash_fast;
 }

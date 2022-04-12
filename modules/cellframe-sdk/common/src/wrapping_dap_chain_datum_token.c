@@ -121,7 +121,7 @@ PyObject *wrapping_dap_chain_datum_token_get_data(PyObject *self, void *closure)
 //        case DAP_CHAIN_DATUM_TOKEN_TYPE_PRIVATE_DECL:
 //            break;
         default:
-            return Py_None;
+            Py_RETURN_NONE;
     }
     return obj_dict;
 }
@@ -314,13 +314,13 @@ PyObject *wrapping_dap_chain_datum_token_emission_get_data(PyObject *self, void 
             break;
         case DAP_CHAIN_DATUM_TOKEN_EMISSION_TYPE_SMART_CONTRACT:
 //            obj_dict = PyDict_New();
-            return Py_None;
+            Py_RETURN_NONE;
             break;
         case DAP_CHAIN_DATUM_TOKEN_EMISSION_TYPE_UNDEFINED:
-            return Py_None;
+            Py_RETURN_NONE;
             break;
         default:
-            return Py_None;
+            Py_RETURN_NONE;
     }
     return obj_dict;
 }
@@ -350,7 +350,7 @@ PyObject *wrapping_dap_chain_datum_emission_add_sign(PyObject *self, PyObject *a
     ((PyDapChainDatumTokenEmissionObject*)self)->token_size = dap_chain_datum_emission_get_size(
             (byte_t*)((PyDapChainDatumTokenEmissionObject*)self)->token_emission
             );
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 PyObject *wrapping_dap_chain_datum_emission_add_tsd(PyObject*self, PyObject *args){
@@ -371,7 +371,7 @@ PyObject *wrapping_dap_chain_datum_emission_add_tsd(PyObject*self, PyObject *arg
             l_type, l_data_size, l_data);
     ((PyDapChainDatumTokenEmissionObject*)self)->token_size = dap_chain_datum_emission_get_size(
             (uint8_t*)((PyDapChainDatumTokenEmissionObject*)self)->token_emission);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 PyObject *wrapping_dap_chain_datum_emission_get_tsd(PyObject*self, PyObject *args)
@@ -385,6 +385,6 @@ PyObject *wrapping_dap_chain_datum_emission_get_tsd(PyObject*self, PyObject *arg
     size_t l_data_size = 0;
     byte_t *l_data = dap_chain_emission_get_tsd(l_ems, l_type, &l_data_size);
     if (!l_data || !l_data_size)
-        return Py_None;
+        Py_RETURN_NONE;
     return PyBytes_FromStringAndSize((char *)l_data, (Py_ssize_t)l_data_size);
 }
