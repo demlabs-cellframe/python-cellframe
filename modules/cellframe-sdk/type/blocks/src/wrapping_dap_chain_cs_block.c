@@ -1,6 +1,7 @@
 #include "wrapping_dap_chain_cs_block.h"
 
 PyGetSetDef DapChainCsBlockGetsSetsDef[] = {
+        {"hash", (getter)wrapping_dap_chain_block_get_hash, NULL, NULL, NULL},
         {"version", (getter)wrapping_dap_chain_block_get_version, NULL, NULL, NULL},
         {"cellId", (getter)wrapping_dap_chain_block_get_cell_id, NULL, NULL, NULL},
         {"chainId", (getter)wrapping_dap_chain_block_get_chain_id, NULL, NULL, NULL},
@@ -12,10 +13,10 @@ PyGetSetDef DapChainCsBlockGetsSetsDef[] = {
         {NULL}
 };
 
-//PyMethodDef DapChainCsDagMethods[] = {
-//        {"findByHash", (PyCFunction)dap_chain_cs_dag_find_event_by_hash_py, METH_VARARGS, ""},
-//        {NULL, NULL, 0, NULL}
-//};
+PyMethodDef DapChainCsBlockMethods[] = {
+        {"fromAtom", dap_chain_cs_block_get_atom_ptr, METH_VARARGS | METH_STATIC, ""},
+        {NULL, NULL, 0, NULL}
+};
 
 PyTypeObject DapChainCsBlockType = {
         PyVarObject_HEAD_INIT(NULL, 0)
@@ -46,7 +47,7 @@ PyTypeObject DapChainCsBlockType = {
         0,                                                              /* tp_weaklistoffset */
         0,                                                              /* tp_iter */
         0,                                                            /* tp_iternext */
-        0,                                        /* tp_methods */
+        DapChainCsBlockMethods,                                        /* tp_methods */
         0,                                                          /* tp_members */
         DapChainCsBlockGetsSetsDef,                                   /* tp_getset */
         0,                                                            /* tp_base */
@@ -88,7 +89,7 @@ PyObject *wrapping_dap_chain_block_get_meta_data(PyObject *self, void *closure){
     (void)closure;
     size_t l_count = 0;
     dap_chain_block_meta_t **l_meta = dap_chain_block_get_meta(((PyDapChainCSBlockObject*)self)->block,
-            sizeof(dap_chain_block_t),
+            ((PyDapChainCSBlockObject*)self)->block_size,
             &l_count);
     dap_chain_hash_fast_t *l_block_prev_hash = NULL;
     dap_chain_hash_fast_t *l_block_anchor_hash = NULL;
@@ -143,7 +144,7 @@ PyObject *wrapping_dap_chain_block_get_datums(PyObject *self, void *closure){
     PyObject *obj_datums = PyList_New(l_count);
     dap_chain_datum_t **l_datums = dap_chain_block_get_datums(
             ((PyDapChainCSBlockObject*)self)->block,
-            sizeof(dap_chain_block_t), &l_count);
+            ((PyDapChainCSBlockObject*)self)->block_size, &l_count);
     for (size_t i = 0; i < l_count; i++) {
         PyDapChainDatumObject *obj_datum = PyObject_New(PyDapChainDatumObject, &DapChainDatumObjectType);
         obj_datum->datum = l_datums[i];
@@ -153,21 +154,36 @@ PyObject *wrapping_dap_chain_block_get_datums(PyObject *self, void *closure){
 }
 PyObject *wrapping_dap_chain_block_get_signs(PyObject *self, void *closure){
     (void)closure;
-    size_t l_count = dap_chain_block_get_signs_count(((PyDapChainCSBlockObject*)self)->block, sizeof (dap_chain_block_t));
+    size_t l_count = dap_chain_block_get_signs_count(((PyDapChainCSBlockObject*)self)->block,
+                                                     ((PyDapChainCSBlockObject*)self)->block_size);
     PyObject *obj_list = PyList_New((Py_ssize_t)l_count);
     for (size_t i =0; i < l_count; i++){
         PyDapSignObject *obj_sign = PyObject_New(PyDapSignObject, &DapCryptoSignObjectType);
-        obj_sign->sign = dap_chain_block_sign_get(((PyDapChainCSBlockObject*)self)->block, sizeof(dap_chain_block_t), i);
+        obj_sign->sign = dap_chain_block_sign_get(((PyDapChainCSBlockObject*)self)->block,
+                                                  ((PyDapChainCSBlockObject*)self)->block_size, i);
         PyList_SetItem(obj_list, (Py_ssize_t)i, (PyObject*)obj_sign);
     }
     return obj_list;
 }
-//PyObject *wrapping_dap_chain_block_get_block_cache(PyObject *self, void *closure){
-//    (void)closure;
-//    dap_hash_fast_t *l_hash;
-//    dap_hash_fast(((PyDapChainCSBlockObject*)self)->block, sizeof(dap_chain_block_t), &l_hash);
-////    dap_chain_block_cache_new()
-////    dap_chain_block_
-//    return Py_None;
-////    ((PyDapChainCSBlockObject*)self)->block->hdr.
-//}
+
+PyObject *wrapping_dap_chain_block_get_hash(PyObject *self, void *closure){
+    (void)closure;
+    PyDapHashFastObject *obj_hf = PyObject_New(PyDapHashFastObject, &DapChainHashFastObjectType);
+    obj_hf->hash_fast = DAP_NEW(dap_chain_hash_fast_t);
+    dap_hash_fast(((PyDapChainCSBlockObject*)self)->block,
+                  ((PyDapChainCSBlockObject*)self)->block_size, obj_hf->hash_fast);
+    return (PyObject*)obj_hf;
+}
+
+PyObject* dap_chain_cs_block_get_atom_ptr(PyObject *self, PyObject *args){
+    (void)self;
+    PyObject *obj_atom_ptr;
+    size_t l_atom_size;
+    if (!PyArg_ParseTuple(args, "On", &obj_atom_ptr, &l_atom_size)){
+        return NULL;
+    }
+    PyDapChainCSBlockObject *obj_block = PyObject_New(PyDapChainCSBlockObject, &DapChainCsBlockType);
+    obj_block->block = ((PyChainAtomPtrObject*)obj_atom_ptr)->ptr;
+    obj_block->block_size = l_atom_size;
+    return (PyObject*)obj_block;
+}

@@ -7,10 +7,12 @@
 #include "libdap-chain-python.h"
 #include "datetime.h"
 #include "dap_chain_block_cache.h"
+#include "wrapping_dap_chain_atom_ptr.h"
 
 typedef struct PyDapChainCSBlock{
     PyObject_HEAD
     dap_chain_block_t *block;
+    size_t block_size;
 }PyDapChainCSBlockObject;
 
 PyObject *wrapping_dap_chain_block_get_version(PyObject *self, void *closure);
@@ -20,6 +22,9 @@ PyObject *wrapping_dap_chain_block_get_ts_created(PyObject *self, void *closure)
 PyObject *wrapping_dap_chain_block_get_meta_data(PyObject *self, void *closure);
 PyObject *wrapping_dap_chain_block_get_datums(PyObject *self, void *closure);
 PyObject *wrapping_dap_chain_block_get_signs(PyObject *self, void *closure);
+PyObject *wrapping_dap_chain_block_get_hash(PyObject *self, void *closure);
 //PyObject *wrapping_dap_chain_block_get_block_cache(PyObject *self, void *closure);
+
+PyObject* dap_chain_cs_block_get_atom_ptr(PyObject *self, PyObject *args);
 
 extern PyTypeObject DapChainCsBlockType;
