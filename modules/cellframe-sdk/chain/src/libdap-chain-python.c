@@ -254,7 +254,7 @@ void _wrapping_dap_chain_mempool_notify_handler(void * a_arg, const char a_op_co
     l_op_code[1] = '\0';
     PyObject *l_args = Py_BuildValue("sssOO", l_op_code, a_group, a_key, l_value, l_callback->arg);
     PyGILState_STATE state = PyGILState_Ensure();
-    logIt(L_DEBUG, "Call mempool notifier with key '%s'", a_key ? a_key : "null");
+    log_it(L_DEBUG, "Call mempool notifier with key '%s'", a_key ? a_key : "null");
     PyEval_CallObject(l_callback->func, l_args);
     Py_DECREF(l_args);
     PyGILState_Release(state);
