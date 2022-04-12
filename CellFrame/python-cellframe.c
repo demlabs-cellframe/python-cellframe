@@ -637,6 +637,7 @@ PyMODINIT_FUNC PyInit_libCellFrame(void)
         PyType_Ready( &DapChainNetSrvPriceUnitUidObjectType ) < 0 ||
         // === Chain consensuses
         PyType_Ready( &DapChainCsDagPoaObjectType ) < 0 ||
+        PyType_Ready(&DapChainCsBlockType) < 0 ||
         PyType_Ready(&DapChainCsDagType) < 0 ||
         PyType_Ready( &DapChainGdbObjectType ) < 0
         ) {
@@ -704,6 +705,7 @@ PyMODINIT_FUNC PyInit_libCellFrame(void)
     PyObject *csModule = PyModule_Create(&CellframeConsensusPythonModule);
     // === Chain cs dag poa
     PyModule_AddObject(csModule, "DagPoa", (PyObject*)&DapChainCsDagPoaObjectType);
+    PyModule_AddObject(csModule, "Block", (PyObject*)&DapChainCsBlockType);
     PyModule_AddObject(csModule, "ChainCSDag", (PyObject*)&DapChainCsDagType);
     PyModule_AddObject(csModule, "GDB", (PyObject*)&DapChainGdbObjectType);
 

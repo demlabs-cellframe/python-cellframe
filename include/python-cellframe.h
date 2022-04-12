@@ -49,6 +49,9 @@
 // === Chain cs dag poa ===
 #include "wrapping_dap_chain_cs_dag_poa.h"
 // ============
+// === Chain cs block ===
+#include "wrapping_dap_chain_cs_block.h"
+// ============
 
 
 #include "wrapping_http.h"
