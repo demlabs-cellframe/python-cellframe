@@ -139,16 +139,16 @@ void PyDapChainObject_dealloc(PyDapChainObject* chain){
 }
 
 PyObject *dap_chain_python_create_atom_iter(PyObject *self, PyObject *args){
-    PyObject *obj_cell_id;
+//    PyObject *obj_cell_id;
     PyObject *obj_boolean;
-    if (!PyArg_ParseTuple(args, "OO", &obj_cell_id, &obj_boolean)){
+    if (!PyArg_ParseTuple(args, "O", &obj_boolean)){
         PyErr_SetString(PyExc_AttributeError, "This function takes two arguments. ");
         return NULL;
     }
-    if (!PyDapChainCell_Check(obj_cell_id)){
-        PyErr_SetString(PyExc_AttributeError, "The first argument to this function must be of type ChainCell.");
-        return NULL;
-    }
+//    if (!PyDapChainCell_Check(obj_cell_id)){
+//        PyErr_SetString(PyExc_AttributeError, "The first argument to this function must be of type ChainCell.");
+//        return NULL;
+//    }
     if (!PyBool_Check(obj_boolean)){
         PyErr_SetString(PyExc_AttributeError, "The second argument accepted by this function is not a boolean value. ");
         return NULL;
@@ -156,10 +156,11 @@ PyObject *dap_chain_python_create_atom_iter(PyObject *self, PyObject *args){
     bool with_treshold = (obj_boolean == Py_True) ? 1 : 0;
     PyObject *obj_atom_iter = _PyObject_New(&DapChainAtomIterObjectType);
     PyObject_Init(obj_atom_iter, &DapChainAtomIterObjectType);
+//    ((PyDapChainObject*)self)->chain_t->callback_atom_iter_create()
     ((PyChainAtomIterObject*)obj_atom_iter)->atom_iter =
             ((PyDapChainObject*)self)->chain_t->callback_atom_iter_create(
                     ((PyDapChainObject*)self)->chain_t,
-                    ((PyDapChainCellObject*)obj_cell_id)->cell->id, with_treshold);
+                    ((PyDapChainObject*)self)->chain_t->cells->id, with_treshold);
     return obj_atom_iter;
 }
 
