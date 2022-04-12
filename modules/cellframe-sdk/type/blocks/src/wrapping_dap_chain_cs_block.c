@@ -94,7 +94,7 @@ PyObject *wrapping_dap_chain_block_get_meta_data(PyObject *self, void *closure){
     dap_chain_hash_fast_t l_block_prev_hash = {0};
     dap_chain_hash_fast_t l_block_anchor_hash = {0};
     dap_chain_hash_fast_t l_merkle = {0};
-    dap_chain_hash_fast_t **l_block_links = NULL;
+    dap_chain_hash_fast_t *l_block_links = NULL;
     size_t l_block_links_count = 0;
     bool l_is_genesis = false;
     uint64_t l_nonce = {0}, l_nonce2 = {0};
@@ -110,18 +110,19 @@ PyObject *wrapping_dap_chain_block_get_meta_data(PyObject *self, void *closure){
     PyDict_SetItemString(obj_dict, "blockPrevHash", (PyObject*)l_obj_prev_hash);
     PyDapHashFastObject *l_obj_anchor_hash = PyObject_New(PyDapHashFastObject, &DapChainHashFastObjectType);
     l_obj_anchor_hash->hash_fast = DAP_NEW(dap_chain_hash_fast_t);
-    memcpy(l_obj_anchor_hash->hash_fast, &l_obj_anchor_hash, sizeof(dap_chain_hash_fast_t));
+    memcpy(l_obj_anchor_hash->hash_fast, &l_block_anchor_hash, sizeof(dap_chain_hash_fast_t));
     PyDict_SetItemString(obj_dict, "blockAnchorHash", (PyObject*)l_obj_anchor_hash);
     PyDapHashFastObject *l_obj_merkle = PyObject_New(PyDapHashFastObject, &DapChainHashFastObjectType);
     l_obj_merkle->hash_fast = DAP_NEW(dap_chain_hash_fast_t);
-    memcpy(l_obj_merkle->hash_fast, &l_obj_merkle, sizeof(dap_chain_hash_fast_t));
+    memcpy(l_obj_merkle->hash_fast, &l_merkle, sizeof(dap_chain_hash_fast_t));
     PyDict_SetItemString(obj_dict, "merkle", (PyObject*)l_obj_merkle);
     // Get List links
     PyObject *obj_block_links = PyList_New((Py_ssize_t)l_block_links_count);
     for (size_t i = 0; i < l_block_links_count; i++){
         PyDapHashFastObject *obj_hf = PyObject_New(PyDapHashFastObject, &DapChainHashFastObjectType);
         obj_hf->hash_fast = DAP_NEW(dap_chain_hash_fast_t);
-        memcpy(obj_hf->hash_fast, l_block_links + i, sizeof(dap_chain_hash_fast_t));
+        memcpy(obj_hf->hash_fast, &l_block_links[i], sizeof(dap_chain_hash_fast_t));
+//        obj_hf->hash_fast = &(l_block_links[i]);
     }
     PyDict_SetItemString(obj_dict, "links", obj_block_links);
     if (l_is_genesis){
@@ -141,11 +142,11 @@ PyObject *wrapping_dap_chain_block_get_datums(PyObject *self, void *closure){
     dap_chain_datum_t **l_datums = dap_chain_block_get_datums(
             ((PyDapChainCSBlockObject*)self)->block,
             ((PyDapChainCSBlockObject*)self)->block_size, &l_count);
-    PyObject *obj_datums = PyList_New((Py_ssize_t)l_count);
+    PyObject *obj_datums = PyList_New(l_count);
     for (size_t i = 0; i < l_count; i++) {
         PyDapChainDatumObject *obj_datum = PyObject_New(PyDapChainDatumObject, &DapChainDatumObjectType);
         obj_datum->datum = l_datums[i];
-        PyList_SetItem(obj_datums, (Py_ssize_t) i, (PyObject*)obj_datum);
+        PyList_SetItem(obj_datums, (Py_ssize_t) i, obj_datum);
     }
     return obj_datums;
 }
