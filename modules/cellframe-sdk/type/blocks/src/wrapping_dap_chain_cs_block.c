@@ -91,42 +91,39 @@ PyObject *wrapping_dap_chain_block_get_meta_data(PyObject *self, void *closure){
     dap_chain_block_meta_t **l_meta = dap_chain_block_get_meta(((PyDapChainCSBlockObject*)self)->block,
             ((PyDapChainCSBlockObject*)self)->block_size,
             &l_count);
-    dap_chain_hash_fast_t *l_block_prev_hash = NULL;
-    dap_chain_hash_fast_t *l_block_anchor_hash = NULL;
-    dap_chain_hash_fast_t *l_merkle = NULL;
+    dap_chain_hash_fast_t l_block_prev_hash = {0};
+    dap_chain_hash_fast_t l_block_anchor_hash = {0};
+    dap_chain_hash_fast_t l_merkle = {0};
     dap_chain_hash_fast_t **l_block_links = NULL;
     size_t l_block_links_count = 0;
     bool l_is_genesis = false;
     uint64_t l_nonce = {0}, l_nonce2 = {0};
     dap_chain_block_meta_extract(
             l_meta, l_count,
-            l_block_prev_hash, l_block_anchor_hash,
-            l_merkle, l_block_links,
+            &l_block_prev_hash, &l_block_anchor_hash,
+            &l_merkle, l_block_links,
             &l_block_links_count, &l_is_genesis, &l_nonce, &l_nonce2);
     PyObject *obj_dict = PyDict_New();
-    if (l_block_prev_hash != NULL){
-        PyDapHashFastObject *l_obj_prev_hash = PyObject_New(PyDapHashFastObject, &DapChainHashFastObjectType);
-        l_obj_prev_hash->hash_fast = l_block_prev_hash;
-        PyDict_SetItemString(obj_dict, "blockPrevHash", (PyObject*)l_obj_prev_hash);
-    } else {
-        PyDict_SetItemString(obj_dict, "blockPrevHash", Py_None);
-    }
-    if (l_block_anchor_hash){
-        PyDapHashFastObject *l_obj_anchor_hash = PyObject_New(PyDapHashFastObject, &DapChainHashFastObjectType);
-        l_obj_anchor_hash->hash_fast = l_block_anchor_hash;
-        PyDict_SetItemString(obj_dict, "blockAnchorHash", (PyObject*)l_obj_anchor_hash);
-    } else {
-        PyDict_SetItemString(obj_dict, "blockAnchorHash", Py_None);
-    }
-    if (l_merkle){
-        PyDapHashFastObject *l_obj_merkle = PyObject_New(PyDapHashFastObject, &DapChainHashFastObjectType);
-        l_obj_merkle->hash_fast = l_merkle;
-        PyDict_SetItemString(obj_dict, "merkle", (PyObject*)l_obj_merkle);
-    } else {
-        PyDict_SetItemString(obj_dict, "merkle", Py_None);
-    }
+    PyDapHashFastObject *l_obj_prev_hash = PyObject_New(PyDapHashFastObject, &DapChainHashFastObjectType);
+    l_obj_prev_hash->hash_fast = DAP_NEW(dap_chain_hash_fast_t);
+    memcpy(l_obj_prev_hash->hash_fast, &l_block_prev_hash, sizeof(dap_chain_hash_fast_t));
+    PyDict_SetItemString(obj_dict, "blockPrevHash", (PyObject*)l_obj_prev_hash);
+    PyDapHashFastObject *l_obj_anchor_hash = PyObject_New(PyDapHashFastObject, &DapChainHashFastObjectType);
+    l_obj_anchor_hash->hash_fast = DAP_NEW(dap_chain_hash_fast_t);
+    memcpy(l_obj_anchor_hash->hash_fast, &l_obj_anchor_hash, sizeof(dap_chain_hash_fast_t));
+    PyDict_SetItemString(obj_dict, "blockAnchorHash", (PyObject*)l_obj_anchor_hash);
+    PyDapHashFastObject *l_obj_merkle = PyObject_New(PyDapHashFastObject, &DapChainHashFastObjectType);
+    l_obj_merkle->hash_fast = DAP_NEW(dap_chain_hash_fast_t);
+    memcpy(l_obj_merkle->hash_fast, &l_obj_merkle, sizeof(dap_chain_hash_fast_t));
+    PyDict_SetItemString(obj_dict, "merkle", (PyObject*)l_obj_merkle);
     // Get List links
-    PyDict_SetItemString(obj_dict, "links", Py_None);
+    PyObject *obj_block_links = PyList_New((Py_ssize_t)l_block_links_count);
+    for (size_t i = 0; i < l_block_links_count; i++){
+        PyDapHashFastObject *obj_hf = PyObject_New(PyDapHashFastObject, &DapChainHashFastObjectType);
+        obj_hf->hash_fast = DAP_NEW(dap_chain_hash_fast_t);
+        memcpy(obj_hf->hash_fast, l_block_links + i, sizeof(dap_chain_hash_fast_t));
+    }
+    PyDict_SetItemString(obj_dict, "links", obj_block_links);
     if (l_is_genesis){
         PyDict_SetItemString(obj_dict, "isGenesis", Py_True);
     } else {
