@@ -138,14 +138,14 @@ PyObject *wrapping_dap_chain_block_get_meta_data(PyObject *self, void *closure){
 PyObject *wrapping_dap_chain_block_get_datums(PyObject *self, void *closure){
     (void)closure;
     size_t l_count = 0;
-    PyObject *obj_datums = PyList_New(l_count);
     dap_chain_datum_t **l_datums = dap_chain_block_get_datums(
             ((PyDapChainCSBlockObject*)self)->block,
             ((PyDapChainCSBlockObject*)self)->block_size, &l_count);
+    PyObject *obj_datums = PyList_New((Py_ssize_t)l_count);
     for (size_t i = 0; i < l_count; i++) {
         PyDapChainDatumObject *obj_datum = PyObject_New(PyDapChainDatumObject, &DapChainDatumObjectType);
         obj_datum->datum = l_datums[i];
-        PyList_SetItem(obj_datums, (Py_ssize_t) i, obj_datums);
+        PyList_SetItem(obj_datums, (Py_ssize_t) i, (PyObject*)obj_datum);
     }
     return obj_datums;
 }
