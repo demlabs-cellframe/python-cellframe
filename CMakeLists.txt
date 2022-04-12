@@ -194,6 +194,7 @@ target_link_libraries(${PROJECT_NAME} cellframe-sdk dap_python_module
                       dap_server_json_rpc_python_module
                       dap_chain_service_datum_python
                       dap_chain_cs_dag_poa_python_module
+                      dap_chain_cs_blocks_python_module
                       dap_chain_global_db_python_module
                       ${PYTHON_LIBRARIES}
                      )
