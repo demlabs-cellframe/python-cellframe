@@ -363,7 +363,7 @@ PyObject *dap_chain_mempool_tx_create_cond_py(PyObject *self, PyObject *args){
     }
     PyDapHashFastObject *l_obj_hf = PyObject_New(PyDapHashFastObject, &DapChainHashFastObjectType);
     l_obj_hf->hash_fast = l_hf;
-    return (PyObject*)l_hf;
+    return (PyObject*)l_obj_hf;
 }
 PyObject *dap_chain_mempool_tx_create_cond_input_py(PyObject *self, PyObject *args){
     (void)self;
@@ -402,5 +402,5 @@ PyObject *dap_chain_mempool_tx_create_cond_input_py(PyObject *self, PyObject *ar
     }
     PyDapHashFastObject *l_obj_hf = PyObject_New(PyDapHashFastObject, &DapChainHashFastObjectType);
     l_obj_hf->hash_fast = l_hf;
-    return (PyObject*)l_hf;
+    return (PyObject*)l_obj_hf;
 }
