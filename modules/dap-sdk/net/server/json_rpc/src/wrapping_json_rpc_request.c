@@ -86,7 +86,7 @@ void _w_dap_json_rpc_request_handler(dap_json_rpc_params_t *a_params, dap_json_r
             PyList_SetItem(obj_params, i, obj_ptr);
         }
     }
-    PyObject *args = Py_BuildValue("OO", obj_params, (PyObject*)obj_response);
+    PyObject *args = Py_BuildValue("(OO)", obj_params, (PyObject*)obj_response);
     Py_XINCREF(args);
     struct _w_json_rpc_handler *func = NULL;
     HASH_FIND_STR(handlers, a_method, func);
@@ -134,5 +134,5 @@ PyObject* dap_json_rpc_request_reg_handler_py(PyObject *self, PyObject *args){
     Py_INCREF(obj_func);
     handler->call_func = obj_func;
     HASH_ADD_STR(handlers, method, handler);
-    return Py_None;
+    Py_RETURN_NONE;
 }

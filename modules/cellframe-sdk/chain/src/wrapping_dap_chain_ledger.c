@@ -296,7 +296,7 @@ PyObject *dap_chain_ledger_tx_find_by_hash_py(PyObject *self, PyObject *args){
     res->original = false;
     if (res->datum_tx == NULL) {
         PyObject_DEL(res);
-        return Py_None;
+        Py_RETURN_NONE;
     }
     return Py_BuildValue("O", res);
 }
@@ -353,7 +353,7 @@ PyObject *dap_chain_ledger_tx_cache_get_out_cond_value_py(PyObject *self, PyObje
     PyObject *obj_out_conds = _PyObject_New(&DapChainTxOutCondObjectType);
     ((PyDapChainTxOutCondObject*)obj_out_conds)->out_cond = *out_conds;
     PyObject *obj_res = PyLong_FromUnsignedLongLong(res64);
-    return Py_BuildValue("OO", obj_res, obj_out_conds);
+    return Py_BuildValue("(OO)", obj_res, obj_out_conds);
 }
 
 static char*** ListStringToArrayStringFormatChar(PyObject *list){
@@ -393,7 +393,7 @@ PyObject *dap_chain_ledger_get_txs_py(PyObject *self, PyObject *args){
             count,
             page);
     if (!l_txs){
-        return Py_None;
+        Py_RETURN_NONE;
     }
     PyObject *obj_list = PyList_New(0);
     for (dap_list_t *l_iter = l_txs; l_iter != NULL; l_iter = l_iter->next){

@@ -137,17 +137,17 @@ PyObject *wrapping_http_status_code_set_py(PyObject *self, PyObject *args){
         int code = PyLong_AsLong(l_obj_status_code);
         ((PyHttpStatusCodeObject*)self)->http_status = _get_status_code_from_init(code);
     }
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 PyObject *wrapping_http_code_set_ok(PyObject *self, PyObject *args){
     (void)args;
     ((PyHttpStatusCodeObject*)self)->http_status = Http_Status_OK;
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 PyObject *wrapping_http_code_set_bad_request(PyObject *self, PyObject *args) {
     (void) args;
     ((PyHttpStatusCodeObject *) self)->http_status = Http_Status_BadRequest;
-    return Py_None;
+    Py_RETURN_NONE;
 }

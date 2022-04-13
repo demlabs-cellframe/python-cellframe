@@ -95,7 +95,7 @@ PyObject *wrapping_dap_chain_tx_receipt_get_sig_provider(PyObject *self, void *c
     if (l_signs_size) {
         dap_sign_t *l_sign = (dap_sign_t *)&l_receipt->exts_n_signs[l_receipt->exts_size];
         if (!dap_sign_verify_size(l_sign, l_signs_size))
-            return Py_None;
+            Py_RETURN_NONE;
         size_t l_sign_size = dap_sign_get_size(l_sign);
         PyDapSignObject *obj_sign_provider = PyObject_New(PyDapSignObject, &DapCryptoSignObjectType);
         obj_sign_provider = (PyDapSignObject *)PyObject_Init((PyObject *)obj_sign_provider,
@@ -104,7 +104,7 @@ PyObject *wrapping_dap_chain_tx_receipt_get_sig_provider(PyObject *self, void *c
         obj_sign_provider->sign = DAP_DUP_SIZE(l_sign, l_sign_size);
         return (PyObject *)obj_sign_provider;
     }
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 PyObject *wrapping_dap_chain_tx_receipt_get_sig_client(PyObject *self, void *closure){
@@ -114,13 +114,13 @@ PyObject *wrapping_dap_chain_tx_receipt_get_sig_client(PyObject *self, void *clo
     if (l_signs_size) {
         dap_sign_t *l_sign = (dap_sign_t *)&l_receipt->exts_n_signs[l_receipt->exts_size];
         if (!dap_sign_verify_size(l_sign, l_signs_size))
-            return Py_None;
+            Py_RETURN_NONE;
         size_t l_sign_size = dap_sign_get_size(l_sign);
         if (l_receipt->exts_size + l_sign_size >= l_receipt->size)
-            return Py_None;
+            Py_RETURN_NONE;
         l_sign = (dap_sign_t *)&l_receipt->exts_n_signs[l_receipt->exts_size + l_sign_size];
         if (!dap_sign_verify_size(l_sign, l_signs_size - l_sign_size))
-            return Py_None;
+            Py_RETURN_NONE;
         l_sign_size = dap_sign_get_size(l_sign);
         PyDapSignObject *obj_sign_client = PyObject_New(PyDapSignObject, &DapCryptoSignObjectType);
         obj_sign_client = (PyDapSignObject *)PyObject_Init((PyObject *)obj_sign_client,
@@ -129,22 +129,22 @@ PyObject *wrapping_dap_chain_tx_receipt_get_sig_client(PyObject *self, void *clo
         obj_sign_client->sign = DAP_DUP_SIZE(l_sign, l_sign_size);
         return (PyObject *)obj_sign_client;
     }
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 PyObject *wrapping_dap_chain_tx_receipt_sign(PyObject *self, PyObject *sign) {
     PyCryptoCertObject *obj_cert;
     if (!PyArg_ParseTuple(sign, "O", &obj_cert)) {
         log_it(L_ERROR, "Certificate for receipt signing not provided");
-        return Py_None;
+        Py_RETURN_NONE;
     }
     if (!PyObject_TypeCheck(obj_cert, &DapCryptoCertObjectType)) {
         log_it(L_ERROR, "Certificate for receipt signing has invalid object type");
-        return Py_None;
+        Py_RETURN_NONE;
     }
     if (!obj_cert->cert || !obj_cert->cert->enc_key) {
         log_it(L_ERROR, "Certificate for receipt signing has no cert object or private key");
-        return Py_None;
+        Py_RETURN_NONE;
     }
     dap_chain_datum_tx_receipt_t *l_receipt = ((PyDapChainTXReceiptObject*)self)->tx_receipt;
     ((PyDapChainTXReceiptObject*)self)->tx_receipt = dap_chain_datum_tx_receipt_sign_add(l_receipt, obj_cert->cert->enc_key);

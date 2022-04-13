@@ -56,10 +56,10 @@ PyObject *dap_chain_cs_dag_find_event_by_hash_py(PyObject *self, PyObject *args)
         return NULL;
     }
     bool isCheck = PyObject_TypeCheck(obj_hash, &DapChainHashFastObjectType);
-//    if (!isCheck){
-//        PyErr_SetString(PyExc_AttributeError, "The first argument to this function is not a DapHash object.");
-//        return NULL;
-//    }
+    if (!isCheck){
+        PyErr_SetString(PyExc_AttributeError, "The first argument to this function is not a DapHash object.");
+        return NULL;
+    }
 //    if (!PyDapChainAtomIter_Check(obj_atom_iter)){
 //        PyErr_SetString(PyExc_AttributeError, "The second argument received to this function is not an object of type ChainAtomIter.");
 //        return NULL;
@@ -75,7 +75,7 @@ PyObject *dap_chain_cs_dag_find_event_by_hash_py(PyObject *self, PyObject *args)
             ((PyDapHashFastObject*)obj_hash)->hash_fast,
             &size_atom);
     if (l_ptr == NULL){
-        return Py_None;
+        Py_RETURN_NONE;
     }
     PyDapChainCsDagEventObject *obj_event = PyObject_New(PyDapChainCsDagEventObject,
                                                          &DapChainCsDagEvent_DapChainCsDagEventType);

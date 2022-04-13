@@ -207,7 +207,7 @@ PyObject* dap_cert_load_py(PyObject *self, PyObject *args)
 {
     const char *l_cert_name;
     if (!PyArg_ParseTuple(args, "s", &l_cert_name)) {
-        return Py_None;
+        Py_RETURN_NONE;
     }
     dap_cert_t *l_ret = dap_cert_find_by_name(l_cert_name);
     if (!l_ret)

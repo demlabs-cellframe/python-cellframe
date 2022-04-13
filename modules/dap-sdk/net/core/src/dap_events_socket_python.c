@@ -135,7 +135,7 @@ PyObject *dap_events_socket_read_py(PyDapEventsSocketObject *self, PyObject *arg
     void *res = DAP_NEW_SIZE(void*, in_size);
     size_t res_size = dap_events_socket_pop_from_buf_in(self->t_events_socket, res, in_size);
     PyBytesObject *res_obj = (PyBytesObject*)PyBytes_FromString(res);
-    return  Py_BuildValue("nS", res_size, res_obj);
+    return  Py_BuildValue("(nS)", res_size, res_obj);
 }
 
 PyObject *dap_events_socket_delete_py(PyDapEventsSocketObject *self, PyObject *args){

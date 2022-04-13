@@ -80,7 +80,7 @@ PyObject *wrapping_dap_mempool_emission_place(PyObject *self, PyObject *args){
             ((PyDapChainDatumTokenEmissionObject*)obj_emission)->token_emission, l_emission_size);
     char *l_str = dap_chain_mempool_datum_add(l_datum, ((PyDapChainObject*)obj_chain)->chain_t);
     if (l_str == NULL){
-        return Py_None;
+        Py_RETURN_NONE;
     }
     return Py_BuildValue("s", l_str);
 }
@@ -99,7 +99,7 @@ PyObject *dap_chain_mempool_emission_get_py(PyObject *self, PyObject * args){
     dap_chain_datum_token_emission_t *l_token = dap_chain_mempool_emission_get(
             ((PyDapChainObject*)obj_chain)->chain_t, l_emission_hash);
     if (l_token == NULL){
-        return Py_None;
+        Py_RETURN_NONE;
     }
     PyDapChainDatumTokenEmissionObject *l_emi = PyObject_New(PyDapChainDatumTokenEmissionObject,
                                                              &DapChainDatumTokenEmissionObjectType);
@@ -131,7 +131,7 @@ PyObject* dap_chain_mempool_datum_emission_extract_py(PyObject *self, PyObject *
     dap_chain_datum_token_emission_t *l_emi = dap_chain_mempool_datum_emission_extract(
             ((PyDapChainObject*)obj_chain)->chain_t, l_bytes, l_bytes_size);
     if (l_emi == NULL){
-        return Py_None;
+        Py_RETURN_NONE;
     }
     PyDapChainDatumTokenEmissionObject *l_obj_emi = PyObject_New(PyDapChainDatumTokenEmissionObject,
                                                                  &DapChainDatumTokenEmissionObjectType);
@@ -211,7 +211,7 @@ PyObject *dap_chain_mempool_proc_py(PyObject *self, PyObject *args) {
                     PyErr_SetString(PyExc_Warning, "Warning! Can't delete datum from mempool!");
                     return  NULL;
                 }
-                return Py_None;
+                Py_RETURN_NONE;
             }
         }else{
             PyErr_SetString(PyExc_RuntimeError, "Error! Can't move to no-concensus chains from mempool");
@@ -278,7 +278,7 @@ PyObject *dap_chain_mempool_base_tx_create_py(PyObject *self, PyObject *args){
             ((PyDapChainAddrObject*)obj_addr_to)->addr, l_certs, l_certs_count);
     DAP_FREE(l_certs);
     if (l_tx_hash == NULL) {
-        return Py_None;
+        Py_RETURN_NONE;
     }
     PyDapHashFastObject *l_obj_hf = PyObject_New(PyDapHashFastObject, &DapChainHashFastObjectType);
     l_obj_hf->hash_fast = l_tx_hash;
@@ -309,7 +309,7 @@ PyObject *dap_chain_mempool_tx_create_py(PyObject *self, PyObject *args){
                                                                     l_token_ticker,
                                                                     l_value_256, l_value_fee_256);
     if (l_hash_tx == NULL){
-        return Py_None;
+        Py_RETURN_NONE;
     } else {
         PyDapHashFastObject *obj_hf = PyObject_New(PyDapHashFastObject, &DapChainHashFastObjectType);
         PyObject_Dir((PyObject*)obj_hf);
@@ -359,7 +359,7 @@ PyObject *dap_chain_mempool_tx_create_cond_py(PyObject *self, PyObject *args){
             l_bytes_cond_size
     );
     if (!l_hf){
-        return Py_None;
+        Py_RETURN_NONE;
     }
     PyDapHashFastObject *l_obj_hf = PyObject_New(PyDapHashFastObject, &DapChainHashFastObjectType);
     l_obj_hf->hash_fast = l_hf;
@@ -398,7 +398,7 @@ PyObject *dap_chain_mempool_tx_create_cond_input_py(PyObject *self, PyObject *ar
             ((PyCryptoKeyObject*)obj_key_tx_sign)->key,
             ((PyDapChainTXReceiptObject*)obj_receipt)->tx_receipt);
     if (!l_hf){
-        return Py_None;
+        Py_RETURN_NONE;
     }
     PyDapHashFastObject *l_obj_hf = PyObject_New(PyDapHashFastObject, &DapChainHashFastObjectType);
     l_obj_hf->hash_fast = l_hf;

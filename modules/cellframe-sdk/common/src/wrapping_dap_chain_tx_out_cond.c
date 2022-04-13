@@ -114,7 +114,7 @@ PyObject *wrapping_dap_chain_tx_out_cond_get_type_subtype(PyObject *self, void *
 }
 PyObject *wrapping_dap_chain_tx_out_cond_get_subtype(PyObject *self, void *closure){
     (void)closure;
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 PyObject *PyDapChainTxOutCondSubType_str(PyObject *self){
