@@ -344,7 +344,7 @@ PyObject *dap_chain_hash_slow_to_str_py(PyObject *self, PyObject *args){
     if (!PyArg_ParseTuple(args, "O|s|n", &obj_hash_slow, &str, &str_max))
             return NULL;
     size_t res = dap_chain_hash_slow_to_str(((PyDapChainHashSlowObject*)obj_hash_slow)->hash_slow, str, str_max);
-    return Py_BuildValue("(ns)", res, str_max);
+    return Py_BuildValue("ns", res, str_max);
 }
 
 PyObject *dap_chain_addr_to_str_py(PyObject *self, PyObject *args){

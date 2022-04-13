@@ -483,7 +483,7 @@ PyObject *python_dap_init(PyObject *self, PyObject *args)
         return PyLong_FromLong(0);
     else {
         Py_INCREF(events);
-        return Py_BuildValue("(iO)", 0, events);
+        return Py_BuildValue("iO", 0, events);
     }
 }
 

@@ -96,28 +96,27 @@ PyObject *wrapping_json_rpc_response_get_result(PyObject *self, void *closure){
     dap_json_rpc_response_t *l_resp = ((PyDapJSONRPCResponseObject*)self)->response;
     switch (l_resp->type_result) {
     case TYPE_RESPONSE_BOOLEAN:
-        return l_resp->result_boolean ? Py_BuildValue("O", Py_True) : Py_BuildValue("O", Py_False);
-        break;
+        if (l_resp->result_boolean)
+            Py_RETURN_TRUE;
+        else
+            Py_RETURN_FALSE;
     case TYPE_RESPONSE_INTEGER:
         return PyLong_FromLong(l_resp->result_int);
-        break;
     case TYPE_RESPONSE_DOUBLE:
         return PyLong_FromDouble(l_resp->result_double);
-        break;
     case TYPE_RESPONSE_STRING:
         return Py_BuildValue("s", l_resp->result_string);
-        break;
     case TYPE_RESPONSE_NULL:
     default:
         break;
     }
-    return Py_BuildValue("O", Py_None);
+    Py_RETURN_NONE;
 }
 PyObject *wrapping_json_rpc_response_get_error(PyObject *self, void *closure){
     UNUSED(closure);
     dap_json_rpc_response_t* l_resp = ((PyDapJSONRPCResponseObject*)self)->response;
     if (l_resp->error)
-        return Py_BuildValue("(is)", l_resp->error->code_error, l_resp->error->msg);
+        return Py_BuildValue("is", l_resp->error->code_error, l_resp->error->msg);
     else
         return PyTuple_New(2);
 }
