@@ -67,7 +67,7 @@ int _wrapping_callback_handler(dap_chain_t *a_chain, dap_chain_cs_dag_event_t *a
     PyDapChainCsDagEventObject *l_obj_event = PyObject_New(PyDapChainCsDagEventObject, &DapChainCsDagEvent_DapChainCsDagEventType);
     l_obj_event->event = a_event;
     l_obj_event->event_size = a_event_size;
-    PyObject *argv = Py_BuildValue("(OOO)", l_obj_chain, l_obj_event, l_callback->arg);
+    PyObject *argv = Py_BuildValue("OOO", l_obj_chain, l_obj_event, l_callback->arg);
     PyObject *res = PyEval_CallObject(l_callback->func, argv);
     Py_XDECREF(argv);
     PyGILState_Release(state);

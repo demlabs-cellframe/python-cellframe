@@ -353,7 +353,7 @@ PyObject *dap_chain_ledger_tx_cache_get_out_cond_value_py(PyObject *self, PyObje
     PyObject *obj_out_conds = _PyObject_New(&DapChainTxOutCondObjectType);
     ((PyDapChainTxOutCondObject*)obj_out_conds)->out_cond = *out_conds;
     PyObject *obj_res = PyLong_FromUnsignedLongLong(res64);
-    return Py_BuildValue("(OO)", obj_res, obj_out_conds);
+    return Py_BuildValue("OO", obj_res, obj_out_conds);
 }
 
 static char*** ListStringToArrayStringFormatChar(PyObject *list){

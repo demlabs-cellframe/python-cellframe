@@ -182,13 +182,13 @@ PyObject *dap_chain_python_atom_iter_get_first(PyObject *self, PyObject *args){
     if (((PyChainAtomPtrObject*)obj_atom_ptr)->ptr == NULL){
         Py_RETURN_NONE;
     }
-    return Py_BuildValue("(On)", obj_atom_ptr, l_atom_size);
+    return Py_BuildValue("On", obj_atom_ptr, l_atom_size);
 }
 
 PyObject *dap_chain_python_atom_get_datums(PyObject *self, PyObject *args){
     PyObject *obj_atom = NULL;
     size_t atom_size = 0;
-    if(!PyArg_ParseTuple(args, "(On)", &obj_atom, &atom_size)){
+    if(!PyArg_ParseTuple(args, "On", &obj_atom, &atom_size)){
         PyErr_SetString(PyExc_AttributeError, "The second argument must be an integer");
         return NULL;
     }
@@ -222,9 +222,9 @@ PyObject *dap_chain_python_atom_iter_get_next(PyObject *self, PyObject *args){
             ((PyChainAtomIterObject*)atom_iter)->atom_iter,
             &atom_size);
     if (((PyChainAtomPtrObject*)obj_atom_ptr)->ptr == NULL){
-        return Py_BuildValue("(On)", Py_None, 0);
+        return Py_BuildValue("On", Py_None, 0);
     }
-    return Py_BuildValue("(On)", obj_atom_ptr, atom_size);
+    return Py_BuildValue("On", obj_atom_ptr, atom_size);
 }
 
 PyObject *dap_chain_python_atom_iter_get_dag(PyObject *self, PyObject *args){
@@ -249,13 +249,13 @@ void _wrapping_dap_chain_mempool_notify_handler(void * a_arg, const char a_op_co
     l_op_code[0] = a_op_code;
     l_op_code[1] = '\0';
     PyObject *l_args;
+    PyGILState_STATE state = PyGILState_Ensure();
     if (a_op_code == DAP_DB$K_OPTYPE_ADD) {
         PyObject *l_value = PyBytes_FromStringAndSize(a_value, (Py_ssize_t)a_value_len);
-        l_args = Py_BuildValue("(sssOO)", l_op_code, a_group, a_key, l_value, l_callback->arg);
+        l_args = Py_BuildValue("sssOO", l_op_code, a_group, a_key, l_value, l_callback->arg);
         Py_DECREF(l_value);
     } else
-        l_args = Py_BuildValue("(sssOO)", l_op_code, a_group, a_key, Py_None, l_callback->arg);
-    PyGILState_STATE state = PyGILState_Ensure();
+        l_args = Py_BuildValue("sssOO", l_op_code, a_group, a_key, Py_None, l_callback->arg);
     log_it(L_DEBUG, "Call mempool notifier with key '%s'", a_key ? a_key : "null");
     PyEval_CallObject(l_callback->func, l_args);
     Py_DECREF(l_args);

@@ -95,7 +95,7 @@ void wrapping_dap_http_simple_callback(dap_http_simple_t *sh, void *obj){
     http_status_code_t *ret = (http_status_code_t*)obj;
     ((PyHttpStatusCodeObject*)obj_http_status_code)->http_status = *ret;
     PyObject_Dir((PyObject*)obj_http_status_code);
-    PyObject *obj_argv = Py_BuildValue("(OO)", obj_http_simple, obj_http_status_code);
+    PyObject *obj_argv = Py_BuildValue("OO", obj_http_simple, obj_http_status_code);
     PyErr_Print();
     PyObject *result = PyObject_CallObject(obj_func, obj_argv);
     if (!result){

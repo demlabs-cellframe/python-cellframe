@@ -82,6 +82,7 @@ void _wrapping_handler_add_order_notify(void * a_arg, const char a_op_code, cons
     if (!a_arg)
         return;
     _wrapping_order_callable_t *l_callback = (_wrapping_order_callable_t *)a_arg;
+    PyGILState_STATE state = PyGILState_Ensure();
     PyDapChainNetSrvOrderObject *l_obj_order = (PyDapChainNetSrvOrderObject *)Py_None;
     if (a_value_len != 0 && a_op_code != DAP_DB$K_OPTYPE_DEL) {
         l_obj_order = PyObject_New(PyDapChainNetSrvOrderObject, &DapChainNetSrvOrderObjectType);
@@ -91,8 +92,7 @@ void _wrapping_handler_add_order_notify(void * a_arg, const char a_op_code, cons
     char l_op_code[2];
     l_op_code[0] = a_op_code;
     l_op_code[1] = '\0';
-    PyObject *l_args = Py_BuildValue("(sssOO)", l_op_code, a_group, a_key, l_obj_order, l_callback->arg);
-    PyGILState_STATE state = PyGILState_Ensure();
+    PyObject *l_args = Py_BuildValue("sssOO", l_op_code, a_group, a_key, l_obj_order, l_callback->arg);
     PyEval_CallObject(l_callback->func, l_args);
     Py_DECREF(l_args);
     PyGILState_Release(state);

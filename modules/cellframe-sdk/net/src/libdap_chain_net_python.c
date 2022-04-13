@@ -290,13 +290,13 @@ void pvt_dap_chain_net_py_notify_handler(void * a_arg, const char a_op_code, con
     char l_op_code[2];
     l_op_code[0] = a_op_code;
     l_op_code[1] = '\0';
+    PyGILState_STATE state = PyGILState_Ensure();
     if (a_value == NULL || a_value_len == 0){
         l_obj_value = Py_None;
     } else {
         l_obj_value = PyBytes_FromStringAndSize(a_value, (Py_ssize_t)a_value_len);
     }
     PyObject *argv = Py_BuildValue("sssOO", l_op_code, a_group, a_key, l_obj_value, l_callback->arg);
-    PyGILState_STATE state = PyGILState_Ensure();
     PyEval_CallObject(l_callback->func, argv);
     Py_DECREF(argv);
     PyGILState_Release(state);

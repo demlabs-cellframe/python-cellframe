@@ -85,9 +85,9 @@ PyObject *enc_http_request_decode_py(PyObject *self, PyObject *args){
 PyObject *enc_http_is_null_py(PyObject *self, PyObject *args){
     (void)args;
     if (((PyDapEncServerObject*)self)->enc_http_delegate)
-        return Py_BuildValue("O", Py_False);
+        Py_RETURN_FALSE;
     else
-        return Py_BuildValue("O", Py_True);
+        Py_RETURN_TRUE;
 }
 
 PyObject *enc_http_reply_encode_py(PyObject *self, PyObject *args){
@@ -96,7 +96,7 @@ PyObject *enc_http_reply_encode_py(PyObject *self, PyObject *args){
         return NULL;
     }
     enc_http_reply_encode(((PyDapHttpSimpleObject*)l_obj_sh)->sh, ((PyDapEncServerObject*)self)->enc_http_delegate);
-    return Py_BuildValue("(O)", Py_None);
+    Py_RETURN_NONE;
 }
 
 void enc_http_delegate_delete_py(PyObject *self){
