@@ -23,6 +23,7 @@ static PyMethodDef DapChainMethods[] = {
         {"atomIterGetNext", (PyCFunction)dap_chain_python_atom_iter_get_next, METH_VARARGS, ""},
         {"getDag", (PyCFunction)dap_chain_python_atom_iter_get_dag, METH_NOARGS},
         {"addMempoolNotify", (PyCFunction)dap_chain_python_add_mempool_notify_callback, METH_VARARGS, ""},
+        {"atomFindByHash", (PyCFunction)dap_chain_python_atom_find_by_hash, METH_VARARGS, ""},
         {"countTx", (PyCFunction)dap_chain_python_get_count_tx, METH_NOARGS, ""},
         {"getTransactions", (PyCFunction)dap_chain_python_get_txs, METH_VARARGS, ""},
         //{"close", (PyCFunction)dap_chain_close_py, METH_NOARGS, ""},
@@ -139,16 +140,16 @@ void PyDapChainObject_dealloc(PyDapChainObject* chain){
 }
 
 PyObject *dap_chain_python_create_atom_iter(PyObject *self, PyObject *args){
-    PyObject *obj_cell_id;
+//    PyObject *obj_cell_id;
     PyObject *obj_boolean;
-    if (!PyArg_ParseTuple(args, "OO", &obj_cell_id, &obj_boolean)){
+    if (!PyArg_ParseTuple(args, "O", &obj_boolean)){
         PyErr_SetString(PyExc_AttributeError, "This function takes two arguments. ");
         return NULL;
     }
-    if (!PyDapChainCell_Check(obj_cell_id)){
-        PyErr_SetString(PyExc_AttributeError, "The first argument to this function must be of type ChainCell.");
-        return NULL;
-    }
+//    if (!PyDapChainCell_Check(obj_cell_id)){
+//        PyErr_SetString(PyExc_AttributeError, "The first argument to this function must be of type ChainCell.");
+//        return NULL;
+//    }
     if (!PyBool_Check(obj_boolean)){
         PyErr_SetString(PyExc_AttributeError, "The second argument accepted by this function is not a boolean value. ");
         return NULL;
@@ -156,10 +157,11 @@ PyObject *dap_chain_python_create_atom_iter(PyObject *self, PyObject *args){
     bool with_treshold = (obj_boolean == Py_True) ? 1 : 0;
     PyObject *obj_atom_iter = _PyObject_New(&DapChainAtomIterObjectType);
     PyObject_Init(obj_atom_iter, &DapChainAtomIterObjectType);
+//    ((PyDapChainObject*)self)->chain_t->callback_atom_iter_create()
     ((PyChainAtomIterObject*)obj_atom_iter)->atom_iter =
             ((PyDapChainObject*)self)->chain_t->callback_atom_iter_create(
                     ((PyDapChainObject*)self)->chain_t,
-                    ((PyDapChainCellObject*)obj_cell_id)->cell->id, with_treshold);
+                    ((PyDapChainObject*)self)->chain_t->cells->id, with_treshold);
     return obj_atom_iter;
 }
 
@@ -282,6 +284,36 @@ PyObject *dap_chain_python_add_mempool_notify_callback(PyObject *self, PyObject 
     Py_INCREF(obj_arg);
     dap_chain_add_mempool_notify_callback(l_chain, _wrapping_dap_chain_mempool_notify_handler, l_callback);
     Py_RETURN_NONE;
+}
+
+PyObject *dap_chain_python_atom_find_by_hash(PyObject *self, PyObject* args){
+    PyObject *obj_iter;
+    PyObject *obj_hf;
+    if (!PyArg_ParseTuple(args, "OO", &obj_iter, &obj_hf)){
+        return NULL;
+    }
+    if (!PyDapChainAtomIter_Check(obj_iter)){
+        PyErr_SetString(PyExc_AttributeError, "The first argument to the function was not correctly "
+                                              "passed, the argument must be an instance of a class of type ChainAtomPtr.");
+        return NULL;
+    }
+    if(!PyDapHashFast_Check(obj_hf)){
+        PyErr_SetString(PyExc_AttributeError, "The second argument to the function was not correctly passed, the "
+                                              "argument must be an instance of a class of type HashFast.");
+        return NULL;
+    }
+    size_t l_size_atom = 0;
+    dap_chain_atom_ptr_t *l_ptr = ((PyDapChainObject*)self)->chain_t->callback_atom_find_by_hash(
+            ((PyChainAtomIterObject*)obj_iter)->atom_iter,
+            ((PyDapHashFastObject*)obj_hf)->hash_fast,
+            &l_size_atom);
+    if (l_ptr == NULL) {
+        return Py_BuildValue("On", Py_None, 0);
+    } else {
+        PyChainAtomPtrObject *l_obj_ptr = PyObject_New(PyChainAtomPtrObject, &DapChainAtomPtrObjectType);
+        l_obj_ptr->ptr = l_ptr;
+        return Py_BuildValue("On", l_obj_ptr, l_size_atom);
+    }
 }
 
 PyObject *dap_chain_python_get_count_tx(PyObject *self, PyObject *args){
