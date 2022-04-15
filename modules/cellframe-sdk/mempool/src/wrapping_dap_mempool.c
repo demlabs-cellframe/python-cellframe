@@ -9,6 +9,7 @@ PyMethodDef  DapMempoolMethods[] = {
         {"baseTxCreate", dap_chain_mempool_base_tx_create_py, METH_VARARGS | METH_STATIC, ""},
         {"txCreateCond", dap_chain_mempool_tx_create_cond_py, METH_VARARGS | METH_STATIC, ""},
         {"txCreateCondInput", dap_chain_mempool_tx_create_cond_input_py, METH_VARARGS | METH_STATIC, ""},
+        {"remove", dap_chain_mempool_remove_py, METH_VARARGS | METH_STATIC, ""},
         {NULL,NULL,0,NULL}
 };
 
@@ -403,4 +404,34 @@ PyObject *dap_chain_mempool_tx_create_cond_input_py(PyObject *self, PyObject *ar
     PyDapHashFastObject *l_obj_hf = PyObject_New(PyDapHashFastObject, &DapChainHashFastObjectType);
     l_obj_hf->hash_fast = l_hf;
     return (PyObject*)l_obj_hf;
+}
+
+PyObject *dap_chain_mempool_remove_py(PyObject *self, PyObject *args){
+    PyObject *obj_chain;
+    char *l_str_hash = NULL;
+    if (!PyArg_ParseTuple(args, "Os", &obj_chain, &l_str_hash)){
+        return NULL;
+    }
+    if (!PyDapChain_Check(obj_chain)){
+        PyErr_SetString(PyExc_AttributeError, "The first argument was not correctly passed to "
+                                              "the function, the first argument must be an instance of an object of "
+                                              "type Chain.");
+        return NULL;
+    }
+    if (!((PyDapChainObject*)obj_chain)->chain_t){
+        PyErr_SetString(PyExc_AttributeError, "The passed chain arguments are corrupted.");
+        return NULL;
+    }
+    char *l_gdb_group_mempool = dap_chain_net_get_gdb_group_mempool(((PyDapChainObject*)obj_chain)->chain_t);
+    uint8_t *l_data_tmp = l_str_hash ? dap_chain_global_db_gr_get(l_str_hash, NULL, l_gdb_group_mempool) : NULL;
+    if(l_data_tmp && dap_chain_global_db_gr_del(l_str_hash, l_gdb_group_mempool)) {
+        DAP_DELETE(l_gdb_group_mempool);
+        DAP_DELETE(l_data_tmp);
+        Py_RETURN_TRUE;
+    } else {
+        DAP_DELETE(l_gdb_group_mempool);
+        DAP_DELETE(l_data_tmp);
+        DAP_DELETE(l_str_hash);
+        Py_RETURN_FALSE;
+    }
 }

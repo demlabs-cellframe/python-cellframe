@@ -25,6 +25,7 @@ PyObject *dap_chain_mempool_base_tx_create_py(PyObject *self, PyObject *args);
 PyObject *dap_chain_mempool_tx_create_py(PyObject *self, PyObject *args);
 PyObject *dap_chain_mempool_tx_create_cond_py(PyObject *self, PyObject *args);
 PyObject *dap_chain_mempool_tx_create_cond_input_py(PyObject *self, PyObject *args);
+PyObject *dap_chain_mempool_remove_py(PyObject *self, PyObject *args);
 
 extern PyTypeObject DapChainMempoolObjectType;
 
