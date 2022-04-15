@@ -32,6 +32,15 @@ typedef struct DapMath{
     uint256_t value;
 }DapMathObject;
 
+int math_python_create(PyObject *self, PyObject *argv, PyObject *kwds);
+PyObject *math_python_str(PyObject *self);
+
+PyObject *wrapping_math_python_add(PyObject *o1, PyObject *o2);
+PyObject *wrapping_math_python_subtract(PyObject *o1, PyObject *o2);
+PyObject *wrapping_math_python_multiply(PyObject *o1, PyObject *o2);
+PyObject *wrapping_math_python_true_divide(PyObject *o1, PyObject *o2);
+//PyObject *wrapping_dap_math_compare();
+
 PyObject *wrapping_dap_chain_balance_to_coins(PyObject *self, PyObject *args);
 PyObject *wrapping_dap_math_get_coins(PyObject *self, void *closure);
 
