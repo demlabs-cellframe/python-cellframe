@@ -221,6 +221,7 @@ PyObject *wrapping_dap_chain_datum_token_emission_get_hash(PyObject *self, void 
     (void)closure;
     dap_chain_datum_token_emission_t *l_emission = ((PyDapChainDatumTokenEmissionObject*)self)->token_emission;
     PyDapHashFastObject *obj_hf = PyObject_New(PyDapHashFastObject, &DapChainHashFastObjectType);
+    obj_hf->hash_fast = DAP_NEW(dap_chain_hash_fast_t);
     dap_hash_fast(
             ((PyDapChainDatumTokenEmissionObject*)self)->token_emission,
             ((PyDapChainDatumTokenEmissionObject*)self)->token_size, obj_hf->hash_fast);
