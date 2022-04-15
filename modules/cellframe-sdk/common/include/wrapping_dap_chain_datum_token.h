@@ -63,6 +63,7 @@ typedef struct PyDapChainDatumTokenEmission{
 int PyDapChainDatumTokenEmissionObject_init(PyDapChainDatumTokenEmissionObject *self, PyObject *argv, PyObject *kwds);
 bool PyDapChainDatumTokenEmissionObject_check(PyObject *self);
 
+PyObject *wrapping_dap_chain_datum_token_emission_get_hash(PyObject *self, void *closure);
 PyObject *wrapping_dap_chain_datum_token_emission_get_version(PyObject *self, void *closure);
 PyObject *wrapping_dap_chain_datum_token_emission_get_type_str(PyObject *self, void *closure);
 PyObject *wrapping_dap_chain_datum_token_emission_get_ticker(PyObject *self, void *closure);
