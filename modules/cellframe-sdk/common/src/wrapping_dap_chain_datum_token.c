@@ -128,6 +128,7 @@ PyObject *wrapping_dap_chain_datum_token_get_data(PyObject *self, void *closure)
 
 /* Token Emission */
 PyGetSetDef PyDapChainDatumTokenEmissionGetsSetsDef[]={
+        {"hash", (getter)wrapping_dap_chain_datum_token_emission_get_hash, NULL, NULL, NULL},
         {"version", (getter)wrapping_dap_chain_datum_token_emission_get_version, NULL, NULL, NULL},
         {"typeStr", (getter)wrapping_dap_chain_datum_token_emission_get_type_str, NULL, NULL, NULL},
         {"ticker", (getter)wrapping_dap_chain_datum_token_emission_get_ticker, NULL, NULL, NULL},
@@ -214,6 +215,16 @@ int PyDapChainDatumTokenEmissionObject_init(PyDapChainDatumTokenEmissionObject *
 
 bool PyDapChainDatumTokenEmissionObject_check(PyObject *self){
     return PyObject_TypeCheck(self, &DapChainDatumTokenEmissionObjectType);
+}
+
+PyObject *wrapping_dap_chain_datum_token_emission_get_hash(PyObject *self, void *closure){
+    (void)closure;
+    dap_chain_datum_token_emission_t *l_emission = ((PyDapChainDatumTokenEmissionObject*)self)->token_emission;
+    PyDapHashFastObject *obj_hf = PyObject_New(PyDapHashFastObject, &DapChainHashFastObjectType);
+    dap_hash_fast(
+            ((PyDapChainDatumTokenEmissionObject*)self)->token_emission,
+            ((PyDapChainDatumTokenEmissionObject*)self)->token_size, obj_hf->hash_fast);
+    return (PyObject*)obj_hf;
 }
 
 PyObject *wrapping_dap_chain_datum_token_emission_get_version(PyObject *self, void *closure){
