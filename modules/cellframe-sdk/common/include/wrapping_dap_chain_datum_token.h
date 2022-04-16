@@ -58,10 +58,9 @@ typedef struct PyDapChainDatumTokenEmission{
     PyObject_HEAD
     dap_chain_datum_token_emission_t *token_emission;
     size_t token_size;
-}PyDapChainDatumTokenEmissionObject;
+} PyDapChainDatumTokenEmissionObject;
 
 int PyDapChainDatumTokenEmissionObject_init(PyDapChainDatumTokenEmissionObject *self, PyObject *argv, PyObject *kwds);
-bool PyDapChainDatumTokenEmissionObject_check(PyObject *self);
 
 PyObject *wrapping_dap_chain_datum_token_emission_get_hash(PyObject *self, void *closure);
 PyObject *wrapping_dap_chain_datum_token_emission_get_version(PyObject *self, void *closure);
@@ -78,6 +77,10 @@ PyObject *wrapping_dap_chain_datum_emission_add_tsd(PyObject*self, PyObject *arg
 PyObject *wrapping_dap_chain_datum_emission_get_tsd(PyObject*self, PyObject *args);
 
 extern PyTypeObject DapChainDatumTokenEmissionObjectType;
+
+DAP_STATIC_INLINE bool PyDapChainDatumTokenEmissionObject_check(PyDapChainDatumTokenEmissionObject *self){
+    return PyObject_TypeCheck(self, &DapChainDatumTokenEmissionObjectType);
+}
 
 /* ------------------------------------------- */
 

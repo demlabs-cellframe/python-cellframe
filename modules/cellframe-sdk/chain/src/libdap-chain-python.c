@@ -288,7 +288,7 @@ PyObject *dap_chain_python_add_mempool_notify_callback(PyObject *self, PyObject 
 
 PyObject *dap_chain_python_atom_find_by_hash(PyObject *self, PyObject* args){
     PyObject *obj_iter;
-    PyObject *obj_hf;
+    PyDapHashFastObject *obj_hf;
     if (!PyArg_ParseTuple(args, "OO", &obj_iter, &obj_hf)){
         return NULL;
     }
@@ -305,7 +305,7 @@ PyObject *dap_chain_python_atom_find_by_hash(PyObject *self, PyObject* args){
     size_t l_size_atom = 0;
     dap_chain_atom_ptr_t *l_ptr = ((PyDapChainObject*)self)->chain_t->callback_atom_find_by_hash(
             ((PyChainAtomIterObject*)obj_iter)->atom_iter,
-            ((PyDapHashFastObject*)obj_hf)->hash_fast,
+            obj_hf->hash_fast,
             &l_size_atom);
     if (l_ptr == NULL) {
         return Py_BuildValue("On", Py_None, 0);
