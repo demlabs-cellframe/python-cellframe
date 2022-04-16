@@ -1,4 +1,5 @@
 #include "wrapping_dap_mempool.h"
+#define LOG_TAG "python-mempool"
 
 PyMethodDef  DapMempoolMethods[] = {
         {"proc", dap_chain_mempool_proc_py, METH_VARARGS | METH_STATIC, ""},
@@ -147,8 +148,10 @@ PyObject *dap_chain_mempool_proc_py(PyObject *self, PyObject *args) {
         return NULL;
     }
     if (!PyDapChain_Check(obj_chain)) {
-        PyErr_SetString(PyExc_AttributeError, "The second function argument is invalid, it must be an "
-                                              "instance of an object of type CellFrame.Chain.Chain ");
+        char *l_str = "The second function argument is invalid, it must be an "
+                                              "instance of an object of type CellFrame.Chain.Chain ";
+        PyErr_SetString(PyExc_AttributeError, l_str);
+        log_it(L_ERROR, l_str);
         return NULL;
     }
     dap_chain_t *l_chain = obj_chain->chain_t;
@@ -161,6 +164,8 @@ PyObject *dap_chain_mempool_proc_py(PyObject *self, PyObject *args) {
     if(dap_chain_net_get_role(l_net).enums>= NODE_ROLE_FULL){
         char *l_str = dap_strdup_printf("Need master node role or higher for network %s to process this command", l_net->pub.name);
         PyErr_SetString(PyExc_RuntimeError, l_str);
+        log_it(L_ERROR, l_str);
+        DAP_DELETE(l_str);
         return NULL;
     }
 
@@ -168,26 +173,34 @@ PyObject *dap_chain_mempool_proc_py(PyObject *self, PyObject *args) {
     dap_chain_datum_t *l_datum = (dap_chain_datum_t*) dap_chain_global_db_gr_get(l_hash_str,
                                                               &l_datum_size, l_gdb_group_mempool);
     if (!l_datum){
-        PyErr_SetString(PyExc_AttributeError, dap_strdup_printf("Failed to get data from "
-                                                                "chain %s on network %s using hash %s",
-                                                                l_chain->name, l_net->pub.name, l_hash_str));
+        char *l_str = dap_strdup_printf("Failed to get data from chain %s on network %s using hash %s",
+                                                                l_chain->name, l_net->pub.name, l_hash_str);
+        PyErr_SetString(PyExc_AttributeError, l_str);
+        log_it(L_ERROR, l_str);
+        DAP_DELETE(l_str);
         return NULL;
     }
     size_t l_datum_size2 = l_datum ? dap_chain_datum_size(l_datum) : 0;
-    if (l_datum_size != l_datum_size2 ){
-        PyErr_SetString(PyExc_RuntimeError, dap_strdup_printf("Error! Corrupted datum %s, size by datum headers is %zd when in mempool is only %zd bytes",
-        l_datum_size2, l_datum_size));
+    if (l_datum_size != l_datum_size2) {
+        char *l_str = dap_strdup_printf("Error! Corrupted datum %s, size by datum headers is %zd when in mempool is only %zd bytes",
+                                       l_datum_size2, l_datum_size);
+        PyErr_SetString(PyExc_RuntimeError, l_str);
+        log_it(L_ERROR, l_str);
+        DAP_DELETE(l_str);
         return NULL;
     }
 
     if (l_chain->callback_add_datums){
-        if (l_chain->callback_add_datums(l_chain, &l_datum, 1) ==0 ){
-            PyErr_SetString(PyExc_RuntimeError, "Error! Datum doesn't pass verifications, examine node log files");
+        if (l_chain->callback_add_datums(l_chain, &l_datum, 1) == 0) {
+            char *l_str = "Error! Datum doesn't pass verifications, examine node log files";
+            PyErr_SetString(PyExc_RuntimeError, l_str);
+            log_it(L_WARNING, l_str);
             return NULL;
         }else{
             bool res_del_mempool = dap_chain_global_db_gr_del(l_hash_str, l_gdb_group_mempool);
-            if (!res_del_mempool){
-                PyErr_SetString(PyExc_Warning, "Warning! Can't delete datum from mempool!");
+            if (!res_del_mempool) {
+                char *l_str = "Warning! Can't delete datum from mempool!";
+                PyErr_SetString(PyExc_Warning, l_str);
                 return  NULL;
             }
             Py_RETURN_NONE;
