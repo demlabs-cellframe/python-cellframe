@@ -34,5 +34,6 @@ typedef struct DapMath{
 
 PyObject *wrapping_dap_chain_balance_to_coins(PyObject *self, PyObject *args);
 PyObject *wrapping_dap_math_get_coins(PyObject *self, void *closure);
+PyObject *wrapping_dap_math_get_balance(PyObject *self, void *closure);
 
 extern PyTypeObject DapMathObjectType;

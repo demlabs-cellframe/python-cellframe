@@ -2,7 +2,8 @@
 
 PyGetSetDef DapMathGetsSets[] = {
         {"coins", (getter)wrapping_dap_math_get_coins, NULL, NULL, NULL},
-        {NULL}
+        {"balance", (getter)wrapping_dap_math_get_balance, NULL, NULL, NULL},
+        {NULL, NULL, NULL, NULL}
 };
 
 PyMethodDef DapMathMethods[] = {
@@ -25,6 +26,11 @@ PyTypeObject DapMathObjectType = {
 PyObject *wrapping_dap_math_get_coins(PyObject *self, void *closure){
     (void)closure;
     return Py_BuildValue("s", dap_chain_balance_to_coins(((DapMathObject*)self)->value));
+}
+
+PyObject *wrapping_dap_math_get_balance(PyObject *self, void *closure){
+    (void)closure;
+    return Py_BuildValue("s", dap_chain_balance_print(((DapMathObject*)self)->value));
 }
 
 PyObject *wrapping_dap_chain_balance_to_coins(PyObject *self, PyObject *args){
