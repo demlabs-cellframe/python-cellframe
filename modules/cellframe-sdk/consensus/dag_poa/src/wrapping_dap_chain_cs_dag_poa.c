@@ -87,7 +87,7 @@ int _wrapping_callback_handler(dap_chain_t *a_chain, dap_chain_cs_dag_event_t *a
 
 PyObject* wrapping_dap_chain_cs_dag_poa_presign_callback_set(PyObject *self, PyObject *args){
     (void)self;
-    PyObject *obj_chain;
+    PyDapChainObject *obj_chain;
     PyObject *obj_func;
     PyObject *obj_arg;
     if (!PyArg_ParseTuple(args, "OOO", &obj_chain, &obj_func, &obj_arg)){
@@ -109,6 +109,6 @@ PyObject* wrapping_dap_chain_cs_dag_poa_presign_callback_set(PyObject *self, PyO
     l_callback->arg = obj_arg;
     Py_INCREF(obj_func);
     Py_INCREF(obj_arg);
-    dap_chain_cs_dag_poa_presign_callback_set(((PyDapChainObject*)obj_chain)->chain_t, _wrapping_callback_handler, l_callback);
+    dap_chain_cs_dag_poa_presign_callback_set(obj_chain->chain_t, _wrapping_callback_handler, l_callback);
     Py_RETURN_NONE;
 }

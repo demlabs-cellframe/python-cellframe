@@ -43,5 +43,6 @@ PyObject *wrapping_math_python_true_divide(PyObject *o1, PyObject *o2);
 
 PyObject *wrapping_dap_chain_balance_to_coins(PyObject *self, PyObject *args);
 PyObject *wrapping_dap_math_get_coins(PyObject *self, void *closure);
+PyObject *wrapping_dap_math_get_balance(PyObject *self, void *closure);
 
 extern PyTypeObject DapMathObjectType;

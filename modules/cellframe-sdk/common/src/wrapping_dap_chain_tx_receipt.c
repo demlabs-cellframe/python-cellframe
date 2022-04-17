@@ -80,8 +80,8 @@ PyObject *wrapping_dap_chain_tx_receipt_get_uid(PyObject *self, void *closure){
 }
 PyObject *wrapping_dap_chain_tx_receipt_get_units_type(PyObject *self, void *closure){
     (void)closure;
-    return Py_BuildValue("s", serv_unit_enum_to_str(&
-        ((PyDapChainTXReceiptObject*)self)->tx_receipt->receipt_info.units_type.enm));
+    serv_unit_enum_t l_unit = ((PyDapChainTXReceiptObject*)self)->tx_receipt->receipt_info.units_type.enm;
+    return Py_BuildValue("s", serv_unit_enum_to_str(&l_unit));
 }
 PyObject *wrapping_dap_chain_tx_receipt_get_value(PyObject *self, void *closure){
     (void)closure;

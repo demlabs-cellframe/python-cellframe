@@ -101,7 +101,7 @@ PyObject *wrapping_dap_chain_block_get_meta_data(PyObject *self, void *closure){
     dap_chain_block_meta_extract(
             l_meta, l_count,
             &l_block_prev_hash, &l_block_anchor_hash,
-            &l_merkle, l_block_links,
+            &l_merkle, &l_block_links,
             &l_block_links_count, &l_is_genesis, &l_nonce, &l_nonce2);
     PyObject *obj_dict = PyDict_New();
     PyDapHashFastObject *l_obj_prev_hash = PyObject_New(PyDapHashFastObject, &DapChainHashFastObjectType);
@@ -146,7 +146,7 @@ PyObject *wrapping_dap_chain_block_get_datums(PyObject *self, void *closure){
     for (size_t i = 0; i < l_count; i++) {
         PyDapChainDatumObject *obj_datum = PyObject_New(PyDapChainDatumObject, &DapChainDatumObjectType);
         obj_datum->datum = l_datums[i];
-        PyList_SetItem(obj_datums, (Py_ssize_t) i, obj_datum);
+        PyList_SetItem(obj_datums, (Py_ssize_t) i, (PyObject *)obj_datum);
     }
     return obj_datums;
 }

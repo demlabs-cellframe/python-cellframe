@@ -50,7 +50,7 @@ PyObject *dap_chain_python_get_txs(PyObject *self, PyObject *args);
 
 extern PyTypeObject DapChainObjectType;
 
-static inline bool PyDapChain_Check(PyObject* self){
+DAP_STATIC_INLINE bool PyDapChain_Check(PyDapChainObject* self){
     return PyObject_TypeCheck(self, &DapChainObjectType);
 }
 

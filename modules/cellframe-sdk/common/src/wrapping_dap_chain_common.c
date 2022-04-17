@@ -144,10 +144,6 @@ PyTypeObject DapChainAddrObjectType = {
         PyType_GenericNew,               /* tp_new */
 };
 
-bool PyDapChainAddrObject_Check(PyObject *self){
-    return PyObject_TypeCheck(self, &DapChainAddrObjectType);
-}
-
 /* Chain net id */
 PyMethodDef DapChainNetIdObjectMethods[] = {
         {"fromStr", (PyCFunction)dap_chain_net_id_from_str_py, METH_VARARGS | METH_STATIC, ""},

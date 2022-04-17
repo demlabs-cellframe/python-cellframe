@@ -197,7 +197,7 @@ int PyDapChainDatumTokenEmissionObject_init(PyDapChainDatumTokenEmissionObject *
     };
     char* l_value_datoshi;
     char *l_ticker;
-    PyObject *obj_addr;
+    PyDapChainAddrObject *obj_addr;
     if (!PyArg_ParseTupleAndKeywords(argv, kwds, "ssO", (char**)kwlist, &l_value_datoshi, &l_ticker, &obj_addr)){
         return -1;
     }
@@ -207,19 +207,15 @@ int PyDapChainDatumTokenEmissionObject_init(PyDapChainDatumTokenEmissionObject *
         return -1;
     }
     uint256_t l_value = dap_chain_balance_scan(l_value_datoshi);
-    self->token_emission = dap_chain_datum_emission_create(
-            l_value, l_ticker, ((PyDapChainAddrObject*)obj_addr)->addr);
+    self->token_emission = dap_chain_datum_emission_create(l_value, l_ticker, obj_addr->addr);
     self->token_size = dap_chain_datum_emission_get_size((uint8_t*)self->token_emission);
     return 0;
 }
 
-bool PyDapChainDatumTokenEmissionObject_check(PyObject *self){
-    return PyObject_TypeCheck(self, &DapChainDatumTokenEmissionObjectType);
-}
-
 PyObject *wrapping_dap_chain_datum_token_emission_get_hash(PyObject *self, void *closure){
     (void)closure;
-    dap_chain_datum_token_emission_t *l_emission = ((PyDapChainDatumTokenEmissionObject*)self)->token_emission;
+    if (!self)
+        return NULL;
     PyDapHashFastObject *obj_hf = PyObject_New(PyDapHashFastObject, &DapChainHashFastObjectType);
     obj_hf->hash_fast = DAP_NEW(dap_chain_hash_fast_t);
     dap_hash_fast(
