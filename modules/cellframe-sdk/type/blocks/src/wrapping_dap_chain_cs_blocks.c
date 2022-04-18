@@ -50,6 +50,7 @@ PyTypeObject DapChainCsBlocksType = {
 
 PyObject *wrapping_dap_chain_cs_block_get_block(PyObject *self, PyObject *args){
     //TODO: Get a block by its hash.
+    Py_RETURN_NONE;
 }
 PyObject *wrapping_dap_chain_cs_block_get_list_blocks(PyObject *self, PyObject *args){
     (void)args;
@@ -71,4 +72,5 @@ PyObject *wrapping_dap_chain_cs_block_get_list_blocks(PyObject *self, PyObject *
 //    pthread_rwlock_unlock(&PVT(l_blocks)->rwlock);
 
 //    l_blocks->
+    Py_RETURN_NONE;
 }
