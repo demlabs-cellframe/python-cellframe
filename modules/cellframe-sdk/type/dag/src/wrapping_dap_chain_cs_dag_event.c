@@ -5,6 +5,7 @@ PyMethodDef PyDapChainCsDagEventMethodsDef[] = {
 };
 
 PyGetSetDef PyDapChainCsDagEventGetsSetsDef[] = {
+        {"hash", (getter)wrapping_dap_chain_cs_dag_event_get_hash, NULL, NULL, NULL},
         {"version", (getter)wrapping_dap_chain_cs_dag_event_get_version, NULL, NULL, NULL},
         {"roundId", (getter)wrapping_dap_chain_cs_dag_event_get_round_id, NULL, NULL, NULL},
         {"created", (getter)wrapping_dap_chain_cs_dag_event_get_ts_created, NULL, NULL, NULL},
@@ -59,6 +60,17 @@ PyTypeObject DapChainCsDagEvent_DapChainCsDagEventType = {
         0,                                                            /* tp_alloc */
         PyType_GenericNew,                                            /* tp_new */
 };
+
+PyObject *wrapping_dap_chain_cs_dag_event_get_hash(PyObject *self, void *closure){
+    (void)closure;
+    PyDapHashFastObject *obj_hf = PyObject_New(PyDapHashFastObject, &DapChainHashFastObjectType);
+    obj_hf->hash_fast = DAP_NEW(dap_chain_hash_fast_t);
+    dap_hash_fast(
+            ((PyDapChainCsDagEventObject*)self)->event,
+            ((PyDapChainCsDagEventObject*)self)->event_size,
+            obj_hf->hash_fast);
+    return (PyObject*)obj_hf;
+}
 
 PyObject *wrapping_dap_chain_cs_dag_event_get_version(PyObject *self, void *closure){
     (void)closure;
