@@ -25,6 +25,7 @@ PyTypeObject DapMathObjectType = {
         .tp_basicsize = sizeof(DapMathObject),
         .tp_as_number = &DapMathNumberMethods,
         .tp_str = math_python_str,
+        .tp_richcompare = math_python_richcompare,
         .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
         .tp_doc = "Dap math methods",
         .tp_getset = DapMathGetsSets,
@@ -199,6 +200,41 @@ PyObject *wrapping_math_python_true_divide(PyObject *o1, PyObject *o2){
         PyErr_SetString(PyExc_AttributeError, "An error has occurred, the cause cannot be determined");
         return NULL;
     }
+}
+
+PyObject *math_python_richcompare(PyObject *O1, PyObject *O2, int opid){
+    pvt_struct_parse_numbers_t l_result = {0};
+    int res = pvt_parse_object(O1, O2, &l_result);
+    if (res != 0)
+        return NULL;
+    res = compare256(l_result.n1, l_result.n2);
+    switch (opid) {
+        case Py_LT: // <
+            if (res == -1)
+                Py_RETURN_TRUE;
+            break;
+        case Py_LE: // <=
+            if (res != 1)
+                Py_RETURN_TRUE;
+            break;
+        case Py_EQ: // ==
+            if (res == 0)
+                Py_RETURN_TRUE;
+            break;
+        case Py_NE: // !=
+            if (res != 0)
+                Py_RETURN_TRUE;
+            break;
+        case Py_GT: // >
+            if (res == 1)
+                Py_RETURN_TRUE;
+            break;
+        case Py_GE: // >=
+            if (res != -1)
+                Py_RETURN_TRUE;
+            break;
+    }
+    Py_RETURN_FALSE;
 }
 
 PyObject *wrapping_dap_math_get_coins(PyObject *self, void *closure){
