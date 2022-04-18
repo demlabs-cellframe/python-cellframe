@@ -3,6 +3,7 @@ from DAP.Crypto import HashFast
 from CellFrame.Chain import ChainAddr
 import sys
 import modules.demoCustomCMD as customCMD
+import modules.mathTest.mathTest as mathTest
 
 
 class UnitTest:
@@ -46,6 +47,7 @@ def init():
         test_get_chain_addr,
         "mWNv7A43YnqRHCWVJCb2oR1ZaBwaiDQAgZzf3UjXGercDkFwre8z7ShMpsWRRRjRJfdJfQbs8EUqDzKG232a4fpahKBDjfV8ru1LeWTP"
     )
+    unittest.registration("256-bit math test", mathTest.run_unit_test, True)
     unittest.registration("Test FAIL", test_pass, 0)
     len_tests = len(unittest.test)
     logIt.notice("Start testing "+str(len_tests)+" modules (functions).")
