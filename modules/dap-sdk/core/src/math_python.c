@@ -10,7 +10,7 @@ PyNumberMethods DapMathNumberMethods = {
 PyGetSetDef DapMathGetsSets[] = {
         {"coins", (getter)wrapping_dap_math_get_coins, NULL, NULL, NULL},
         {"balance", (getter)wrapping_dap_math_get_balance, NULL, NULL, NULL},
-        {NULL, NULL, NULL, NULL}
+        {NULL, NULL, NULL, NULL, NULL}
 };
 
 PyMethodDef DapMathMethods[] = {

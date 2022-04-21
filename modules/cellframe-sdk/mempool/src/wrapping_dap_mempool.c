@@ -156,10 +156,6 @@ PyObject *dap_chain_mempool_proc_py(PyObject *self, PyObject *args) {
     }
     dap_chain_t *l_chain = obj_chain->chain_t;
     dap_chain_net_t *l_net = dap_chain_net_by_id(l_chain->net_id);
-
-    char *l_gdb_group_mempool = NULL;
-    l_gdb_group_mempool = dap_chain_net_get_gdb_group_mempool(l_chain);
-
     // If full or light it doesnt work
     if(dap_chain_net_get_role(l_net).enums>= NODE_ROLE_FULL){
         char *l_str = dap_strdup_printf("Need master node role or higher for network %s to process this command", l_net->pub.name);
@@ -168,6 +164,9 @@ PyObject *dap_chain_mempool_proc_py(PyObject *self, PyObject *args) {
         DAP_DELETE(l_str);
         return NULL;
     }
+
+    char *l_gdb_group_mempool = NULL;
+    l_gdb_group_mempool = dap_chain_net_get_gdb_group_mempool(l_chain);
 
     size_t l_datum_size = 0;
     dap_chain_datum_t *l_datum = (dap_chain_datum_t*) dap_chain_global_db_gr_get(l_hash_str,
@@ -178,6 +177,7 @@ PyObject *dap_chain_mempool_proc_py(PyObject *self, PyObject *args) {
         PyErr_SetString(PyExc_AttributeError, l_str);
         log_it(L_ERROR, l_str);
         DAP_DELETE(l_str);
+        DAP_DELETE(l_gdb_group_mempool);
         return NULL;
     }
     size_t l_datum_size2 = l_datum ? dap_chain_datum_size(l_datum) : 0;
@@ -187,24 +187,25 @@ PyObject *dap_chain_mempool_proc_py(PyObject *self, PyObject *args) {
         PyErr_SetString(PyExc_RuntimeError, l_str);
         log_it(L_ERROR, l_str);
         DAP_DELETE(l_str);
+        DAP_DELETE(l_gdb_group_mempool);
         return NULL;
     }
 
     if (l_chain->callback_add_datums){
-        if (l_chain->callback_add_datums(l_chain, &l_datum, 1) == 0) {
+        size_t processed = l_chain->callback_add_datums(l_chain, &l_datum, 1);
+        if (processed == 0) {
             char *l_str = "Error! Datum doesn't pass verifications, examine node log files";
             PyErr_SetString(PyExc_RuntimeError, l_str);
             log_it(L_WARNING, l_str);
-            return NULL;
-        }else{
-            bool res_del_mempool = dap_chain_global_db_gr_del(l_hash_str, l_gdb_group_mempool);
-            if (!res_del_mempool) {
-                char *l_str = "Warning! Can't delete datum from mempool!";
-                PyErr_SetString(PyExc_Warning, l_str);
-                return  NULL;
-            }
-            Py_RETURN_NONE;
         }
+        bool res_del_mempool = dap_chain_global_db_gr_del(l_hash_str, l_gdb_group_mempool);
+        if (!res_del_mempool) {
+            char *l_str = "Warning! Can't delete datum from mempool!";
+            PyErr_SetString(PyExc_Warning, l_str);
+            return  NULL;
+        }
+        DAP_DELETE(l_gdb_group_mempool);
+        Py_RETURN_NONE;
     }
     DAP_DELETE(l_gdb_group_mempool);
     Py_RETURN_NONE;
