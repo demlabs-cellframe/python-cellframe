@@ -82,8 +82,8 @@ int pvt_parse_object(PyObject *O1, PyObject *O2, pvt_struct_parse_numbers_t *res
         return -1;
     }
     if (PyLong_Check(obj_number)){
-        uint128_t l_temp = PyLong_AsLongLong(obj_number);
-        l_number_2 = dap_chain_uint256_from_uint128(l_temp);
+        uint64_t l_temp = PyLong_AsLong(obj_number);
+        l_number_2 = dap_chain_uint256_from(l_temp);
         l_parse_numer = true;
     }
     if(!l_parse_numer)
