@@ -265,27 +265,27 @@ PyObject *dap_chain_ledger_tx_hash_is_used_out_item_py(PyObject *self, PyObject 
 PyObject *dap_chain_ledger_calc_balance_py(PyObject *self, PyObject *args){
     PyObject *addr;
     const char *token_ticker;
-    if (!PyArg_ParseTuple(args, "O|s", &addr, &token_ticker))
+    if (!PyArg_ParseTuple(args, "Os", &addr, &token_ticker))
         return NULL;
     uint256_t balance = dap_chain_ledger_calc_balance(
             ((PyDapChainLedgerObject*)self)->ledger,
             ((PyDapChainAddrObject*)addr)->addr,
             token_ticker
     );
-    char* coins = dap_chain_balance_to_coins(balance);
-    uint64_t  res = dap_chain_uint256_to(balance);
-    return Py_BuildValue("sk", coins, res);
+    DapMathObject *l_obj_balance = PyObject_New(DapMathObject, &DapMathObjectType);
+    l_obj_balance->value = balance;
+    return (PyObject*)l_obj_balance;
 }
 PyObject *dap_chain_ledger_calc_balance_full_py(PyObject *self, PyObject *args){
     PyObject *addr;
     const char *token_ticker;
-    if (!PyArg_ParseTuple(args, "O|s", &addr, &token_ticker))
+    if (!PyArg_ParseTuple(args, "Os", &addr, &token_ticker))
         return NULL;
-    uint64_t res = dap_chain_uint256_to(
-                        dap_chain_ledger_calc_balance_full(
-                            ((PyDapChainLedgerObject*)self)->ledger,
-                            ((PyDapChainAddrObject*)addr)->addr, token_ticker));
-    return Py_BuildValue("k", res);
+    DapMathObject *l_obj_balance = PyObject_New(DapMathObject, &DapMathObjectType);
+    l_obj_balance->value = dap_chain_ledger_calc_balance_full(
+        ((PyDapChainLedgerObject*)self)->ledger,
+        ((PyDapChainAddrObject*)addr)->addr, token_ticker);
+    return (PyObject*)l_obj_balance;
 }
 PyObject *dap_chain_ledger_tx_find_by_hash_py(PyObject *self, PyObject *args){
     PyObject *h_fast;
