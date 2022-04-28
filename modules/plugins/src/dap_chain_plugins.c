@@ -14,6 +14,8 @@
 PyObject *s_sys_path = NULL;
 const char *s_plugins_root_path = NULL;
 
+PyThreadState *s_thread_state;
+
 typedef struct _dap_chain_plugins_module{
     PyObject *module;
     char *name;
@@ -35,6 +37,10 @@ int dap_chain_plugins_init(dap_config_t *a_config){
         }
         PyImport_AppendInittab("DAP", PyInit_libDAP);
         PyImport_AppendInittab("CellFrame", PyInit_libCellFrame);
+        #ifdef DAP_BUILD_WITH_PYTHON_ENV
+            const wchar_t *l_python_env_path = L"/opt/cellframe-node/lib/python3.7";
+            Py_SetPath(l_python_env_path);
+        #endif
         Py_Initialize();
         PyEval_InitThreads();
         PyObject *l_sys_module = PyImport_ImportModule("sys");
@@ -57,7 +63,7 @@ int dap_chain_plugins_init(dap_config_t *a_config){
         }
         dap_chain_plugins_loading();
         dap_chain_plugins_command_create();
-        PyThreadState *l_thread_state = PyEval_SaveThread();
+        s_thread_state = PyEval_SaveThread();
     }else{
         return 0;
     }
@@ -221,6 +227,7 @@ void dap_chain_plugins_deinit(){
         LL_DELETE(l_plugins, l_plugin);
     }
     dap_chain_plugins_manifest_list_delete_all();
+    PyEval_RestoreThread(s_thread_state);
     Py_Finalize();
 }
 int dap_chain_plugins_reload_plugin(const char * a_name_plugin){

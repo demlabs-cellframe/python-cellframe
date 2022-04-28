@@ -1,15 +1,15 @@
-#include "wrapping_dap_chain_cs_dag.h"
-#include "dap_chain_cell.h"
+#include "wrapping_dap_chain_cs_blocks.h"
 
-PyMethodDef DapChainCsDagMethods[] = {
-        {"findByHash", (PyCFunction)dap_chain_cs_dag_find_event_by_hash_py, METH_VARARGS, ""},
+PyMethodDef DapChainCsBlocksMethod[]  = {
+        {"getBlockByhHash", (PyCFunction)wrapping_dap_chain_cs_block_get_block, METH_VARARGS | METH_STATIC, ""},
+        {"getBlocks", (PyCFunction)wrapping_dap_chain_cs_block_get_list_blocks, METH_VARARGS | METH_STATIC, ""},
         {NULL, NULL, 0, NULL}
 };
 
-PyTypeObject DapChainCsDagType = {
+PyTypeObject DapChainCsBlocksType = {
         PyVarObject_HEAD_INIT(NULL, 0)
-        "CellFrame.Consensus.ChainCSDag",                                            /* tp_name */
-        sizeof(PyDapChainCsDagObject),                                     /* tp_basicsize */
+        "CellFrame.Consensus.ChainCSBlocks",                                            /* tp_name */
+        sizeof(PyDapChainCSBlocksObject),                                     /* tp_basicsize */
         0,                                                            /* tp_itemsize */
         0,                         /* tp_dealloc */
         0,                                                            /* tp_print */
@@ -28,14 +28,14 @@ PyTypeObject DapChainCsDagType = {
         0,                                                            /* tp_as_buffer */
         Py_TPFLAGS_DEFAULT |
         Py_TPFLAGS_BASETYPE,                                      /* tp_flags */
-        "Chain cs dag objects",                                              /* tp_doc */
+        "Chain cs blocks objects",                                              /* tp_doc */
         0,                                                              /* tp_traverse */
         0,                                                              /* tp_clear */
         0,                                                              /* tp_richcompare */
         0,                                                              /* tp_weaklistoffset */
         0,                                                              /* tp_iter */
         0,                                                            /* tp_iternext */
-        DapChainCsDagMethods,                                        /* tp_methods */
+        DapChainCsBlocksMethod,                                        /* tp_methods */
         0,                                                          /* tp_members */
         0,                                                           /* tp_getset */
         0,                                                            /* tp_base */
@@ -48,39 +48,29 @@ PyTypeObject DapChainCsDagType = {
         PyType_GenericNew,                                            /* tp_new */
 };
 
-PyObject *dap_chain_cs_dag_find_event_by_hash_py(PyObject *self, PyObject *args){
-    PyObject *obj_hash;
-    PyObject *obj_atom_iter;
-    if (!PyArg_ParseTuple(args, "O", &obj_hash)){
-        PyErr_SetString(PyExc_AttributeError, "Function takes exactly two arguments. ");
-        return NULL;
-    }
-    bool isCheck = PyObject_TypeCheck(obj_hash, &DapChainHashFastObjectType);
-    if (!isCheck){
-        PyErr_SetString(PyExc_AttributeError, "The first argument to this function is not a DapHash object.");
-        return NULL;
-    }
-//    if (!PyDapChainAtomIter_Check(obj_atom_iter)){
-//        PyErr_SetString(PyExc_AttributeError, "The second argument received to this function is not an object of type ChainAtomIter.");
-//        return NULL;
+PyObject *wrapping_dap_chain_cs_block_get_block(PyObject *self, PyObject *args){
+    //TODO: Get a block by its hash.
+    Py_RETURN_NONE;
+}
+PyObject *wrapping_dap_chain_cs_block_get_list_blocks(PyObject *self, PyObject *args){
+    (void)args;
+    //TODO: Make a wrapper for getting a list of blocks. Limited in number and offset on the page.
+//    dap_chain_cs_blocks_t *l_blocks = ((PyDapChainCSBlocksObject*)self)->blocks;
+//    pthread_rwlock_rdlock((dap_chain_cs_blocks_pvt_t *))
+//    pthread_rwlock_rdlock(&PVT(l_blocks)->rwlock);
+//    dap_string_t * l_str_tmp = dap_string_new(NULL);
+//    dap_string_append_printf(l_str_tmp,"%s.%s: Have %"DAP_UINT64_FORMAT_U" blocks :\n",
+//                             l_net->pub.name,l_chain->name,PVT(l_blocks)->blocks_count);
+//    dap_chain_block_cache_t * l_block_cache = NULL,*l_block_cache_tmp = NULL;
+//
+//    HASH_ITER(hh,PVT(l_blocks)->block_cache_first,l_block_cache, l_block_cache_tmp ) {
+//        char l_buf[50];
+//        ctime_r((time_t *)&l_block_cache->block->hdr.ts_created, l_buf);
+//        dap_string_append_printf(l_str_tmp,"\t%s: ts_create=%s",
+//                                 l_block_cache->block_hash_str, l_buf);
 //    }
-    dap_chain_cell_t *l_cell = ((PyDapChainCsDagObject*)self)->dag->chain->cells;
-    size_t size_atom = 0;
-    dap_chain_atom_iter_t *l_iter = ((PyDapChainCsDagObject*)self)->dag->chain->callback_atom_iter_create(
-            ((PyDapChainCsDagObject*)self)->dag->chain,
-            l_cell->id, 0
-            );
-    dap_chain_atom_ptr_t l_ptr = ((PyDapChainCsDagObject*)self)->dag->chain->callback_atom_find_by_hash(
-            l_iter,
-            ((PyDapHashFastObject*)obj_hash)->hash_fast,
-            &size_atom);
-    if (l_ptr == NULL){
-        Py_RETURN_NONE;
-    }
-    PyDapChainCsDagEventObject *obj_event = PyObject_New(PyDapChainCsDagEventObject,
-                                                         &DapChainCsDagEvent_DapChainCsDagEventType);
-    PyObject_Dir((PyObject*)obj_event);
-    obj_event->event = l_iter->cur;
-    obj_event->event_size = l_iter->cur_size;
-    return (PyObject*)obj_event;
+//    pthread_rwlock_unlock(&PVT(l_blocks)->rwlock);
+
+//    l_blocks->
+    Py_RETURN_NONE;
 }

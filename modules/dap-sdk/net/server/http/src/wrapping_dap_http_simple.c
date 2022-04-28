@@ -87,7 +87,7 @@ void wrapping_dap_http_simple_callback(dap_http_simple_t *sh, void *obj){
     log_it(L_DEBUG, "Handling C module request ...");
     PyGILState_STATE gstate;
     gstate = PyGILState_Ensure();
-    PyObject *obj_func = _w_simple_proc_find(sh->http_client->url_path);
+    PyObject *obj_func = _w_simple_proc_find(sh->http_client->proc->url);
     PyDapHttpSimpleObject *obj_http_simple = PyObject_NEW(PyDapHttpSimpleObject, &DapHttpSimpleObjectType);
     PyObject *obj_http_status_code = _PyObject_New(&DapHttpCodeObjectType);
     ((PyDapHttpSimpleObject*)obj_http_simple)->sh = sh;
@@ -131,7 +131,7 @@ PyObject *dap_http_simple_add_proc_py(PyObject *self, PyObject *args){
                              reply_size_max,
                              wrapping_dap_http_simple_callback);
     log_it(L_NOTICE, "Add processor for \"%s\"", url);
-    return Py_BuildValue("(O)", Py_None);
+    Py_RETURN_NONE;
 }
 PyObject *dap_http_simple_module_init_py(PyObject *self, PyObject *args){
     (void)self;
@@ -143,7 +143,7 @@ PyObject *dap_http_simple_module_deinit_py(PyObject *self, PyObject *args){
     (void)self;
     (void)args;
     dap_http_simple_module_deinit();
-    return Py_BuildValue("(O)", Py_None);
+    Py_RETURN_NONE;
 }
 PyObject *dap_http_simple_set_supported_user_agents_py(PyObject *self, PyObject *args){
     (void)self;
@@ -157,7 +157,7 @@ PyObject *dap_http_simple_set_pass_unknown_user_agents_py(PyObject *self, PyObje
         return NULL;
     }
     dap_http_simple_set_pass_unknown_user_agents(res);
-    return Py_BuildValue("(O)", Py_None);
+    Py_RETURN_NONE;
 }
 PyObject *dap_http_simple_reply_py(PyObject *self, PyObject *args){
     PyObject *l_obj_bytes;
@@ -185,7 +185,7 @@ PyObject *dap_http_simple_request_py(PyDapHttpSimpleObject *self, void *clouser)
     if (self->sh->request)
         return PyBytes_FromString(self->sh->request);
     else
-        return Py_None;
+        Py_RETURN_NONE;
 }
 
 PyObject *dap_http_simple_url_path_py(PyDapHttpSimpleObject *self, void *clouser){

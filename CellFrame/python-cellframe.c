@@ -240,7 +240,7 @@ PyObject *python_cellframe_init(PyObject *self, PyObject *args)
         }
         log_it(L_INFO, "Initialization of module is completed");
     }
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 PyObject *python_dap_init(PyObject *self, PyObject *args)
@@ -637,6 +637,7 @@ PyMODINIT_FUNC PyInit_libCellFrame(void)
         PyType_Ready( &DapChainNetSrvPriceUnitUidObjectType ) < 0 ||
         // === Chain consensuses
         PyType_Ready( &DapChainCsDagPoaObjectType ) < 0 ||
+        PyType_Ready(&DapChainCsBlockType) < 0 ||
         PyType_Ready(&DapChainCsDagType) < 0 ||
         PyType_Ready( &DapChainGdbObjectType ) < 0
         ) {
@@ -667,7 +668,7 @@ PyMODINIT_FUNC PyInit_libCellFrame(void)
     PyModule_AddObject(commonModule, "DatumIter", (PyObject*)&DapChainDatumIterObjectType);
     PyModule_AddObject(commonModule, "DatumToken", (PyObject*)&DapChainDatumTokenObjectType);
     PyModule_AddObject(commonModule, "DatumTokenExt", (PyObject*)&DapChainTxTokenExtType);
-    PyModule_AddObject(commonModule, "DatumEmisson", (PyObject*)&DapChainDatumTokenEmissionObjectType);
+    PyModule_AddObject(commonModule, "DatumEmission", (PyObject*)&DapChainDatumTokenEmissionObjectType);
     PyModule_AddObject(commonModule, "TxItemType", (PyObject*)&DapChainTxItemTypeObjectType);
     PyModule_AddObject(commonModule, "TxCondType", (PyObject*)&DapChainTxCondTypeObjectType);
     PyModule_AddObject(commonModule, "DatumTx", (PyObject*)&DapChainDatumTxObjectType);
@@ -704,6 +705,7 @@ PyMODINIT_FUNC PyInit_libCellFrame(void)
     PyObject *csModule = PyModule_Create(&CellframeConsensusPythonModule);
     // === Chain cs dag poa
     PyModule_AddObject(csModule, "DagPoa", (PyObject*)&DapChainCsDagPoaObjectType);
+    PyModule_AddObject(csModule, "Block", (PyObject*)&DapChainCsBlockType);
     PyModule_AddObject(csModule, "ChainCSDag", (PyObject*)&DapChainCsDagType);
     PyModule_AddObject(csModule, "GDB", (PyObject*)&DapChainGdbObjectType);
 

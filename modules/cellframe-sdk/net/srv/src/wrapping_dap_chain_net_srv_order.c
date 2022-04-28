@@ -82,8 +82,9 @@ void _wrapping_handler_add_order_notify(void * a_arg, const char a_op_code, cons
     if (!a_arg)
         return;
     _wrapping_order_callable_t *l_callback = (_wrapping_order_callable_t *)a_arg;
+    PyGILState_STATE state = PyGILState_Ensure();
     PyDapChainNetSrvOrderObject *l_obj_order = (PyDapChainNetSrvOrderObject *)Py_None;
-    if (a_value_len != 0) {
+    if (a_value_len != 0 && a_op_code != DAP_DB$K_OPTYPE_DEL) {
         l_obj_order = PyObject_New(PyDapChainNetSrvOrderObject, &DapChainNetSrvOrderObjectType);
         l_obj_order->order = DAP_NEW_Z_SIZE(void, a_value_len);
         memcpy(l_obj_order->order, a_value, a_value_len);
@@ -92,7 +93,6 @@ void _wrapping_handler_add_order_notify(void * a_arg, const char a_op_code, cons
     l_op_code[0] = a_op_code;
     l_op_code[1] = '\0';
     PyObject *l_args = Py_BuildValue("sssOO", l_op_code, a_group, a_key, l_obj_order, l_callback->arg);
-    PyGILState_STATE state = PyGILState_Ensure();
     PyEval_CallObject(l_callback->func, l_args);
     Py_DECREF(l_args);
     PyGILState_Release(state);
@@ -269,7 +269,7 @@ PyObject *wrapping_dap_chain_net_srv_order_get_srv_ext_n_sign(PyObject *self, vo
         obj_sign->sign = l_sign;
         return (PyObject *) obj_sign;
     }
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 //Functions
@@ -306,7 +306,7 @@ PyObject *wrapping_dap_chain_net_srv_order_find(PyObject *self, PyObject *args){
         const char *l_str = PyUnicode_AsUTF8((PyObject *)obj_order_hash);
         l_order = dap_chain_net_srv_order_find_by_hash_str(obj_net->chain_net, l_str);
         if (l_order == NULL){
-            return Py_None;
+            Py_RETURN_NONE;
         }
         PyDapChainNetSrvOrderObject *l_obj_order = PyObject_New(PyDapChainNetSrvOrderObject,
                                                                 &DapChainNetSrvOrderObjectType);
@@ -316,7 +316,7 @@ PyObject *wrapping_dap_chain_net_srv_order_find(PyObject *self, PyObject *args){
     if (PyDapHashFast_Check(obj_order_hash)){
         l_order = dap_chain_net_srv_order_find_by_hash(obj_net->chain_net, obj_order_hash->hash_fast);
         if (l_order == NULL){
-            return Py_None;
+            Py_RETURN_NONE;
         }
         PyDapChainNetSrvOrderObject *l_obj_order = PyObject_New(PyDapChainNetSrvOrderObject,
                                                                 &DapChainNetSrvOrderObjectType);
@@ -373,7 +373,7 @@ PyObject *wrapping_dap_chain_net_srv_order_save(PyObject *self, PyObject *args){
     res = dap_chain_net_srv_order_save(l_net,
                                            WRAPPING_DAP_CHAIN_NET_SRV_ORDER(self)->order);
     if (res == NULL)
-        return Py_None;
+        Py_RETURN_NONE;
     return Py_BuildValue("s", res);
 }
 PyObject *wrapping_dap_chain_net_srv_order_get_gdb_group(PyObject *self, PyObject *args){
@@ -426,5 +426,5 @@ PyObject *wrapping_dap_chain_net_srv_order_add_notify_callback(PyObject *self, P
     Py_INCREF(call_arg);
     dap_chain_net_srv_order_add_notify_callback(obj_net->chain_net,
                                                 _wrapping_handler_add_order_notify, l_callback);
-    return Py_None;
+    Py_RETURN_NONE;
 }

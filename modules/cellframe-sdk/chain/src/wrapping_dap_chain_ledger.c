@@ -265,40 +265,38 @@ PyObject *dap_chain_ledger_tx_hash_is_used_out_item_py(PyObject *self, PyObject 
 PyObject *dap_chain_ledger_calc_balance_py(PyObject *self, PyObject *args){
     PyObject *addr;
     const char *token_ticker;
-    if (!PyArg_ParseTuple(args, "O|s", &addr, &token_ticker))
+    if (!PyArg_ParseTuple(args, "Os", &addr, &token_ticker))
         return NULL;
     uint256_t balance = dap_chain_ledger_calc_balance(
             ((PyDapChainLedgerObject*)self)->ledger,
             ((PyDapChainAddrObject*)addr)->addr,
             token_ticker
     );
-    char* coins = dap_chain_balance_to_coins(balance);
-    uint64_t  res = dap_chain_uint256_to(balance);
-    return Py_BuildValue("sk", coins, res);
+    DapMathObject *l_obj_balance = PyObject_New(DapMathObject, &DapMathObjectType);
+    l_obj_balance->value = balance;
+    return (PyObject*)l_obj_balance;
 }
 PyObject *dap_chain_ledger_calc_balance_full_py(PyObject *self, PyObject *args){
     PyObject *addr;
     const char *token_ticker;
-    if (!PyArg_ParseTuple(args, "O|s", &addr, &token_ticker))
+    if (!PyArg_ParseTuple(args, "Os", &addr, &token_ticker))
         return NULL;
-    uint64_t res = dap_chain_uint256_to(
-                        dap_chain_ledger_calc_balance_full(
-                            ((PyDapChainLedgerObject*)self)->ledger,
-                            ((PyDapChainAddrObject*)addr)->addr, token_ticker));
-    return Py_BuildValue("k", res);
+    DapMathObject *l_obj_balance = PyObject_New(DapMathObject, &DapMathObjectType);
+    l_obj_balance->value = dap_chain_ledger_calc_balance_full(
+        ((PyDapChainLedgerObject*)self)->ledger,
+        ((PyDapChainAddrObject*)addr)->addr, token_ticker);
+    return (PyObject*)l_obj_balance;
 }
 PyObject *dap_chain_ledger_tx_find_by_hash_py(PyObject *self, PyObject *args){
     PyObject *h_fast;
     if (!PyArg_ParseTuple(args, "O", &h_fast))
         return NULL;
-    PyObject *res = _PyObject_New(&DapChainDatumTxObjectType);
-    res = PyObject_Init(res, &DapChainDatumTxObjectType);
-    PyObject_Dir(res);
-    ((PyDapChainDatumTxObject*)res)->datum_tx = dap_chain_ledger_tx_find_by_hash(((PyDapChainLedgerObject*)self)->ledger, ((PyDapHashFastObject*)h_fast)->hash_fast);
-    ((PyDapChainDatumTxObject*)res)->original = false;
-    if (((PyDapChainDatumTxObject*)res)->datum_tx == NULL) {
+    PyDapChainDatumTxObject *res = PyObject_NEW(PyDapChainDatumTxObject, &DapChainDatumTxObjectType);
+    res->datum_tx = dap_chain_ledger_tx_find_by_hash(((PyDapChainLedgerObject*)self)->ledger, ((PyDapHashFastObject*)h_fast)->hash_fast);
+    res->original = false;
+    if (res->datum_tx == NULL) {
         PyObject_DEL(res);
-        return Py_None;
+        Py_RETURN_NONE;
     }
     return Py_BuildValue("O", res);
 }
@@ -395,14 +393,13 @@ PyObject *dap_chain_ledger_get_txs_py(PyObject *self, PyObject *args){
             count,
             page);
     if (!l_txs){
-        return Py_None;
+        Py_RETURN_NONE;
     }
     PyObject *obj_list = PyList_New(0);
     for (dap_list_t *l_iter = l_txs; l_iter != NULL; l_iter = l_iter->next){
         PyDapChainDatumTxObject *obj_tx = PyObject_New(PyDapChainDatumTxObject, &DapChainDatumTxObjectType);
         obj_tx->datum_tx = l_iter->data;
         obj_tx->original = false;
-        PyObject_Dir((PyObject*) obj_tx);
         PyList_Append(obj_list, (PyObject*)obj_tx);
     }
     return obj_list;

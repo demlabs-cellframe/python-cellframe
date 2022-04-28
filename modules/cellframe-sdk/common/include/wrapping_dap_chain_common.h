@@ -51,9 +51,7 @@ extern PyTypeObject DapChainHashSlowObjectType;
 typedef struct PyDapChainAddr{
     PyObject_HEAD
     dap_chain_addr_t *addr;
-}PyDapChainAddrObject;
-
-bool PyDapChainAddrObject_Check(PyObject *self);
+} PyDapChainAddrObject;
 
 PyObject *dap_chain_addr_to_str_py(PyObject *self, PyObject *args);
 PyObject *dap_chain_addr_from_str_py(PyObject *self, PyObject *args);
@@ -66,6 +64,10 @@ PyObject *dap_chain_addr_get_net_id_py(PyObject *self, PyObject *args);
 PyObject *obj_addr_str(PyObject *self);
 
 extern PyTypeObject DapChainAddrObjectType;
+
+DAP_STATIC_INLINE bool PyDapChainAddrObject_Check(PyDapChainAddrObject *self) {
+    return PyObject_TypeCheck(self, &DapChainAddrObjectType);
+}
 
 /*=================*/
 
@@ -94,7 +96,7 @@ PyObject* PyDapChainNetSrvUIDObject_str(PyObject *self);
 
 extern PyTypeObject DapChainNetSrvUidObjectType;
 
-static bool PyDapChainNetSrvUid_Check(PyDapChainNetSrvUIDObject *a_obj){
+DAP_STATIC_INLINE bool PyDapChainNetSrvUid_Check(PyDapChainNetSrvUIDObject *a_obj){
     return PyObject_TypeCheck(a_obj, &DapChainNetSrvUidObjectType);
 }
 

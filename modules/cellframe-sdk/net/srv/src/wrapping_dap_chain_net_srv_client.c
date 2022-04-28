@@ -55,8 +55,8 @@ static void _wrapping_dap_chain_net_srv_client_callback_connected(dap_chain_net_
     PyDapChainNetSrvClientObject *py_client = (PyDapChainNetSrvClientObject *)a_client->_inheritor;
     PyObject *l_call = py_client->callback_connected;
     if (PyCallable_Check(l_call)) {
-        PyObject *l_args = Py_BuildValue("OO", py_client, a_arg);
         PyGILState_STATE state = PyGILState_Ensure();
+        PyObject *l_args = Py_BuildValue("OO", py_client, a_arg);
         PyEval_CallObject(l_call, l_args);
         Py_DECREF(l_args);
         PyGILState_Release(state);
@@ -70,8 +70,8 @@ static void _wrapping_dap_chain_net_srv_client_callback_disconnected(dap_chain_n
     PyDapChainNetSrvClientObject *py_client = (PyDapChainNetSrvClientObject *)a_client->_inheritor;
     PyObject *l_call = py_client->callback_disconnected;
     if (PyCallable_Check(l_call)) {
-        PyObject *l_args = Py_BuildValue("OO", py_client, a_arg);
         PyGILState_STATE state = PyGILState_Ensure();
+        PyObject *l_args = Py_BuildValue("OO", py_client, a_arg);
         PyEval_CallObject(l_call, l_args);
         Py_DECREF(l_args);
         PyGILState_Release(state);
@@ -85,8 +85,8 @@ static void _wrapping_dap_chain_net_srv_client_callback_deleted(dap_chain_net_sr
     PyDapChainNetSrvClientObject *py_client = (PyDapChainNetSrvClientObject *)a_client->_inheritor;
     PyObject *l_call = py_client->callback_deleted;
     if (PyCallable_Check(l_call)) {
-        PyObject *l_args = Py_BuildValue("OO", py_client, a_arg);
         PyGILState_STATE state = PyGILState_Ensure();
+        PyObject *l_args = Py_BuildValue("OO", py_client, a_arg);
         PyEval_CallObject(l_call, l_args);
         Py_DECREF(l_args);
         PyGILState_Release(state);
@@ -103,8 +103,8 @@ static void _wrapping_dap_chain_net_srv_client_callback_check(dap_chain_net_srv_
     PyDapChainNetSrvClientObject *py_client = (PyDapChainNetSrvClientObject *)a_srv_client->_inheritor;
     PyObject *l_call = py_client->callback_check;
     if (PyCallable_Check(l_call)) {
-        PyObject *l_args = Py_BuildValue("OO", py_client, (PyObject *)a_arg);
         PyGILState_STATE state = PyGILState_Ensure();
+        PyObject *l_args = Py_BuildValue("OO", py_client, (PyObject *)a_arg);
         PyEval_CallObject(l_call, l_args);
         Py_DECREF(l_args);
         PyGILState_Release(state);
@@ -121,11 +121,11 @@ static dap_chain_datum_tx_receipt_t * _wrapping_dap_chain_net_srv_client_callbac
     PyObject *l_call = py_client->callback_sign;
     PyDapChainTXReceiptObject *py_ret = NULL;
     if (PyCallable_Check(l_call)) {
+        PyGILState_STATE state = PyGILState_Ensure();
         PyDapChainTXReceiptObject *py_receipt = PyObject_New(PyDapChainTXReceiptObject,
                                                              &DapChainTxReceiptObjectType);
         py_receipt->tx_receipt = a_receipt;
         PyObject *l_args = Py_BuildValue("OOO", py_client, py_receipt, (PyObject *)a_arg);
-        PyGILState_STATE state = PyGILState_Ensure();
         py_ret = (PyDapChainTXReceiptObject *)PyEval_CallObject(l_call, l_args);
         Py_DECREF(l_args);
         PyGILState_Release(state);
@@ -144,6 +144,7 @@ static void _wrapping_dap_chain_net_srv_client_callback_success(dap_chain_net_sr
     PyDapChainNetSrvClientObject *py_client = (PyDapChainNetSrvClientObject *)a_srv_client->_inheritor;
     PyObject *l_call = py_client->callback_success;
     if (PyCallable_Check(l_call)) {
+        PyGILState_STATE state = PyGILState_Ensure();
         PyDapHashFastObject *py_cond_hash = PyObject_New(PyDapHashFastObject,
                                                          &DapHashTypeObject_DapChainHashTypeObjectType);
         if (a_pkt_size == sizeof(dap_stream_ch_chain_net_srv_pkt_success_t) + sizeof(dap_chain_hash_fast_t)) {
@@ -152,7 +153,6 @@ static void _wrapping_dap_chain_net_srv_client_callback_success(dap_chain_net_sr
         } else
             py_cond_hash->hash_fast = NULL;
         PyObject *l_args = Py_BuildValue("OOO", py_client, py_cond_hash, (PyObject *)a_arg);
-        PyGILState_STATE state = PyGILState_Ensure();
         PyEval_CallObject(l_call, l_args);
         Py_DECREF(l_args);
         PyGILState_Release(state);
@@ -167,8 +167,8 @@ static void _wrapping_dap_chain_net_srv_client_callback_error(dap_chain_net_srv_
     PyDapChainNetSrvClientObject *py_client = (PyDapChainNetSrvClientObject *)a_srv_client->_inheritor;
     PyObject *l_call = py_client->callback_error;
     if (PyCallable_Check(l_call)) {
-        PyObject *l_args = Py_BuildValue("OiO", py_client, a_error_code, (PyObject *)a_arg);
         PyGILState_STATE state = PyGILState_Ensure();
+        PyObject *l_args = Py_BuildValue("OiO", py_client, a_error_code, (PyObject *)a_arg);
         PyEval_CallObject(l_call, l_args);
         Py_DECREF(l_args);
         PyGILState_Release(state);
@@ -184,9 +184,9 @@ static void _wrapping_dap_chain_net_srv_client_callback_data(dap_chain_net_srv_c
     PyDapChainNetSrvClientObject *py_client = (PyDapChainNetSrvClientObject *)a_srv_client->_inheritor;
     PyObject *l_call = py_client->callback_data;
     if (PyCallable_Check(l_call)) {
+        PyGILState_STATE state = PyGILState_Ensure();
         PyObject *l_data = PyBytes_FromStringAndSize((char *)a_data, a_data_size);
         PyObject *l_args = Py_BuildValue("OOO", py_client, l_data, (PyObject *)a_arg);
-        PyGILState_STATE state = PyGILState_Ensure();
         PyEval_CallObject(l_call, l_args);
         Py_DECREF(l_args);
         PyGILState_Release(state);
@@ -269,14 +269,14 @@ PyObject *wrapping_dap_chain_net_srv_client_check(PyObject *self, PyObject *args
     PyDapChainNetSrvUIDObject *obj_srv_uid;
     PyObject *obj_bytes;
     if (!PyArg_ParseTuple(args, "OOO", &obj_net_id, &obj_srv_uid, &obj_bytes)) {
-        return Py_None;
+        Py_RETURN_NONE;
     }
     if (!PyDapChainNetSrvUid_Check(obj_srv_uid))
-        return Py_None;
+        Py_RETURN_NONE;
     if (PyObject_TypeCheck(obj_net_id, &DapChainNetIdObjectType))
-        return Py_None;
+        Py_RETURN_NONE;
     if (!PyBytes_Check(obj_bytes)) {
-        return Py_None;
+        Py_RETURN_NONE;
     }
     //Generate packet
     size_t l_bytes_size = PyBytes_Size(obj_bytes);
@@ -289,7 +289,9 @@ PyObject *wrapping_dap_chain_net_srv_client_check(PyObject *self, PyObject *args
     l_request->srv_uid.uint64 = obj_srv_uid->net_srv_uid.uint64;
     l_request->data_size_send = l_request->data_size_recv = l_bytes_size;
     l_request->data_size = l_bytes_size;
-    gettimeofday(&l_request->send_time1, NULL);
+    struct timeval l_send_time_1;
+    gettimeofday(&l_send_time_1, NULL);
+    l_request->send_time1 = l_send_time_1;
     memcpy(l_request->data, l_bytes, l_bytes_size);
     dap_hash_fast(l_request->data, l_request->data_size, &l_request->data_hash);
     ssize_t l_res = dap_chain_net_srv_client_write(
@@ -304,13 +306,13 @@ PyObject *wrapping_dap_chain_net_srv_client_request(PyObject *self, PyObject *ar
     PyDapChainNetSrvUIDObject *obj_srv_uid;
     PyDapHashFastObject *obj_tx_cond_hash;
     if (!PyArg_ParseTuple(args, "OOO", &obj_net, &obj_srv_uid, &obj_tx_cond_hash))
-        return Py_None;
+        Py_RETURN_NONE;
     if (!PyDapChainNetSrvUid_Check(obj_srv_uid))
-        return Py_None;
+        Py_RETURN_NONE;
     if (!PyDapChainNet_Check(obj_net))
-        return Py_None;
+        Py_RETURN_NONE;
     if (!PyDapHashFast_Check(obj_tx_cond_hash)) {
-        return Py_None;
+        Py_RETURN_NONE;
     }
     //Generate packet
     dap_stream_ch_chain_net_srv_pkt_request_hdr_t l_hdr = {};
@@ -328,13 +330,13 @@ PyObject *wrapping_dap_chain_net_srv_client_write(PyObject *self, PyObject *args
     PyDapChainNetSrvUIDObject *obj_srv_uid;
     PyObject *obj_bytes;
     if (!PyArg_ParseTuple(args, "OO", &obj_srv_uid, &obj_bytes)) {
-        return Py_None;
+        Py_RETURN_NONE;
     }
     if (!PyDapChainNetSrvUid_Check(obj_srv_uid)) {
-        return Py_None;
+        Py_RETURN_NONE;
     }
     if (!PyBytes_Check(obj_bytes)) {
-        return Py_None;
+        Py_RETURN_NONE;
     }
     //Generate packet
     size_t l_bytes_size = PyBytes_Size(obj_bytes);

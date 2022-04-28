@@ -142,7 +142,7 @@ PyObject *dap_chain_net_by_name_py(PyObject *self, PyObject *args){
     ((PyDapChainNetObject*)obj_chain_net)->chain_net = dap_chain_net_by_name(a_name);
     if (((PyDapChainNetObject*)obj_chain_net)->chain_net == NULL){
         PyObject_Del(obj_chain_net);
-        return Py_None;
+        Py_RETURN_NONE;
     }
     return Py_BuildValue("O", obj_chain_net);
 }
@@ -270,7 +270,7 @@ PyObject *dap_chain_net_get_tx_by_hash_py(PyObject *self, PyObject *args){
             TX_SEARCH_TYPE_NET);
     if (l_tx->datum_tx == NULL){
         Py_TYPE(l_tx)->tp_free((PyObject*)l_tx);
-        return Py_None;
+        Py_RETURN_NONE;
     }
     l_tx->original = false;
     return (PyObject*)l_tx;
@@ -290,13 +290,13 @@ void pvt_dap_chain_net_py_notify_handler(void * a_arg, const char a_op_code, con
     char l_op_code[2];
     l_op_code[0] = a_op_code;
     l_op_code[1] = '\0';
+    PyGILState_STATE state = PyGILState_Ensure();
     if (a_value == NULL || a_value_len == 0){
         l_obj_value = Py_None;
     } else {
         l_obj_value = PyBytes_FromStringAndSize(a_value, (Py_ssize_t)a_value_len);
     }
     PyObject *argv = Py_BuildValue("sssOO", l_op_code, a_group, a_key, l_obj_value, l_callback->arg);
-    PyGILState_STATE state = PyGILState_Ensure();
     PyEval_CallObject(l_callback->func, argv);
     Py_DECREF(argv);
     PyGILState_Release(state);
@@ -317,5 +317,5 @@ PyObject *dap_chain_net_add_notify_py(PyObject *self, PyObject *args){
     Py_INCREF(obj_func);
     Py_INCREF(obj_arg);
     dap_chain_net_add_gdb_notify_callback(((PyDapChainNetObject*)self)->chain_net, pvt_dap_chain_net_py_notify_handler, l_callback);
-    return Py_None;
+    Py_RETURN_NONE;
 }

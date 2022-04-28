@@ -90,8 +90,8 @@ int _w_dap_chain_callback_data_t_requested(
         log_it(L_ERROR, "Python function must be a callable");
         return -1;
     }
-    PyObject *l_arg = _wrapping_dac_chain_callback_data_t_get_tuple(a_srv, a_usage_id, a_srv_client, a_custom_data, a_custom_data_size);
     PyGILState_STATE state = PyGILState_Ensure();
+    PyObject *l_arg = _wrapping_dac_chain_callback_data_t_get_tuple(a_srv, a_usage_id, a_srv_client, a_custom_data, a_custom_data_size);
     PyObject *result = PyObject_CallObject(l_func, l_arg);
     PyGILState_Release(state);
     if(result == NULL){
@@ -116,8 +116,8 @@ int _w_dap_chain_callback_data_t_response_success(
         log_it(L_ERROR, "Python function must be a callable");
         return -1;
     }
-    PyObject *l_arg = _wrapping_dac_chain_callback_data_t_get_tuple(a_srv, a_usage_id, a_srv_client, a_custom_data, a_custom_data_size);
     PyGILState_STATE state = PyGILState_Ensure();
+    PyObject *l_arg = _wrapping_dac_chain_callback_data_t_get_tuple(a_srv, a_usage_id, a_srv_client, a_custom_data, a_custom_data_size);
     PyObject *result = PyObject_CallObject(l_func, l_arg);
     PyGILState_Release(state);
     if(result == NULL){
@@ -143,8 +143,8 @@ int _w_dap_chain_callback_data_t_response_error(
         log_it(L_ERROR, "Python function must be a callable");
         return -1;
     }
-    PyObject *l_arg = _wrapping_dac_chain_callback_data_t_get_tuple(a_srv, a_usage_id, a_srv_client, a_custom_data, a_custom_data_size);
     PyGILState_STATE state = PyGILState_Ensure();
+    PyObject *l_arg = _wrapping_dac_chain_callback_data_t_get_tuple(a_srv, a_usage_id, a_srv_client, a_custom_data, a_custom_data_size);
     PyObject *result = PyObject_CallObject(l_func, l_arg);
     PyGILState_Release(state);
     if(result == NULL){
@@ -170,8 +170,8 @@ int _w_dap_chain_callback_data_t_receipt_next_success(
         log_it(L_ERROR, "Python function must be a callable");
         return -1;
     }
-    PyObject *l_arg = _wrapping_dac_chain_callback_data_t_get_tuple(a_srv, a_usage_id, a_srv_client, a_custom_data, a_custom_data_size);
     PyGILState_STATE state = PyGILState_Ensure();
+    PyObject *l_arg = _wrapping_dac_chain_callback_data_t_get_tuple(a_srv, a_usage_id, a_srv_client, a_custom_data, a_custom_data_size);
     PyObject *result = PyObject_CallObject(l_func, l_arg);
     PyGILState_Release(state);
     if(result == NULL){
@@ -197,10 +197,10 @@ void *_w_dap_chain_callback_data_t_custom_data(dap_chain_net_srv_t *a_srv,
         log_it(L_ERROR, "Python function must be a callable");
         return NULL;
     }
+    PyGILState_STATE state = PyGILState_Ensure();
     PyObject *l_arg = _wrapping_dac_chain_callback_data_t_get_tuple(a_srv, a_usage ? a_usage->id : 0,
                                                                     a_usage ? a_usage->client : NULL,
                                                                     a_custom_data, a_custom_data_size);
-    PyGILState_STATE state = PyGILState_Ensure();
     PyObject *result = PyObject_CallObject(l_func, l_arg);
     PyGILState_Release(state);
     if(result == NULL){
@@ -296,13 +296,13 @@ PyObject *wrapping_dap_chain_net_srv_get_grace_period(PyObject *self, void *clos
 PyObject *wrapping_dap_chain_net_srv_set_callback_channel(PyObject *self, PyObject *args){
     PyObject *obj_ch_open, *obj_ch_write, *obj_ch_closed;
     if (!PyArg_ParseTuple(args, "OOO", &obj_ch_open, &obj_ch_write, &obj_ch_closed))
-        return Py_None;
+        Py_RETURN_NONE;
     if (
             !PyCallable_Check(obj_ch_open) ||
             !PyCallable_Check(obj_ch_write) ||
             !PyCallable_Check(obj_ch_closed)){
         // TODO wrap channel callbacks
-        return Py_None;
+        Py_RETURN_NONE;
     }
-    return Py_None;
+    Py_RETURN_NONE;
 }

@@ -35,7 +35,9 @@ add_subdirectory(modules/dap-sdk/net/client)
 add_subdirectory(modules/dap-sdk/net/server/enc)
 add_subdirectory(modules/dap-sdk/net/server/http)
 add_subdirectory(modules/dap-sdk/net/server/json_rpc)
+add_subdirectory(modules/dap-sdk/net/stream/stream)
 add_subdirectory(modules/cellframe-sdk/common)
+add_subdirectory(modules/cellframe-sdk/mempool)
 add_subdirectory(modules/cellframe-sdk/net)
 add_subdirectory(modules/cellframe-sdk/net/srv)
 add_subdirectory(modules/cellframe-sdk/gdb)
@@ -44,6 +46,7 @@ add_subdirectory(modules/cellframe-sdk/chain)
 add_subdirectory(modules/cellframe-sdk/app-cli)
 add_subdirectory(modules/cellframe-sdk/wallet)
 add_subdirectory(modules/cellframe-sdk/type/dag)
+add_subdirectory(modules/cellframe-sdk/type/blocks)
 add_subdirectory(modules/cellframe-sdk/consensus/dag_poa)
 add_subdirectory(modules/cellframe-sdk/global-db)
 
@@ -180,15 +183,18 @@ target_link_libraries(${PROJECT_NAME} cellframe-sdk dap_python_module
                       dap_server_core_python_module
                       dap_enc_server_python_module
                       dap_server_http_python_module
+                      dap_stream_python_module
                       dap_chain_python_module
                       dap_chain_net_python_module
                       dap_chain_net_srv_python_module
+                      dap_mempool_python_module
                       dap_chain_gdb_python_module
                       dap_app_cli_python_module
                       dap_chain_wallet_python_module
                       dap_server_json_rpc_python_module
                       dap_chain_service_datum_python
                       dap_chain_cs_dag_poa_python_module
+                      dap_chain_cs_blocks_python_module
                       dap_chain_global_db_python_module
                       ${PYTHON_LIBRARIES}
                      )
