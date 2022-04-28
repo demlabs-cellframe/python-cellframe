@@ -28,6 +28,7 @@
 #include <Python.h>
 #include "dap_chain_datum_tx_out_cond.h"
 #include "datetime.h"
+#include "math_python.h"
 
 #ifdef __cplusplus
 extern "C" {
