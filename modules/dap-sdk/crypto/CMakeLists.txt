@@ -36,7 +36,10 @@ add_library(${PROJECT_NAME} STATIC ${CRYPTO_PYTHON_SRCS} ${CRYPTO_PYTHON_HEADERS
 
 target_link_libraries(${PROJECT_NAME})
 
-target_link_libraries(${PROJECT_NAME} dap_core dap_crypto)
+target_link_libraries(${PROJECT_NAME}
+        dap_core
+        dap_crypto
+        dap_chain_common_python_module)
 
 target_include_directories(${PROJECT_NAME} PUBLIC include/ )
 
