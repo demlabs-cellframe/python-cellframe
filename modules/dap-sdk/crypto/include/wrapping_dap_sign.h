@@ -29,6 +29,10 @@
 #include <Python.h>
 #include "dap_sign.h"
 #include "wrapping_dap_pkey.h"
+#include "libdap_crypto_key_python.h"
+#include "wrapping_dap_chain_datum.h"
+#include "wrapping_dap_chain_datum_token.h"
+#include "wrapping_dap_chain_datum_tx.h"
 
 typedef struct PyDapSignType{
     PyObject_HEAD
@@ -48,6 +52,7 @@ PyObject *wrapping_dap_sign_get_type(PyObject *self, void *closure);
 PyObject *wrapping_dap_sign_get_pkey(PyObject *self, void *closure);
 PyObject *wrapping_dap_sign_get_pkey_hash(PyObject *self, void *closure);
 PyObject *wrapping_dap_sign_get_size(PyObject *self, void *closure);
+int wrapping_dap_sign_create(PyObject *self, PyObject* args, PyObject *kwds);
 
 extern PyTypeObject DapCryptoSignObjectType;
 

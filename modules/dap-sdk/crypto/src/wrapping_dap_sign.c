@@ -93,7 +93,7 @@ PyTypeObject DapCryptoSignObjectType = {
         0,                               /* tp_descr_get */
         0,                               /* tp_descr_set */
         0,                               /* tp_dictoffset */
-        0,                               /* tp_init */
+        wrapping_dap_sign_create,                               /* tp_init */
         0,                               /* tp_alloc */
         PyType_GenericNew,               /* tp_new */
 };
@@ -125,4 +125,58 @@ PyObject *wrapping_dap_sign_get_pkey_hash(PyObject *self, void *closure){
 PyObject *wrapping_dap_sign_get_size(PyObject *self, void *closure){
     (void)closure;
     return Py_BuildValue("I", ((PyDapSignObject*)self)->sign->header.sign_size);
+}
+
+int wrapping_dap_sign_create(PyObject *self, PyObject* args, PyObject *kwds){
+    //DATUM, DATUM_TX,  DATUM_TOKEN, Bytes
+    const char *kwlist[] = {
+            "key",
+            "data",
+            NULL
+    };
+    PyObject *obj_key;
+    PyObject *obj_data;
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "OO", (char**)kwlist, &obj_key, &obj_data))
+        return -1;
+    if (!PyCryptoKeyObject_check(obj_key)){
+        PyErr_SetString(PyExc_AttributeError, "The first argument was passed incorrectly, the first "
+                                              "argument must be an object of type Crypto.Key.");
+        return -1;
+    }
+    dap_sign_t *l_sign = NULL;
+    //DATA = BYTES
+    if (PyBytes_Check(obj_data)){
+        void *l_bytes = PyBytes_AsString(obj_data);
+        size_t l_bytes_size = PyBytes_Size(obj_data);
+        l_sign = dap_sign_create(((PyCryptoKeyObject*)obj_key)->key, l_bytes, l_bytes_size,0 );
+    }
+    if (DapChainDatumToken_Check(obj_data)){
+        l_sign = dap_sign_create(((PyCryptoKeyObject*)obj_key)->key,
+                                 ((PyDapChainDatumTokenObject*)obj_data)->token,
+                                 ((PyDapChainDatumTokenObject*)obj_data)->token_size);
+    }
+    if (PyDapChainDatumTokenEmissionObject_check(obj_data)){
+        l_sign = dap_sign_create(((PyCryptoKeyObject*)obj_key)->key,
+                        ((PyDapChainDatumTokenEmissionObject*)obj_data)->token_emission,
+                        ((PyDapChainDatumTokenEmissionObject*)obj_data)->token_size, 0);
+    }
+    if (PyDapChainDatum_Check(obj_data)){
+        size_t l_datum_size = dap_chain_datum_size(((PyDapChainDatumObject*)obj_data)->datum);
+        l_sign = dap_sign_create(
+                ((PyCryptoKeyObject*)obj_key)->key,
+                ((PyDapChainDatumObject*)obj_data)->datum, l_datum_size, 0);
+    }
+    if (DapChainDatumTx_Check(obj_data)){
+        size_t l_datum_tx_size = dap_chain_datum_tx_get_size(((PyDapChainDatumTxObject*)obj_data)->datum_tx);
+        l_sign = dap_sign_create(((PyCryptoKeyObject*)obj_key)->key,
+                                 ((PyDapChainDatumTxObject*)obj_data)->datum_tx, l_datum_tx_size, 0);
+    }
+    if (!l_sign){
+        PyErr_SetString(PyExc_AttributeError, "The signature could not be created, the second argument "
+                                              "may have been passed incorrectly, or an unsupported argument may have "
+                                              "been passed.");
+        return -1;
+    }
+    ((PyDapSignObject*)self)->sign = l_sign;
+    return 0;
 }
