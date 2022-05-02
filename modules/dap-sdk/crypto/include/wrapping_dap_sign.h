@@ -54,6 +54,8 @@ PyObject *wrapping_dap_sign_get_pkey_hash(PyObject *self, void *closure);
 PyObject *wrapping_dap_sign_get_size(PyObject *self, void *closure);
 int wrapping_dap_sign_create(PyObject *self, PyObject* args, PyObject *kwds);
 
+PyObject *wrapping_dap_sign_verify(PyObject *self, PyObject *args);
+
 extern PyTypeObject DapCryptoSignObjectType;
 
 static bool PyDapSignObject_Check(PyObject *self){

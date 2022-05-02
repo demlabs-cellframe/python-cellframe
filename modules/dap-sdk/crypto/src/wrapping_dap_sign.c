@@ -56,6 +56,11 @@ PyGetSetDef DapSignObjectGetsSetsDef[] = {
         {NULL}
 };
 
+PyMethodDef DapSignObjectMethods[]= {
+        {"verify", wrapping_dap_sign_verify, METH_VARARGS, ""},
+        {NULL, NULL, 0, NULL}
+};
+
 PyTypeObject DapCryptoSignObjectType = {
         PyVarObject_HEAD_INIT(NULL, 0)
         "DAP.Crypto.Sign",       /* tp_name */
@@ -85,7 +90,7 @@ PyTypeObject DapCryptoSignObjectType = {
         0,                               /* tp_weaklistoffset */
         0,		                         /* tp_iter */
         0,		                         /* tp_iternext */
-        0,                               /* tp_methods */
+        DapSignObjectMethods,            /* tp_methods */
         0,                               /* tp_members */
         DapSignObjectGetsSetsDef,                               /* tp_getset */
         0,                               /* tp_base */
@@ -179,4 +184,45 @@ int wrapping_dap_sign_create(PyObject *self, PyObject* args, PyObject *kwds){
     }
     ((PyDapSignObject*)self)->sign = l_sign;
     return 0;
+}
+
+PyObject *wrapping_dap_sign_verify(PyObject *self, PyObject *args){
+//    (void)args;
+    PyObject *obj_data;
+    if (!PyArg_ParseTuple(args, "O", &obj_data)){
+        return NULL;
+    }
+    void *l_data = NULL;
+    size_t l_data_size = 0;
+    if (PyBytes_Check(obj_data)){
+        l_data = PyBytes_AsString(obj_data);
+        l_data_size = PyBytes_Size(obj_data);
+    }
+    if (DapChainDatumToken_Check(obj_data)){
+        l_data = ((PyDapChainDatumTokenObject*)obj_data)->token;
+        l_data_size = ((PyDapChainDatumTokenObject*)obj_data)->token_size;
+    }
+    if (PyDapChainDatumTokenEmissionObject_check(obj_data)){
+        l_data = ((PyDapChainDatumTokenEmissionObject*)obj_data)->token_emission;
+        l_data_size = ((PyDapChainDatumTokenEmissionObject*)obj_data)->token_size;
+    }
+    if (PyDapChainDatum_Check(obj_data)){
+        l_data = ((PyDapChainDatumObject*)obj_data)->datum;
+        l_data_size = dap_chain_datum_size(((PyDapChainDatumObject*)obj_data)->datum);
+    }
+    if (DapChainDatumTx_Check(obj_data)){
+        l_data = ((PyDapChainDatumTxObject*)obj_data)->datum_tx;
+        l_data_size = dap_chain_datum_tx_get_size(((PyDapChainDatumTxObject*)obj_data)->datum_tx);
+    }
+    if (!l_data || l_data_size == 0){
+        PyErr_SetString(PyExc_AttributeError, "The attribute of this function was passed incorrectly, "
+                                              "the function accepts the attribute Datum, Datum Token, "
+                                              "DatumTokenEmission, DatumTx, byte.");
+        return NULL;
+    }
+    if(dap_sign_verify(((PyDapSignObject*)self)->sign, l_data, l_data_size)){
+        Py_RETURN_TRUE;
+    } else {
+        Py_RETURN_FALSE;
+    }
 }
