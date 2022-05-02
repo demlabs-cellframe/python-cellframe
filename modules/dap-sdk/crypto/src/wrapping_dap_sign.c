@@ -153,7 +153,7 @@ int wrapping_dap_sign_create(PyObject *self, PyObject* args, PyObject *kwds){
     if (DapChainDatumToken_Check(obj_data)){
         l_sign = dap_sign_create(((PyCryptoKeyObject*)obj_key)->key,
                                  ((PyDapChainDatumTokenObject*)obj_data)->token,
-                                 ((PyDapChainDatumTokenObject*)obj_data)->token_size);
+                                 ((PyDapChainDatumTokenObject*)obj_data)->token_size, 0);
     }
     if (PyDapChainDatumTokenEmissionObject_check(obj_data)){
         l_sign = dap_sign_create(((PyCryptoKeyObject*)obj_key)->key,
