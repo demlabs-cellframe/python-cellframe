@@ -50,6 +50,8 @@ typedef struct PyDapHashFast{
     dap_chain_hash_fast_t *hash_fast;
 }PyDapHashFastObject;
 
+PyObject* PyDapHashFast_compare(PyObject *self, PyObject *other, int op);
+
 int PyDapHashFast_init(PyObject *self, PyObject *args, PyObject *kwds);
 
 PyObject *dap_chain_str_to_hash_fast_py(PyObject *self, PyObject *args);

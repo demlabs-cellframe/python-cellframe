@@ -97,7 +97,7 @@ PyTypeObject DapChainHashFastObjectType = {
         "Hash fast object",           /* tp_doc */
         0,		                         /* tp_traverse */
         0,		                         /* tp_clear */
-        0,		                         /* tp_richcompare */
+        PyDapHashFast_compare,	 /* tp_richcompare */
         0,                               /* tp_weaklistoffset */
         0,		                         /* tp_iter */
         0,		                         /* tp_iternext */
@@ -113,6 +113,39 @@ PyTypeObject DapChainHashFastObjectType = {
         0,                               /* tp_alloc */
         PyType_GenericNew,               /* tp_new */
 };
+
+PyObject* PyDapHashFast_compare(PyObject *self, PyObject *other, int op){
+    if (!PyDapHashFast_Check(other)){
+        PyErr_SetString(PyExc_NotImplementedError, "The comparison works for instances of the HashFast "
+                                                   "object.");
+        return NULL;
+    }
+    if (op == Py_EQ){
+        bool res = dap_hash_fast_compare(
+                ((PyDapHashFastObject *)self)->hash_fast,
+                ((PyDapHashFastObject*)other)->hash_fast
+                );
+        if (res) {
+            Py_RETURN_TRUE;
+        } else {
+            Py_RETURN_FALSE;
+        }
+    }
+    if (op == Py_NE){
+        bool res = dap_hash_fast_compare(
+                ((PyDapHashFastObject*)self)->hash_fast,
+                ((PyDapHashFastObject*)other)->hash_fast
+                );
+        if (!res){
+            Py_RETURN_TRUE;
+        } else {
+            Py_RETURN_FALSE;
+        }
+    }
+    PyErr_SetString(PyExc_NotImplementedError, "Two instances of an object of type HashFast can only be "
+                                               "tested for equality and not equality relative to each other.");
+    return NULL;
+}
 
 int PyDapHashFast_init(PyObject *self, PyObject *args, PyObject *kwds){
     const char **kwlist = {
