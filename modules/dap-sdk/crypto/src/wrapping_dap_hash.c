@@ -109,10 +109,52 @@ PyTypeObject DapChainHashFastObjectType = {
         0,                               /* tp_descr_get */
         0,                               /* tp_descr_set */
         0,                               /* tp_dictoffset */
-        0,                               /* tp_init */
+        PyDapHashFast_init,                 /* tp_init */
         0,                               /* tp_alloc */
         PyType_GenericNew,               /* tp_new */
 };
+
+int PyDapHashFast_init(PyObject *self, PyObject *args, PyObject *kwds){
+    const char **kwlist = {
+            "data",
+            NULL
+    };
+    PyObject *obj_data;
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O", kwlist, &obj_data)){
+        return -1;
+    }
+    void *l_data = NULL;
+    size_t l_data_size = 0;
+    if (PyBytes_Check(obj_data)){
+        l_data = PyBytes_AsString(obj_data);
+        l_data_size = PyBytes_Size(obj_data);
+    }
+    if (DapChainDatumToken_Check(obj_data)){
+        l_data = ((PyDapChainDatumTokenObject*)obj_data)->token;
+        l_data_size = ((PyDapChainDatumTokenObject*)obj_data)->token_size;
+    }
+    if (PyDapChainDatumTokenEmissionObject_check(obj_data)){
+        l_data = ((PyDapChainDatumTokenEmissionObject*)obj_data)->token_emission;
+        l_data_size = ((PyDapChainDatumTokenEmissionObject*)obj_data)->token_size;
+    }
+    if (PyDapChainDatum_Check(obj_data)){
+        l_data = ((PyDapChainDatumObject*)obj_data)->datum;
+        l_data_size = dap_chain_datum_size(((PyDapChainDatumObject*)obj_data)->datum);
+    }
+    if (DapChainDatumTx_Check(obj_data)){
+        l_data = ((PyDapChainDatumTxObject*)obj_data)->datum_tx;
+        l_data_size = dap_chain_datum_tx_get_size(((PyDapChainDatumTxObject*)obj_data)->datum_tx);
+    }
+    if (!l_data || l_data_size == 0){
+        PyErr_SetString(PyExc_AttributeError, "The attribute of this function was passed incorrectly, "
+                                              "the function accepts the attribute Datum, Datum Token, "
+                                              "DatumTokenEmission, DatumTx or byte.");
+        return -1;
+    }
+    ((PyDapHashFastObject*)self)->hash_fast = DAP_NEW(dap_hash_fast_t);
+    dap_hash_fast(l_data, l_data_size, ((PyDapHashFastObject*)self)->hash_fast);
+    return 0;
+}
 
 PyObject *dap_chain_str_to_hash_fast_py(PyObject *self, PyObject *args){
     const char *hash_str;
