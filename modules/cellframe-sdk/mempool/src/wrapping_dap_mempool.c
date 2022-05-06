@@ -11,6 +11,7 @@ PyMethodDef  DapMempoolMethods[] = {
         {"txCreateCond", dap_chain_mempool_tx_create_cond_py, METH_VARARGS | METH_STATIC, ""},
         {"txCreateCondInput", dap_chain_mempool_tx_create_cond_input_py, METH_VARARGS | METH_STATIC, ""},
         {"remove", dap_chain_mempool_remove_py, METH_VARARGS | METH_STATIC, ""},
+        {"list", dap_chain_mempool_list_py, METH_VARARGS | METH_STATIC, ""},
         {NULL,NULL,0,NULL}
 };
 
@@ -420,5 +421,56 @@ PyObject *dap_chain_mempool_remove_py(PyObject *self, PyObject *args){
         DAP_DELETE(l_data_tmp);
         DAP_DELETE(l_str_hash);
         Py_RETURN_FALSE;
+    }
+}
+
+PyObject* pvt_dap_chain_mempool_list(dap_chain_t *a_chain){
+    PyObject *obj_list = PyList_New(0);
+    char * l_gdb_group_mempool = dap_chain_net_get_gdb_group_mempool(a_chain);
+    if (l_gdb_group_mempool){
+        size_t l_objs_size = 0;
+        dap_global_db_obj_t * l_objs = dap_chain_global_db_gr_load(l_gdb_group_mempool, &l_objs_size);
+        for (size_t i = 0; i < l_objs_size; i++){
+            dap_chain_datum_t * l_datum = (dap_chain_datum_t*) l_objs[i].value;
+            PyDapChainDatumObject *obj_datum = PyObject_New(PyDapChainDatumObject, &DapChainDatumObjectType);
+            obj_datum->datum = l_datum;
+            PyList_Append(obj_list, (PyObject*)obj_datum);
+        }
+        dap_chain_global_db_objs_delete(l_objs, l_objs_size);
+    }
+    DAP_FREE(l_gdb_group_mempool);
+    return obj_list;
+}
+
+PyObject *dap_chain_mempool_list_py(PyObject *self, PyObject *args){
+    (void)self;
+    PyObject *obj_net;
+    PyObject *obj_chain = NULL;
+    if (!PyArg_ParseTuple(args, "O|O", &obj_net, &obj_chain)){
+        return NULL;
+    }
+    if (!PyDapChainNet_Check(obj_net)){
+        PyErr_SetString(PyExc_AttributeError, "The first argument was passed to the function incorrectly,"
+                                              " the first argument must be an instance of an object of type ChainNet.");
+        return NULL;
+    }
+    if (!obj_chain){
+        dap_chain_t *l_chain_tmp;
+        PyObject *obj_list = PyList_New(0);
+        DL_FOREACH(((PyDapChainNetObject*)obj_net)->chain_net->pub.chains, l_chain_tmp){
+            PyObject *obj_list_datum_from_chain = pvt_dap_chain_mempool_list(l_chain_tmp);
+            for (int i=0; i < PyList_Size(obj_list_datum_from_chain); i++){
+                PyList_Append(obj_list, PyList_GetItem(obj_list_datum_from_chain, i));
+            }
+        }
+        return obj_list;
+    }else{
+        if (!PyDapChain_Check(obj_chain)){
+            PyErr_SetString(PyExc_AttributeError, "The second argument was passed to the function incorrectly, the "
+                                                  "second argument must be an instance of an object of type Chain.");
+            return NULL;
+        }
+        PyObject *obj_list = pvt_dap_chain_mempool_list(((PyDapChainObject*)obj_chain)->chain_t);
+        return obj_list;
     }
 }
