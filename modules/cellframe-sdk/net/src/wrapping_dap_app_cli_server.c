@@ -148,6 +148,23 @@ void element_py_func_del_all(){
     }
 }
 
+char* _dap_python_backtrace(PyObject *a_obj){
+    assert(PyTraceBack_Check(a_obj));
+    PyTracebackObject *l_traceback = a_obj;
+    char  *s = "";
+    while (l_traceback != NULL) {
+        PyCodeObject *l_code = PyFrame_GetCode(l_traceback->tb_frame);
+        char *l_name = PyUnicode_AsUTF8(l_code->co_name);
+        char *l_file = PyUnicode_AsUTF8(l_code->co_filename);
+        int l_lineo = ((PyTracebackObject *) a_obj)->tb_lineno;
+        s = dap_strdup_printf("%sFile \"%s\", line %d, in %s\n", s, l_name, l_lineo, l_file);
+        l_traceback = l_traceback->tb_next;
+//        char *l_str_code = PyUnicode_AsUTF8(PyObject_Str(l_code));
+    }
+    return s;
+//    return dap_strdup_printf("File \"%s\", line %d, in %s\n\t%s", l_name, l_lineo, l_file, l_str_code);
+}
+
 static int wrapping_cmdfunc(int argc, char **argv, char **str_reply){
     PyGILState_STATE l_state = PyGILState_Ensure();
     size_t id_str_replay = elements_str_reply_add(str_reply);
@@ -159,7 +176,19 @@ static int wrapping_cmdfunc(int argc, char **argv, char **str_reply){
     PyObject *result = PyObject_CallObject(binden_obj_cmdfunc, arglist);
     if (!result){
         log_it(L_DEBUG, "Function can't be called");
-        PyErr_Print();
+        PyObject *type, *value, *trackback;
+        PyErr_Fetch(&type, &value, &trackback);
+
+//        PyErr_NormalizeException(&type, &value, &trackback);
+//        char *bck = PyUnicode_AsUTF8(value);
+        char *l_str_value = PyUnicode_AsUTF8(value);
+        char *l_str_type = PyExceptionClass_Name(type);
+        log_it(L_ERROR, dap_strdup_printf(
+                "An exception occurred while executing a Python script.\n"
+                "\t%s: %s\n"
+                "\tStack trace:\n\t\t%s", l_str_type, l_str_value, _dap_python_backtrace(trackback)));
+//        PyErr_Print();
+        PyErr_Restore(&type, &value, &trackback);
     }
     Py_XDECREF(arglist);
     Py_XDECREF(obj_argv);
