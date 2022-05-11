@@ -1,4 +1,5 @@
 #include "wrapping_dap_http_simple.h"
+#include "python-cellframe_common.h"
 
 #define LOG_TAG "wrapping_dap_http_simple"
 
@@ -96,11 +97,11 @@ void wrapping_dap_http_simple_callback(dap_http_simple_t *sh, void *obj){
     ((PyHttpStatusCodeObject*)obj_http_status_code)->http_status = *ret;
     PyObject_Dir((PyObject*)obj_http_status_code);
     PyObject *obj_argv = Py_BuildValue("OO", obj_http_simple, obj_http_status_code);
-    PyErr_Print();
+//    python_error_in_log_it(LOG_TAG);
     PyObject *result = PyObject_CallObject(obj_func, obj_argv);
     if (!result){
         log_it(L_DEBUG, "Function can't be called");
-        PyErr_Print();
+        python_error_in_log_it(LOG_TAG);
         *ret = Http_Status_InternalServerError;
     }
     *ret = ((PyHttpStatusCodeObject*)obj_http_status_code)->http_status;

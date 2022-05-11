@@ -7,6 +7,7 @@
 #include "wrapping_dap_chain_common.h"
 #include "wrapping_dap_chain_net_node.h"
 #include "utlist.h"
+#include "python-cellframe_common.h"
 
 typedef struct PyDapAppCliServer{
     PyObject_HEAD

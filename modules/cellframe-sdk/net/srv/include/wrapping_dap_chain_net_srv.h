@@ -6,6 +6,7 @@
 #include "uthash.h"
 #include "wrapping_dap_chain_common.h"
 #include "wrapping_dap_chain_net_srv_client_remote.h"
+#include "python-cellframe_common.h"
 
 typedef struct PyDapChainNetSrv{
     PyObject_HEAD

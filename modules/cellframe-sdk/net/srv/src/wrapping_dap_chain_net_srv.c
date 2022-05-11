@@ -95,7 +95,7 @@ int _w_dap_chain_callback_data_t_requested(
     PyObject *result = PyObject_CallObject(l_func, l_arg);
     PyGILState_Release(state);
     if(result == NULL){
-        PyErr_Print();
+        python_error_in_log_it(LOG_TAG);
         return -1;
     }
     if (!PyLong_Check(result)){
@@ -121,7 +121,7 @@ int _w_dap_chain_callback_data_t_response_success(
     PyObject *result = PyObject_CallObject(l_func, l_arg);
     PyGILState_Release(state);
     if(result == NULL){
-        PyErr_Print();
+        python_error_in_log_it(LOG_TAG);
         return -1;
     }
     if (!PyLong_Check(result)){
@@ -148,7 +148,7 @@ int _w_dap_chain_callback_data_t_response_error(
     PyObject *result = PyObject_CallObject(l_func, l_arg);
     PyGILState_Release(state);
     if(result == NULL){
-        PyErr_Print();
+        python_error_in_log_it(LOG_TAG);
         return -1;
     }
     if (!PyLong_Check(result)){
@@ -175,7 +175,7 @@ int _w_dap_chain_callback_data_t_receipt_next_success(
     PyObject *result = PyObject_CallObject(l_func, l_arg);
     PyGILState_Release(state);
     if(result == NULL){
-        PyErr_Print();
+        python_error_in_log_it(LOG_TAG);
         return -1;
     }
     if (!PyLong_Check(result)){
@@ -204,7 +204,7 @@ void *_w_dap_chain_callback_data_t_custom_data(dap_chain_net_srv_t *a_srv,
     PyObject *result = PyObject_CallObject(l_func, l_arg);
     PyGILState_Release(state);
     if(result == NULL){
-        PyErr_Print();
+        python_error_in_log_it(LOG_TAG);
         return NULL;
     }
     if (!PyBytes_Check(result)){
