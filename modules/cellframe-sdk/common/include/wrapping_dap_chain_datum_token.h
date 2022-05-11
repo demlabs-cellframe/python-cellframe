@@ -48,6 +48,8 @@ PyObject *wrapping_dap_chain_datum_token_get_type_str(PyObject *self, void *clos
 //PyObject *wrapping_dap_chain_datum_token_get_size(PyObject *self, void *closure);
 PyObject *wrapping_dap_chain_datum_token_get_data(PyObject *self, void *closure);
 
+bool DapChainDatumToken_Check(PyObject *self);
+
 extern PyTypeObject DapChainDatumTokenObjectType;
 
 /* ------------------------------------------- */
@@ -78,7 +80,7 @@ PyObject *wrapping_dap_chain_datum_emission_get_tsd(PyObject*self, PyObject *arg
 
 extern PyTypeObject DapChainDatumTokenEmissionObjectType;
 
-DAP_STATIC_INLINE bool PyDapChainDatumTokenEmissionObject_check(PyDapChainDatumTokenEmissionObject *self){
+static bool PyDapChainDatumTokenEmissionObject_check(PyObject *self){
     return PyObject_TypeCheck(self, &DapChainDatumTokenEmissionObjectType);
 }
 

@@ -7,6 +7,7 @@
 #include "dap_json_rpc_request_handler.h"
 #include "dap_json_rpc_params.h"
 #include "wrapping_json_rpc_response.h"
+#include "python-cellframe_common.h"
 //#include "wrapping_dap_json_rpc_
 
 #ifdef __cplusplus

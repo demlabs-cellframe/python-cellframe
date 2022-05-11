@@ -126,6 +126,10 @@ PyObject *wrapping_dap_chain_datum_token_get_data(PyObject *self, void *closure)
     return obj_dict;
 }
 
+bool DapChainDatumToken_Check(PyObject *self){
+    return PyObject_TypeCheck(self, &DapChainDatumTokenObjectType);
+}
+
 /* Token Emission */
 PyGetSetDef PyDapChainDatumTokenEmissionGetsSetsDef[]={
         {"hash", (getter)wrapping_dap_chain_datum_token_emission_get_hash, NULL, NULL, NULL},

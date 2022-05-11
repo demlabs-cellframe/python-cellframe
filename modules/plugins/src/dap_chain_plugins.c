@@ -131,7 +131,7 @@ void dap_chain_plugins_load_plugin_importing(const char *a_dir_path, const char 
     Py_XDECREF(l_obj_dir_path);
     PyObject *l_module = PyImport_ImportModule(a_name);
     if (!l_module){
-        PyErr_Print();
+        python_error_in_log_it(LOG_TAG);
         PyErr_Clear();
         return;
     }
@@ -156,12 +156,12 @@ void dap_chain_plugins_load_plugin_initialization(){
                     dap_chain_plugins_list_add(l_container->module, l_container->name);
                     Py_INCREF(l_container->module);
                 } else {
-                    PyErr_Print();
+                    python_error_in_log_it(LOG_TAG);
                     log_it(L_ERROR, "Can't initialize \"%s\" plugin. Code error: %i", l_container->name,
                      _PyLong_AsInt(l_res_int));
                 }
             } else {
-                PyErr_Print();
+                python_error_in_log_it(LOG_TAG);
                 log_it(L_ERROR, "The 'init' function of \"%s\" plugin didn't return an integer value", l_container->name);
             }
             Py_XDECREF(l_res_int);
@@ -182,7 +182,7 @@ void dap_chain_plugins_load_plugin(const char *a_dir_path, const char *a_name){
     PyList_Append(s_sys_path, l_obj_dir_path);
     Py_XDECREF(l_obj_dir_path);
     PyObject *l_module = PyImport_ImportModule(a_name);
-    PyErr_Print();
+    python_error_in_log_it(LOG_TAG);
     PyObject *l_func_init = PyObject_GetAttrString(l_module, "init");
     PyObject *l_func_deinit = PyObject_GetAttrString(l_module, "deinit");
     PyObject *l_res_int = NULL;
@@ -193,11 +193,11 @@ void dap_chain_plugins_load_plugin(const char *a_dir_path, const char *a_name){
             if (_PyLong_AsInt(l_res_int) == 0){
                 dap_chain_plugins_list_add(l_module, a_name);
             } else {
-                PyErr_Print();
+                python_error_in_log_it(LOG_TAG);
                 log_it(L_ERROR, "Can't initialize \"%s\" plugin. Code error: %i", a_name, _PyLong_AsInt(l_res_int));
             }
         } else {
-            PyErr_Print();
+            python_error_in_log_it(LOG_TAG);
             log_it(L_ERROR, "The 'init' function of \"%s\" plugin didn't return an integer value", a_name);
         }
         Py_XDECREF(l_res_int);
