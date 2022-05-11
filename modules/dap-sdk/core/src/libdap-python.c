@@ -96,86 +96,136 @@ PyObject *dap_set_log_level(PyObject *self, PyObject *args){
 PyObject* dap_log_it(PyObject* self, PyObject* args){
     short int log_level;
     const char* string_output;
-    if (!PyArg_ParseTuple(args, "h|s", &log_level, &string_output))
+    const char* string_name_plugin = NULL;
+    if (!PyArg_ParseTuple(args, "hs|s", &log_level, &string_output, &string_name_plugin))
         return NULL;
     if (log_level < 0 || log_level > 10 ) {
         return PyLong_FromLong(-1);
     } else {
-        log_it(log_level, string_output);
+        if (string_name_plugin){
+            log_it(log_level, dap_strdup_printf("[plugin: %s] %s", string_output, string_name_plugin));
+        } else {
+            log_it(log_level, string_output);
+        }
         return PyLong_FromLong(0);
     }
 }
 
 PyObject* dap_log_it_debug(PyObject* self, PyObject* args){
     const char* string_output;
-    if (!PyArg_ParseTuple(args, "s", &string_output)){
+    const char* string_name_plugin = NULL;
+    if (!PyArg_ParseTuple(args, "s|s", &string_output, &string_name_plugin)){
         return NULL;
     }
-    log_it(L_DEBUG, string_output);
+    if (string_name_plugin) {
+        log_it(L_DEBUG, dap_strdup_printf("[plugin: %s] %s", string_output, string_name_plugin));
+    } else {
+        log_it(L_DEBUG, string_output);
+    }
     return PyLong_FromLong(0);
 }
 PyObject* dap_log_it_info(PyObject* self, PyObject* args){
     const char* string_output;
-    if (!PyArg_ParseTuple(args, "s", &string_output)){
+    const char* string_name_plugin = NULL;
+    if (!PyArg_ParseTuple(args, "s|s", &string_output, &string_name_plugin)){
         return NULL;
     }
-    log_it(L_INFO, string_output);
+    if (string_name_plugin) {
+        log_it(L_INFO, dap_strdup_printf("[plugin: %s] %s", string_output, string_name_plugin));
+    } else {
+        log_it(L_INFO, string_output);
+    }
     return PyLong_FromLong(0);
 }
 PyObject* dap_log_it_notice(PyObject* self, PyObject* args){
     const char* string_output;
-    if (!PyArg_ParseTuple(args, "s", &string_output)){
+    const char* string_name_plugin = NULL;
+    if (!PyArg_ParseTuple(args, "s|s", &string_output, &string_name_plugin)){
         return NULL;
     }
-    log_it(L_NOTICE, string_output);
+    if (string_name_plugin){
+        log_it(L_NOTICE, dap_strdup_printf("[plugin: %s] %s", string_output, string_name_plugin));
+    }else{
+        log_it(L_NOTICE, string_output);
+    }
     return PyLong_FromLong(0);
 }
 PyObject* dap_log_it_message(PyObject* self, PyObject* args){
     const char* string_output;
-    if (!PyArg_ParseTuple(args, "s", &string_output)){
+    const char* string_name_plugin = NULL;
+    if (!PyArg_ParseTuple(args, "s|s", &string_output, &string_name_plugin)){
         return NULL;
     }
-    log_it(L_MSG, string_output);
+    if (string_name_plugin) {
+        log_it(L_MSG, dap_strdup_printf("[plugin: %s] %s", string_output, string_name_plugin));
+    } else {
+        log_it(L_MSG, string_output);
+    }
     return PyLong_FromLong(0);
 }
 PyObject* dap_log_it_dap(PyObject* self, PyObject* args){
     const char* string_output;
-    if (!PyArg_ParseTuple(args, "s", &string_output)){
+    const char* string_name_plugin = NULL;
+    if (!PyArg_ParseTuple(args, "s|s", &string_output, &string_name_plugin)){
         return NULL;
     }
-    log_it(L_DAP, string_output);
+    if (string_name_plugin) {
+        log_it(L_DAP, dap_strdup_printf("[plugin: %s] %s", string_output, string_name_plugin));
+    } else {
+        log_it(L_DAP, string_output);
+    }
     return PyLong_FromLong(0);
 }
 PyObject* dap_log_it_warning(PyObject* self, PyObject* args){
     const char* string_output;
-    if (!PyArg_ParseTuple(args, "s", &string_output)){
+    const char* string_name_plugin = NULL;
+    if (!PyArg_ParseTuple(args, "s|s", &string_output, &string_name_plugin)){
         return NULL;
     }
-    log_it(L_WARNING, string_output);
+    if (string_name_plugin) {
+        log_it(L_WARNING, dap_strdup_printf("[plugin: %s] %s", string_output, string_name_plugin));
+    } else {
+        log_it(L_WARNING, string_output);
+    }
     return PyLong_FromLong(0);
 }
 PyObject* dap_log_it_att(PyObject* self, PyObject* args){
     const char* string_output;
-    if (!PyArg_ParseTuple(args, "s", &string_output)){
+    const char* string_name_plugin = NULL;
+    if (!PyArg_ParseTuple(args, "s|s", &string_output, &string_name_plugin)){
         return NULL;
     }
-    log_it(L_ATT, string_output);
+    if (string_name_plugin) {
+        log_it(L_ATT, dap_strdup_printf("[plugin: %s] %s", string_output, string_name_plugin));
+    } else {
+        log_it(L_ATT, string_output);
+    }
     return PyLong_FromLong(0);
 }
 PyObject* dap_log_it_error(PyObject* self, PyObject* args){
     const char* string_output;
-    if (!PyArg_ParseTuple(args, "s", &string_output)){
+    const char* string_name_plugin = NULL;
+    if (!PyArg_ParseTuple(args, "s|s", &string_output, &string_name_plugin)){
         return NULL;
     }
-    log_it(L_ERROR, string_output);
+    if (string_name_plugin) {
+        log_it(L_ERROR, dap_strdup_printf("[plugin: %s] %s", string_output, string_name_plugin));
+    } else {
+        log_it(L_ERROR, string_output);
+    }
     return PyLong_FromLong(0);
 }
 PyObject* dap_log_it_critical(PyObject* self, PyObject* args){
     const char* string_output;
-    if (!PyArg_ParseTuple(args, "s", &string_output)){
+    const char* string_name_plugin = NULL;
+    if (!PyArg_ParseTuple(args, "s|s", &string_output, &string_name_plugin)){
         return NULL;
     }
-    log_it(L_CRITICAL, string_output);
+    if (string_name_plugin) {
+        log_it(L_CRITICAL, dap_strdup_printf("[plugin: %s] %s", string_output, string_name_plugin));
+    } else {
+        log_it(L_CRITICAL, string_output);
+    }
     return PyLong_FromLong(0);
 }
 

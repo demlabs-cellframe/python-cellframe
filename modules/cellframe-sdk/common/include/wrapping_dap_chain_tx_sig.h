@@ -25,7 +25,7 @@
 
 #ifndef _WRAPPING_DAP_CHAIN_TX_SIG
 #define _WRAPPING_DAP_CHAIN_TX_SIG
-#endif
+
 
 #include <Python.h>
 #include "dap_chain_datum_tx_sig.h"
@@ -49,3 +49,5 @@ extern PyTypeObject DapChainTxSigObject_DapChainTxSigTypeObjectType;
 //#ifdef __cplusplus
 //}
 //#endif
+
+#endif //_WRAPPING_DAP_CHAIN_TX_SIG

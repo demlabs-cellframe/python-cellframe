@@ -197,7 +197,7 @@ target_link_libraries(${PROJECT_NAME})
 #)
 
 
-target_link_libraries(${PROJECT_NAME} dap_core dap_crypto dap_chain dap_server_core dap_chain_net dap_chain_python_module dap_client_python_module)
+target_link_libraries(${PROJECT_NAME} dap_core dap_crypto dap_chain dap_server_core dap_chain_net dap_chain_python_module dap_client_python_module CellFrame)
 #target_link_libraries(${PROJECT_NAME} dap_core dap_crypto dap_chain dap_chain_global_db dap_chain_crypto dap_chain_mempool
 #                         
 #                     ) #dap_chain_crypto dap_chain_mempool dap_chain_global_db )
