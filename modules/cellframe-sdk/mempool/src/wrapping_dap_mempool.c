@@ -70,7 +70,7 @@ PyObject *wrapping_dap_mempool_emission_place(PyObject *self, PyObject *args){
                                               "CellFrame.Chain.Chain.");
         return NULL;
     }
-    if (!PyDapChainDatumTokenEmissionObject_check(obj_emission)){
+    if (!PyDapChainDatumTokenEmissionObject_check((PyObject*)obj_emission)){
         PyErr_SetString(PyExc_AttributeError, "The second argument was incorrectly passed"
                                               " to this function, the second argument must be an object of "
                                               "type ChainDatumTokenEmission. ");

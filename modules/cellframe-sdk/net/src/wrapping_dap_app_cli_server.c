@@ -159,7 +159,7 @@ static int wrapping_cmdfunc(int argc, char **argv, char **str_reply){
     PyObject *result = PyObject_CallObject(binden_obj_cmdfunc, arglist);
     if (!result){
         log_it(L_DEBUG, "Function can't be called");
-        PyErr_Print();
+        python_error_in_log_it(LOG_TAG);
     }
     Py_XDECREF(arglist);
     Py_XDECREF(obj_argv);

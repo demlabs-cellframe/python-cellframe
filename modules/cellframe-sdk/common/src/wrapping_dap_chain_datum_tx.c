@@ -206,6 +206,10 @@ PyTypeObject DapChainDatumTxObjectType = {
         PyDapChainDatumTxObject_create,                 /* tp_new */
 };
 
+bool DapChainDatumTx_Check(PyObject *self){
+    return PyObject_TypeCheck(self, &DapChainDatumTxObjectType);
+}
+
 PyObject *PyDapChainDatumTxObject_create(PyTypeObject *type_object, PyObject *args, PyObject *kwds){
     PyDapChainDatumTxObject *obj = (PyDapChainDatumTxObject*)PyType_GenericNew(type_object, args, kwds);
     obj->datum_tx = dap_chain_datum_tx_create();
