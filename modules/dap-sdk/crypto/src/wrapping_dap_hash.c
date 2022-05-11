@@ -115,7 +115,7 @@ PyTypeObject DapChainHashFastObjectType = {
 };
 
 PyObject* PyDapHashFast_compare(PyObject *self, PyObject *other, int op){
-    if (!PyDapHashFast_Check(other)){
+    if (!PyDapHashFast_Check((PyDapHashFastObject*)other)){
         PyErr_SetString(PyExc_NotImplementedError, "The comparison works for instances of the HashFast "
                                                    "object.");
         return NULL;
@@ -148,12 +148,12 @@ PyObject* PyDapHashFast_compare(PyObject *self, PyObject *other, int op){
 }
 
 int PyDapHashFast_init(PyObject *self, PyObject *args, PyObject *kwds){
-    const char **kwlist = {
+    const char *kwlist[] = {
             "data",
             NULL
     };
     PyObject *obj_data;
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O", kwlist, &obj_data)){
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O", (char**)kwlist, &obj_data)){
         return -1;
     }
     void *l_data = NULL;

@@ -80,7 +80,7 @@ PyObject *wrapping_dap_chain_datum_emission_get_tsd(PyObject*self, PyObject *arg
 
 extern PyTypeObject DapChainDatumTokenEmissionObjectType;
 
-DAP_STATIC_INLINE bool PyDapChainDatumTokenEmissionObject_check(PyDapChainDatumTokenEmissionObject *self){
+static bool PyDapChainDatumTokenEmissionObject_check(PyObject *self){
     return PyObject_TypeCheck(self, &DapChainDatumTokenEmissionObjectType);
 }
 
