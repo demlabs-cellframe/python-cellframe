@@ -206,6 +206,10 @@ PyTypeObject DapChainDatumTxObjectType = {
         PyDapChainDatumTxObject_create,                 /* tp_new */
 };
 
+bool DapChainDatumTx_Check(PyObject *self){
+    return PyObject_TypeCheck(self, &DapChainDatumTxObjectType);
+}
+
 PyObject *PyDapChainDatumTxObject_create(PyTypeObject *type_object, PyObject *args, PyObject *kwds){
     PyDapChainDatumTxObject *obj = (PyDapChainDatumTxObject*)PyType_GenericNew(type_object, args, kwds);
     obj->datum_tx = dap_chain_datum_tx_create();
@@ -328,6 +332,9 @@ PyObject *wrapping_dap_chain_datum_tx_get_items(PyObject *self, PyObject *args){
     while(l_tx_items_count < l_tx_items_size){
         uint8_t *item = ((PyDapChainDatumTxObject*)self)->datum_tx->tx_items + l_tx_items_count;
         size_t l_tx_item_size = dap_chain_datum_item_tx_get_size(item);
+        if (l_tx_item_size == 0){
+            return NULL;
+        }
         PyObject *obj_tx_item = NULL;
         switch (dap_chain_datum_tx_item_get_type(item)) {
             case TX_ITEM_TYPE_IN:

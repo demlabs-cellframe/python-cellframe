@@ -32,7 +32,7 @@
 
 typedef struct PyDapPkeyType{
     PyObject_HEAD
-    dap_pkey_type_t *pkey_type;
+    dap_pkey_type_t pkey_type;
 }PyDapPkeyTypeObject;
 
 PyObject *PyDapPkeyType_str(PyObject *self);

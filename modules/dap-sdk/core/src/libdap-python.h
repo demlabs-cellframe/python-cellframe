@@ -4,6 +4,7 @@
 #include "dap_config.h"
 #include "dap_common.h"
 #include "dap_list.h"
+#include "dap_strfuncs.h"
 
 typedef struct PyDap{
     PyObject_HEAD

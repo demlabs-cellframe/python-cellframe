@@ -220,7 +220,7 @@ PyObject *dap_chain_datum_get_type_str_py(PyObject *self, PyObject *args){
     const char *l_ret;
     DAP_DATUM_TYPE_STR(((PyDapChainDatumObject*)self)->datum->header.type_id, l_ret);
     if (l_ret == NULL)
-        return Py_None;
+        Py_RETURN_NONE;
     return Py_BuildValue("s", l_ret);
 }
 

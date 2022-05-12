@@ -43,13 +43,14 @@ PyObject *dap_chain_python_atom_get_datums(PyObject *self, PyObject *args);
 PyObject *dap_chain_python_atom_iter_get_next(PyObject *self, PyObject *args);
 PyObject *dap_chain_python_atom_iter_get_dag(PyObject *self, PyObject *args);
 PyObject *dap_chain_python_add_mempool_notify_callback(PyObject *self, PyObject *args);
+PyObject *dap_chain_python_atom_find_by_hash(PyObject *self, PyObject* args);
 
 PyObject *dap_chain_python_get_count_tx(PyObject *self, PyObject *args);
 PyObject *dap_chain_python_get_txs(PyObject *self, PyObject *args);
 
 extern PyTypeObject DapChainObjectType;
 
-static inline bool PyDapChain_Check(PyObject* self){
+DAP_STATIC_INLINE bool PyDapChain_Check(PyDapChainObject* self){
     return PyObject_TypeCheck(self, &DapChainObjectType);
 }
 

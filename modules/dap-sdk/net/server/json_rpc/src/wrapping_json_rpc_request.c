@@ -53,8 +53,8 @@ struct _w_json_rpc_handler *handlers = NULL;
 
 void _w_dap_json_rpc_request_handler(dap_json_rpc_params_t *a_params, dap_json_rpc_response_t *a_response, const char *a_method){
     int count_params = a_params->lenght;
+    PyGILState_STATE GILState = PyGILState_Ensure();
     PyDapJSONRPCResponseObject *obj_response = PyObject_NEW(PyDapJSONRPCResponseObject, &DapJsonRpcResponseobjectType);
-    obj_response = (PyDapJSONRPCResponseObject *)PyObject_Init((PyObject*)obj_response, &DapJsonRpcResponseobjectType);
     obj_response->response = a_response;
     PyObject *obj_params = PyList_New(count_params);
     for (int i=0; i < count_params; i++) {
@@ -91,11 +91,10 @@ void _w_dap_json_rpc_request_handler(dap_json_rpc_params_t *a_params, dap_json_r
     struct _w_json_rpc_handler *func = NULL;
     HASH_FIND_STR(handlers, a_method, func);
     if (func != NULL){
-        PyGILState_STATE GILState = PyGILState_Ensure();
         PyObject_Dir((PyObject*)obj_response);
         //Called python func
         PyObject *obj_result = PyObject_CallObject(func->call_func, args);
-        PyErr_Print();
+        python_error_in_log_it(LOG_TAG);
         PyGILState_Release(GILState);
         if (!obj_result){
             log_it(L_ERROR, "Can't call method: %s", a_method);
@@ -107,6 +106,7 @@ void _w_dap_json_rpc_request_handler(dap_json_rpc_params_t *a_params, dap_json_r
             return;
         }
     } else {
+        PyGILState_Release(GILState);
         log_it(L_WARNING, "Can't call method: %s. It isn't in the python function table", a_method);
         a_response->type_result = TYPE_RESPONSE_NULL;
         a_response->error = dap_json_rpc_error_search_by_code(1);
@@ -134,5 +134,5 @@ PyObject* dap_json_rpc_request_reg_handler_py(PyObject *self, PyObject *args){
     Py_INCREF(obj_func);
     handler->call_func = obj_func;
     HASH_ADD_STR(handlers, method, handler);
-    return Py_None;
+    Py_RETURN_NONE;
 }

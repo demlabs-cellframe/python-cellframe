@@ -60,7 +60,7 @@ PyObject *wrapping_dap_chain_global_db_gr_get(PyObject *self, PyObject *args){
     size_t l_size_data = 0;
     void *l_bytes = dap_chain_global_db_gr_get(l_key, &l_size_data, l_group);
     if (l_size_data == 0)
-        return Py_None;
+        Py_RETURN_NONE;
     PyObject *l_obj_bytes = PyBytes_FromStringAndSize(l_bytes, (Py_ssize_t)l_size_data);
     return l_obj_bytes;
 }
@@ -103,5 +103,5 @@ PyObject *wrapping_dap_chain_global_db_gr_del(PyObject *self, PyObject *args){
 }
 
 PyObject *wrapping_dap_chain_global_db_gr_pin(PyObject *self, PyObject *args){
-    return Py_None;
+    Py_RETURN_NONE;
 }

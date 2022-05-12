@@ -12,6 +12,7 @@ typedef struct PyCryptoKey{
     dap_enc_key_t *key;
 }PyCryptoKeyObject;
 
+bool PyCryptoKeyObject_check(PyObject *self);
 void PyCryptoKeyObject_dealloc(PyCryptoKeyObject *cryptoObject);
 
 extern PyTypeObject PyCryptoKeyObjectType;

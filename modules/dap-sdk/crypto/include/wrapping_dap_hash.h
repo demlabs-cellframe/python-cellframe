@@ -26,6 +26,7 @@
 #pragma once
 #include <Python.h>
 #include "dap_hash.h"
+#include "wrapping_dap_chain_common.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -48,6 +49,10 @@ typedef struct PyDapHashFast{
     PyObject_HEAD
     dap_chain_hash_fast_t *hash_fast;
 }PyDapHashFastObject;
+
+PyObject* PyDapHashFast_compare(PyObject *self, PyObject *other, int op);
+
+int PyDapHashFast_init(PyObject *self, PyObject *args, PyObject *kwds);
 
 PyObject *dap_chain_str_to_hash_fast_py(PyObject *self, PyObject *args);
 PyObject *dap_hash_fast_py(PyObject *self, PyObject *args);

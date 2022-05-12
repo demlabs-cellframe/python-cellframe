@@ -53,12 +53,14 @@ PyTypeObject DapChainTxOutCondObjectType = {
 PyObject *wrapping_dap_chain_tx_out_cond_get_ts_expires(PyObject *self, void *closure){
     (void)closure;
     PyDateTime_IMPORT;
-    PyObject *timestamp = Py_BuildValue("k", ((PyDapChainTxOutCondObject*)self)->out_cond->header.ts_expires);
+    PyObject *timestamp = Py_BuildValue("(k)", ((PyDapChainTxOutCondObject*)self)->out_cond->header.ts_expires);
     return PyDateTime_FromTimestamp(timestamp);
 }
 PyObject *wrapping_dap_chain_tx_out_cond_get_value(PyObject *self, void *closure){
     (void)closure;
-    return Py_BuildValue("k", ((PyDapChainTxOutCondObject*)self)->out_cond->header.value);
+    DapMathObject *obj_math = PyObject_New(DapMathObject, &DapMathObjectType);
+    obj_math->value = ((PyDapChainTxOutCondObject*)self)->out_cond->header.value;
+    return (PyObject*)obj_math;
 }
 
 // DapChaTxOutCondSubtype
@@ -114,7 +116,7 @@ PyObject *wrapping_dap_chain_tx_out_cond_get_type_subtype(PyObject *self, void *
 }
 PyObject *wrapping_dap_chain_tx_out_cond_get_subtype(PyObject *self, void *closure){
     (void)closure;
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 PyObject *PyDapChainTxOutCondSubType_str(PyObject *self){

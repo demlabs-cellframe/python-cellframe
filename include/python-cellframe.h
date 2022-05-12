@@ -1,6 +1,7 @@
 #define PY_SSIZE_T_CLEAN
 #include "Python.h"
 #include "libdap-python.h"
+#include "math_python.h"
 #include "libdap-crypto-python.h"
 #include "libdap-server-core-python.h"
 #include "libdap_crypto_key_type_python.h"
@@ -47,6 +48,9 @@
 // ============
 // === Chain cs dag poa ===
 #include "wrapping_dap_chain_cs_dag_poa.h"
+// ============
+// === Chain cs block ===
+#include "wrapping_dap_chain_cs_block.h"
 // ============
 
 

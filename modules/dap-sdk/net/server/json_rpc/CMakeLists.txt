@@ -37,6 +37,7 @@ target_link_libraries(${PROJECT_NAME}
     dap_server_core_python_module
     dap_json_rpc
     dap_server_http_python_module
+    CellFrame
     ${PYTHON_LIBRARIES})
 
 target_include_directories(${PROJECT_NAME} PUBLIC include/ )

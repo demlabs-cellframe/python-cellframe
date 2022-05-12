@@ -64,7 +64,7 @@ PyTypeObject DapChainNetSrvClientRemoteObject_DapChainNetSrvClientRemoteObjectTy
 PyObject *wrapping_dap_chain_net_srv_client_remote_get_ch(PyObject *self, void *closure){
     (void)closure;
     //TODO
-    return Py_None;
+    Py_RETURN_NONE;
 }
 PyObject *wrapping_dap_chain_net_srv_client_remote_get_ts_created(PyObject *self, void *closure){
     (void)closure;
@@ -81,7 +81,7 @@ PyObject *wrapping_dap_chain_net_srv_client_remote_get_created(PyObject *self, v
 PyObject *wrapping_dap_chain_net_srv_client_remote_get_stream_worker(PyObject *self, void *closure){
     (void)closure;
     //TODO
-    return Py_None;
+    Py_RETURN_NONE;
 }
 PyObject *wrapping_dap_chain_net_srv_client_remote_get_session_id(PyObject *self, void *closure){
     (void)closure;
