@@ -10,8 +10,8 @@ add_definitions("-DDAP_LOG_MT")
 file(GLOB CHAIN_WALLET_PYTHON_SRCS src/*.c)
 file(GLOB CHAIN_WALLET_PYTHON_HEADERS include/*.h)
 
-set(Python_ADDITIONAL_VERSIONS 3.7 3.6 3.5 3.4)
-find_package (PythonLibs REQUIRED)
+#set(Python_ADDITIONAL_VERSIONS 3.7 3.6 3.5 3.4)
+#find_package (PythonLibs REQUIRED)
 include_directories(${PYTHON_INCLUDE_DIR} include/)
 
 add_library(${PROJECT_NAME} STATIC ${CHAIN_WALLET_PYTHON_SRCS} ${CHAIN_WALLET_PYTHON_HEADERS})
