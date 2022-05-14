@@ -58,6 +58,8 @@ PyGetSetDef DapSignObjectGetsSetsDef[] = {
 
 PyMethodDef DapSignObjectMethods[]= {
         {"verify", wrapping_dap_sign_verify, METH_VARARGS, ""},
+        {"fromBytes", wrapping_dap_sign_from_bytes, METH_VARARGS | METH_STATIC, ""},
+        {"toBytes", wrapping_dap_sign_get_bytes, METH_NOARGS, ""},
         {NULL, NULL, 0, NULL}
 };
 
@@ -225,4 +227,42 @@ PyObject *wrapping_dap_sign_verify(PyObject *self, PyObject *args){
     } else {
         Py_RETURN_FALSE;
     }
+}
+
+PyObject *wrapping_dap_sign_get_bytes(PyObject *self, PyObject *args){
+    (void)args;
+    dap_sign_t *l_sign = ((PyDapSignObject*)self)->sign;
+    size_t l_sign_size = dap_sign_get_size(l_sign);
+    void *l_buf = DAP_NEW_Z_SIZE(void, l_sign_size);
+    size_t l_offset = 0;
+    memcpy(l_buf, l_sign->header.padding, sizeof (uint16_t));
+    l_offset += sizeof(uint16_t);
+    memcpy(l_buf + l_offset, l_sign->header.sign_pkey_size, sizeof (uint32_t));
+    l_offset += sizeof(uint32_t);
+    memcpy(l_buf + l_offset, l_sign->header.sign_size, sizeof (uint32_t));
+    l_offset += sizeof(uint32_t);
+    memcpy(l_buf + l_offset, l_sign->header.type.raw, sizeof (uint32_t));
+    l_offset += sizeof(uint32_t);
+    memcpy(l_buf + l_offset, l_sign->pkey_n_sign, l_sign_size);
+    PyObject *l_bytes = PyBytes_FromStringAndSize(l_buf, l_sign_size);
+    return l_bytes;
+}
+
+PyObject *wrapping_dap_sign_from_bytes(PyObject *self, PyObject *args){
+    (void)self;
+    PyObject *obj_data;
+    if (!PyArg_ParseTuple(args, "O", &obj_data)){
+        return NULL;
+    }
+    if (!PyBytes_Check(obj_data)){
+        PyErr_SetString(PyExc_AttributeError, "The first argument was not passed correctly, the first argument "
+                                              "must be an object of type Bytes.");
+        return NULL;
+    }
+    size_t l_size = PyBytes_Size(obj_data);
+    void *l_buff = PyBytes_AsString(obj_data);
+    dap_sign_t *l_sign = (dap_sign_t*)l_buff;
+    PyDapSignObject *l_sign_obj = PyObject_New(struct PyDapSignObject, &DapCryptoSignObjectType);
+    l_sign_obj->sign = l_sign;
+    return (PyObject*)l_sign_obj;
 }

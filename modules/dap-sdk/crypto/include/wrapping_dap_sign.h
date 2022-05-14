@@ -55,6 +55,8 @@ PyObject *wrapping_dap_sign_get_size(PyObject *self, void *closure);
 int wrapping_dap_sign_create(PyObject *self, PyObject* args, PyObject *kwds);
 
 PyObject *wrapping_dap_sign_verify(PyObject *self, PyObject *args);
+PyObject *wrapping_dap_sign_get_bytes(PyObject *self, PyObject *args);
+PyObject *wrapping_dap_sign_from_bytes(PyObject *self, PyObject *args);
 
 extern PyTypeObject DapCryptoSignObjectType;
 
