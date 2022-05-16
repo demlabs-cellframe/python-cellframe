@@ -25,6 +25,6 @@ PyObject *wrapping_dap_chain_block_get_signs(PyObject *self, void *closure);
 PyObject *wrapping_dap_chain_block_get_hash(PyObject *self, void *closure);
 //PyObject *wrapping_dap_chain_block_get_block_cache(PyObject *self, void *closure);
 
-PyObject* dap_chain_cs_block_get_atom_ptr(PyObject *self, PyObject *args);
+PyObject* dap_chain_cs_block_get_atom(PyObject *self, PyObject *args);
 
 extern PyTypeObject DapChainCsBlockType;

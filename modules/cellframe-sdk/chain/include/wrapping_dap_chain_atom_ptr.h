@@ -7,10 +7,11 @@
 extern "C" {
 #endif
 
-typedef struct PyChainAtomPtr{
+typedef struct PyChainAtom{
     PyObject_HEAD
-    dap_chain_atom_ptr_t ptr;
-}PyChainAtomPtrObject;
+    dap_chain_atom_ptr_t atom;
+    size_t atom_size;
+}PyChainAtomObject;
 
 extern PyTypeObject DapChainAtomPtrObjectType;
 
