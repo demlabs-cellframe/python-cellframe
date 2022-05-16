@@ -14,7 +14,7 @@ PyGetSetDef DapChainCsBlockGetsSetsDef[] = {
 };
 
 PyMethodDef DapChainCsBlockMethods[] = {
-        {"fromAtom", dap_chain_cs_block_get_atom_ptr, METH_VARARGS | METH_STATIC, ""},
+        {"fromAtom", dap_chain_cs_block_get_atom, METH_VARARGS | METH_STATIC, ""},
         {NULL, NULL, 0, NULL}
 };
 
@@ -173,15 +173,14 @@ PyObject *wrapping_dap_chain_block_get_hash(PyObject *self, void *closure){
     return (PyObject*)obj_hf;
 }
 
-PyObject* dap_chain_cs_block_get_atom_ptr(PyObject *self, PyObject *args){
+PyObject* dap_chain_cs_block_get_atom(PyObject *self, PyObject *args){
     (void)self;
     PyObject *obj_atom_ptr;
-    size_t l_atom_size;
-    if (!PyArg_ParseTuple(args, "On", &obj_atom_ptr, &l_atom_size)){
+    if (!PyArg_ParseTuple(args, "O", &obj_atom_ptr)){
         return NULL;
     }
     PyDapChainCSBlockObject *obj_block = PyObject_New(PyDapChainCSBlockObject, &DapChainCsBlockType);
-    obj_block->block = ((PyChainAtomPtrObject*)obj_atom_ptr)->ptr;
-    obj_block->block_size = l_atom_size;
+    obj_block->block = ((PyChainAtomObject*)obj_atom_ptr)->atom;
+    obj_block->block_size =  ((PyChainAtomObject*)obj_atom_ptr)->atom_size;
     return (PyObject*)obj_block;
 }

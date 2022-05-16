@@ -17,12 +17,13 @@ static PyMethodDef DapChainMethods[] = {
         {"hasFileStore", (PyCFunction)dap_chain_has_file_store_py, METH_NOARGS, ""},
         {"saveAll", (PyCFunction) dap_chain_save_all_py, METH_NOARGS, ""},
         {"loadAll", (PyCFunction)dap_chain_load_all_py, METH_NOARGS, ""},
-        {"createAtomItem", (PyCFunction) dap_chain_python_create_atom_iter, METH_VARARGS, ""},
+        {"createAtomIter", (PyCFunction) dap_chain_python_create_atom_iter, METH_VARARGS, ""},
         {"atomIterGetFirst", (PyCFunction) dap_chain_python_atom_iter_get_first, METH_VARARGS, ""},
         {"atomGetDatums", (PyCFunction) dap_chain_python_atom_get_datums, METH_VARARGS, ""},
         {"atomIterGetNext", (PyCFunction)dap_chain_python_atom_iter_get_next, METH_VARARGS, ""},
         {"getDag", (PyCFunction)dap_chain_python_atom_iter_get_dag, METH_NOARGS},
         {"addMempoolNotify", (PyCFunction)dap_chain_python_add_mempool_notify_callback, METH_VARARGS, ""},
+        {"addAtomNotify", (PyCFunction)dap_chain_net_add_atom_notify_callback, METH_VARARGS,"" },
         {"atomFindByHash", (PyCFunction)dap_chain_python_atom_find_by_hash, METH_VARARGS, ""},
         {"countTx", (PyCFunction)dap_chain_python_get_count_tx, METH_NOARGS, ""},
         {"getTransactions", (PyCFunction)dap_chain_python_get_txs, METH_VARARGS, ""},
@@ -178,30 +179,39 @@ PyObject *dap_chain_python_atom_iter_get_first(PyObject *self, PyObject *args){
     PyObject *obj_atom_ptr = _PyObject_New(&DapChainAtomPtrObjectType);
     obj_atom_ptr = PyObject_Init(obj_atom_ptr, &DapChainAtomPtrObjectType);
     size_t l_atom_size = 0;
-    ((PyChainAtomPtrObject*)obj_atom_ptr)->ptr = ((PyDapChainObject*)self)->chain_t->callback_atom_iter_get_first(
+    ((PyChainAtomObject*)obj_atom_ptr)->atom = ((PyDapChainObject*)self)->chain_t->callback_atom_iter_get_first(
             ((PyChainAtomIterObject*)obj_iter)->atom_iter, &l_atom_size
             );
-    if (((PyChainAtomPtrObject*)obj_atom_ptr)->ptr == NULL){
+    if (((PyChainAtomObject*)obj_atom_ptr)->atom == NULL){
         Py_RETURN_NONE;
     }
     return Py_BuildValue("On", obj_atom_ptr, l_atom_size);
 }
 
+/**
+ * @brief dap_chain_python_atom_get_datums
+ * @param self
+ * @param args
+ * @return
+ */
 PyObject *dap_chain_python_atom_get_datums(PyObject *self, PyObject *args){
-    PyObject *obj_atom = NULL;
-    size_t atom_size = 0;
-    if(!PyArg_ParseTuple(args, "On", &obj_atom, &atom_size)){
+    PyObject *l_obj_atom_py = NULL;
+    if(!PyArg_ParseTuple(args, "O", &l_obj_atom_py)){
         PyErr_SetString(PyExc_AttributeError, "The second argument must be an integer");
         return NULL;
     }
+    PyChainAtomObject *l_obj_atom = ((PyChainAtomObject*)l_obj_atom_py);
+    PyDapChainObject* l_obj_chain = ((PyDapChainObject*)self);
     size_t datums_count = 0;
-    dap_chain_datum_t **l_datums = ((PyDapChainObject*)self)->chain_t->callback_atom_get_datums(((PyChainAtomPtrObject*)obj_atom)->ptr, atom_size, &datums_count);
+    dap_chain_datum_t **l_datums = l_obj_chain->chain_t->callback_atom_get_datums(
+                l_obj_atom->atom, l_obj_atom->atom_size, &datums_count);
+
     PyObject *list_datums = PyList_New(datums_count);
     for (int i=0; i < datums_count; i++){
-        PyObject *obj_datum = _PyObject_New(&DapChainDatumObjectType);
-        obj_datum = PyObject_Init(obj_datum, &DapChainDatumObjectType);
-        ((PyDapChainDatumObject*)obj_datum)->datum = l_datums[i];
-        PyList_SetItem(list_datums, i, obj_datum);
+        PyObject *l_obj_datum_py = _PyObject_New(&DapChainDatumObjectType);
+        l_obj_datum_py = PyObject_Init(l_obj_datum_py, &DapChainDatumObjectType);
+        ((PyDapChainDatumObject*)l_obj_datum_py)->datum = l_datums[i];
+        PyList_SetItem(list_datums, i, l_obj_datum_py);
     }
     return list_datums;
 }
@@ -220,10 +230,10 @@ PyObject *dap_chain_python_atom_iter_get_next(PyObject *self, PyObject *args){
     }
     PyObject *obj_atom_ptr = _PyObject_New(&DapChainAtomPtrObjectType);
     obj_atom_ptr = PyObject_Init(obj_atom_ptr, &DapChainAtomPtrObjectType);
-    ((PyChainAtomPtrObject*)obj_atom_ptr)->ptr = ((PyDapChainObject*)self)->chain_t->callback_atom_iter_get_next(
+    ((PyChainAtomObject*)obj_atom_ptr)->atom = ((PyDapChainObject*)self)->chain_t->callback_atom_iter_get_next(
             ((PyChainAtomIterObject*)atom_iter)->atom_iter,
             &atom_size);
-    if (((PyChainAtomPtrObject*)obj_atom_ptr)->ptr == NULL){
+    if (((PyChainAtomObject*)obj_atom_ptr)->atom == NULL){
         return Py_BuildValue("On", Py_None, 0);
     }
     return Py_BuildValue("On", obj_atom_ptr, atom_size);
@@ -264,6 +274,51 @@ void _wrapping_dap_chain_mempool_notify_handler(void * a_arg, const char a_op_co
     PyGILState_Release(state);
 }
 
+typedef struct _wrapping_chain_atom_notify_callback{
+    PyObject *func;
+    PyObject *arg;
+}_wrapping_chain_atom_notify_callback_t;
+
+/**
+ * @brief _wrapping_dap_chain_atom_notify_handler
+ * @param a_arg
+ * @param a_chain
+ * @param a_id
+ * @param a_atom
+ * @param a_atom_size
+ */
+void _wrapping_dap_chain_atom_notify_handler(void * a_arg, dap_chain_t *a_chain, dap_chain_cell_id_t a_id, void* a_atom, size_t a_atom_size){
+    if (!a_arg){
+        return;
+    }
+    _wrapping_chain_atom_notify_callback_t *l_callback = (_wrapping_chain_atom_notify_callback_t*)a_arg;
+
+    PyObject *l_args;
+    PyGILState_STATE state = PyGILState_Ensure();
+
+    dap_chain_atom_ptr_t l_atom = (dap_chain_atom_ptr_t) a_atom;
+    PyChainAtomObject *l_atom_obj = NULL;
+    if(l_atom){
+        l_atom_obj= PyObject_New(PyChainAtomObject, &DapChainAtomPtrObjectType);
+        l_atom_obj->atom = l_atom;
+        l_atom_obj->atom_size = a_atom_size;
+        l_args = Py_BuildValue("OO", l_atom_obj, l_callback->arg);
+    }else{
+        l_args = Py_BuildValue("OO", Py_None, l_callback->arg);
+    }
+
+    log_it(L_DEBUG, "Call atom notifier for chain %s with atom size %zd", a_chain->name, a_atom_size );
+    PyEval_CallObject(l_callback->func, l_args);
+    Py_DECREF(l_args);
+    PyGILState_Release(state);
+}
+
+/**
+ * @brief dap_chain_python_add_mempool_notify_callback
+ * @param self
+ * @param args
+ * @return
+ */
 PyObject *dap_chain_python_add_mempool_notify_callback(PyObject *self, PyObject *args){
     dap_chain_t *l_chain = ((PyDapChainObject*)self)->chain_t;
     PyObject *obj_func;
@@ -286,6 +341,40 @@ PyObject *dap_chain_python_add_mempool_notify_callback(PyObject *self, PyObject 
     Py_RETURN_NONE;
 }
 
+/**
+ * @brief dap_chain_net_add_atom_notify_py
+ * @param self
+ * @param args
+ * @return
+ */
+PyObject *dap_chain_net_add_atom_notify_callback(PyObject *self, PyObject *args){
+    dap_chain_t *l_chain = ((PyDapChainObject*)self)->chain_t;
+    PyObject *obj_func;
+    PyObject *obj_arg;
+    if (!PyArg_ParseTuple(args, "OO", &obj_func, &obj_arg)){
+        PyErr_SetString(PyExc_AttributeError, "Argument must be callable");
+        return NULL;
+    }
+    if (!PyCallable_Check(obj_func)){
+        PyErr_SetString(PyExc_AttributeError, "Invalid first parameter passed to function. The first "
+                                              "argument must be a function ");
+        return NULL;
+    }
+    _wrapping_chain_mempool_notify_callback_t *l_callback = DAP_NEW(_wrapping_chain_mempool_notify_callback_t);
+    l_callback->func = obj_func;
+    l_callback->arg = obj_arg;
+    Py_INCREF(obj_func);
+    Py_INCREF(obj_arg);
+    dap_chain_add_mempool_notify_callback(l_chain, _wrapping_dap_chain_mempool_notify_handler, l_callback);
+    Py_RETURN_NONE;
+}
+
+/**
+ * @brief dap_chain_python_atom_find_by_hash
+ * @param self
+ * @param args
+ * @return
+ */
 PyObject *dap_chain_python_atom_find_by_hash(PyObject *self, PyObject* args){
     PyObject *obj_iter;
     PyDapHashFastObject *obj_hf;
@@ -310,18 +399,31 @@ PyObject *dap_chain_python_atom_find_by_hash(PyObject *self, PyObject* args){
     if (l_ptr == NULL) {
         return Py_BuildValue("On", Py_None, 0);
     } else {
-        PyChainAtomPtrObject *l_obj_ptr = PyObject_New(PyChainAtomPtrObject, &DapChainAtomPtrObjectType);
-        l_obj_ptr->ptr = l_ptr;
+        PyChainAtomObject *l_obj_ptr = PyObject_New(PyChainAtomObject, &DapChainAtomPtrObjectType);
+        l_obj_ptr->atom = l_ptr;
         return Py_BuildValue("On", l_obj_ptr, l_size_atom);
     }
 }
 
+/**
+ * @brief dap_chain_python_get_count_tx
+ * @param self
+ * @param args
+ * @return
+ */
 PyObject *dap_chain_python_get_count_tx(PyObject *self, PyObject *args){
     (void)args;
     dap_chain_t *l_chain = ((PyDapChainObject*)self)->chain_t;
     size_t cnt = l_chain->callback_count_tx(l_chain);
     return Py_BuildValue("n", cnt);
 }
+
+/**
+ * @brief dap_chain_python_get_txs
+ * @param self
+ * @param args
+ * @return
+ */
 PyObject *dap_chain_python_get_txs(PyObject *self, PyObject *args){
     dap_chain_t *l_chain = ((PyDapChainObject*)self)->chain_t;
     size_t count = 0, page = 0;

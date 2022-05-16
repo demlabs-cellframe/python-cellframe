@@ -7,13 +7,60 @@ set(CMAKE_COLOR_MAKEFILE   ON)
 set(CMAKE_C_STANDARD 11)
 
 
-set(Python_ADDITIONAL_VERSIONS 3.9 3.8 3.7 3.6 3.5 3.4)
-find_package (PythonLibs REQUIRED)
-include_directories(${PYTHON_INCLUDE_DIR} include/)
+#set(Python_ADDITIONAL_VERSIONS 3.9 3.8 3.7 3.6 3.5 3.4)
+#find_package (PythonLibs REQUIRED)
+#include_directories(${PYTHON_INCLUDE_DIR} include/)
 file(GLOB PYTHON_CELLFRAME_SRCS CellFrame/*.c)
 file(GLOB PYTHON_CELLFRAME_HEADERS include/*.h)
 
 set(SUBMODULES_NO_BUILD ON)
+
+if (SUPPORT_PYTHON_PLUGINS)
+    file (GLOB APP_CONTEXT_HEADER
+        modules/plugins/include/dap_plugins_python_app_context.h)
+
+    add_definitions("-fpic")
+    add_definitions("-DDAP_SUPPORT_PYTHON_PLUGINS")
+    add_library(${PROJECT_NAME} STATIC ${PYTHON_CELLFRAME_SRCS} ${APP_CONTEXT_HEADER} ${PYTHON_CELLFRAME_HEADERS})
+    target_include_directories(${PROJECT_NAME} INTERFACE include/)
+
+else()
+
+    SET( CPACK_GENERATOR "DEB")
+    SET( CPACK_PACKAGE_NAME  "${PROJECT_NAME}")
+    SET( CPACK_PACKAGE_VERSION_MAJOR 0)
+    SET( CPACK_PACKAGE_VERSION_MINOR 9)
+    SET( CPACK_PACKAGE_VERSION_PATCH 15)
+
+    add_definitions("-DDAP_VERSION_MAJOR=\"${CPACK_PACKAGE_VERSION_MAJOR}\"")
+    add_definitions("-DDAP_VERSION_MINOR=\"${CPACK_PACKAGE_VERSION_MINOR}\"")
+    add_definitions("-DDAP_VERSION_PATCH=\"${CPACK_PACKAGE_VERSION_PATCH}\"")
+    add_definitions("-DDAP_VERSION=\"${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}-${CPACK_PACKAGE_VERSION_PATCH}\"")
+    set(SUBMODULES_NO_BUILD ON)
+
+
+    #if (SKBUILD)
+    message(STATUS "Make python extension")
+    #find_package(PythonExtensions REQUIRED)
+    add_library(CellFrame MODULE ${PYTHON_CELLFRAME_SRCS} ${PYTHON_CELLFRAME_HEADERS})
+    target_include_directories(CellFrame INTERFACE include/)
+    #python_extension_module(${PROJECT_NAME})
+    #python_extension_module(${PROJECT_NAME} LINKED_MODULES_VAR dap_python_module)
+    #python_extension_module(${PROJECT_NAME} LINKED_MODULES_VAR dap_crypto_python_module)
+    #python_extension_module(${PROJECT_NAME} LINKED_MODULES_VAR DapServerCore)
+    install(TARGETS ${PROJECT_NAME} LIBRARY DESTINATION ${PROJECT_NAME})
+    install(FILES CellFrame/__init__.py DESTINATION ${PROJECT_NAME})
+    install(FILES CellFrame/PublicNetworks/* DESTINATION ${PROJECT_NAME})
+    #    install(FILES ${CMAKE_CURRENT_BINARY_DIR}/libdap-python/libdap_python_module.so DESTINATION CellFrame/lib)
+    #    install(TARGETS dap_python_module LIBRARY DESTINATION CellFrame)
+    #    install(TARGETS dap_crypto_python_module LIBRARY DESTINATION CellFrame)
+    #    install(TARGETS DapServerCore LIBRARY DESTINATION CellFrame)
+    #else()
+    #    add_library(${PROJECT_NAME} SHARED ${PYTHON_CELLFRAME_SRCS} ${PYTHON_CELLFRAME_HEADERS})
+    #endif()
+
+endif()
+
 
 if (NOT (SUPPORT_PYTHON_PLUGINS))
     if (NOT(WIN32))
@@ -27,6 +74,8 @@ else()
     add_subdirectory(modules/plugins)
     target_compile_options(dap_plugins_python PRIVATE "-fpic")
 endif()
+
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 add_subdirectory(modules/dap-sdk/core)
 add_subdirectory(modules/dap-sdk/crypto)
@@ -95,49 +144,6 @@ target_compile_options(dap_stream_ch_chain_net_srv PRIVATE "-fpic")
 
 
 
-if (SUPPORT_PYTHON_PLUGINS)
-    file (GLOB APP_CONTEXT_HEADER
-        modules/plugins/include/dap_plugins_python_app_context.h)
-
-    add_definitions("-fpic")
-    add_definitions("-DDAP_SUPPORT_PYTHON_PLUGINS")
-    add_library(${PROJECT_NAME} STATIC ${PYTHON_CELLFRAME_SRCS} ${APP_CONTEXT_HEADER} ${PYTHON_CELLFRAME_HEADERS})
-
-else()
-
-    SET( CPACK_GENERATOR "DEB")
-    SET( CPACK_PACKAGE_NAME  "${PROJECT_NAME}")
-    SET( CPACK_PACKAGE_VERSION_MAJOR 0)
-    SET( CPACK_PACKAGE_VERSION_MINOR 9)
-    SET( CPACK_PACKAGE_VERSION_PATCH 15)
-
-    add_definitions("-DDAP_VERSION_MAJOR=\"${CPACK_PACKAGE_VERSION_MAJOR}\"")
-    add_definitions("-DDAP_VERSION_MINOR=\"${CPACK_PACKAGE_VERSION_MINOR}\"")
-    add_definitions("-DDAP_VERSION_PATCH=\"${CPACK_PACKAGE_VERSION_PATCH}\"")
-    add_definitions("-DDAP_VERSION=\"${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}-${CPACK_PACKAGE_VERSION_PATCH}\"")
-    set(SUBMODULES_NO_BUILD ON)
-
-
-    #if (SKBUILD)
-    message(STATUS "Make python extension")
-    #find_package(PythonExtensions REQUIRED)
-    add_library(CellFrame MODULE ${PYTHON_CELLFRAME_SRCS} ${PYTHON_CELLFRAME_HEADERS})
-    #python_extension_module(${PROJECT_NAME})
-    #python_extension_module(${PROJECT_NAME} LINKED_MODULES_VAR dap_python_module)
-    #python_extension_module(${PROJECT_NAME} LINKED_MODULES_VAR dap_crypto_python_module)
-    #python_extension_module(${PROJECT_NAME} LINKED_MODULES_VAR DapServerCore)
-    install(TARGETS ${PROJECT_NAME} LIBRARY DESTINATION ${PROJECT_NAME})
-    install(FILES CellFrame/__init__.py DESTINATION ${PROJECT_NAME})
-    install(FILES CellFrame/PublicNetworks/* DESTINATION ${PROJECT_NAME})
-    #    install(FILES ${CMAKE_CURRENT_BINARY_DIR}/libdap-python/libdap_python_module.so DESTINATION CellFrame/lib)
-    #    install(TARGETS dap_python_module LIBRARY DESTINATION CellFrame)
-    #    install(TARGETS dap_crypto_python_module LIBRARY DESTINATION CellFrame)
-    #    install(TARGETS DapServerCore LIBRARY DESTINATION CellFrame)
-    #else()
-    #    add_library(${PROJECT_NAME} SHARED ${PYTHON_CELLFRAME_SRCS} ${PYTHON_CELLFRAME_HEADERS})
-    #endif()
-
-endif()
 
 target_compile_options(dap_core PRIVATE "-fpic")
 target_compile_options(dap_app_cli PRIVATE "-fpic")
@@ -196,4 +202,3 @@ target_link_libraries(${PROJECT_NAME} cellframe-sdk dap_python_module
                       ${PYTHON_LIBRARIES}
                      )
 
-target_include_directories(${PROJECT_NAME} INTERFACE include/)
