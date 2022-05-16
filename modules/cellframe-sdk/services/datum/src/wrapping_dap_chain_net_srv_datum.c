@@ -6,6 +6,11 @@ PyMethodDef DapChainNetSrvDatum_method[] = {
         {NULL, NULL, 0, NULL}
 };
 
+PyGetSetDef DapChainNetSrvDatum_getsetdef[] = {
+        {"raw", (getter)wrapping_dap_chain_net_srv_datum_raw, NULL, NULL, NULL},
+        {NULL}
+};
+
 PyTypeObject DapChainDatumCustomObjectType = {
         PyVarObject_HEAD_INIT(NULL, 0)
         "CellFrame.ChainNetSrvDatum",            /* tp_name */
@@ -37,7 +42,7 @@ PyTypeObject DapChainDatumCustomObjectType = {
         0,		                         /* tp_iternext */
         DapChainNetSrvDatum_method,       /* tp_methods */
         0,                               /* tp_members */
-        0,                               /* tp_getset */
+        DapChainNetSrvDatum_getsetdef,    /* tp_getset */
         0,                               /* tp_base */
         0,                               /* tp_dict */
         0,                               /* tp_descr_get */
@@ -81,4 +86,13 @@ PyObject *wrapping_dap_chain_net_srv_datum_create(PyObject *self, PyObject *args
     if (res == NULL)
         Py_RETURN_NONE;
     return Py_BuildValue("s", res);
+}
+
+PyObject *wrapping_dap_chain_net_srv_datum_raw(PyObject *self, void *closure){
+    (void)closure;
+    size_t l_size = dap_chain_datum_size(((PyDapChainDatumObject*)self)->datum);
+    PyObject *obj_bytes = PyBytes_FromStringAndSize(
+            (char*)((PyDapChainDatumObject*)self)->datum->data,
+            (Py_ssize_t)l_size);
+    return obj_bytes;
 }
