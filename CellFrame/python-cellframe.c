@@ -600,8 +600,6 @@ PyMODINIT_FUNC PyInit_libCellFrame(void)
         /// Token
         PyType_Ready( &DapChainDatumTokenObjectType ) < 0 ||
         PyType_Ready( &DapChainDatumTokenEmissionObjectType ) < 0 ||
-        /// Custom
-        PyType_Ready( &DapChainDatumCustomObjectType ) < 0 ||
         /// Transaction
         PyType_Ready( &DapChainDatumTxObjectType ) < 0 ||
         PyType_Ready( &DapChainTxItemTypeObjectType ) < 0 ||
@@ -682,7 +680,6 @@ PyMODINIT_FUNC PyInit_libCellFrame(void)
     PyModule_AddObject(commonModule, "TxPkey", (PyObject*)&DapChainTxPkeyObjectType);
     PyModule_AddObject(commonModule, "TxReceipt", (PyObject*)&DapChainTxReceiptObjectType);
     PyModule_AddObject(commonModule, "TxOutExt", (PyObject*)&DapChainTxOutExtObjectType);
-    PyModule_AddObject(commonModule, "CustomDatum", (PyObject*)&DapChainDatumCustomObjectType);
 
     PyObject *netModule = PyModule_Create(&CellframeNetworkPythonModule);
     // === Chain node ===
