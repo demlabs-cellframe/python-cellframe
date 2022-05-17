@@ -41,7 +41,6 @@ add_subdirectory(modules/cellframe-sdk/mempool)
 add_subdirectory(modules/cellframe-sdk/net)
 add_subdirectory(modules/cellframe-sdk/net/srv)
 add_subdirectory(modules/cellframe-sdk/gdb)
-add_subdirectory(modules/cellframe-sdk/services/datum)
 add_subdirectory(modules/cellframe-sdk/chain)
 add_subdirectory(modules/cellframe-sdk/app-cli)
 add_subdirectory(modules/cellframe-sdk/wallet)
@@ -170,7 +169,6 @@ target_compile_options(dap_stream_ch_chain_net_srv PRIVATE "-fpic")
 #target_compile_options(dap_chain_cs_dag_poa PRIVATE "-fpic")
 #target_compile_options(dap_chain_cs_dag_pos PRIVATE "-fpic")
 target_compile_options(dap_server_core_python_module PRIVATE "-fpic")
-target_compile_options(dap_chain_service_datum_python PRIVATE "-fpic")
 
 
 if (WIN32)
@@ -192,7 +190,6 @@ target_link_libraries(${PROJECT_NAME} cellframe-sdk dap_python_module
                       dap_app_cli_python_module
                       dap_chain_wallet_python_module
                       dap_server_json_rpc_python_module
-                      dap_chain_service_datum_python
                       dap_chain_cs_dag_poa_python_module
                       dap_chain_cs_blocks_python_module
                       dap_chain_global_db_python_module
