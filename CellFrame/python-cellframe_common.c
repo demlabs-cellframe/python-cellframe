@@ -6,7 +6,9 @@ void _PyErr_logIt(const dap_log_level_t a_level, const char *a_tag, const char *
 }
 
 char* _PyErr_get_stacktrace(PyObject *a_obj){
-    assert(PyTraceBack_Check(a_obj));
+    if (!a_obj){
+        return "No stack trace";
+    }
     PyTracebackObject *l_traceback = (PyTracebackObject*)a_obj;
     char  *s = "\tStack trace:\n";
     size_t cnt = 0;
