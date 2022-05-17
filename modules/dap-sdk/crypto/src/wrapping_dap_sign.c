@@ -58,6 +58,10 @@ PyGetSetDef DapSignObjectGetsSetsDef[] = {
 
 PyMethodDef DapSignObjectMethods[]= {
         {"verify", wrapping_dap_sign_verify, METH_VARARGS, ""},
+        {"fromBytes", wrapping_dap_sign_from_bytes, METH_VARARGS | METH_STATIC, ""},
+        {"toBytes", wrapping_dap_sign_get_bytes, METH_NOARGS, ""},
+        {"fromBase64", wrapping_dap_sign_from_b64, METH_VARARGS | METH_STATIC, ""},
+        {"toBase64", wrapping_dap_sign_to_b64, METH_NOARGS, ""},
         {NULL, NULL, 0, NULL}
 };
 

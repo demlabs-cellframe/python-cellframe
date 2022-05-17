@@ -82,7 +82,7 @@ PyTypeObject DapCryptoCertObjectType = {
         0,		               /* tp_iternext */
         g_crypto_cert_methods_py,             /* tp_methods */
         0,                         /* tp_members */
-        0,                         /* tp_getset */
+        g_crypto_cert_getssets_py, /* tp_getset */
         0,                         /* tp_base */
         0,                         /* tp_dict */
         0,                         /* tp_descr_get */
