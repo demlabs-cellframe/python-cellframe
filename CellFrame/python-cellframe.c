@@ -592,6 +592,7 @@ PyMODINIT_FUNC PyInit_libCellFrame(void)
         PyType_Ready( &DapChainLedgerObjectType ) < 0 ||
         PyType_Ready( &DapChainWalletObjectType ) < 0 ||
         PyType_Ready(&DapChainGlobalDBObjectType) < 0 ||
+        PyType_Ready(&DapChainGlobalDBContainerObjectType) < 0 ||
         // === Chain datum
         /// Common
         PyType_Ready( &DapChainDatumTypeIdObjectType ) < 0 ||
