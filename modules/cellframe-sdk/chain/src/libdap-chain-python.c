@@ -251,7 +251,7 @@ typedef struct _wrapping_chain_mempool_notify_callback{
     PyObject *arg;
 }_wrapping_chain_mempool_notify_callback_t;
 
-void _wrapping_dap_chain_mempool_notify_handler(void * a_arg, const char a_op_code, const char * a_group,
+static void _wrapping_dap_chain_mempool_notify_handler(void * a_arg, const char a_op_code, const char * a_group,
                                                 const char * a_key, const void * a_value, const size_t a_value_len){
     if (!a_arg){
         return;
@@ -287,7 +287,7 @@ typedef struct _wrapping_chain_atom_notify_callback{
  * @param a_atom
  * @param a_atom_size
  */
-void _wrapping_dap_chain_atom_notify_handler(void * a_arg, dap_chain_t *a_chain, dap_chain_cell_id_t a_id, void* a_atom, size_t a_atom_size){
+static void _wrapping_dap_chain_atom_notify_handler(void * a_arg, dap_chain_t *a_chain, dap_chain_cell_id_t a_id, void* a_atom, size_t a_atom_size){
     if (!a_arg){
         return;
     }
@@ -365,7 +365,7 @@ PyObject *dap_chain_net_add_atom_notify_callback(PyObject *self, PyObject *args)
     l_callback->arg = obj_arg;
     Py_INCREF(obj_func);
     Py_INCREF(obj_arg);
-    dap_chain_add_mempool_notify_callback(l_chain, _wrapping_dap_chain_mempool_notify_handler, l_callback);
+    dap_chain_add_callback_notify(l_chain, _wrapping_dap_chain_atom_notify_handler, l_callback);
     Py_RETURN_NONE;
 }
 
