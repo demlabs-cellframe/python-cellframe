@@ -12,6 +12,7 @@ PyMethodDef  DapMempoolMethods[] = {
         {"txCreateCondInput", dap_chain_mempool_tx_create_cond_input_py, METH_VARARGS | METH_STATIC, ""},
         {"remove", dap_chain_mempool_remove_py, METH_VARARGS | METH_STATIC, ""},
         {"list", dap_chain_mempool_list_py, METH_VARARGS | METH_STATIC, ""},
+        {"addDatum", dap_chain_mempool_add_datum_py, METH_VARARGS | METH_STATIC, ""},
         {NULL,NULL,0,NULL}
 };
 
@@ -473,4 +474,28 @@ PyObject *dap_chain_mempool_list_py(PyObject *self, PyObject *args){
         PyObject *obj_list = pvt_dap_chain_mempool_list(obj_chain->chain_t);
         return obj_list;
     }
+}
+
+PyObject *dap_chain_mempool_add_datum_py(PyObject *self, PyObject *args){
+    (void)self;
+    PyObject *obj_datum;
+    PyObject *obj_chain;
+    if (!PyArg_ParseTuple(args, "OO", &obj_chain, &obj_datum)){
+        return NULL;
+    }
+    if (!PyDapChain_Check(obj_chain)){
+        PyErr_SetString(PyExc_AttributeError, "The first argument was not passed correctly. "
+                                              "The first argument must be instance of an object of type Chain.");
+        return NULL;
+    }
+    if (!PyDapChainDatum_Check(obj_datum)){
+        PyErr_SetString(PyExc_AttributeError, "The second argument was not passed correctly. "
+                                              "The second argument must be instance of an object of type Datum.");
+        return NULL;
+    }
+    char *l_str = dap_chain_mempool_datum_add(
+            ((PyDapChainDatumObject*)obj_datum)->datum, ((PyDapChainObject*)obj_chain)->chain_t);
+    if (!l_str)
+        return Py_None;
+    return Py_BuildValue("s", l_str);
 }
