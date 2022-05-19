@@ -9,7 +9,7 @@ set(CMAKE_C_STANDARD 11)
 
 #set(Python_ADDITIONAL_VERSIONS 3.9 3.8 3.7 3.6 3.5 3.4)
 #find_package (PythonLibs REQUIRED)
-include_directories(${PYTHON_INCLUDE_DIR} include/)
+#include_directories(${PYTHON_INCLUDE_DIR} include/)
 file(GLOB PYTHON_CELLFRAME_SRCS CellFrame/*.c)
 file(GLOB PYTHON_CELLFRAME_HEADERS include/*.h)
 
@@ -43,8 +43,7 @@ else()
     message(STATUS "Make python extension")
     #find_package(PythonExtensions REQUIRED)
     add_library(CellFrame MODULE ${PYTHON_CELLFRAME_SRCS} ${PYTHON_CELLFRAME_HEADERS})
-    target_include_directories(CellFrame INTERFACE include/ ../build/python/include/python3.10/)
-    
+    target_include_directories(CellFrame INTERFACE include/)
     #python_extension_module(${PROJECT_NAME})
     #python_extension_module(${PROJECT_NAME} LINKED_MODULES_VAR dap_python_module)
     #python_extension_module(${PROJECT_NAME} LINKED_MODULES_VAR dap_crypto_python_module)
