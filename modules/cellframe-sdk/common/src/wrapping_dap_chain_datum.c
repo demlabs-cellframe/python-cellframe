@@ -249,7 +249,7 @@ PyObject *wrapping_dap_chain_datum_get_version_str_py(PyObject *self, void* clos
 PyObject *wrapping_dap_chain_datum_get_raw_py(PyObject *self, void* closure){
     (void)closure;
     size_t l_size = dap_chain_datum_size(((PyDapChainDatumObject*)self)->datum);
-    PyObject *l_obj_bytes = PyBytes_FromStringAndSize(((PyDapChainDatumObject*)self)->datum->data, l_size);
+    PyObject *l_obj_bytes = PyBytes_FromStringAndSize((char *)((PyDapChainDatumObject*)self)->datum->data, l_size);
     return l_obj_bytes;
 }
 
