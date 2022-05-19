@@ -66,6 +66,7 @@ PyGetSetDef  DapChainDatumGetSet[] = {
         {"versionStr", (getter)wrapping_dap_chain_datum_get_version_str_py, NULL, NULL, NULL},
         {"tsCreated", (getter)dap_chain_datum_get_ts_created_py, NULL, NULL, NULL},
         {"raw", (getter)wrapping_dap_chain_datum_get_raw_py, NULL, NULL, NULL},
+        {"rawData", (getter)wrapping_dap_chain_datum_get_raw_data_py, NULL, NULL, NULL},
         {NULL}
 };
 
@@ -249,6 +250,13 @@ PyObject *wrapping_dap_chain_datum_get_version_str_py(PyObject *self, void* clos
 PyObject *wrapping_dap_chain_datum_get_raw_py(PyObject *self, void* closure){
     (void)closure;
     size_t l_size = dap_chain_datum_size(((PyDapChainDatumObject*)self)->datum);
+    PyObject *l_obj_bytes = PyBytes_FromStringAndSize((char*)((PyDapChainDatumObject*)self)->datum, l_size);
+    return l_obj_bytes;
+}
+
+PyObject *wrapping_dap_chain_datum_get_raw_data_py(PyObject *self, void* closure){
+    (void)closure;
+    size_t l_size = ((PyDapChainDatumObject*)self)->datum->header.data_size;
     PyObject *l_obj_bytes = PyBytes_FromStringAndSize((char*)((PyDapChainDatumObject*)self)->datum->data, l_size);
     return l_obj_bytes;
 }
