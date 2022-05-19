@@ -23,6 +23,7 @@ static PyMethodDef DapChainMethods[] = {
         {"atomIterGetNext", (PyCFunction)dap_chain_python_atom_iter_get_next, METH_VARARGS, ""},
         {"getDag", (PyCFunction)dap_chain_python_atom_iter_get_dag, METH_NOARGS},
         {"addMempoolNotify", (PyCFunction)dap_chain_python_add_mempool_notify_callback, METH_VARARGS, ""},
+        {"addAtomNotify", (PyCFunction)dap_chain_net_add_atom_notify_callback, METH_VARARGS, ""},
         {"atomFindByHash", (PyCFunction)dap_chain_python_atom_find_by_hash, METH_VARARGS, ""},
         {"countTx", (PyCFunction)dap_chain_python_get_count_tx, METH_NOARGS, ""},
         {"getTransactions", (PyCFunction)dap_chain_python_get_txs, METH_VARARGS, ""},
@@ -275,6 +276,28 @@ PyObject *dap_chain_python_add_mempool_notify_callback(PyObject *self, PyObject 
     if (!PyCallable_Check(obj_func)){
         PyErr_SetString(PyExc_AttributeError, "Invalid first parameter passed to function. The first "
                                               "argument must be an instance of an object of type Chain. ");
+        return NULL;
+    }
+    _wrapping_chain_mempool_notify_callback_t *l_callback = DAP_NEW(_wrapping_chain_mempool_notify_callback_t);
+    l_callback->func = obj_func;
+    l_callback->arg = obj_arg;
+    Py_INCREF(obj_func);
+    Py_INCREF(obj_arg);
+    dap_chain_add_mempool_notify_callback(l_chain, _wrapping_dap_chain_mempool_notify_handler, l_callback);
+    Py_RETURN_NONE;
+}
+
+PyObject *dap_chain_net_add_atom_notify_callback(PyObject *self, PyObject *args){
+    dap_chain_t *l_chain = ((PyDapChainObject*)self)->chain_t;
+    PyObject *obj_func;
+    PyObject *obj_arg;
+    if (!PyArg_ParseTuple(args, "OO", &obj_func, &obj_arg)){
+        PyErr_SetString(PyExc_AttributeError, "Argument must be callable");
+        return NULL;
+    }
+    if (!PyCallable_Check(obj_func)){
+        PyErr_SetString(PyExc_AttributeError, "Invalid first parameter passed to function. The first "
+                                              "argument must be a function ");
         return NULL;
     }
     _wrapping_chain_mempool_notify_callback_t *l_callback = DAP_NEW(_wrapping_chain_mempool_notify_callback_t);

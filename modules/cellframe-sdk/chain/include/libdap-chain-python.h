@@ -43,6 +43,7 @@ PyObject *dap_chain_python_atom_get_datums(PyObject *self, PyObject *args);
 PyObject *dap_chain_python_atom_iter_get_next(PyObject *self, PyObject *args);
 PyObject *dap_chain_python_atom_iter_get_dag(PyObject *self, PyObject *args);
 PyObject *dap_chain_python_add_mempool_notify_callback(PyObject *self, PyObject *args);
+PyObject *dap_chain_net_add_atom_notify_callback(PyObject *self, PyObject *args);
 PyObject *dap_chain_python_atom_find_by_hash(PyObject *self, PyObject* args);
 
 PyObject *dap_chain_python_get_count_tx(PyObject *self, PyObject *args);
