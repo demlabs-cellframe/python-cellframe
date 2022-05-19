@@ -26,16 +26,13 @@ void python_error_in_log_it(const char *a_tag){
     
     PyObject *type, *value, *trackback;
     
-    // When using PyErr_Restore() there is no need to use Py_XDECREF for these 3 pointers
-    //PyErr_Restore(pyExcType, pyExcValue, pyExcTraceback);
-
     PyErr_Fetch(&type, &value, &trackback);
     PyErr_NormalizeException(&type, &value, &trackback);
 
     PyObject* str_exc_value = PyObject_Repr(value);
-    PyObject* pyExcValueStr = PyUnicode_AsEncodedString(str_exc_value, "utf-8", "Error ~");
+    PyObject* exect_value_str = PyUnicode_AsEncodedString(str_exc_value, "utf-8", "Error ~");
         
-    const char *l_str_value = PyBytes_AS_STRING(pyExcValueStr);;
+    const char *l_str_value = PyBytes_AS_STRING(exect_value_str);;
     
     _PyErr_logIt(L_ERROR, a_tag, dap_strdup_printf(
             "An exception occurred while executing a Python script.\n"
