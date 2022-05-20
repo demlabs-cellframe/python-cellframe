@@ -9,7 +9,7 @@ set(CMAKE_C_STANDARD 11)
 
 #set(Python_ADDITIONAL_VERSIONS 3.9 3.8 3.7 3.6 3.5 3.4)
 #find_package (PythonLibs REQUIRED)
-#include_directories(${PYTHON_INCLUDE_DIR} include/)
+include_directories(${PYTHON_INCLUDE_DIR})
 file(GLOB PYTHON_CELLFRAME_SRCS CellFrame/*.c)
 file(GLOB PYTHON_CELLFRAME_HEADERS include/*.h)
 
@@ -23,6 +23,12 @@ if (SUPPORT_PYTHON_PLUGINS)
     add_definitions("-DDAP_SUPPORT_PYTHON_PLUGINS")
     add_library(${PROJECT_NAME} STATIC ${PYTHON_CELLFRAME_SRCS} ${APP_CONTEXT_HEADER} ${PYTHON_CELLFRAME_HEADERS})
     target_include_directories(${PROJECT_NAME} INTERFACE include/)
+    
+    #add_dependencies(${PROJECT_NAME} ${libpython_static})
+
+    
+    include_directories(${PYTHON_INCLUDE_DIR})
+    
 
 else()
 
@@ -43,6 +49,7 @@ else()
     message(STATUS "Make python extension")
     #find_package(PythonExtensions REQUIRED)
     add_library(CellFrame MODULE ${PYTHON_CELLFRAME_SRCS} ${PYTHON_CELLFRAME_HEADERS})
+    add_library(python_static STATIC IMPORTED GLOBAL)
     target_include_directories(CellFrame INTERFACE include/)
     #python_extension_module(${PROJECT_NAME})
     #python_extension_module(${PROJECT_NAME} LINKED_MODULES_VAR dap_python_module)
