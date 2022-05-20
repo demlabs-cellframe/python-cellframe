@@ -66,6 +66,7 @@ PyGetSetDef  DapChainDatumGetSet[] = {
         {"versionStr", (getter)wrapping_dap_chain_datum_get_version_str_py, NULL, NULL, NULL},
         {"tsCreated", (getter)dap_chain_datum_get_ts_created_py, NULL, NULL, NULL},
         {"raw", (getter)wrapping_dap_chain_datum_get_raw_py, NULL, NULL, NULL},
+        {"rawData", (getter)wrapping_dap_chain_datum_get_raw_data_py, NULL, NULL, NULL},
         {NULL}
 };
 
@@ -117,13 +118,13 @@ bool PyDapChainDatum_Check(PyObject *self){
 
 PyObject *PyDapChainDatumObject_new(PyTypeObject *type_object, PyObject *args, PyObject *kwds){
     uint16_t type_id;
-    PyBytesObject *bytes;
-    size_t data_size;
-    if (!PyArg_ParseTuple(args, "H|S|n", &type_id, &bytes, &data_size))
+    PyObject *bytes;
+    if (!PyArg_ParseTuple(args, "HO", &type_id, &bytes))
         return NULL;
     PyDapChainDatumObject *obj = (PyDapChainDatumObject*)PyType_GenericNew(type_object, args, kwds);
     void* bytes_v = (void *)PyBytes_AsString((PyObject*)bytes);
-    obj->datum = dap_chain_datum_create(type_id, bytes_v, data_size);
+    size_t l_bytes_size = PyBytes_Size(bytes);
+    obj->datum = dap_chain_datum_create(type_id, bytes_v, l_bytes_size);
     return (PyObject *)obj;
 }
 
@@ -249,7 +250,14 @@ PyObject *wrapping_dap_chain_datum_get_version_str_py(PyObject *self, void* clos
 PyObject *wrapping_dap_chain_datum_get_raw_py(PyObject *self, void* closure){
     (void)closure;
     size_t l_size = dap_chain_datum_size(((PyDapChainDatumObject*)self)->datum);
-    PyObject *l_obj_bytes = PyBytes_FromStringAndSize((char *)((PyDapChainDatumObject*)self)->datum->data, l_size);
+    PyObject *l_obj_bytes = PyBytes_FromStringAndSize((char*)((PyDapChainDatumObject*)self)->datum, l_size);
+    return l_obj_bytes;
+}
+
+PyObject *wrapping_dap_chain_datum_get_raw_data_py(PyObject *self, void* closure){
+    (void)closure;
+    size_t l_size = ((PyDapChainDatumObject*)self)->datum->header.data_size;
+    PyObject *l_obj_bytes = PyBytes_FromStringAndSize((char*)((PyDapChainDatumObject*)self)->datum->data, l_size);
     return l_obj_bytes;
 }
 

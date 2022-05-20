@@ -287,6 +287,37 @@ PyObject *dap_chain_python_add_mempool_notify_callback(PyObject *self, PyObject 
     Py_RETURN_NONE;
 }
 
+//typedef struct _wrapping_chain_atom_notify_callback{
+//    PyObject *func;
+//    PyObject *arg;
+//}_wrapping_chain_atom_notify_callback_t;
+
+static void _wrapping_dap_chain_atom_notify_handler(void * a_arg, dap_chain_t *a_chain, dap_chain_cell_id_t a_id, void* a_atom, size_t a_atom_size){
+    if (!a_arg){
+        return;
+    }
+    _wrapping_chain_mempool_notify_callback_t *l_callback = (_wrapping_chain_mempool_notify_callback_t*)a_arg;
+
+    PyObject *l_args;
+    PyGILState_STATE state = PyGILState_Ensure();
+
+    dap_chain_atom_ptr_t l_atom = (dap_chain_atom_ptr_t) a_atom;
+    PyChainAtomPtrObject *l_atom_ptr_obj = NULL;
+    if(l_atom){
+        l_atom_ptr_obj= PyObject_New(PyChainAtomPtrObject, &DapChainAtomPtrObjectType);
+        l_atom_ptr_obj->ptr = l_atom;
+        l_args = Py_BuildValue("OnO", l_atom_ptr_obj, a_atom_size, l_callback->arg);
+    }else{
+        l_args = Py_BuildValue("OnO", Py_None, 0, l_callback->arg);
+    }
+
+    log_it(L_DEBUG, "Call atom notifier for chain %s with atom size %zd", a_chain->name, a_atom_size );
+    PyEval_CallObject(l_callback->func, l_args);
+    Py_DECREF(l_args);
+    PyGILState_Release(state);
+}
+
+
 PyObject *dap_chain_net_add_atom_notify_callback(PyObject *self, PyObject *args){
     dap_chain_t *l_chain = ((PyDapChainObject*)self)->chain_t;
     PyObject *obj_func;
@@ -300,12 +331,13 @@ PyObject *dap_chain_net_add_atom_notify_callback(PyObject *self, PyObject *args)
                                               "argument must be a function ");
         return NULL;
     }
+
     _wrapping_chain_mempool_notify_callback_t *l_callback = DAP_NEW(_wrapping_chain_mempool_notify_callback_t);
     l_callback->func = obj_func;
     l_callback->arg = obj_arg;
     Py_INCREF(obj_func);
     Py_INCREF(obj_arg);
-    dap_chain_add_mempool_notify_callback(l_chain, _wrapping_dap_chain_mempool_notify_handler, l_callback);
+    dap_chain_add_callback_notify(l_chain, _wrapping_dap_chain_atom_notify_handler, l_callback);
     Py_RETURN_NONE;
 }
 
