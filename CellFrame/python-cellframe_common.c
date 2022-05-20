@@ -24,14 +24,23 @@ char* _PyErr_get_stacktrace(PyObject *a_obj){
     return s;
 }
 
-void python_error_in_log_it(const char *a_tag){
+void python_error_in_log_it(const char *a_tag)
+{
     PyObject *type, *value, *trackback;
+
     PyErr_Fetch(&type, &value, &trackback);
-    const char *l_str_value = PyUnicode_AsUTF8(value);
-    const char *l_str_type = PyExceptionClass_Name(type);
+    PyErr_NormalizeException(&type, &value, &trackback);
+
+    PyObject* str_exc_value = PyObject_Repr(value);
+    PyObject* exect_value_str = PyUnicode_AsEncodedString(str_exc_value, "utf-8", "Error ~");
+
+    const char *l_str_value = PyBytes_AS_STRING(exect_value_str);;
+
     _PyErr_logIt(L_ERROR, a_tag, dap_strdup_printf(
             "An exception occurred while executing a Python script.\n"
-            "\t%s: %s\n%s", l_str_type, l_str_value, _PyErr_get_stacktrace(trackback)
+            "\t%s\n%s", l_str_value, _PyErr_get_stacktrace(trackback)
             ));
+
     PyErr_Restore(type, value, trackback);
+
 }
