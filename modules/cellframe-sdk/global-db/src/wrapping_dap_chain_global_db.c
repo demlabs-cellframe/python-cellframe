@@ -5,6 +5,7 @@ PyMethodDef DapChainGlobalDBMethods[] = {
         {"set", (PyCFunction)wrapping_dap_chain_global_db_gr_set, METH_VARARGS | METH_STATIC, ""},
         {"delete", (PyCFunction)wrapping_dap_chain_global_db_gr_del, METH_VARARGS | METH_STATIC, ""},
         {"pin", (PyCFunction)wrapping_dap_chain_global_db_gr_pin, METH_VARARGS | METH_STATIC, ""},
+        {"grLoad", (PyCFunction)wrapping_dap_chain_global_db_gr_load, METH_VARARGS | METH_STATIC, ""},
         {NULL, NULL, 0, NULL}
 };
 
@@ -104,4 +105,25 @@ PyObject *wrapping_dap_chain_global_db_gr_del(PyObject *self, PyObject *args){
 
 PyObject *wrapping_dap_chain_global_db_gr_pin(PyObject *self, PyObject *args){
     Py_RETURN_NONE;
+}
+
+PyObject *wrapping_dap_chain_global_db_gr_load(PyObject *self, PyObject *args){
+    (void)self;
+    char *l_group;
+    if (!PyArg_ParseTuple(args, "s", &l_group)){
+        return NULL;
+    }
+    size_t l_data_out = 0;
+    dap_global_db_obj_t *l_db_obj = dap_chain_global_db_gr_load(l_group, &l_data_out);
+    if (l_data_out == 0){
+        Py_RETURN_NONE;
+    }
+    PyObject* l_list = PyList_New(l_data_out);
+    for (size_t i = 0; i < l_data_out; i++){
+        PyDapChainGlobalDBContainerObject *l_obj = PyObject_New(PyDapChainGlobalDBContainerObject ,
+                                                                &DapChainGlobalDBContainerObjectType);
+        l_obj->obj = l_db_obj[i];
+        PyList_SetItem(l_list, i, (PyObject*)l_obj);
+    }
+    return l_list;
 }
