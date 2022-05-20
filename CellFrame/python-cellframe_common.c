@@ -38,7 +38,8 @@ void python_error_in_log_it(const char *a_tag)
 
     _PyErr_logIt(L_ERROR, a_tag, dap_strdup_printf(
             "An exception occurred while executing a Python script.\n"
-            "\t%s\n%s", l_str_value, _PyErr_get_stacktrace(trackback)
+            "\t%s\n%s", l_str_value ? l_str_value : "(null)",
+                        trackback ? _PyErr_get_stacktrace(trackback) : "(null)"
             ));
 
     PyErr_Restore(type, value, trackback);
