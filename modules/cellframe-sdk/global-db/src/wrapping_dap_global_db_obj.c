@@ -63,6 +63,6 @@ PyObject *wrapping_dap_chain_global_db_obj_get_value(PyObject *self, void *closu
     if (l_size_value == 0 || !((PyDapChainGlobalDBContainerObject*)self)->obj.value){
         Py_RETURN_NONE;
     }
-    PyObject *obj_bytes = PyBytes_FromStringAndSize(((PyDapChainGlobalDBContainerObject*)self)->obj.value, l_size_value);
+    PyObject *obj_bytes = PyBytes_FromStringAndSize((char *)((PyDapChainGlobalDBContainerObject*)self)->obj.value, l_size_value);
     return obj_bytes;
 }
