@@ -360,7 +360,7 @@ PyObject *dap_chain_net_add_atom_notify_callback(PyObject *self, PyObject *args)
                                               "argument must be a function ");
         return NULL;
     }
-    _wrapping_chain_mempool_notify_callback_t *l_callback = DAP_NEW(_wrapping_chain_mempool_notify_callback_t);
+    _wrapping_chain_atom_notify_callback_t *l_callback = DAP_NEW_Z(_wrapping_chain_atom_notify_callback_t);
     l_callback->func = obj_func;
     l_callback->arg = obj_arg;
     Py_INCREF(obj_func);
