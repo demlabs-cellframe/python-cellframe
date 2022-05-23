@@ -9,7 +9,7 @@ set(CMAKE_C_STANDARD 11)
 
 #set(Python_ADDITIONAL_VERSIONS 3.9 3.8 3.7 3.6 3.5 3.4)
 #find_package (PythonLibs REQUIRED)
-include_directories(${PYTHON_INCLUDE_DIR})
+
 file(GLOB PYTHON_CELLFRAME_SRCS CellFrame/*.c)
 file(GLOB PYTHON_CELLFRAME_HEADERS include/*.h)
 
@@ -27,7 +27,7 @@ if (SUPPORT_PYTHON_PLUGINS)
     #add_dependencies(${PROJECT_NAME} ${libpython_static})
 
     
-    include_directories(${PYTHON_INCLUDE_DIR})
+    include_directories(${PYTHON_INCLUDE_PATH})
     
 
 else()
