@@ -74,7 +74,7 @@ endif()
 file(GLOB CLIENT_PYTHON_SRCS src/*.c)
 file(GLOB CLIENT_PYTHON_HEADERS include/*.h)
 
-include_directories(${PYTHON_INCLUDE_PATH} include/)
+include_directories(${PYTHON_INCLUDE_DIR} include/)
 
 add_library(${PROJECT_NAME} STATIC ${CLIENT_PYTHON_SRCS} ${CLIENT_PYTHON_HEADERS})
 

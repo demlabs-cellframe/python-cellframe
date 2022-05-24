@@ -36,7 +36,7 @@ endif()
 file(GLOB SERVER_CORE_PYTHON_SRCS src/*.c)
 file(GLOB SERVER_CORE_PYTHON_HEADERS include/*.h)
 
-include_directories(${PYTHON_INCLUDE_PATH} include/)
+include_directories(${PYTHON_INCLUDE_DIR} include/)
 
 add_library(${PROJECT_NAME} STATIC ${SERVER_CORE_PYTHON_SRCS} ${SERVER_CORE_PYTHON_HEADERS})
 

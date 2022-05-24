@@ -16,7 +16,7 @@ endif()
 file(GLOB DAP_PLUGINS_PYTHON_SRCS src/*.c)
 file(GLOB DAP_PLUGINS_PYTHON_HEADERS include/*.h)
 
-include_directories(${PYTHON_INCLUDE_PATH} include/)
+include_directories(${PYTHON_INCLUDE_DIR} include/)
 
 add_library(${PROJECT_NAME} STATIC ${DAP_PLUGINS_PYTHON_SRCS} ${DAP_PLUGINS_PYTHON_HEADERS})
 

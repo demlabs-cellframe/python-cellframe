@@ -20,16 +20,12 @@ if (SUPPORT_PYTHON_PLUGINS)
         modules/plugins/include/dap_plugins_python_app_context.h)
 
     add_definitions("-fpic")
+     
     add_definitions("-DDAP_SUPPORT_PYTHON_PLUGINS")
     add_library(${PROJECT_NAME} STATIC ${PYTHON_CELLFRAME_SRCS} ${APP_CONTEXT_HEADER} ${PYTHON_CELLFRAME_HEADERS})
     target_include_directories(${PROJECT_NAME} INTERFACE include/)
     
-    #add_dependencies(${PROJECT_NAME} ${libpython_static})
-
-    
-    include_directories(${PYTHON_INCLUDE_PATH})
-    
-
+    include_directories(${PYTHON_INCLUDE_DIR})
 else()
 
     SET( CPACK_GENERATOR "DEB")

@@ -19,7 +19,7 @@ endif()
 file(GLOB CORE_SRCS src/*.c)
 file(GLOB CORE_HEADERS src/*.h)
 
-include_directories(${PYTHON_INCLUDE_PATH} include/ )
+include_directories(${PYTHON_INCLUDE_DIR} include/ )
 
 add_library(${PROJECT_NAME} STATIC ${CORE_SRCS} ${CORE_UNIX_SRCS})
 

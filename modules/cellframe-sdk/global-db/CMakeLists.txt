@@ -181,7 +181,7 @@ endif()
 file(GLOB CHAIN_GLOBAL_DB_PYTHON_SRCS src/*.c)
 file(GLOB CHAIN_GLOBAL_DB_PYTHON_HEADERS include/*.h)
 
-include_directories(${PYTHON_INCLUDE_PATH} include/)
+include_directories(${PYTHON_INCLUDE_DIR} include/)
 
 add_library(${PROJECT_NAME} STATIC ${CHAIN_GLOBAL_DB_PYTHON_SRCS} ${CHAIN_GLOBAL_DB_PYTHON_HEADERS})
 

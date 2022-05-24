@@ -5,7 +5,7 @@ set(CMAKE_VERBOSE_MAKEFILE ON)
 set(CMAKE_COLOR_MAKEFILE   ON)
 set(CMAKE_C_STANDARD 11)
 
-include_directories(${PYTHON_INCLUDE_PATH} include/)
+include_directories(${PYTHON_INCLUDE_DIR} include/)
 
 file(GLOB TPO_INCLUDES include/*.h)
 file(GLOB TPO_SRCS src/*.c)

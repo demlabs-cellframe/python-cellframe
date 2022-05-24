@@ -28,7 +28,7 @@ endif()
 file(GLOB CRYPTO_PYTHON_SRCS src/*.c)
 file(GLOB CRYPTO_PYTHON_HEADERS include/*.h)
 
-include_directories(${PYTHON_INCLUDE_PATH} include/)
+include_directories(${PYTHON_INCLUDE_DIR} include/)
 
 add_library(${PROJECT_NAME} STATIC ${CRYPTO_PYTHON_SRCS} ${CRYPTO_PYTHON_HEADERS})
 

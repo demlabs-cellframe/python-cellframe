@@ -19,7 +19,7 @@ endif()
 file(GLOB ENC_SERVER_SRCS src/*.c)
 file(GLOB ENC_SERVER_HEADERS include/*.h)
 
-include_directories(${PYTHON_INCLUDE_PATH} include/ )
+include_directories(${PYTHON_INCLUDE_DIR} include/ )
 
 add_library(${PROJECT_NAME} STATIC ${ENC_SERVER_SRCS} ${ENC_SERVER_HEADERS})
 

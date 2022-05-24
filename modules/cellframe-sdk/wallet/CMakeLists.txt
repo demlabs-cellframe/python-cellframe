@@ -10,7 +10,7 @@ add_definitions("-DDAP_LOG_MT")
 file(GLOB CHAIN_WALLET_PYTHON_SRCS src/*.c)
 file(GLOB CHAIN_WALLET_PYTHON_HEADERS include/*.h)
 
-include_directories(${PYTHON_INCLUDE_PATH} include/)
+include_directories(${PYTHON_INCLUDE_DIR} include/)
 
 add_library(${PROJECT_NAME} STATIC ${CHAIN_WALLET_PYTHON_SRCS} ${CHAIN_WALLET_PYTHON_HEADERS})
 
