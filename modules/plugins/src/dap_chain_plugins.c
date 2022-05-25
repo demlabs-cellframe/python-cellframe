@@ -26,9 +26,15 @@ _dap_chain_plugins_module_t *_s_modules = NULL;
 
 int dap_chain_plugins_init(dap_config_t *a_config){
     if(dap_config_get_item_bool_default(a_config, "plugins", "py_load", false)){
-        const char *l_defaule_path_plugins = dap_strjoin(NULL, "/opt/", dap_get_appname(), "/var/plugins/", NULL);
+        const char *l_default_path_plugins = dap_strjoin(NULL, "/opt/", dap_get_appname(), "/var/plugins/", NULL);
+        const char *l_default_path_pyhome = dap_strjoin(NULL, "/opt/", dap_get_appname(), "/bin/python/", NULL);
+
         const char *l_plugins_root_path = dap_config_get_item_str_default(a_config, "plugins", "py_path",
-                                                            l_defaule_path_plugins);
+                                                            l_default_path_plugins);
+        
+        const char *l_plugins_pyhome = dap_config_get_item_str_default(a_config, "plugins", "py_home",
+                                                            l_default_path_pyhome);
+
         s_plugins_root_path = dap_strjoin(NULL, l_plugins_root_path, "/", NULL);
         log_it(L_INFO, "Start initialization of python plugins. Path plugins: %s", s_plugins_root_path);
         if (!dap_dir_test(s_plugins_root_path)){
@@ -37,12 +43,16 @@ int dap_chain_plugins_init(dap_config_t *a_config){
         }
         PyImport_AppendInittab("DAP", PyInit_libDAP);
         PyImport_AppendInittab("CellFrame", PyInit_libCellFrame);
-        #ifdef DAP_BUILD_WITH_PYTHON_ENV
-            const wchar_t *l_python_env_path = L"/opt/cellframe-node/lib/python3.7";
-            Py_SetPath(l_python_env_path);
-        #endif
+
+        log_it(L_NOTICE, "PYTHONHOME=\"%s\"", l_plugins_pyhome);
+        
+        Py_SetPythonHome(Py_DecodeLocale(l_default_path_pyhome, NULL));
+        log_it(L_NOTICE, "set pyhome");
         Py_Initialize();
+        log_it(L_NOTICE, "done init");
+        
         PyEval_InitThreads();
+           log_it(L_NOTICE, "Loading sys");
         PyObject *l_sys_module = PyImport_ImportModule("sys");
         s_sys_path = PyObject_GetAttrString(l_sys_module, "path");
         //Get list files
