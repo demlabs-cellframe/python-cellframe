@@ -47,12 +47,10 @@ int dap_chain_plugins_init(dap_config_t *a_config){
         log_it(L_NOTICE, "PYTHONHOME=\"%s\"", l_plugins_pyhome);
         
         Py_SetPythonHome(Py_DecodeLocale(l_default_path_pyhome, NULL));
-        log_it(L_NOTICE, "set pyhome");
         Py_Initialize();
-        log_it(L_NOTICE, "done init");
         
         PyEval_InitThreads();
-           log_it(L_NOTICE, "Loading sys");
+        
         PyObject *l_sys_module = PyImport_ImportModule("sys");
         s_sys_path = PyObject_GetAttrString(l_sys_module, "path");
         //Get list files
