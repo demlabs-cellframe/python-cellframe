@@ -66,7 +66,7 @@ PyGetSetDef  DapChainDatumGetSet[] = {
         {"versionStr", (getter)wrapping_dap_chain_datum_get_version_str_py, NULL, NULL, NULL},
         {"tsCreated", (getter)dap_chain_datum_get_ts_created_py, NULL, NULL, NULL},
         {"raw", (getter)wrapping_dap_chain_datum_get_raw_py, NULL, NULL, NULL},
-        {"rawData", (getter)wrapping_dap_chain_datum_get_raw_data_py, NULL, NULL, NULL},
+        {"dataRaw", (getter)wrapping_dap_chain_datum_get_raw_data_py, NULL, NULL, NULL},
         {NULL}
 };
 
@@ -117,15 +117,34 @@ bool PyDapChainDatum_Check(PyObject *self){
 }
 
 PyObject *PyDapChainDatumObject_new(PyTypeObject *type_object, PyObject *args, PyObject *kwds){
-    uint16_t type_id;
-    PyObject *bytes;
-    if (!PyArg_ParseTuple(args, "HO", &type_id, &bytes))
+    PyObject *obj_arg_first;
+    PyObject *obj_arg_second = NULL;
+    if (!PyArg_ParseTuple(args, "O|O", &obj_arg_first, &obj_arg_second))
         return NULL;
-    PyDapChainDatumObject *obj = (PyDapChainDatumObject*)PyType_GenericNew(type_object, args, kwds);
-    void* bytes_v = (void *)PyBytes_AsString((PyObject*)bytes);
-    size_t l_bytes_size = PyBytes_Size(bytes);
-    obj->datum = dap_chain_datum_create(type_id, bytes_v, l_bytes_size);
-    return (PyObject *)obj;
+    if (PyLong_Check(obj_arg_first)){
+        if (!PyBytes_Check(obj_arg_second)){
+            PyErr_SetString(PyExc_AttributeError, "The datum constructor can only take an instance of an object of "
+                                                  "the bytes type as an instance");
+            return NULL;
+        }
+        uint16_t type_id = (uint16_t)PyLong_AsUnsignedLong(obj_arg_first);
+        void *l_bytes = (void*)PyBytes_AsString(obj_arg_second);
+        size_t l_bytes_size = PyBytes_Size(obj_arg_second);
+        PyDapChainDatumObject *obj = (PyDapChainDatumObject*)PyType_GenericNew(type_object, args, kwds);
+        obj->datum = dap_chain_datum_create(type_id, l_bytes, l_bytes_size);
+        return (PyObject *)obj;
+    } else {
+        if (!PyBytes_Check(obj_arg_first)){
+            PyErr_SetString(PyExc_AttributeError, "The datum constructor can only take an instance of an object of "
+                                                  "the bytes type as an instance");
+            return NULL;
+        }
+        void *l_bytes = (void*)PyBytes_AsString(obj_arg_first);
+        size_t l_bytes_size = PyBytes_Size(obj_arg_first);
+        PyDapChainDatumObject *obj = (PyDapChainDatumObject*)PyType_GenericNew(type_object, args, kwds);
+        obj->datum = (dap_chain_datum_t*)l_bytes;
+        return (PyObject *)obj;
+    }
 }
 
 PyObject *dap_chain_datum_size_py(PyObject *self, PyObject *args){
