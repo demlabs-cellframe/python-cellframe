@@ -46,7 +46,7 @@ int dap_chain_plugins_init(dap_config_t *a_config){
 
         log_it(L_NOTICE, "PYTHONHOME=\"%s\"", l_plugins_pyhome);
         
-        Py_SetPythonHome(Py_DecodeLocale(l_default_path_pyhome, NULL));
+        Py_SetPythonHome(Py_DecodeLocale(l_plugins_pyhome, NULL));
         Py_Initialize();
         
         PyEval_InitThreads();
