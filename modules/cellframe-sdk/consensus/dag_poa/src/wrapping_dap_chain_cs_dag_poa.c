@@ -64,7 +64,7 @@ int _wrapping_callback_handler(dap_chain_t *a_chain, dap_chain_cs_dag_event_t *a
     PyGILState_STATE state = PyGILState_Ensure();
     PyDapChainObject *l_obj_chain = PyObject_New(PyDapChainObject, &DapChainObjectType);
     l_obj_chain->chain_t = a_chain;
-    PyDapChainCsDagEventObject *l_obj_event = PyObject_New(PyDapChainCsDagEventObject, &DapChainCsDagEvent_DapChainCsDagEventType);
+    PyDapChainCsDagEventObject *l_obj_event = PyObject_New(PyDapChainCsDagEventObject, &DapChainCsDagEventType);
     l_obj_event->event = a_event;
     l_obj_event->event_size = a_event_size;
     PyObject *argv = Py_BuildValue("OOO", l_obj_chain, l_obj_event, l_callback->arg);
