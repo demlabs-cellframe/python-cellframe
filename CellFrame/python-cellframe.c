@@ -638,6 +638,7 @@ PyMODINIT_FUNC PyInit_libCellFrame(void)
         PyType_Ready( &DapChainCsDagPoaObjectType ) < 0 ||
         PyType_Ready(&DapChainCsBlockType) < 0 ||
         PyType_Ready(&DapChainCsDagType) < 0 ||
+        PyType_Ready(&DapChainCsDagEventType) < 0 ||
         PyType_Ready( &DapChainGdbObjectType ) < 0
         ) {
         log_it(L_CRITICAL,"Not all python type objects are initialized for CellFrame module");
@@ -705,6 +706,7 @@ PyMODINIT_FUNC PyInit_libCellFrame(void)
     PyModule_AddObject(csModule, "DagPoa", (PyObject*)&DapChainCsDagPoaObjectType);
     PyModule_AddObject(csModule, "Block", (PyObject*)&DapChainCsBlockType);
     PyModule_AddObject(csModule, "ChainCSDag", (PyObject*)&DapChainCsDagType);
+    PyModule_AddObject(csModule, "DAG", (PyObject*)&DapChainCsDagEventType);
     PyModule_AddObject(csModule, "GDB", (PyObject*)&DapChainGdbObjectType);
 
     PyObject *cellframeModule = PyModule_Create(&CellFramePythonModule);
