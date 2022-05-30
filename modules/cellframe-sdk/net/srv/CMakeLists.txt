@@ -54,10 +54,10 @@ if(NOT (${SUBMODULES_NO_BUILD} MATCHES ON))
                 "-fpic"
         )
     endif()
-    if (NOT (TARGET dap_server_core))
+    if (NOT (TARGET dap_io))
         add_subdirectory(libdap-server-core)
         target_compile_options(
-                dap_server_core PRIVATE
+                dap_io PRIVATE
                 "-fpic"
         )
     endif()
@@ -189,7 +189,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC include/ )
 target_link_libraries(${PROJECT_NAME} dap_core
         dap_crypto
         dap_chain
-        dap_server_core
+        dap_io
         dap_chain_net
         dap_chain_net_srv
         dap_chain_python_module

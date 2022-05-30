@@ -1,4 +1,4 @@
-project(dap_server_core_python_module C)
+project(dap_io_python_module C)
 cmake_minimum_required(VERSION 3.0)
 
 set(CMAKE_VERBOSE_MAKEFILE ON)
@@ -25,7 +25,7 @@ if(NOT (${SUBMODULES_NO_BUILD} MATCHES ON))
     if (NOT (TARGET dap-server-core))
        add_subdirectory(libdap-server-core)
        target_compile_options(
-           dap_server_core PRIVATE
+           dap_io PRIVATE
            "-fpic"
        )
     endif()
@@ -43,7 +43,7 @@ add_library(${PROJECT_NAME} STATIC ${SERVER_CORE_PYTHON_SRCS} ${SERVER_CORE_PYTH
 target_link_libraries(${PROJECT_NAME})
 
 
-target_link_libraries(${PROJECT_NAME} dap_core dap_crypto dap_server_core)
+target_link_libraries(${PROJECT_NAME} dap_core dap_crypto dap_io)
 
 target_include_directories(${PROJECT_NAME} PUBLIC include/ )
 
