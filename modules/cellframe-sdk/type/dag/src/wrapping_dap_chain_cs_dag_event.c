@@ -1,6 +1,7 @@
 #include "wrapping_dap_chain_cs_dag_event.h"
 
 PyMethodDef PyDapChainCsDagEventMethodsDef[] = {
+	{"fromAtom", (PyCFunction)wrapping_dap_chain_cs_dag_event_from_atom, METH_VARARGS | METH_STATIC, ""},
         {NULL, NULL, 0, NULL}
 };
 
@@ -19,7 +20,7 @@ PyGetSetDef PyDapChainCsDagEventGetsSetsDef[] = {
         {NULL}
 };
 
-PyTypeObject DapChainCsDagEvent_DapChainCsDagEventType = {
+PyTypeObject DapChainCsDagEventType = {
         PyVarObject_HEAD_INIT(NULL, 0)
         "CellFrame.ChainCsDagEvent",                                            /* tp_name */
         sizeof(PyDapChainCsDagEventObject),                                     /* tp_basicsize */
@@ -60,6 +61,18 @@ PyTypeObject DapChainCsDagEvent_DapChainCsDagEventType = {
         0,                                                            /* tp_alloc */
         PyType_GenericNew,                                            /* tp_new */
 };
+
+PyObject *wrapping_dap_chain_cs_dag_event_from_atom(PyObject *self, PyObject *args){
+    (void)self;
+    PyObject *obj_atom_ptr;
+    if (!PyArg_ParseTuple(args, "O", &obj_atom_ptr)){
+        return NULL;
+    }
+    PyDapChainCsDagEventObject *obj_dag = PyObject_New(PyDapChainCsDagEventObject, &DapChainCsDagEventType);
+    obj_dag->event = ((PyChainAtomObject *)obj_atom_ptr)->atom;
+    obj_dag->event_size = ((PyChainAtomObject *)obj_atom_ptr)->atom_size;
+    return (PyObject*)obj_dag;
+}
 
 PyObject *wrapping_dap_chain_cs_dag_event_get_hash(PyObject *self, void *closure){
     (void)closure;
