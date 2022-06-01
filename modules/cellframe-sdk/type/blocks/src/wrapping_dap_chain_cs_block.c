@@ -142,6 +142,9 @@ PyObject *wrapping_dap_chain_block_get_datums(PyObject *self, void *closure){
     dap_chain_datum_t **l_datums = dap_chain_block_get_datums(
             ((PyDapChainCSBlockObject*)self)->block,
             ((PyDapChainCSBlockObject*)self)->block_size, &l_count);
+    if (l_count == 0){
+        Py_RETURN_NONE;
+    }
     PyObject *obj_datums = PyList_New(l_count);
     for (size_t i = 0; i < l_count; i++) {
         PyDapChainDatumObject *obj_datum = PyObject_New(PyDapChainDatumObject, &DapChainDatumObjectType);
