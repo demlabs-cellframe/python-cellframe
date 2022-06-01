@@ -169,7 +169,7 @@ int wrapping_dap_sign_create(PyObject *self, PyObject* args, PyObject *kwds){
                         ((PyDapChainDatumTokenEmissionObject*)obj_data)->token_emission,
                         ((PyDapChainDatumTokenEmissionObject*)obj_data)->token_size, 0);
     }
-    if (PyDapChainDatum_Check(obj_data)){
+    if (PyDapChainDatum_Check((PyDapChainDatumObject *)obj_data)) {
         size_t l_datum_size = dap_chain_datum_size(((PyDapChainDatumObject*)obj_data)->datum);
         l_sign = dap_sign_create(
                 ((PyCryptoKeyObject*)obj_key)->key,
@@ -210,7 +210,7 @@ PyObject *wrapping_dap_sign_verify(PyObject *self, PyObject *args){
         l_data = ((PyDapChainDatumTokenEmissionObject*)obj_data)->token_emission;
         l_data_size = ((PyDapChainDatumTokenEmissionObject*)obj_data)->token_size;
     }
-    if (PyDapChainDatum_Check(obj_data)){
+    if (PyDapChainDatum_Check((PyDapChainDatumObject *)obj_data)) {
         l_data = ((PyDapChainDatumObject*)obj_data)->datum;
         l_data_size = dap_chain_datum_size(((PyDapChainDatumObject*)obj_data)->datum);
     }

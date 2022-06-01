@@ -112,7 +112,7 @@ PyTypeObject DapChainDatumObjectType = {
         PyDapChainDatumObject_new,       /* tp_new */
 };
 
-bool PyDapChainDatum_Check(PyObject *self){
+bool PyDapChainDatum_Check(PyDapChainDatumObject *self){
     return PyObject_TypeCheck(self, &DapChainDatumObjectType);
 }
 
