@@ -477,8 +477,8 @@ PyObject *dap_chain_mempool_list_py(PyObject *self, PyObject *args){
 
 PyObject *dap_chain_mempool_add_datum_py(PyObject *self, PyObject *args){
     (void)self;
-    PyObject *obj_datum;
-    PyObject *obj_chain;
+    PyDapChainDatumObject *obj_datum;
+    PyDapChainObject *obj_chain;
     if (!PyArg_ParseTuple(args, "OO", &obj_chain, &obj_datum)){
         return NULL;
     }
@@ -492,8 +492,7 @@ PyObject *dap_chain_mempool_add_datum_py(PyObject *self, PyObject *args){
                                               "The second argument must be instance of an object of type Datum.");
         return NULL;
     }
-    char *l_str = dap_chain_mempool_datum_add(
-            ((PyDapChainDatumObject*)obj_datum)->datum, ((PyDapChainObject*)obj_chain)->chain_t);
+    char *l_str = dap_chain_mempool_datum_add(obj_datum->datum, obj_chain->chain_t);
     if (!l_str)
         return Py_None;
     return Py_BuildValue("s", l_str);
