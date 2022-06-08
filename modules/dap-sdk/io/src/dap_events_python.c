@@ -10,7 +10,7 @@ PyMethodDef PyDapEventsObject_methods[] = {
 
 PyTypeObject DapEventsObjectType = {
         PyVarObject_HEAD_INIT(NULL, 0)
-        "DAP.Net.Events",           /* tp_name */
+        "DAP.IO.Events",           /* tp_name */
         sizeof(PyDapEventsObject),		        /* tp_basicsize */
         0,			                        /* tp_itemsize */
         (destructor)PyDapEventsObject_dealloc,	/* tp_dealloc */
@@ -52,12 +52,10 @@ PyTypeObject DapEventsObjectType = {
 
 PyObject *PyDapEventsObject_new(PyTypeObject *type_object, PyObject *args, PyObject *kwds){
     PyDapEventsObject *new_EO = (PyDapEventsObject*)PyType_GenericNew(type_object, args, kwds);
-    new_EO->t_events = dap_events_new();
     return (PyObject *)new_EO;
 }
 
 void PyDapEventsObject_dealloc(PyDapEventsObject *eventsObject){
-    dap_events_delete(eventsObject->t_events);
     Py_TYPE(eventsObject)->tp_free((PyObject*)eventsObject);
 }
 
@@ -84,10 +82,10 @@ PyObject *dap_events_socket_kill_socket_py(PyDapEventsObject *self, PyObject *ar
 }
 
 PyObject *dap_events_start_py(PyDapEventsObject *self){
-    int32_t result = dap_events_start(self->t_events);
+    int32_t result = dap_events_start();
     return PyLong_FromLong(result);
 }
 PyObject *dap_events_wait_py(PyDapEventsObject *self){
-    int32_t result = dap_events_wait(self->t_events);
+    int32_t result = dap_events_wait();
     return PyLong_FromLong(result);
 }

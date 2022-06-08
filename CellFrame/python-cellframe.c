@@ -10,7 +10,7 @@ static bool s_init_stream_ctl = false;
 static bool s_init_http_folder = false;
 static bool s_init_http = false;
 static bool s_init_http_enc = false;
-static bool s_init_server_core = false;
+static bool s_io_core = false;
 static bool s_init_mempool = false;
 
 //static bool s_init_http_client_simple = false;
@@ -388,28 +388,23 @@ PyObject *python_dap_init(PyObject *self, PyObject *args)
                 return NULL;
             }
             dap_cert_init();
-        } else if (strcmp(c_value, "Events") == 0){
-            dap_events_init(0,0);
-            events = _PyObject_New(&DapEventsObjectType);
-            ((PyDapEventsObject*)events)->t_events = dap_events_new();
-            dap_events_start(((PyDapEventsObject*)events)->t_events);
         } else if (strcmp(c_value, "Server") == 0){
             if(dap_server_init() != 0 ){
                 PyErr_SetString(CellFrame_error, "Failed to initialize \"Server\" module");
                 return NULL;
             }
-        }else if (strcmp(c_value, "ServerCore") == 0){
-            PyObject* getServerCoreData = PyDict_GetItemString(result, "ServerCore");
-            if (getServerCoreData == NULL){
-                PyErr_SetString(CellFrame_error, "Failed to initialize \"ServerCore\" module."
-                                "Can't find \"ServerCore\" object in JSON string");
+        }else if (strcmp(c_value, "IO") == 0){
+            PyObject* getIOData = PyDict_GetItemString(result, "IO");
+            if (getIOData == NULL){
+                PyErr_SetString(CellFrame_error, "Failed to initialize \"IO\" module."
+                                "Can't find \"IO\" object in JSON string");
                 return NULL;
             }
-            PyObject* Nl_thread_cnt = PyDict_GetItemString(getServerCoreData, "thread_cnt");
-            PyObject* Nl_conn = PyDict_GetItemString(getServerCoreData, "conn");
+            PyObject* Nl_thread_cnt = PyDict_GetItemString(getIOData, "thread_cnt");
+            PyObject* Nl_conn = PyDict_GetItemString(getIOData, "conn");
             if ( (Nl_thread_cnt == NULL || Nl_conn == NULL) || !PyNumber_Check(Nl_thread_cnt) ||
                  !PyNumber_Check(Nl_conn)){
-                PyErr_SetString(CellFrame_error, "Failed to initialize \"ServerCore\" module."
+                PyErr_SetString(CellFrame_error, "Failed to initialize \"IO\" module."
                                                  "Values of \"thread_cnt\" and \"conn\" keys aren't numerical or are absent");
                 return NULL;
             }
@@ -418,10 +413,14 @@ PyObject *python_dap_init(PyObject *self, PyObject *args)
             uint32_t ul_thread_cnt = (uint32_t)PyLong_AsUnsignedLong(ll_thread_cnt);
             size_t ul_conn = PyLong_AsSize_t(ll_conn);
             if(dap_io_init(ul_thread_cnt, ul_conn) != 0 ){
-                PyErr_SetString(CellFrame_error, "Failed to initialize \"ServerCore\" module");
+                PyErr_SetString(CellFrame_error, "Failed to initialize \"IO\" module");
                 return NULL;
             }
-            s_init_server_core = true;
+            dap_events_init(ul_thread_cnt,0);
+            events = _PyObject_New(&DapEventsObjectType);
+            dap_events_start();
+            s_io_core = true;
+
         } else if (strcmp(c_value, "Http") == 0){
             if(dap_http_init() != 0){
                 PyErr_SetString(CellFrame_error, "Failed to initialize \"Http\" module");
@@ -449,7 +448,7 @@ PyObject *python_dap_init(PyObject *self, PyObject *args)
             PyObject* getStreamData = PyDict_GetItemString(result, "Stream");
             if (getStreamData == NULL){
                 PyErr_SetString(CellFrame_error, "Failed to initialize \"Stream\" module."
-                                "Can't find \"ServerCore\" object in JSON string");
+                                "Can't find \"IO\" object in JSON string");
                 return NULL;
             }
             PyObject *debugDumpStreamHeadersObj = PyDict_GetItemString(getStreamData, "DebugDumpStreamHeaders");
@@ -507,7 +506,7 @@ PyMODINIT_FUNC PyInit_libDAP()
         PyType_Ready( &DapCryptoSignObjectType ) < 0 ||
         PyType_Ready( &DapChainHashFastObjectType ) < 0 ||
         // === Network ==
-        PyType_Ready( &DapServerCoreObjectType ) < 0 ||
+        PyType_Ready( &DapIOObjectType ) < 0 ||
         PyType_Ready( &DapEventsObjectType ) < 0 ||
         PyType_Ready( &DapEventsSocketObjectType ) < 0 ||
         PyType_Ready( &DapHttpCodeObjectType ) < 0 ||
@@ -539,7 +538,7 @@ PyMODINIT_FUNC PyInit_libDAP()
     PyModule_AddObject(cryptoModule, "HashFast", (PyObject*)&DapChainHashFastObjectType);
 
     PyObject *netModule = PyModule_Create(&DapNetPythonModule);
-    PyModule_AddObject(netModule, "ServerCore", (PyObject*)&DapServerCoreObjectType);
+    PyModule_AddObject(netModule, "IO", (PyObject*)&DapIOObjectType);
     PyModule_AddObject(netModule, "Events", (PyObject*)&DapEventsObjectType);
     PyModule_AddObject(netModule, "EventsSocket", (PyObject*)&DapEventsSocketObjectType);
     PyModule_AddObject(netModule, "Http", (PyObject*)&DapHttpObjectType);
@@ -755,7 +754,7 @@ void deinit_modules(void){
         if (s_init_http){
             dap_http_deinit();
         }
-        if (s_init_server_core){
+        if (s_io_core){
             dap_io_deinit();
         }
         if (s_init_ks){

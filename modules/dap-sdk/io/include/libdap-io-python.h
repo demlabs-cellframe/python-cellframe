@@ -15,7 +15,7 @@ extern "C" {
 
 typedef struct SeverCore{
     PyObject_HEAD
-}PyServerCoreObject;
+}PyIOObject;
 
 int dap_io_init(uint32_t l_thread_cnt, size_t conn_t);
 void dap_io_deinit(void);
@@ -23,7 +23,7 @@ void dap_io_deinit(void);
 PyObject *dap_io_loop(PyObject *self, PyObject *args);
 PyObject *dap_io_listen(PyObject *self, PyObject *args);
 
-extern PyTypeObject DapServerCoreObjectType;
+extern PyTypeObject DapIOObjectType;
 
 #ifdef __cplusplus
 }
