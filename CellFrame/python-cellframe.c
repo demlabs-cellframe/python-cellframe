@@ -417,7 +417,7 @@ PyObject *python_dap_init(PyObject *self, PyObject *args)
             PyObject *ll_conn = PyNumber_Long(Nl_conn);
             uint32_t ul_thread_cnt = (uint32_t)PyLong_AsUnsignedLong(ll_thread_cnt);
             size_t ul_conn = PyLong_AsSize_t(ll_conn);
-            if(dap_server_core_init(ul_thread_cnt, ul_conn) != 0 ){
+            if(dap_io_init(ul_thread_cnt, ul_conn) != 0 ){
                 PyErr_SetString(CellFrame_error, "Failed to initialize \"ServerCore\" module");
                 return NULL;
             }
@@ -756,7 +756,7 @@ void deinit_modules(void){
             dap_http_deinit();
         }
         if (s_init_server_core){
-            dap_server_core_deinit();
+            dap_io_deinit();
         }
         if (s_init_ks){
             dap_enc_ks_deinit();

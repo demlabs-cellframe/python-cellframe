@@ -82,7 +82,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 add_subdirectory(modules/dap-sdk/core)
 add_subdirectory(modules/dap-sdk/crypto)
-add_subdirectory(modules/dap-sdk/net/core)
+add_subdirectory(modules/dap-sdk/io)
 add_subdirectory(modules/dap-sdk/net/client)
 add_subdirectory(modules/dap-sdk/net/server/enc)
 add_subdirectory(modules/dap-sdk/net/server/http)
@@ -123,7 +123,7 @@ target_compile_options(dap_chain_wallet PRIVATE "-fpic" )
 #target_compile_options(dap_chain_crypto PRIVATE "-fpic" )
 #target_compile_options(dap_chain_mempool PRIVATE "-fpic" )
 target_compile_options(dap_chain_net PRIVATE "-fpic" )
-target_compile_options(dap_server_core PRIVATE "-fpic" )
+target_compile_options(dap_io PRIVATE "-fpic" )
 target_compile_options(dap_chain_global_db PRIVATE "-fpic" )
 target_compile_options(dap_client PRIVATE "-fpic" )
 #target_compile_options(libdap-server PRIVATE "-fpic" )
@@ -157,7 +157,7 @@ target_compile_options(dap_chain_wallet PRIVATE "-fpic" )
 #target_compile_options(dap_chain_crypto PRIVATE "-fpic" )
 #target_compile_options(dap_chain_mempool PRIVATE "-fpic" )
 target_compile_options(dap_chain_net PRIVATE "-fpic" )
-target_compile_options(dap_server_core PRIVATE "-fpic" )
+target_compile_options(dap_io PRIVATE "-fpic" )
 target_compile_options(dap_chain_global_db PRIVATE "-fpic" )
 target_compile_options(dap_client PRIVATE "-fpic" )
 #target_compile_options(libdap-server PRIVATE "-fpic" )
@@ -177,7 +177,7 @@ target_compile_options(dap_stream_ch_chain_net_srv PRIVATE "-fpic")
 #target_compile_options(dap_chain_cs_dag PRIVATE "-fpic")
 #target_compile_options(dap_chain_cs_dag_poa PRIVATE "-fpic")
 #target_compile_options(dap_chain_cs_dag_pos PRIVATE "-fpic")
-target_compile_options(dap_server_core_python_module PRIVATE "-fpic")
+target_compile_options(dap_io_python_module PRIVATE "-fpic")
 
 
 if (WIN32)
@@ -187,7 +187,7 @@ endif()
 
 target_link_libraries(${PROJECT_NAME} cellframe-sdk dap_python_module
                       dap_crypto_python_module
-                      dap_server_core_python_module
+                      dap_io_python_module
                       dap_enc_server_python_module
                       dap_server_http_python_module
                       dap_stream_python_module

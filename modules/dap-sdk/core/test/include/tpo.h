@@ -25,9 +25,9 @@ static PyMethodDef TPOPythonMethods[] = {
         {"logItCritical", (PyCFunction)dap_log_it_critical, METH_VARARGS, "The log_it wrapper for the libdap library displays information with the logging level CRITICAL"},
         {"configGetItem", (PyCFunction)py_m_dap_config_get_item, METH_VARARGS, ""},
         {"configGetItemDefault", (PyCFunction)py_m_dap_config_get_item_default, METH_VARARGS, ""},
-        //{"deinit", dap_server_core_deinit, METH_NOARGS, "Deinitialization of the DAP (Deus Applicaions Prototypes) server core library"},
-        //{"loop", dap_server_core_loop, METH_VARARGS, ""},
-        //{"listen", dap_server_core_listen, METH_VARARGS, ""},
+        //{"deinit", dap_io_deinit, METH_NOARGS, "Deinitialization of the DAP (Deus Applicaions Prototypes) server core library"},
+        //{"loop", dap_io_loop, METH_VARARGS, ""},
+        //{"listen", dap_io_listen, METH_VARARGS, ""},
         {NULL, NULL, 0, NULL}
 };
 

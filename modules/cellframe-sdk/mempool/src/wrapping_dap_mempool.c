@@ -444,8 +444,8 @@ PyObject* pvt_dap_chain_mempool_list(dap_chain_t *a_chain){
 
 PyObject *dap_chain_mempool_list_py(PyObject *self, PyObject *args){
     (void)self;
-    PyObject *obj_net;
-    PyObject *obj_chain = NULL;
+    PyDapChainNetObject *obj_net;
+    PyDapChainObject *obj_chain = NULL;
     if (!PyArg_ParseTuple(args, "O|O", &obj_net, &obj_chain)){
         return NULL;
     }
@@ -457,7 +457,7 @@ PyObject *dap_chain_mempool_list_py(PyObject *self, PyObject *args){
     if (!obj_chain){
         dap_chain_t *l_chain_tmp;
         PyObject *obj_list = PyList_New(0);
-        DL_FOREACH(((PyDapChainNetObject*)obj_net)->chain_net->pub.chains, l_chain_tmp){
+        DL_FOREACH(obj_net->chain_net->pub.chains, l_chain_tmp){
             PyObject *obj_list_datum_from_chain = pvt_dap_chain_mempool_list(l_chain_tmp);
             for (int i=0; i < PyList_Size(obj_list_datum_from_chain); i++){
                 PyList_Append(obj_list, PyList_GetItem(obj_list_datum_from_chain, i));
@@ -470,7 +470,7 @@ PyObject *dap_chain_mempool_list_py(PyObject *self, PyObject *args){
                                                   "second argument must be an instance of an object of type Chain.");
             return NULL;
         }
-        PyObject *obj_list = pvt_dap_chain_mempool_list(((PyDapChainObject*)obj_chain)->chain_t);
+        PyObject *obj_list = pvt_dap_chain_mempool_list(obj_chain->chain_t);
         return obj_list;
     }
 }

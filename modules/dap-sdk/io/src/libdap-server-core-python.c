@@ -3,7 +3,7 @@
 #define LOG_TAG "libdap-server-core-python"
 
 PyMethodDef ServerCorePythonMethods[] = {
-        {"listen", dap_server_core_listen, METH_VARARGS | METH_STATIC, ""},
+        {"listen", dap_io_listen, METH_VARARGS | METH_STATIC, ""},
         {NULL, NULL, 0, NULL}
 };
 
@@ -50,7 +50,7 @@ PyTypeObject DapServerCoreObjectType = {
         PyType_GenericNew,                  /* tp_new */
 };
 
-int dap_server_core_init(uint32_t l_thread_cnt, size_t conn_t){
+int dap_io_init(uint32_t l_thread_cnt, size_t conn_t){
     int result = dap_server_init();
     if ( result != 0 ) {
        log_it( L_CRITICAL, "Can't initialize \"socket server\" module" );
@@ -59,12 +59,12 @@ int dap_server_core_init(uint32_t l_thread_cnt, size_t conn_t){
     return result;
 }
 
-void dap_server_core_deinit(void){
+void dap_io_deinit(void){
     dap_server_deinit();
     dap_events_deinit();
 }
 
-PyObject *dap_server_core_listen(PyObject *self, PyObject *args){
+PyObject *dap_io_listen(PyObject *self, PyObject *args){
     const char *addr;
     uint16_t port;
     uint16_t type;
