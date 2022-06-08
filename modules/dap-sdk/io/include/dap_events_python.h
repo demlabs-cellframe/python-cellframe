@@ -11,7 +11,6 @@ extern "C" {
 
 typedef struct PyDapEvents{
     PyObject_HEAD
-    dap_events_t *t_events;
 }PyDapEventsObject;
 
 void PyDapEventsObject_dealloc(PyDapEventsObject *eventsObject);
