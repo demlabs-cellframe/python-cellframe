@@ -22,8 +22,8 @@ if(NOT (${SUBMODULES_NO_BUILD} MATCHES ON))
            "-fpic"
        )
     endif()
-    if (NOT (TARGET dap-server-core))
-       add_subdirectory(libdap-server-core)
+    if (NOT (TARGET dap-io))
+       add_subdirectory(libdap-io)
        target_compile_options(
            dap_io PRIVATE
            "-fpic"

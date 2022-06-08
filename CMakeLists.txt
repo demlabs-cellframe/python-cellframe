@@ -82,7 +82,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 add_subdirectory(modules/dap-sdk/core)
 add_subdirectory(modules/dap-sdk/crypto)
-add_subdirectory(modules/dap-sdk/net/core)
+add_subdirectory(modules/dap-sdk/io)
 add_subdirectory(modules/dap-sdk/net/client)
 add_subdirectory(modules/dap-sdk/net/server/enc)
 add_subdirectory(modules/dap-sdk/net/server/http)

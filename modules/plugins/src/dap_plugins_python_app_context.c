@@ -61,7 +61,13 @@ PyObject *dap_plugins_python_app_context_get_server(PyObject *self, PyObject *ar
     (void)self;
     PyObject *l_obj_serverCore;
     if (!PyArg_ParseTuple(args, "O", &l_obj_serverCore)){
+        PyErr_SetString(PyExc_TypeError, "No argument provided.");
         return NULL;
+    }
+    if (!s_app_context->server)
+    {
+       PyErr_SetString(PyExc_TypeError, "ServerCore server object is null, probably configuration mismatch in [server] section.");
+       return NULL;   
     }
     ((PyDapServerObject*)l_obj_serverCore)->t_server = s_app_context->server;
     Py_RETURN_NONE;
