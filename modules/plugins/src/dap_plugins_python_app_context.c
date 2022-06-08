@@ -66,7 +66,7 @@ PyObject *dap_plugins_python_app_context_get_server(PyObject *self, PyObject *ar
     }
     if (!s_app_context->server)
     {
-       PyErr_SetString(PyExc_TypeError, "ServerCore server object is null, probably configuration mismatch in [server] section.");
+       PyErr_SetString(PyExc_TypeError, "IO server object is null, probably configuration mismatch in [server] section.");
        return NULL;   
     }
     ((PyDapServerObject*)l_obj_serverCore)->t_server = s_app_context->server;
