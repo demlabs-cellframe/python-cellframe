@@ -34,7 +34,7 @@ target_link_libraries(${PROJECT_NAME}
         dap_core
         dap_http_server
         dap_stream
-        dap_server_core_python_module
+        dap_io_python_module
         dap_enc_server_python_module
         ${PYTHON_LIBRARIES})
 
