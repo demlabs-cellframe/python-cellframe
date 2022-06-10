@@ -25,6 +25,8 @@ static PyMethodDef DapChainMethods[] = {
         {"addMempoolNotify", (PyCFunction)dap_chain_python_add_mempool_notify_callback, METH_VARARGS, ""},
         {"addAtomNotify", (PyCFunction)dap_chain_net_add_atom_notify_callback, METH_VARARGS, ""},
         {"atomFindByHash", (PyCFunction)dap_chain_python_atom_find_by_hash, METH_VARARGS, ""},
+        {"countAtom", (PyCFunction)dap_chain_python_get_atom_count, METH_NOARGS, ""},
+        {"getAtoms", (PyCFunction)dap_chain_python_get_atoms, METH_VARARGS, ""},
         {"countTx", (PyCFunction)dap_chain_python_get_count_tx, METH_NOARGS, ""},
         {"getTransactions", (PyCFunction)dap_chain_python_get_txs, METH_VARARGS, ""},
         //{"close", (PyCFunction)dap_chain_close_py, METH_NOARGS, ""},
@@ -369,6 +371,33 @@ PyObject *dap_chain_python_atom_find_by_hash(PyObject *self, PyObject* args){
         l_obj_ptr->ptr = l_ptr;
         return Py_BuildValue("On", l_obj_ptr, l_size_atom);
     }
+}
+
+PyObject *dap_chain_python_get_atom_count(PyObject *self, PyObject *args){
+    (void)args;
+    size_t l_count = ((PyDapChainObject*)self)->chain_t->callback_count_atom(((PyDapChainObject*)self)->chain_t);
+    return Py_BuildValue("n", l_count);
+}
+PyObject *dap_chain_python_get_atoms(PyObject *self, PyObject *args){
+    size_t count, page;
+    if (!PyArg_ParseTuple(args, "nn",&count, &page)){
+        return NULL;
+    }
+    dap_chain_t *l_chain = ((PyDapChainObject*)self)->chain_t;
+    dap_list_t *l_atoms = l_chain->callback_get_atoms(l_chain, count, page);
+    if (!l_atoms){
+        Py_RETURN_NONE;
+    }
+    PyObject *obj_list = PyList_New(0);
+    for (dap_list_t *l_iter = l_atoms; l_iter != NULL; l_iter = l_iter->next){
+        PyChainAtomPtrObject *obj_atom = PyObject_New(PyChainAtomPtrObject, &DapChainAtomPtrObjectType);
+        obj_atom->ptr = l_iter->data;
+        l_iter = l_iter->next;
+        size_t l_ptr_size = *((size_t*)l_iter->data);
+        PyObject *obj_ptr = Py_BuildValue("On", (PyObject*)obj_atom, l_ptr_size);
+        PyList_Append(obj_list, obj_ptr);
+    }
+    return obj_list;
 }
 
 PyObject *dap_chain_python_get_count_tx(PyObject *self, PyObject *args){
