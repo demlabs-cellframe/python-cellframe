@@ -31,8 +31,12 @@ void python_error_in_log_it(const char *a_tag){
 
     PyObject* str_exc_value = PyObject_Repr(value);
     PyObject* exect_value_str = PyUnicode_AsEncodedString(str_exc_value, "utf-8", "Error ~");
-        
-    const char *l_str_value = PyBytes_AS_STRING(exect_value_str);;
+    
+    char *l_str_value;
+    if (exect_value_str)
+        l_str_value= PyBytes_AS_STRING(exect_value_str);
+    else
+        l_str_value = "Unknown python error (probably cause of debug build)";
     
     _PyErr_logIt(L_ERROR, a_tag, dap_strdup_printf(
             "An exception occurred while executing a Python script.\n"
