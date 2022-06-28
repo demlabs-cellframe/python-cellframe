@@ -1,3 +1,5 @@
+#include "dap_global_db_sync.h"
+
 #include "wrapping_dap_chain_global_db.h"
 
 PyMethodDef DapChainGlobalDBMethods[] = {
@@ -5,6 +7,7 @@ PyMethodDef DapChainGlobalDBMethods[] = {
         {"set", (PyCFunction)wrapping_dap_chain_global_db_gr_set, METH_VARARGS | METH_STATIC, ""},
         {"delete", (PyCFunction)wrapping_dap_chain_global_db_gr_del, METH_VARARGS | METH_STATIC, ""},
         {"pin", (PyCFunction)wrapping_dap_chain_global_db_gr_pin, METH_VARARGS | METH_STATIC, ""},
+        {"unpin", (PyCFunction)wrapping_dap_chain_global_db_gr_unpin, METH_VARARGS | METH_STATIC, ""},
         {"grLoad", (PyCFunction)wrapping_dap_chain_global_db_gr_load, METH_VARARGS | METH_STATIC, ""},
         {"addSyncExtraGroup", (PyCFunction)wrapping_dap_chain_global_db_add_sync_extra_group, METH_VARARGS | METH_STATIC, ""},
         {NULL, NULL, 0, NULL}
@@ -60,34 +63,45 @@ PyObject *wrapping_dap_chain_global_db_gr_get(PyObject *self, PyObject *args){
         return NULL;
     }
     size_t l_size_data = 0;
-    void *l_bytes = dap_chain_global_db_gr_get(l_key, &l_size_data, l_group);
+    void *l_bytes = dap_global_db_get_sync(l_group, l_key, &l_size_data, NULL, NULL);
     if (l_size_data == 0)
         Py_RETURN_NONE;
     PyObject *l_obj_bytes = PyBytes_FromStringAndSize(l_bytes, (Py_ssize_t)l_size_data);
     return l_obj_bytes;
 }
+
+/**
+ * @brief wrapping_dap_chain_global_db_gr_set
+ * @param self
+ * @param args
+ * @return
+ */
 PyObject *wrapping_dap_chain_global_db_gr_set(PyObject *self, PyObject *args){
     (void)self;
     char *l_key;
     char *l_group;
+    bool l_is_pinned = true;
     PyObject *obj_byte;
-    if (!PyArg_ParseTuple(args, "ssO", &l_key, &l_group, &obj_byte)){
-        return NULL;
+    if (!PyArg_ParseTuple(args, "ssOp", &l_key, &l_group, &obj_byte, &l_is_pinned)){
+        if (!PyArg_ParseTuple(args, "ssO", &l_key, &l_group, &obj_byte)){
+            return NULL;
+        }
     }
     if (!PyBytes_Check(obj_byte)){
         return NULL;
     }
-    char *l_key_dup = dap_strdup(l_key);
     void *l_bytes = PyBytes_AsString(obj_byte);
     size_t l_bytes_size = PyBytes_Size(obj_byte);
-    void *l_bytes_dup = dap_strdup(l_bytes);
-    bool ret = dap_chain_global_db_gr_set(l_key_dup, l_bytes_dup, l_bytes_size, l_group);
-    if (ret == true){
-        return Py_True;
-    } else {
-        return Py_False;
-    }
+    return dap_global_db_set_sync( l_group, l_key, l_bytes, l_bytes_size, l_is_pinned) == 0
+                ? Py_True : Py_False;
 }
+
+/**
+ * @brief wrapping_dap_chain_global_db_gr_del
+ * @param self
+ * @param args
+ * @return
+ */
 PyObject *wrapping_dap_chain_global_db_gr_del(PyObject *self, PyObject *args){
     (void)self;
     const char *l_key;
@@ -95,18 +109,36 @@ PyObject *wrapping_dap_chain_global_db_gr_del(PyObject *self, PyObject *args){
     if (!PyArg_ParseTuple(args, "ss",&l_key, &l_group)){
         return NULL;
     }
-    char *l_key_dup = dap_strdup(l_key);
-    char *l_group_dup = dap_strdup(l_group);
-    bool ret = dap_chain_global_db_gr_del(l_key_dup, l_group_dup);
-    if (ret == true)
-        return Py_True;
-    else
-        return Py_False;
+    return dap_global_db_del_sync(l_group, l_key) == 0
+            ? Py_True : Py_False;
 }
 
 PyObject *wrapping_dap_chain_global_db_gr_pin(PyObject *self, PyObject *args){
-    Py_RETURN_NONE;
+    (void)self;
+    char *l_key;
+    char *l_group;
+    PyObject *obj_byte;
+    if (!PyArg_ParseTuple(args, "ss", &l_key, &l_group)){
+        return NULL;
+    }
+
+    return dap_global_db_pin_sync( l_group, l_key) == 0
+            ? Py_True : Py_False;
 }
+
+PyObject *wrapping_dap_chain_global_db_gr_unpin(PyObject *self, PyObject *args){
+    (void)self;
+    char *l_key;
+    char *l_group;
+    PyObject *obj_byte;
+    if (!PyArg_ParseTuple(args, "ss", &l_key, &l_group)){
+        return NULL;
+    }
+
+    return dap_global_db_unpin_sync( l_group, l_key) == 0
+            ? Py_True : Py_False;
+}
+
 
 PyObject *wrapping_dap_chain_global_db_gr_load(PyObject *self, PyObject *args){
     (void)self;
@@ -115,7 +147,7 @@ PyObject *wrapping_dap_chain_global_db_gr_load(PyObject *self, PyObject *args){
         return NULL;
     }
     size_t l_data_out = 0;
-    dap_global_db_obj_t *l_db_obj = dap_chain_global_db_gr_load(l_group, &l_data_out);
+    dap_global_db_obj_t *l_db_obj = dap_global_db_get_all_sync(l_group, &l_data_out);
     if (l_data_out == 0){
         Py_RETURN_NONE;
     }

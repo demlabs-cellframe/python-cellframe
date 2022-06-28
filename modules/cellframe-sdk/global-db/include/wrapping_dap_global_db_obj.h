@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Python.h"
-#include "dap_chain_global_db.h"
+#include "dap_global_db.h"
 
 typedef struct PyDapChainGlobalDBObj{
     PyObject_HEAD

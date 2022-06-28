@@ -167,11 +167,11 @@ PyObject *dap_chain_mempool_proc_py(PyObject *self, PyObject *args) {
     }
 
     char *l_gdb_group_mempool = NULL;
-    l_gdb_group_mempool = dap_chain_net_get_gdb_group_mempool(l_chain);
+    l_gdb_group_mempool = dap_chain_net_get_gdb_group_mempool_new(l_chain);
 
     size_t l_datum_size = 0;
-    dap_chain_datum_t *l_datum = (dap_chain_datum_t*) dap_chain_global_db_gr_get(l_hash_str,
-                                                              &l_datum_size, l_gdb_group_mempool);
+    dap_chain_datum_t *l_datum = (dap_chain_datum_t*) dap_global_db_get_sync(l_gdb_group_mempool,l_hash_str,
+                                                              &l_datum_size, NULL, NULL);
     if (!l_datum){
         char *l_str = dap_strdup_printf("Failed to get data from chain %s on network %s using hash %s",
                                                                 l_chain->name, l_net->pub.name, l_hash_str);
@@ -199,7 +199,7 @@ PyObject *dap_chain_mempool_proc_py(PyObject *self, PyObject *args) {
             PyErr_SetString(PyExc_RuntimeError, l_str);
             log_it(L_WARNING, l_str);
         }
-        bool res_del_mempool = dap_chain_global_db_gr_del(l_hash_str, l_gdb_group_mempool);
+        bool res_del_mempool = dap_global_db_del_sync(l_gdb_group_mempool, l_hash_str);
         if (!res_del_mempool) {
             char *l_str = "Warning! Can't delete datum from mempool!";
             PyErr_SetString(PyExc_Warning, l_str);
@@ -410,9 +410,9 @@ PyObject *dap_chain_mempool_remove_py(PyObject *self, PyObject *args){
         PyErr_SetString(PyExc_AttributeError, "The passed chain arguments are corrupted.");
         return NULL;
     }
-    char *l_gdb_group_mempool = dap_chain_net_get_gdb_group_mempool(obj_chain->chain_t);
-    uint8_t *l_data_tmp = l_str_hash ? dap_chain_global_db_gr_get(l_str_hash, NULL, l_gdb_group_mempool) : NULL;
-    if(l_data_tmp && dap_chain_global_db_gr_del(l_str_hash, l_gdb_group_mempool)) {
+    char *l_gdb_group_mempool = dap_chain_net_get_gdb_group_mempool_new(obj_chain->chain_t);
+    uint8_t *l_data_tmp = l_str_hash ? dap_global_db_get_sync(l_gdb_group_mempool, l_str_hash, NULL,NULL,NULL) : NULL;
+    if(l_data_tmp && dap_global_db_del_sync(l_gdb_group_mempool, l_str_hash )) {
         DAP_DELETE(l_gdb_group_mempool);
         DAP_DELETE(l_data_tmp);
         Py_RETURN_TRUE;
@@ -426,17 +426,17 @@ PyObject *dap_chain_mempool_remove_py(PyObject *self, PyObject *args){
 
 PyObject* pvt_dap_chain_mempool_list(dap_chain_t *a_chain){
     PyObject *obj_list = PyList_New(0);
-    char * l_gdb_group_mempool = dap_chain_net_get_gdb_group_mempool(a_chain);
+    char * l_gdb_group_mempool = dap_chain_net_get_gdb_group_mempool_new(a_chain);
     if (l_gdb_group_mempool){
         size_t l_objs_size = 0;
-        dap_global_db_obj_t * l_objs = dap_chain_global_db_gr_load(l_gdb_group_mempool, &l_objs_size);
+        dap_global_db_obj_t * l_objs = dap_global_db_get_all_sync(l_gdb_group_mempool, &l_objs_size);
         for (size_t i = 0; i < l_objs_size; i++){
             dap_chain_datum_t * l_datum = (dap_chain_datum_t*) l_objs[i].value;
             PyDapChainDatumObject *obj_datum = PyObject_New(PyDapChainDatumObject, &DapChainDatumObjectType);
             obj_datum->datum = l_datum;
             PyList_Append(obj_list, (PyObject*)obj_datum);
         }
-        dap_chain_global_db_objs_delete(l_objs, l_objs_size);
+        dap_global_db_objs_delete(l_objs, l_objs_size);
     }
     DAP_FREE(l_gdb_group_mempool);
     return obj_list;

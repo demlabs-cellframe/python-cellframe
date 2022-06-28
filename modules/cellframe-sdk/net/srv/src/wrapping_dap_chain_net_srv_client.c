@@ -282,7 +282,7 @@ PyObject *wrapping_dap_chain_net_srv_client_check(PyObject *self, PyObject *args
     size_t l_bytes_size = PyBytes_Size(obj_bytes);
     void *l_bytes = PyBytes_AsString(obj_bytes);
     size_t l_request_size = sizeof(dap_stream_ch_chain_net_srv_pkt_test_t) + l_bytes_size;
-    dap_stream_ch_chain_net_srv_pkt_test_t *l_request = DAP_NEW_S_SIZE(dap_stream_ch_chain_net_srv_pkt_test_t,
+    dap_stream_ch_chain_net_srv_pkt_test_t *l_request = DAP_NEW_STACK_SIZE(dap_stream_ch_chain_net_srv_pkt_test_t,
                                                                        l_request_size);
     memset(l_request, 0, sizeof(dap_stream_ch_chain_net_srv_pkt_test_t));
     l_request->net_id.uint64 = obj_net_id->net_id.uint64;
@@ -341,7 +341,7 @@ PyObject *wrapping_dap_chain_net_srv_client_write(PyObject *self, PyObject *args
     //Generate packet
     size_t l_bytes_size = PyBytes_Size(obj_bytes);
     void *l_bytes = PyBytes_AsString(obj_bytes);
-    dap_stream_ch_chain_net_srv_pkt_data_t *l_data = DAP_NEW_S_SIZE(void,
+    dap_stream_ch_chain_net_srv_pkt_data_t *l_data = DAP_NEW_STACK_SIZE(void,
                                                         sizeof(dap_stream_ch_chain_net_srv_pkt_data_t) + l_bytes_size);
     l_data->hdr.version = 1;
     l_data->hdr.data_size = (uint16_t)l_bytes_size;

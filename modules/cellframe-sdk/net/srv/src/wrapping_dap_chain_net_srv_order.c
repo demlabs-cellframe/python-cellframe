@@ -342,7 +342,7 @@ PyObject *wrapping_dap_chain_net_srv_order_delete(PyObject *self, PyObject *args
     int res = -1;
     if (PyUnicode_Check(obj_order_hash)){
         const char *l_str = PyUnicode_AsUTF8((PyObject *)obj_order_hash);
-        res = dap_chain_net_srv_order_delete_by_hash_str(obj_net->chain_net, l_str);
+        res = dap_chain_net_srv_order_delete_by_hash_str_sync(obj_net->chain_net, l_str);
         return Py_BuildValue("i", res);
     }
     if (PyDapHashFast_Check(obj_order_hash)) {
