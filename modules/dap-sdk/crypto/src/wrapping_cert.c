@@ -112,7 +112,7 @@ PyObject* dap_cert_generate_py(PyObject *self, PyObject *args)
     dap_enc_key_type_t l_arg_cert_key_type = DAP_ENC_KEY_TYPE_SIG_DILITHIUM;
     const char *l_arg_seed_string = NULL;
 
-    if (!PyArg_ParseTuple(args, "sis", &l_arg_cert_name, &l_arg_cert_key_type, &l_arg_seed_string) ){
+    if (!PyArg_ParseTuple(args, "s|is", &l_arg_cert_name, &l_arg_cert_key_type, &l_arg_seed_string) ){
         PyErr_SetString(PyExc_SyntaxError, "Wrong argument list");
         return NULL;
     }
@@ -120,17 +120,21 @@ PyObject* dap_cert_generate_py(PyObject *self, PyObject *args)
     if (l_arg_cert_name != 0)
         l_cert_name = l_arg_cert_name;
     else {
-        PyErr_SetString(PyExc_SyntaxError, "Certificate name is NOne");
+        PyErr_SetString(PyExc_SyntaxError, "Certificate name is None");
         return NULL;
     }
 
     if (l_arg_seed_string != 0)
         l_seed = l_arg_seed_string;
 
-    PyCryptoCertObject *obj_cert = (PyCryptoCertObject*)_PyObject_New(&DapCryptoCertObjectType);
+    PyCryptoCertObject *obj_cert = PyObject_New(PyCryptoCertObject, &DapCryptoCertObjectType);
     obj_cert->cert = l_seed ? dap_cert_generate_mem_with_seed( l_cert_name, l_arg_cert_key_type, l_seed, strlen(l_seed) )
               :dap_cert_generate_mem( l_cert_name,l_arg_cert_key_type );
-    return  Py_BuildValue("O", (PyObject*)obj_cert);
+    if (!obj_cert->cert){
+        Py_XDECREF(obj_cert);
+        Py_RETURN_NONE;
+    }
+    return (PyObject*)obj_cert;
 }
 
 PyObject* dap_cert_dump_py(PyObject *self, PyObject *args)
