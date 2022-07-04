@@ -380,11 +380,17 @@ PyObject *dap_chain_python_get_atom_count(PyObject *self, PyObject *args){
 }
 PyObject *dap_chain_python_get_atoms(PyObject *self, PyObject *args){
     size_t count, page;
-    if (!PyArg_ParseTuple(args, "nn",&count, &page)){
+    PyObject *obj_reverse;
+    if (!PyArg_ParseTuple(args, "nnO",&count, &page, &obj_reverse)){
         return NULL;
     }
+    if (!PyBool_Check(obj_reverse)){
+        PyErr_SetString(PyExc_AttributeError, "");
+        return NULL;
+    }
+    bool reverse = (obj_reverse == Py_True) ? true : false;
     dap_chain_t *l_chain = ((PyDapChainObject*)self)->chain_t;
-    dap_list_t *l_atoms = l_chain->callback_get_atoms(l_chain, count, page);
+    dap_list_t *l_atoms = l_chain->callback_get_atoms(l_chain, count, page, reverse);
     if (!l_atoms){
         Py_RETURN_NONE;
     }
@@ -409,10 +415,16 @@ PyObject *dap_chain_python_get_count_tx(PyObject *self, PyObject *args){
 PyObject *dap_chain_python_get_txs(PyObject *self, PyObject *args){
     dap_chain_t *l_chain = ((PyDapChainObject*)self)->chain_t;
     size_t count = 0, page = 0;
-    if (!PyArg_ParseTuple(args, "nn", &count, &page)){
+    PyObject *obj_reverse;
+    if (!PyArg_ParseTuple(args, "nnO", &count, &page, &obj_reverse)){
         return NULL;
     }
-    dap_list_t *l_list = l_chain->callback_get_txs(l_chain, count, page);
+    if (!PyBool_Check(obj_reverse)){
+        PyErr_SetString(PyExc_AttributeError, "");
+        return NULL;
+    }
+    bool l_reverse = (obj_reverse == Py_True) ? true : false;
+    dap_list_t *l_list = l_chain->callback_get_txs(l_chain, count, page, l_reverse);
     if (l_list != NULL){
         PyObject *l_obj_list = PyList_New(0);
         for (dap_list_t *l_ptr = l_list; l_ptr != NULL; l_ptr = l_ptr->next){
