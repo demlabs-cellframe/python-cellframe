@@ -179,10 +179,12 @@ PyObject *dap_chain_net_get_chain_by_name_py(PyObject *self, PyObject *args){
         PyErr_SetString(PyExc_AttributeError, "Function takes exactly one argument, which must be a string.");
         return NULL;
     }
-    PyObject *obj_chain = _PyObject_New(&DapChainObjectType);
-    obj_chain = PyObject_Init(obj_chain, &DapChainObjectType);
-    PyObject_Dir(obj_chain);
+    PyDapChainObject *obj_chain = PyObject_New(PyDapChainObject, &DapChainObjectType);
     ((PyDapChainObject*)obj_chain)->chain_t = dap_chain_net_get_chain_by_name(((PyDapChainNetObject*)self)->chain_net, chain_name);
+    if (!((PyDapChainObject*)obj_chain)->chain_t){
+        Py_XDECREF(obj_chain);
+        Py_RETURN_NONE;
+    }
     return Py_BuildValue("O", obj_chain);
 }
 
