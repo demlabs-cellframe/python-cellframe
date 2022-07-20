@@ -9,7 +9,6 @@ PyMethodDef DapChainLedgerMethods[] = {
         {"tokenEmissionFind", (PyCFunction)dap_chain_ledger_token_emission_find_py, METH_VARARGS, ""},
         {"txGetTokenTickerByHash", (PyCFunction)dap_chain_ledger_tx_get_token_ticker_by_hash_py, METH_VARARGS, ""},
         {"addrGetTokenTickerAll", (PyCFunction)dap_chain_ledger_addr_get_token_ticker_all_py, METH_VARARGS, ""},
-        {"addrGetTokenTickerAllFast", (PyCFunction)dap_chain_ledger_addr_get_token_ticker_all_fast_py, METH_VARARGS, ""},
         {"txCacheCheck", (PyCFunction)dap_chain_ledger_tx_cache_check_py, METH_VARARGS, ""},
         {"datumTxCacheCheck", (PyCFunction)dap_chain_node_datum_tx_cache_check_py, METH_VARARGS, ""},
         {"txRemove", (PyCFunction)dap_chain_ledger_tx_remove_py, METH_VARARGS, ""},
@@ -161,22 +160,7 @@ PyObject *dap_chain_ledger_addr_get_token_ticker_all_py(PyObject *self, PyObject
     dap_chain_ledger_addr_get_token_ticker_all(((PyDapChainLedgerObject*)self)->ledger, ((PyDapChainAddrObject*)obj_addr)->addr, tickers, tickers_size);
     return PyLong_FromLong(0);
 }
-PyObject *dap_chain_ledger_addr_get_token_ticker_all_fast_py(PyObject *self, PyObject *args){
-    PyObject *obj_addr;
-    if (!PyArg_ParseTuple(args, "O", &obj_addr)) {
-        PyErr_SetString(PyExc_AttributeError, "Function takes exactly one argument which must be ChainAddr object");
-        return NULL;
-    }
-    char **tickers = NULL;
-    size_t ticker_size = 0;
-    dap_chain_ledger_addr_get_token_ticker_all_fast(((PyDapChainLedgerObject*)self)->ledger, ((PyDapChainAddrObject*)obj_addr)->addr, &tickers, &ticker_size);
-    PyObject *obj_list = PyList_New(ticker_size);
-    for (int i=0; i < ticker_size;i++){
-        PyObject *str = PyUnicode_FromString(tickers[i]);
-        PyList_SetItem(obj_list, i, str);
-    }
-    return obj_list;
-}
+
 PyObject *dap_chain_ledger_tx_cache_check_py(PyObject *self, PyObject *args){
     PyObject *obj_datum_tx;
     PyObject *list_bound_items;
