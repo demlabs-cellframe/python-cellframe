@@ -494,6 +494,7 @@ PyMODINIT_FUNC PyInit_libDAP()
         // === Core ===
         PyType_Ready( &DapCoreObjectType ) < 0 ||
         PyType_Ready( &DapLogitObjectType ) < 0 ||
+        PyType_Ready( &DapCommonObjectType ) < 0 ||
         PyType_Ready(&DapMathObjectType) < 0 ||
 #ifdef DAP_SUPPORT_PYTHON_PLUGINS
         PyType_Ready( &DapAppContextObjectType) < 0 ||
@@ -524,6 +525,7 @@ PyMODINIT_FUNC PyInit_libDAP()
     }
     PyObject *coreModule = PyModule_Create(&DapCorePythonModule);
     PyModule_AddObject(coreModule, "logIt", (PyObject *)&DapLogitObjectType);
+    PyModule_AddObject(coreModule, "Common", (PyObject*)&DapCommonObjectType);
     PyModule_AddObject(coreModule, "Math", (PyObject *)&DapMathObjectType);
 #ifdef DAP_SUPPORT_PYTHON_PLUGINS
     PyModule_AddObject(coreModule, "AppContext", (PyObject*)&DapAppContextObjectType);

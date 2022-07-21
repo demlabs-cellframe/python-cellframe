@@ -58,6 +58,30 @@ PyTypeObject DapCoreObjectType = {
     0,
 };
 
+static PyMethodDef DapCommonMethods[] = {
+        {"execWithRes", (PyCFunction)dap_exec_with_ret, METH_VARARGS | METH_STATIC, ""},
+        {NULL, NULL, 0, NULL}
+};
+PyTypeObject DapCommonObjectType = {
+        PyVarObject_HEAD_INIT(NULL, 0)
+        .tp_name = "Dap.common",
+        .tp_basicsize = sizeof(PyDapObject),
+        .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
+        .tp_doc = "Dap common methods",
+        .tp_methods = DapCommonMethods,
+        .tp_new = PyType_GenericNew,
+};
+
+PyObject* dap_exec_with_ret(PyObject* self, PyObject *args){
+    (void)self;
+    char *str;
+    if (!PyArg_ParseTuple(args, "s", &str)){
+        return NULL;
+    }
+    char *l_ret = exec_with_ret_multistring(str);
+    return Py_BuildValue("s", l_ret);
+}
+
 static PyMethodDef DapLogitMethods[] = {
     {"debug", (PyCFunction)dap_log_it_debug, METH_VARARGS | METH_STATIC, "Log a message with the DEBUG level."},
     {"info", (PyCFunction)dap_log_it_info, METH_VARARGS | METH_STATIC, "Log a message with the INFO level."},
