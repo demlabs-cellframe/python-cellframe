@@ -12,6 +12,9 @@ typedef struct PyDap{
 
 extern PyTypeObject DapCoreObjectType;
 extern PyTypeObject DapLogitObjectType;
+extern PyTypeObject DapCommonObjectType;
+
+PyObject* dap_exec_with_ret(PyObject* self, PyObject *args);
 
 PyObject *dap_set_log_level(PyObject *self, PyObject *args);
 
