@@ -610,7 +610,8 @@ PyMODINIT_FUNC PyInit_libCellFrame(void)
         PyType_Ready( &DapChainTxCondTypeObjectType ) < 0 ||
         PyType_Ready( &DapChainTxOutCondObjectType ) < 0 ||
         PyType_Ready( &DapChainTxOutCondSubTypeSrvPayObjectType ) < 0 ||
-        PyType_Ready( &DapChainTxOutCondSubTypeSrvStakeObjectType ) < 0 ||
+        PyType_Ready( &DapChainTxOutCondSubTypeSrvStakePosDelegateObjectType ) < 0 ||
+        PyType_Ready( &DapChainTxOutCondSubTypeSrvStakeLockObjectType ) < 0 ||
         PyType_Ready( &DapChainTxOutCondSubTypeSrvXchangeObjectType ) < 0 ||
         PyType_Ready( &DapChainTxInObjectType ) < 0 ||
         PyType_Ready( &DapChainTxInCondObjectType ) < 0 ||
@@ -676,7 +677,8 @@ PyMODINIT_FUNC PyInit_libCellFrame(void)
     PyModule_AddObject(commonModule, "DatumTx", (PyObject*)&DapChainDatumTxObjectType);
     PyModule_AddObject(commonModule, "TxOutCond", (PyObject*)&DapChainTxOutCondObjectType);
     PyModule_AddObject(commonModule, "TxOutCondSubtypeSrvPay", (PyObject*)&DapChainTxOutCondSubTypeSrvPayObjectType);
-    PyModule_AddObject(commonModule, "TxOutCondSubtypeSrvStake", (PyObject*)&DapChainTxOutCondSubTypeSrvStakeObjectType);
+    PyModule_AddObject(commonModule, "TxOutCondSubtypeSrvStakeLock",        (PyObject*)&DapChainTxOutCondSubTypeSrvStakeLockObjectType);
+    PyModule_AddObject(commonModule, "TxOutCondSubtypeSrvStakePosDelegate", (PyObject*)&DapChainTxOutCondSubTypeSrvStakePosDelegateObjectType);
     PyModule_AddObject(commonModule, "TxOutCondSubtypeSrvXchange", (PyObject*)&DapChainTxOutCondSubTypeSrvXchangeObjectType);
     PyModule_AddObject(commonModule, "TxIn", (PyObject*)&DapChainTxInObjectType);
     PyModule_AddObject(commonModule, "TxInCond", (PyObject*)&DapChainTxInCondObjectType);
