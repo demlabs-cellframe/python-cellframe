@@ -677,7 +677,7 @@ PyMODINIT_FUNC PyInit_libCellFrame(void)
     PyModule_AddObject(commonModule, "DatumTx", (PyObject*)&DapChainDatumTxObjectType);
     PyModule_AddObject(commonModule, "TxOutCond", (PyObject*)&DapChainTxOutCondObjectType);
     PyModule_AddObject(commonModule, "TxOutCondSubtypeSrvPay", (PyObject*)&DapChainTxOutCondSubTypeSrvPayObjectType);
-    PyModule_AddObject(commonModule, "TxOutCondSubtypeSrvStakeLock", (PyObject*)&DapChainTxOutCondSubTypeSrvStakeLockObjectType);
+    PyModule_AddObject(commonModule, "TxOutCondSubtypeSrvStakeLock",        (PyObject*)&DapChainTxOutCondSubTypeSrvStakeLockObjectType);
     PyModule_AddObject(commonModule, "TxOutCondSubtypeSrvStakePosDelegate", (PyObject*)&DapChainTxOutCondSubTypeSrvStakePosDelegateObjectType);
     PyModule_AddObject(commonModule, "TxOutCondSubtypeSrvXchange", (PyObject*)&DapChainTxOutCondSubTypeSrvXchangeObjectType);
     PyModule_AddObject(commonModule, "TxIn", (PyObject*)&DapChainTxInObjectType);
