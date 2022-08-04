@@ -38,13 +38,14 @@ int dap_chain_plugins_init(dap_config_t *a_config){
         PyImport_AppendInittab("DAP", PyInit_libDAP);
         PyImport_AppendInittab("CellFrame", PyInit_libCellFrame);
         #ifdef DAP_BUILD_WITH_PYTHON_ENV
-            const wchar_t *l_python_env_path = L"/opt/cellframe-node/lib/python3.7";
+            const wchar_t *l_python_env_path = L"/opt/cellframe-node/lib/python3.7:/opt/cellframe-node/lib/python3.7/site-packages:/opt/cellframe-node/lib/python3.7/lib-dynload";
             Py_SetPath(l_python_env_path);
         #endif
         Py_Initialize();
         PyEval_InitThreads();
         PyObject *l_sys_module = PyImport_ImportModule("sys");
         s_sys_path = PyObject_GetAttrString(l_sys_module, "path");
+        log_it(L_NOTICE, "Start registration of manifests");
         //Get list files
         dap_list_name_directories_t *l_list_plugins_name = dap_get_subs(s_plugins_root_path);
         dap_list_name_directories_t *l_element;
