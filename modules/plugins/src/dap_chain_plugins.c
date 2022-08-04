@@ -38,7 +38,7 @@ int dap_chain_plugins_init(dap_config_t *a_config){
         PyImport_AppendInittab("DAP", PyInit_libDAP);
         PyImport_AppendInittab("CellFrame", PyInit_libCellFrame);
         #ifdef DAP_BUILD_WITH_PYTHON_ENV
-            const wchar_t *l_python_env_path = L"/opt/cellframe-node/lib/python3.7";
+            const wchar_t *l_python_env_path = L"/opt/cellframe-node/lib/python3.7/:/opt/cellframe-node/lib/python3.7/lib-dynload/:/opt/cellframe-node/lib/python3.7/site-packages/";
             Py_SetPath(l_python_env_path);
         #endif
         Py_Initialize();
