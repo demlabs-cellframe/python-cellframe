@@ -289,8 +289,8 @@ PyObject *wrapping_dap_chain_net_srv_client_check(PyObject *self, PyObject *args
     l_request->srv_uid.uint64 = obj_srv_uid->net_srv_uid.uint64;
     l_request->data_size_send = l_request->data_size_recv = l_bytes_size;
     l_request->data_size = l_bytes_size;
-    struct timeval l_send_time_1;
-    gettimeofday(&l_send_time_1, NULL);
+    struct timespec l_send_time_1;
+    clock_gettime(CLOCK_REALTIME, &l_send_time_1);
     l_request->send_time1 = l_send_time_1;
     memcpy(l_request->data, l_bytes, l_bytes_size);
     dap_hash_fast(l_request->data, l_request->data_size, &l_request->data_hash);
