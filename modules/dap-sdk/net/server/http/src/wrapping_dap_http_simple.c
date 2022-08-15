@@ -18,6 +18,7 @@ PyGetSetDef PyDapHttpSimpleGetSetDef[] = {
         {"request", (getter)dap_http_simple_request_py, NULL, "Return request in view bytes", NULL},
         {"urlPath", (getter)dap_http_simple_url_path_py, NULL, "Return request in view bytes", NULL},
         {"query", (getter)dap_http_simple_query_py, NULL, "Return request in view bytes", NULL},
+        {"ipClient", (getter)dap_http_simple_ip_client_py, NULL, ""},
         {NULL}
 };
 
@@ -197,4 +198,9 @@ PyObject *dap_http_simple_url_path_py(PyDapHttpSimpleObject *self, void *clouser
 PyObject *dap_http_simple_query_py(PyDapHttpSimpleObject *self, void *clouser){
     (void)clouser;
     return Py_BuildValue("s", self->sh->http_client->in_query_string);
+}
+
+PyObject *dap_http_simple_ip_client_py(PyDapHttpSimpleObject *self, void *clouser){
+    (void)clouser;
+    return Py_BuildValue("s", self->sh->esocket->hostaddr);
 }
