@@ -142,7 +142,7 @@ int PyDapChainNetSrvOrder_init(PyDapChainNetSrvOrderObject *self, PyObject *args
             ((PyDapChainNetSrvUIDObject *) obj_srv_uid)->net_srv_uid,
             *((PyDapChainNodeAddrObject *) obj_node_addr)->node_addr,
             l_hf,
-            l_price,
+            &l_price,
             ((PyDapChainNetSrvPriceUnitUIDObject *) obj_price_unit)->price_unit_uid,
             price_ticker,
             (time_t) expires,

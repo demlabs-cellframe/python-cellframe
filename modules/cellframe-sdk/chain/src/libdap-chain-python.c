@@ -430,7 +430,7 @@ PyObject *dap_chain_python_get_txs(PyObject *self, PyObject *args){
     if (!PyArg_ParseTuple(args, "nn", &count, &page)){
         return NULL;
     }
-    dap_list_t *l_list = l_chain->callback_get_txs(l_chain, count, page);
+    dap_list_t *l_list = l_chain->callback_get_txs(l_chain, count, page, true);
     if (l_list != NULL){
         PyObject *l_obj_list = PyList_New(0);
         for (dap_list_t *l_ptr = l_list; l_ptr != NULL; l_ptr = l_ptr->next){
