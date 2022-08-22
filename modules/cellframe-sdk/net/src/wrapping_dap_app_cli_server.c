@@ -187,7 +187,7 @@ PyObject *dap_chain_node_cli_cmd_item_create_py(PyObject *a_self, PyObject *a_ar
         }
     }
     element_py_func_add(name, obj_cmdfunc);
-    dap_chain_node_cli_cmd_item_create(name, wrapping_cmdfunc, doc, doc_ex);
+    dap_cli_server_cmd_add(name, wrapping_cmdfunc, doc, doc_ex);
     return PyLong_FromLong(0);
 }
 
@@ -198,7 +198,7 @@ PyObject *dap_chain_node_cli_set_reply_text_py(PyObject *self, PyObject *args){
     if (!PyArg_ParseTuple(args, "sO", &str_reply_text, &obj_id_str_reply))
         return NULL;
     size_t id_str_reply = PyLong_AsSize_t(obj_id_str_reply);
-    dap_chain_node_cli_set_reply_text(elements_str_reply_get_by_id(id_str_reply), str_reply_text);
+    dap_cli_server_cmd_set_reply_text(elements_str_reply_get_by_id(id_str_reply), str_reply_text);
     return PyLong_FromLong(0);
 }
 

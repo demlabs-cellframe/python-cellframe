@@ -11,7 +11,7 @@
 
 typedef struct PyDapAppCliServer{
     PyObject_HEAD
-    cmdfunc_t *func;
+    dap_cli_server_cmd_callback_t *func;
 }PyDapAppCliServerObject;
 
 typedef struct element_str_reply{
