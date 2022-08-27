@@ -36,11 +36,13 @@ void python_error_in_log_it(const char *a_tag)
 
     const char *l_str_value = PyBytes_AS_STRING(exect_value_str);;
 
-    _PyErr_logIt(L_ERROR, a_tag, dap_strdup_printf(
+    char *l_str = dap_strdup_printf(
             "An exception occurred while executing a Python script.\n"
             "\t%s\n%s", l_str_value ? l_str_value : "(null)",
-                        trackback ? _PyErr_get_stacktrace(trackback) : "(null)"
-            ));
+            trackback ? _PyErr_get_stacktrace(trackback) : "(null)"
+    );
+    _PyErr_logIt(L_ERROR, a_tag, l_str);
+    DAP_DELETE(l_str);
 
     PyErr_Restore(type, value, trackback);
 

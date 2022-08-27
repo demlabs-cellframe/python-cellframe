@@ -283,7 +283,10 @@ PyTypeObject DapChainIdObjectType = {
 };
 
 PyObject *DapChainIdObject_str(PyObject *self){
-    return Py_BuildValue("s", dap_strdup_printf("0x%016"DAP_UINT64_FORMAT_x, ((PyDapChainIDObject*)self)->chain_id->uint64));
+    char *l_str = dap_strdup_printf("0x%016"DAP_UINT64_FORMAT_x, ((PyDapChainIDObject*)self)->chain_id->uint64);
+    PyObject *l_obj = Py_BuildValue("s", l_str);
+    DAP_FREE(l_str);
+    return l_obj;
 }
 
 /* Dap chain cell id */
@@ -330,7 +333,10 @@ PyTypeObject DapChainCellIdObjectType = {
 };
 
 PyObject *PyDapChainCellIdObject_str(PyObject *self){
-    return Py_BuildValue("s", dap_strdup_printf("0x%016"DAP_UINT64_FORMAT_x, ((PyDapChainCellIDObject*)self)->cell_id.uint64));
+    char *l_str = dap_strdup_printf("0x%016"DAP_UINT64_FORMAT_x, ((PyDapChainCellIDObject*)self)->cell_id.uint64);
+    PyObject *l_obj = Py_BuildValue("s", l_str);
+    DAP_FREE(l_str);
+    return l_obj;
 }
 
 PyObject *dap_chain_hash_slow_to_str_py(PyObject *self, PyObject *args){
@@ -603,11 +609,15 @@ PyTypeObject DapChainNodeAddrObjectType = {
 
 PyObject* PyDapChainNodeAddrObject_str(PyObject* self){
     char *ret = dap_strdup_printf(NODE_ADDR_FP_STR, NODE_ADDR_FP_ARGS(((PyDapChainNodeAddrObject *) self)->node_addr));
-    return Py_BuildValue("s", ret);
+    PyObject *l_obj = Py_BuildValue("s", ret);
+    DAP_FREE(ret);
+    return l_obj;
 }
 
 /* wrapping dap_chain_net_srv_uid_t */
 PyObject* PyDapChainNetSrvUIDObject_str(PyObject *self){
     char *res = dap_strdup_printf("0x%016"DAP_UINT64_FORMAT_X, ((PyDapChainNetSrvUIDObject*)self)->net_srv_uid.uint64);
-    return Py_BuildValue("s", res);
+    PyObject *l_obj = Py_BuildValue("s", res);
+    DAP_FREE(res);
+    return l_obj;
 }
