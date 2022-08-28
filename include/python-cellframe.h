@@ -26,6 +26,7 @@
 #include "wrapping_dap_chain_tx_out_cond.h"
 #include "wrapping_dap_chain_tx_out_cond_subtype_srv_pay.h"
 #include "wrapping_dap_chain_tx_out_cond_subtype_srv_stake.h"
+#include "wrapping_dap_chain_tx_out_cond_subtype_srv_stake_lock.h"
 #include "wrapping_dap_chain_tx_out_cond_subtype_srv_xchange.h"
 #include "wrapping_dap_chain_tx_pkey.h"
 #include "wrapping_dap_chain_tx_receipt.h"
