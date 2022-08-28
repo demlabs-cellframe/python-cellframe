@@ -127,7 +127,9 @@ PyObject* dap_log_it(PyObject* self, PyObject* args){
         return PyLong_FromLong(-1);
     } else {
         if (string_name_plugin){
-            log_it(log_level, dap_strdup_printf("[plugin: %s] %s", string_output, string_name_plugin));
+            char *str = dap_strdup_printf("[plugin: %s] %s", string_name_plugin, string_output);
+            log_it(log_level, str);
+            DAP_FREE(str);
         } else {
             log_it(log_level, string_output);
         }
@@ -142,7 +144,9 @@ PyObject* dap_log_it_debug(PyObject* self, PyObject* args){
         return NULL;
     }
     if (string_name_plugin) {
-        log_it(L_DEBUG, dap_strdup_printf("[plugin: %s] %s", string_output, string_name_plugin));
+        char *str = dap_strdup_printf("[plugin: %s] %s", string_name_plugin, string_output);
+        log_it(L_DEBUG, str);
+        DAP_FREE(str);
     } else {
         log_it(L_DEBUG, string_output);
     }
@@ -155,7 +159,9 @@ PyObject* dap_log_it_info(PyObject* self, PyObject* args){
         return NULL;
     }
     if (string_name_plugin) {
-        log_it(L_INFO, dap_strdup_printf("[plugin: %s] %s", string_output, string_name_plugin));
+        char *str = dap_strdup_printf("[plugin: %s] %s", string_name_plugin, string_output);
+        log_it(L_INFO, str);
+        DAP_FREE(str);
     } else {
         log_it(L_INFO, string_output);
     }
@@ -168,7 +174,9 @@ PyObject* dap_log_it_notice(PyObject* self, PyObject* args){
         return NULL;
     }
     if (string_name_plugin){
-        log_it(L_NOTICE, dap_strdup_printf("[plugin: %s] %s", string_output, string_name_plugin));
+        char *str = dap_strdup_printf("[plugin: %s] %s", string_name_plugin, string_output);
+        log_it(L_NOTICE, str);
+        DAP_FREE(str);
     }else{
         log_it(L_NOTICE, string_output);
     }
@@ -181,7 +189,9 @@ PyObject* dap_log_it_message(PyObject* self, PyObject* args){
         return NULL;
     }
     if (string_name_plugin) {
-        log_it(L_MSG, dap_strdup_printf("[plugin: %s] %s", string_output, string_name_plugin));
+        char *str = dap_strdup_printf("[plugin: %s] %s", string_name_plugin, string_output);
+        log_it(L_MSG, str);
+        DAP_FREE(str);
     } else {
         log_it(L_MSG, string_output);
     }
@@ -194,7 +204,9 @@ PyObject* dap_log_it_dap(PyObject* self, PyObject* args){
         return NULL;
     }
     if (string_name_plugin) {
-        log_it(L_DAP, dap_strdup_printf("[plugin: %s] %s", string_output, string_name_plugin));
+        char *str = dap_strdup_printf("[plugin: %s] %s", string_name_plugin, string_output);
+        log_it(L_DAP, str);
+        DAP_FREE(str);
     } else {
         log_it(L_DAP, string_output);
     }
@@ -207,7 +219,9 @@ PyObject* dap_log_it_warning(PyObject* self, PyObject* args){
         return NULL;
     }
     if (string_name_plugin) {
-        log_it(L_WARNING, dap_strdup_printf("[plugin: %s] %s", string_output, string_name_plugin));
+        char *str = dap_strdup_printf("[plugin: %s] %s", string_name_plugin, string_output);
+        log_it(L_WARNING, str);
+        DAP_FREE(str);
     } else {
         log_it(L_WARNING, string_output);
     }
@@ -220,7 +234,9 @@ PyObject* dap_log_it_att(PyObject* self, PyObject* args){
         return NULL;
     }
     if (string_name_plugin) {
-        log_it(L_ATT, dap_strdup_printf("[plugin: %s] %s", string_output, string_name_plugin));
+        char *str = dap_strdup_printf("[plugin: %s] %s", string_name_plugin, string_output);
+        log_it(L_ATT, str);
+        DAP_FREE(str);
     } else {
         log_it(L_ATT, string_output);
     }
@@ -233,7 +249,9 @@ PyObject* dap_log_it_error(PyObject* self, PyObject* args){
         return NULL;
     }
     if (string_name_plugin) {
-        log_it(L_ERROR, dap_strdup_printf("[plugin: %s] %s", string_output, string_name_plugin));
+        char *str = dap_strdup_printf("[plugin: %s] %s", string_name_plugin, string_output);
+        log_it(L_ERROR, str);
+        DAP_FREE(str);
     } else {
         log_it(L_ERROR, string_output);
     }
@@ -246,7 +264,9 @@ PyObject* dap_log_it_critical(PyObject* self, PyObject* args){
         return NULL;
     }
     if (string_name_plugin) {
-        log_it(L_CRITICAL, dap_strdup_printf("[plugin: %s] %s", string_output, string_name_plugin));
+        char *str = dap_strdup_printf("[plugin: %s] %s", string_name_plugin, string_output);
+        log_it(L_CRITICAL, str);
+        DAP_FREE(str);
     } else {
         log_it(L_CRITICAL, string_output);
     }

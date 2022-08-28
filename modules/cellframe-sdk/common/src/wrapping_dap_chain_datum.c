@@ -263,7 +263,10 @@ PyObject *dap_chain_datum_get_type_id_py(PyObject *self, PyObject *args){
 
 PyObject *wrapping_dap_chain_datum_get_version_str_py(PyObject *self, void* closure){
     (void)closure;
-    return Py_BuildValue("s", dap_strdup_printf("0x%02X",((PyDapChainDatumObject*)self)->datum->header.version_id));
+    char *l_version = dap_strdup_printf("0x%02X",((PyDapChainDatumObject*)self)->datum->header.version_id);
+    PyObject *l_obj_version = Py_BuildValue("s", l_version);
+    DAP_FREE(l_version);
+    return l_obj_version;
 }
 
 PyObject *wrapping_dap_chain_datum_get_raw_py(PyObject *self, void* closure){
