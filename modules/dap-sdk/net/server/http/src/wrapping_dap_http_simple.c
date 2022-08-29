@@ -126,12 +126,21 @@ PyObject *dap_http_simple_add_proc_py(PyObject *self, PyObject *args){
         }
     }
     _w_simple_proc_add(url, func_callback);
-    dap_http_t *l_http = DAP_HTTP(((PyDapServerObject*)obj_server)->t_server);
-    dap_http_simple_proc_add(l_http,
-                             url,
-                             reply_size_max,
-                             wrapping_dap_http_simple_callback);
-    log_it(L_NOTICE, "Add processor for \"%s\"", url);
+    dap_server_t *l_server = ((PyDapServerObject*) obj_server)->t_server;
+    if (l_server) {
+        dap_http_t *l_http = DAP_HTTP(l_server);
+        dap_http_simple_proc_add(l_http,
+                                 url,
+                                 reply_size_max,
+                                 wrapping_dap_http_simple_callback);
+        log_it(L_NOTICE, "Add processor for \"%s\"", url);
+    } else {
+        PyErr_SetString(PyExc_SystemError, "It is not possible to add a handler to a non-existent server. Check the configuration.");
+        return NULL;
+    }
+//    } else {
+//        log_it(L_ERROR, "");
+//    }
     Py_RETURN_NONE;
 }
 PyObject *dap_http_simple_module_init_py(PyObject *self, PyObject *args){

@@ -114,7 +114,13 @@ PyObject *enc_http_add_proc_py(PyObject *self, PyObject *args){
     const char *HTTP_URL;
     if (!PyArg_ParseTuple(args, "O|s", &obj_server, &HTTP_URL))
         return NULL;
-    enc_http_add_proc(DAP_HTTP(((PyDapServerObject*)obj_server)->t_server), HTTP_URL);
+    dap_server_t *l_server = ((PyDapServerObject*) obj_server)->t_server;
+    if (l_server) {
+        enc_http_add_proc(DAP_HTTP(l_server), HTTP_URL);
+    } else {
+        PyErr_SetString(PyExc_SystemError, "It is not possible to add a handler to a non-existent server. Check the configuration.");
+        return NULL;
+    }
     return PyLong_FromLong(0);
 }
 
