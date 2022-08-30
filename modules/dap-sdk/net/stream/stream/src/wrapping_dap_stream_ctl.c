@@ -55,7 +55,13 @@ PyObject *dap_stream_ctl_add_proc_py(PyObject *self, PyObject *args){
     const char *STREAM_CTL_URL;
     if (!PyArg_ParseTuple(args, "O|s", &obj_server, &STREAM_CTL_URL))
         return  NULL;
-    dap_stream_ctl_add_proc(DAP_HTTP(((PyDapServerObject*)obj_server)->t_server), STREAM_CTL_URL);
+    dap_server_t *l_server = ((PyDapServerObject*)obj_server)->t_server;
+    if (l_server)
+        dap_stream_ctl_add_proc(DAP_HTTP(l_server), STREAM_CTL_URL);
+    else {
+        PyErr_SetString(PyExc_SystemError, "It is not possible to add a handler to a non-existent server. Check the configuration.");
+        return NULL;
+    }
     return PyLong_FromLong(0);
 }
 
