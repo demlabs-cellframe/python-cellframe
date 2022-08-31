@@ -224,7 +224,7 @@ PyObject *dap_chain_ledger_tx_remove_py(PyObject *self, PyObject *args){
     PyObject *obj_h_fast;
     if (!PyArg_ParseTuple(args, "O", &obj_h_fast))
         return NULL;
-    int res = dap_chain_ledger_tx_remove(((PyDapChainLedgerObject*)self)->ledger, ((PyDapHashFastObject*)obj_h_fast)->hash_fast);
+    int res = dap_chain_ledger_tx_remove(((PyDapChainLedgerObject*)self)->ledger, ((PyDapHashFastObject*)obj_h_fast)->hash_fast, 0);
     return PyLong_FromLong(res);
 }
 PyObject *dap_chain_ledger_purge_py(PyObject *self, PyObject *args){
