@@ -1,4 +1,5 @@
 #include "libdap_chain_net_python.h"
+#include "dap_chain_net_tx.h"
 
 PyMethodDef DapChainNetMethods[] = {
         {"loadAll", dap_chain_net_load_all_py, METH_NOARGS | METH_STATIC, ""},
