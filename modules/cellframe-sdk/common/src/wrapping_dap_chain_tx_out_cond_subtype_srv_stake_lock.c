@@ -3,7 +3,7 @@
 #include "dap_chain_net_srv_stake_lock.h"
 #include "wrapping_dap_hash.h"
 
-#define PVT(a) ((dap_chain_net_srv_stake_lock_cond_params_t*)((PyDapChainTxOutCondObject*)a)->out_cond->params)
+#define PVT(a) (((PyDapChainTxOutCondObject*)a)->out_cond->subtype.srv_stake_lock)
 
 PyGetSetDef DapChainTxOutCondSubtypeSrvStakeLockGetsSetsDef[]={
         {"timeUnlock", (getter)wrapping_dap_chain_net_srv_stake_lock_get_time_unlock, NULL, NULL, NULL},
@@ -58,33 +58,28 @@ PyTypeObject DapChainTxOutCondSubTypeSrvStakeLockObjectType = {
 
 PyObject *wrapping_dap_chain_net_srv_stake_lock_get_time_unlock(PyObject *self, void *closure) {
     UNUSED(closure);
-    dap_chain_net_srv_stake_lock_cond_params_t *cond = PVT(self);
     PyDateTime_IMPORT;
-    PyObject *obj_ts_long =  Py_BuildValue("(k)", cond->time_unlock);
+    PyObject *obj_ts_long =  Py_BuildValue("(k)", PVT(self).time_unlock);
     PyObject *obj_ts = PyDateTime_FromTimestamp(obj_ts_long);
     return obj_ts;
 }
 PyObject *wrapping_dap_chain_net_srv_stake_lock_get_flags(PyObject *self, void *closure) {
     UNUSED(closure);
-    dap_chain_net_srv_stake_lock_cond_params_t *cond = PVT(self);
-    return Py_BuildValue("I", cond->flags);
+    return Py_BuildValue("I", PVT(self).flags);
 }
 PyObject *wrapping_dap_chain_net_srv_stake_lock_get_reinvest_percent(PyObject *self, void *closure) {
     UNUSED(closure);
-    dap_chain_net_srv_stake_lock_cond_params_t *cond = PVT(self);
-    return Py_BuildValue("b", cond->reinvest_percent);
+    return Py_BuildValue("b", PVT(self).reinvest_percent);
 }
 PyObject *wrapping_dap_chain_net_srv_stake_lock_get_token_delegated(PyObject *self, void *closure) {
     UNUSED(closure);
-    dap_chain_net_srv_stake_lock_cond_params_t *cond = PVT(self);
     PyDapHashFastObject *obj_hf = PyObject_New(PyDapHashFastObject, &DapChainHashFastObjectType);
-    obj_hf->hash_fast = &cond->token_delegated;
+    //obj_hf->hash_fast = &PVT(self).token_delegated;
     return (PyObject*)obj_hf;
 }
 PyObject *wrapping_dap_chain_net_srv_stake_lock_get_pkey_delegated(PyObject *self, void *closure) {
     UNUSED(closure);
-    dap_chain_net_srv_stake_lock_cond_params_t *cond = PVT(self);
     PyDapHashFastObject *obj_hf = PyObject_New(PyDapHashFastObject, &DapChainHashFastObjectType);
-    obj_hf->hash_fast = &cond->pkey_delegated;
+    obj_hf->hash_fast = &PVT(self).pkey_delegated;
     return (PyObject*)obj_hf;
 }
