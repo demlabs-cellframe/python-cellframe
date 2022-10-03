@@ -69,7 +69,9 @@ PyObject *wrapping_dap_chain_net_srv_stake_lock_get_flags(PyObject *self, void *
 }
 PyObject *wrapping_dap_chain_net_srv_stake_lock_get_reinvest_percent(PyObject *self, void *closure) {
     UNUSED(closure);
-    return Py_BuildValue("b", PVT(self).reinvest_percent);
+    uint256_t l_int_percent;
+    DIV_256(PVT(self).reinvest_percent, GET_256_FROM_64(1000000000000000000ULL), &l_int_percent);
+    return Py_BuildValue("b", dap_chain_uint256_to(l_int_percent));
 }
 PyObject *wrapping_dap_chain_net_srv_stake_lock_get_token_delegated(PyObject *self, void *closure) {
     UNUSED(closure);
