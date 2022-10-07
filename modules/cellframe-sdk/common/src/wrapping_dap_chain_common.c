@@ -425,7 +425,12 @@ PyObject *dap_chain_net_id_from_str_py(PyObject *self, PyObject *args){
     if (!PyArg_ParseTuple(args, "s", &str))
         return NULL;
     PyObject *obj_net_id = _PyObject_New(&DapChainNetIdObjectType);
-    ((PyDapChainNetIdObject*)obj_net_id)->net_id = dap_chain_net_id_from_str(str);
+    if (dap_sscanf(str, "0x%016"DAP_UINT64_FORMAT_X, &((PyDapChainNetIdObject*)obj_net_id)->net_id.uint64) != 1) {
+        char *l_err = dap_strdup_printf("Wrong id format (\"%s\"). Must be like \"0x0123456789ABCDE\"" , str);
+        PyErr_SetString(PyExc_AttributeError, l_err);
+        DAP_DELETE(l_err);
+        return NULL;
+    }
     return Py_BuildValue("O", obj_net_id);
 }
 
