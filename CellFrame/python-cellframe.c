@@ -558,6 +558,7 @@ PyMODINIT_FUNC PyInit_libDAP()
     PyModule_AddObject(cryptoModule, "HashFast", (PyObject*)&DapChainHashFastObjectType);
 
     PyObject *netModule = PyModule_Create(&DapNetPythonModule);
+    PyModule_AddObject(netModule, "ServerCore", (PyObject*)&DapServerObjectType);   /// alias, deprecated
     PyModule_AddObject(netModule, "Server", (PyObject*)&DapServerObjectType);
     PyModule_AddObject(netModule, "Events", (PyObject*)&DapEventsObjectType);
     PyModule_AddObject(netModule, "EventsSocket", (PyObject*)&DapEventsSocketObjectType);
