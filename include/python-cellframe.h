@@ -3,7 +3,6 @@
 #include "libdap-python.h"
 #include "math_python.h"
 #include "libdap-crypto-python.h"
-#include "libdap-server-core-python.h"
 #include "libdap_crypto_key_type_python.h"
 #include "libdap_crypto_data_type.h"
 #include "wrapping_dap_sign.h"
@@ -54,7 +53,7 @@
 #include "wrapping_dap_chain_cs_block.h"
 // ============
 
-
+#include "dap_events_python.h"
 #include "wrapping_http.h"
 #include "wrapping_dap_enc_http.h"
 #include "wrapping_dap_stream.h"

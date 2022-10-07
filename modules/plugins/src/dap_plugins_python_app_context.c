@@ -59,11 +59,11 @@ int dap_plugins_python_app_content_init(dap_server_t *a_server){
 
 PyObject *dap_plugins_python_app_context_get_server(PyObject *self, PyObject *args){
     (void)self;
-    PyObject *l_obj_serverCore;
-    if (!PyArg_ParseTuple(args, "O", &l_obj_serverCore)){
+    PyObject *l_obj_server;
+    if (!PyArg_ParseTuple(args, "O", &l_obj_server)){
         return NULL;
     }
-    ((PyDapServerObject*)l_obj_serverCore)->t_server = s_app_context->server;
+    ((PyDapServerObject*)l_obj_server)->t_server = s_app_context->server;
     Py_RETURN_NONE;
 }
 PyObject *dap_plugins_python_app_context_get_http(PyObject *self, PyObject *args){
