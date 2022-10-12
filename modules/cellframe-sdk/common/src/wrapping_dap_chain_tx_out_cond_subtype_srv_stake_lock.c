@@ -35,7 +35,7 @@ PyTypeObject DapChainTxOutCondSubTypeSrvStakeLockObjectType = {
         0,                               /* tp_setattro */
         0,                               /* tp_as_buffer */
         Py_TPFLAGS_DEFAULT |
-        Py_TPFLAGS_BASE_EXC_SUBCLASS,         /* tp_flags */
+        Py_TPFLAGS_TYPE_SUBCLASS,//Py_TPFLAGS_BASE_EXC_SUBCLASS,         /* tp_flags */
         "Chain tx cond subtype srv stake lock object",             /* tp_doc */
         0,                                 /* tp_traverse */
         0,                                 /* tp_clear */
