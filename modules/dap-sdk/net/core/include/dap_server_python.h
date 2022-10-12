@@ -10,9 +10,11 @@ extern "C" {
 typedef struct PyDapServer {
     PyObject_HEAD
     dap_server_t *t_server;
-}PyDapServerObject;
+} PyDapServerObject;
 
-extern PyTypeObject dapServer_dapServerType;
+extern PyTypeObject DapServerObjectType;
+
+PyObject *dap_server_listen_py(PyObject *self, PyObject *args);
 
 #ifdef __cplusplus
 }
