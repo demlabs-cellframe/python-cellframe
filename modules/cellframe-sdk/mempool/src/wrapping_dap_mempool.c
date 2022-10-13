@@ -432,7 +432,7 @@ PyObject* pvt_dap_chain_mempool_list(dap_chain_t *a_chain){
         dap_chain_global_db_objs_delete(l_objs, l_objs_size);
     }
     DAP_FREE(l_gdb_group_mempool);
-    return obj_list;
+    return obj_dict;
 }
 
 PyObject *dap_chain_mempool_list_py(PyObject *self, PyObject *args){
