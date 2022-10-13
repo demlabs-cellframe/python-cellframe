@@ -65,6 +65,7 @@ PyObject *wrapping_dap_chain_datum_get_datum_token_emission(PyObject *self, PyOb
 PyObject *dap_chain_datum_is_type_custom(PyObject *self, PyObject *args);
 PyObject *dap_chain_datum_get_type_str_py(PyObject *self, PyObject *args);
 PyObject *dap_chain_datum_get_type_id_py(PyObject *self, PyObject *args);
+PyObject *wrapping_dap_chain_datum_get_hash_py(PyObject *self, void* closure);
 PyObject *wrapping_dap_chain_datum_get_version_str_py(PyObject *self, void* closure);
 PyObject *wrapping_dap_chain_datum_get_raw_py(PyObject *self, void* closure);
 PyObject *wrapping_dap_chain_datum_get_raw_data_py(PyObject *self, void* closure);

@@ -63,6 +63,7 @@ PyMethodDef DapChainDatumMethods[] = {
 };
 
 PyGetSetDef  DapChainDatumGetSet[] = {
+        {"hash", (getter)wrapping_dap_chain_datum_get_hash_py, NULL, NULL, NULL},
         {"versionStr", (getter)wrapping_dap_chain_datum_get_version_str_py, NULL, NULL, NULL},
         {"tsCreated", (getter)dap_chain_datum_get_ts_created_py, NULL, NULL, NULL},
         {"raw", (getter)wrapping_dap_chain_datum_get_raw_py, NULL, NULL, NULL},
@@ -259,6 +260,17 @@ PyObject *dap_chain_datum_get_type_str_py(PyObject *self, PyObject *args){
 PyObject *dap_chain_datum_get_type_id_py(PyObject *self, PyObject *args){
     (void)args;
     return Py_BuildValue("H", ((PyDapChainDatumObject*)self)->datum->header.type_id);
+}
+
+PyObject *wrapping_dap_chain_datum_get_hash_py(PyObject *self, void* closure){
+    (void)closure;
+    PyDapHashFastObject *obj_hf = PyObject_New(PyDapHashFastObject,  &DapChainHashFastObjectType);
+    obj_hf->hash_fast = DAP_NEW(dap_hash_fast_t);
+    dap_hash_fast(
+            ((PyDapChainDatumObject*)self)->datum,
+            dap_chain_datum_size(((PyDapChainDatumObject*)self)->datum),
+            obj_hf->hash_fast);
+    return (PyObject*)obj_hf;
 }
 
 PyObject *wrapping_dap_chain_datum_get_version_str_py(PyObject *self, void* closure){
