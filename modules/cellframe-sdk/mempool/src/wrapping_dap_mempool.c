@@ -418,7 +418,7 @@ PyObject *dap_chain_mempool_remove_py(PyObject *self, PyObject *args){
 }
 
 PyObject* pvt_dap_chain_mempool_list(dap_chain_t *a_chain){
-    PyObject *obj_list = PyList_New(0);
+    PyObject *obj_dict = PyDict_New();
     char * l_gdb_group_mempool = dap_chain_net_get_gdb_group_mempool(a_chain);
     if (l_gdb_group_mempool){
         size_t l_objs_size = 0;
@@ -427,7 +427,7 @@ PyObject* pvt_dap_chain_mempool_list(dap_chain_t *a_chain){
             dap_chain_datum_t * l_datum = (dap_chain_datum_t*) l_objs[i].value;
             PyDapChainDatumObject *obj_datum = PyObject_New(PyDapChainDatumObject, &DapChainDatumObjectType);
             obj_datum->datum = l_datum;
-            PyList_Append(obj_list, (PyObject*)obj_datum);
+            PyDict_SetItemString(obj_dict, l_objs[i].key, obj_datum);
         }
         dap_chain_global_db_objs_delete(l_objs, l_objs_size);
     }
