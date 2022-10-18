@@ -62,6 +62,7 @@ PyMethodDef DapSignObjectMethods[]= {
         {"toBytes", wrapping_dap_sign_get_bytes, METH_NOARGS, ""},
         {"fromBase64", wrapping_dap_sign_from_b64, METH_VARARGS | METH_STATIC, ""},
         {"toBase64", wrapping_dap_sign_to_b64, METH_NOARGS, ""},
+        {"getAddr", wrapping_dap_sign_get_addr, METH_VARARGS, ""},
         {NULL, NULL, 0, NULL}
 };
 
@@ -117,7 +118,6 @@ PyObject *wrapping_dap_sign_get_type(PyObject *self, void *closure){
 PyObject *wrapping_dap_sign_get_pkey(PyObject *self, void *closure){
     (void)closure;
     PyDapPkeyObject *obj_pkey = PyObject_New(PyDapPkeyObject, &DapPkeyObject_DapPkeyObjectType);
-    PyObject_Dir((PyObject*)obj_pkey);
     obj_pkey->pkey = (dap_pkey_t*)((PyDapSignObject*)self)->sign->pkey_n_sign;
     return (PyObject*)obj_pkey;
 }
@@ -134,6 +134,22 @@ PyObject *wrapping_dap_sign_get_pkey_hash(PyObject *self, void *closure){
 PyObject *wrapping_dap_sign_get_size(PyObject *self, void *closure){
     (void)closure;
     return Py_BuildValue("I", ((PyDapSignObject*)self)->sign->header.sign_size);
+}
+
+PyObject *wrapping_dap_sign_get_addr(PyObject *self, PyObject *args){
+    PyObject *obj_net;
+    if (!PyArg_ParseTuple(args, "O", &obj_net)){
+        return NULL;
+    }
+    PyDapChainAddrObject *obj_addr = PyObject_New(PyDapChainAddrObject, &DapChainAddrObjectType);
+    obj_addr->addr = DAP_NEW(dap_chain_addr_t);
+    dap_hash_fast_t l_hf;
+    dap_hash_fast(((PyDapSignObject *)self)->sign->pkey_n_sign, ((PyDapSignObject *)self)->sign->header.sign_pkey_size, &l_hf);
+    dap_chain_addr_fill(obj_addr->addr,
+                        ((PyDapSignObject *)self)->sign->header.type,
+                        l_hf,
+                        ((PyDapChainNetObject*)obj_net)->chain_net->pub.id);
+    return (PyObject*)obj_addr;
 }
 
 int wrapping_dap_sign_create(PyObject *self, PyObject* args, PyObject *kwds){
