@@ -143,11 +143,11 @@ PyObject *wrapping_dap_sign_get_addr(PyObject *self, PyObject *args){
     }
     PyDapChainAddrObject *obj_addr = PyObject_New(PyDapChainAddrObject, &DapChainAddrObjectType);
     obj_addr->addr = DAP_NEW(dap_chain_addr_t);
-    dap_hash_fast_t l_hf;
+    dap_hash_fast_t l_hf = {0};
     dap_hash_fast(((PyDapSignObject *)self)->sign->pkey_n_sign, ((PyDapSignObject *)self)->sign->header.sign_pkey_size, &l_hf);
     dap_chain_addr_fill(obj_addr->addr,
                         ((PyDapSignObject *)self)->sign->header.type,
-                        l_hf,
+                        &l_hf,
                         ((PyDapChainNetObject*)obj_net)->chain_net->pub.id);
     return (PyObject*)obj_addr;
 }
