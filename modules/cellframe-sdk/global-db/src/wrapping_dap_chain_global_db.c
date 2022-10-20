@@ -81,9 +81,9 @@ PyObject *wrapping_dap_chain_global_db_gr_set(PyObject *self, PyObject *args){
     size_t l_bytes_size = PyBytes_Size(obj_byte);
     bool ret = dap_chain_global_db_gr_set(l_key, l_bytes, l_bytes_size, l_group);
     if (ret == true){
-        return Py_True;
+        Py_RETURN_TRUE;
     } else {
-        return Py_False;
+        Py_RETURN_FALSE;
     }
 }
 PyObject *wrapping_dap_chain_global_db_gr_del(PyObject *self, PyObject *args){
@@ -95,9 +95,9 @@ PyObject *wrapping_dap_chain_global_db_gr_del(PyObject *self, PyObject *args){
     }
     bool ret = dap_chain_global_db_gr_del(l_key, l_group);
     if (ret == true)
-        return Py_True;
+        Py_RETURN_TRUE;
     else
-        return Py_False;
+        Py_RETURN_FALSE;
 }
 
 PyObject *wrapping_dap_chain_global_db_gr_pin(PyObject *self, PyObject *args){
