@@ -93,9 +93,9 @@ PyObject *dap_chain_find_by_id_py(PyObject *self, PyObject *args){
 PyObject *dap_chain_has_file_store_py(PyObject *self, PyObject *args){
     bool res = dap_chain_has_file_store(((PyDapChainObject*)self)->chain_t);
     if (res)
-        return  Py_BuildValue("O", Py_True);
+        Py_RETURN_TRUE;
     else
-        return Py_BuildValue("O", Py_False);
+        Py_RETURN_FALSE;
 }
 
 PyObject *dap_chain_save_all_py(PyObject *self, PyObject *args){

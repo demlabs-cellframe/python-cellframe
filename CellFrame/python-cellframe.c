@@ -243,6 +243,23 @@ PyObject *python_cellframe_init(PyObject *self, PyObject *args)
     Py_RETURN_NONE;
 }
 
+static int dap_server_core_init(uint32_t l_thread_cnt, size_t conn_t)
+{
+    int result = dap_server_init();
+    if ( result != 0 ) {
+       log_it( L_CRITICAL, "Can't initialize \"socket server\" module" );
+    }
+    dap_events_init(l_thread_cnt, conn_t);
+    return result;
+}
+
+static void dap_server_core_deinit(void)
+{
+    dap_server_deinit();
+    dap_events_deinit();
+}
+
+
 PyObject *python_dap_init(PyObject *self, PyObject *args)
 {
     const char *app_name;
@@ -449,7 +466,7 @@ PyObject *python_dap_init(PyObject *self, PyObject *args)
             PyObject* getStreamData = PyDict_GetItemString(result, "Stream");
             if (getStreamData == NULL){
                 PyErr_SetString(CellFrame_error, "Failed to initialize \"Stream\" module."
-                                "Can't find \"ServerCore\" object in JSON string");
+                                "Can't find \"Stream\" object in JSON string");
                 return NULL;
             }
             PyObject *debugDumpStreamHeadersObj = PyDict_GetItemString(getStreamData, "DebugDumpStreamHeaders");
@@ -508,7 +525,7 @@ PyMODINIT_FUNC PyInit_libDAP()
         PyType_Ready( &DapCryptoSignObjectType ) < 0 ||
         PyType_Ready( &DapChainHashFastObjectType ) < 0 ||
         // === Network ==
-        PyType_Ready( &DapServerCoreObjectType ) < 0 ||
+        PyType_Ready( &DapServerObjectType ) < 0 ||
         PyType_Ready( &DapEventsObjectType ) < 0 ||
         PyType_Ready( &DapEventsSocketObjectType ) < 0 ||
         PyType_Ready( &DapHttpCodeObjectType ) < 0 ||
@@ -541,7 +558,8 @@ PyMODINIT_FUNC PyInit_libDAP()
     PyModule_AddObject(cryptoModule, "HashFast", (PyObject*)&DapChainHashFastObjectType);
 
     PyObject *netModule = PyModule_Create(&DapNetPythonModule);
-    PyModule_AddObject(netModule, "ServerCore", (PyObject*)&DapServerCoreObjectType);
+    PyModule_AddObject(netModule, "ServerCore", (PyObject*)&DapServerObjectType);   /// alias, deprecated
+    PyModule_AddObject(netModule, "Server", (PyObject*)&DapServerObjectType);
     PyModule_AddObject(netModule, "Events", (PyObject*)&DapEventsObjectType);
     PyModule_AddObject(netModule, "EventsSocket", (PyObject*)&DapEventsSocketObjectType);
     PyModule_AddObject(netModule, "Http", (PyObject*)&DapHttpObjectType);

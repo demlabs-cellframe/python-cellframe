@@ -143,7 +143,9 @@ PyObject* dap_chain_mempool_datum_emission_extract_py(PyObject *self, PyObject *
     return (PyObject*)l_obj_emi;
 }
 
-PyObject *dap_chain_mempool_proc_py(PyObject *self, PyObject *args) {
+PyObject *dap_chain_mempool_proc_py(PyObject *self, PyObject *args)
+{
+    UNUSED(self);
     PyDapChainObject *obj_chain = NULL;
     char *l_hash_str = NULL;
     if (!PyArg_ParseTuple(args, "sO", &l_hash_str, &obj_chain)) {
@@ -153,7 +155,7 @@ PyObject *dap_chain_mempool_proc_py(PyObject *self, PyObject *args) {
         char *l_str = "The second function argument is invalid, it must be an "
                                               "instance of an object of type CellFrame.Chain.Chain ";
         PyErr_SetString(PyExc_AttributeError, l_str);
-        log_it(L_ERROR, l_str);
+        log_it(L_ERROR, "%s", l_str);
         return NULL;
     }
     dap_chain_t *l_chain = obj_chain->chain_t;
@@ -162,7 +164,7 @@ PyObject *dap_chain_mempool_proc_py(PyObject *self, PyObject *args) {
     if(dap_chain_net_get_role(l_net).enums>= NODE_ROLE_FULL){
         char *l_str = dap_strdup_printf("Need master node role or higher for network %s to process this command", l_net->pub.name);
         PyErr_SetString(PyExc_RuntimeError, l_str);
-        log_it(L_ERROR, l_str);
+        log_it(L_ERROR, "%s", l_str);
         DAP_DELETE(l_str);
         return NULL;
     }
@@ -177,7 +179,7 @@ PyObject *dap_chain_mempool_proc_py(PyObject *self, PyObject *args) {
         char *l_str = dap_strdup_printf("Failed to get data from chain %s on network %s using hash %s",
                                                                 l_chain->name, l_net->pub.name, l_hash_str);
         PyErr_SetString(PyExc_AttributeError, l_str);
-        log_it(L_ERROR, l_str);
+        log_it(L_ERROR, "%s", l_str);
         DAP_DELETE(l_str);
         DAP_DELETE(l_gdb_group_mempool);
         return NULL;
@@ -187,27 +189,18 @@ PyObject *dap_chain_mempool_proc_py(PyObject *self, PyObject *args) {
         char *l_str = dap_strdup_printf("Error! Corrupted datum %s, size by datum headers is %zd when in mempool is only %zd bytes",
                                        l_datum_size2, l_datum_size);
         PyErr_SetString(PyExc_RuntimeError, l_str);
-        log_it(L_ERROR, l_str);
+        log_it(L_ERROR, "%s", l_str);
         DAP_DELETE(l_str);
         DAP_DELETE(l_gdb_group_mempool);
         return NULL;
     }
-
-    if (l_chain->callback_add_datums){
-        size_t processed = l_chain->callback_add_datums(l_chain, &l_datum, 1);
-        if (processed == 0) {
-            char *l_str = "Error! Datum doesn't pass verifications, examine node log files";
-            PyErr_SetString(PyExc_RuntimeError, l_str);
-            log_it(L_WARNING, l_str);
-        }
+    if (dap_chain_node_mempool_process(l_chain, l_datum)) {
         bool res_del_mempool = dap_chain_global_db_gr_del(l_hash_str, l_gdb_group_mempool);
         if (!res_del_mempool) {
             char *l_str = "Warning! Can't delete datum from mempool!";
             PyErr_SetString(PyExc_Warning, l_str);
-            return  NULL;
+            return NULL;
         }
-        DAP_DELETE(l_gdb_group_mempool);
-        Py_RETURN_NONE;
     }
     DAP_DELETE(l_gdb_group_mempool);
     Py_RETURN_NONE;
@@ -425,7 +418,7 @@ PyObject *dap_chain_mempool_remove_py(PyObject *self, PyObject *args){
 }
 
 PyObject* pvt_dap_chain_mempool_list(dap_chain_t *a_chain){
-    PyObject *obj_list = PyList_New(0);
+    PyObject *obj_dict = PyDict_New();
     char * l_gdb_group_mempool = dap_chain_net_get_gdb_group_mempool(a_chain);
     if (l_gdb_group_mempool){
         size_t l_objs_size = 0;
@@ -433,13 +426,15 @@ PyObject* pvt_dap_chain_mempool_list(dap_chain_t *a_chain){
         for (size_t i = 0; i < l_objs_size; i++){
             dap_chain_datum_t * l_datum = (dap_chain_datum_t*) l_objs[i].value;
             PyDapChainDatumObject *obj_datum = PyObject_New(PyDapChainDatumObject, &DapChainDatumObjectType);
-            obj_datum->datum = l_datum;
-            PyList_Append(obj_list, (PyObject*)obj_datum);
+            obj_datum->datum = DAP_DUP_SIZE((dap_chain_datum_t*) l_objs[i].value, l_objs[i].value_len);
+            obj_datum->origin = true;
+            PyDict_SetItemString(obj_dict, l_objs[i].key, (PyObject*)obj_datum);
+            Py_XDECREF((PyObject*)obj_datum);
         }
         dap_chain_global_db_objs_delete(l_objs, l_objs_size);
     }
     DAP_FREE(l_gdb_group_mempool);
-    return obj_list;
+    return obj_dict;
 }
 
 PyObject *dap_chain_mempool_list_py(PyObject *self, PyObject *args){

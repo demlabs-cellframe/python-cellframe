@@ -96,7 +96,7 @@ PyMethodDef DapChainAddrMethods[] = {
         {"toStr", (PyCFunction)dap_chain_addr_to_str_py, METH_VARARGS, ""},
         {"fromStr", (PyCFunction)dap_chain_addr_from_str_py, METH_VARARGS | METH_STATIC, ""},
         {"fill", (PyCFunction)dap_chain_addr_fill_py, METH_VARARGS | METH_STATIC, ""},
-        {"fillFromKey", (PyCFunction)dap_chain_addr_fill_from_key_py, METH_VARARGS, ""},
+        {"fillFromKey", (PyCFunction)dap_chain_addr_fill_from_key_py, METH_VARARGS | METH_STATIC, ""},
         {"checkSum", (PyCFunction)dap_chain_addr_check_sum_py, METH_VARARGS, ""},
         {"getNetId", (PyCFunction)dap_chain_addr_get_net_id_py, METH_NOARGS, ""},
         {NULL, NULL, 0, NULL}
@@ -402,12 +402,15 @@ PyObject *dap_chain_addr_fill_py(PyObject *self, PyObject *args){
 }
 
 PyObject *dap_chain_addr_fill_from_key_py(PyObject *self, PyObject *args){
+    (void)self;
     PyObject *key;
     PyObject *net_id;
     if (!PyArg_ParseTuple(args, "O|O", &key, &net_id))
         return NULL;
-    dap_chain_addr_fill_from_key(((PyDapChainAddrObject*)self)->addr, ((PyCryptoKeyObject*)key)->key, (((PyDapChainNetIdObject*)net_id)->net_id));
-    return self;
+    PyDapChainAddrObject *obj_addr = PyObject_New(PyDapChainAddrObject, &DapChainAddrObjectType);
+    obj_addr->addr = DAP_NEW(dap_chain_addr_t);
+    dap_chain_addr_fill_from_key(obj_addr->addr, ((PyCryptoKeyObject*)key)->key, (((PyDapChainNetIdObject*)net_id)->net_id));
+    return (PyObject*)obj_addr;
 }
 
 PyObject *dap_chain_addr_check_sum_py(PyObject *self, PyObject *args){
@@ -431,7 +434,12 @@ PyObject *dap_chain_net_id_from_str_py(PyObject *self, PyObject *args){
     if (!PyArg_ParseTuple(args, "s", &str))
         return NULL;
     PyObject *obj_net_id = _PyObject_New(&DapChainNetIdObjectType);
-    ((PyDapChainNetIdObject*)obj_net_id)->net_id = dap_chain_net_id_from_str(str);
+    if (dap_sscanf(str, "0x%016"DAP_UINT64_FORMAT_X, &((PyDapChainNetIdObject*)obj_net_id)->net_id.uint64) != 1) {
+        char *l_err = dap_strdup_printf("Wrong id format (\"%s\"). Must be like \"0x0123456789ABCDE\"" , str);
+        PyErr_SetString(PyExc_AttributeError, l_err);
+        DAP_DELETE(l_err);
+        return NULL;
+    }
     return Py_BuildValue("O", obj_net_id);
 }
 

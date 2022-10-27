@@ -178,7 +178,7 @@ PyObject *dap_chain_ledger_addr_get_token_ticker_all_fast_py(PyObject *self, PyO
     return obj_list;
 }
 PyObject *dap_chain_ledger_tx_cache_check_py(PyObject *self, PyObject *args){
-    PyObject *obj_datum_tx;
+    PyDapChainDatumTxObject *obj_datum_tx;
     PyObject *list_bound_items;
     PyObject *list_tx_out;
     if (!PyArg_ParseTuple(args, "O|O|O", &obj_datum_tx, &list_bound_items, &list_tx_out))
@@ -197,9 +197,11 @@ PyObject *dap_chain_ledger_tx_cache_check_py(PyObject *self, PyObject *args){
         dap_list_t *l = pyListToDapList(obj);
         tx_out[i] = l;
     }
+    dap_hash_fast_t l_tx_hash;
+    dap_hash_fast(obj_datum_tx->datum_tx, dap_chain_datum_tx_get_size(obj_datum_tx->datum_tx), &l_tx_hash);
     int res = dap_chain_ledger_tx_cache_check(((PyDapChainLedgerObject*)self)->ledger,
-                                              ((PyDapChainDatumTxObject*)obj_datum_tx)->datum_tx,
-                                              false, bound_items, tx_out);
+                                              obj_datum_tx->datum_tx,
+                                              &l_tx_hash, false, bound_items, tx_out);
     return PyLong_FromLong(res);
 }
 PyObject *dap_chain_node_datum_tx_cache_check_py(PyObject *self, PyObject *args){
@@ -258,9 +260,9 @@ PyObject *dap_chain_ledger_tx_hash_is_used_out_item_py(PyObject *self, PyObject 
             return NULL;
     bool res = dap_chain_ledger_tx_hash_is_used_out_item(((PyDapChainLedgerObject*)self)->ledger, ((PyDapHashFastObject*)obj_h_fast)->hash_fast, idx_out);
     if (res)
-        return Py_BuildValue("O", Py_True);
+        Py_RETURN_TRUE;
     else
-        return Py_BuildValue("O", Py_False);
+        Py_RETURN_FALSE;
 }
 PyObject *dap_chain_ledger_calc_balance_py(PyObject *self, PyObject *args){
     PyObject *addr;

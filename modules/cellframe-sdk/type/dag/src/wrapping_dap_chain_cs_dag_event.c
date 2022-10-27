@@ -142,7 +142,7 @@ PyObject *wrapping_dap_chain_cs_dag_event_get_datum(PyObject *self, void *closur
     (void)closure;
     size_t l_offset =  ((PyDapChainCsDagEventObject*)self)->event->header.hash_count*sizeof (dap_chain_hash_fast_t);
     PyDapChainDatumObject *datum = PyObject_New(PyDapChainDatumObject, &DapChainDatumObjectType);
-    PyObject_Dir((PyObject*)datum);
+    datum->origin = false;
     datum->datum = (dap_chain_datum_t*) (((PyDapChainCsDagEventObject*)self)->event->hashes_n_datum_n_signs + l_offset);
     return (PyObject*)datum;
 }
