@@ -76,7 +76,7 @@ PyTypeObject DapChainDatumObjectType = {
         "CellFrame.Chain.Datum",          /* tp_name */
         sizeof(PyDapChainDatumObject),   /* tp_basicsize */
         0,                               /* tp_itemsize */
-        0,                               /* tp_dealloc */
+        (destructor)PyDapChainDatumObject_dealloc,  /* tp_dealloc */
         0,                               /* tp_print */
         0,                               /* tp_getattr */
         0,                               /* tp_setattr */
@@ -113,6 +113,13 @@ PyTypeObject DapChainDatumObjectType = {
         PyDapChainDatumObject_new,       /* tp_new */
 };
 
+void PyDapChainDatumObject_dealloc(PyDapChainDatumObject* self) {
+    if (self->origin) {
+        DAP_DELETE(self->datum);
+    }
+    Py_TYPE(self)->tp_free((PyObject*)self);
+}
+
 bool PyDapChainDatum_Check(PyDapChainDatumObject *self){
     return PyObject_TypeCheck(self, &DapChainDatumObjectType);
 }
@@ -133,6 +140,7 @@ PyObject *PyDapChainDatumObject_new(PyTypeObject *type_object, PyObject *args, P
         size_t l_bytes_size = PyBytes_Size(obj_arg_second);
         PyDapChainDatumObject *obj = (PyDapChainDatumObject*)PyType_GenericNew(type_object, args, kwds);
         obj->datum = dap_chain_datum_create(type_id, l_bytes, l_bytes_size);
+        obj->origin = false;
         return (PyObject *)obj;
     } else {
         if (!PyBytes_Check(obj_arg_first)){
@@ -144,6 +152,7 @@ PyObject *PyDapChainDatumObject_new(PyTypeObject *type_object, PyObject *args, P
         size_t l_bytes_size = PyBytes_Size(obj_arg_first);
         PyDapChainDatumObject *obj = (PyDapChainDatumObject*)PyType_GenericNew(type_object, args, kwds);
         obj->datum = (dap_chain_datum_t*)l_bytes;
+        obj->origin = true;
         return (PyObject *)obj;
     }
 }

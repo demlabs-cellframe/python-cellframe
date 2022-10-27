@@ -48,11 +48,12 @@ extern PyTypeObject DapChainDatumTypeIdObjectType;
 typedef struct PyDapChainDatum{
     PyObject_HEAD
     dap_chain_datum_t *datum;
+    bool origin;
 }PyDapChainDatumObject;
 
 bool PyDapChainDatum_Check(PyDapChainDatumObject *self);
 
-//void PyDapChainDatumObject_dealloc(PyDapChainDatumObject* object);
+void PyDapChainDatumObject_dealloc(PyDapChainDatumObject* self);
 PyObject *PyDapChainDatumObject_new(PyTypeObject *type_object, PyObject *args, PyObject *kwds);
 PyObject *dap_chain_datum_size_py(PyObject *self, PyObject *args);
 PyObject *dap_chain_datum_get_ts_created_py(PyObject *self, void* closure);

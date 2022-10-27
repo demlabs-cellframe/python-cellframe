@@ -426,8 +426,10 @@ PyObject* pvt_dap_chain_mempool_list(dap_chain_t *a_chain){
         for (size_t i = 0; i < l_objs_size; i++){
             dap_chain_datum_t * l_datum = (dap_chain_datum_t*) l_objs[i].value;
             PyDapChainDatumObject *obj_datum = PyObject_New(PyDapChainDatumObject, &DapChainDatumObjectType);
-            obj_datum->datum = l_datum;
+            obj_datum->datum = DAP_DUP_SIZE((dap_chain_datum_t*) l_objs[i].value, l_objs[i].value_len);
+            obj_datum->origin = true;
             PyDict_SetItemString(obj_dict, l_objs[i].key, (PyObject*)obj_datum);
+            Py_XDECREF((PyObject*)obj_datum);
         }
         dap_chain_global_db_objs_delete(l_objs, l_objs_size);
     }
