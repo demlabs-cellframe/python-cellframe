@@ -490,5 +490,6 @@ PyObject *dap_chain_mempool_add_datum_py(PyObject *self, PyObject *args){
     char *l_str = dap_chain_mempool_datum_add(obj_datum->datum, obj_chain->chain_t);
     if (!l_str)
         return Py_None;
+    obj_datum->origin = false;
     return Py_BuildValue("s", l_str);
 }
