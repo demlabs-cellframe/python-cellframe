@@ -140,7 +140,7 @@ PyObject *PyDapChainDatumObject_new(PyTypeObject *type_object, PyObject *args, P
         size_t l_bytes_size = PyBytes_Size(obj_arg_second);
         PyDapChainDatumObject *obj = (PyDapChainDatumObject*)PyType_GenericNew(type_object, args, kwds);
         obj->datum = dap_chain_datum_create(type_id, l_bytes, l_bytes_size);
-        obj->origin = false;
+        obj->origin = true;
         return (PyObject *)obj;
     } else {
         if (!PyBytes_Check(obj_arg_first)){
@@ -151,7 +151,7 @@ PyObject *PyDapChainDatumObject_new(PyTypeObject *type_object, PyObject *args, P
         void *l_bytes = (void*)PyBytes_AsString(obj_arg_first);
         size_t l_bytes_size = PyBytes_Size(obj_arg_first);
         PyDapChainDatumObject *obj = (PyDapChainDatumObject*)PyType_GenericNew(type_object, args, kwds);
-        obj->datum = (dap_chain_datum_t*)l_bytes;
+        obj->datum = dap_chain_datum_create(DAP_CHAIN_DATUM_CUSTOM, l_bytes, l_bytes_size);
         obj->origin = true;
         return (PyObject *)obj;
     }
