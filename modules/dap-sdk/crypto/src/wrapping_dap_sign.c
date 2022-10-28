@@ -12,7 +12,6 @@ int PyDapSignType_init(PyDapSignTypeObject *self, PyObject *args, PyObject *kwds
     self->sign_type = DAP_NEW(dap_sign_type_t);
     if (strcmp(sign_type, "sig_bliss") == 0){
         self->sign_type->type = SIG_TYPE_BLISS;
-//        self->sign_type = SIG_TYPE_BLISS;
     } else if (strcmp(sign_type, "sig_tesla") == 0){
         self->sign_type->type = SIG_TYPE_TESLA;
     } else if (strcmp(sign_type, "sig_picnic") == 0){
@@ -28,6 +27,7 @@ int PyDapSignType_init(PyDapSignTypeObject *self, PyObject *args, PyObject *kwds
         PyErr_SetString(PyExc_Exception, "Invalid signature type specified, supported types: sig_bliss, sig_tesla, sig_picnic, sig_dil, sig_multi2, sig_multi.");
         return -1;
     }
+    return 0;
 }
 
 /* Sign type*/
