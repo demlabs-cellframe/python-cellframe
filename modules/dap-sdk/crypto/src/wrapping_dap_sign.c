@@ -1,5 +1,35 @@
 #include "wrapping_dap_sign.h"
 
+int PyDapSignType_init(PyDapSignTypeObject *self, PyObject *args, PyObject *kwds){
+    const char *kwlist[] = {
+            "type",
+            NULL
+    };
+    const char *sign_type;
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "s", (char **)kwlist, &sign_type)){
+        return -1;
+    }
+    self->sign_type = DAP_NEW(dap_sign_type_t);
+    if (strcmp(sign_type, "sig_bliss") == 0){
+        self->sign_type->type = SIG_TYPE_BLISS;
+//        self->sign_type = SIG_TYPE_BLISS;
+    } else if (strcmp(sign_type, "sig_tesla") == 0){
+        self->sign_type->type = SIG_TYPE_TESLA;
+    } else if (strcmp(sign_type, "sig_picnic") == 0){
+        self->sign_type->type = SIG_TYPE_PICNIC;
+    } else if (strcmp(sign_type, "sig_dil") == 0){
+        self->sign_type->type = SIG_TYPE_DILITHIUM;
+    } else if (strcmp(sign_type, "sig_multi2") == 0){
+        self->sign_type->type = SIG_TYPE_MULTI_COMBINED;
+    } else if (strcmp(sign_type, "sig_multi") == 0){
+        self->sign_type->type = SIG_TYPE_MULTI_CHAINED;
+    } else {
+        DAP_DELETE(self->sign_type);
+        PyErr_SetString(PyExc_Exception, "Invalid signature type specified, supported types: sig_bliss, sig_tesla, sig_picnic, sig_dil, sig_multi2, sig_multi.");
+        return -1;
+    }
+}
+
 /* Sign type*/
 PyTypeObject DapCryproSignTypeObjectType = {
         PyVarObject_HEAD_INIT(NULL, 0)
@@ -38,7 +68,7 @@ PyTypeObject DapCryproSignTypeObjectType = {
         0,                               /* tp_descr_get */
         0,                               /* tp_descr_set */
         0,                               /* tp_dictoffset */
-        0,                               /* tp_init */
+        (initproc)PyDapSignType_init,                               /* tp_init */
         0,                               /* tp_alloc */
         PyType_GenericNew,               /* tp_new */
 };
