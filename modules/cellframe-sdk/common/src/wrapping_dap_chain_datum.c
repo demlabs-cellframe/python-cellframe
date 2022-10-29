@@ -151,7 +151,8 @@ PyObject *PyDapChainDatumObject_new(PyTypeObject *type_object, PyObject *args, P
         void *l_bytes = (void*)PyBytes_AsString(obj_arg_first);
         size_t l_bytes_size = PyBytes_Size(obj_arg_first);
         PyDapChainDatumObject *obj = (PyDapChainDatumObject*)PyType_GenericNew(type_object, args, kwds);
-        obj->datum = dap_chain_datum_create(DAP_CHAIN_DATUM_CUSTOM, l_bytes, l_bytes_size);
+        obj->datum = DAP_NEW_Z_SIZE(dap_chain_datum_t, l_bytes_size);
+        memcpy(obj->datum, l_bytes, l_bytes_size);
         obj->origin = true;
         return (PyObject *)obj;
     }
