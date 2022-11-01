@@ -94,16 +94,14 @@
 #ifdef _WIN32
 #include "Windows.h"
 
+#ifdef DAP_SUPPORT_PYTHON_PLUGINS
+    #include "../modules/plugins/include/dap_plugins_python_app_context.h"
+#endif
 BOOL WINAPI consoleHandler(DWORD);
 #else
 #include "signal.h"
 #include "wrapping_http_status_code.h"
 #include "wrapping_dap_http_simple.h"
-#ifdef DAP_SUPPORT_PYTHON_PLUGINS
-    #include "../modules/plugins/include/dap_plugins_python_app_context.h"
-#endif
-
-
 void sigfunc(int sig);
 #endif
 
