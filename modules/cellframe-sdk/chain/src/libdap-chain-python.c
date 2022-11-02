@@ -29,6 +29,7 @@ static PyMethodDef DapChainMethods[] = {
         {"getAtoms", (PyCFunction)dap_chain_python_get_atoms, METH_VARARGS, ""},
         {"countTx", (PyCFunction)dap_chain_python_get_count_tx, METH_NOARGS, ""},
         {"getTransactions", (PyCFunction)dap_chain_python_get_txs, METH_VARARGS, ""},
+        {"getCSName", (PyCFunction)dap_chain_python_get_cs_name, METH_NOARGS, ""},
         //{"close", (PyCFunction)dap_chain_close_py, METH_NOARGS, ""},
         {NULL, NULL, 0, NULL}
 };
@@ -49,7 +50,7 @@ PyTypeObject DapChainObjectType = {
         0,                                                            /* tp_as_mapping */
         0,                                                            /* tp_hash  */
         0,                                                            /* tp_call */
-        0,                                                            /* tp_str */
+        PyDapChain_str,                                                            /* tp_str */
         0,                                                            /* tp_getattro */
         0,                                                            /* tp_setattro */
         0,                                                            /* tp_as_buffer */
@@ -440,4 +441,15 @@ PyObject *dap_chain_python_get_txs(PyObject *self, PyObject *args){
         return l_obj_list;
     }
     Py_RETURN_NONE;
+}
+
+PyObject *dap_chain_python_get_cs_name(PyObject *self, PyObject *args){
+    (void)args;
+    dap_chain_t* l_chain = ((PyDapChainObject*)self)->chain_t;
+    dap_chain_pvt_t *l_chain_pvt = DAP_CHAIN_PVT(l_chain);
+    return Py_BuildValue("s", l_chain_pvt->cs_name);
+}
+
+PyObject *PyDapChain_str(PyObject *self){
+    return Py_BuildValue("s", ((PyDapChainObject*)self)->chain_t->name);
 }
