@@ -126,7 +126,6 @@ static PyModuleDef CellframeConsensusPythonModule = {
 BOOL WINAPI consoleHandler(DWORD dwType){
     if (dwType == CTRL_C_EVENT){
         log_it(L_NOTICE, "Execution terminated. Ctrl+C is pressed");
-        dap_server_loop_stop();
         deinit_modules();
     }
     return TRUE;
@@ -274,7 +273,7 @@ PyObject *python_dap_init(PyObject *self, PyObject *args)
     PyObject *events = NULL;
 
     #ifdef _WIN32
-        setConsoleCtrlHandler((PHANDLER_ROUTINE)consoleHandler, TRUE);
+        SetConsoleCtrlHandler((PHANDLER_ROUTINE)consoleHandler, TRUE);
     #else
         signal(SIGINT, sigfunc);
     #endif
