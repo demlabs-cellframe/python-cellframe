@@ -7,7 +7,7 @@ PyGetSetDef PyDapChainTxTokenGetsSetsDef[] = {
         {NULL}
 };
 
-PyTypeObject DapChainTxToken_DapChainTxTokenType = {
+PyTypeObject DapChainTxTokenObjectType = {
         PyVarObject_HEAD_INIT(NULL, 0)
         "CellFrame.ChainTxToken",       /* tp_name */
         sizeof(PyDapChainTxTokenObject),      /* tp_basicsize */
