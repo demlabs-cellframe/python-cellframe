@@ -339,7 +339,8 @@ PyObject *dap_chain_mempool_tx_create_cond_py(PyObject *self, PyObject *args){
             ((PyDapChainNetSrvUIDObject*)obj_srv_uid)->net_srv_uid,
             l_fee_256,
             l_bytes_cond,
-            l_bytes_cond_size
+            l_bytes_cond_size,
+            NULL
     );
     if (!l_hf){
         Py_RETURN_NONE;
