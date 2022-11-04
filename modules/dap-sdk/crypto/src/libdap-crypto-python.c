@@ -24,11 +24,12 @@
     along with any DAP based project.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "libdap-python.h"
 #include "libdap-crypto-python.h"
 
 #define LOG_TAG "dap_crypto_python"
 
-PyMethodDef g_crypto_methods_py[] = {
+static PyMethodDef PyDapCryptoMethods[] = {
         {"encodeBase58", dap_encode_base58_py, METH_VARARGS | METH_STATIC, "Encrypts information using the base58 algorithm from the DAP crypto library"},
         {"decodeBase58", dap_decode_base58_py, METH_VARARGS | METH_STATIC, "Dencrypts information using the base58 algorithm from the DAP crypto library"},
         {"encodeBase64", dap_encode_base64_py, METH_VARARGS | METH_STATIC, "Encrypts information using the base64 algorithm from the DAP crypto library"},
@@ -53,50 +54,13 @@ PyMethodDef g_crypto_methods_py[] = {
         {"decodeSizeOAES", dap_enc_oaes_calc_decode_size_py, METH_VARARGS | METH_STATIC, ""},
         {"encryptOAESFast", dap_enc_oaes_encrypt_fast_py, METH_VARARGS | METH_STATIC, ""},
         {"decryptOAESFast", dap_enc_oaes_decrypt_fast_py, METH_VARARGS | METH_STATIC, ""},
-        {NULL, NULL, 0, NULL}
+        {}
 };
 
-PyTypeObject DapCryptoAlgoObjectType = {
-        PyVarObject_HEAD_INIT(NULL, 0)
-        "DAP.Crypto.Algo",             /* tp_name */
-        sizeof(PyCryptoAlgoObject),         /* tp_basicsize */
-        0,                         /* tp_itemsize */
-        0,                         /* tp_dealloc */
-        0,                         /* tp_print */
-        0,                         /* tp_getattr */
-        0,                         /* tp_setattr */
-        0,                         /* tp_reserved */
-        0,                         /* tp_repr */
-        0,                         /* tp_as_number */
-        0,                         /* tp_as_sequence */
-        0,                         /* tp_as_mapping */
-        0,                         /* tp_hash  */
-        0,                         /* tp_call */
-        0,                         /* tp_str */
-        0,                         /* tp_getattro */
-        0,                         /* tp_setattro */
-        0,                         /* tp_as_buffer */
-        Py_TPFLAGS_DEFAULT |
-        Py_TPFLAGS_BASETYPE,   /* tp_flags */
-        "Crypto algorithms",           /* tp_doc */
-        0,		               /* tp_traverse */
-        0,		               /* tp_clear */
-        0,		               /* tp_richcompare */
-        0,		               /* tp_weaklistoffset */
-        0,		               /* tp_iter */
-        0,		               /* tp_iternext */
-        g_crypto_methods_py,             /* tp_methods */
-        0,                         /* tp_members */
-        0,                         /* tp_getset */
-        0,                         /* tp_base */
-        0,                         /* tp_dict */
-        0,                         /* tp_descr_get */
-        0,                         /* tp_descr_set */
-        0,                         /* tp_dictoffset */
-        0,                         /* tp_init */
-        0,                         /* tp_alloc */
-        PyType_GenericNew,         /* tp_new */
-};
+PyTypeObject DapCryptoAlgoObjectType = DAP_PY_TYPE_OBJECT(
+        "DAP.Crypto.Algo", sizeof(PyCryptoAlgoObject),
+        "Crypto algorithms",
+        .tp_methods = PyDapCryptoMethods);
 
 int dap_crypto_init(void){
     if(dap_enc_init()!=0){

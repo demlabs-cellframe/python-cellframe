@@ -2,61 +2,14 @@
 
 #define LOG_TAG "libdap-python"
 
-PyMethodDef DapCoreMethods[] = {
+static PyMethodDef DapCoreMethods[] = {
         {NULL, NULL, 0, NULL}
 };
 
-PyTypeObject DapCoreObjectType = {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "DAP.Core",             /* tp_name */
-    sizeof(PyDapObject),             /* tp_basicsize */
-    0,                         /* tp_itemsize */
-    0,			       /* tp_dealloc */
-    0,                         /* tp_print */
-    0,                         /* tp_getattr */
-    0,                         /* tp_setattr */
-    0,                         /* tp_reserved */
-    0,                         /* tp_repr */
-    0,                         /* tp_as_number */
-    0,                         /* tp_as_sequence */
-    0,                         /* tp_as_mapping */
-    0,                         /* tp_hash  */
-    0,                         /* tp_call */
-    0,                         /* tp_str */
-    0,                         /* tp_getattro */
-    0,                         /* tp_setattro */
-    0,                         /* tp_as_buffer */
-    Py_TPFLAGS_DEFAULT |
-        Py_TPFLAGS_BASETYPE,   /* tp_flags */
-    "Dap objects",           /* tp_doc */
-    0,		               /* tp_traverse */
-    0,		               /* tp_clear */
-    0,		               /* tp_richcompare */
-    0,		               /* tp_weaklistoffset */
-    0,		               /* tp_iter */
-    0,		               /* tp_iternext */
-    DapCoreMethods,                /* tp_methods */
-    0,                         /* tp_members */
-    0,                         /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,                         /* tp_init */
-    0,                         /* tp_alloc */
-    PyType_GenericNew,         /* tp_new */
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-};
+PyTypeObject DapCoreObjectType = DAP_PY_TYPE_OBJECT(
+        "DAP.Core", sizeof(PyDapObject),
+        "Dap objects",
+        .tp_methods = DapCoreMethods);
 
 static PyMethodDef DapLogitMethods[] = {
     {"debug", (PyCFunction)dap_log_it_debug, METH_VARARGS | METH_STATIC, "Log a message with the DEBUG level."},
@@ -68,18 +21,13 @@ static PyMethodDef DapLogitMethods[] = {
     {"att", (PyCFunction)dap_log_it_att, METH_VARARGS | METH_STATIC, "Log a message with the ATT level."},
     {"error", (PyCFunction)dap_log_it_error, METH_VARARGS | METH_STATIC, "Log a message with the ERROR level."},
     {"critical", (PyCFunction)dap_log_it_critical, METH_VARARGS | METH_STATIC, "Log a message with the CRITICAL level."},
-    {NULL, NULL, 0, NULL}
+    {}
 };
 
-PyTypeObject DapLogitObjectType = {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    .tp_name = "Dap.logIt",
-    .tp_basicsize = sizeof(PyDapObject),
-    .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
-    .tp_doc = "Dap LogIt methods",
-    .tp_methods = DapLogitMethods,
-    .tp_new = PyType_GenericNew,
-};
+PyTypeObject DapLogitObjectType = DAP_PY_TYPE_OBJECT(
+        "Dap.logIt", sizeof(PyDapObject),
+        "Dap LogIt methods",
+        .tp_methods = DapLogitMethods);
 
 PyObject *dap_set_log_level(PyObject *self, PyObject *args){
     short int new_log_level;
@@ -103,9 +51,9 @@ PyObject* dap_log_it(PyObject* self, PyObject* args){
         return PyLong_FromLong(-1);
     } else {
         if (string_name_plugin){
-            log_it(log_level, dap_strdup_printf("[plugin: %s] %s", string_output, string_name_plugin));
+            log_it(log_level, "%s", dap_strdup_printf("[plugin: %s] %s", string_output, string_name_plugin));
         } else {
-            log_it(log_level, string_output);
+            log_it(log_level, "%s", string_output);
         }
         return PyLong_FromLong(0);
     }
@@ -118,9 +66,9 @@ PyObject* dap_log_it_debug(PyObject* self, PyObject* args){
         return NULL;
     }
     if (string_name_plugin) {
-        log_it(L_DEBUG, dap_strdup_printf("[plugin: %s] %s", string_output, string_name_plugin));
+        log_it(L_DEBUG, "%s", dap_strdup_printf("[plugin: %s] %s", string_output, string_name_plugin));
     } else {
-        log_it(L_DEBUG, string_output);
+        log_it(L_DEBUG, "%s", string_output);
     }
     return PyLong_FromLong(0);
 }
@@ -131,9 +79,9 @@ PyObject* dap_log_it_info(PyObject* self, PyObject* args){
         return NULL;
     }
     if (string_name_plugin) {
-        log_it(L_INFO, dap_strdup_printf("[plugin: %s] %s", string_output, string_name_plugin));
+        log_it(L_INFO, "%s", dap_strdup_printf("[plugin: %s] %s", string_output, string_name_plugin));
     } else {
-        log_it(L_INFO, string_output);
+        log_it(L_INFO, "%s", string_output);
     }
     return PyLong_FromLong(0);
 }
@@ -144,9 +92,9 @@ PyObject* dap_log_it_notice(PyObject* self, PyObject* args){
         return NULL;
     }
     if (string_name_plugin){
-        log_it(L_NOTICE, dap_strdup_printf("[plugin: %s] %s", string_output, string_name_plugin));
+        log_it(L_NOTICE, "%s", dap_strdup_printf("[plugin: %s] %s", string_output, string_name_plugin));
     }else{
-        log_it(L_NOTICE, string_output);
+        log_it(L_NOTICE, "%s", string_output);
     }
     return PyLong_FromLong(0);
 }
@@ -157,9 +105,9 @@ PyObject* dap_log_it_message(PyObject* self, PyObject* args){
         return NULL;
     }
     if (string_name_plugin) {
-        log_it(L_MSG, dap_strdup_printf("[plugin: %s] %s", string_output, string_name_plugin));
+        log_it(L_MSG, "%s", dap_strdup_printf("[plugin: %s] %s", string_output, string_name_plugin));
     } else {
-        log_it(L_MSG, string_output);
+        log_it(L_MSG, "%s", string_output);
     }
     return PyLong_FromLong(0);
 }
@@ -170,9 +118,9 @@ PyObject* dap_log_it_dap(PyObject* self, PyObject* args){
         return NULL;
     }
     if (string_name_plugin) {
-        log_it(L_DAP, dap_strdup_printf("[plugin: %s] %s", string_output, string_name_plugin));
+        log_it(L_DAP, "%s", dap_strdup_printf("[plugin: %s] %s", string_output, string_name_plugin));
     } else {
-        log_it(L_DAP, string_output);
+        log_it(L_DAP, "%s", string_output);
     }
     return PyLong_FromLong(0);
 }
@@ -183,9 +131,9 @@ PyObject* dap_log_it_warning(PyObject* self, PyObject* args){
         return NULL;
     }
     if (string_name_plugin) {
-        log_it(L_WARNING, dap_strdup_printf("[plugin: %s] %s", string_output, string_name_plugin));
+        log_it(L_WARNING, "%s", dap_strdup_printf("[plugin: %s] %s", string_output, string_name_plugin));
     } else {
-        log_it(L_WARNING, string_output);
+        log_it(L_WARNING, "%s", string_output);
     }
     return PyLong_FromLong(0);
 }
@@ -196,9 +144,9 @@ PyObject* dap_log_it_att(PyObject* self, PyObject* args){
         return NULL;
     }
     if (string_name_plugin) {
-        log_it(L_ATT, dap_strdup_printf("[plugin: %s] %s", string_output, string_name_plugin));
+        log_it(L_ATT, "%s", dap_strdup_printf("[plugin: %s] %s", string_output, string_name_plugin));
     } else {
-        log_it(L_ATT, string_output);
+        log_it(L_ATT, "%s", string_output);
     }
     return PyLong_FromLong(0);
 }
@@ -209,9 +157,9 @@ PyObject* dap_log_it_error(PyObject* self, PyObject* args){
         return NULL;
     }
     if (string_name_plugin) {
-        log_it(L_ERROR, dap_strdup_printf("[plugin: %s] %s", string_output, string_name_plugin));
+        log_it(L_ERROR, "%s", dap_strdup_printf("[plugin: %s] %s", string_output, string_name_plugin));
     } else {
-        log_it(L_ERROR, string_output);
+        log_it(L_ERROR, "%s", string_output);
     }
     return PyLong_FromLong(0);
 }
@@ -222,9 +170,9 @@ PyObject* dap_log_it_critical(PyObject* self, PyObject* args){
         return NULL;
     }
     if (string_name_plugin) {
-        log_it(L_CRITICAL, dap_strdup_printf("[plugin: %s] %s", string_output, string_name_plugin));
+        log_it(L_CRITICAL, "%s", dap_strdup_printf("[plugin: %s] %s", string_output, string_name_plugin));
     } else {
-        log_it(L_CRITICAL, string_output);
+        log_it(L_CRITICAL, "%s", string_output);
     }
     return PyLong_FromLong(0);
 }

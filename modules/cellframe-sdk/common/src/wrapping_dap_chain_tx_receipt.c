@@ -3,7 +3,7 @@
 
 #define LOG_TAG "wrapping_dap_chain_tx_receipt"
 
-PyGetSetDef DapChainTxReceiptGetSetDefs[] = {
+static PyGetSetDef DapChainTxReceiptGetSetDefs[] = {
         {"size", (getter)wrapping_dap_chain_tx_receipt_get_size, NULL, NULL, NULL},
         {"extSize", (getter)wrapping_dap_chain_tx_receipt_get_ext_size, NULL, NULL, NULL},
         {"units", (getter)wrapping_dap_chain_tx_receipt_get_units, NULL, NULL, NULL},
@@ -12,55 +12,19 @@ PyGetSetDef DapChainTxReceiptGetSetDefs[] = {
         {"value", (getter)wrapping_dap_chain_tx_receipt_get_value, NULL, NULL, NULL},
         {"provider", (getter)wrapping_dap_chain_tx_receipt_get_sig_provider, NULL, NULL, NULL},
         {"client", (getter)wrapping_dap_chain_tx_receipt_get_sig_client, NULL, NULL, NULL},
-        {NULL}
+        {}
 };
 
-PyMethodDef DapChainTxReceiptMethods[] = {
+static PyMethodDef DapChainTxReceiptMethods[] = {
         {"sign", (PyCFunction)wrapping_dap_chain_tx_receipt_sign, METH_VARARGS, ""},
-        {NULL, NULL, 0, NULL}
+        {}
 };
 
-PyTypeObject DapChainTxReceiptObjectType = {
-        PyVarObject_HEAD_INIT(NULL, 0)
-        "CellFrame.ChainTxReceipt",        /* tp_name */
-        sizeof(PyDapChainTXReceiptObject), /* tp_basicsize */
-        0,                                  /* tp_itemsize */
-        0,                                  /* tp_dealloc */
-        0,                                  /* tp_print */
-        0,                                  /* tp_getattr */
-        0,                                  /* tp_setattr */
-        0,                                  /* tp_reserved */
-        0,                                  /* tp_repr */
-        0,                                  /* tp_as_number */
-        0,                                  /* tp_as_sequence */
-        0,                                  /* tp_as_mapping */
-        0,                                  /* tp_hash  */
-        0,                                  /* tp_call */
-        0,                                  /* tp_str */
-        0,                                  /* tp_getattro */
-        0,                                  /* tp_setattro */
-        0,                                  /* tp_as_buffer */
-        Py_TPFLAGS_DEFAULT |
-        Py_TPFLAGS_BASETYPE,                /* tp_flags */
-        "Chain tx item receipt object",     /* tp_doc */
-        0,                                  /* tp_traverse */
-        0,                                  /* tp_clear */
-        0,                                  /* tp_richcompare */
-        0,                                  /* tp_weaklistoffset */
-        0,                                  /* tp_iter */
-        0,                                  /* tp_iternext */
-        DapChainTxReceiptMethods,           /* tp_methods */
-        0,                                  /* tp_members */
-        DapChainTxReceiptGetSetDefs,        /* tp_getset */
-        0,                                  /* tp_base */
-        0,                                  /* tp_dict */
-        0,                                  /* tp_descr_get */
-        0,                                  /* tp_descr_set */
-        0,                                  /* tp_dictoffset */
-        0,                                  /* tp_init */
-        0,                                  /* tp_alloc */
-        PyType_GenericNew,                  /* tp_new */
-};
+PyTypeObject DapChainTxReceiptObjectType = DAP_PY_TYPE_OBJECT(
+        "CellFrame.ChainTxReceipt", sizeof(PyDapChainTXReceiptObject),
+        "Chain tx item receipt object",
+        .tp_methods = DapChainTxReceiptMethods,
+        .tp_getset = DapChainTxReceiptGetSetDefs);
 
 PyObject *wrapping_dap_chain_tx_receipt_get_size(PyObject *self, void *closure){
     (void)closure;

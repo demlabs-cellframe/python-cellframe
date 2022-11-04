@@ -1,6 +1,6 @@
 #include "wrapping_dap_chain_cs_block.h"
 
-PyGetSetDef DapChainCsBlockGetsSetsDef[] = {
+static PyGetSetDef DapChainCsBlockGetsSetsDef[] = {
         {"hash", (getter)wrapping_dap_chain_block_get_hash, NULL, NULL, NULL},
         {"version", (getter)wrapping_dap_chain_block_get_version, NULL, NULL, NULL},
         {"cellId", (getter)wrapping_dap_chain_block_get_cell_id, NULL, NULL, NULL},
@@ -10,55 +10,19 @@ PyGetSetDef DapChainCsBlockGetsSetsDef[] = {
         {"datums", (getter)wrapping_dap_chain_block_get_datums, NULL, NULL, NULL},
         {"signs", (getter)wrapping_dap_chain_block_get_signs, NULL, NULL, NULL},
 //        {"blockCache", (getter)wrapping_dap_chain_block_get_block_cache, NULL, NULL, NULL},
-        {NULL}
+        {}
 };
 
-PyMethodDef DapChainCsBlockMethods[] = {
+static PyMethodDef DapChainCsBlockMethods[] = {
         {"fromAtom", dap_chain_cs_block_get_atom, METH_VARARGS | METH_STATIC, ""},
-        {NULL, NULL, 0, NULL}
+        {}
 };
 
-PyTypeObject DapChainCsBlockType = {
-        PyVarObject_HEAD_INIT(NULL, 0)
-        "CellFrame.Consensus.ChainCSBlock",                                            /* tp_name */
-        sizeof(PyDapChainCSBlockObject),                                     /* tp_basicsize */
-        0,                                                            /* tp_itemsize */
-        0,                         /* tp_dealloc */
-        0,                                                            /* tp_print */
-        0,                                                            /* tp_getattr */
-        0,                                                            /* tp_setattr */
-        0,                                                            /* tp_reserved */
-        0,                                                            /* tp_repr */
-        0,                                                            /* tp_as_number */
-        0,                                                            /* tp_as_sequence */
-        0,                                                            /* tp_as_mapping */
-        0,                                                            /* tp_hash  */
-        0,                                                            /* tp_call */
-        0,                                                            /* tp_str */
-        0,                                                            /* tp_getattro */
-        0,                                                            /* tp_setattro */
-        0,                                                            /* tp_as_buffer */
-        Py_TPFLAGS_DEFAULT |
-        Py_TPFLAGS_BASETYPE,                                      /* tp_flags */
-        "Chain cs block objects",                                              /* tp_doc */
-        0,                                                              /* tp_traverse */
-        0,                                                              /* tp_clear */
-        0,                                                              /* tp_richcompare */
-        0,                                                              /* tp_weaklistoffset */
-        0,                                                              /* tp_iter */
-        0,                                                            /* tp_iternext */
-        DapChainCsBlockMethods,                                        /* tp_methods */
-        0,                                                          /* tp_members */
-        DapChainCsBlockGetsSetsDef,                                   /* tp_getset */
-        0,                                                            /* tp_base */
-        0,                                                            /* tp_dict */
-        0,                                                            /* tp_descr_get */
-        0,                                                            /* tp_descr_set */
-        0,                                                            /* tp_dictoffset */
-        0,                                                            /* tp_init */
-        0,                                                            /* tp_alloc */
-        PyType_GenericNew,                                            /* tp_new */
-};
+PyTypeObject DapChainCsBlockType = DAP_PY_TYPE_OBJECT(
+        "CellFrame.Consensus.ChainCSBlock", sizeof(PyDapChainCSBlockObject),
+        "Chain cs block objects",
+        .tp_methods = DapChainCsBlockMethods,
+        .tp_getset = DapChainCsBlockGetsSetsDef);
 
 PyObject *wrapping_dap_chain_block_get_version(PyObject *self, void *closure){
     (void)closure;

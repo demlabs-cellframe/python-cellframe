@@ -52,7 +52,7 @@ PyObject* dap_cert_cert_signs_py(PyObject *self, PyObject *args);
 PyObject* dap_cert_compare_py(PyObject *self, PyObject *args);
 PyObject* dap_cert_save_py(PyObject *self, PyObject *args);
 PyObject* dap_cert_load_py(PyObject *self, PyObject *args);
-void dap_cert_delete_py(PyObject *self);
+PyObject *dap_cert_delete_py(PyObject *self, PyObject *args);
 PyObject* dap_cert_folder_add_py(PyObject *self, PyObject *args);
 PyObject* dap_cert_folder_get_py(PyObject *self, PyObject *args);
 PyObject *wrapping_cert_get_enc_key(PyObject *self, void *closure);

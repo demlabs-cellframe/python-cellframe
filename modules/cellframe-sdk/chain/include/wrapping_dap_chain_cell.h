@@ -29,22 +29,6 @@ static bool PyDapChainCell_Check(PyObject *self){
     return PyObject_TypeCheck(self, &DapChainCellObjectType);
 }
 
-/* ------------------------------------------- */
-
-typedef struct PyDapChainCellDeclReq{
-    PyObject_HEAD
-    dap_chain_cell_decl_req_t *decl_req;
-}PyDapChainCellDeclReqObject;
-
-extern PyTypeObject DapChainCellDeclReq_DapChainCellDeclReqObjectType;
-
-typedef struct PyDapChainCellDecl{
-    PyObject_HEAD
-    dap_chain_cell_decl_t* decl;
-}PyDapChainDeclObject;
-
-extern PyTypeObject DapChainDecl_DapChainDeclObjectType;
-
 #ifdef __cplusplus
 }
 #endif

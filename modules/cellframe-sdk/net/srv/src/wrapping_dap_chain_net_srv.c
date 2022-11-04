@@ -2,57 +2,17 @@
 
 #define LOG_TAG "wrapping_dap_chain_net_srv"
 
-PyMethodDef DapChainNetSrvMethods[]={
-        {NULL, NULL, 0, NULL}
-};
-
-PyGetSetDef DapChaiNetSrvGetsSets[] = {
+static PyGetSetDef DapChaiNetSrvGetsSets[] = {
         {"uid", (getter)wrapping_dap_chain_net_srv_get_uid, NULL, NULL, NULL},
         {"gracePeriod", (getter)wrapping_dap_chain_net_srv_get_grace_period, NULL, NULL, NULL},
-        {NULL}
+        {}
 };
 
-PyTypeObject DapChainNetSrvObjectType = {
-        PyVarObject_HEAD_INIT(NULL, 0)
-        "CellFrame.ChainNetSrv",        /* tp_name */
-        sizeof(PyDapChainNetSrvObject), /* tp_basicsize */
-        0,                                /* tp_itemsize */
-        0,                                /* tp_dealloc */
-        0,                                /* tp_print */
-        0,                                /* tp_getattr */
-        0,                                /* tp_setattr */
-        0,                                /* tp_reserved */
-        0,                                /* tp_repr */
-        0,                                /* tp_as_number */
-        0,                                /* tp_as_sequence */
-        0,                                /* tp_as_mapping */
-        0,                                /* tp_hash  */
-        0,                                /* tp_call */
-        0,                                /* tp_str */
-        0,                                /* tp_getattro */
-        0,                                /* tp_setattro */
-        0,                                /* tp_as_buffer */
-        Py_TPFLAGS_DEFAULT |
-        Py_TPFLAGS_BASETYPE,          /* tp_flags */
-        "Chain net service object",               /* tp_doc */
-        0,		                          /* tp_traverse */
-        0,		                          /* tp_clear */
-        0,		                          /* tp_richcompare */
-        0,                                /* tp_weaklistoffset */
-        0,		                          /* tp_iter */
-        0,		                          /* tp_iternext */
-        DapChainNetSrvMethods,        /* tp_methods */
-        0,                                /* tp_members */
-        DapChaiNetSrvGetsSets,        /* tp_getset */
-        0,                                /* tp_base */
-        0,                                /* tp_dict */
-        0,                                /* tp_descr_get */
-        0,                                /* tp_descr_set */
-        0,                                /* tp_dictoffset */
-        (initproc)PyDapChainNetSrv_init,      /* tp_init */
-        0,                                /* tp_alloc */
-        PyType_GenericNew,                /* tp_new */
-};
+PyTypeObject DapChainNetSrvObjectType = DAP_PY_TYPE_OBJECT(
+        "CellFrame.ChainNetSrv", sizeof(PyDapChainNetSrvObject),
+        "Chain net service object",
+        .tp_getset = DapChaiNetSrvGetsSets,
+        .tp_init = (initproc)PyDapChainNetSrv_init);
 
 PyObject *_wrapping_dac_chain_callback_data_t_get_tuple(
         dap_chain_net_srv_t *a_srv,

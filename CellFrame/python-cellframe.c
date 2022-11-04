@@ -31,96 +31,41 @@ static PyMethodDef DapPythonMethods[] = {
     {"setLogLevel", (PyCFunction)dap_set_log_level, METH_VARARGS, "Setting the logging level."},
     {"configGetItem", (PyCFunction)py_m_dap_config_get_item, METH_VARARGS, "Get an item from a configuration."},
     {"configGetItemDefault", (PyCFunction)py_m_dap_config_get_item_default, METH_VARARGS, "Get an item from a configuration with a default value."},
-    {NULL, NULL, 0, NULL}
-};
-
-static PyMethodDef CellFramePythonMethods[] = {
-    {NULL, NULL, 0, NULL}
+    {}
 };
 
 static char CellFramePythonModuleDoc[] = "CellFrame SDK.Python v"DAP_VERSION" welcomes you!";
 
-static PyModuleDef CellFramePythonModule = {
-    PyModuleDef_HEAD_INIT,
-    "CellFrame",   /* name of module */
-    CellFramePythonModuleDoc, /* module documentation, may be NULL */
-    -1,       /* size of per-interpreter state of the module,
-             or -1 if the module keeps state in global variables. */
-    CellFramePythonMethods,
-};
+static PyModuleDef CellFramePythonModule =    DAP_PY_MODULE(.m_name = "CellFrame",     /* name of module */
+                                                            .m_doc = CellFramePythonModuleDoc, /* module documentation, may be NULL */
+                                                            .m_size = -1);             /* size of per-interpreter state of the module,
+                                                                                    or -1 if the module keeps state in global variables. */
 
-static PyModuleDef DapPythonModule = {
-    PyModuleDef_HEAD_INIT,
-    "DAP",   /* name of module */
-    "DAP SDK.Python v"DAP_VERSION" welcomes you!", /* module documentation, may be NULL */
-    -1,       /* size of per-interpreter state of the module,
-             or -1 if the module keeps state in global variables. */
-    DapPythonMethods,
-};
+static PyModuleDef DapPythonModule =          DAP_PY_MODULE(.m_name = "DAP",
+                                                            .m_doc = "DAP SDK.Python v"DAP_VERSION" welcomes you!",
+                                                            .m_size = -1,
+                                                            .m_methods = DapPythonMethods);
 
-static PyModuleDef DapCorePythonModule = {
-    PyModuleDef_HEAD_INIT,
-    "DAP.Core",   /* name of module */
-    NULL, /* module documentation, may be NULL */
-    -1,       /* size of per-interpreter state of the module,
-             or -1 if the module keeps state in global variables. */
-    NULL,
-};
+static PyModuleDef DapCorePythonModule =      DAP_PY_MODULE(.m_name = "DAP.Core",
+                                                            .m_size = -1);
 
-static PyModuleDef DapCryptoPythonModule = {
-    PyModuleDef_HEAD_INIT,
-    "DAP.Crypto",   /* name of module */
-    NULL, /* module documentation, may be NULL */
-    -1,       /* size of per-interpreter state of the module,
-             or -1 if the module keeps state in global variables. */
-    NULL,
-};
+static PyModuleDef DapCryptoPythonModule =    DAP_PY_MODULE(.m_name = "DAP.Crypto",
+                                                            .m_size = -1);
 
-static PyModuleDef DapNetPythonModule = {
-    PyModuleDef_HEAD_INIT,
-    "DAP.Network",   /* name of module */
-    NULL, /* module documentation, may be NULL */
-    -1,       /* size of per-interpreter state of the module,
-             or -1 if the module keeps state in global variables. */
-    NULL,
-};
+static PyModuleDef DapNetPythonModule =       DAP_PY_MODULE(.m_name = "DAP.Network",
+                                                            .m_size = -1);
 
-static PyModuleDef CellframeChainPythonModule = {
-    PyModuleDef_HEAD_INIT,
-    "Cellframe.Chain",   /* name of module */
-    NULL, /* module documentation, may be NULL */
-    -1,       /* size of per-interpreter state of the module,
-             or -1 if the module keeps state in global variables. */
-    NULL,
-};
+static PyModuleDef CellframeChainPythonModule =     DAP_PY_MODULE(.m_name = "Cellframe.Chain",
+                                                                  .m_size = -1);
 
-static PyModuleDef CellframeCommonPythonModule = {
-    PyModuleDef_HEAD_INIT,
-    "Cellframe.Common",   /* name of module */
-    NULL, /* module documentation, may be NULL */
-    -1,       /* size of per-interpreter state of the module,
-             or -1 if the module keeps state in global variables. */
-    NULL,
-};
+static PyModuleDef CellframeCommonPythonModule =    DAP_PY_MODULE(.m_name = "Cellframe.Common",
+                                                                  .m_size = -1);
 
-static PyModuleDef CellframeNetworkPythonModule = {
-    PyModuleDef_HEAD_INIT,
-    "Cellframe.Network",   /* name of module */
-    NULL, /* module documentation, may be NULL */
-    -1,       /* size of per-interpreter state of the module,
-             or -1 if the module keeps state in global variables. */
-    NULL,
-};
+static PyModuleDef CellframeNetworkPythonModule =   DAP_PY_MODULE(.m_name = "Cellframe.Network",
+                                                                  .m_size = -1);
 
-static PyModuleDef CellframeConsensusPythonModule = {
-    PyModuleDef_HEAD_INIT,
-    "Cellframe.Consensus",   /* name of module */
-    NULL, /* module documentation, may be NULL */
-    -1,       /* size of per-interpreter state of the module,
-             or -1 if the module keeps state in global variables. */
-    NULL,
-};
-
+static PyModuleDef CellframeConsensusPythonModule = DAP_PY_MODULE(.m_name = "Cellframe.Consensus",
+                                                                  .m_size = -1);
 #ifdef _WIN32
 
 BOOL WINAPI consoleHandler(DWORD dwType){

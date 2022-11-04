@@ -6,6 +6,7 @@
 //#define DAP_APP_NAME "BINDING_CHAIN_PYTHON"
 #include "dap_chain.h"
 #include "dap_chain_node_client.h"
+#include "libdap-python.h"
 #include "wrapping_dap_chain_ledger.h"
 #include "wrapping_dap_chain_common.h"
 #include "libdap_chain_atom_iter_python.h"
