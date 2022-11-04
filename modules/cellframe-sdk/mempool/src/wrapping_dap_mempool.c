@@ -290,7 +290,7 @@ PyObject *dap_chain_mempool_tx_create_py(PyObject *self, PyObject *args){
     dap_chain_hash_fast_t  *l_hash_tx = dap_chain_mempool_tx_create(l_chain, l_key_from,
                                                                     l_addr_from, l_addr_to,
                                                                     l_token_ticker,
-                                                                    l_value_256, l_value_fee_256);
+                                                                    l_value_256, l_value_fee_256, NULL);
     if (l_hash_tx == NULL){
         Py_RETURN_NONE;
     } else {
