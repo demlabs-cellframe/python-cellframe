@@ -337,6 +337,7 @@ PyObject *dap_chain_ledger_tx_cache_find_out_cond_py(PyObject *self, PyObject *a
     int *out_cond_idx = NULL;
     ((PyDapChainDatumTxObject*)res)->datum_tx = (dap_chain_datum_tx_t*)dap_chain_ledger_tx_cache_find_out_cond(
                 ((PyDapChainLedgerObject*)self)->ledger,
+                DAP_CHAIN_TX_OUT_COND_SUBTYPE_SRV_PAY,  //TODO support other subtypes
                 ((PyDapHashFastObject*)obj_first_hash)->hash_fast,
                 out_conds, out_cond_idx, NULL);
     ((PyDapChainDatumTxObject*)res)->datum_tx = false;
@@ -349,6 +350,7 @@ PyObject *dap_chain_ledger_tx_cache_get_out_cond_value_py(PyObject *self, PyObje
         return NULL;
     dap_chain_tx_out_cond_t **out_conds = NULL;
     uint256_t res = dap_chain_ledger_tx_cache_get_out_cond_value(((PyDapChainLedgerObject*)self)->ledger,
+                                                                DAP_CHAIN_TX_OUT_COND_SUBTYPE_SRV_PAY,  //TODO support other subtypes
                                                                 ((PyDapChainAddrObject*)obj_addr)->addr,
                                                                 out_conds);
     uint64_t res64 = dap_chain_uint256_to(res);
