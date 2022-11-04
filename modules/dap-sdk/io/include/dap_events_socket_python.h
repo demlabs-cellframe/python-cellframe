@@ -14,7 +14,7 @@ typedef struct PyDapEventsSocket{
     dap_events_socket_t *t_events_socket;
 }PyDapEventsSocketObject;
 
-PyObject *dap_events_socket_create_after_py(PyDapEventsSocketObject *self);
+PyObject *dap_events_socket_create_after_py(PyDapEventsSocketObject *self, PyObject *args);
 
 PyObject *dap_events_socket_set_readable_py(PyDapEventsSocketObject *self, PyObject *args);
 PyObject *dap_events_socket_set_writable_py(PyDapEventsSocketObject *self, PyObject *args);

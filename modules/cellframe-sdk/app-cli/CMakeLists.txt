@@ -12,7 +12,7 @@ if(NOT (${SUBMODULES_NO_BUILD} MATCHES ON))
     if (NOT (TARGET dap_core))
         add_subdirectory(libdap)
         target_compile_options(
-            dap_core PRIVATE 
+            dap_core PRIVATE
             "-fpic"
         )
     endif()
@@ -27,7 +27,7 @@ add_library(${PROJECT_NAME} STATIC ${APP_CLI_PYTHON_SRCS} ${APP_CLI_PYTHON_HEADE
 
 target_link_libraries(${PROJECT_NAME})
 
-target_link_libraries(${PROJECT_NAME} dap_core dap_app_cli )
+target_link_libraries(${PROJECT_NAME} dap_core dap_app_cli dap_python_module)
 
 target_include_directories(${PROJECT_NAME} PUBLIC include/ )
 

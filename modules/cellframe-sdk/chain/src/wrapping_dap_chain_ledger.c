@@ -1,6 +1,6 @@
 #include "wrapping_dap_chain_ledger.h"
 
-PyMethodDef DapChainLedgerMethods[] = {
+static PyMethodDef DapChainLedgerMethods[] = {
         {"setLocalCellId", (PyCFunction)dap_chain_ledger_set_local_cell_id_py, METH_VARARGS, ""},
         {"nodeDatumTxCalcHash", (PyCFunction)dap_chain_node_datum_tx_calc_hash_py, METH_VARARGS, ""},
         {"txAdd", (PyCFunction)dap_chain_ledger_tx_add_py, METH_VARARGS, ""},
@@ -24,52 +24,13 @@ PyMethodDef DapChainLedgerMethods[] = {
         {"txCacheFindOutCond", (PyCFunction)dap_chain_ledger_tx_cache_find_out_cond_py, METH_VARARGS, ""},
         {"txCacheGetOutCondValue", (PyCFunction)dap_chain_ledger_tx_cache_get_out_cond_value_py, METH_VARARGS, ""},
         {"getTransactions", (PyCFunction) dap_chain_ledger_get_txs_py, METH_VARARGS, ""},
-
-        {NULL, NULL, 0, NULL}
+        {}
 };
 
-PyTypeObject DapChainLedgerObjectType = {
-        PyVarObject_HEAD_INIT(NULL, 0)
-        "CellFrame.ChainLedger",                                      /* tp_name */
-        sizeof(PyDapChainLedgerObject),                               /* tp_basicsize */
-        0,                                                            /* tp_itemsize */
-        0,                                                            /* tp_dealloc */
-        0,                                                            /* tp_print */
-        0,                                                            /* tp_getattr */
-        0,                                                            /* tp_setattr */
-        0,                                                            /* tp_reserved */
-        0,                                                            /* tp_repr */
-        0,                                                            /* tp_as_number */
-        0,                                                            /* tp_as_sequence */
-        0,                                                            /* tp_as_mapping */
-        0,                                                            /* tp_hash  */
-        0,                                                            /* tp_call */
-        0,                                                            /* tp_str */
-        0,                                                            /* tp_getattro */
-        0,                                                            /* tp_setattro */
-        0,                                                            /* tp_as_buffer */
-        Py_TPFLAGS_DEFAULT |
-        Py_TPFLAGS_BASETYPE,                                      /* tp_flags */
-        "Chain ledger objects",                                              /* tp_doc */
-        0,		                                                      /* tp_traverse */
-        0,		                                                      /* tp_clear */
-        0,		                                                      /* tp_richcompare */
-        0,		                                                      /* tp_weaklistoffset */
-        0,		                                                      /* tp_iter */
-        0,		                                                      /* tp_iternext */
-        DapChainLedgerMethods,                                        /* tp_methods */
-        0,                                                            /* tp_members */
-        0,                                                            /* tp_getset */
-        0,                                                            /* tp_base */
-        0,                                                            /* tp_dict */
-        0,                                                            /* tp_descr_get */
-        0,                                                            /* tp_descr_set */
-        0,                                                            /* tp_dictoffset */
-        0,                                                            /* tp_init */
-        0,                                                            /* tp_alloc */
-        PyType_GenericNew,                                            /* tp_new */
-
-};
+PyTypeObject DapChainLedgerObjectType = DAP_PY_TYPE_OBJECT(
+        "CellFrame.ChainLedger", sizeof(PyDapChainLedgerObject),
+        "Chain ledger objects",
+        .tp_methods = DapChainLedgerMethods);
 
 PyObject *DapChainLedgerObject_create(PyTypeObject *type_object, PyObject *args, PyObject *kwds){
     uint16_t check_flag;

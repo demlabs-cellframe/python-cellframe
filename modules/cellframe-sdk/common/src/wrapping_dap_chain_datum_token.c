@@ -2,58 +2,17 @@
 #include "wrapping_cert.h"
 
 /* Token */
-PyGetSetDef  PyDapChainDatumTokenGetsSetsDef[]={
+static PyGetSetDef  PyDapChainDatumTokenGetsSetsDef[]={
         {"ticker", (getter)wrapping_dap_chain_datum_token_get_ticker, NULL, NULL, NULL},
         {"typeStr", (getter)wrapping_dap_chain_datum_token_get_type_str, NULL, NULL, NULL},
         {"data", (getter)wrapping_dap_chain_datum_token_get_data, NULL, NULL, NULL},
-        {NULL}
+        {}
 };
 
-PyMethodDef  PyDapChainDatumTokenMethods[] = {
-        {NULL, NULL, 0, NULL}
-};
-
-PyTypeObject DapChainDatumTokenObjectType = {
-        PyVarObject_HEAD_INIT(NULL, 0)
-        "CellFrame.Chain.DatumTokenObject",       /* tp_name */
-        sizeof(PyDapChainDatumTokenObject),      /* tp_basicsize */
-        0,                                       /* tp_itemsize */
-        0,                                       /* tp_dealloc */
-        0,                                       /* tp_print */
-        0,                                       /* tp_getattr */
-        0,                                       /* tp_setattr */
-        0,                                       /* tp_reserved */
-        0,                                       /* tp_repr */
-        0,                                       /* tp_as_number */
-        0,                                       /* tp_as_sequence */
-        0,                                       /* tp_as_mapping */
-        0,                                       /* tp_hash  */
-        0,                                       /* tp_call */
-        0,                                       /* tp_str */
-        0,                                       /* tp_getattro */
-        0,                                       /* tp_setattro */
-        0,                                       /* tp_as_buffer */
-        Py_TPFLAGS_DEFAULT |
-        Py_TPFLAGS_BASETYPE,                 /* tp_flags */
-        "Chain datum token object",              /* tp_doc */
-        0,		                                 /* tp_traverse */
-        0,		                                 /* tp_clear */
-        0,		                                 /* tp_richcompare */
-        0,                                       /* tp_weaklistoffset */
-        0,		                                 /* tp_iter */
-        0,		                                 /* tp_iternext */
-        PyDapChainDatumTokenMethods,              /* tp_methods */
-        0,                                       /* tp_members */
-        PyDapChainDatumTokenGetsSetsDef,        /* tp_getset */
-        0,                                       /* tp_base */
-        0,                                       /* tp_dict */
-        0,                                       /* tp_descr_get */
-        0,                                       /* tp_descr_set */
-        0,                                       /* tp_dictoffset */
-        0,                                       /* tp_init */
-        0,                                       /* tp_alloc */
-        PyType_GenericNew,                       /* tp_new */
-};
+PyTypeObject DapChainDatumTokenObjectType = DAP_PY_TYPE_OBJECT(
+        "CellFrame.Chain.DatumTokenObject", sizeof(PyDapChainDatumTokenObject),
+        "Chain datum token object",
+        .tp_getset = PyDapChainDatumTokenGetsSetsDef);
 
 PyObject *wrapping_dap_chain_datum_token_get_ticker(PyObject *self, void *closure){
     (void)closure;
@@ -131,7 +90,7 @@ bool DapChainDatumToken_Check(PyObject *self){
 }
 
 /* Token Emission */
-PyGetSetDef PyDapChainDatumTokenEmissionGetsSetsDef[]={
+static PyGetSetDef PyDapChainDatumTokenEmissionGetsSetsDef[]={
         {"hash", (getter)wrapping_dap_chain_datum_token_emission_get_hash, NULL, NULL, NULL},
         {"version", (getter)wrapping_dap_chain_datum_token_emission_get_version, NULL, NULL, NULL},
         {"typeStr", (getter)wrapping_dap_chain_datum_token_emission_get_type_str, NULL, NULL, NULL},
@@ -140,57 +99,23 @@ PyGetSetDef PyDapChainDatumTokenEmissionGetsSetsDef[]={
         {"value", (getter)wrapping_dap_chain_datum_token_emission_get_value, NULL, NULL, NULL},
         {"data", (getter)wrapping_dap_chain_datum_token_emission_get_data, NULL, NULL, NULL},
         {"signCount", (getter)wrapping_dap_chain_datum_token_emission_get_sign_count, NULL, NULL, NULL},
-        {NULL}
+        {}
 };
 
-PyMethodDef PyDapChainDatumTokenEmissionMethods[]={
+static PyMethodDef PyDapChainDatumTokenEmissionMethods[]={
         {"addSign", (PyCFunction)wrapping_dap_chain_datum_emission_add_sign, METH_VARARGS, ""},
         {"addTSD", (PyCFunction)wrapping_dap_chain_datum_emission_add_tsd, METH_VARARGS, ""},
         {"getTSD", (PyCFunction)wrapping_dap_chain_datum_emission_get_tsd, METH_VARARGS, ""},
-        {NULL, NULL, 0, NULL}
+        {}
 };
 
-PyTypeObject DapChainDatumTokenEmissionObjectType = {
-        PyVarObject_HEAD_INIT(NULL, 0)
-        "CellFrame.Chain.DatumTokenEmission",             /* tp_name */
-        sizeof(PyDapChainDatumTokenEmissionObject),      /* tp_basicsize */
-        0,                                               /* tp_itemsize */
-        0,                                               /* tp_dealloc */
-        0,                                               /* tp_print */
-        0,                                               /* tp_getattr */
-        0,                                               /* tp_setattr */
-        0,                                               /* tp_reserved */
-        0,                                               /* tp_repr */
-        0,                                               /* tp_as_number */
-        0,                                               /* tp_as_sequence */
-        0,                                               /* tp_as_mapping */
-        0,                                               /* tp_hash  */
-        0,                                               /* tp_call */
-        0,                                               /* tp_str */
-        0,                                               /* tp_getattro */
-        0,                                               /* tp_setattro */
-        0,                                               /* tp_as_buffer */
-        Py_TPFLAGS_DEFAULT |
-        Py_TPFLAGS_BASETYPE,                         /* tp_flags */
-        "Chain datum token emission object",             /* tp_doc */
-        0,		                                         /* tp_traverse */
-        0,		                                         /* tp_clear */
-        0,		                                         /* tp_richcompare */
-        0,                                               /* tp_weaklistoffset */
-        0,		                                         /* tp_iter */
-        0,		                                         /* tp_iternext */
-        PyDapChainDatumTokenEmissionMethods,  	     /* tp_methods */
-        0,                                               /* tp_members */
-        PyDapChainDatumTokenEmissionGetsSetsDef,        /* tp_getset */
-        0,                                               /* tp_base */
-        0,                                               /* tp_dict */
-        0,                                               /* tp_descr_get */
-        0,                                               /* tp_descr_set */
-        0,                                               /* tp_dictoffset */
-        (initproc)PyDapChainDatumTokenEmissionObject_init,   /* tp_init */
-        0,                                               /* tp_alloc */
-        PyType_GenericNew,                               /* tp_new */
-};
+PyTypeObject DapChainDatumTokenEmissionObjectType = DAP_PY_TYPE_OBJECT(
+        "CellFrame.Chain.DatumTokenEmission", sizeof(PyDapChainDatumTokenEmissionObject),
+        "Chain datum token emission object",
+        .tp_methods = PyDapChainDatumTokenEmissionMethods,
+        .tp_getset = PyDapChainDatumTokenEmissionGetsSetsDef,
+        .tp_init = (initproc)PyDapChainDatumTokenEmissionObject_init);
+
 
 int PyDapChainDatumTokenEmissionObject_init(PyDapChainDatumTokenEmissionObject *self, PyObject *argv, PyObject *kwds){
     const char *kwlist[] = {

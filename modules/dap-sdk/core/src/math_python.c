@@ -7,13 +7,13 @@ PyNumberMethods DapMathNumberMethods = {
         .nb_true_divide = wrapping_math_python_true_divide
 };
 
-PyGetSetDef DapMathGetsSets[] = {
+static PyGetSetDef DapMathGetsSets[] = {
         {"coins", (getter)wrapping_dap_math_get_coins, NULL, NULL, NULL},
         {"balance", (getter)wrapping_dap_math_get_balance, NULL, NULL, NULL},
         {NULL, NULL, NULL, NULL, NULL}
 };
 
-PyMethodDef DapMathMethods[] = {
+static PyMethodDef DapMathMethods[] = {
         {"balanceToCoins", wrapping_dap_chain_balance_to_coins,
          METH_VARARGS | METH_STATIC, "The function calculates the number of coins from the number of datoshi."},
         {NULL, NULL, 0, NULL}
@@ -27,7 +27,7 @@ PyTypeObject DapMathObjectType = {
         .tp_str = math_python_str,
         .tp_richcompare = math_python_richcompare,
         .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
-        .tp_doc = "Dap math methods",
+        "Dap math methods",
         .tp_getset = DapMathGetsSets,
         .tp_methods = DapMathMethods,
         .tp_init = math_python_create,

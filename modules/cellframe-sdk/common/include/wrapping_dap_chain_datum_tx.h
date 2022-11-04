@@ -57,14 +57,14 @@ typedef struct PyDapChainTxItemType{
     PyObject_HEAD
 }PyDapChainTxItemTypeObject;
 
-PyObject *TX_ITEM_TYPE_IN_PY(void);
-PyObject *TX_ITEM_TYPE_OUT_PY(void);
-PyObject *TX_ITEM_TYPE_PKEY_PY(void);
-PyObject *TX_ITEM_TYPE_SIG_PY(void);
-PyObject *TX_ITEM_TYPE_TOKEN_PY(void);
-PyObject *TX_ITEM_TYPE_IN_COND_PY(void);
-PyObject *TX_ITEM_TYPE_OUT_COND_PY(void);
-PyObject *TX_ITEM_TYPE_RECEIPT_PY(void);
+PyObject *TX_ITEM_TYPE_IN_PY(PyObject *self, PyObject *args);
+PyObject *TX_ITEM_TYPE_OUT_PY(PyObject *self, PyObject *args);
+PyObject *TX_ITEM_TYPE_PKEY_PY(PyObject *self, PyObject *args);
+PyObject *TX_ITEM_TYPE_SIG_PY(PyObject *self, PyObject *args);
+PyObject *TX_ITEM_TYPE_TOKEN_PY(PyObject *self, PyObject *args);
+PyObject *TX_ITEM_TYPE_IN_COND_PY(PyObject *self, PyObject *args);
+PyObject *TX_ITEM_TYPE_OUT_COND_PY(PyObject *self, PyObject *args);
+PyObject *TX_ITEM_TYPE_RECEIPT_PY(PyObject *self, PyObject *args);
 
 extern PyTypeObject DapChainTxItemTypeObjectType;
 
@@ -76,8 +76,8 @@ typedef struct PyDapChainTxCondType{
     dap_chain_tx_cond_type_t tx_cond_type_t;
 }PyDapChainTxCondTypeObject;
 
-PyObject *COND_SERVICE_PROVIDE_PY();
-PyObject *COND_SERVICE_BILL_PY();
+PyObject *COND_SERVICE_PROVIDE_PY(PyObject *self, PyObject *args);
+PyObject *COND_SERVICE_BILL_PY(PyObject *self, PyObject *args);
 
 extern PyTypeObject DapChainTxCondTypeObjectType;
 

@@ -2,7 +2,7 @@
 
 /* DAP chain tx iter type */
 
-PyMethodDef PyDapChainTxItemTypeObjectMethods[] ={
+static PyMethodDef PyDapChainTxItemTypeObjectMethods[] ={
         {"TX_ITEM_TYPE_IN", (PyCFunction)TX_ITEM_TYPE_IN_PY, METH_NOARGS | METH_STATIC, ""},
         {"TX_ITEM_TYPE_OUT", (PyCFunction)TX_ITEM_TYPE_OUT_PY, METH_NOARGS | METH_STATIC, ""},
         {"TX_ITEM_TYPE_PKEY", (PyCFunction)TX_ITEM_TYPE_PKEY_PY, METH_NOARGS | METH_STATIC, ""},
@@ -11,133 +11,69 @@ PyMethodDef PyDapChainTxItemTypeObjectMethods[] ={
         {"TX_ITEM_TYPE_IN_COND", (PyCFunction)TX_ITEM_TYPE_IN_COND_PY, METH_NOARGS | METH_STATIC, ""},
         {"TX_ITEM_TYPE_OUT_COND", (PyCFunction)TX_ITEM_TYPE_OUT_COND_PY, METH_NOARGS | METH_STATIC, ""},
         {"TX_ITEM_TYPE_RECEIPT", (PyCFunction)TX_ITEM_TYPE_RECEIPT_PY, METH_NOARGS | METH_STATIC, ""},
-        {NULL, NULL, 0, NULL}
+        {}
 };
 
-PyTypeObject DapChainTxItemTypeObjectType = {
-        PyVarObject_HEAD_INIT(NULL, 0)
-        "CellFrame.Chain.TxItemType",        /* tp_name */
-        sizeof(PyDapChainTxItemTypeObject), /* tp_basicsize */
-        0,                                  /* tp_itemsize */
-        0,                                  /* tp_dealloc */
-        0,                                  /* tp_print */
-        0,                                  /* tp_getattr */
-        0,                                  /* tp_setattr */
-        0,                                  /* tp_reserved */
-        0,                                  /* tp_repr */
-        0,                                  /* tp_as_number */
-        0,                                  /* tp_as_sequence */
-        0,                                  /* tp_as_mapping */
-        0,                                  /* tp_hash  */
-        0,                                  /* tp_call */
-        0,                                  /* tp_str */
-        0,                                  /* tp_getattro */
-        0,                                  /* tp_setattro */
-        0,                                  /* tp_as_buffer */
-        Py_TPFLAGS_DEFAULT |
-        Py_TPFLAGS_BASETYPE,            /* tp_flags */
-        "Chain tx item type object",        /* tp_doc */
-        0,		                            /* tp_traverse */
-        0,		                            /* tp_clear */
-        0,		                            /* tp_richcompare */
-        0,                                  /* tp_weaklistoffset */
-        0,		                            /* tp_iter */
-        0,		                            /* tp_iternext */
-        PyDapChainTxItemTypeObjectMethods,  /* tp_methods */
-        0,                                  /* tp_members */
-        0,                                  /* tp_getset */
-        0,                                  /* tp_base */
-        0,                                  /* tp_dict */
-        0,                                  /* tp_descr_get */
-        0,                                  /* tp_descr_set */
-        0,                                  /* tp_dictoffset */
-        0,                                  /* tp_init */
-        0,                                  /* tp_alloc */
-        PyType_GenericNew,                  /* tp_new */
-};
+PyTypeObject DapChainTxItemTypeObjectType = DAP_PY_TYPE_OBJECT(
+        "CellFrame.Chain.TxItemType", sizeof(PyDapChainTxItemTypeObject),
+        "Chain tx item type object",
+        .tp_methods = PyDapChainTxItemTypeObjectMethods);
 
-PyObject *TX_ITEM_TYPE_IN_PY(void){
+PyObject *TX_ITEM_TYPE_IN_PY(__attribute__((unused)) PyObject *self, __attribute__((unused)) PyObject *args)
+{
     return PyLong_FromLong(TX_ITEM_TYPE_IN);
 }
-PyObject *TX_ITEM_TYPE_OUT_PY(void){
+PyObject *TX_ITEM_TYPE_OUT_PY(__attribute__((unused)) PyObject *self, __attribute__((unused)) PyObject *args)
+{
         return PyLong_FromLong(TX_ITEM_TYPE_OUT);
 }
-PyObject *TX_ITEM_TYPE_PKEY_PY(void){
+PyObject *TX_ITEM_TYPE_PKEY_PY(__attribute__((unused)) PyObject *self, __attribute__((unused)) PyObject *args)
+{
         return PyLong_FromLong(TX_ITEM_TYPE_PKEY);
 }
-PyObject *TX_ITEM_TYPE_SIG_PY(void){
+PyObject *TX_ITEM_TYPE_SIG_PY(__attribute__((unused)) PyObject *self, __attribute__((unused)) PyObject *args)
+{
         return PyLong_FromLong(TX_ITEM_TYPE_SIG);
 }
-PyObject *TX_ITEM_TYPE_TOKEN_PY(void){
+PyObject *TX_ITEM_TYPE_TOKEN_PY(__attribute__((unused)) PyObject *self, __attribute__((unused)) PyObject *args)
+{
         return PyLong_FromLong(TX_ITEM_TYPE_TOKEN);
 }
-PyObject *TX_ITEM_TYPE_IN_COND_PY(void){
+PyObject *TX_ITEM_TYPE_IN_COND_PY(__attribute__((unused)) PyObject *self, __attribute__((unused)) PyObject *args)
+{
         return PyLong_FromLong(TX_ITEM_TYPE_IN_COND);
 }
-PyObject *TX_ITEM_TYPE_OUT_COND_PY(void){
+PyObject *TX_ITEM_TYPE_OUT_COND_PY(__attribute__((unused)) PyObject *self, __attribute__((unused)) PyObject *args)
+{
         return PyLong_FromLong(TX_ITEM_TYPE_OUT_COND);
 }
-PyObject *TX_ITEM_TYPE_RECEIPT_PY(void){
+PyObject *TX_ITEM_TYPE_RECEIPT_PY(__attribute__((unused)) PyObject *self, __attribute__((unused)) PyObject *args)
+{
         return PyLong_FromLong(TX_ITEM_TYPE_RECEIPT);
 }
 
 /* -------------------------------------- */
 
 /* DAP chain tx cond type */
-PyMethodDef DapChainTxCondTypeMethods[] = {
+static PyMethodDef DapChainTxCondTypeMethods[] = {
         {"COND_SERVICE_PROVIDE", COND_SERVICE_PROVIDE_PY, METH_NOARGS | METH_STATIC, ""},
         {"COND_SERVICE_BILL", COND_SERVICE_BILL_PY, METH_NOARGS | METH_STATIC, ""},
-        {NULL, NULL,0, NULL}
+        {}
 };
 
-PyTypeObject DapChainTxCondTypeObjectType = {
-        PyVarObject_HEAD_INIT(NULL, 0)
-        "CellFrame.Chain.TxCondType",       /* tp_name */
-        sizeof(PyDapChainTxCondTypeObject),/* tp_basicsize */
-        0,                               /* tp_itemsize */
-        0,                               /* tp_dealloc */
-        0,                               /* tp_print */
-        0,                               /* tp_getattr */
-        0,                               /* tp_setattr */
-        0,                               /* tp_reserved */
-        0,                               /* tp_repr */
-        0,                               /* tp_as_number */
-        0,                               /* tp_as_sequence */
-        0,                               /* tp_as_mapping */
-        0,                               /* tp_hash  */
-        0,                               /* tp_call */
-        0,                               /* tp_str */
-        0,                               /* tp_getattro */
-        0,                               /* tp_setattro */
-        0,                               /* tp_as_buffer */
-        Py_TPFLAGS_DEFAULT |
-        Py_TPFLAGS_BASETYPE,         /* tp_flags */
-        "Chain tx cond type object",             /* tp_doc */
-        0,		                         /* tp_traverse */
-        0,		                         /* tp_clear */
-        0,		                         /* tp_richcompare */
-        0,                               /* tp_weaklistoffset */
-        0,		                         /* tp_iter */
-        0,		                         /* tp_iternext */
-        DapChainTxCondTypeMethods,       /* tp_methods */
-        0,                               /* tp_members */
-        0,                               /* tp_getset */
-        0,                               /* tp_base */
-        0,                               /* tp_dict */
-        0,                               /* tp_descr_get */
-        0,                               /* tp_descr_set */
-        0,                               /* tp_dictoffset */
-        0,                               /* tp_init */
-        0,                               /* tp_alloc */
-        PyType_GenericNew,               /* tp_new */
-};
+PyTypeObject DapChainTxCondTypeObjectType = DAP_PY_TYPE_OBJECT(
+        "CellFrame.Chain.TxCondType", sizeof(PyDapChainTxCondTypeObject),
+        "Chain tx cond type object",
+        .tp_methods = DapChainTxCondTypeMethods);
 
-PyObject *COND_SERVICE_PROVIDE_PY(){
+PyObject *COND_SERVICE_PROVIDE_PY(__attribute__((unused)) PyObject *self, __attribute__((unused)) PyObject *args)
+{
     PyObject *obj = _PyObject_New(&DapChainTxCondTypeObjectType);
     ((PyDapChainTxCondTypeObject*)obj)->tx_cond_type_t = COND_SERVICE_PROVIDE;
     return Py_BuildValue("O", obj);
 }
-PyObject *COND_SERVICE_BILL_PY(){
+PyObject *COND_SERVICE_BILL_PY(__attribute__((unused)) PyObject *self, __attribute__((unused)) PyObject *args)
+{
     PyObject *obj = _PyObject_New(&DapChainTxCondTypeObjectType);
     ((PyDapChainTxCondTypeObject*)obj)->tx_cond_type_t = COND_SERVICE_BILL;
     return Py_BuildValue("O", obj);
@@ -145,13 +81,13 @@ PyObject *COND_SERVICE_BILL_PY(){
 /* -------------------------------------- */
 
 /* DAP chain datum tx */
-PyGetSetDef PyDaoChainDatumTxObjectGetsSets[] = {
+static PyGetSetDef PyDaoChainDatumTxObjectGetsSets[] = {
         {"hash", (getter) wrapping_dap_chain_datum_tx_get_hash, NULL, NULL, NULL},
         {"dateCreated", (getter) wrapping_dap_chain_datum_tx_get_tsCreated, NULL, NULL, NULL},
-        {NULL}
+        {}
 };
 
-PyMethodDef PyDapChainDatumTxObjectMethods[] ={
+static PyMethodDef PyDapChainDatumTxObjectMethods[] ={
         {"getSize", (PyCFunction)dap_chain_datum_tx_get_size_py, METH_VARARGS, ""},
         {"addItem", (PyCFunction)dap_chain_datum_tx_add_item_py, METH_VARARGS, ""},
         {"addInItem", (PyCFunction)dap_chain_datum_tx_add_in_item_py, METH_VARARGS, ""},
@@ -161,49 +97,17 @@ PyMethodDef PyDapChainDatumTxObjectMethods[] ={
         {"addSignItem", (PyCFunction)dap_chain_datum_tx_add_sign_item_py, METH_VARARGS, ""},
         {"verifySign", (PyCFunction)dap_chain_datum_tx_verify_sign_py, METH_VARARGS, ""},
         {"getItems", (PyCFunction)wrapping_dap_chain_datum_tx_get_items, METH_NOARGS, ""},
-        {NULL, NULL, 0, NULL}
+        {}
 };
 
 PyTypeObject DapChainDatumTxObjectType = {
-        PyVarObject_HEAD_INIT(NULL, 0)
-        "CellFrame.Chain.DatumTx",                      /* tp_name */
-        sizeof(PyDapChainDatumTxObject),               /* tp_basicsize */
-        0,                                             /* tp_itemsize */
-        0,//(destructor)PyDapChainDatumTxObject_delete,    /* tp_dealloc */
-        0,                                              /* tp_print */
-        0,                                              /* tp_getattr */
-        0,                                              /* tp_setattr */
-        0,                                              /* tp_reserved */
-        0,                                              /* tp_repr */
-        0,                                              /* tp_as_number */
-        0,                                              /* tp_as_sequence */
-        0,                                              /* tp_as_mapping */
-        0,                                              /* tp_hash  */
-        0,                                              /* tp_call */
-        0,                                              /* tp_str */
-        0,                                              /* tp_getattro */
-        0,                                              /* tp_setattro */
-        0,                                              /* tp_as_buffer */
-        Py_TPFLAGS_DEFAULT |
-        Py_TPFLAGS_BASETYPE,                        /* tp_flags */
-        "Chain datum tx object",                        /* tp_doc */
-        0,		                                        /* tp_traverse */
-        0,		                                        /* tp_clear */
-        0,		                                        /* tp_richcompare */
-        0,                                              /* tp_weaklistoffset */
-        0,		                                        /* tp_iter */
-        0,		                                        /* tp_iternext */
-        PyDapChainDatumTxObjectMethods,                 /* tp_methods */
-        0,                                              /* tp_members */
-        PyDaoChainDatumTxObjectGetsSets,                /* tp_getset */
-        0,                                              /* tp_base */
-        0,                                              /* tp_dict */
-        0,                                              /* tp_descr_get */
-        0,                                              /* tp_descr_set */
-        0,                                              /* tp_dictoffset */
-        0,                                              /* tp_init */
-        0,                                              /* tp_alloc */
-        PyDapChainDatumTxObject_create,                 /* tp_new */
+        .ob_base = PyVarObject_HEAD_INIT(NULL, 0)
+        .tp_name = "CellFrame.Chain.DatumTx",
+        .tp_basicsize = sizeof(PyDapChainDatumTxObject),
+        .tp_doc = "Chain datum tx object",
+        .tp_methods = PyDapChainDatumTxObjectMethods,
+        .tp_getset = PyDaoChainDatumTxObjectGetsSets,
+        .tp_new = PyDapChainDatumTxObject_create
 };
 
 bool DapChainDatumTx_Check(PyObject *self){

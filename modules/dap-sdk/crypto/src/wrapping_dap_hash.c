@@ -1,53 +1,17 @@
+#include "libdap-python.h"
 #include "wrapping_dap_hash.h"
 
 /* Hash type */
-PyMethodDef DapHashTypeMethods[] = {
+static PyMethodDef DapHashTypeMethods[] = {
         {"DAP_HASH_TYPE_KECCAK", (PyCFunction)DAP_HASH_TYPE_KECCAK_PY, METH_NOARGS | METH_STATIC, ""},
         {"DAP_HASH_TYPE_SLOW_0", (PyCFunction)DAP_HASH_TYPE_SLOW_0_PY, METH_NOARGS | METH_STATIC, ""},
-        {NULL, NULL, 0, NULL}
+        {}
 };
 
-PyTypeObject DapHashTypeObject_DapChainHashTypeObjectType = {
-        PyVarObject_HEAD_INIT(NULL, 0)
-        "DAP.Crypto.HashType",          /* tp_name */
-        sizeof(PyDapHashTypeObject),   /* tp_basicsize */
-        0,                               /* tp_itemsize */
-        0,                               /* tp_dealloc */
-        0,                               /* tp_print */
-        0,                               /* tp_getattr */
-        0,                               /* tp_setattr */
-        0,                               /* tp_reserved */
-        0,                               /* tp_repr */
-        0,                               /* tp_as_number */
-        0,                               /* tp_as_sequence */
-        0,                               /* tp_as_mapping */
-        0,                               /* tp_hash  */
-        0,                               /* tp_call */
-        0,                               /* tp_str */
-        0,                               /* tp_getattro */
-        0,                               /* tp_setattro */
-        0,                               /* tp_as_buffer */
-        Py_TPFLAGS_DEFAULT |
-        Py_TPFLAGS_BASETYPE,         /* tp_flags */
-        "Hash type object",           /* tp_doc */
-        0,		                         /* tp_traverse */
-        0,		                         /* tp_clear */
-        0,		                         /* tp_richcompare */
-        0,                               /* tp_weaklistoffset */
-        0,		                         /* tp_iter */
-        0,		                         /* tp_iternext */
-        DapHashTypeMethods,         /* tp_methods */
-        0,                               /* tp_members */
-        0,                               /* tp_getset */
-        0,                               /* tp_base */
-        0,                               /* tp_dict */
-        0,                               /* tp_descr_get */
-        0,                               /* tp_descr_set */
-        0,                               /* tp_dictoffset */
-        0,                               /* tp_init */
-        0,                               /* tp_alloc */
-        PyType_GenericNew,               /* tp_new */
-};
+PyTypeObject DapHashTypeObject_DapChainHashTypeObjectType = DAP_PY_TYPE_OBJECT(
+        "DAP.Crypto.HashType", sizeof(PyDapHashTypeObject),
+        "Hash type object",
+        .tp_methods = DapHashTypeMethods);
 
 PyObject *DAP_HASH_TYPE_KECCAK_PY(){
     PyObject *obj = _PyObject_New(&DapHashTypeObject_DapChainHashTypeObjectType);
@@ -61,58 +25,24 @@ PyObject *DAP_HASH_TYPE_SLOW_0_PY(){
 }
 
 /* Chain hash fast */
-PyMethodDef DapHashFastMethods[] = {
+static PyMethodDef DapHashFastMethods[] = {
         {"fromString", (PyCFunction)dap_chain_str_to_hash_fast_py, METH_VARARGS | METH_STATIC, ""},
         {"hashFast", (PyCFunction)dap_hash_fast_py, METH_VARARGS, ""},
         {"compare", (PyCFunction)dap_hash_fast_compare_py, METH_VARARGS | METH_STATIC, ""},
         {"isBlank", (PyCFunction)dap_hash_fast_is_blank_py, METH_VARARGS, ""},
         {"toStr", (PyCFunction)dap_chain_hash_fast_to_str_py, METH_VARARGS, ""},
         {"toStrNew", (PyCFunction)dap_chain_hash_fast_to_str_new_py, METH_VARARGS, ""},
-        {"__str__", (PyCFunction)wrapping_dap_hash_to_str, METH_VARARGS, ""},
-        {NULL, NULL, 0, NULL}
+//        {"__str__", (PyCFunction)wrapping_dap_hash_to_str, METH_VARARGS, ""},
+        {}
 };
 
-PyTypeObject DapChainHashFastObjectType = {
-        PyVarObject_HEAD_INIT(NULL, 0)
-        "DAP.Crypto.HashFast",          /* tp_name */
-        sizeof(PyDapHashFastObject),   /* tp_basicsize */
-        0,                               /* tp_itemsize */
-        0,                               /* tp_dealloc */
-        0,                               /* tp_print */
-        0,                               /* tp_getattr */
-        0,                               /* tp_setattr */
-        0,                               /* tp_reserved */
-        0,                               /* tp_repr */
-        0,                               /* tp_as_number */
-        0,                               /* tp_as_sequence */
-        0,                               /* tp_as_mapping */
-        0,                               /* tp_hash  */
-        0,                               /* tp_call */
-        wrapping_dap_hash_to_str,                               /* tp_str */
-        0,                               /* tp_getattro */
-        0,                               /* tp_setattro */
-        0,                               /* tp_as_buffer */
-        Py_TPFLAGS_DEFAULT |
-        Py_TPFLAGS_BASETYPE,         /* tp_flags */
-        "Hash fast object",           /* tp_doc */
-        0,		                         /* tp_traverse */
-        0,		                         /* tp_clear */
-        PyDapHashFast_compare,	 /* tp_richcompare */
-        0,                               /* tp_weaklistoffset */
-        0,		                         /* tp_iter */
-        0,		                         /* tp_iternext */
-        DapHashFastMethods,         /* tp_methods */
-        0,                               /* tp_members */
-        0,                               /* tp_getset */
-        0,                               /* tp_base */
-        0,                               /* tp_dict */
-        0,                               /* tp_descr_get */
-        0,                               /* tp_descr_set */
-        0,                               /* tp_dictoffset */
-        PyDapHashFast_init,                 /* tp_init */
-        0,                               /* tp_alloc */
-        PyType_GenericNew,               /* tp_new */
-};
+PyTypeObject DapChainHashFastObjectType = DAP_PY_TYPE_OBJECT(
+        "DAP.Crypto.HashFast", sizeof(PyDapHashFastObject),
+        "Hash fast object",
+        .tp_str = wrapping_dap_hash_to_str,
+        .tp_richcompare = PyDapHashFast_compare,
+        .tp_methods = DapHashFastMethods,
+        .tp_init = PyDapHashFast_init);
 
 PyObject* PyDapHashFast_compare(PyObject *self, PyObject *other, int op){
     if (!PyDapHashFast_Check((PyDapHashFastObject*)other)){
@@ -241,7 +171,7 @@ PyObject *dap_chain_hash_fast_to_str_py(PyObject *self, PyObject *args){
     size_t str_max;
     if (!PyArg_ParseTuple(args, "s|n", &str, &str_max))
         return NULL;
-    int res = dap_chain_hash_fast_to_str(((PyDapHashFastObject*)self)->hash_fast, str, str_max);
+    dap_chain_hash_fast_to_str(((PyDapHashFastObject*)self)->hash_fast, str, str_max);
     return Py_BuildValue("sn", &str, &str_max);
 }
 
@@ -250,12 +180,13 @@ PyObject *dap_chain_hash_fast_to_str_new_py(PyObject *self, PyObject *args){
     return Py_BuildValue("s", res);
 }
 
-PyObject *wrapping_dap_hash_to_str(PyObject *self){
+PyObject *wrapping_dap_hash_to_str(PyObject *self)
+{
     char str[70];
     if (((PyDapHashFastObject*)self)->hash_fast == NULL){
         Py_BuildValue("s", "Hash is missing.");
     }
-    int res = dap_chain_hash_fast_to_str(((PyDapHashFastObject*)self)->hash_fast, str, 70);
+    dap_chain_hash_fast_to_str(((PyDapHashFastObject*)self)->hash_fast, str, 70);
     PyObject *obj_str = PyUnicode_FromString(str);
     return obj_str;
 }

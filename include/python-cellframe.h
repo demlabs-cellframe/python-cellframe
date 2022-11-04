@@ -101,11 +101,9 @@ BOOL WINAPI consoleHandler(DWORD);
 #include "wrapping_dap_http_simple.h"
 #ifdef DAP_SUPPORT_PYTHON_PLUGINS
     #include "../modules/plugins/include/dap_plugins_python_app_context.h"
-#endif
-
-
+#endif // DAP_SUPPORT_PYTHON_PLUGINS
 void sigfunc(int sig);
-#endif
+#endif // _WIN32
 
 PyObject *python_dap_init(PyObject *self, PyObject *args);
 PyObject *python_cellframe_init(PyObject *self, PyObject *args);

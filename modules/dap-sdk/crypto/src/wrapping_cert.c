@@ -26,11 +26,12 @@
 #include "dap_cert.h"
 #include "dap_strfuncs.h"
 
+#include "libdap-python.h"
 #include "wrapping_cert.h"
 #include "libdap_crypto_key_type_python.h"
 #define LOG_TAG "wrapping_cert"
 
-PyMethodDef g_crypto_cert_methods_py[] = {
+PyMethodDef PyCryptoCertMethods[] = {
         {"generate",dap_cert_generate_py , METH_VARARGS | METH_STATIC, "Generate from seed or randomly the new certificate"},
         {"find", dap_cert_find_py, METH_VARARGS | METH_STATIC, ""},
         {"folderAdd", dap_cert_folder_add_py, METH_VARARGS | METH_STATIC, "Add folders with .dcert files in it"},
@@ -43,65 +44,20 @@ PyMethodDef g_crypto_cert_methods_py[] = {
         {"certSigns", dap_cert_cert_signs_py, METH_VARARGS , ""},
         {"compare", dap_cert_compare_py, METH_VARARGS, ""},
         {"save", dap_cert_save_py, METH_VARARGS , "Save to the first directory in cert folders list"},
-        {NULL, NULL, 0, NULL}
+        {"delete", dap_cert_delete_py, METH_VARARGS, ""},
+        {}
 };
 
-PyGetSetDef g_crypto_cert_getssets_py[] = {
+static PyGetSetDef PyCryptoCertGetSets[] = {
         {"key", (getter)wrapping_cert_get_enc_key, NULL, NULL, NULL},
-        {NULL}
+        {}
 };
 
-PyTypeObject DapCryptoCertObjectType = {
-        PyVarObject_HEAD_INIT(NULL, 0)
-        "DAP.Crypto.Cert",             /* tp_name */
-        sizeof(PyCryptoCertObject),         /* tp_basicsize */
-        0,                         /* tp_itemsize */
-        dap_cert_delete_py,                         /* tp_dealloc */
-        0,                         /* tp_print */
-        0,                         /* tp_getattr */
-        0,                         /* tp_setattr */
-        0,                         /* tp_reserved */
-        0,                         /* tp_repr */
-        0,                         /* tp_as_number */
-        0,                         /* tp_as_sequence */
-        0,                         /* tp_as_mapping */
-        0,                         /* tp_hash  */
-        0,                         /* tp_call */
-        0,                         /* tp_str */
-        0,                         /* tp_getattro */
-        0,                         /* tp_setattro */
-        0,                         /* tp_as_buffer */
-        Py_TPFLAGS_DEFAULT |
-        Py_TPFLAGS_BASETYPE,   /* tp_flags */
-        "Crypto cert object",           /* tp_doc */
-        0,		               /* tp_traverse */
-        0,		               /* tp_clear */
-        0,		               /* tp_richcompare */
-        0,		               /* tp_weaklistoffset */
-        0,		               /* tp_iter */
-        0,		               /* tp_iternext */
-        g_crypto_cert_methods_py,             /* tp_methods */
-        0,                         /* tp_members */
-        g_crypto_cert_getssets_py,   /* tp_getset */
-        0,                         /* tp_base */
-        0,                         /* tp_dict */
-        0,                         /* tp_descr_get */
-        0,                         /* tp_descr_set */
-        0,                         /* tp_dictoffset */
-        0,                         /* tp_init */
-        0,                         /* tp_alloc */
-        PyType_GenericNew,         /* tp_new */
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0
-};
+PyTypeObject DapCryptoCertObjectType = DAP_PY_TYPE_OBJECT(
+        "DAP.Crypto.Cert", sizeof(PyCryptoCertObject),
+        "Crypto cert object",
+        .tp_methods = PyCryptoCertMethods,
+        .tp_getset = PyCryptoCertGetSets);
 
 PyObject* dap_cert_generate_py(PyObject *self, PyObject *args)
 {
@@ -233,11 +189,11 @@ PyObject* dap_cert_close_py(PyObject *self, PyObject *args)
 }
 
 
-void dap_cert_delete_py(PyObject *self)
+PyObject *dap_cert_delete_py(PyObject *self, __attribute__((unused)) PyObject *args)
 {
     PyCryptoCertObject *certObject = (PyCryptoCertObject *)self;
     dap_cert_delete( certObject->cert );
-    Py_TYPE(certObject)->tp_free((PyObject*)certObject);
+    Py_RETURN_NONE;
 }
 
 

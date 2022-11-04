@@ -43,7 +43,7 @@ add_library(${PROJECT_NAME} STATIC ${SERVER_CORE_PYTHON_SRCS} ${SERVER_CORE_PYTH
 target_link_libraries(${PROJECT_NAME})
 
 
-target_link_libraries(${PROJECT_NAME} dap_core dap_crypto dap_io)
+target_link_libraries(${PROJECT_NAME} dap_core dap_crypto dap_io dap_python_module)
 
 target_include_directories(${PROJECT_NAME} PUBLIC include/ )
 

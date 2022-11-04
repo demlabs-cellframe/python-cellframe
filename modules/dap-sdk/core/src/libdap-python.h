@@ -6,6 +6,16 @@
 #include "dap_list.h"
 #include "dap_strfuncs.h"
 
+#define DAP_PY_MODULE(...) ((PyModuleDef) {.m_base = PyModuleDef_HEAD_INIT, ##__VA_ARGS__})
+#define DAP_PY_TYPE_OBJECT(name, size, doc, ...) ((PyTypeObject) {                  \
+                            .ob_base = {PyObject_HEAD_INIT(NULL) 0},                \
+                            .tp_name = name,                                        \
+                            .tp_basicsize = size,                                   \
+                            .tp_doc = doc,                                          \
+                            .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,   \
+                            .tp_new = PyType_GenericNew,                            \
+                            ##__VA_ARGS__})
+
 typedef struct PyDap{
     PyObject_HEAD
 }PyDapObject;

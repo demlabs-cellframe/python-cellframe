@@ -1,7 +1,7 @@
 #include "wrapping_dap_mempool.h"
 #define LOG_TAG "python-mempool"
 
-PyMethodDef  DapMempoolMethods[] = {
+static PyMethodDef  DapMempoolMethods[] = {
         {"proc", dap_chain_mempool_proc_py, METH_VARARGS | METH_STATIC, ""},
         {"emissionPlace", wrapping_dap_mempool_emission_place, METH_VARARGS | METH_STATIC, ""},
         {"emissionGet", dap_chain_mempool_emission_get_py, METH_VARARGS | METH_STATIC, ""},
@@ -15,47 +15,10 @@ PyMethodDef  DapMempoolMethods[] = {
         {NULL,NULL,0,NULL}
 };
 
-PyTypeObject DapChainMempoolObjectType = {
-        PyVarObject_HEAD_INIT(NULL, 0)
-        "CellFrame.DapMempool",             /* tp_name */
-        sizeof(PyDapMempoolObject),                   /* tp_basicsize */
-        0,                                                 /* tp_itemsize */
-        0,                                                 /* tp_dealloc */
-        0,                                                 /* tp_print */
-        0,                                                 /* tp_getattr */
-        0,                                                 /* tp_setattr */
-        0,                                                 /* tp_reserved */
-        0,                                                 /* tp_repr */
-        0,                                                 /* tp_as_number */
-        0,                                                 /* tp_as_sequence */
-        0,                                                 /* tp_as_mapping */
-        0,                                                 /* tp_hash  */
-        0,                                                 /* tp_call */
-        0,                                                 /* tp_str */
-        0,                                                 /* tp_getattro */
-        0,                                                 /* tp_setattro */
-        0,                                                 /* tp_as_buffer */
-        Py_TPFLAGS_DEFAULT |
-        Py_TPFLAGS_BASETYPE,                           /* tp_flags */
-        "Dap mempool object",                         /* tp_doc */
-        0,		                                       /* tp_traverse */
-        0,                        		               /* tp_clear */
-        0,		                                       /* tp_richcompare */
-        0,                        		               /* tp_weaklistoffset */
-        0,		                                       /* tp_iter */
-        0,                        		               /* tp_iternext */
-        DapMempoolMethods,                   /* tp_methods */
-        0,                                                 /* tp_members */
-        0,                                                 /* tp_getset */
-        0,                                                 /* tp_base */
-        0,                                                 /* tp_dict */
-        0,                                                 /* tp_descr_get */
-        0,                                                 /* tp_descr_set */
-        0,                                                 /* tp_dictoffset */
-        0,                                                 /* tp_init */
-        0,                                                 /* tp_alloc */
-        PyType_GenericNew,                                 /* tp_new */
-};
+PyTypeObject DapChainMempoolObjectType = DAP_PY_TYPE_OBJECT(
+        "CellFrame.DapMempool", sizeof(PyDapMempoolObject),
+        "Dap mempool object",
+        .tp_methods = DapMempoolMethods);
 
 PyObject *wrapping_dap_mempool_emission_place(PyObject *self, PyObject *args){
     (void)self;
@@ -152,7 +115,7 @@ PyObject *dap_chain_mempool_proc_py(PyObject *self, PyObject *args) {
         char *l_str = "The second function argument is invalid, it must be an "
                                               "instance of an object of type CellFrame.Chain.Chain ";
         PyErr_SetString(PyExc_AttributeError, l_str);
-        log_it(L_ERROR, l_str);
+        log_it(L_ERROR, "%s", l_str);
         return NULL;
     }
     dap_chain_t *l_chain = obj_chain->chain_t;
@@ -161,7 +124,7 @@ PyObject *dap_chain_mempool_proc_py(PyObject *self, PyObject *args) {
     if(dap_chain_net_get_role(l_net).enums>= NODE_ROLE_FULL){
         char *l_str = dap_strdup_printf("Need master node role or higher for network %s to process this command", l_net->pub.name);
         PyErr_SetString(PyExc_RuntimeError, l_str);
-        log_it(L_ERROR, l_str);
+        log_it(L_ERROR, "%s", l_str);
         DAP_DELETE(l_str);
         return NULL;
     }
@@ -176,7 +139,7 @@ PyObject *dap_chain_mempool_proc_py(PyObject *self, PyObject *args) {
         char *l_str = dap_strdup_printf("Failed to get data from chain %s on network %s using hash %s",
                                                                 l_chain->name, l_net->pub.name, l_hash_str);
         PyErr_SetString(PyExc_AttributeError, l_str);
-        log_it(L_ERROR, l_str);
+        log_it(L_ERROR, "%s", l_str);
         DAP_DELETE(l_str);
         DAP_DELETE(l_gdb_group_mempool);
         return NULL;
@@ -186,7 +149,7 @@ PyObject *dap_chain_mempool_proc_py(PyObject *self, PyObject *args) {
         char *l_str = dap_strdup_printf("Error! Corrupted datum %s, size by datum headers is %zd when in mempool is only %zd bytes",
                                        l_datum_size2, l_datum_size);
         PyErr_SetString(PyExc_RuntimeError, l_str);
-        log_it(L_ERROR, l_str);
+        log_it(L_ERROR, "%s", l_str);
         DAP_DELETE(l_str);
         DAP_DELETE(l_gdb_group_mempool);
         return NULL;
@@ -197,7 +160,7 @@ PyObject *dap_chain_mempool_proc_py(PyObject *self, PyObject *args) {
         if (processed == 0) {
             char *l_str = "Error! Datum doesn't pass verifications, examine node log files";
             PyErr_SetString(PyExc_RuntimeError, l_str);
-            log_it(L_WARNING, l_str);
+            log_it(L_WARNING, "%s", l_str);
         }
         bool res_del_mempool = dap_global_db_del_sync(l_gdb_group_mempool, l_hash_str);
         if (!res_del_mempool) {

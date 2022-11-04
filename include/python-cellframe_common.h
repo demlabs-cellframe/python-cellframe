@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Python.h"
+#include "libdap-python.h"
 //#include "frameobject.h"
 #include "dap_common.h"
 #include "dap_strfuncs.h"

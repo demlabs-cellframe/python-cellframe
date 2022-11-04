@@ -21,56 +21,23 @@ static PyMethodDef DapChainMethods[] = {
         {"atomIterGetFirst", (PyCFunction) dap_chain_python_atom_iter_get_first, METH_VARARGS, ""},
         {"atomGetDatums", (PyCFunction) dap_chain_python_atom_get_datums, METH_VARARGS, ""},
         {"atomIterGetNext", (PyCFunction)dap_chain_python_atom_iter_get_next, METH_VARARGS, ""},
-        {"getDag", (PyCFunction)dap_chain_python_atom_iter_get_dag, METH_NOARGS},
+        {"getDag", (PyCFunction)dap_chain_python_atom_iter_get_dag, METH_NOARGS, ""},
         {"addMempoolNotify", (PyCFunction)dap_chain_python_add_mempool_notify_callback, METH_VARARGS, ""},
         {"addAtomNotify", (PyCFunction)dap_chain_net_add_atom_notify_callback, METH_VARARGS,"" },
         {"atomFindByHash", (PyCFunction)dap_chain_python_atom_find_by_hash, METH_VARARGS, ""},
         {"countTx", (PyCFunction)dap_chain_python_get_count_tx, METH_NOARGS, ""},
         {"getTransactions", (PyCFunction)dap_chain_python_get_txs, METH_VARARGS, ""},
-        //{"close", (PyCFunction)dap_chain_close_py, METH_NOARGS, ""},
-        {NULL, NULL, 0, NULL}
+        {}
 };
 
 PyTypeObject DapChainObjectType = {
-        PyVarObject_HEAD_INIT(NULL, 0)
-        "CellFrame.Chain",                                            /* tp_name */
-        sizeof(PyDapChainObject),                                     /* tp_basicsize */
-        0,                                                            /* tp_itemsize */
-        (destructor)PyDapChainObject_dealloc,                         /* tp_dealloc */
-        0,                                                            /* tp_print */
-        0,                                                            /* tp_getattr */
-        0,                                                            /* tp_setattr */
-        0,                                                            /* tp_reserved */
-        0,                                                            /* tp_repr */
-        0,                                                            /* tp_as_number */
-        0,                                                            /* tp_as_sequence */
-        0,                                                            /* tp_as_mapping */
-        0,                                                            /* tp_hash  */
-        0,                                                            /* tp_call */
-        0,                                                            /* tp_str */
-        0,                                                            /* tp_getattro */
-        0,                                                            /* tp_setattro */
-        0,                                                            /* tp_as_buffer */
-        Py_TPFLAGS_DEFAULT |
-        Py_TPFLAGS_BASETYPE,                                      /* tp_flags */
-        "Chain objects",                                              /* tp_doc */
-        0,		                                                      /* tp_traverse */
-        0,		                                                      /* tp_clear */
-        0,		                                                      /* tp_richcompare */
-        0,		                                                      /* tp_weaklistoffset */
-        0,		                                                      /* tp_iter */
-        0,		                                                      /* tp_iternext */
-        DapChainMethods,                                              /* tp_methods */
-        0,                                                            /* tp_members */
-        0,                                                            /* tp_getset */
-        0,                                                            /* tp_base */
-        0,                                                            /* tp_dict */
-        0,                                                            /* tp_descr_get */
-        0,                                                            /* tp_descr_set */
-        0,                                                            /* tp_dictoffset */
-        0,                                                            /* tp_init */
-        0,                                                            /* tp_alloc */
-        PyDapChainObject_new,                                            /* tp_new */
+        .ob_base = PyVarObject_HEAD_INIT(NULL,0)
+        .tp_name = "CellFrame.Chain",
+        .tp_basicsize = sizeof(PyDapChainObject),
+        .tp_dealloc = (destructor)PyDapChainObject_dealloc,
+        .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
+        .tp_methods = DapChainMethods,
+        .tp_new = PyDapChainObject_new
 };
 
 PyObject *dap_chain_find_by_id_py(PyObject *self, PyObject *args){
@@ -207,7 +174,7 @@ PyObject *dap_chain_python_atom_get_datums(PyObject *self, PyObject *args){
                 l_obj_atom->atom, l_obj_atom->atom_size, &datums_count);
 
     PyObject *list_datums = PyList_New(datums_count);
-    for (int i=0; i < datums_count; i++){
+    for (size_t i=0; i < datums_count; i++){
         PyObject *l_obj_datum_py = _PyObject_New(&DapChainDatumObjectType);
         l_obj_datum_py = PyObject_Init(l_obj_datum_py, &DapChainDatumObjectType);
         ((PyDapChainDatumObject*)l_obj_datum_py)->datum = l_datums[i];

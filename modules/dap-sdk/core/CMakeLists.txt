@@ -10,7 +10,7 @@ if(NOT (${SUBMODULES_NO_BUILD} MATCHES ON))
     if (NOT (TARGET dap_core))
         add_subdirectory(libdap)
         target_compile_options(
-            dap_core PRIVATE 
+            dap_core PRIVATE
             "-fpic"
         )
     endif()
@@ -21,12 +21,12 @@ file(GLOB CORE_HEADERS src/*.h)
 
 include_directories(${PYTHON_INCLUDE_DIR} include/ )
 
-add_library(${PROJECT_NAME} STATIC ${CORE_SRCS} ${CORE_UNIX_SRCS})
+add_library(${PROJECT_NAME} STATIC ${CORE_HEADERS} ${CORE_SRCS} ${CORE_UNIX_SRCS})
 
 target_link_libraries(${PROJECT_NAME} ${PYTHON_LIBRARIES})
 
 target_compile_options(
-    dap_core PRIVATE 
+    dap_core PRIVATE
     "-fpic"
 )
 
