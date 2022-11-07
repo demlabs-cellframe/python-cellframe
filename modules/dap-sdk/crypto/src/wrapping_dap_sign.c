@@ -171,6 +171,11 @@ PyObject *wrapping_dap_sign_get_addr(PyObject *self, PyObject *args){
     if (!PyArg_ParseTuple(args, "O", &obj_net)){
         return NULL;
     }
+    if (!PyDapChainNet_Check((PyDapChainNetObject*)obj_net)){
+        PyErr_SetString(PyExc_SyntaxError, "The getAddr function must take an object of type "
+                                           "CellFrame.Network.Net as an argument.");
+        return NULL;
+    }
     PyDapChainAddrObject *obj_addr = PyObject_New(PyDapChainAddrObject, &DapChainAddrObjectType);
     obj_addr->addr = DAP_NEW(dap_chain_addr_t);
     dap_hash_fast_t l_hf = {0};
