@@ -126,7 +126,6 @@ static PyModuleDef CellframeConsensusPythonModule = {
 BOOL WINAPI consoleHandler(DWORD dwType){
     if (dwType == CTRL_C_EVENT){
         log_it(L_NOTICE, "Execution terminated. Ctrl+C is pressed");
-        dap_server_loop_stop();
         deinit_modules();
     }
     return TRUE;
@@ -274,7 +273,7 @@ PyObject *python_dap_init(PyObject *self, PyObject *args)
     PyObject *events = NULL;
 
     #ifdef _WIN32
-        setConsoleCtrlHandler((PHANDLER_ROUTINE)consoleHandler, TRUE);
+        SetConsoleCtrlHandler((PHANDLER_ROUTINE)consoleHandler, TRUE);
     #else
         signal(SIGINT, sigfunc);
     #endif
@@ -633,7 +632,9 @@ PyMODINIT_FUNC PyInit_libCellFrame(void)
         PyType_Ready( &DapChainTxOutCondSubTypeSrvXchangeObjectType ) < 0 ||
         PyType_Ready( &DapChainTxInObjectType ) < 0 ||
         PyType_Ready( &DapChainTxInCondObjectType ) < 0 ||
+        PyType_Ready( &DapChainTxSigObjectType ) < 0 ||
         PyType_Ready( &DapChainTxOutObjectType ) < 0 ||
+        PyType_Ready( &DapChainTxTokenObjectType ) < 0 ||
         PyType_Ready( &DapChainTxPkeyObjectType ) < 0 ||
         PyType_Ready( &DapChainTxReceiptObjectType ) < 0 ||
         PyType_Ready( &DapChainTxOutExtObjectType ) < 0 ||
@@ -702,6 +703,8 @@ PyMODINIT_FUNC PyInit_libCellFrame(void)
     PyModule_AddObject(commonModule, "TxInCond", (PyObject*)&DapChainTxInCondObjectType);
     PyModule_AddObject(commonModule, "TxOut", (PyObject*)&DapChainTxOutObjectType);
     PyModule_AddObject(commonModule, "TxPkey", (PyObject*)&DapChainTxPkeyObjectType);
+    PyModule_AddObject(commonModule, "TxSig", (PyObject*)&DapChainTxSigObjectType);
+    PyModule_AddObject(commonModule, "TxToken", (PyObject*)&DapChainTxTokenObjectType);
     PyModule_AddObject(commonModule, "TxReceipt", (PyObject*)&DapChainTxReceiptObjectType);
     PyModule_AddObject(commonModule, "TxOutExt", (PyObject*)&DapChainTxOutExtObjectType);
 
