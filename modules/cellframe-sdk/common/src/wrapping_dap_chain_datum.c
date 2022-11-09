@@ -96,7 +96,7 @@ PyObject *dap_chain_datum_is_type_tx(PyObject *self, PyObject *args){
     if (((PyDapChainDatumObject*)self)->datum->header.type_id == DAP_CHAIN_DATUM_TX){
         return Py_BuildValue("O", Py_True);
     } else {
-        return Py_BuildValue("O", Py_False);
+        Py_RETURN_FALSE;
     }
 }
 
@@ -105,7 +105,7 @@ PyObject *dap_chain_datum_is_type_token(PyObject *self, PyObject *args){
     if (((PyDapChainDatumObject*)self)->datum->header.type_id == DAP_CHAIN_DATUM_TOKEN_DECL ){
         return Py_BuildValue("O", Py_True);
     } else {
-        return Py_BuildValue("O", Py_False);
+        Py_RETURN_FALSE;
     }
 }
 
@@ -130,7 +130,7 @@ PyObject *dap_chain_datum_is_type_emission(PyObject *self, PyObject *args){
     if (((PyDapChainDatumObject*)self)->datum->header.type_id == DAP_CHAIN_DATUM_TOKEN_EMISSION){
         return Py_BuildValue("O", Py_True);
     }else{
-        return Py_BuildValue("O", Py_False);
+        Py_RETURN_FALSE;
     }
 }
 

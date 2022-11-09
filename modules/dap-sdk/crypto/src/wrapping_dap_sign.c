@@ -192,7 +192,7 @@ PyObject *wrapping_dap_sign_to_b64(PyObject *self, PyObject *args){
     char l_str_out[DAP_ENC_BASE64_ENCODE_SIZE(l_sign_size )];
     size_t l_str_out_size = dap_enc_base64_encode(l_sign, l_sign_size, l_str_out, DAP_ENC_DATA_TYPE_B64);
     if (l_str_out_size == 0){
-        return Py_None;
+        Py_RETURN_NONE;
     }
     return Py_BuildValue("s", l_str_out);
 }
@@ -206,7 +206,7 @@ PyObject *wrapping_dap_sign_from_b64(PyObject *self, PyObject *args){
     void *l_out[DAP_ENC_BASE64_ENCODE_SIZE(l_str_size)];
     size_t l_out_size = dap_enc_base64_decode(l_str, l_str_size, l_out, DAP_ENC_DATA_TYPE_B64);
     if (l_out_size == 0)
-        return Py_None;
+        Py_RETURN_NONE;
     PyDapSignObject *l_sign_obj = PyObject_New(PyDapSignObject, &DapCryptoSignObjectType);
     l_sign_obj->sign = (dap_sign_t *)l_out;
     return (PyObject*)l_sign_obj;

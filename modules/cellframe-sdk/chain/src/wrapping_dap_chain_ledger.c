@@ -205,7 +205,7 @@ PyObject *dap_chain_ledger_tx_hash_is_used_out_item_py(PyObject *self, PyObject 
     if (res)
         return Py_BuildValue("O", Py_True);
     else
-        return Py_BuildValue("O", Py_False);
+        Py_RETURN_FALSE;
 }
 PyObject *dap_chain_ledger_calc_balance_py(PyObject *self, PyObject *args){
     PyObject *addr;

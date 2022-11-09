@@ -143,7 +143,7 @@ PyObject *dap_hash_fast_py(PyObject *self, PyObject *args){
     if (res)
         return Py_BuildValue("O", Py_True);
     else
-        return Py_BuildValue("O", Py_False);
+        Py_RETURN_FALSE;
 }
 
 PyObject *dap_hash_fast_compare_py(PyObject *self, PyObject *args){
@@ -155,7 +155,7 @@ PyObject *dap_hash_fast_compare_py(PyObject *self, PyObject *args){
     if (res)
         return Py_BuildValue("O", Py_True);
     else
-        return Py_BuildValue("O", Py_False);
+        Py_RETURN_FALSE;
 }
 
 PyObject *dap_hash_fast_is_blank_py(PyObject *self, PyObject *args){
@@ -163,7 +163,7 @@ PyObject *dap_hash_fast_is_blank_py(PyObject *self, PyObject *args){
     if (res)
         return Py_BuildValue("O", Py_True);
     else
-        return Py_BuildValue("O", Py_False);
+        Py_RETURN_FALSE;
 }
 
 PyObject *dap_chain_hash_fast_to_str_py(PyObject *self, PyObject *args){
