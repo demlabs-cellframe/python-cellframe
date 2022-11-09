@@ -104,7 +104,9 @@ add_subdirectory(modules/cellframe-sdk/global-db)
 
 
 target_compile_options(dap_core PRIVATE "-fpic")
-target_compile_options(dap_core_unix PRIVATE "-fpic")
+if (NOT WIN32)
+    target_compile_options(dap_core_unix PRIVATE "-fpic")
+endif()
 target_compile_options(dap_app_cli PRIVATE "-fpic")
 target_compile_options(dap_crypto PRIVATE "-fpic")
 target_compile_options(dap_chain PRIVATE "-fpic")
