@@ -55,8 +55,12 @@ PyObject *wrapping_dap_chain_global_db_gr_set(PyObject *self, PyObject *args){
     }
     void *l_bytes = PyBytes_AsString(obj_byte);
     size_t l_bytes_size = PyBytes_Size(obj_byte);
-    return dap_global_db_set_sync( l_group, l_key, l_bytes, l_bytes_size, l_is_pinned) == 0
-                ? Py_True : Py_False;
+    bool ret = dap_global_db_set_sync( l_group, l_key, l_bytes, l_bytes_size, l_is_pinned);
+    if (ret == true) {
+        Py_RETURN_TRUE;
+    } else {
+        Py_RETURN_FALSE;
+    }
 }
 
 /**
@@ -72,8 +76,11 @@ PyObject *wrapping_dap_chain_global_db_gr_del(PyObject *self, PyObject *args){
     if (!PyArg_ParseTuple(args, "ss",&l_key, &l_group)){
         return NULL;
     }
-    return dap_global_db_del_sync(l_group, l_key) == 0
-            ? Py_True : Py_False;
+    bool ret = dap_global_db_del_sync(l_group, l_key);
+    if (ret)
+        Py_RETURN_TRUE;
+    else
+        Py_RETURN_FALSE;
 }
 
 PyObject *wrapping_dap_chain_global_db_gr_pin(PyObject *self, PyObject *args){
@@ -85,8 +92,11 @@ PyObject *wrapping_dap_chain_global_db_gr_pin(PyObject *self, PyObject *args){
         return NULL;
     }
 
-    return dap_global_db_pin_sync( l_group, l_key) == 0
-            ? Py_True : Py_False;
+    bool ret = dap_global_db_pin_sync( l_group, l_key);
+    if (ret)
+        Py_RETURN_TRUE;
+    else
+        Py_RETURN_FALSE;
 }
 
 PyObject *wrapping_dap_chain_global_db_gr_unpin(PyObject *self, PyObject *args){
@@ -98,8 +108,11 @@ PyObject *wrapping_dap_chain_global_db_gr_unpin(PyObject *self, PyObject *args){
         return NULL;
     }
 
-    return dap_global_db_unpin_sync( l_group, l_key) == 0
-            ? Py_True : Py_False;
+    bool ret = dap_global_db_unpin_sync( l_group, l_key);
+    if (ret)
+        Py_RETURN_TRUE;
+    else
+        Py_RETURN_FALSE;
 }
 
 

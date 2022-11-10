@@ -51,7 +51,8 @@ int _w_dap_chain_callback_data_t_requested(
         return -1;
     }
     PyGILState_STATE state = PyGILState_Ensure();
-    PyObject *l_arg = _wrapping_dac_chain_callback_data_t_get_tuple(a_srv, a_usage_id, a_srv_client, a_custom_data, a_custom_data_size);
+    PyObject *l_arg = _wrapping_dac_chain_callback_data_t_get_tuple(a_srv, a_usage_id, a_srv_client, a_custom_data,
+                                                                    a_custom_data_size);
     PyObject *result = PyObject_CallObject(l_func, l_arg);
     PyGILState_Release(state);
     if(result == NULL){
@@ -77,7 +78,8 @@ int _w_dap_chain_callback_data_t_response_success(
         return -1;
     }
     PyGILState_STATE state = PyGILState_Ensure();
-    PyObject *l_arg = _wrapping_dac_chain_callback_data_t_get_tuple(a_srv, a_usage_id, a_srv_client, a_custom_data, a_custom_data_size);
+    PyObject *l_arg = _wrapping_dac_chain_callback_data_t_get_tuple(a_srv, a_usage_id, a_srv_client, a_custom_data,
+                                                                    a_custom_data_size);
     PyObject *result = PyObject_CallObject(l_func, l_arg);
     PyGILState_Release(state);
     if(result == NULL){
@@ -104,7 +106,8 @@ int _w_dap_chain_callback_data_t_response_error(
         return -1;
     }
     PyGILState_STATE state = PyGILState_Ensure();
-    PyObject *l_arg = _wrapping_dac_chain_callback_data_t_get_tuple(a_srv, a_usage_id, a_srv_client, a_custom_data, a_custom_data_size);
+    PyObject *l_arg = _wrapping_dac_chain_callback_data_t_get_tuple(a_srv, a_usage_id, a_srv_client, a_custom_data,
+                                                                    a_custom_data_size);
     PyObject *result = PyObject_CallObject(l_func, l_arg);
     PyGILState_Release(state);
     if(result == NULL){
@@ -131,7 +134,8 @@ int _w_dap_chain_callback_data_t_receipt_next_success(
         return -1;
     }
     PyGILState_STATE state = PyGILState_Ensure();
-    PyObject *l_arg = _wrapping_dac_chain_callback_data_t_get_tuple(a_srv, a_usage_id, a_srv_client, a_custom_data, a_custom_data_size);
+    PyObject *l_arg = _wrapping_dac_chain_callback_data_t_get_tuple(a_srv, a_usage_id, a_srv_client, a_custom_data,
+                                                                    a_custom_data_size);
     PyObject *result = PyObject_CallObject(l_func, l_arg);
     PyGILState_Release(state);
     if(result == NULL){
