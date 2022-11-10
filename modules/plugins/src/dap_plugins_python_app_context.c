@@ -23,8 +23,8 @@ int dap_plugins_python_app_content_init(dap_server_t *a_server){
 
 PyObject *dap_plugins_python_app_context_get_server(PyObject *self, PyObject *args){
     (void)self;
-    PyObject *l_obj_serverCore;
-    if (!PyArg_ParseTuple(args, "O", &l_obj_serverCore)){
+    PyObject *l_obj_server;
+    if (!PyArg_ParseTuple(args, "O", &l_obj_server)){
         PyErr_SetString(PyExc_TypeError, "No argument provided.");
         return NULL;
     }
@@ -33,7 +33,7 @@ PyObject *dap_plugins_python_app_context_get_server(PyObject *self, PyObject *ar
        PyErr_SetString(PyExc_TypeError, "IO server object is null, probably configuration mismatch in [server] section.");
        return NULL;
     }
-    ((PyDapServerObject*)l_obj_serverCore)->t_server = s_app_context->server;
+    ((PyDapServerObject*)l_obj_server)->t_server = s_app_context->server;
     Py_RETURN_NONE;
 }
 PyObject *dap_plugins_python_app_context_get_http(PyObject *self, PyObject *args){

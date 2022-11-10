@@ -113,6 +113,7 @@ PyObject *wrapping_dap_chain_block_get_datums(PyObject *self, void *closure){
     for (size_t i = 0; i < l_count; i++) {
         PyDapChainDatumObject *obj_datum = PyObject_New(PyDapChainDatumObject, &DapChainDatumObjectType);
         obj_datum->datum = l_datums[i];
+        obj_datum->origin = false;
         PyList_SetItem(obj_datums, (Py_ssize_t) i, (PyObject *)obj_datum);
     }
     return obj_datums;

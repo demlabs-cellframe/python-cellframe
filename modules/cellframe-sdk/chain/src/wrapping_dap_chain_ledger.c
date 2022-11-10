@@ -126,7 +126,7 @@ PyObject *dap_chain_ledger_tx_cache_check_py(PyObject *self, PyObject *args){
     PyObject *obj_datum_tx;
     PyObject *list_bound_items;
     PyObject *list_tx_out;
-    if (!PyArg_ParseTuple(args, "O|O|O", &obj_datum_tx, &list_bound_items, &list_tx_out))
+    if (!PyArg_ParseTuple(args, "OOO", &obj_datum_tx, &list_bound_items, &list_tx_out))
         return NULL;
     Py_ssize_t size_list_bound_item = PyList_Size(list_bound_items);
     dap_list_t **bound_items = calloc(sizeof(dap_list_t**), (size_t)size_list_bound_item);
@@ -142,9 +142,12 @@ PyObject *dap_chain_ledger_tx_cache_check_py(PyObject *self, PyObject *args){
         dap_list_t *l = pyListToDapList(obj);
         tx_out[i] = l;
     }
+    dap_hash_fast_t l_tx_hash;
+    dap_hash_fast(((PyDapChainDatumTxObject *)obj_datum_tx)->datum_tx, dap_chain_datum_tx_get_size(
+            ((PyDapChainDatumTxObject*)obj_datum_tx)->datum_tx), &l_tx_hash);
     int res = dap_chain_ledger_tx_cache_check(((PyDapChainLedgerObject*)self)->ledger,
                                               ((PyDapChainDatumTxObject*)obj_datum_tx)->datum_tx,
-                                              false, bound_items, tx_out);
+                                              &l_tx_hash, false, bound_items, tx_out);
     return PyLong_FromLong(res);
 }
 PyObject *dap_chain_node_datum_tx_cache_check_py(PyObject *self, PyObject *args){
@@ -169,7 +172,8 @@ PyObject *dap_chain_ledger_tx_remove_py(PyObject *self, PyObject *args){
     PyObject *obj_h_fast;
     if (!PyArg_ParseTuple(args, "O", &obj_h_fast))
         return NULL;
-    int res = dap_chain_ledger_tx_remove(((PyDapChainLedgerObject*)self)->ledger, ((PyDapHashFastObject*)obj_h_fast)->hash_fast);
+    int res = dap_chain_ledger_tx_remove(((PyDapChainLedgerObject*)self)->ledger,
+                                         ((PyDapHashFastObject*)obj_h_fast)->hash_fast, 0);
     return PyLong_FromLong(res);
 }
 PyObject *dap_chain_ledger_purge_py(PyObject *self, PyObject *args){
@@ -203,9 +207,9 @@ PyObject *dap_chain_ledger_tx_hash_is_used_out_item_py(PyObject *self, PyObject 
             return NULL;
     bool res = dap_chain_ledger_tx_hash_is_used_out_item(((PyDapChainLedgerObject*)self)->ledger, ((PyDapHashFastObject*)obj_h_fast)->hash_fast, idx_out);
     if (res)
-        return Py_BuildValue("O", Py_True);
+        Py_RETURN_TRUE;
     else
-        return Py_BuildValue("O", Py_False);
+        Py_RETURN_FALSE;
 }
 PyObject *dap_chain_ledger_calc_balance_py(PyObject *self, PyObject *args){
     PyObject *addr;
@@ -280,6 +284,7 @@ PyObject *dap_chain_ledger_tx_cache_find_out_cond_py(PyObject *self, PyObject *a
     int *out_cond_idx = NULL;
     ((PyDapChainDatumTxObject*)res)->datum_tx = (dap_chain_datum_tx_t*)dap_chain_ledger_tx_cache_find_out_cond(
                 ((PyDapChainLedgerObject*)self)->ledger,
+                DAP_CHAIN_TX_OUT_COND_SUBTYPE_SRV_PAY,  //TODO: support other subtypes
                 ((PyDapHashFastObject*)obj_first_hash)->hash_fast,
                 out_conds, out_cond_idx, NULL);
     ((PyDapChainDatumTxObject*)res)->datum_tx = false;
@@ -292,6 +297,7 @@ PyObject *dap_chain_ledger_tx_cache_get_out_cond_value_py(PyObject *self, PyObje
         return NULL;
     dap_chain_tx_out_cond_t **out_conds = NULL;
     uint256_t res = dap_chain_ledger_tx_cache_get_out_cond_value(((PyDapChainLedgerObject*)self)->ledger,
+                                                                 DAP_CHAIN_TX_OUT_COND_SUBTYPE_SRV_PAY,  //TODO: support other subtypes
                                                                 ((PyDapChainAddrObject*)obj_addr)->addr,
                                                                 out_conds);
     uint64_t res64 = dap_chain_uint256_to(res);
@@ -330,13 +336,20 @@ static size_t *ListIntToSizeT(PyObject *list){
 
 PyObject *dap_chain_ledger_get_txs_py(PyObject *self, PyObject *args){
     size_t count, page;
-    if (!PyArg_ParseTuple(args, "nn",&count, &page)){
+    PyObject *obj_reverse;
+    if (!PyArg_ParseTuple(args, "nnO",&count, &page, &obj_reverse)){
         return NULL;
     }
+    if (!PyBool_Check(obj_reverse)){
+        PyErr_SetString(PyExc_AttributeError, "");
+        return NULL;
+    }
+    bool reverse = (obj_reverse == Py_True) ? true : false;
     dap_list_t *l_txs = dap_chain_ledger_get_txs(
             ((PyDapChainLedgerObject*)self)->ledger,
             count,
-            page);
+            page,
+            reverse);
     if (!l_txs){
         Py_RETURN_NONE;
     }

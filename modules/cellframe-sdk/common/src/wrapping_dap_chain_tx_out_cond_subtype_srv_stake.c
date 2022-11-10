@@ -1,19 +1,19 @@
 #include "wrapping_dap_chain_tx_out_cond_subtype_srv_stake.h"
 
-static PyGetSetDef DapChainTxOutCondSubtypeSrvStakeGetsSetsDef[]={
+static PyGetSetDef DapChainTxOutCondSubtypeSrvStakePosDelegateGetsSetsDef[]={
         {"uid", (getter)wrapping_dap_chain_tx_out_cond_subtype_srv_stake_get_uid,NULL,NULL,NULL},
         {"addr", (getter)wrapping_dap_chain_tx_out_cond_subtype_srv_stake_get_addr,NULL,NULL,NULL},
         {"value", (getter)wrapping_dap_chain_tx_out_cond_subtype_srv_stake_get_value, NULL, NULL,NULL},
-        {}
+        {NULL}
 };
 
-PyTypeObject DapChainTxOutCondSubTypeSrvStakeObjectType = {
+PyTypeObject DapChainTxOutCondSubTypeSrvStakePosDelegateObjectType = {
         .ob_base = PyVarObject_HEAD_INIT(NULL, 0)
         .tp_name = "CellFrame.ChainTxOutCondSubTypeSrvStake",
         .tp_basicsize = sizeof(PyDapChainTxOutCondObject),
         .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASE_EXC_SUBCLASS,
         "Chain tx cond subtype srv stake object",
-        .tp_getset = DapChainTxOutCondSubtypeSrvStakeGetsSetsDef,
+        .tp_getset = DapChainTxOutCondSubtypeSrvStakePosDelegateGetsSetsDef,
         .tp_base = &DapChainTxOutCondObjectType,
         .tp_new = PyType_GenericNew
 };

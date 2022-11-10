@@ -7,7 +7,7 @@ static PyGetSetDef PyDapChainTxTokenGetsSetsDef[] = {
         {}
 };
 
-PyTypeObject DapChainTxToken_DapChainTxTokenType = DAP_PY_TYPE_OBJECT(
+PyTypeObject DapChainTxTokenObjectType  = DAP_PY_TYPE_OBJECT(
         "CellFrame.ChainTxToken", sizeof(PyDapChainTxTokenObject),
         "Chain tx token object",
         .tp_getset = PyDapChainTxTokenGetsSetsDef);

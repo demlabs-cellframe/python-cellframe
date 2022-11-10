@@ -1,4 +1,5 @@
 #include "wrapping_dap_sign.h"
+#include "libdap_chain_net_python.h"
 
 /* Sign type*/
 PyTypeObject DapCryproSignTypeObjectType = DAP_PY_TYPE_OBJECT(
@@ -25,6 +26,7 @@ static PyMethodDef DapSignObjectMethods[]= {
         {"toBytes", wrapping_dap_sign_get_bytes, METH_NOARGS, ""},
         {"fromBase64", wrapping_dap_sign_from_b64, METH_VARARGS | METH_STATIC, ""},
         {"toBase64", wrapping_dap_sign_to_b64, METH_NOARGS, ""},
+        {"getAddr", wrapping_dap_sign_get_addr, METH_VARARGS, ""},
         {}
 };
 
@@ -45,7 +47,6 @@ PyObject *wrapping_dap_sign_get_type(PyObject *self, void *closure){
 PyObject *wrapping_dap_sign_get_pkey(PyObject *self, void *closure){
     (void)closure;
     PyDapPkeyObject *obj_pkey = PyObject_New(PyDapPkeyObject, &DapPkeyObject_DapPkeyObjectType);
-    PyObject_Dir((PyObject*)obj_pkey);
     obj_pkey->pkey = (dap_pkey_t*)((PyDapSignObject*)self)->sign->pkey_n_sign;
     return (PyObject*)obj_pkey;
 }
@@ -53,7 +54,6 @@ PyObject *wrapping_dap_sign_get_pkey(PyObject *self, void *closure){
 PyObject *wrapping_dap_sign_get_pkey_hash(PyObject *self, void *closure){
     (void)closure;
     PyDapHashFastObject *obj_hash = PyObject_New(PyDapHashFastObject, &DapChainHashFastObjectType);
-    PyObject_Dir((PyObject*)obj_hash);
     obj_hash->hash_fast = DAP_NEW(dap_chain_hash_fast_t);
     dap_sign_get_pkey_hash(((PyDapSignObject*)self)->sign, obj_hash->hash_fast);
     return (PyObject*)obj_hash;
@@ -62,6 +62,27 @@ PyObject *wrapping_dap_sign_get_pkey_hash(PyObject *self, void *closure){
 PyObject *wrapping_dap_sign_get_size(PyObject *self, void *closure){
     (void)closure;
     return Py_BuildValue("I", ((PyDapSignObject*)self)->sign->header.sign_size);
+}
+
+PyObject *wrapping_dap_sign_get_addr(PyObject *self, PyObject *args){
+    PyObject *obj_net;
+    if (!PyArg_ParseTuple(args, "O", &obj_net)){
+        return NULL;
+    }
+    if (!PyDapChainNet_Check((PyDapChainNetObject*)obj_net)){
+        PyErr_SetString(PyExc_SyntaxError, "The getAddr function must take an object of type "
+                                           "CellFrame.Network.Net as an argument.");
+        return NULL;
+    }
+    PyDapChainAddrObject *obj_addr = PyObject_New(PyDapChainAddrObject, &DapChainAddrObjectType);
+    obj_addr->addr = DAP_NEW(dap_chain_addr_t);
+    dap_hash_fast_t l_hf = {0};
+    dap_hash_fast(((PyDapSignObject *)self)->sign->pkey_n_sign, ((PyDapSignObject *)self)->sign->header.sign_pkey_size, &l_hf);
+    dap_chain_addr_fill(obj_addr->addr,
+                        ((PyDapSignObject *)self)->sign->header.type,
+                        &l_hf,
+                        ((PyDapChainNetObject*)obj_net)->chain_net->pub.id);
+    return (PyObject*)obj_addr;
 }
 
 int wrapping_dap_sign_create(PyObject *self, PyObject* args, PyObject *kwds){
@@ -97,7 +118,7 @@ int wrapping_dap_sign_create(PyObject *self, PyObject* args, PyObject *kwds){
                         ((PyDapChainDatumTokenEmissionObject*)obj_data)->token_emission,
                         ((PyDapChainDatumTokenEmissionObject*)obj_data)->token_size, 0);
     }
-    if (PyDapChainDatum_Check(obj_data)){
+    if (PyDapChainDatum_Check((PyDapChainDatumObject *)obj_data)) {
         size_t l_datum_size = dap_chain_datum_size(((PyDapChainDatumObject*)obj_data)->datum);
         l_sign = dap_sign_create(
                 ((PyCryptoKeyObject*)obj_key)->key,
@@ -137,7 +158,7 @@ PyObject *wrapping_dap_sign_verify(PyObject *self, PyObject *args){
         l_data = ((PyDapChainDatumTokenEmissionObject*)obj_data)->token_emission;
         l_data_size = ((PyDapChainDatumTokenEmissionObject*)obj_data)->token_size;
     }
-    if (PyDapChainDatum_Check(obj_data)){
+    if (PyDapChainDatum_Check((PyDapChainDatumObject *)obj_data)) {
         l_data = ((PyDapChainDatumObject*)obj_data)->datum;
         l_data_size = dap_chain_datum_size(((PyDapChainDatumObject*)obj_data)->datum);
     }
@@ -192,7 +213,7 @@ PyObject *wrapping_dap_sign_to_b64(PyObject *self, PyObject *args){
     char l_str_out[DAP_ENC_BASE64_ENCODE_SIZE(l_sign_size )];
     size_t l_str_out_size = dap_enc_base64_encode(l_sign, l_sign_size, l_str_out, DAP_ENC_DATA_TYPE_B64);
     if (l_str_out_size == 0){
-        return Py_None;
+        Py_RETURN_NONE;
     }
     return Py_BuildValue("s", l_str_out);
 }
@@ -206,7 +227,7 @@ PyObject *wrapping_dap_sign_from_b64(PyObject *self, PyObject *args){
     void *l_out[DAP_ENC_BASE64_ENCODE_SIZE(l_str_size)];
     size_t l_out_size = dap_enc_base64_decode(l_str, l_str_size, l_out, DAP_ENC_DATA_TYPE_B64);
     if (l_out_size == 0)
-        return Py_None;
+        Py_RETURN_NONE;
     PyDapSignObject *l_sign_obj = PyObject_New(PyDapSignObject, &DapCryptoSignObjectType);
     l_sign_obj->sign = (dap_sign_t *)l_out;
     return (PyObject*)l_sign_obj;

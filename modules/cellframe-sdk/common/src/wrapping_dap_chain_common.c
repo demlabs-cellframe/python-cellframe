@@ -21,10 +21,10 @@ static PyMethodDef DapChainAddrMethods[] = {
         {"toStr", (PyCFunction)dap_chain_addr_to_str_py, METH_VARARGS, ""},
         {"fromStr", (PyCFunction)dap_chain_addr_from_str_py, METH_VARARGS | METH_STATIC, ""},
         {"fill", (PyCFunction)dap_chain_addr_fill_py, METH_VARARGS | METH_STATIC, ""},
-        {"fillFromKey", (PyCFunction)dap_chain_addr_fill_from_key_py, METH_VARARGS, ""},
+        {"fillFromKey", (PyCFunction)dap_chain_addr_fill_from_key_py, METH_VARARGS | METH_STATIC, ""},
         {"checkSum", (PyCFunction)dap_chain_addr_check_sum_py, METH_VARARGS, ""},
         {"getNetId", (PyCFunction)dap_chain_addr_get_net_id_py, METH_NOARGS, ""},
-        {}
+        {NULL}
 };
 
 PyTypeObject DapChainAddrObjectType = DAP_PY_TYPE_OBJECT(
@@ -57,7 +57,10 @@ PyTypeObject DapChainIdObjectType = DAP_PY_TYPE_OBJECT(
         .tp_str = DapChainIdObject_str);
 
 PyObject *DapChainIdObject_str(PyObject *self){
-    return Py_BuildValue("s", dap_strdup_printf("0x%016"DAP_UINT64_FORMAT_x, ((PyDapChainIDObject*)self)->chain_id->uint64));
+    char *l_str = dap_strdup_printf("0x%016"DAP_UINT64_FORMAT_x, ((PyDapChainIDObject*)self)->chain_id->uint64);
+    PyObject *l_obj = Py_BuildValue("s", l_str);
+    DAP_FREE(l_str);
+    return l_obj;
 }
 
 /* Dap chain cell id */
@@ -67,7 +70,10 @@ PyTypeObject DapChainCellIdObjectType = DAP_PY_TYPE_OBJECT(
         .tp_str = PyDapChainCellIdObject_str);
 
 PyObject *PyDapChainCellIdObject_str(PyObject *self){
-    return Py_BuildValue("s", dap_strdup_printf("0x%016"DAP_UINT64_FORMAT_x, ((PyDapChainCellIDObject*)self)->cell_id.uint64));
+    char *l_str = dap_strdup_printf("0x%016"DAP_UINT64_FORMAT_x, ((PyDapChainCellIDObject*)self)->cell_id.uint64);
+    PyObject *l_obj = Py_BuildValue("s", l_str);
+    DAP_FREE(l_str);
+    return l_obj;
 }
 
 PyObject *dap_chain_hash_slow_to_str_py(PyObject *self, PyObject *args){
@@ -133,12 +139,15 @@ PyObject *dap_chain_addr_fill_py(PyObject *self, PyObject *args){
 }
 
 PyObject *dap_chain_addr_fill_from_key_py(PyObject *self, PyObject *args){
+    (void)self;
     PyObject *key;
     PyObject *net_id;
     if (!PyArg_ParseTuple(args, "O|O", &key, &net_id))
         return NULL;
-    dap_chain_addr_fill_from_key(((PyDapChainAddrObject*)self)->addr, ((PyCryptoKeyObject*)key)->key, (((PyDapChainNetIdObject*)net_id)->net_id));
-    return self;
+    PyDapChainAddrObject *obj_addr = PyObject_New(PyDapChainAddrObject, &DapChainAddrObjectType);
+    obj_addr->addr = DAP_NEW(dap_chain_addr_t);
+    dap_chain_addr_fill_from_key(obj_addr->addr, ((PyCryptoKeyObject*)key)->key, (((PyDapChainNetIdObject*)net_id)->net_id));
+    return (PyObject*)obj_addr;
 }
 
 PyObject *dap_chain_addr_check_sum_py(PyObject *self, PyObject *args){
@@ -272,11 +281,15 @@ PyTypeObject DapChainNodeAddrObjectType = DAP_PY_TYPE_OBJECT(
 
 PyObject* PyDapChainNodeAddrObject_str(PyObject* self){
     char *ret = dap_strdup_printf(NODE_ADDR_FP_STR, NODE_ADDR_FP_ARGS(((PyDapChainNodeAddrObject *) self)->node_addr));
-    return Py_BuildValue("s", ret);
+    PyObject *l_obj = Py_BuildValue("s", ret);
+    DAP_FREE(ret);
+    return l_obj;
 }
 
 /* wrapping dap_chain_net_srv_uid_t */
 PyObject* PyDapChainNetSrvUIDObject_str(PyObject *self){
     char *res = dap_strdup_printf("0x%016"DAP_UINT64_FORMAT_X, ((PyDapChainNetSrvUIDObject*)self)->net_srv_uid.uint64);
-    return Py_BuildValue("s", res);
+    PyObject *l_obj = Py_BuildValue("s", res);
+    DAP_FREE(res);
+    return l_obj;
 }

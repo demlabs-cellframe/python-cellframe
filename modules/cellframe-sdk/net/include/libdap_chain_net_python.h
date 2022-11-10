@@ -29,6 +29,7 @@
 #define PY_SSIZE_T_CLEAN
 #include "Python.h"
 #include "dap_chain_net.h"
+#include "dap_chain_net_tx.h"
 #include "wrapping_dap_chain_net_state.h"
 //#include "wrapping_dap_chain_net_state.h"
 #include "wrapping_dap_chain_common.h"

@@ -26,6 +26,7 @@
 #include "wrapping_dap_chain_tx_out_cond.h"
 #include "wrapping_dap_chain_tx_out_cond_subtype_srv_pay.h"
 #include "wrapping_dap_chain_tx_out_cond_subtype_srv_stake.h"
+#include "wrapping_dap_chain_tx_out_cond_subtype_srv_stake_lock.h"
 #include "wrapping_dap_chain_tx_out_cond_subtype_srv_xchange.h"
 #include "wrapping_dap_chain_tx_pkey.h"
 #include "wrapping_dap_chain_tx_receipt.h"
@@ -53,7 +54,7 @@
 #include "wrapping_dap_chain_cs_block.h"
 // ============
 
-
+#include "dap_events_python.h"
 #include "wrapping_http.h"
 #include "wrapping_dap_enc_http.h"
 #include "wrapping_dap_stream.h"
@@ -93,7 +94,6 @@
 #include "wrapping_json_rpc_response.h"
 #ifdef _WIN32
 #include "Windows.h"
-
 BOOL WINAPI consoleHandler(DWORD);
 #else
 #include "signal.h"

@@ -51,7 +51,7 @@ PyObject *dap_chain_node_client_connect_py(PyObject *self, PyObject *args){
     return Py_BuildValue("O", obj_node_client);
 }
 PyObject *dap_chain_node_client_close_py(PyObject *self, PyObject *args){
-    dap_chain_node_client_close(((PyDapChainNodeClientObject*)self)->node_client);
+    dap_chain_node_client_close(((PyDapChainNodeClientObject*)self)->node_client->uuid);
     return PyLong_FromLong(0);
 }
 PyObject *dap_chain_node_client_send_ch_pkt_py(PyObject *self, PyObject *args){

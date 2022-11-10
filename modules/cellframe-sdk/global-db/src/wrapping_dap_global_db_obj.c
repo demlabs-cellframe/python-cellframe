@@ -5,7 +5,7 @@ static PyGetSetDef DapChainGlobalDBContainerGetSet[] = {
         {"id", (getter)wrapping_dap_chain_global_db_obj_get_id, NULL, NULL, NULL},
         {"key", (getter)wrapping_dap_chain_global_db_obj_get_key, NULL, NULL, NULL},
         {"value", (getter)wrapping_dap_chain_global_db_obj_get_value, NULL, NULL, NULL},
-        {}
+        {NULL}
 };
 
 PyTypeObject DapChainGlobalDBContainerObjectType = DAP_PY_TYPE_OBJECT(
