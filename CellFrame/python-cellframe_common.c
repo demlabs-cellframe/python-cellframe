@@ -2,7 +2,7 @@
 #include <frameobject.h>
 
 void _PyErr_logIt(const dap_log_level_t a_level, const char *a_tag, const char *a_msg){
-    _log_it(a_tag, a_level, (char*)a_msg);
+    _log_it(a_tag, a_level, "%s", a_msg);
 }
 
 char* _PyErr_get_stacktrace(PyObject *a_obj){

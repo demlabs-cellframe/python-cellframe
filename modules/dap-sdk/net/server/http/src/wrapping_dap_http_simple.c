@@ -18,7 +18,7 @@ static PyGetSetDef PyDapHttpSimpleGetSetDef[] = {
         {"request", (getter)dap_http_simple_request_py, NULL, "Return request in view bytes", NULL},
         {"urlPath", (getter)dap_http_simple_url_path_py, NULL, "Return request in view bytes", NULL},
         {"query", (getter)dap_http_simple_query_py, NULL, "Return request in view bytes", NULL},
-        {"ipClient", (getter)dap_http_simple_ip_client_py, NULL, ""},
+        {"ipClient", (getter)dap_http_simple_ip_client_py, NULL, "", NULL},
         {}
 };
 
