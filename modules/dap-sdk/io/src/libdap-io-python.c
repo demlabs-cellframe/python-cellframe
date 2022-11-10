@@ -32,12 +32,12 @@ PyObject *dap_io_listen(PyObject *self, PyObject *args){
     const char *addr;
     uint16_t port;
     uint16_t type;
-    if (!PyArg_ParseTuple(args, "s|H|H", &addr, &port, &type)){
+    if (!PyArg_ParseTuple(args, "sHH", &addr, &port, &type)){
         return NULL;
     }
     if (type > 1)
         return  NULL;
-    PyObject *obj = _PyObject_New(&dapServer_dapServerType);
+    PyObject *obj = _PyObject_New(&DapServerObjectType);
     ((PyDapServerObject*)obj)->t_server = dap_server_new( addr, port, type, NULL);
     return Py_BuildValue("O", obj);
 }

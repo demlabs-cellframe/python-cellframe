@@ -18,6 +18,7 @@ static PyGetSetDef PyDapHttpSimpleGetSetDef[] = {
         {"request", (getter)dap_http_simple_request_py, NULL, "Return request in view bytes", NULL},
         {"urlPath", (getter)dap_http_simple_url_path_py, NULL, "Return request in view bytes", NULL},
         {"query", (getter)dap_http_simple_query_py, NULL, "Return request in view bytes", NULL},
+        {"ipClient", (getter)dap_http_simple_ip_client_py, NULL, ""},
         {}
 };
 
@@ -90,12 +91,21 @@ PyObject *dap_http_simple_add_proc_py(PyObject *self, PyObject *args){
         }
     }
     _w_simple_proc_add(url, func_callback);
-    dap_http_t *l_http = DAP_HTTP(((PyDapServerObject*)obj_server)->t_server);
-    dap_http_simple_proc_add(l_http,
-                             url,
-                             reply_size_max,
-                             wrapping_dap_http_simple_callback);
-    log_it(L_NOTICE, "Add processor for \"%s\"", url);
+    dap_server_t *l_server = ((PyDapServerObject*) obj_server)->t_server;
+    if (l_server) {
+        dap_http_t *l_http = DAP_HTTP(l_server);
+        dap_http_simple_proc_add(l_http,
+                                 url,
+                                 reply_size_max,
+                                 wrapping_dap_http_simple_callback);
+        log_it(L_NOTICE, "Add processor for \"%s\"", url);
+    } else {
+        PyErr_SetString(PyExc_SystemError, "It is not possible to add a handler to a non-existent server. Check the configuration.");
+        return NULL;
+    }
+//    } else {
+//        log_it(L_ERROR, "");
+//    }
     Py_RETURN_NONE;
 }
 PyObject *dap_http_simple_module_init_py(PyObject *self, PyObject *args){
@@ -161,4 +171,9 @@ PyObject *dap_http_simple_url_path_py(PyDapHttpSimpleObject *self, void *clouser
 PyObject *dap_http_simple_query_py(PyDapHttpSimpleObject *self, void *clouser){
     (void)clouser;
     return Py_BuildValue("s", self->sh->http_client->in_query_string);
+}
+
+PyObject *dap_http_simple_ip_client_py(PyDapHttpSimpleObject *self, void *clouser){
+    (void)clouser;
+    return Py_BuildValue("s", self->sh->esocket->hostaddr);
 }
