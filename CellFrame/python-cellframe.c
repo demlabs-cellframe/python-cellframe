@@ -71,7 +71,6 @@ static PyModuleDef CellframeConsensusPythonModule = DAP_PY_MODULE(.m_name = "Cel
 BOOL WINAPI consoleHandler(DWORD dwType){
     if (dwType == CTRL_C_EVENT){
         log_it(L_NOTICE, "Execution terminated. Ctrl+C is pressed");
-        dap_server_loop_stop();
         deinit_modules();
     }
     return TRUE;
@@ -192,6 +191,22 @@ PyObject *python_cellframe_init(PyObject *self, PyObject *args)
     Py_RETURN_NONE;
 }
 
+static int dap_server_core_init(uint32_t l_thread_cnt, size_t conn_t)
+{
+    int result = dap_server_init();
+    if ( result != 0 ) {
+        log_it( L_CRITICAL, "Can't initialize \"socket server\" module" );
+    }
+    dap_events_init(l_thread_cnt, conn_t);
+    return result;
+}
+
+static void dap_server_core_deinit(void)
+{
+    dap_server_deinit();
+    dap_events_deinit();
+}
+
 PyObject *python_dap_init(PyObject *self, PyObject *args)
 {
     const char *app_name;
@@ -206,7 +221,7 @@ PyObject *python_dap_init(PyObject *self, PyObject *args)
     PyObject *events = NULL;
 
     #ifdef _WIN32
-        setConsoleCtrlHandler((PHANDLER_ROUTINE)consoleHandler, TRUE);
+        SetConsoleCtrlHandler((PHANDLER_ROUTINE)consoleHandler, TRUE);
     #else
         signal(SIGINT, sigfunc);
     #endif
@@ -397,7 +412,7 @@ PyObject *python_dap_init(PyObject *self, PyObject *args)
             PyObject* getStreamData = PyDict_GetItemString(result, "Stream");
             if (getStreamData == NULL){
                 PyErr_SetString(CellFrame_error, "Failed to initialize \"Stream\" module."
-                                "Can't find \"IO\" object in JSON string");
+                                "Can't find \"Stream\" object in JSON string");
                 return NULL;
             }
             PyObject *debugDumpStreamHeadersObj = PyDict_GetItemString(getStreamData, "DebugDumpStreamHeaders");
@@ -442,6 +457,7 @@ PyMODINIT_FUNC PyInit_libDAP()
         // === Core ===
         PyType_Ready( &DapCoreObjectType ) < 0 ||
         PyType_Ready( &DapLogitObjectType ) < 0 ||
+        PyType_Ready( &DapCommonObjectType ) < 0 ||
         PyType_Ready(&DapMathObjectType) < 0 ||
 #ifdef DAP_SUPPORT_PYTHON_PLUGINS
         PyType_Ready( &DapAppContextObjectType) < 0 ||
@@ -472,6 +488,7 @@ PyMODINIT_FUNC PyInit_libDAP()
     }
     PyObject *coreModule = PyModule_Create(&DapCorePythonModule);
     PyModule_AddObject(coreModule, "logIt", (PyObject *)&DapLogitObjectType);
+    PyModule_AddObject(coreModule, "Common", (PyObject*)&DapCommonObjectType);
     PyModule_AddObject(coreModule, "Math", (PyObject *)&DapMathObjectType);
 #ifdef DAP_SUPPORT_PYTHON_PLUGINS
     PyModule_AddObject(coreModule, "AppContext", (PyObject*)&DapAppContextObjectType);
@@ -556,11 +573,14 @@ PyMODINIT_FUNC PyInit_libCellFrame(void)
         PyType_Ready( &DapChainTxCondTypeObjectType ) < 0 ||
         PyType_Ready( &DapChainTxOutCondObjectType ) < 0 ||
         PyType_Ready( &DapChainTxOutCondSubTypeSrvPayObjectType ) < 0 ||
-        PyType_Ready( &DapChainTxOutCondSubTypeSrvStakeObjectType ) < 0 ||
+        PyType_Ready( &DapChainTxOutCondSubTypeSrvStakePosDelegateObjectType ) < 0 ||
+        PyType_Ready( &DapChainTxOutCondSubTypeSrvStakeLockObjectType ) < 0 ||
         PyType_Ready( &DapChainTxOutCondSubTypeSrvXchangeObjectType ) < 0 ||
         PyType_Ready( &DapChainTxInObjectType ) < 0 ||
         PyType_Ready( &DapChainTxInCondObjectType ) < 0 ||
+        PyType_Ready( &DapChainTxSigObjectType ) < 0 ||
         PyType_Ready( &DapChainTxOutObjectType ) < 0 ||
+        PyType_Ready( &DapChainTxTokenObjectType ) < 0 ||
         PyType_Ready( &DapChainTxPkeyObjectType ) < 0 ||
         PyType_Ready( &DapChainTxReceiptObjectType ) < 0 ||
         PyType_Ready( &DapChainTxOutExtObjectType ) < 0 ||
@@ -622,12 +642,15 @@ PyMODINIT_FUNC PyInit_libCellFrame(void)
     PyModule_AddObject(commonModule, "DatumTx", (PyObject*)&DapChainDatumTxObjectType);
     PyModule_AddObject(commonModule, "TxOutCond", (PyObject*)&DapChainTxOutCondObjectType);
     PyModule_AddObject(commonModule, "TxOutCondSubtypeSrvPay", (PyObject*)&DapChainTxOutCondSubTypeSrvPayObjectType);
-    PyModule_AddObject(commonModule, "TxOutCondSubtypeSrvStake", (PyObject*)&DapChainTxOutCondSubTypeSrvStakeObjectType);
+    PyModule_AddObject(commonModule, "TxOutCondSubtypeSrvStakeLock", (PyObject*)&DapChainTxOutCondSubTypeSrvStakeLockObjectType);
+    PyModule_AddObject(commonModule, "TxOutCondSubtypeSrvStakePosDelegate", (PyObject*)&DapChainTxOutCondSubTypeSrvStakePosDelegateObjectType);
     PyModule_AddObject(commonModule, "TxOutCondSubtypeSrvXchange", (PyObject*)&DapChainTxOutCondSubTypeSrvXchangeObjectType);
     PyModule_AddObject(commonModule, "TxIn", (PyObject*)&DapChainTxInObjectType);
     PyModule_AddObject(commonModule, "TxInCond", (PyObject*)&DapChainTxInCondObjectType);
     PyModule_AddObject(commonModule, "TxOut", (PyObject*)&DapChainTxOutObjectType);
     PyModule_AddObject(commonModule, "TxPkey", (PyObject*)&DapChainTxPkeyObjectType);
+    PyModule_AddObject(commonModule, "TxSig", (PyObject*)&DapChainTxSigObjectType);
+    PyModule_AddObject(commonModule, "TxToken", (PyObject*)&DapChainTxTokenObjectType);
     PyModule_AddObject(commonModule, "TxReceipt", (PyObject*)&DapChainTxReceiptObjectType);
     PyModule_AddObject(commonModule, "TxOutExt", (PyObject*)&DapChainTxOutExtObjectType);
 

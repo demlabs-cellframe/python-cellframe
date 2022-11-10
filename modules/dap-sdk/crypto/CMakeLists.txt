@@ -37,7 +37,8 @@ target_link_libraries(${PROJECT_NAME})
 target_link_libraries(${PROJECT_NAME}
         dap_core
         dap_crypto
-        dap_chain_common_python_module)
+        dap_chain_common_python_module
+        dap_chain_net_python_module)
 
 target_include_directories(${PROJECT_NAME} PUBLIC include/ )
 

@@ -12,6 +12,7 @@ static PyMethodDef  DapMempoolMethods[] = {
         {"txCreateCondInput", dap_chain_mempool_tx_create_cond_input_py, METH_VARARGS | METH_STATIC, ""},
         {"remove", dap_chain_mempool_remove_py, METH_VARARGS | METH_STATIC, ""},
         {"list", dap_chain_mempool_list_py, METH_VARARGS | METH_STATIC, ""},
+        {"addDatum", dap_chain_mempool_add_datum_py, METH_VARARGS | METH_STATIC, ""},
         {NULL,NULL,0,NULL}
 };
 
@@ -106,6 +107,7 @@ PyObject* dap_chain_mempool_datum_emission_extract_py(PyObject *self, PyObject *
 }
 
 PyObject *dap_chain_mempool_proc_py(PyObject *self, PyObject *args) {
+    UNUSED(self);
     PyDapChainObject *obj_chain = NULL;
     char *l_hash_str = NULL;
     if (!PyArg_ParseTuple(args, "sO", &l_hash_str, &obj_chain)) {
@@ -155,21 +157,14 @@ PyObject *dap_chain_mempool_proc_py(PyObject *self, PyObject *args) {
         return NULL;
     }
 
-    if (l_chain->callback_add_datums){
-        size_t processed = l_chain->callback_add_datums(l_chain, &l_datum, 1);
-        if (processed == 0) {
-            char *l_str = "Error! Datum doesn't pass verifications, examine node log files";
-            PyErr_SetString(PyExc_RuntimeError, l_str);
-            log_it(L_WARNING, "%s", l_str);
-        }
-        bool res_del_mempool = dap_global_db_del_sync(l_gdb_group_mempool, l_hash_str);
+    if (dap_chain_node_mempool_process(l_chain, l_datum)) {
+        bool res_del_mempool = dap_global_db_del_sync(l_hash_str, l_gdb_group_mempool);
         if (!res_del_mempool) {
-            char *l_str = "Warning! Can't delete datum from mempool!";
+            char *l_str = dap_strdup_printf("Warning! Can't delete datum with hash: %s from mempool!", l_hash_str);
             PyErr_SetString(PyExc_Warning, l_str);
-            return  NULL;
+            DAP_DELETE(l_str);
+            return NULL;
         }
-        DAP_DELETE(l_gdb_group_mempool);
-        Py_RETURN_NONE;
     }
     DAP_DELETE(l_gdb_group_mempool);
     Py_RETURN_NONE;
@@ -388,7 +383,7 @@ PyObject *dap_chain_mempool_remove_py(PyObject *self, PyObject *args){
 }
 
 PyObject* pvt_dap_chain_mempool_list(dap_chain_t *a_chain){
-    PyObject *obj_list = PyList_New(0);
+    PyObject *obj_dict = PyDict_New();
     char * l_gdb_group_mempool = dap_chain_net_get_gdb_group_mempool_new(a_chain);
     if (l_gdb_group_mempool){
         size_t l_objs_size = 0;
@@ -397,12 +392,14 @@ PyObject* pvt_dap_chain_mempool_list(dap_chain_t *a_chain){
             dap_chain_datum_t * l_datum = (dap_chain_datum_t*) l_objs[i].value;
             PyDapChainDatumObject *obj_datum = PyObject_New(PyDapChainDatumObject, &DapChainDatumObjectType);
             obj_datum->datum = l_datum;
-            PyList_Append(obj_list, (PyObject*)obj_datum);
+            obj_datum->origin = true;
+            PyDict_SetItemString(obj_dict, l_objs[i].key, (PyObject*)obj_datum);
+            Py_XDECREF((PyObject*)obj_datum);
         }
         dap_global_db_objs_delete(l_objs, l_objs_size);
     }
     DAP_FREE(l_gdb_group_mempool);
-    return obj_list;
+    return obj_dict;
 }
 
 PyObject *dap_chain_mempool_list_py(PyObject *self, PyObject *args){
@@ -419,21 +416,49 @@ PyObject *dap_chain_mempool_list_py(PyObject *self, PyObject *args){
     }
     if (!obj_chain){
         dap_chain_t *l_chain_tmp;
-        PyObject *obj_list = PyList_New(0);
+        PyObject *obj_dict = PyDict_New();
         DL_FOREACH(obj_net->chain_net->pub.chains, l_chain_tmp){
             PyObject *obj_list_datum_from_chain = pvt_dap_chain_mempool_list(l_chain_tmp);
-            for (int i=0; i < PyList_Size(obj_list_datum_from_chain); i++){
-                PyList_Append(obj_list, PyList_GetItem(obj_list_datum_from_chain, i));
+            Py_ssize_t l_pos = 0;
+            PyObject *l_key, *l_value;
+            while(PyDict_Next(obj_list_datum_from_chain, &l_pos, &l_key, &l_value)){
+                PyDict_SetItem(obj_dict, l_key, l_value);
+                Py_DECREF(l_value);
             }
         }
-        return obj_list;
+        return obj_dict;
     }else{
         if (!PyDapChain_Check(obj_chain)){
             PyErr_SetString(PyExc_AttributeError, "The second argument was passed to the function incorrectly, the "
                                                   "second argument must be an instance of an object of type Chain.");
             return NULL;
         }
-        PyObject *obj_list = pvt_dap_chain_mempool_list(obj_chain->chain_t);
-        return obj_list;
+        PyObject *obj_dict = pvt_dap_chain_mempool_list(obj_chain->chain_t);
+        return obj_dict;
     }
 }
+
+PyObject *dap_chain_mempool_add_datum_py(PyObject *self, PyObject *args){
+    (void)self;
+    PyDapChainDatumObject *obj_datum;
+    PyDapChainObject *obj_chain;
+    if (!PyArg_ParseTuple(args, "OO", &obj_chain, &obj_datum)){
+        return NULL;
+    }
+    if (!PyDapChain_Check(obj_chain)){
+        PyErr_SetString(PyExc_AttributeError, "The first argument was not passed correctly. "
+                                              "The first argument must be instance of an object of type Chain.");
+        return NULL;
+    }
+    if (!PyDapChainDatum_Check(obj_datum)){
+        PyErr_SetString(PyExc_AttributeError, "The second argument was not passed correctly. "
+                                              "The second argument must be instance of an object of type Datum.");
+        return NULL;
+    }
+    char *l_str = dap_chain_mempool_datum_add(obj_datum->datum, obj_chain->chain_t);
+    if (!l_str)
+        return Py_None;
+    obj_datum->origin = false;
+    return Py_BuildValue("s", l_str);
+}
+

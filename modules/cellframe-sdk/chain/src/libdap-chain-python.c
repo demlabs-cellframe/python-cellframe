@@ -25,6 +25,8 @@ static PyMethodDef DapChainMethods[] = {
         {"addMempoolNotify", (PyCFunction)dap_chain_python_add_mempool_notify_callback, METH_VARARGS, ""},
         {"addAtomNotify", (PyCFunction)dap_chain_net_add_atom_notify_callback, METH_VARARGS,"" },
         {"atomFindByHash", (PyCFunction)dap_chain_python_atom_find_by_hash, METH_VARARGS, ""},
+        {"countAtom", (PyCFunction)dap_chain_python_get_atom_count, METH_NOARGS, ""},
+        {"getAtoms", (PyCFunction)dap_chain_python_get_atoms, METH_VARARGS, ""},
         {"countTx", (PyCFunction)dap_chain_python_get_count_tx, METH_NOARGS, ""},
         {"getTransactions", (PyCFunction)dap_chain_python_get_txs, METH_VARARGS, ""},
         {}
@@ -58,9 +60,9 @@ PyObject *dap_chain_find_by_id_py(PyObject *self, PyObject *args){
 PyObject *dap_chain_has_file_store_py(PyObject *self, PyObject *args){
     bool res = dap_chain_has_file_store(((PyDapChainObject*)self)->chain_t);
     if (res)
-        return  Py_BuildValue("O", Py_True);
+        Py_RETURN_TRUE;
     else
-        return Py_BuildValue("O", Py_False);
+        Py_RETURN_FALSE;
 }
 
 PyObject *dap_chain_save_all_py(PyObject *self, PyObject *args){
@@ -103,7 +105,9 @@ PyObject *PyDapChainObject_new(PyTypeObject *type_object, PyObject *args, PyObje
 }
 
 void PyDapChainObject_dealloc(PyDapChainObject* chain){
-    dap_chain_delete(chain->chain_t);
+    if (chain->chain_t) {
+        dap_chain_delete(chain->chain_t);
+    }
     Py_TYPE(chain)->tp_free((PyObject*)chain);
 }
 
@@ -175,10 +179,10 @@ PyObject *dap_chain_python_atom_get_datums(PyObject *self, PyObject *args){
 
     PyObject *list_datums = PyList_New(datums_count);
     for (size_t i=0; i < datums_count; i++){
-        PyObject *l_obj_datum_py = _PyObject_New(&DapChainDatumObjectType);
-        l_obj_datum_py = PyObject_Init(l_obj_datum_py, &DapChainDatumObjectType);
-        ((PyDapChainDatumObject*)l_obj_datum_py)->datum = l_datums[i];
-        PyList_SetItem(list_datums, i, l_obj_datum_py);
+        PyDapChainDatumObject *l_obj_datum_py = PyObject_New(PyDapChainDatumObject, &DapChainDatumObjectType);
+        l_obj_datum_py->datum = l_datums[i];
+        l_obj_datum_py->origin = false;
+        PyList_SetItem(list_datums, i, (PyObject*)l_obj_datum_py);
     }
     return list_datums;
 }
@@ -241,11 +245,6 @@ static void _wrapping_dap_chain_mempool_notify_handler(void * a_arg, const char 
     PyGILState_Release(state);
 }
 
-typedef struct _wrapping_chain_atom_notify_callback{
-    PyObject *func;
-    PyObject *arg;
-}_wrapping_chain_atom_notify_callback_t;
-
 /**
  * @brief _wrapping_dap_chain_atom_notify_handler
  * @param a_arg
@@ -258,7 +257,7 @@ static void _wrapping_dap_chain_atom_notify_handler(void * a_arg, dap_chain_t *a
     if (!a_arg){
         return;
     }
-    _wrapping_chain_atom_notify_callback_t *l_callback = (_wrapping_chain_atom_notify_callback_t*)a_arg;
+    _wrapping_chain_mempool_notify_callback_t  *l_callback = (_wrapping_chain_mempool_notify_callback_t *)a_arg;
 
     PyObject *l_args;
     PyGILState_STATE state = PyGILState_Ensure();
@@ -327,7 +326,7 @@ PyObject *dap_chain_net_add_atom_notify_callback(PyObject *self, PyObject *args)
                                               "argument must be a function ");
         return NULL;
     }
-    _wrapping_chain_atom_notify_callback_t *l_callback = DAP_NEW_Z(_wrapping_chain_atom_notify_callback_t);
+    _wrapping_chain_mempool_notify_callback_t *l_callback = DAP_NEW_Z(_wrapping_chain_mempool_notify_callback_t);
     l_callback->func = obj_func;
     l_callback->arg = obj_arg;
     Py_INCREF(obj_func);
@@ -373,6 +372,52 @@ PyObject *dap_chain_python_atom_find_by_hash(PyObject *self, PyObject* args){
 }
 
 /**
+ * @breif dap_chain_python_get_atom_count
+ * @param self
+ * @param args
+ * @return
+ */
+PyObject *dap_chain_python_get_atom_count(PyObject *self, PyObject *args){
+    (void)args;
+    size_t l_count = ((PyDapChainObject*)self)->chain_t->callback_count_atom(((PyDapChainObject*)self)->chain_t);
+    return Py_BuildValue("n", l_count);
+}
+
+/**
+ * @breif dap_chain_python_get_atoms
+ * @param self
+ * @param args
+ * @return
+ */
+PyObject *dap_chain_python_get_atoms(PyObject *self, PyObject *args) {
+    size_t count, page;
+    PyObject *obj_reverse;
+    if (!PyArg_ParseTuple(args, "nnO", &count, &page, &obj_reverse)) {
+        return NULL;
+    }
+    if (!PyBool_Check(obj_reverse)) {
+        PyErr_SetString(PyExc_AttributeError, "");
+        return NULL;
+    }
+    bool reverse = (obj_reverse == Py_True) ? true : false;
+    dap_chain_t *l_chain = ((PyDapChainObject *) self)->chain_t;
+    dap_list_t *l_atoms = l_chain->callback_get_atoms(l_chain, count, page, reverse);
+    if (!l_atoms) {
+        Py_RETURN_NONE;
+    }
+    PyObject *obj_list = PyList_New(0);
+    for (dap_list_t *l_iter = l_atoms; l_iter != NULL; l_iter = l_iter->next) {
+        PyChainAtomObject *obj_atom = PyObject_New(PyChainAtomObject, &DapChainAtomPtrObjectType);
+        obj_atom->atom = l_iter->data;
+        l_iter = l_iter->next;
+        obj_atom->atom_size = *((size_t *) l_iter->data);
+        PyObject *obj_ptr = Py_BuildValue("O", (PyObject *) obj_atom);
+        PyList_Append(obj_list, obj_ptr);
+    }
+    return obj_list;
+}
+
+/**
  * @brief dap_chain_python_get_count_tx
  * @param self
  * @param args
@@ -394,10 +439,16 @@ PyObject *dap_chain_python_get_count_tx(PyObject *self, PyObject *args){
 PyObject *dap_chain_python_get_txs(PyObject *self, PyObject *args){
     dap_chain_t *l_chain = ((PyDapChainObject*)self)->chain_t;
     size_t count = 0, page = 0;
-    if (!PyArg_ParseTuple(args, "nn", &count, &page)){
+    PyObject *obj_reverse;
+    if (!PyArg_ParseTuple(args, "nnO", &count, &page, &obj_reverse)){
         return NULL;
     }
-    dap_list_t *l_list = l_chain->callback_get_txs(l_chain, count, page, true);
+    if (!PyBool_Check(obj_reverse)){
+        PyErr_SetString(PyExc_AttributeError, "");
+        return NULL;
+    }
+    bool l_reverse = (obj_reverse == Py_True) ? true : false;
+    dap_list_t *l_list = l_chain->callback_get_txs(l_chain, count, page, l_reverse);
     if (l_list != NULL){
         PyObject *l_obj_list = PyList_New(0);
         for (dap_list_t *l_ptr = l_list; l_ptr != NULL; l_ptr = l_ptr->next){

@@ -250,7 +250,7 @@ PyObject *wrapping_dap_chain_datum_tx_get_items(PyObject *self, PyObject *args){
                 ((PyDapChainTXOutObject*)obj_tx_item)->tx_out = ((dap_chain_tx_out_t*)item);
                 break;
             case TX_ITEM_TYPE_TOKEN:
-                obj_tx_item = (PyObject*)PyObject_New(PyDapChainTxTokenObject, &DapChainTxToken_DapChainTxTokenType);
+                obj_tx_item = (PyObject*)PyObject_New(PyDapChainTxTokenObject, &DapChainTxTokenObjectType);
                 ((PyDapChainTxTokenObject*)obj_tx_item)->token = (dap_chain_tx_token_t*)item;
                 break;
             case TX_ITEM_TYPE_TOKEN_EXT:
@@ -258,7 +258,7 @@ PyObject *wrapping_dap_chain_datum_tx_get_items(PyObject *self, PyObject *args){
                 ((PyDapChainTxTokenExtObject*)obj_tx_item)->token_ext = (dap_chain_tx_token_ext_t*)item;
                 break;
             case TX_ITEM_TYPE_SIG:
-                obj_tx_item = (PyObject*)PyObject_New(PyDapChainTXSigObject, &DapChainTxSigObject_DapChainTxSigTypeObjectType);
+                obj_tx_item = (PyObject*)PyObject_New(PyDapChainTXSigObject, &DapChainTxSigObjectType);
                 ((PyDapChainTXSigObject*)obj_tx_item)->tx_sig = (dap_chain_tx_sig_t*)item;
                 break;
             case TX_ITEM_TYPE_RECEIPT:
@@ -279,8 +279,12 @@ PyObject *wrapping_dap_chain_datum_tx_get_items(PyObject *self, PyObject *args){
                         obj_tx_item = (PyObject*)PyObject_New(PyDapChainTxOutCondObject, &DapChainTxOutCondSubTypeSrvPayObjectType);
                         ((PyDapChainTxOutCondObject*)obj_tx_item)->out_cond = ((dap_chain_tx_out_cond_t*)item);
                         break;
+                    case DAP_CHAIN_TX_OUT_COND_SUBTYPE_SRV_STAKE_LOCK:
+                        obj_tx_item = (PyObject*)PyObject_New(PyDapChainTxOutCondObject, &DapChainTxOutCondSubTypeSrvStakeLockObjectType);
+                        ((PyDapChainTxOutCondObject*)obj_tx_item)->out_cond = ((dap_chain_tx_out_cond_t*)item);
+                        break;
                     case DAP_CHAIN_TX_OUT_COND_SUBTYPE_SRV_STAKE_POS_DELEGATE:
-                        obj_tx_item = (PyObject*)PyObject_New(PyDapChainTxOutCondObject, &DapChainTxOutCondSubTypeSrvStakeObjectType);
+                        obj_tx_item = (PyObject*)PyObject_New(PyDapChainTxOutCondObject, &DapChainTxOutCondSubTypeSrvStakePosDelegateObjectType);
                         ((PyDapChainTxOutCondObject*)obj_tx_item)->out_cond = ((dap_chain_tx_out_cond_t*)item);
                         break;
                     case DAP_CHAIN_TX_OUT_COND_SUBTYPE_SRV_XCHANGE:
@@ -300,7 +304,6 @@ PyObject *wrapping_dap_chain_datum_tx_get_items(PyObject *self, PyObject *args){
                 obj_tx_item = Py_None;
                 break;
         }
-        PyObject_Dir(obj_tx_item);
         PyList_Append(obj_list, obj_tx_item);
         l_tx_items_count += l_tx_item_size;
     }

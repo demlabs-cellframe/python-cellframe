@@ -167,11 +167,11 @@ PyObject* dap_cert_load_py(PyObject *self, PyObject *args)
 {
     const char *l_cert_name;
     if (!PyArg_ParseTuple(args, "s", &l_cert_name)) {
-        Py_RETURN_NONE;
+        return NULL;
     }
     dap_cert_t *l_ret = dap_cert_find_by_name(l_cert_name);
     if (!l_ret)
-        return self;
+        Py_RETURN_NONE;
     if (!self) {
         self = _PyObject_New(&DapCryptoCertObjectType);
     }
