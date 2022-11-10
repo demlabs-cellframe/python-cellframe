@@ -1,4 +1,5 @@
 #include "wrapping_dap_sign.h"
+#include "libdap_chain_net_python.h"
 
 /* Sign type*/
 PyTypeObject DapCryproSignTypeObjectType = DAP_PY_TYPE_OBJECT(
