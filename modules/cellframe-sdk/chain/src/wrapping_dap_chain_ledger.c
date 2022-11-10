@@ -207,7 +207,7 @@ PyObject *dap_chain_ledger_tx_hash_is_used_out_item_py(PyObject *self, PyObject 
             return NULL;
     bool res = dap_chain_ledger_tx_hash_is_used_out_item(((PyDapChainLedgerObject*)self)->ledger, ((PyDapHashFastObject*)obj_h_fast)->hash_fast, idx_out);
     if (res)
-        return Py_BuildValue("O", Py_True);
+        Py_RETURN_TRUE;
     else
         Py_RETURN_FALSE;
 }

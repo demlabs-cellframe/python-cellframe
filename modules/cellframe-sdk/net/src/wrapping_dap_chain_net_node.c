@@ -31,7 +31,7 @@ PyObject *dap_chain_node_check_addr_py(PyObject *self, PyObject *args){
         return NULL;
     bool ret = dap_chain_node_check_addr(((PyDapChainNetObject*)obj_chain_net)->chain_net, ((PyDapChainNodeAddrObject*)obj_node_addr)->node_addr);
     if (ret)
-        return Py_BuildValue("O", Py_True);
+        Py_RETURN_TRUE;
     else
         Py_RETURN_FALSE;
 }
@@ -52,7 +52,7 @@ PyObject *dap_chain_node_alias_register_py(PyObject *self, PyObject *args){
         return NULL;
     bool ret = dap_chain_node_alias_register(((PyDapChainNetObject*)obj_chain_net)->chain_net, alias, ((PyDapChainNodeAddrObject*)obj_node_addr)->node_addr);
     if (ret)
-        return Py_BuildValue("O", Py_True);
+        Py_RETURN_TRUE;
     else
         Py_RETURN_FALSE;
 }
@@ -63,7 +63,7 @@ PyObject *dap_chain_node_alias_delete_py(PyObject *self, PyObject *args){
         return NULL;
     bool ret = dap_chain_node_alias_delete(((PyDapChainNetObject*)obj_chain_net)->chain_net, alias);
     if (ret)
-        return Py_BuildValue("O", Py_True);
+        Py_RETURN_TRUE;
     else
         Py_RETURN_FALSE;
 }
