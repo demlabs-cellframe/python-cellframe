@@ -10,7 +10,7 @@ PyMethodDef PyDapChainTxSigObjectMethods[] ={
         {NULL, NULL, 0, NULL}
 };
 
-PyTypeObject DapChainTxSigObject_DapChainTxSigTypeObjectType = {
+PyTypeObject DapChainTxSigObjectType = {
         PyVarObject_HEAD_INIT(NULL, 0)
         "CellFrame.ChainTxSig",        /* tp_name */
         sizeof(PyDapChainTXSigObject), /* tp_basicsize */
@@ -55,7 +55,7 @@ PyTypeObject DapChainTxSigObject_DapChainTxSigTypeObjectType = {
 PyObject *wrapping_dap_chain_tx_sig_get_sign(PyObject *self, void *closure){
     (void)closure;
     PyDapSignObject *obj_sign = PyObject_New(PyDapSignObject, &DapCryptoSignObjectType);
-    PyObject_Dir((PyObject*)obj_sign);
+//    PyObject_Dir((PyObject*)obj_sign);
     obj_sign->sign = (dap_sign_t*)((PyDapChainTXSigObject*)self)->tx_sig->sig;
     return (PyObject*)obj_sign;
 }

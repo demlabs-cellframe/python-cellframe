@@ -126,7 +126,6 @@ static PyModuleDef CellframeConsensusPythonModule = {
 BOOL WINAPI consoleHandler(DWORD dwType){
     if (dwType == CTRL_C_EVENT){
         log_it(L_NOTICE, "Execution terminated. Ctrl+C is pressed");
-        dap_server_loop_stop();
         deinit_modules();
     }
     return TRUE;
@@ -243,6 +242,23 @@ PyObject *python_cellframe_init(PyObject *self, PyObject *args)
     Py_RETURN_NONE;
 }
 
+static int dap_server_core_init(uint32_t l_thread_cnt, size_t conn_t)
+{
+    int result = dap_server_init();
+    if ( result != 0 ) {
+       log_it( L_CRITICAL, "Can't initialize \"socket server\" module" );
+    }
+    dap_events_init(l_thread_cnt, conn_t);
+    return result;
+}
+
+static void dap_server_core_deinit(void)
+{
+    dap_server_deinit();
+    dap_events_deinit();
+}
+
+
 PyObject *python_dap_init(PyObject *self, PyObject *args)
 {
     const char *app_name;
@@ -257,7 +273,7 @@ PyObject *python_dap_init(PyObject *self, PyObject *args)
     PyObject *events = NULL;
 
     #ifdef _WIN32
-        setConsoleCtrlHandler((PHANDLER_ROUTINE)consoleHandler, TRUE);
+        SetConsoleCtrlHandler((PHANDLER_ROUTINE)consoleHandler, TRUE);
     #else
         signal(SIGINT, sigfunc);
     #endif
@@ -449,7 +465,7 @@ PyObject *python_dap_init(PyObject *self, PyObject *args)
             PyObject* getStreamData = PyDict_GetItemString(result, "Stream");
             if (getStreamData == NULL){
                 PyErr_SetString(CellFrame_error, "Failed to initialize \"Stream\" module."
-                                "Can't find \"ServerCore\" object in JSON string");
+                                "Can't find \"Stream\" object in JSON string");
                 return NULL;
             }
             PyObject *debugDumpStreamHeadersObj = PyDict_GetItemString(getStreamData, "DebugDumpStreamHeaders");
@@ -508,7 +524,7 @@ PyMODINIT_FUNC PyInit_libDAP()
         PyType_Ready( &DapCryptoSignObjectType ) < 0 ||
         PyType_Ready( &DapChainHashFastObjectType ) < 0 ||
         // === Network ==
-        PyType_Ready( &DapServerCoreObjectType ) < 0 ||
+        PyType_Ready( &DapServerObjectType ) < 0 ||
         PyType_Ready( &DapEventsObjectType ) < 0 ||
         PyType_Ready( &DapEventsSocketObjectType ) < 0 ||
         PyType_Ready( &DapHttpCodeObjectType ) < 0 ||
@@ -541,7 +557,8 @@ PyMODINIT_FUNC PyInit_libDAP()
     PyModule_AddObject(cryptoModule, "HashFast", (PyObject*)&DapChainHashFastObjectType);
 
     PyObject *netModule = PyModule_Create(&DapNetPythonModule);
-    PyModule_AddObject(netModule, "ServerCore", (PyObject*)&DapServerCoreObjectType);
+    PyModule_AddObject(netModule, "ServerCore", (PyObject*)&DapServerObjectType);   /// alias, deprecated
+    PyModule_AddObject(netModule, "Server", (PyObject*)&DapServerObjectType);
     PyModule_AddObject(netModule, "Events", (PyObject*)&DapEventsObjectType);
     PyModule_AddObject(netModule, "EventsSocket", (PyObject*)&DapEventsSocketObjectType);
     PyModule_AddObject(netModule, "Http", (PyObject*)&DapHttpObjectType);
@@ -615,7 +632,9 @@ PyMODINIT_FUNC PyInit_libCellFrame(void)
         PyType_Ready( &DapChainTxOutCondSubTypeSrvXchangeObjectType ) < 0 ||
         PyType_Ready( &DapChainTxInObjectType ) < 0 ||
         PyType_Ready( &DapChainTxInCondObjectType ) < 0 ||
+        PyType_Ready( &DapChainTxSigObjectType ) < 0 ||
         PyType_Ready( &DapChainTxOutObjectType ) < 0 ||
+        PyType_Ready( &DapChainTxTokenObjectType ) < 0 ||
         PyType_Ready( &DapChainTxPkeyObjectType ) < 0 ||
         PyType_Ready( &DapChainTxReceiptObjectType ) < 0 ||
         PyType_Ready( &DapChainTxOutExtObjectType ) < 0 ||
@@ -684,6 +703,8 @@ PyMODINIT_FUNC PyInit_libCellFrame(void)
     PyModule_AddObject(commonModule, "TxInCond", (PyObject*)&DapChainTxInCondObjectType);
     PyModule_AddObject(commonModule, "TxOut", (PyObject*)&DapChainTxOutObjectType);
     PyModule_AddObject(commonModule, "TxPkey", (PyObject*)&DapChainTxPkeyObjectType);
+    PyModule_AddObject(commonModule, "TxSig", (PyObject*)&DapChainTxSigObjectType);
+    PyModule_AddObject(commonModule, "TxToken", (PyObject*)&DapChainTxTokenObjectType);
     PyModule_AddObject(commonModule, "TxReceipt", (PyObject*)&DapChainTxReceiptObjectType);
     PyModule_AddObject(commonModule, "TxOutExt", (PyObject*)&DapChainTxOutExtObjectType);
 

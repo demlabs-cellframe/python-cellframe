@@ -63,6 +63,7 @@ PyMethodDef DapChainDatumMethods[] = {
 };
 
 PyGetSetDef  DapChainDatumGetSet[] = {
+        {"hash", (getter)wrapping_dap_chain_datum_get_hash_py, NULL, NULL, NULL},
         {"versionStr", (getter)wrapping_dap_chain_datum_get_version_str_py, NULL, NULL, NULL},
         {"tsCreated", (getter)dap_chain_datum_get_ts_created_py, NULL, NULL, NULL},
         {"raw", (getter)wrapping_dap_chain_datum_get_raw_py, NULL, NULL, NULL},
@@ -75,7 +76,7 @@ PyTypeObject DapChainDatumObjectType = {
         "CellFrame.Chain.Datum",          /* tp_name */
         sizeof(PyDapChainDatumObject),   /* tp_basicsize */
         0,                               /* tp_itemsize */
-        0,                               /* tp_dealloc */
+        (destructor)PyDapChainDatumObject_dealloc,  /* tp_dealloc */
         0,                               /* tp_print */
         0,                               /* tp_getattr */
         0,                               /* tp_setattr */
@@ -112,6 +113,13 @@ PyTypeObject DapChainDatumObjectType = {
         PyDapChainDatumObject_new,       /* tp_new */
 };
 
+void PyDapChainDatumObject_dealloc(PyDapChainDatumObject* self) {
+    if (self->origin) {
+        DAP_DELETE(self->datum);
+    }
+    Py_TYPE(self)->tp_free((PyObject*)self);
+}
+
 bool PyDapChainDatum_Check(PyDapChainDatumObject *self){
     return PyObject_TypeCheck(self, &DapChainDatumObjectType);
 }
@@ -132,6 +140,7 @@ PyObject *PyDapChainDatumObject_new(PyTypeObject *type_object, PyObject *args, P
         size_t l_bytes_size = PyBytes_Size(obj_arg_second);
         PyDapChainDatumObject *obj = (PyDapChainDatumObject*)PyType_GenericNew(type_object, args, kwds);
         obj->datum = dap_chain_datum_create(type_id, l_bytes, l_bytes_size);
+        obj->origin = true;
         return (PyObject *)obj;
     } else {
         if (!PyBytes_Check(obj_arg_first)){
@@ -142,7 +151,9 @@ PyObject *PyDapChainDatumObject_new(PyTypeObject *type_object, PyObject *args, P
         void *l_bytes = (void*)PyBytes_AsString(obj_arg_first);
         size_t l_bytes_size = PyBytes_Size(obj_arg_first);
         PyDapChainDatumObject *obj = (PyDapChainDatumObject*)PyType_GenericNew(type_object, args, kwds);
-        obj->datum = (dap_chain_datum_t*)l_bytes;
+        obj->datum = DAP_NEW_Z_SIZE(dap_chain_datum_t, l_bytes_size);
+        memcpy(obj->datum, l_bytes, l_bytes_size);
+        obj->origin = true;
         return (PyObject *)obj;
     }
 }
@@ -164,18 +175,18 @@ PyObject *dap_chain_datum_get_ts_created_py(PyObject *self, void* closure){
 PyObject *dap_chain_datum_is_type_tx(PyObject *self, PyObject *args){
     (void)args;
     if (((PyDapChainDatumObject*)self)->datum->header.type_id == DAP_CHAIN_DATUM_TX){
-        return Py_BuildValue("O", Py_True);
+        Py_RETURN_TRUE;
     } else {
-        return Py_BuildValue("O", Py_False);
+        Py_RETURN_FALSE;
     }
 }
 
 PyObject *dap_chain_datum_is_type_token(PyObject *self, PyObject *args){
     (void)args;
     if (((PyDapChainDatumObject*)self)->datum->header.type_id == DAP_CHAIN_DATUM_TOKEN_DECL ){
-        return Py_BuildValue("O", Py_True);
+        Py_RETURN_TRUE;
     } else {
-        return Py_BuildValue("O", Py_False);
+        Py_RETURN_FALSE;
     }
 }
 
@@ -198,9 +209,9 @@ PyObject *wrapping_dap_chain_datum_get_datum_token(PyObject *self, PyObject *arg
 PyObject *dap_chain_datum_is_type_emission(PyObject *self, PyObject *args){
     (void)args;
     if (((PyDapChainDatumObject*)self)->datum->header.type_id == DAP_CHAIN_DATUM_TOKEN_EMISSION){
-        return Py_BuildValue("O", Py_True);
+        Py_RETURN_TRUE;
     }else{
-        return Py_BuildValue("O", Py_False);
+        Py_RETURN_FALSE;
     }
 }
 
@@ -259,6 +270,17 @@ PyObject *dap_chain_datum_get_type_str_py(PyObject *self, PyObject *args){
 PyObject *dap_chain_datum_get_type_id_py(PyObject *self, PyObject *args){
     (void)args;
     return Py_BuildValue("H", ((PyDapChainDatumObject*)self)->datum->header.type_id);
+}
+
+PyObject *wrapping_dap_chain_datum_get_hash_py(PyObject *self, void* closure){
+    (void)closure;
+    PyDapHashFastObject *obj_hf = PyObject_New(PyDapHashFastObject,  &DapChainHashFastObjectType);
+    obj_hf->hash_fast = DAP_NEW(dap_hash_fast_t);
+    dap_hash_fast(
+            ((PyDapChainDatumObject*)self)->datum,
+            dap_chain_datum_size(((PyDapChainDatumObject*)self)->datum),
+            obj_hf->hash_fast);
+    return (PyObject*)obj_hf;
 }
 
 PyObject *wrapping_dap_chain_datum_get_version_str_py(PyObject *self, void* closure){

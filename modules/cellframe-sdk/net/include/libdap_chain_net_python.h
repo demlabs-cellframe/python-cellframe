@@ -63,6 +63,7 @@ PyObject *dap_chain_net_sync_all_py(PyObject *self, PyObject *args);
 PyObject *dap_chain_net_proc_datapool_py(PyObject *self, PyObject *args);
 
 PyObject *dap_chain_net_by_name_py(PyObject *self, PyObject *args);
+PyObject *dap_chain_get_nets_py(PyObject *self, PyObject *args);
 PyObject *dap_chain_net_by_id_py(PyObject *self, PyObject *args);
 PyObject *dap_chain_net_id_by_name_py(PyObject *self, PyObject *args);
 PyObject *dap_chain_ledger_by_net_name_py(PyObject *self, PyObject *args);
@@ -80,6 +81,7 @@ PyObject *dap_chain_net_get_chain_by_chain_type_py(PyObject *self, PyObject *arg
 PyObject *dap_chain_net_get_ledger_py(PyObject *self, PyObject *args);
 PyObject *dap_chain_net_get_name_py(PyObject *self, PyObject *args);
 PyObject *dap_chain_net_python_get_id(PyObject *self, void *closure);
+PyObject *dap_chain_net_python_get_chains(PyObject *self, void *closure);
 PyObject *dap_chain_net_get_tx_by_hash_py(PyObject *self, PyObject *args);
 PyObject *dap_chain_net_add_notify_py(PyObject *self, PyObject *args);
 

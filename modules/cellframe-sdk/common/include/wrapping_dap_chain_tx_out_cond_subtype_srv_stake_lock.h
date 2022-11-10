@@ -30,6 +30,7 @@ along with any DAP based project.  If not, see <http://www.gnu.org/licenses/>.
 
 typedef struct PyDapChainTxOutCondSubTypeSrvStakeLock{
     PyObject_HEAD
+    dap_chain_tx_out_cond_t *out_cond;
 }PyDapChainTxOutCondSubTypeSrvStakeLock_Object;
 
 extern PyTypeObject DapChainTxOutCondSubTypeSrvStakeLockObjectType;

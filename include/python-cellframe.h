@@ -3,7 +3,6 @@
 #include "libdap-python.h"
 #include "math_python.h"
 #include "libdap-crypto-python.h"
-#include "libdap-server-core-python.h"
 #include "libdap_crypto_key_type_python.h"
 #include "libdap_crypto_data_type.h"
 #include "wrapping_dap_sign.h"
@@ -54,7 +53,7 @@
 #include "wrapping_dap_chain_cs_block.h"
 // ============
 
-
+#include "dap_events_python.h"
 #include "wrapping_http.h"
 #include "wrapping_dap_enc_http.h"
 #include "wrapping_dap_stream.h"
@@ -92,19 +91,16 @@
 #include "dap_server.h"
 #include "wrapping_json_rpc_request.h"
 #include "wrapping_json_rpc_response.h"
+#ifdef DAP_SUPPORT_PYTHON_PLUGINS
+    #include "../modules/plugins/include/dap_plugins_python_app_context.h"
+#endif
 #ifdef _WIN32
 #include "Windows.h"
-
 BOOL WINAPI consoleHandler(DWORD);
 #else
 #include "signal.h"
 #include "wrapping_http_status_code.h"
 #include "wrapping_dap_http_simple.h"
-#ifdef DAP_SUPPORT_PYTHON_PLUGINS
-    #include "../modules/plugins/include/dap_plugins_python_app_context.h"
-#endif
-
-
 void sigfunc(int sig);
 #endif
 

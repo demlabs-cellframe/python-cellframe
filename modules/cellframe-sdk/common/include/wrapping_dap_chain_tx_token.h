@@ -44,7 +44,7 @@ PyObject *wrapping_dap_chain_tx_token_get_ticker(PyObject *self, void *closure);
 PyObject *wrapping_dap_chain_tx_token_get_token_emission_hash(PyObject *self, void *closure);
 PyObject *wrapping_dap_chain_tx_token_get_token_emission_chain_id(PyObject *self, void *closure);
 
-extern PyTypeObject DapChainTxToken_DapChainTxTokenType;
+extern PyTypeObject DapChainTxTokenObjectType;
 
 #ifdef __cplusplus
 }

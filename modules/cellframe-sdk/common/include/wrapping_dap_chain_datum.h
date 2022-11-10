@@ -48,11 +48,12 @@ extern PyTypeObject DapChainDatumTypeIdObjectType;
 typedef struct PyDapChainDatum{
     PyObject_HEAD
     dap_chain_datum_t *datum;
+    bool origin;
 }PyDapChainDatumObject;
 
 bool PyDapChainDatum_Check(PyDapChainDatumObject *self);
 
-//void PyDapChainDatumObject_dealloc(PyDapChainDatumObject* object);
+void PyDapChainDatumObject_dealloc(PyDapChainDatumObject* self);
 PyObject *PyDapChainDatumObject_new(PyTypeObject *type_object, PyObject *args, PyObject *kwds);
 PyObject *dap_chain_datum_size_py(PyObject *self, PyObject *args);
 PyObject *dap_chain_datum_get_ts_created_py(PyObject *self, void* closure);
@@ -65,6 +66,7 @@ PyObject *wrapping_dap_chain_datum_get_datum_token_emission(PyObject *self, PyOb
 PyObject *dap_chain_datum_is_type_custom(PyObject *self, PyObject *args);
 PyObject *dap_chain_datum_get_type_str_py(PyObject *self, PyObject *args);
 PyObject *dap_chain_datum_get_type_id_py(PyObject *self, PyObject *args);
+PyObject *wrapping_dap_chain_datum_get_hash_py(PyObject *self, void* closure);
 PyObject *wrapping_dap_chain_datum_get_version_str_py(PyObject *self, void* closure);
 PyObject *wrapping_dap_chain_datum_get_raw_py(PyObject *self, void* closure);
 PyObject *wrapping_dap_chain_datum_get_raw_data_py(PyObject *self, void* closure);
