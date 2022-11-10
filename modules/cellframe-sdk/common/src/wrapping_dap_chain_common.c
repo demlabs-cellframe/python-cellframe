@@ -147,7 +147,7 @@ PyObject *dap_chain_addr_fill_from_key_py(PyObject *self, PyObject *args){
     PyDapChainAddrObject *obj_addr = PyObject_New(PyDapChainAddrObject, &DapChainAddrObjectType);
     obj_addr->addr = DAP_NEW(dap_chain_addr_t);
     dap_chain_addr_fill_from_key(obj_addr->addr, ((PyCryptoKeyObject*)key)->key, (((PyDapChainNetIdObject*)net_id)->net_id));
-    return (PyObject*)obj_addr
+    return (PyObject*)obj_addr;
 }
 
 PyObject *dap_chain_addr_check_sum_py(PyObject *self, PyObject *args){
