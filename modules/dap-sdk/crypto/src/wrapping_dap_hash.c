@@ -100,7 +100,7 @@ int PyDapHashFast_init(PyObject *self, PyObject *args, PyObject *kwds){
         l_data = ((PyDapChainDatumTokenEmissionObject*)obj_data)->token_emission;
         l_data_size = ((PyDapChainDatumTokenEmissionObject*)obj_data)->token_size;
     }
-    if (PyDapChainDatum_Check(obj_data)){
+    if (PyDapChainDatum_Check((PyDapChainDatumObject *)obj_data)) {
         l_data = ((PyDapChainDatumObject*)obj_data)->datum;
         l_data_size = dap_chain_datum_size(((PyDapChainDatumObject*)obj_data)->datum);
     }
