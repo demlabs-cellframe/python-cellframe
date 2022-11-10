@@ -179,10 +179,10 @@ PyObject *dap_chain_python_atom_get_datums(PyObject *self, PyObject *args){
 
     PyObject *list_datums = PyList_New(datums_count);
     for (size_t i=0; i < datums_count; i++){
-        PyObject *l_obj_datum_py = _PyObject_New(&DapChainDatumObjectType);
-        l_obj_datum_py = PyObject_Init(l_obj_datum_py, &DapChainDatumObjectType);
-        ((PyDapChainDatumObject*)l_obj_datum_py)->datum = l_datums[i];
-        PyList_SetItem(list_datums, i, l_obj_datum_py);
+        PyDapChainDatumObject *l_obj_datum_py = PyObject_New(PyDapChainDatumObject, &DapChainDatumObjectType);
+        l_obj_datum_py->datum = l_datums[i];
+        l_obj_datum_py->origin = false;
+        PyList_SetItem(list_datums, i, (PyObject*)l_obj_datum_py);
     }
     return list_datums;
 }
