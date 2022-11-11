@@ -54,6 +54,10 @@ PyObject *dap_chain_python_get_atoms(PyObject *self, PyObject *args);
 PyObject *dap_chain_python_get_count_tx(PyObject *self, PyObject *args);
 PyObject *dap_chain_python_get_txs(PyObject *self, PyObject *args);
 
+PyObject *dap_chain_python_get_cs_name(PyObject *self, PyObject *args);
+
+PyObject *PyDapChain_str(PyObject *self);
+
 extern PyTypeObject DapChainObjectType;
 
 DAP_STATIC_INLINE bool PyDapChain_Check(PyDapChainObject* self){
