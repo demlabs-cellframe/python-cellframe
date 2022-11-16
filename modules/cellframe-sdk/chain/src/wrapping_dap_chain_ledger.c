@@ -135,9 +135,17 @@ PyObject *dap_chain_ledger_token_emission_find_py(PyObject *self, PyObject *args
     if (!PyArg_ParseTuple(args, "s|O", &token_ticker, &h_fast))
         return NULL;
     PyObject *token_emission = _PyObject_New(&DapChainDatumTokenEmissionObjectType);
+
     ((PyDapChainDatumTokenEmissionObject*)token_emission)->token_emission = dap_chain_ledger_token_emission_find(
                 ((PyDapChainLedgerObject*)self)->ledger, token_ticker, ((PyDapHashFastObject*)h_fast)->hash_fast);
-    return Py_BuildValue("O", &token_emission);
+    if (((PyDapChainDatumTokenEmissionObject*)token_emission)->token_emission)
+    {
+        ((PyDapChainDatumTokenEmissionObject*)token_emission)->token_size = dap_chain_datum_emission_get_size((uint8_t*) ((PyDapChainDatumTokenEmissionObject*)token_emission)->token_emission);
+    
+        return token_emission;
+    }
+    else
+        Py_RETURN_NONE;
 }
 PyObject *dap_chain_ledger_tx_get_token_ticker_by_hash_py(PyObject *self, PyObject *args){
     PyObject *obj_hash;
