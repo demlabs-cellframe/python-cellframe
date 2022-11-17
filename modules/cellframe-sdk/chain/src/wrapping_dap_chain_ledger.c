@@ -1,4 +1,5 @@
 #include "wrapping_dap_chain_ledger.h"
+#include "python-cellframe_common.h"
 
 static PyMethodDef DapChainLedgerMethods[] = {
         {"setLocalCellId", (PyCFunction)dap_chain_ledger_set_local_cell_id_py, METH_VARARGS, ""},
@@ -24,6 +25,7 @@ static PyMethodDef DapChainLedgerMethods[] = {
         {"txCacheFindOutCond", (PyCFunction)dap_chain_ledger_tx_cache_find_out_cond_py, METH_VARARGS, ""},
         {"txCacheGetOutCondValue", (PyCFunction)dap_chain_ledger_tx_cache_get_out_cond_value_py, METH_VARARGS, ""},
         {"getTransactions", (PyCFunction) dap_chain_ledger_get_txs_py, METH_VARARGS, ""},
+        {"txAddNotify", (PyCFunction)dap_chain_ledger_tx_add_notify_py, METH_VARARGS, ""},
         {}
 };
 
@@ -363,3 +365,50 @@ PyObject *dap_chain_ledger_get_txs_py(PyObject *self, PyObject *args){
     return obj_list;
 }
 
+typedef struct pvt_ledger_notify{
+    PyObject *func;
+    PyObject *argv;
+}pvt_ledger_notify_t;
+
+#define LOG_TAG "wrapping_dap_chain_ledger"
+static void pvt_wrapping_dap_chain_ledger_tx_add_notify(void *a_arg, dap_ledger_t *a_ledger,
+                                                        dap_chain_datum_tx_t *a_tx){
+    if (!a_arg)
+        return;
+    pvt_ledger_notify_t *notifier = (pvt_ledger_notify_t*)a_arg;
+    PyGILState_STATE state = PyGILState_Ensure();
+    PyDapChainLedgerObject *obj_ledger = PyObject_NEW(PyDapChainLedgerObject, &DapChainLedgerObjectType);
+    PyDapChainDatumTxObject *obj_tx = PyObject_NEW(PyDapChainDatumTxObject, &DapChainDatumTxObjectType);
+    obj_ledger->ledger = a_ledger;
+    obj_tx->datum_tx = a_tx;
+    PyObject *notify_arg = !notifier->argv ? Py_None : notifier->argv;
+    PyObject *argv = Py_BuildValue("OOO", (PyObject*)obj_ledger, (PyObject*)obj_tx, notify_arg);
+    log_it(L_DEBUG, "Call tx added ledger notifier for net %s", a_ledger->net_name);
+    PyObject* result = PyEval_CallObject(notifier->func, argv);
+    if (!result){
+        python_error_in_log_it(LOG_TAG);
+    }
+    Py_XDECREF(result);
+    Py_XDECREF(argv);
+    PyGILState_Release(state);
+}
+#undef LOG_TAG
+
+PyObject *dap_chain_ledger_tx_add_notify_py(PyObject *self, PyObject *args) {
+    PyObject *obj_func, *obj_argv = NULL;
+    if (!PyArg_ParseTuple(args, "O|O", &obj_func, &obj_argv)) {
+        return NULL;
+    }
+    if (!PyCallable_Check(obj_func)) {
+        PyErr_SetString(PyExc_AttributeError, "This function, as the first argument, must take the"
+                                              " function called by the callback.");
+        return NULL;
+    }
+    pvt_ledger_notify_t *notifier = DAP_NEW(pvt_ledger_notify_t);
+    notifier->func = obj_func;
+    notifier->argv = obj_argv;
+    Py_INCREF(obj_func);
+    Py_XINCREF(obj_argv);
+    dap_chain_ledger_tx_add_notify(((PyDapChainLedgerObject*)self)->ledger, pvt_wrapping_dap_chain_ledger_tx_add_notify, notifier);
+    Py_RETURN_NONE;
+}
