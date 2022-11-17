@@ -89,16 +89,28 @@ PyObject *dap_chain_ledger_token_emission_load_py(PyObject *self, PyObject *args
     int res = dap_chain_ledger_token_emission_load(((PyDapChainLedgerObject*)self)->ledger, (byte_t *)((PyDapChainDatumTokenEmissionObject*)token_emission)->token_emission, token_emissiom_size);
     return PyLong_FromLong(res);
 }
+
 PyObject *dap_chain_ledger_token_emission_find_py(PyObject *self, PyObject *args){
     PyObject *h_fast;
     const char *token_ticker;
+
     if (!PyArg_ParseTuple(args, "s|O", &token_ticker, &h_fast))
         return NULL;
-    PyObject *token_emission = _PyObject_New(&DapChainDatumTokenEmissionObjectType);
-    ((PyDapChainDatumTokenEmissionObject*)token_emission)->token_emission = dap_chain_ledger_token_emission_find(
+    
+    PyDapChainDatumTokenEmissionObject *token_emission = _PyObject_New(&DapChainDatumTokenEmissionObjectType);
+
+    token_emission->token_emission = dap_chain_ledger_token_emission_find(
                 ((PyDapChainLedgerObject*)self)->ledger, token_ticker, ((PyDapHashFastObject*)h_fast)->hash_fast);
-    return Py_BuildValue("O", &token_emission);
+    if (token_emission->token_emission)
+    {
+        token_emission->token_size = dap_chain_datum_emission_get_size((uint8_t*) token_emission->token_emission);
+    
+        return (PyObject *)token_emission;
+    }
+    else
+        Py_RETURN_NONE;
 }
+
 PyObject *dap_chain_ledger_tx_get_token_ticker_by_hash_py(PyObject *self, PyObject *args){
     PyObject *obj_hash;
     if (!PyArg_ParseTuple(args, "O", &obj_hash)){
