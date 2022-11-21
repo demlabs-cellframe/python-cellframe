@@ -132,17 +132,19 @@ PyObject *dap_chain_ledger_token_emission_load_py(PyObject *self, PyObject *args
 PyObject *dap_chain_ledger_token_emission_find_py(PyObject *self, PyObject *args){
     PyObject *h_fast;
     const char *token_ticker;
+
     if (!PyArg_ParseTuple(args, "s|O", &token_ticker, &h_fast))
         return NULL;
-    PyObject *token_emission = _PyObject_New(&DapChainDatumTokenEmissionObjectType);
-
-    ((PyDapChainDatumTokenEmissionObject*)token_emission)->token_emission = dap_chain_ledger_token_emission_find(
-                ((PyDapChainLedgerObject*)self)->ledger, token_ticker, ((PyDapHashFastObject*)h_fast)->hash_fast);
-    if (((PyDapChainDatumTokenEmissionObject*)token_emission)->token_emission)
-    {
-        ((PyDapChainDatumTokenEmissionObject*)token_emission)->token_size = dap_chain_datum_emission_get_size((uint8_t*) ((PyDapChainDatumTokenEmissionObject*)token_emission)->token_emission);
     
-        return token_emission;
+    PyDapChainDatumTokenEmissionObject *token_emission = _PyObject_New(&DapChainDatumTokenEmissionObjectType);
+
+    token_emission->token_emission = dap_chain_ledger_token_emission_find(
+                ((PyDapChainLedgerObject*)self)->ledger, token_ticker, ((PyDapHashFastObject*)h_fast)->hash_fast);
+    if (token_emission->token_emission)
+    {
+        token_emission->token_size = dap_chain_datum_emission_get_size((uint8_t*) token_emission->token_emission);
+    
+        return (PyObject *)token_emission;
     }
     else
         Py_RETURN_NONE;
