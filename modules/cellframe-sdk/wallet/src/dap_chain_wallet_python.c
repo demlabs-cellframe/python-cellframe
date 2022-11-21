@@ -62,7 +62,8 @@ PyObject *dap_chain_wallet_create_with_seed_py(PyObject *self, PyObject *argv){
                 path_wallets,
                 *((PyDapSignTypeObject*)obj_sig_type)->sign_type,
                 seed,
-                seed_size);
+                seed_size,
+                NULL);
     return Py_BuildValue("O", obj_wallet);
 }
 PyObject *dap_chain_wallet_create_py(PyTypeObject *type, PyObject *argv, PyObject *kwds){
@@ -75,7 +76,7 @@ PyObject *dap_chain_wallet_create_py(PyTypeObject *type, PyObject *argv, PyObjec
         return NULL;
     self = (PyDapChainWalletObject*)type->tp_alloc(type, 0);
     if (self != NULL){
-        self->wallet = dap_chain_wallet_create(wallet_name, path_wallets, *((PyDapSignTypeObject*)obj_sign_type)->sign_type);
+        self->wallet = dap_chain_wallet_create(wallet_name, path_wallets, *((PyDapSignTypeObject*)obj_sign_type)->sign_type, NULL);
         if (self->wallet == NULL){
             Py_XDECREF(self);
             return NULL;
@@ -90,7 +91,7 @@ PyObject *dap_chain_wallet_open_file_py(PyObject *self, PyObject *argv){
         return NULL;
     PyObject *obj_wallet = _PyObject_New(&DapChainWalletObjectType);
     PyObject_Dir(obj_wallet);
-    ((PyDapChainWalletObject*)obj_wallet)->wallet = dap_chain_wallet_open_file(file_path);
+    ((PyDapChainWalletObject*)obj_wallet)->wallet = dap_chain_wallet_open_file(file_path, NULL);
     return Py_BuildValue("O", obj_wallet);
 }
 PyObject *dap_chain_wallet_open_py(PyObject *self, PyObject *argv){
@@ -106,7 +107,7 @@ PyObject *dap_chain_wallet_open_py(PyObject *self, PyObject *argv){
 }
 PyObject *dap_chain_wallet_save_py(PyObject *self, PyObject *argv){
     (void)argv;
-    int result = dap_chain_wallet_save(((PyDapChainWalletObject*)self)->wallet);
+    int result = dap_chain_wallet_save(((PyDapChainWalletObject*)self)->wallet, NULL);
     return PyLong_FromLong(result);
 }
 

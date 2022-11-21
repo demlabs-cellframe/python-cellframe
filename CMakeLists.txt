@@ -117,7 +117,7 @@ target_compile_options(dap_chain_wallet PRIVATE "-fpic" )
 #target_compile_options(dap_chain_mempool PRIVATE "-fpic" )
 target_compile_options(dap_chain_net PRIVATE "-fpic" )
 target_compile_options(dap_io PRIVATE "-fpic" )
-target_compile_options(dap_chain_global_db PRIVATE "-fpic" )
+target_compile_options(dap_global_db PRIVATE "-fpic" )
 target_compile_options(dap_client PRIVATE "-fpic" )
 #target_compile_options(libdap-server PRIVATE "-fpic" )
 target_compile_options(dap_stream PRIVATE "-fpic" )
@@ -150,7 +150,7 @@ target_compile_options(dap_chain_wallet PRIVATE "-fpic" )
 #target_compile_options(dap_chain_mempool PRIVATE "-fpic" )
 target_compile_options(dap_chain_net PRIVATE "-fpic" )
 target_compile_options(dap_io PRIVATE "-fpic" )
-target_compile_options(dap_chain_global_db PRIVATE "-fpic" )
+target_compile_options(dap_global_db PRIVATE "-fpic" )
 target_compile_options(dap_client PRIVATE "-fpic" )
 #target_compile_options(libdap-server PRIVATE "-fpic" )
 target_compile_options(dap_stream PRIVATE "-fpic" )
@@ -193,7 +193,7 @@ target_link_libraries(${PROJECT_NAME} cellframe-sdk dap_python_module
                       dap_server_json_rpc_python_module
                       dap_chain_cs_dag_poa_python_module
                       dap_chain_cs_blocks_python_module
-                      dap_chain_global_db_python_module
+                      dap_global_db_python_module
                       ${PYTHON_LIBRARIES}
                      )
 

@@ -75,10 +75,10 @@ if (NOT (${SUBMODULES_NO_BUILD} MATCHES ON))
     #         "-fpic"
     #    )
     #endif()
-    #if (NOT (TARGET dap_chain_global_db))
+    #if (NOT (TARGET dap_global_db))
     #    add_subdirectory(libdap-chain-global-db)
     #    target_compile_options(
-    #         dap_chain_global_db PRIVATE
+    #         dap_global_db PRIVATE
     #         "-fpic"
     #    )
     #endif()

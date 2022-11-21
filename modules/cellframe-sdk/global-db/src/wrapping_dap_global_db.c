@@ -1,15 +1,15 @@
 #include "dap_global_db_sync.h"
 #include "libdap-python.h"
-#include "wrapping_dap_chain_global_db.h"
+#include "wrapping_dap_global_db.h"
 
 static PyMethodDef DapChainGlobalDBMethods[] = {
-        {"get", (PyCFunction)wrapping_dap_chain_global_db_gr_get, METH_VARARGS | METH_STATIC, ""},
-        {"set", (PyCFunction)wrapping_dap_chain_global_db_gr_set, METH_VARARGS | METH_STATIC, ""},
-        {"delete", (PyCFunction)wrapping_dap_chain_global_db_gr_del, METH_VARARGS | METH_STATIC, ""},
-        {"pin", (PyCFunction)wrapping_dap_chain_global_db_gr_pin, METH_VARARGS | METH_STATIC, ""},
-        {"unpin", (PyCFunction)wrapping_dap_chain_global_db_gr_unpin, METH_VARARGS | METH_STATIC, ""},
-        {"grLoad", (PyCFunction)wrapping_dap_chain_global_db_gr_load, METH_VARARGS | METH_STATIC, ""},
-        {"addSyncExtraGroup", (PyCFunction)wrapping_dap_chain_global_db_add_sync_extra_group, METH_VARARGS | METH_STATIC, ""},
+        {"get", (PyCFunction)wrapping_dap_global_db_gr_get, METH_VARARGS | METH_STATIC, ""},
+        {"set", (PyCFunction)wrapping_dap_global_db_gr_set, METH_VARARGS | METH_STATIC, ""},
+        {"delete", (PyCFunction)wrapping_dap_global_db_gr_del, METH_VARARGS | METH_STATIC, ""},
+        {"pin", (PyCFunction)wrapping_dap_global_db_gr_pin, METH_VARARGS | METH_STATIC, ""},
+        {"unpin", (PyCFunction)wrapping_dap_global_db_gr_unpin, METH_VARARGS | METH_STATIC, ""},
+        {"grLoad", (PyCFunction)wrapping_dap_global_db_gr_load, METH_VARARGS | METH_STATIC, ""},
+        {"addSyncExtraGroup", (PyCFunction)wrapping_dap_global_db_add_sync_extra_group, METH_VARARGS | METH_STATIC, ""},
         {NULL, NULL, 0, NULL}
 };
 
@@ -18,7 +18,7 @@ PyTypeObject DapChainGlobalDBObjectType = DAP_PY_TYPE_OBJECT(
         "Chain GlobalDB object",
         .tp_methods = DapChainGlobalDBMethods);
 
-PyObject *wrapping_dap_chain_global_db_gr_get(PyObject *self, PyObject *args){
+PyObject *wrapping_dap_global_db_gr_get(PyObject *self, PyObject *args){
     (void)self;
     const char *l_key;
     const char *l_group;
@@ -34,12 +34,12 @@ PyObject *wrapping_dap_chain_global_db_gr_get(PyObject *self, PyObject *args){
 }
 
 /**
- * @brief wrapping_dap_chain_global_db_gr_set
+ * @brief wrapping_dap_global_db_gr_set
  * @param self
  * @param args
  * @return
  */
-PyObject *wrapping_dap_chain_global_db_gr_set(PyObject *self, PyObject *args){
+PyObject *wrapping_dap_global_db_gr_set(PyObject *self, PyObject *args){
     (void)self;
     char *l_key;
     char *l_group;
@@ -64,12 +64,12 @@ PyObject *wrapping_dap_chain_global_db_gr_set(PyObject *self, PyObject *args){
 }
 
 /**
- * @brief wrapping_dap_chain_global_db_gr_del
+ * @brief wrapping_dap_global_db_gr_del
  * @param self
  * @param args
  * @return
  */
-PyObject *wrapping_dap_chain_global_db_gr_del(PyObject *self, PyObject *args){
+PyObject *wrapping_dap_global_db_gr_del(PyObject *self, PyObject *args){
     (void)self;
     const char *l_key;
     const char *l_group;
@@ -83,7 +83,7 @@ PyObject *wrapping_dap_chain_global_db_gr_del(PyObject *self, PyObject *args){
         Py_RETURN_FALSE;
 }
 
-PyObject *wrapping_dap_chain_global_db_gr_pin(PyObject *self, PyObject *args){
+PyObject *wrapping_dap_global_db_gr_pin(PyObject *self, PyObject *args){
     (void)self;
     char *l_key;
     char *l_group;
@@ -99,7 +99,7 @@ PyObject *wrapping_dap_chain_global_db_gr_pin(PyObject *self, PyObject *args){
         Py_RETURN_FALSE;
 }
 
-PyObject *wrapping_dap_chain_global_db_gr_unpin(PyObject *self, PyObject *args){
+PyObject *wrapping_dap_global_db_gr_unpin(PyObject *self, PyObject *args){
     (void)self;
     char *l_key;
     char *l_group;
@@ -116,7 +116,7 @@ PyObject *wrapping_dap_chain_global_db_gr_unpin(PyObject *self, PyObject *args){
 }
 
 
-PyObject *wrapping_dap_chain_global_db_gr_load(PyObject *self, PyObject *args){
+PyObject *wrapping_dap_global_db_gr_load(PyObject *self, PyObject *args){
     (void)self;
     char *l_group;
     if (!PyArg_ParseTuple(args, "s", &l_group)){
@@ -137,16 +137,16 @@ PyObject *wrapping_dap_chain_global_db_gr_load(PyObject *self, PyObject *args){
     return l_list;
 }
 
-typedef struct _wrapping_dap_chain_global_db_add_sync_extra_group_callback{
+typedef struct _wrapping_dap_global_db_add_sync_extra_group_callback{
     PyObject *func;
     PyObject *arg;
-}_wrapping_dap_chain_global_db_add_sync_extra_group_callback_t;
+}_wrapping_dap_global_db_add_sync_extra_group_callback_t;
 
-void pvt_wrapping_dap_chain_global_db_add_sync_extra_group_func_callback(void * a_arg, const char a_op_code, const char * a_group,
+void pvt_wrapping_dap_global_db_add_sync_extra_group_func_callback(void * a_arg, const char a_op_code, const char * a_group,
                                                                          const char * a_key, const void * a_value, const size_t a_value_len){
     if (!a_arg)
         return;
-    _wrapping_dap_chain_global_db_add_sync_extra_group_callback_t *l_callback = (_wrapping_dap_chain_global_db_add_sync_extra_group_callback_t *)a_arg;
+    _wrapping_dap_global_db_add_sync_extra_group_callback_t *l_callback = (_wrapping_dap_global_db_add_sync_extra_group_callback_t *)a_arg;
     PyObject *l_obj_value = NULL;
     char l_op_code[2];
     l_op_code[0] = a_op_code;
@@ -163,7 +163,7 @@ void pvt_wrapping_dap_chain_global_db_add_sync_extra_group_func_callback(void * 
     PyGILState_Release(state);
 }
 
-PyObject *wrapping_dap_chain_global_db_add_sync_extra_group(PyObject *self, PyObject *args){
+PyObject *wrapping_dap_global_db_add_sync_extra_group(PyObject *self, PyObject *args){
     (void)self;
     char *net_name;
     char *group_mask;
@@ -176,11 +176,11 @@ PyObject *wrapping_dap_chain_global_db_add_sync_extra_group(PyObject *self, PyOb
         PyErr_SetString(PyExc_AttributeError, "Argument must be callable");
         return NULL;
     }
-    _wrapping_dap_chain_global_db_add_sync_extra_group_callback_t *l_callback = DAP_NEW(_wrapping_dap_chain_global_db_add_sync_extra_group_callback_t);
+    _wrapping_dap_global_db_add_sync_extra_group_callback_t *l_callback = DAP_NEW(_wrapping_dap_global_db_add_sync_extra_group_callback_t);
     l_callback->func = call_func;
     l_callback->arg = args_func;
     Py_INCREF(call_func);
     Py_INCREF(args_func);
-    dap_chain_global_db_add_sync_extra_group(net_name, group_mask, pvt_wrapping_dap_chain_global_db_add_sync_extra_group_func_callback, l_callback);
+    dap_global_db_add_sync_extra_group(net_name, group_mask, pvt_wrapping_dap_global_db_add_sync_extra_group_func_callback, l_callback);
     Py_RETURN_NONE;
 }

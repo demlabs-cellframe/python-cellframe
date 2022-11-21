@@ -67,10 +67,10 @@ if (NOT (${SUBMODULES_NO_BUILD} MATCHES ON))
             "-fpic"  
        )
    endif()
-   if (NOT (TARGET dap_chain_global_db))
+   if (NOT (TARGET dap_global_db))
        add_subdirectory(libdap-chain-global-db)
        target_compile_options(
-            dap_chain_global_db PRIVATE
+            dap_global_db PRIVATE
             "-fpic"  
        )
    endif()
@@ -205,7 +205,7 @@ add_library(${PROJECT_NAME} STATIC ${CHAIN_GDB_PYTHON_SRCS} ${CHAIN_GDB_PYTHON_H
 
 target_link_libraries(${PROJECT_NAME})
 
-target_link_libraries(${PROJECT_NAME} dap_chain_cs_none dap_core dap_chain dap_chain_global_db dap_chain_mempool dap_chain_net dap_chain_python_module)
+target_link_libraries(${PROJECT_NAME} dap_chain_cs_none dap_core dap_chain dap_global_db dap_chain_mempool dap_chain_net dap_chain_python_module)
 
 target_include_directories(${PROJECT_NAME} PUBLIC include/ )
 

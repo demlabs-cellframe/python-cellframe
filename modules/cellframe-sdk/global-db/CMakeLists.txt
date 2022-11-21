@@ -1,4 +1,4 @@
-project(dap_chain_global_db_python_module C)
+project(dap_global_db_python_module C)
 cmake_minimum_required(VERSION 3.0)
 
 set(CMAKE_VERBOSE_MAKEFILE ON)
@@ -63,10 +63,10 @@ if(NOT (${SUBMODULES_NO_BUILD} MATCHES ON))
             "-fpic"
        )
    endif()
-   if (NOT (TARGET dap_chain_global_db))
+   if (NOT (TARGET dap_global_db))
        add_subdirectory(libdap-chain-global-db)
        target_compile_options(
-            dap_chain_global_db PRIVATE
+            dap_global_db PRIVATE
             "-fpic"
        )
    endif()
@@ -199,10 +199,10 @@ target_include_directories(${PROJECT_NAME} PUBLIC include/ )
 #)
 
 
-target_link_libraries(${PROJECT_NAME} dap_core dap_crypto dap_chain dap_chain_crypto dap_io dap_chain_net dap_chain_global_db dap_chain_common_python_module)
-#target_link_libraries(${PROJECT_NAME} dap_core dap_crypto dap_chain dap_chain_global_db dap_chain_crypto dap_chain_mempool
+target_link_libraries(${PROJECT_NAME} dap_core dap_crypto dap_chain dap_chain_crypto dap_io dap_chain_net dap_global_db dap_chain_common_python_module)
+#target_link_libraries(${PROJECT_NAME} dap_core dap_crypto dap_chain dap_global_db dap_chain_crypto dap_chain_mempool
 #                         
-#                     ) #dap_chain_crypto dap_chain_mempool dap_chain_global_db )
+#                     ) #dap_chain_crypto dap_chain_mempool dap_global_db )
 #target_link_libraries(${PROJECT_NAME} dap_core dap_crypto)
 
 target_include_directories(${PROJECT_NAME} PUBLIC include/ )
