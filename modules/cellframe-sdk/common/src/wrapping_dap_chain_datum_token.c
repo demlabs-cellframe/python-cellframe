@@ -47,9 +47,7 @@ PyObject *wrapping_dap_chain_datum_token_get_type_str(PyObject *self, void *clos
 PyObject *wrapping_dap_chain_datum_token_get_data(PyObject *self, void *closure){
     (void)closure;
     dap_chain_datum_token_t  *l_token = ((PyDapChainDatumTokenObject*)self)->token;
-//    ((PyDapChainDatumTokenObject*)self)->token
     PyObject *obj_dict = PyDict_New();
-    PyObject *obj_dict_header_private = NULL;
     PyObject *obj = Py_None;
     switch(l_token->type){
         case DAP_CHAIN_DATUM_TOKEN_TYPE_OLD_SIMPLE:
