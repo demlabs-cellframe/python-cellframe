@@ -1,5 +1,6 @@
 #include "libdap-chain-python.h"
 #include "dap_chain_pvt.h"
+#include "python-cellframe_common.h"
 
 #define LOG_TAG "libdap-chain-python"
 
@@ -277,7 +278,11 @@ static void _wrapping_dap_chain_atom_notify_handler(void * a_arg, dap_chain_t *a
     }
 
     log_it(L_DEBUG, "Call atom notifier for chain %s with atom size %zd", a_chain->name, a_atom_size );
-    PyEval_CallObject(l_callback->func, l_args);
+    PyObject *result = PyEval_CallObject(l_callback->func, l_args);
+    if (!result) {
+        python_error_in_log_it(LOG_TAG);
+    }
+    Py_XDECREF(result);
     Py_DECREF(l_args);
     PyGILState_Release(state);
 }
