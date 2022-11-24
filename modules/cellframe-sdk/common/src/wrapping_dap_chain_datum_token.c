@@ -350,8 +350,10 @@ PyObject *wrapping_dap_chain_datum_token_emission_get_sign_count(PyObject *self,
 PyObject *wrapping_dap_chain_datum_token_emission_get_signs(PyObject *self, void *closure) {
     (void)closure;
     dap_chain_datum_token_emission_t *l_emi = ((PyDapChainDatumTokenEmissionObject*)self)->token_emission;
-    if (l_emi->hdr.type != DAP_CHAIN_DATUM_TOKEN_EMISSION_TYPE_AUTH)
+    if (l_emi->hdr.type != DAP_CHAIN_DATUM_TOKEN_EMISSION_TYPE_AUTH) {
+        PyErr_SetString(PyExc_AttributeError, "Wrong datum type");
         return NULL;
+     }
     if (!l_emi->data.type_auth.signs_count || l_emi->data.type_auth.size <= l_emi->data.type_auth.tsd_total_size) {
         PyErr_SetString(PyExc_AttributeError, "No signes found");
         return NULL;
@@ -365,7 +367,6 @@ PyObject *wrapping_dap_chain_datum_token_emission_get_signs(PyObject *self, void
             break;
         }
         obj_sign = PyObject_New(PyDapSignObject, &DapCryptoSignObjectType);
-        PyObject_Dir((PyObject*)obj_sign);
         obj_sign->sign = DAP_NEW_Z_SIZE(dap_sign_t, l_sign_size);
         memcpy(obj_sign->sign, l_sign, l_sign_size);
         if (PyList_Append(obj_list, (PyObject*)obj_sign) == -1) {
