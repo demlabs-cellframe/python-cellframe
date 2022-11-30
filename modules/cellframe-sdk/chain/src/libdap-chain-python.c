@@ -226,24 +226,24 @@ typedef struct _wrapping_chain_mempool_notify_callback{
     PyObject *arg;
 }_wrapping_chain_mempool_notify_callback_t;
 
-static void _wrapping_dap_chain_mempool_notify_handler(void * a_arg, const char a_op_code, const char * a_group,
-                                                const char * a_key, const void * a_value, const size_t a_value_len){
-    if (!a_arg){
+static void _wrapping_dap_chain_mempool_notify_handler(dap_global_db_context_t *a_context, dap_store_obj_t *a_obj, void *a_arg)
+{
+    UNUSED(a_context);
+    if (!a_arg)
         return;
-    }
     _wrapping_chain_mempool_notify_callback_t *l_callback = (_wrapping_chain_mempool_notify_callback_t*)a_arg;
     char l_op_code[2];
-    l_op_code[0] = a_op_code;
+    l_op_code[0] = a_obj->type;
     l_op_code[1] = '\0';
     PyObject *l_args;
     PyGILState_STATE state = PyGILState_Ensure();
-    if (a_op_code == DAP_DB$K_OPTYPE_ADD) {
-        PyObject *l_value = PyBytes_FromStringAndSize(a_value, (Py_ssize_t)a_value_len);
-        l_args = Py_BuildValue("sssOO", l_op_code, a_group, a_key, l_value, l_callback->arg);
+    if (a_obj->type == DAP_DB$K_OPTYPE_ADD) {
+        PyObject *l_value = PyBytes_FromStringAndSize((char *)a_obj->value, (Py_ssize_t)a_obj->value_len);
+        l_args = Py_BuildValue("sssOO", l_op_code, a_obj->group, a_obj->key, l_value, l_callback->arg);
         Py_DECREF(l_value);
     } else
-        l_args = Py_BuildValue("sssOO", l_op_code, a_group, a_key, Py_None, l_callback->arg);
-    log_it(L_DEBUG, "Call mempool notifier with key '%s'", a_key ? a_key : "null");
+        l_args = Py_BuildValue("sssOO", l_op_code, a_obj->group, a_obj->key, Py_None, l_callback->arg);
+    log_it(L_DEBUG, "Call mempool notifier with key '%s'", a_obj->key ? a_obj->key : "null");
     PyEval_CallObject(l_callback->func, l_args);
     Py_DECREF(l_args);
     PyGILState_Release(state);

@@ -274,22 +274,22 @@ typedef struct _wrapping_dap_chain_net_notify_callback{
     PyObject *func;
 }_wrapping_dap_chain_net_notify_callback_t;
 
-void pvt_dap_chain_net_py_notify_handler(void * a_arg, const char a_op_code, const char * a_group,
-                                         const char * a_key, const void * a_value, const size_t a_value_len){
+void pvt_dap_chain_net_py_notify_handler(dap_global_db_context_t *a_context, dap_store_obj_t *a_obj, void *a_arg)
+{
+    UNUSED(a_context);
     if (!a_arg)
         return;
     _wrapping_dap_chain_net_notify_callback_t *l_callback = (_wrapping_dap_chain_net_notify_callback_t *)a_arg;
     PyObject *l_obj_value = NULL;
     char l_op_code[2];
-    l_op_code[0] = a_op_code;
+    l_op_code[0] = a_obj->type;
     l_op_code[1] = '\0';
     PyGILState_STATE state = PyGILState_Ensure();
-    if (a_value == NULL || a_value_len == 0){
+    if (!a_obj->value || !a_obj->value_len)
         l_obj_value = Py_None;
-    } else {
-        l_obj_value = PyBytes_FromStringAndSize(a_value, (Py_ssize_t)a_value_len);
-    }
-    PyObject *argv = Py_BuildValue("sssOO", l_op_code, a_group, a_key, l_obj_value, l_callback->arg);
+    else
+        l_obj_value = PyBytes_FromStringAndSize((char *)a_obj->value, (Py_ssize_t)a_obj->value_len);
+    PyObject *argv = Py_BuildValue("sssOO", l_op_code, a_obj->group, a_obj->key, l_obj_value, l_callback->arg);
     PyEval_CallObject(l_callback->func, argv);
     Py_DECREF(argv);
     PyGILState_Release(state);
