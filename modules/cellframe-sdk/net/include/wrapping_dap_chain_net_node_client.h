@@ -24,7 +24,7 @@ PyObject *dap_chain_node_client_connect_py(PyObject *self, PyObject *args);
 PyObject *dap_chain_node_client_close_py(PyObject *self, PyObject *args);
 PyObject *dap_chain_node_client_send_ch_pkt_py(PyObject *self, PyObject *args);
 PyObject *dap_chain_node_client_wait_py(PyObject *self, PyObject *args);
-PyObject *dap_chain_node_client_set_callbacks_py(PyObject *self, PyObject *args);
+PyObject *dap_chain_node_client_set_notify_callbacks_py(PyObject *self, PyObject *args);
 
 extern PyTypeObject DapChainNodeClientObjectType;
 

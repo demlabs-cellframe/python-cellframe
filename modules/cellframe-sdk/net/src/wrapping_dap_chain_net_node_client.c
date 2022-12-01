@@ -13,7 +13,7 @@ static PyMethodDef DapChainNodeClientMethods[] = {
         {"close", (PyCFunction)dap_chain_node_client_close_py, METH_VARARGS, ""},
         {"sendChPkt", (PyCFunction)dap_chain_node_client_send_ch_pkt_py, METH_VARARGS, ""},
         {"wait", (PyCFunction)dap_chain_node_client_wait_py, METH_VARARGS, ""},
-        {"setCallbacks", (PyCFunction)dap_chain_node_client_set_callbacks_py, METH_VARARGS | METH_STATIC, ""},
+        //{"setCallbacks", (PyCFunction)dap_chain_node_client_set_notify_callbacks_py, METH_VARARGS | METH_STATIC, ""},
         {NULL, NULL, 0, NULL}
 };
 
@@ -45,7 +45,7 @@ PyObject *dap_chain_node_client_connect_py(PyObject *self, PyObject *args){
     if (!PyArg_ParseTuple(args, "O|O",&obj_net, &obj_node_info))
         return NULL;
     PyObject *obj_node_client = _PyObject_New(&DapChainNodeClientObjectType);
-    ((PyDapChainNodeClientObject*)obj_node_client)->node_client = dap_chain_node_client_connect(
+    ((PyDapChainNodeClientObject*)obj_node_client)->node_client = dap_chain_node_client_connect_default_channels(
                 ((PyDapChainNetObject*) obj_net)->chain_net,
                 ((PyDapChainNodeInfoObject*)obj_node_info)->node_info);
     return Py_BuildValue("O", obj_node_client);
@@ -75,11 +75,12 @@ PyObject *dap_chain_node_client_wait_py(PyObject *self, PyObject *args){
     int res = dap_chain_node_client_wait(((PyDapChainNodeClientObject*)self)->node_client, waited_state, timeout_ms);
     return PyLong_FromLong(res);
 }
-PyObject *dap_chain_node_client_set_callbacks_py(PyObject *self, PyObject *args){
+
+/*PyObject *dap_chain_node_client_set_notify_callbacks_py(PyObject *self, PyObject *args){
     PyObject *obj_dap_client;
     uint8_t ch_id;
     if (!PyArg_ParseTuple(args, "O|b", &obj_dap_client, &ch_id))
         return NULL;
-    int res = dap_chain_node_client_set_callbacks(((PyDapClientObject*)obj_dap_client)->client, ch_id);
+    int res = dap_chain_node_client_set_notify_callbacks(((PyDapClientObject*)obj_dap_client)->client, ch_id);
     return PyLong_FromLong(res);
-}
+}*/
