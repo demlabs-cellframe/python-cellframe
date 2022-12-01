@@ -65,4 +65,5 @@ PyObject *wrapping_dap_chain_tx_get_tsd_type(PyObject *self, void *closure) {
     int l_type;
     size_t l_size;
     dap_chain_datum_tx_item_get_data(l_item, &l_type, &l_size);
+    return Py_BuildValue("i", l_type);
 }
