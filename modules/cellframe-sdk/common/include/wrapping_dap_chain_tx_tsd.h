@@ -13,7 +13,8 @@ typedef struct PyDapChainTxTSD{
     dap_chain_tx_tsd_t *tsd;
 } PyDapChainTxTSDObject;
 
-PyObject *wrapping_dap_chain_tx_get_tsd(PyObject *self, void *closure);
+PyObject *wrapping_dap_chain_tx_get_tsd_data(PyObject *self, void *closure);
+PyObject *wrapping_dap_chain_tx_get_tsd_type(PyObject *self, void *closure);
 
 extern PyTypeObject DapChainTxTSDObjectType;
 

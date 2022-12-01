@@ -1,7 +1,8 @@
 #include "wrapping_dap_chain_tx_tsd.h"
 
 PyGetSetDef PyDapChainTxTSDGetsSetsDef[] = {
-    {"txGetTSD", (getter)wrapping_dap_chain_tx_get_tsd, NULL, NULL, NULL},
+    {"data", (getter)wrapping_dap_chain_tx_get_tsd_data, NULL, NULL, NULL},
+    {"type", (getter)wrapping_dap_chain_tx_get_tsd_type, NULL, NULL, NULL},
     {NULL}
 };
 
@@ -47,7 +48,7 @@ PyTypeObject DapChainTxTSDObjectType = {
         PyType_GenericNew,                       /* tp_new */
 };
 
-PyObject *wrapping_dap_chain_tx_get_tsd(PyObject *self, void *closure) {
+PyObject *wrapping_dap_chain_tx_get_tsd_data(PyObject *self, void *closure) {
     (void)closure;
     dap_chain_tx_tsd_t *l_item = ((PyDapChainTxTSDObject*)self)->tsd;
     int l_type;
@@ -56,4 +57,12 @@ PyObject *wrapping_dap_chain_tx_get_tsd(PyObject *self, void *closure) {
     if (!l_data || !l_type || !l_size)
         Py_RETURN_NONE;
     return PyBytes_FromStringAndSize((char*)l_data, l_size);
+}
+
+PyObject *wrapping_dap_chain_tx_get_tsd_type(PyObject *self, void *closure) {
+    (void)closure;
+    dap_chain_tx_tsd_t *l_item = ((PyDapChainTxTSDObject*)self)->tsd;
+    int l_type;
+    size_t l_size;
+    dap_chain_datum_tx_item_get_data(l_item, &l_type, &l_size);
 }
