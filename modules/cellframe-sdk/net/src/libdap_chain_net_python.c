@@ -12,6 +12,7 @@ PyMethodDef DapChainNetMethods[] = {
         {"syncAll", dap_chain_net_sync_all_py, METH_VARARGS, ""},
         {"procDatapool", dap_chain_net_proc_datapool_py, METH_VARARGS, ""},
         {"byName", dap_chain_net_by_name_py, METH_VARARGS | METH_STATIC, ""},
+        {"getNets", dap_chain_get_nets_py, METH_NOARGS | METH_STATIC, ""},
         {"byId", dap_chain_net_by_id_py, METH_VARARGS | METH_STATIC, ""},
         {"idByName", dap_chain_net_id_by_name_py, METH_VARARGS | METH_STATIC, ""},
         {"ledgerByNetName", dap_chain_ledger_by_net_name_py, METH_VARARGS | METH_STATIC, ""},
@@ -31,6 +32,7 @@ PyMethodDef DapChainNetMethods[] = {
 
 PyGetSetDef DapChainNetGetsSetsDef[] = {
         {"id", (getter)dap_chain_net_python_get_id, NULL, NULL, NULL},
+        {"chains", (getter)dap_chain_net_python_get_chains, NULL, NULL, NULL},
         {NULL}
 };
 
@@ -147,6 +149,19 @@ PyObject *dap_chain_net_by_name_py(PyObject *self, PyObject *args){
     }
     return Py_BuildValue("O", obj_chain_net);
 }
+PyObject *dap_chain_get_nets_py(PyObject *self, PyObject *args){
+    (void)self;
+    (void)args;
+    uint16_t l_net_count = 0;
+    dap_chain_net_t **l_nets = dap_chain_net_list(&l_net_count);
+    PyObject *obj_nets = PyList_New(l_net_count);
+    for (uint16_t i = 0; i < l_net_count; i++) {
+        PyDapChainNetObject *l_obj_net = PyObject_New(PyDapChainNetObject, &DapChainNetObjectType);
+        l_obj_net->chain_net = l_nets[i];
+        PyList_SetItem(obj_nets, i, (PyObject*)l_obj_net);
+    }
+    return obj_nets;
+}
 PyObject *dap_chain_net_by_id_py(PyObject *self, PyObject *args){
     PyObject *obj_net_id;
     if (!PyArg_ParseTuple(args, "O", &obj_net_id))
@@ -195,6 +210,18 @@ PyObject *dap_chain_net_python_get_id(PyObject *self, void *closure){
     PyObject_Dir((PyObject*)obj_net_id);
     obj_net_id->net_id = ((PyDapChainNetObject*)self)->chain_net->pub.id;
     return (PyObject*)obj_net_id;
+}
+
+PyObject *dap_chain_net_python_get_chains(PyObject *self, void *closure){
+    (void)closure;
+    dap_chain_t *l_chain = NULL;
+    PyObject *obj_list = PyList_New(0);
+    DL_FOREACH(((PyDapChainNetObject*)self)->chain_net->pub.chains, l_chain) {
+        PyDapChainObject *obj_chain = PyObject_New(PyDapChainObject, &DapChainObjectType);
+        obj_chain->chain_t = l_chain;
+        PyList_Append(obj_list, (PyObject*)obj_chain);
+    }
+    return obj_list;
 }
 
 PyObject *dap_chain_net_get_cur_addr_py(PyObject *self, PyObject *args){
