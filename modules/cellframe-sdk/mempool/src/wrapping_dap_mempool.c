@@ -44,7 +44,7 @@ PyObject *wrapping_dap_mempool_emission_place(PyObject *self, PyObject *args){
     dap_chain_datum_t *l_datum = dap_chain_datum_create(
             DAP_CHAIN_DATUM_TOKEN_EMISSION,
             obj_emission->token_emission, l_emission_size);
-    char *l_str = dap_chain_mempool_datum_add(l_datum, obj_chain->chain_t);
+    char *l_str = dap_chain_mempool_datum_add(l_datum, obj_chain->chain_t, "hex");
     if (l_str == NULL){
         Py_RETURN_NONE;
     }
@@ -219,16 +219,17 @@ PyObject *dap_chain_mempool_base_tx_create_py(PyObject *self, PyObject *args){
         PyCryptoCertObject *l_ptr = (PyCryptoCertObject*)PyList_GetItem(obj_certs, (Py_ssize_t)i);
         l_certs[i] = l_ptr->cert;
     }
-    dap_chain_hash_fast_t *l_tx_hash = dap_chain_mempool_base_tx_create(
+    char *l_tx_hash_str = dap_chain_mempool_base_tx_create(
             obj_chain->chain_t, obj_emi_hash->hash_fast,
             obj_emi_chain->chain_t->id, obj_emission_value->value, l_ticker,
-            obj_addr_to->addr, l_certs, l_certs_count);
+            obj_addr_to->addr, l_certs, l_certs_count, "hex");
     DAP_FREE(l_certs);
-    if (l_tx_hash == NULL) {
+    if (l_tx_hash_str == NULL)
         Py_RETURN_NONE;
-    }
     PyDapHashFastObject *l_obj_hf = PyObject_New(PyDapHashFastObject, &DapChainHashFastObjectType);
-    l_obj_hf->hash_fast = l_tx_hash;
+    l_obj_hf->hash_fast = DAP_NEW(dap_hash_fast_t);
+    dap_chain_hash_fast_from_str(l_tx_hash_str, l_obj_hf->hash_fast);
+    DAP_DELETE(l_tx_hash_str);
     return (PyObject*)l_obj_hf;
 }
 
@@ -251,18 +252,17 @@ PyObject *dap_chain_mempool_tx_create_py(PyObject *self, PyObject *args){
     dap_chain_addr_t *l_addr_to = ((PyDapChainAddrObject*)obj_addr_to)->addr;
     uint256_t l_value_256 = dap_chain_balance_scan(l_value);
     uint256_t l_value_fee_256 = dap_chain_balance_scan(l_value_fee);
-    dap_chain_hash_fast_t  *l_hash_tx = dap_chain_mempool_tx_create(l_chain, l_key_from,
-                                                                    l_addr_from, l_addr_to,
-                                                                    l_token_ticker,
-                                                                    l_value_256, l_value_fee_256);
-    if (l_hash_tx == NULL){
+    char *l_tx_hash_str = dap_chain_mempool_tx_create(l_chain, l_key_from,
+                                                    l_addr_from, l_addr_to,
+                                                    l_token_ticker,
+                                                    l_value_256, l_value_fee_256, "hex");
+    if (l_tx_hash_str == NULL)
         Py_RETURN_NONE;
-    } else {
-        PyDapHashFastObject *obj_hf = PyObject_New(PyDapHashFastObject, &DapChainHashFastObjectType);
-        PyObject_Dir((PyObject*)obj_hf);
-        obj_hf->hash_fast = l_hash_tx;
-        return (PyObject*)obj_hf;
-    }
+    PyDapHashFastObject *l_obj_hf = PyObject_New(PyDapHashFastObject, &DapChainHashFastObjectType);
+    l_obj_hf->hash_fast = DAP_NEW(dap_hash_fast_t);
+    dap_chain_hash_fast_from_str(l_tx_hash_str, l_obj_hf->hash_fast);
+    DAP_DELETE(l_tx_hash_str);
+    return (PyObject*)l_obj_hf;
 }
 
 PyObject *dap_chain_mempool_tx_create_cond_py(PyObject *self, PyObject *args){
@@ -292,7 +292,7 @@ PyObject *dap_chain_mempool_tx_create_cond_py(PyObject *self, PyObject *args){
     uint256_t l_value_256 = dap_chain_balance_scan(l_value);
     uint256_t l_value_per_unit_max_256 = dap_chain_balance_scan(l_value_per_unit_max);
     uint256_t l_fee_256  = dap_chain_balance_scan(l_fee);
-    dap_hash_fast_t *l_hf = dap_chain_mempool_tx_create_cond(
+    char *l_tx_hash_str = dap_chain_mempool_tx_create_cond(
             obj_net->chain_net,
             ((PyCryptoKeyObject*)obj_key_from)->key,
             ((PyDapPkeyObject *)obj_key_cond)->pkey,
@@ -303,15 +303,18 @@ PyObject *dap_chain_mempool_tx_create_cond_py(PyObject *self, PyObject *args){
             ((PyDapChainNetSrvUIDObject*)obj_srv_uid)->net_srv_uid,
             l_fee_256,
             l_bytes_cond,
-            l_bytes_cond_size
+            l_bytes_cond_size,
+            "hex"
     );
-    if (!l_hf){
+    if (!l_tx_hash_str)
         Py_RETURN_NONE;
-    }
     PyDapHashFastObject *l_obj_hf = PyObject_New(PyDapHashFastObject, &DapChainHashFastObjectType);
-    l_obj_hf->hash_fast = l_hf;
+    l_obj_hf->hash_fast = DAP_NEW(dap_hash_fast_t);
+    dap_chain_hash_fast_from_str(l_tx_hash_str, l_obj_hf->hash_fast);
+    DAP_DELETE(l_tx_hash_str);
     return (PyObject*)l_obj_hf;
 }
+
 PyObject *dap_chain_mempool_tx_create_cond_input_py(PyObject *self, PyObject *args){
     (void)self;
     PyDapChainNetObject *obj_net;
@@ -338,17 +341,19 @@ PyObject *dap_chain_mempool_tx_create_cond_input_py(PyObject *self, PyObject *ar
                                               "be an instance of an object of type DapSign.");
         return NULL;
     }
-    dap_chain_hash_fast_t *l_hf =dap_chain_mempool_tx_create_cond_input(
+    char *l_tx_hash_str = dap_chain_mempool_tx_create_cond_input(
             obj_net->chain_net,
             obj_tx_prev_hash->hash_fast,
             ((PyDapChainAddrObject *)obj_addr_to)->addr,
             ((PyCryptoKeyObject*)obj_key_tx_sign)->key,
-            ((PyDapChainTXReceiptObject*)obj_receipt)->tx_receipt);
-    if (!l_hf){
+            ((PyDapChainTXReceiptObject*)obj_receipt)->tx_receipt,
+            "hex");
+    if (!l_tx_hash_str)
         Py_RETURN_NONE;
-    }
     PyDapHashFastObject *l_obj_hf = PyObject_New(PyDapHashFastObject, &DapChainHashFastObjectType);
-    l_obj_hf->hash_fast = l_hf;
+    l_obj_hf->hash_fast = DAP_NEW(dap_hash_fast_t);
+    dap_chain_hash_fast_from_str(l_tx_hash_str, l_obj_hf->hash_fast);
+    DAP_DELETE(l_tx_hash_str);
     return (PyObject*)l_obj_hf;
 }
 
@@ -455,7 +460,7 @@ PyObject *dap_chain_mempool_add_datum_py(PyObject *self, PyObject *args){
                                               "The second argument must be instance of an object of type Datum.");
         return NULL;
     }
-    char *l_str = dap_chain_mempool_datum_add(obj_datum->datum, obj_chain->chain_t);
+    char *l_str = dap_chain_mempool_datum_add(obj_datum->datum, obj_chain->chain_t, "hex");
     if (!l_str)
         return Py_None;
     obj_datum->origin = false;

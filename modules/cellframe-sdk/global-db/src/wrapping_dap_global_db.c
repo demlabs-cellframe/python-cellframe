@@ -55,7 +55,7 @@ PyObject *wrapping_dap_global_db_gr_set(PyObject *self, PyObject *args){
     }
     void *l_bytes = PyBytes_AsString(obj_byte);
     size_t l_bytes_size = PyBytes_Size(obj_byte);
-    bool ret = dap_global_db_set_sync( l_group, l_key, l_bytes, l_bytes_size, l_is_pinned);
+    bool ret = dap_global_db_set_sync( l_group, l_key, l_bytes, l_bytes_size, l_is_pinned) == DAP_GLOBAL_DB_RC_SUCCESS;
     if (ret == true) {
         Py_RETURN_TRUE;
     } else {
