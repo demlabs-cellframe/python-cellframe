@@ -99,7 +99,8 @@ PyObject *dap_chain_ledger_token_emission_find_py(PyObject *self, PyObject *args
     if (!PyArg_ParseTuple(args, "s|O", &token_ticker, &h_fast))
         return NULL;
     
-    PyDapChainDatumTokenEmissionObject *token_emission = (PyDapChainDatumTokenEmissionObject *)_PyObject_New(&DapChainDatumTokenEmissionObjectType);
+    PyDapChainDatumTokenEmissionObject *token_emission = PyObject_New(PyDapChainDatumTokenEmissionObject,
+                                                                      &DapChainDatumTokenEmissionObjectType);
 
     token_emission->token_emission = dap_chain_ledger_token_emission_find(
                 ((PyDapChainLedgerObject*)self)->ledger, token_ticker, ((PyDapHashFastObject*)h_fast)->hash_fast);

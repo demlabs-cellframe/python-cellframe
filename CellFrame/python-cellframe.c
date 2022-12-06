@@ -584,6 +584,7 @@ PyMODINIT_FUNC PyInit_libCellFrame(void)
         PyType_Ready( &DapChainTxPkeyObjectType ) < 0 ||
         PyType_Ready( &DapChainTxReceiptObjectType ) < 0 ||
         PyType_Ready( &DapChainTxOutExtObjectType ) < 0 ||
+        PyType_Ready( &DapChainTxTSDObjectType ) < 0 ||
         // === Chain net ===
         /// Node
         PyType_Ready( &DapChainNodeObjectType ) < 0 ||
@@ -653,6 +654,7 @@ PyMODINIT_FUNC PyInit_libCellFrame(void)
     PyModule_AddObject(commonModule, "TxToken", (PyObject*)&DapChainTxTokenObjectType);
     PyModule_AddObject(commonModule, "TxReceipt", (PyObject*)&DapChainTxReceiptObjectType);
     PyModule_AddObject(commonModule, "TxOutExt", (PyObject*)&DapChainTxOutExtObjectType);
+    PyModule_AddObject(commonModule, "TxTSD", (PyObject*)&DapChainTxTSDObjectType);
 
     PyObject *netModule = PyModule_Create(&CellframeNetworkPythonModule);
     // === Chain node ===

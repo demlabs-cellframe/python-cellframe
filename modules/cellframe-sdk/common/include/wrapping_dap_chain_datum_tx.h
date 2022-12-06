@@ -48,6 +48,7 @@
 #include "wrapping_dap_chain_tx_receipt.h"
 #include "wrapping_dap_chain_tx_token.h"
 #include "wrapping_dap_chain_tx_token_ext.h"
+#include "wrapping_dap_chain_tx_tsd.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -66,6 +67,7 @@ PyObject *TX_ITEM_TYPE_TOKEN_PY(PyObject *self, PyObject *args);
 PyObject *TX_ITEM_TYPE_IN_COND_PY(PyObject *self, PyObject *args);
 PyObject *TX_ITEM_TYPE_OUT_COND_PY(PyObject *self, PyObject *args);
 PyObject *TX_ITEM_TYPE_RECEIPT_PY(PyObject *self, PyObject *args);
+PyObject *TX_ITEM_TYPE_TSD_PY(PyObject *self, PyObject *args);
 
 extern PyTypeObject DapChainTxItemTypeObjectType;
 
