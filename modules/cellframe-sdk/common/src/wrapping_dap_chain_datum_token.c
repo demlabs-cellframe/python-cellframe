@@ -6,6 +6,7 @@ static PyGetSetDef  PyDapChainDatumTokenGetsSetsDef[]={
         {"ticker", (getter)wrapping_dap_chain_datum_token_get_ticker, NULL, NULL, NULL},
         {"typeStr", (getter)wrapping_dap_chain_datum_token_get_type_str, NULL, NULL, NULL},
         {"data", (getter)wrapping_dap_chain_datum_token_get_data, NULL, NULL, NULL},
+        {"signs", (getter)wrapping_dap_chain_datum_token_emission_get_signs, NULL, NULL, NULL},
         {}
 };
 
@@ -267,6 +268,36 @@ PyObject *wrapping_dap_chain_datum_token_emission_get_sign_count(PyObject *self,
     if (l_emi->hdr.type == DAP_CHAIN_DATUM_TOKEN_EMISSION_TYPE_AUTH)
         l_sign_count = l_emi->data.type_auth.signs_count;
     return Py_BuildValue("H", l_sign_count);
+}
+
+PyObject *wrapping_dap_chain_datum_token_emission_get_signs(PyObject *self, void *closure) {
+    (void)closure;
+    dap_chain_datum_token_emission_t *l_emi = ((PyDapChainDatumTokenEmissionObject*)self)->token_emission;
+    if (l_emi->hdr.type != DAP_CHAIN_DATUM_TOKEN_EMISSION_TYPE_AUTH) {
+        PyErr_SetString(PyExc_AttributeError, "Wrong datum type");
+        return NULL;
+     }
+    if (!l_emi->data.type_auth.signs_count || l_emi->data.type_auth.size <= l_emi->data.type_auth.tsd_total_size) {
+        PyErr_SetString(PyExc_AttributeError, "No signes found");
+        return NULL;
+    }
+    dap_sign_t *l_sign = (dap_sign_t*)(l_emi->tsd_n_signs + l_emi->data.type_auth.tsd_total_size);
+    PyObject *obj_list = PyList_New(0);
+    PyDapSignObject *obj_sign = (PyDapSignObject*)Py_None;
+    size_t l_count, l_sign_size;
+    for (l_count = 0, l_sign_size = 0; l_count < l_emi->data.type_auth.signs_count && (l_sign_size = dap_sign_get_size(l_sign)); ++l_count) {
+        if (!dap_sign_verify_size(l_sign, l_sign_size)) {
+            break;
+        }
+        obj_sign = PyObject_New(PyDapSignObject, &DapCryptoSignObjectType);
+        obj_sign->sign = DAP_NEW_Z_SIZE(dap_sign_t, l_sign_size);
+        memcpy(obj_sign->sign, l_sign, l_sign_size);
+        if (PyList_Append(obj_list, (PyObject*)obj_sign) == -1) {
+            return NULL;
+        }
+        l_sign = (dap_sign_t *)((byte_t *)l_sign + l_sign_size);
+    }
+    return obj_list;
 }
 
 PyObject *wrapping_dap_chain_datum_emission_add_sign(PyObject *self, PyObject *args){
