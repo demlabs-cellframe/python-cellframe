@@ -70,7 +70,7 @@ PyObject *wrapping_dap_chain_cs_dag_event_from_atom(PyObject *self, PyObject *ar
         return NULL;
     }
     PyDapChainCsDagEventObject *obj_dag = PyObject_New(PyDapChainCsDagEventObject, &DapChainCsDagEventType);
-    obj_dag->event = ((PyChainAtomPtrObject*)obj_atom_ptr)->ptr;
+    obj_dag->event = (dap_chain_cs_dag_event_t *)((PyChainAtomPtrObject*)obj_atom_ptr)->ptr;
     obj_dag->event_size = l_atom_size;
     return (PyObject*)obj_dag;
 }
