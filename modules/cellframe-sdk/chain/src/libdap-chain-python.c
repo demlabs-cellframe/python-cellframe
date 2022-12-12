@@ -369,7 +369,7 @@ PyObject *dap_chain_python_atom_find_by_hash(PyObject *self, PyObject* args){
         return NULL;
     }
     size_t l_size_atom = 0;
-    dap_chain_atom_ptr_t *l_ptr = ((PyDapChainObject*)self)->chain_t->callback_atom_find_by_hash(
+    dap_chain_atom_ptr_t l_ptr = ((PyDapChainObject*)self)->chain_t->callback_atom_find_by_hash(
             ((PyChainAtomIterObject*)obj_iter)->atom_iter,
             obj_hf->hash_fast,
             &l_size_atom);
