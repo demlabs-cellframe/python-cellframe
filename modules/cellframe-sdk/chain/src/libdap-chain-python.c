@@ -204,7 +204,7 @@ PyObject *dap_chain_python_atom_get_datums(PyObject *self, PyObject *args){
     size_t datums_count = 0;
     dap_chain_datum_t **l_datums = ((PyDapChainObject*)self)->chain_t->callback_atom_get_datums(((PyChainAtomPtrObject*)obj_atom)->ptr, atom_size, &datums_count);
     PyObject *list_datums = PyList_New(datums_count);
-    for (int i=0; i < datums_count; i++){
+    for (size_t i=0; i < datums_count; i++){
         PyObject *obj_datum = _PyObject_New(&DapChainDatumObjectType);
         obj_datum = PyObject_Init(obj_datum, &DapChainDatumObjectType);
         ((PyDapChainDatumObject*)obj_datum)->datum = l_datums[i];

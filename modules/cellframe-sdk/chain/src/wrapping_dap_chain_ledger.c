@@ -184,7 +184,7 @@ PyObject *dap_chain_ledger_addr_get_token_ticker_all_fast_py(PyObject *self, PyO
     size_t ticker_size = 0;
     dap_chain_ledger_addr_get_token_ticker_all_fast(((PyDapChainLedgerObject*)self)->ledger, ((PyDapChainAddrObject*)obj_addr)->addr, &tickers, &ticker_size);
     PyObject *obj_list = PyList_New(ticker_size);
-    for (int i=0; i < ticker_size;i++){
+    for (size_t i=0; i < ticker_size;i++){
         PyObject *str = PyUnicode_FromString(tickers[i]);
         PyList_SetItem(obj_list, i, str);
     }
