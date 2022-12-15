@@ -3,15 +3,15 @@
 /* DAP chain tx iter type */
 
 PyMethodDef PyDapChainTxItemTypeObjectMethods[] ={
-        {"TX_ITEM_TYPE_IN", (PyCFunction)TX_ITEM_TYPE_IN_PY, METH_NOARGS | METH_STATIC, ""},
-        {"TX_ITEM_TYPE_OUT", (PyCFunction)TX_ITEM_TYPE_OUT_PY, METH_NOARGS | METH_STATIC, ""},
-        {"TX_ITEM_TYPE_PKEY", (PyCFunction)TX_ITEM_TYPE_PKEY_PY, METH_NOARGS | METH_STATIC, ""},
-        {"TX_ITEM_TYPE_SIG", (PyCFunction)TX_ITEM_TYPE_SIG_PY, METH_NOARGS | METH_STATIC, ""},
-        {"TX_ITEM_TYPE_TOKEN", (PyCFunction)TX_ITEM_TYPE_TOKEN_PY, METH_NOARGS | METH_STATIC, ""},
-        {"TX_ITEM_TYPE_IN_COND", (PyCFunction)TX_ITEM_TYPE_IN_COND_PY, METH_NOARGS | METH_STATIC, ""},
-        {"TX_ITEM_TYPE_OUT_COND", (PyCFunction)TX_ITEM_TYPE_OUT_COND_PY, METH_NOARGS | METH_STATIC, ""},
-        {"TX_ITEM_TYPE_RECEIPT", (PyCFunction)TX_ITEM_TYPE_RECEIPT_PY, METH_NOARGS | METH_STATIC, ""},
-        {"TX_ITEM_TYPE_TSD", (PyCFunction)TX_ITEM_TYPE_TSD_PY, METH_NOARGS | METH_STATIC, ""},
+        {"TX_ITEM_TYPE_IN", TX_ITEM_TYPE_IN_PY, METH_NOARGS | METH_STATIC, ""},
+        {"TX_ITEM_TYPE_OUT", TX_ITEM_TYPE_OUT_PY, METH_NOARGS | METH_STATIC, ""},
+        {"TX_ITEM_TYPE_PKEY", TX_ITEM_TYPE_PKEY_PY, METH_NOARGS | METH_STATIC, ""},
+        {"TX_ITEM_TYPE_SIG", TX_ITEM_TYPE_SIG_PY, METH_NOARGS | METH_STATIC, ""},
+        {"TX_ITEM_TYPE_TOKEN", TX_ITEM_TYPE_TOKEN_PY, METH_NOARGS | METH_STATIC, ""},
+        {"TX_ITEM_TYPE_IN_COND", TX_ITEM_TYPE_IN_COND_PY, METH_NOARGS | METH_STATIC, ""},
+        {"TX_ITEM_TYPE_OUT_COND", TX_ITEM_TYPE_OUT_COND_PY, METH_NOARGS | METH_STATIC, ""},
+        {"TX_ITEM_TYPE_RECEIPT", TX_ITEM_TYPE_RECEIPT_PY, METH_NOARGS | METH_STATIC, ""},
+        {"TX_ITEM_TYPE_TSD", TX_ITEM_TYPE_TSD_PY, METH_NOARGS | METH_STATIC, ""},
         {NULL, NULL, 0, NULL}
 };
 
@@ -57,31 +57,31 @@ PyTypeObject DapChainTxItemTypeObjectType = {
         PyType_GenericNew,                  /* tp_new */
 };
 
-PyObject *TX_ITEM_TYPE_IN_PY(void){
+PyObject *TX_ITEM_TYPE_IN_PY(PyObject *self, PyObject *args){
     return PyLong_FromLong(TX_ITEM_TYPE_IN);
 }
-PyObject *TX_ITEM_TYPE_OUT_PY(void){
+PyObject *TX_ITEM_TYPE_OUT_PY(PyObject *self, PyObject *args){
         return PyLong_FromLong(TX_ITEM_TYPE_OUT);
 }
-PyObject *TX_ITEM_TYPE_PKEY_PY(void){
+PyObject *TX_ITEM_TYPE_PKEY_PY(PyObject *self, PyObject *args){
         return PyLong_FromLong(TX_ITEM_TYPE_PKEY);
 }
-PyObject *TX_ITEM_TYPE_SIG_PY(void){
+PyObject *TX_ITEM_TYPE_SIG_PY(PyObject *self, PyObject *args){
         return PyLong_FromLong(TX_ITEM_TYPE_SIG);
 }
-PyObject *TX_ITEM_TYPE_TOKEN_PY(void){
+PyObject *TX_ITEM_TYPE_TOKEN_PY(PyObject *self, PyObject *args){
         return PyLong_FromLong(TX_ITEM_TYPE_TOKEN);
 }
-PyObject *TX_ITEM_TYPE_IN_COND_PY(void){
+PyObject *TX_ITEM_TYPE_IN_COND_PY(PyObject *self, PyObject *args){
         return PyLong_FromLong(TX_ITEM_TYPE_IN_COND);
 }
-PyObject *TX_ITEM_TYPE_OUT_COND_PY(void){
+PyObject *TX_ITEM_TYPE_OUT_COND_PY(PyObject *self, PyObject *args){
         return PyLong_FromLong(TX_ITEM_TYPE_OUT_COND);
 }
-PyObject *TX_ITEM_TYPE_RECEIPT_PY(void){
+PyObject *TX_ITEM_TYPE_RECEIPT_PY(PyObject *self, PyObject *args){
         return PyLong_FromLong(TX_ITEM_TYPE_RECEIPT);
 }
-PyObject *TX_ITEM_TYPE_TSD_PY(void){
+PyObject *TX_ITEM_TYPE_TSD_PY(PyObject *self, PyObject *args){
         return PyLong_FromLong(TX_ITEM_TYPE_TSD);
 }
 /* -------------------------------------- */

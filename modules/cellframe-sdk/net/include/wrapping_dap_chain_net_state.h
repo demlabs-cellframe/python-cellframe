@@ -12,14 +12,14 @@ typedef struct PyDapChainNetState{
     dap_chain_net_state_t state;
 }PyDapChainNetStateObject;
 
-PyObject *NET_STATE_OFFLINE_PY(void);
-PyObject *NET_STATE_LINKS_PREPARE_PY(void);
-PyObject *NET_STATE_LINKS_CONNECTING_PY(void);
-PyObject *NET_STATE_LINKS_ESTABLISHED_PY(void);
-PyObject *NET_STATE_ADDR_REQUEST_PY(void); // Waiting for address assign
-PyObject *NET_STATE_ONLINE_PY(void);
-PyObject *NET_STATE_SYNC_GDB_PY(void);
-PyObject *NET_STATE_SYNC_CHAINS_PY(void);
+PyObject *NET_STATE_OFFLINE_PY(PyObject *self, PyObject *args);
+PyObject *NET_STATE_LINKS_PREPARE_PY(PyObject *self, PyObject *args);
+PyObject *NET_STATE_LINKS_CONNECTING_PY(PyObject *self, PyObject *args);
+PyObject *NET_STATE_LINKS_ESTABLISHED_PY(PyObject *self, PyObject *args);
+PyObject *NET_STATE_ADDR_REQUEST_PY(PyObject *self, PyObject *args); // Waiting for address assign
+PyObject *NET_STATE_ONLINE_PY(PyObject *self, PyObject *args);
+PyObject *NET_STATE_SYNC_GDB_PY(PyObject *self, PyObject *args);
+PyObject *NET_STATE_SYNC_CHAINS_PY(PyObject *self, PyObject *args);
 
 extern PyTypeObject DapChainNetStateObjectType;
 

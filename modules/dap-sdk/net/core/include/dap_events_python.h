@@ -21,8 +21,8 @@ PyObject *dap_events_socket_remove_and_delete_py(PyDapEventsObject *self, PyObje
 
 PyObject *dap_events_socket_kill_socket_py(PyDapEventsObject *self, PyObject *args);
 
-PyObject *dap_events_start_py(PyDapEventsObject *self);
-PyObject *dap_events_wait_py(PyDapEventsObject *self);
+PyObject *dap_events_start_py(PyDapEventsObject *self, PyObject *args);
+PyObject *dap_events_wait_py(PyDapEventsObject *self, PyObject *args);
 
 extern PyTypeObject DapEventsObjectType;
 
