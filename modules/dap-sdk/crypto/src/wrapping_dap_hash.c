@@ -250,7 +250,7 @@ PyObject *dap_chain_hash_fast_to_str_new_py(PyObject *self, PyObject *args){
     return Py_BuildValue("s", res);
 }
 
-PyObject *wrapping_dap_hash_to_str(PyObject *self){
+PyObject *wrapping_dap_hash_to_str(PyObject *self, PyObject *args){
     char str[70];
     if (((PyDapHashFastObject*)self)->hash_fast == NULL){
         Py_BuildValue("s", "Hash is missing.");

@@ -56,7 +56,7 @@ PyTypeObject DapEventsSocketObjectType = {
         PyType_GenericNew,                                 /* tp_new */
 };
 
-PyObject *dap_events_socket_create_after_py(PyDapEventsSocketObject *self){
+PyObject *dap_events_socket_create_after_py(PyDapEventsSocketObject *self, PyObject *args){
     if (self->t_events_socket == NULL){
         return NULL;
     }
