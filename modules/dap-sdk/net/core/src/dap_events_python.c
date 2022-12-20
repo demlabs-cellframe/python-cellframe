@@ -83,11 +83,11 @@ PyObject *dap_events_socket_kill_socket_py(PyDapEventsObject *self, PyObject *ar
     return PyLong_FromLong(0);
 }
 
-PyObject *dap_events_start_py(PyDapEventsObject *self){
+PyObject *dap_events_start_py(PyDapEventsObject *self, PyObject *args){
     int32_t result = dap_events_start(self->t_events);
     return PyLong_FromLong(result);
 }
-PyObject *dap_events_wait_py(PyDapEventsObject *self){
+PyObject *dap_events_wait_py(PyDapEventsObject *self, PyObject *args){
     int32_t result = dap_events_wait(self->t_events);
     return PyLong_FromLong(result);
 }
