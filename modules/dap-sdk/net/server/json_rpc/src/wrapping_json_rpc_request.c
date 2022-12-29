@@ -109,7 +109,7 @@ void _w_dap_json_rpc_request_handler(dap_json_rpc_params_t *a_params, dap_json_r
         PyGILState_Release(GILState);
         log_it(L_WARNING, "Can't call method: %s. It isn't in the python function table", a_method);
         a_response->type_result = TYPE_RESPONSE_NULL;
-        a_response->error = dap_json_rpc_error_search_by_code(1);
+        a_response->error = dap_json_rpc_error_create(1, "Can't find JSON request handler");
     }
     Py_XDECREF(args);
 }
