@@ -265,27 +265,21 @@ int dap_chain_plugins_reload_plugin(const char * a_name_plugin){
     LL_DELETE(l_plugins, l_plugin);
     dap_chain_plugins_manifest_list_delete_name(a_name_plugin);
     //Loading plugin
-    char *l_path_plugin = dap_strjoin(NULL, s_plugins_root_path, a_name_plugin, NULL);
     char *l_name_file_manifest = dap_strjoin("",s_plugins_root_path, a_name_plugin, "/manifest.json", NULL);
     if (!dap_chain_plugins_manifest_list_add_from_file(l_name_file_manifest)){
-        log_it(L_ERROR, "Registration of  \"%s\" manifest is failed", l_path_plugin);
+        log_it(L_ERROR, "Registration of  \"%s\" manifest is failed", l_name_file_manifest);
         return -3;
     }
     DAP_FREE(l_name_file_manifest);
     dap_chain_plugins_list_manifest_t *l_manifest =  dap_chain_plugins_manifest_list_get_name(a_name_plugin);
-    if (l_manifest->dependencies != NULL){
-        if (!dap_chain_plugins_list_check_load_plugins(l_manifest->dependencies)){
-            log_it(L_NOTICE, "\"%s\" plugin has unresolved dependencies, restart all plugins", l_manifest->name);
-            return -2;
-        }else{
-            dap_chain_plugins_load_plugin(dap_strjoin("", s_plugins_root_path, l_manifest->name, "/", NULL), l_manifest->name);
-            return 0;
-        }
-    }else{
-        dap_chain_plugins_load_plugin(dap_strjoin("", s_plugins_root_path, l_manifest->name, "/", NULL), l_manifest->name);
-        return 0;
+    if (l_manifest->dependencies &&
+            !dap_chain_plugins_list_check_load_plugins(l_manifest->dependencies)){
+        log_it(L_NOTICE, "\"%s\" plugin has unresolved dependencies, restart all plugins", l_manifest->name);
+        return -2;
     }
-
-    return -1;
+    char *l_plugin_path = dap_strjoin("", s_plugins_root_path, l_manifest->name, "/", NULL);
+    dap_chain_plugins_load_plugin(l_plugin_path, l_manifest->name);
+    DAP_DELETE(l_plugin_path);
+    return 0;
 }
 
