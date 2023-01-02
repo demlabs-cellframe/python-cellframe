@@ -62,13 +62,13 @@ PyObject *DAP_HASH_TYPE_SLOW_0_PY(){
 
 /* Chain hash fast */
 PyMethodDef DapHashFastMethods[] = {
-        {"fromString", (PyCFunction)dap_chain_str_to_hash_fast_py, METH_VARARGS | METH_STATIC, ""},
-        {"hashFast", (PyCFunction)dap_hash_fast_py, METH_VARARGS, ""},
-        {"compare", (PyCFunction)dap_hash_fast_compare_py, METH_VARARGS | METH_STATIC, ""},
-        {"isBlank", (PyCFunction)dap_hash_fast_is_blank_py, METH_VARARGS, ""},
-        {"toStr", (PyCFunction)dap_chain_hash_fast_to_str_py, METH_VARARGS, ""},
-        {"toStrNew", (PyCFunction)dap_chain_hash_fast_to_str_new_py, METH_VARARGS, ""},
-        {"__str__", (PyCFunction)wrapping_dap_hash_to_str, METH_VARARGS, ""},
+        {"fromString", dap_chain_str_to_hash_fast_py, METH_VARARGS | METH_STATIC, ""},
+        {"hashFast", dap_hash_fast_py, METH_VARARGS, ""},
+        {"compare", dap_hash_fast_compare_py, METH_VARARGS | METH_STATIC, ""},
+        {"isBlank", dap_hash_fast_is_blank_py, METH_VARARGS, ""},
+        {"toStr", dap_chain_hash_fast_to_str_py, METH_VARARGS, ""},
+        {"toStrNew", dap_chain_hash_fast_to_str_new_py, METH_VARARGS, ""},
+        {"__str__", wrapping_dap_hash_to_str_implicit, METH_VARARGS, ""},
         {NULL, NULL, 0, NULL}
 };
 
@@ -88,7 +88,7 @@ PyTypeObject DapChainHashFastObjectType = {
         0,                               /* tp_as_mapping */
         0,                               /* tp_hash  */
         0,                               /* tp_call */
-        wrapping_dap_hash_to_str,                               /* tp_str */
+        wrapping_dap_hash_to_str,        /* tp_str */
         0,                               /* tp_getattro */
         0,                               /* tp_setattro */
         0,                               /* tp_as_buffer */
@@ -250,7 +250,9 @@ PyObject *dap_chain_hash_fast_to_str_new_py(PyObject *self, PyObject *args){
     return Py_BuildValue("s", res);
 }
 
-PyObject *wrapping_dap_hash_to_str(PyObject *self, PyObject *args){
+PyObject *wrapping_dap_hash_to_str(PyObject *self) { return wrapping_dap_hash_to_str_implicit(self, NULL); }
+
+PyObject *wrapping_dap_hash_to_str_implicit(PyObject *self, PyObject *args){
     char str[70];
     if (((PyDapHashFastObject*)self)->hash_fast == NULL){
         Py_BuildValue("s", "Hash is missing.");
