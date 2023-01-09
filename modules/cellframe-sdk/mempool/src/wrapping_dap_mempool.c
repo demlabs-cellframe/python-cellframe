@@ -176,6 +176,7 @@ PyObject *dap_chain_mempool_base_tx_create_py(PyObject *self, PyObject *args){
     PyDapHashFastObject *obj_emi_hash;
     DapMathObject *obj_emission_value;
     char *l_ticker;
+    uint256_t a_value_fee = {};
     PyDapChainAddrObject *obj_addr_to;
     PyObject *obj_certs;
     if (!PyArg_ParseTuple(args, "OOOOsOO", &obj_chain, &obj_emi_hash, &obj_emi_chain, &obj_emission_value,
@@ -222,7 +223,7 @@ PyObject *dap_chain_mempool_base_tx_create_py(PyObject *self, PyObject *args){
     char *l_tx_hash_str = dap_chain_mempool_base_tx_create(
             obj_chain->chain_t, obj_emi_hash->hash_fast,
             obj_emi_chain->chain_t->id, obj_emission_value->value, l_ticker,
-            obj_addr_to->addr, l_certs, l_certs_count, "hex");
+            obj_addr_to->addr, l_certs, l_certs_count, "hex", a_value_fee);
     DAP_FREE(l_certs);
     if (l_tx_hash_str == NULL)
         Py_RETURN_NONE;
