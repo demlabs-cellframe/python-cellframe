@@ -46,7 +46,7 @@ int dap_chain_plugins_command_handler(int a_argc, char **a_argv, char **a_str_re
                               l_str, "|\t",l_element->name, "\t|\t", l_element->version, "\t|\t", l_element->author, "\t|\n", NULL);
 
         }
-        dap_cli_server_cmd_set_reply_text(a_str_reply, l_str);
+        dap_cli_server_cmd_set_reply_text(a_str_reply, "%s", l_str);
         break;
     case CMD_SHOW_NAME:
         dap_cli_server_cmd_find_option_val(a_argv, l_arg_index, a_argc, "--name", &l_name_plugin);
@@ -88,7 +88,7 @@ int dap_chain_plugins_command_handler(int a_argc, char **a_argv, char **a_str_re
                                               l_name_plugin);
             break;
         case -3:
-            dap_cli_server_cmd_set_reply_text(a_str_reply, "Registration \"%s\" manifest for \"%s\" plugin is failed.", l_name_plugin);
+            dap_cli_server_cmd_set_reply_text(a_str_reply, "Registration manifest for \"%s\" plugin is failed.", l_name_plugin);
             break;
         case -4:
             dap_cli_server_cmd_set_reply_text(a_str_reply, "A plugin named \"%s\" was not found.", l_name_plugin);

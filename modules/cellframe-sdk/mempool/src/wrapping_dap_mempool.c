@@ -148,8 +148,8 @@ PyObject *dap_chain_mempool_proc_py(PyObject *self, PyObject *args) {
     }
     size_t l_datum_size2 = l_datum ? dap_chain_datum_size(l_datum) : 0;
     if (l_datum_size != l_datum_size2) {
-        char *l_str = dap_strdup_printf("Error! Corrupted datum %s, size by datum headers is %zd when in mempool is only %zd bytes",
-                                       l_datum_size2, l_datum_size);
+        char *l_str = dap_strdup_printf("Error! Corrupted datum %s, size by datum headers is %zu when in mempool is only %zu bytes",
+                                       l_hash_str, l_datum_size2, l_datum_size);
         PyErr_SetString(PyExc_RuntimeError, l_str);
         log_it(L_ERROR, "%s", l_str);
         DAP_DELETE(l_str);
