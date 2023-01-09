@@ -60,7 +60,8 @@ PyObject *dap_hash_fast_compare_py(PyObject *self, PyObject *args);
 PyObject *dap_hash_fast_is_blank_py(PyObject *self, PyObject *args);
 PyObject *dap_chain_hash_fast_to_str_py(PyObject *self, PyObject *args);
 PyObject *dap_chain_hash_fast_to_str_new_py(PyObject *self, PyObject *args);
-PyObject *wrapping_dap_hash_to_str(PyObject *self, PyObject *ar);
+PyObject *wrapping_dap_hash_to_str_implicit(PyObject *self, PyObject *args);
+PyObject *wrapping_dap_hash_to_str(PyObject *self);
 
 extern PyTypeObject DapChainHashFastObjectType;
 

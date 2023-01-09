@@ -73,6 +73,7 @@ int dap_chain_plugins_init(dap_config_t *a_config){
         dap_chain_plugins_loading();
         dap_chain_plugins_command_create();
         s_thread_state = PyEval_SaveThread();
+
     }else{
         return 0;
     }
