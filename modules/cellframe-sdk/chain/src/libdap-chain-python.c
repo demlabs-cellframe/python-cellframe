@@ -411,6 +411,7 @@ PyObject *dap_chain_python_get_atoms(PyObject *self, PyObject *args){
         size_t l_ptr_size = *((size_t*)l_iter->data);
         PyObject *obj_ptr = Py_BuildValue("On", (PyObject*)obj_atom, l_ptr_size);
         PyList_Append(obj_list, obj_ptr);
+        Py_XDECREF(obj_ptr);
     }
     return obj_list;
 }
