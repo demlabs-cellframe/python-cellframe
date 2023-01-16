@@ -71,6 +71,7 @@ PyObject *dap_chain_mempool_emission_get_py(PyObject *self, PyObject * args){
                                                              &DapChainDatumTokenEmissionObjectType);
     l_emi->token_emission = l_token;
     l_emi->token_size = dap_chain_datum_emission_get_size((uint8_t*)l_token);
+    l_emi->copy = true;
     return (PyObject*)l_emi;
 }
 
@@ -103,6 +104,7 @@ PyObject* dap_chain_mempool_datum_emission_extract_py(PyObject *self, PyObject *
                                                                  &DapChainDatumTokenEmissionObjectType);
     l_obj_emi->token_emission = l_emi;
     l_obj_emi->token_size = dap_chain_datum_emission_get_size((byte_t*)l_emi);
+    l_obj_emi->copy = true;
     return (PyObject*)l_obj_emi;
 }
 

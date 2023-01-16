@@ -111,10 +111,20 @@ static PyMethodDef PyDapChainDatumTokenEmissionMethods[]={
 PyTypeObject DapChainDatumTokenEmissionObjectType = DAP_PY_TYPE_OBJECT(
         "CellFrame.Chain.DatumTokenEmission", sizeof(PyDapChainDatumTokenEmissionObject),
         "Chain datum token emission object",
+        .tp_dealloc = PyDapChainDatumTokenEmissionObject_dealloc,
         .tp_methods = PyDapChainDatumTokenEmissionMethods,
         .tp_getset = PyDapChainDatumTokenEmissionGetsSetsDef,
         .tp_init = (initproc)PyDapChainDatumTokenEmissionObject_init);
 
+
+void PyDapChainDatumTokenEmissionObject_dealloc(PyObject *self) {
+    if (((PyDapChainDatumTokenEmissionObject*)self)->copy) {
+        DAP_DELETE(((PyDapChainDatumTokenEmissionObject*)self)->token_emission);
+        ((PyDapChainDatumTokenEmissionObject*)self)->token_size = 0;
+    }
+    PyTypeObject *tp = Py_TYPE(self);
+    tp->tp_free(self);
+}
 
 int PyDapChainDatumTokenEmissionObject_init(PyDapChainDatumTokenEmissionObject *self, PyObject *argv, PyObject *kwds){
     const char *kwlist[] = {
@@ -137,6 +147,7 @@ int PyDapChainDatumTokenEmissionObject_init(PyDapChainDatumTokenEmissionObject *
     uint256_t l_value = dap_chain_balance_scan(l_value_datoshi);
     self->token_emission = dap_chain_datum_emission_create(l_value, l_ticker, obj_addr->addr);
     self->token_size = dap_chain_datum_emission_get_size((uint8_t*)self->token_emission);
+    self->copy = false;
     return 0;
 }
 
