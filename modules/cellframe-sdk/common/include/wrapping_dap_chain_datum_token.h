@@ -60,7 +60,10 @@ typedef struct PyDapChainDatumTokenEmission{
     PyObject_HEAD
     dap_chain_datum_token_emission_t *token_emission;
     size_t token_size;
+    bool copy;
 } PyDapChainDatumTokenEmissionObject;
+
+void PyDapChainDatumTokenEmissionObject_dealloc(PyObject *self);
 
 int PyDapChainDatumTokenEmissionObject_init(PyDapChainDatumTokenEmissionObject *self, PyObject *argv, PyObject *kwds);
 
