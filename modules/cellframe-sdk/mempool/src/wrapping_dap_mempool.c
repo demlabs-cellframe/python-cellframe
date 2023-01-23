@@ -254,8 +254,12 @@ PyObject *dap_chain_mempool_base_tx_create_py(PyObject *self, PyObject *args){
     size_t l_certs_count = PyList_Size(obj_certs);
     dap_cert_t **l_certs = DAP_NEW_Z_SIZE(dap_cert_t*, l_certs_count);
     for (size_t i=0; i < l_certs_count; i++){
-        PyCryptoCertObject *l_ptr = (PyCryptoCertObject*)PyList_GetItem(obj_certs, (Py_ssize_t)i);
-        l_certs[i] = l_ptr->cert;
+        PyObject *l_ptr = PyList_GetItem(obj_certs, (Py_ssize_t)i);
+        if (!PyObject_TypeCheck(l_ptr, &PyCryptoKeyObjectType)) {
+            PyErr_SetString(PyExc_AttributeError, "An object was found in the list with certificates that is not a certificate.");
+            return NULL;
+        }
+        l_certs[i] = ((PyCryptoCertObject*)l_ptr)->cert;
     }
     dap_chain_hash_fast_t *l_tx_hash = dap_chain_mempool_base_tx_create(
             obj_chain->chain_t, obj_emi_hash->hash_fast,
