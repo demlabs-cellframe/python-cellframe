@@ -41,3 +41,4 @@ PyObject *wrapping_dap_chain_tx_in_get_out_prev_idx(PyObject *self, void *closur
     (void)closure;
     return Py_BuildValue("I", ((PyDapChainTXInObject*)self)->tx_in->header.tx_out_prev_idx);
 }
+

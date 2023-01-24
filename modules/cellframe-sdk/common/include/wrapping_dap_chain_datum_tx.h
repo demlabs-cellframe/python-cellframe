@@ -63,7 +63,7 @@ PyObject *TX_ITEM_TYPE_IN_PY(PyObject *self, PyObject *args);
 PyObject *TX_ITEM_TYPE_OUT_PY(PyObject *self, PyObject *args);
 PyObject *TX_ITEM_TYPE_PKEY_PY(PyObject *self, PyObject *args);
 PyObject *TX_ITEM_TYPE_SIG_PY(PyObject *self, PyObject *args);
-PyObject *TX_ITEM_TYPE_TOKEN_PY(PyObject *self, PyObject *args);
+PyObject *TX_ITEM_TYPE_IN_EMS_PY(PyObject *self, PyObject *args);
 PyObject *TX_ITEM_TYPE_IN_COND_PY(PyObject *self, PyObject *args);
 PyObject *TX_ITEM_TYPE_OUT_COND_PY(PyObject *self, PyObject *args);
 PyObject *TX_ITEM_TYPE_RECEIPT_PY(PyObject *self, PyObject *args);
