@@ -7,7 +7,7 @@ static PyMethodDef PyDapChainTxItemTypeObjectMethods[] ={
         {"TX_ITEM_TYPE_OUT", (PyCFunction)TX_ITEM_TYPE_OUT_PY, METH_NOARGS | METH_STATIC, ""},
         {"TX_ITEM_TYPE_PKEY", (PyCFunction)TX_ITEM_TYPE_PKEY_PY, METH_NOARGS | METH_STATIC, ""},
         {"TX_ITEM_TYPE_SIG", (PyCFunction)TX_ITEM_TYPE_SIG_PY, METH_NOARGS | METH_STATIC, ""},
-        {"TX_ITEM_TYPE_TOKEN", (PyCFunction)TX_ITEM_TYPE_TOKEN_PY, METH_NOARGS | METH_STATIC, ""},
+        {"TX_ITEM_TYPE_IN_EMS", (PyCFunction)TX_ITEM_TYPE_IN_EMS_PY, METH_NOARGS | METH_STATIC, ""},
         {"TX_ITEM_TYPE_IN_COND", (PyCFunction)TX_ITEM_TYPE_IN_COND_PY, METH_NOARGS | METH_STATIC, ""},
         {"TX_ITEM_TYPE_OUT_COND", (PyCFunction)TX_ITEM_TYPE_OUT_COND_PY, METH_NOARGS | METH_STATIC, ""},
         {"TX_ITEM_TYPE_RECEIPT", (PyCFunction)TX_ITEM_TYPE_RECEIPT_PY, METH_NOARGS | METH_STATIC, ""},
@@ -36,9 +36,9 @@ PyObject *TX_ITEM_TYPE_SIG_PY(__attribute__((unused)) PyObject *self, __attribut
 {
         return PyLong_FromLong(TX_ITEM_TYPE_SIG);
 }
-PyObject *TX_ITEM_TYPE_TOKEN_PY(__attribute__((unused)) PyObject *self, __attribute__((unused)) PyObject *args)
+PyObject *TX_ITEM_TYPE_IN_EMS_PY(__attribute__((unused)) PyObject *self, __attribute__((unused)) PyObject *args)
 {
-        return PyLong_FromLong(TX_ITEM_TYPE_TOKEN);
+        return PyLong_FromLong(TX_ITEM_TYPE_IN_EMS);
 }
 PyObject *TX_ITEM_TYPE_IN_COND_PY(__attribute__((unused)) PyObject *self, __attribute__((unused)) PyObject *args)
 {
@@ -254,11 +254,11 @@ PyObject *wrapping_dap_chain_datum_tx_get_items(PyObject *self, PyObject *args){
                 obj_tx_item = (PyObject*)PyObject_New(PyDapChainTXOutObject, &DapChainTxOutObjectType);
                 ((PyDapChainTXOutObject*)obj_tx_item)->tx_out = ((dap_chain_tx_out_t*)item);
                 break;
-            case TX_ITEM_TYPE_TOKEN:
+            case TX_ITEM_TYPE_IN_EMS:
                 obj_tx_item = (PyObject*)PyObject_New(PyDapChainTxTokenObject, &DapChainTxTokenObjectType);
-                ((PyDapChainTxTokenObject*)obj_tx_item)->token = (dap_chain_tx_token_t*)item;
+                ((PyDapChainTxTokenObject*)obj_tx_item)->token = (dap_chain_tx_in_ems_t*)item;
                 break;
-            case TX_ITEM_TYPE_TOKEN_EXT:
+            case TX_ITEM_TYPE_IN_EMS_EXT:
                 obj_tx_item = (PyObject*)PyObject_New(PyDapChainTxTokenExtObject, &DapChainTxTokenExtType);
                 ((PyDapChainTxTokenExtObject*)obj_tx_item)->token_ext = (dap_chain_tx_token_ext_t*)item;
                 break;
