@@ -107,6 +107,7 @@ PyObject *dap_chain_ledger_token_emission_find_py(PyObject *self, PyObject *args
     if (token_emission->token_emission)
     {
         token_emission->token_size = dap_chain_datum_emission_get_size((uint8_t*) token_emission->token_emission);
+        token_emission->copy = false;
     
         return (PyObject *)token_emission;
     }

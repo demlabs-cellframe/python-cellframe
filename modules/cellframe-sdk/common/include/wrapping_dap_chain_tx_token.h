@@ -37,7 +37,7 @@ extern "C" {
 
 typedef struct PyDapChainTxToken{
     PyObject_HEAD
-    dap_chain_tx_token_t *token;
+    dap_chain_tx_in_ems_t *token;
 }PyDapChainTxTokenObject;
 
 PyObject *wrapping_dap_chain_tx_token_get_ticker(PyObject *self, void *closure);

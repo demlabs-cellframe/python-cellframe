@@ -71,6 +71,7 @@ PyObject *dap_chain_mempool_emission_get_py(PyObject *self, PyObject * args){
                                                              &DapChainDatumTokenEmissionObjectType);
     l_emi->token_emission = l_token;
     l_emi->token_size = dap_chain_datum_emission_get_size((uint8_t*)l_token);
+    l_emi->copy = true;
     return (PyObject*)l_emi;
 }
 
@@ -103,6 +104,7 @@ PyObject* dap_chain_mempool_datum_emission_extract_py(PyObject *self, PyObject *
                                                                  &DapChainDatumTokenEmissionObjectType);
     l_obj_emi->token_emission = l_emi;
     l_obj_emi->token_size = dap_chain_datum_emission_get_size((byte_t*)l_emi);
+    l_obj_emi->copy = true;
     return (PyObject*)l_obj_emi;
 }
 
@@ -148,8 +150,8 @@ PyObject *dap_chain_mempool_proc_py(PyObject *self, PyObject *args) {
     }
     size_t l_datum_size2 = l_datum ? dap_chain_datum_size(l_datum) : 0;
     if (l_datum_size != l_datum_size2) {
-        char *l_str = dap_strdup_printf("Error! Corrupted datum %s, size by datum headers is %zd when in mempool is only %zd bytes",
-                                       l_datum_size2, l_datum_size);
+        char *l_str = dap_strdup_printf("Error! Corrupted datum %s, size by datum headers is %zu when in mempool is only %zu bytes",
+                                       l_hash_str, l_datum_size2, l_datum_size);
         PyErr_SetString(PyExc_RuntimeError, l_str);
         log_it(L_ERROR, "%s", l_str);
         DAP_DELETE(l_str);
@@ -177,6 +179,7 @@ PyObject *dap_chain_mempool_base_tx_create_py(PyObject *self, PyObject *args){
     DapMathObject *obj_emission_value;
     char *l_ticker;
     uint256_t a_value_fee = {};
+    dap_enc_key_t *a_key_from = NULL;
     PyDapChainAddrObject *obj_addr_to;
     PyObject *obj_certs;
     if (!PyArg_ParseTuple(args, "OOOOsOO", &obj_chain, &obj_emi_hash, &obj_emi_chain, &obj_emission_value,
@@ -223,7 +226,7 @@ PyObject *dap_chain_mempool_base_tx_create_py(PyObject *self, PyObject *args){
     char *l_tx_hash_str = dap_chain_mempool_base_tx_create(
             obj_chain->chain_t, obj_emi_hash->hash_fast,
             obj_emi_chain->chain_t->id, obj_emission_value->value, l_ticker,
-            obj_addr_to->addr, l_certs, l_certs_count, "hex", a_value_fee);
+            a_key_from, obj_addr_to->addr, l_certs, l_certs_count, "hex", a_value_fee);
     DAP_FREE(l_certs);
     if (l_tx_hash_str == NULL)
         Py_RETURN_NONE;

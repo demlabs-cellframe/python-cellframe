@@ -153,11 +153,11 @@ PyObject *wrapping_dap_chain_datum_get_datum_token_emission(PyObject *self, PyOb
                 PyDapChainDatumTokenEmissionObject,
                 &DapChainDatumTokenEmissionObjectType
                 );
-        PyObject_Dir((PyObject*)obj_emission);
         size_t l_token_emission_size = ((PyDapChainDatumObject*)self)->datum->header.data_size;
         obj_emission->token_emission = dap_chain_datum_emission_read(((PyDapChainDatumObject*)self)->datum->data,
                                                                      &l_token_emission_size);
         obj_emission->token_size = l_token_emission_size;
+        obj_emission->copy = true;
         return (PyObject*)obj_emission;
 
     }else{
