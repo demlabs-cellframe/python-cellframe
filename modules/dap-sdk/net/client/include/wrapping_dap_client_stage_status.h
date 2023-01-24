@@ -16,7 +16,7 @@ typedef struct PyDapClientStageStatus{
 PyObject *STAGE_STATUS_NONE_PY();
 // Enc init stage
 PyObject *STAGE_STATUS_IN_PROGRESS_PY();
-PyObject *STAGE_STATUS_ABORTING_PY();
+PyObject *STAGE_STATUS_COMPLETE_PY();
 PyObject *STAGE_STATUS_ERROR_PY();
 PyObject *STAGE_STATUS_DONE_PY();
 

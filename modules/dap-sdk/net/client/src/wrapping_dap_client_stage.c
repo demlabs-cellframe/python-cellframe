@@ -8,7 +8,6 @@ static PyMethodDef DapClientStageMethods[] = {
         {"STAGE_STREAM_SESSION", (PyCFunction)STAGE_STREAM_SESSION_PY, METH_NOARGS | METH_STATIC, ""},
         {"STAGE_STREAM_CONNECTED", (PyCFunction)STAGE_STREAM_CONNECTED_PY, METH_NOARGS | METH_STATIC, ""},
         {"STAGE_STREAM_STREAMING", (PyCFunction)STAGE_STREAM_STREAMING_PY, METH_NOARGS | METH_STATIC, ""},
-        {"STAGE_STREAM_ABORT",(PyCFunction) STAGE_STREAM_ABORT_PY, METH_NOARGS | METH_STATIC, ""},
         {}
 };
 
@@ -45,10 +44,5 @@ PyObject *STAGE_STREAM_CONNECTED_PY(){
 PyObject *STAGE_STREAM_STREAMING_PY(){
     PyDapClientStageObject *obj_stage = (PyDapClientStageObject*)_PyObject_New(&dapClientStageObject_dapClientStageType);
     obj_stage->stage = STAGE_STREAM_STREAMING;
-    return (PyObject *)obj_stage;
-}
-PyObject *STAGE_STREAM_ABORT_PY(){
-    PyDapClientStageObject *obj_stage = (PyDapClientStageObject*)_PyObject_New(&dapClientStageObject_dapClientStageType);
-    obj_stage->stage = STAGE_STREAM_ABORT;
     return (PyObject *)obj_stage;
 }
