@@ -85,7 +85,9 @@ PyObject *wrapping_dap_mempool_emission_place(PyObject *self, PyObject *args){
     if (l_str == NULL){
         Py_RETURN_NONE;
     }
-    return Py_BuildValue("s", l_str);
+    PyObject *l_str_obj = Py_BuildValue("s", l_str);
+    DAP_DELETE(l_str);
+    return l_str_obj;
 }
 
 PyObject *dap_chain_mempool_emission_get_py(PyObject *self, PyObject * args){
@@ -493,5 +495,7 @@ PyObject *dap_chain_mempool_add_datum_py(PyObject *self, PyObject *args){
     if (!l_str)
         return Py_None;
     obj_datum->origin = false;
-    return Py_BuildValue("s", l_str);
+    PyObject *l_obj_ret = Py_BuildValue("s", l_str);
+    DAP_DELETE(l_str);
+    return l_obj_ret;
 }

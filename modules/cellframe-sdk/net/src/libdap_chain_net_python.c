@@ -244,7 +244,11 @@ PyObject *dap_chain_net_get_gdb_group_mempool_py(PyObject *self, PyObject *args)
     if (!PyArg_ParseTuple(args, "O", &obj_chain))
         return NULL;
     char *res = dap_chain_net_get_gdb_group_mempool(((PyDapChainObject*)obj_chain)->chain_t);
-    return Py_BuildValue("s", res);
+    if (!res)
+        Py_RETURN_NONE;
+    PyObject *l_obj_res = Py_BuildValue("s", res);
+    DAP_DELETE(res);
+    return l_obj_res;
 }
 PyObject *dap_chain_net_get_gdb_group_mempool_by_chain_type_py(PyObject *self, PyObject *args){
     PyObject *obj_chain_type;
@@ -252,8 +256,11 @@ PyObject *dap_chain_net_get_gdb_group_mempool_by_chain_type_py(PyObject *self, P
         return NULL;
     char *res = dap_chain_net_get_gdb_group_mempool_by_chain_type(((PyDapChainNetObject*)self)->chain_net,
                                                                   ((PyChainTypeObject*)obj_chain_type)->chain_type);
-    return Py_BuildValue("s", res);
-
+    if (!res)
+        Py_RETURN_NONE;
+    PyObject *l_obj_res = Py_BuildValue("s", res);
+    DAP_DELETE(res);
+    return l_obj_res;
 }
 PyObject *dap_chain_net_links_connect_py(PyObject *self, PyObject *args){
 //    dap_chain_net_links_connect(((PyDapChainNetObject*)self)->chain_net);

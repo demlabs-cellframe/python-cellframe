@@ -247,7 +247,9 @@ PyObject *dap_chain_hash_fast_to_str_py(PyObject *self, PyObject *args){
 
 PyObject *dap_chain_hash_fast_to_str_new_py(PyObject *self, PyObject *args){
     char *res = dap_chain_hash_fast_to_str_new(((PyDapHashFastObject*)self)->hash_fast);
-    return Py_BuildValue("s", res);
+    PyObject *l_obj_res = Py_BuildValue("s", res);
+    DAP_DELETE(res);
+    return l_obj_res;
 }
 
 PyObject *wrapping_dap_hash_to_str(PyObject *self) { return wrapping_dap_hash_to_str_implicit(self, NULL); }

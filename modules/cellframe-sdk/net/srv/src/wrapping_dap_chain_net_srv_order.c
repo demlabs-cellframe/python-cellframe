@@ -374,7 +374,9 @@ PyObject *wrapping_dap_chain_net_srv_order_save(PyObject *self, PyObject *args){
                                            WRAPPING_DAP_CHAIN_NET_SRV_ORDER(self)->order);
     if (res == NULL)
         Py_RETURN_NONE;
-    return Py_BuildValue("s", res);
+    PyObject *l_obj_ret = Py_BuildValue("s", res);
+    DAP_DELETE(res);
+    return l_obj_ret;
 }
 PyObject *wrapping_dap_chain_net_srv_order_get_gdb_group(PyObject *self, PyObject *args){
     (void)self;
@@ -387,7 +389,10 @@ PyObject *wrapping_dap_chain_net_srv_order_get_gdb_group(PyObject *self, PyObjec
         PyErr_SetString(PyExc_ValueError, "The first argument must be ChainNet object");
         return NULL;
     }
-    return Py_BuildValue("s", dap_chain_net_srv_order_get_gdb_group(obj_net->chain_net));
+    char *l_str_srv_order_gdb_group = dap_chain_net_srv_order_get_gdb_group(obj_net->chain_net);
+    PyObject *l_str_ret_obj = Py_BuildValue("s", l_str_srv_order_gdb_group);
+    DAP_DELETE(l_str_srv_order_gdb_group);
+    return l_str_ret_obj;
 }
 PyObject *wrapping_dap_chain_net_srv_order_get_nodelist_group(PyObject *self, PyObject *args){
     (void)self;
@@ -400,8 +405,12 @@ PyObject *wrapping_dap_chain_net_srv_order_get_nodelist_group(PyObject *self, Py
         PyErr_SetString(PyExc_ValueError, "The first argument must be ChainNet object");
         return NULL;
     }
-    return Py_BuildValue("s",
-                         dap_chain_net_srv_order_get_nodelist_group(obj_net->chain_net));
+    char *l_node_list_group = dap_chain_net_srv_order_get_nodelist_group(obj_net->chain_net);
+    if (!l_node_list_group)
+        Py_RETURN_NONE;
+    PyObject *l_obj_res = Py_BuildValue("s", l_node_list_group);
+    DAP_DELETE(l_node_list_group);
+    return l_obj_res;
 }
 
 PyObject *wrapping_dap_chain_net_srv_order_add_notify_callback(PyObject *self, PyObject *args){
