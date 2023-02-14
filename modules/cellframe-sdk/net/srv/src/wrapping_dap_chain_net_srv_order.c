@@ -199,14 +199,15 @@ PyObject *wrapping_dap_chain_net_srv_order_get_srv_node_addr(PyObject *self, voi
 }
 PyObject *wrapping_dap_chain_net_srv_order_get_srv_tx_cond_hash(PyObject *self, void *closure){
     (void)closure;
-    PyDapHashFastObject *l_obj_hf = PyObject_New(PyDapHashFastObject, &DapChainHashFastObjectType);
-    PyObject_Dir((PyObject*)l_obj_hf);
+
     if(WRAPPING_DAP_CHAIN_NET_SRV_ORDER(self)->order == NULL){
-        l_obj_hf->hash_fast = NULL;
+        Py_RETURN_NONE;
     }else{
+        PyDapHashFastObject *l_obj_hf = PyObject_New(PyDapHashFastObject, &DapChainHashFastObjectType);
         l_obj_hf->hash_fast = &WRAPPING_DAP_CHAIN_NET_SRV_ORDER(self)->order->tx_cond_hash;
+        l_obj_hf->origin = false;
+        return (PyObject*)l_obj_hf;
     }
-    return (PyObject*)l_obj_hf;
 }
 PyObject *wrapping_dap_chain_net_srv_order_get_srv_price_unit(PyObject *self, void *closure){
     (void)closure;

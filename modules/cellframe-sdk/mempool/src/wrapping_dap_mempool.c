@@ -269,6 +269,7 @@ PyObject *dap_chain_mempool_base_tx_create_py(PyObject *self, PyObject *args){
     }
     PyDapHashFastObject *l_obj_hf = PyObject_New(PyDapHashFastObject, &DapChainHashFastObjectType);
     l_obj_hf->hash_fast = l_tx_hash;
+    l_obj_hf->origin = true;
     return (PyObject*)l_obj_hf;
 }
 
@@ -299,8 +300,8 @@ PyObject *dap_chain_mempool_tx_create_py(PyObject *self, PyObject *args){
         Py_RETURN_NONE;
     } else {
         PyDapHashFastObject *obj_hf = PyObject_New(PyDapHashFastObject, &DapChainHashFastObjectType);
-        PyObject_Dir((PyObject*)obj_hf);
         obj_hf->hash_fast = l_hash_tx;
+        obj_hf->origin = true;
         return (PyObject*)obj_hf;
     }
 }
@@ -350,6 +351,7 @@ PyObject *dap_chain_mempool_tx_create_cond_py(PyObject *self, PyObject *args){
     }
     PyDapHashFastObject *l_obj_hf = PyObject_New(PyDapHashFastObject, &DapChainHashFastObjectType);
     l_obj_hf->hash_fast = l_hf;
+    l_obj_hf->origin = true;
     return (PyObject*)l_obj_hf;
 }
 PyObject *dap_chain_mempool_tx_create_cond_input_py(PyObject *self, PyObject *args){
@@ -389,6 +391,7 @@ PyObject *dap_chain_mempool_tx_create_cond_input_py(PyObject *self, PyObject *ar
     }
     PyDapHashFastObject *l_obj_hf = PyObject_New(PyDapHashFastObject, &DapChainHashFastObjectType);
     l_obj_hf->hash_fast = l_hf;
+    l_obj_hf->origin = true;
     return (PyObject*)l_obj_hf;
 }
 

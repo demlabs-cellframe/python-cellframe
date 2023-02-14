@@ -237,6 +237,7 @@ PyObject *wrapping_dap_chain_datum_token_emission_get_hash(PyObject *self, void 
     dap_hash_fast(
             ((PyDapChainDatumTokenEmissionObject*)self)->token_emission,
             ((PyDapChainDatumTokenEmissionObject*)self)->token_size, obj_hf->hash_fast);
+    obj_hf->origin = true;
     return (PyObject*)obj_hf;
 }
 

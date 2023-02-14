@@ -101,9 +101,10 @@ PyObject *dap_chain_node_datum_tx_calc_hash_py(PyObject *self, PyObject *args){
     PyObject *obj_tx;
     if (!PyArg_ParseTuple(args, "O", &obj_tx))
         return NULL;
-    PyObject *obj_h_fast = _PyObject_New(&DapChainHashFastObjectType);
-    ((PyDapHashFastObject*)obj_h_fast)->hash_fast = dap_chain_node_datum_tx_calc_hash(((PyDapChainDatumTxObject*)obj_tx)->datum_tx);
-    return  Py_BuildValue("O", obj_h_fast);
+    PyDapHashFastObject *obj_hash_fast = PyObject_New(PyDapHashFastObject, &DapChainHashFastObjectType);
+    obj_hash_fast->hash_fast = dap_chain_node_datum_tx_calc_hash(((PyDapChainDatumTxObject*)obj_tx)->datum_tx);
+    obj_hash_fast->origin = true;
+    return (PyObject*)obj_hash_fast;
 
 }
 PyObject *dap_chain_ledger_tx_add_py(PyObject *self, PyObject *args){

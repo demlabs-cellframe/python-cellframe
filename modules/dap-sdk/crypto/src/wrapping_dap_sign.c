@@ -158,6 +158,7 @@ PyObject *wrapping_dap_sign_get_pkey_hash(PyObject *self, void *closure){
     PyObject_Dir((PyObject*)obj_hash);
     obj_hash->hash_fast = DAP_NEW(dap_chain_hash_fast_t);
     dap_sign_get_pkey_hash(((PyDapSignObject*)self)->sign, obj_hash->hash_fast);
+    obj_hash->origin = true;
     return (PyObject*)obj_hash;
 }
 

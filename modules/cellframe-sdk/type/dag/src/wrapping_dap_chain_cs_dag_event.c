@@ -83,6 +83,7 @@ PyObject *wrapping_dap_chain_cs_dag_event_get_hash(PyObject *self, void *closure
             ((PyDapChainCsDagEventObject*)self)->event,
             ((PyDapChainCsDagEventObject*)self)->event_size,
             obj_hf->hash_fast);
+    obj_hf->origin = true;
     return (PyObject*)obj_hf;
 }
 
@@ -130,10 +131,10 @@ PyObject *wrapping_dap_chain_cs_dag_event_get_links(PyObject *self, void *closur
     PyObject *obj_list = PyList_New(((PyDapChainCsDagEventObject*)self)->event->header.hash_count);
     for (uint16_t i=0; i < ((PyDapChainCsDagEventObject*)self)->event->header.hash_count; i++){
         PyDapHashFastObject  *obj_hf = PyObject_New(PyDapHashFastObject, &DapChainHashFastObjectType);
-        PyObject_Dir((PyObject*)obj_hf);
         obj_hf->hash_fast =
                 (dap_chain_hash_fast_t *) (((PyDapChainCsDagEventObject*)self)->event->hashes_n_datum_n_signs +
                                                                     i*sizeof (dap_chain_hash_fast_t));
+        obj_hf->origin = false;
         PyList_SetItem(obj_list, i, (PyObject *)obj_hf);
     }
     return obj_list;

@@ -57,6 +57,7 @@ PyObject *wrapping_dap_chain_tx_token_get_token_emission_hash(PyObject *self, vo
     (void)closure;
     PyDapHashFastObject *obj_hash = PyObject_New(PyDapHashFastObject, &DapChainHashFastObjectType);
     obj_hash->hash_fast = &((PyDapChainTxTokenObject*)self)->token->header.token_emission_hash;
+    obj_hash->origin = false;
     return (PyObject*)obj_hash;
 }
 PyObject *wrapping_dap_chain_tx_token_get_token_emission_chain_id(PyObject *self, void *closure){

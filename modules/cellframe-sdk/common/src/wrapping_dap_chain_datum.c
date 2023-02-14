@@ -279,6 +279,7 @@ PyObject *wrapping_dap_chain_datum_get_hash_py(PyObject *self, void* closure){
             ((PyDapChainDatumObject*)self)->datum,
             dap_chain_datum_size(((PyDapChainDatumObject*)self)->datum),
             obj_hf->hash_fast);
+    obj_hf->origin = true;
     return (PyObject*)obj_hf;
 }
 
