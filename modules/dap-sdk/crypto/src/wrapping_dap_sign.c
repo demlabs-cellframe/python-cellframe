@@ -141,7 +141,6 @@ PyTypeObject DapCryptoSignObjectType = {
 PyObject *wrapping_dap_sign_get_type(PyObject *self, void *closure){
     (void)closure;
     PyDapSignTypeObject *obj_type_sign = PyObject_New(PyDapSignTypeObject, &DapCryproSignTypeObjectType);
-    PyObject_Dir((PyObject*)obj_type_sign);
     obj_type_sign->sign_type = &((PyDapSignObject*)self)->sign->header.type;
     return (PyObject*)obj_type_sign;
 }
@@ -155,7 +154,6 @@ PyObject *wrapping_dap_sign_get_pkey(PyObject *self, void *closure){
 PyObject *wrapping_dap_sign_get_pkey_hash(PyObject *self, void *closure){
     (void)closure;
     PyDapHashFastObject *obj_hash = PyObject_New(PyDapHashFastObject, &DapChainHashFastObjectType);
-    PyObject_Dir((PyObject*)obj_hash);
     obj_hash->hash_fast = DAP_NEW(dap_chain_hash_fast_t);
     dap_sign_get_pkey_hash(((PyDapSignObject*)self)->sign, obj_hash->hash_fast);
     obj_hash->origin = true;

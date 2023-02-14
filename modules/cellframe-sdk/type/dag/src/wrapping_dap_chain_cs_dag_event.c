@@ -107,14 +107,12 @@ PyObject *wrapping_dap_chain_cs_dag_event_get_ts_created(PyObject *self, void *c
 PyObject *wrapping_dap_chain_cs_dag_event_get_chain_id(PyObject *self, void *closure){
     (void)closure;
     PyDapChainIDObject *obj_chain_id = PyObject_New(PyDapChainIDObject, &DapChainIdObjectType);
-    PyObject_Dir((PyObject*)obj_chain_id);
     obj_chain_id->chain_id = &((PyDapChainCsDagEventObject*)self)->event->header.chain_id;
     return (PyObject*)obj_chain_id;
 }
 PyObject *wrapping_dap_chain_cs_dag_event_get_cell_id(PyObject *self, void *closure){
     (void)closure;
     PyDapChainCellIDObject *obj_cell_id = PyObject_New(PyDapChainCellIDObject, &DapChainCellIdObjectType);
-    PyObject_Dir((PyObject*)obj_cell_id);
     obj_cell_id->cell_id = ((PyDapChainCsDagEventObject*)self)->event->header.cell_id;
     return (PyObject*)obj_cell_id;
 }
@@ -159,7 +157,6 @@ PyObject *wrapping_dap_chain_cs_dag_event_get_signs(PyObject *self, void *closur
             break;
         }
         PyDapSignObject *obj_sign = PyObject_New(PyDapSignObject, &DapCryptoSignObjectType);
-        PyObject_Dir((PyObject*)obj_sign);
         obj_sign->sign = l_sign;
         PyList_Append(obj_list, (PyObject*)obj_sign);
         l_offset += l_sign_size;

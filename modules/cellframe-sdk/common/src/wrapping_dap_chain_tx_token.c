@@ -63,7 +63,6 @@ PyObject *wrapping_dap_chain_tx_token_get_token_emission_hash(PyObject *self, vo
 PyObject *wrapping_dap_chain_tx_token_get_token_emission_chain_id(PyObject *self, void *closure){
     (void)closure;
     PyDapChainIDObject *obj_chain_id = PyObject_New(PyDapChainIDObject, &DapChainIdObjectType);
-    PyObject_Dir((PyObject*)obj_chain_id);
     obj_chain_id->chain_id = &((PyDapChainTxTokenObject*)self)->token->header.token_emission_chain_id;
     return (PyObject*)obj_chain_id;
 }

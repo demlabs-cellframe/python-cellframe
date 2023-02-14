@@ -91,7 +91,6 @@ void _w_dap_json_rpc_request_handler(dap_json_rpc_params_t *a_params, dap_json_r
     struct _w_json_rpc_handler *func = NULL;
     HASH_FIND_STR(handlers, a_method, func);
     if (func != NULL){
-        PyObject_Dir((PyObject*)obj_response);
         //Called python func
         PyObject *obj_result = PyObject_CallObject(func->call_func, args);
         python_error_in_log_it(LOG_TAG);

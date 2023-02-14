@@ -118,7 +118,6 @@ PyObject *dap_enc_key_new_generate_py(PyObject *self, PyObject *args){
         }
     }
     PyCryptoKeyObject *obj_key = PyObject_New(PyCryptoKeyObject, &PyCryptoKeyObjectType);
-    PyObject_Dir((PyObject*)obj_key);
     obj_key->key = dap_enc_key_new_generate(in_type_key, l_kex_buf, l_kex_buf_size,
                                             l_seed, l_seed_size, in_key_size);
     return (PyObject*)obj_key;

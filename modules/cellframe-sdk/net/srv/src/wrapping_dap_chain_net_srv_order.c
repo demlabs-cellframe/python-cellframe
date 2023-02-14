@@ -179,7 +179,6 @@ PyObject *wrapping_dap_chain_net_srv_order_get_srv_direction(PyObject *self, voi
     PyDapChainNetSrvOrderDirectionObject *srv_direction =
             PyObject_New(PyDapChainNetSrvOrderDirectionObject,
                          &DapChainNetSrvOrderDirectionObjectType);
-    PyObject_Dir((PyObject*)srv_direction);
     if(WRAPPING_DAP_CHAIN_NET_SRV_ORDER(self)->order == NULL){
         srv_direction->direction = 0;
     }else{
@@ -266,7 +265,6 @@ PyObject *wrapping_dap_chain_net_srv_order_get_srv_ext_n_sign(PyObject *self, vo
     if (WRAPPING_DAP_CHAIN_NET_SRV_ORDER(self)->order != NULL) {
         dap_sign_t *l_sign = (dap_sign_t*)&WRAPPING_DAP_CHAIN_NET_SRV_ORDER(self)->order->ext_n_sign[WRAPPING_DAP_CHAIN_NET_SRV_ORDER(self)->order->ext_size];
         PyDapSignObject *obj_sign = PyObject_New(PyDapSignObject, &DapCryptoSignObjectType);
-        PyObject_Dir((PyObject *) obj_sign);
         obj_sign->sign = l_sign;
         return (PyObject *) obj_sign;
     }
