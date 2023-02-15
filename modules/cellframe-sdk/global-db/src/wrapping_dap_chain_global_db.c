@@ -64,6 +64,7 @@ PyObject *wrapping_dap_chain_global_db_gr_get(PyObject *self, PyObject *args){
     if (l_size_data == 0)
         Py_RETURN_NONE;
     PyObject *l_obj_bytes = PyBytes_FromStringAndSize(l_bytes, (Py_ssize_t)l_size_data);
+    DAP_DELETE(l_bytes);
     return l_obj_bytes;
 }
 PyObject *wrapping_dap_chain_global_db_gr_set(PyObject *self, PyObject *args){
