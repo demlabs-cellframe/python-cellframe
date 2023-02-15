@@ -22,6 +22,14 @@ int PyDapSignType_init(PyDapSignTypeObject *self, PyObject *args, PyObject *kwds
         self->sign_type->type = SIG_TYPE_MULTI_COMBINED;
     } else if (strcmp(sign_type, "sig_multi") == 0){
         self->sign_type->type = SIG_TYPE_MULTI_CHAINED;
+#ifdef DAP_PQLR
+    } else if (strcmp(sign_type, "sig_pqlr_dil") == 0){
+        self->sign_type->type = SIG_TYPE_PQLR_DILITHIUM;
+    } else if (strcmp(sign_type, "sig_pqlr_falcon") == 0){
+        self->sign_type->type = SIG_TYPE_PQLR_FALCON;
+    } else if (strcmp(sign_type, "sig_pqlr_sphincs") == 0){
+        self->sign_type->type = SIG_TYPE_PQLR_SPHINCS;
+#endif
     } else {
         DAP_DELETE(self->sign_type);
         PyErr_SetString(PyExc_Exception, "Invalid signature type specified, supported types: sig_bliss, sig_tesla, sig_picnic, sig_dil, sig_multi2, sig_multi.");
