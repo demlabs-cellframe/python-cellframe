@@ -27,7 +27,7 @@
 #define _WRAPPING_DAP_CHAIN_TX_TOKEN_
 
 #include <Python.h>
-#include "dap_chain_datum_tx_token.h"
+#include "dap_chain_datum_tx_in_ems.h"
 #include "wrapping_dap_hash.h"
 #include "wrapping_dap_chain_common.h"
 
