@@ -48,7 +48,9 @@ PyObject *wrapping_dap_mempool_emission_place(PyObject *self, PyObject *args){
     if (l_str == NULL){
         Py_RETURN_NONE;
     }
-    return Py_BuildValue("s", l_str);
+    PyObject *l_str_obj = Py_BuildValue("s", l_str);
+    DAP_DELETE(l_str);
+    return l_str_obj;
 }
 
 PyObject *dap_chain_mempool_emission_get_py(PyObject *self, PyObject * args){
@@ -233,6 +235,7 @@ PyObject *dap_chain_mempool_base_tx_create_py(PyObject *self, PyObject *args){
     PyDapHashFastObject *l_obj_hf = PyObject_New(PyDapHashFastObject, &DapChainHashFastObjectType);
     l_obj_hf->hash_fast = DAP_NEW(dap_hash_fast_t);
     dap_chain_hash_fast_from_str(l_tx_hash_str, l_obj_hf->hash_fast);
+    l_obj_hf->origin = true;
     DAP_DELETE(l_tx_hash_str);
     return (PyObject*)l_obj_hf;
 }
@@ -266,6 +269,7 @@ PyObject *dap_chain_mempool_tx_create_py(PyObject *self, PyObject *args){
     l_obj_hf->hash_fast = DAP_NEW(dap_hash_fast_t);
     dap_chain_hash_fast_from_str(l_tx_hash_str, l_obj_hf->hash_fast);
     DAP_DELETE(l_tx_hash_str);
+    l_obj_hf->origin = true;
     return (PyObject*)l_obj_hf;
 }
 
@@ -316,6 +320,7 @@ PyObject *dap_chain_mempool_tx_create_cond_py(PyObject *self, PyObject *args){
     l_obj_hf->hash_fast = DAP_NEW(dap_hash_fast_t);
     dap_chain_hash_fast_from_str(l_tx_hash_str, l_obj_hf->hash_fast);
     DAP_DELETE(l_tx_hash_str);
+    l_obj_hf->origin = true;
     return (PyObject*)l_obj_hf;
 }
 
@@ -358,6 +363,7 @@ PyObject *dap_chain_mempool_tx_create_cond_input_py(PyObject *self, PyObject *ar
     l_obj_hf->hash_fast = DAP_NEW(dap_hash_fast_t);
     dap_chain_hash_fast_from_str(l_tx_hash_str, l_obj_hf->hash_fast);
     DAP_DELETE(l_tx_hash_str);
+    l_obj_hf->origin = true;
     return (PyObject*)l_obj_hf;
 }
 
@@ -468,6 +474,8 @@ PyObject *dap_chain_mempool_add_datum_py(PyObject *self, PyObject *args){
     if (!l_str)
         return Py_None;
     obj_datum->origin = false;
-    return Py_BuildValue("s", l_str);
+    PyObject *l_obj_ret = Py_BuildValue("s", l_str);
+    DAP_DELETE(l_str);
+    return l_obj_ret;
 }
 

@@ -214,15 +214,13 @@ PyObject *dap_chain_datum_tx_verify_sign_py(PyObject *self, PyObject *args){
 
 PyObject *wrapping_dap_chain_datum_tx_get_hash(PyObject *self, void* closure){
     (void)closure;
-    dap_chain_hash_fast_t l_hash_datum;
-    PyObject *obj_hash_fast = _PyObject_New(&DapChainHashFastObjectType);
-    obj_hash_fast = PyObject_Init(obj_hash_fast, &DapChainHashFastObjectType);
-    PyObject_Dir(obj_hash_fast);
-    ((PyDapHashFastObject*)obj_hash_fast)->hash_fast = DAP_NEW(dap_chain_hash_fast_t);
+    PyDapHashFastObject *obj_hash_fast = PyObject_New(PyDapHashFastObject, &DapChainHashFastObjectType);
+    obj_hash_fast->hash_fast = DAP_NEW(dap_chain_hash_fast_t);
     dap_hash_fast(((PyDapChainDatumTxObject*)self)->datum_tx,
                   dap_chain_datum_tx_get_size(((PyDapChainDatumTxObject*)self)->datum_tx),
-                  ((PyDapHashFastObject*)obj_hash_fast)->hash_fast);
-    return  obj_hash_fast;
+                  obj_hash_fast->hash_fast);
+    obj_hash_fast->origin = true;
+    return  (PyObject*)obj_hash_fast;
 }
 PyObject *wrapping_dap_chain_datum_tx_get_tsCreated(PyObject *self, void* closure){
     (void)closure;
@@ -314,6 +312,7 @@ PyObject *wrapping_dap_chain_datum_tx_get_items(PyObject *self, PyObject *args){
                 break;
         }
         PyList_Append(obj_list, obj_tx_item);
+        Py_XDECREF(obj_tx_item);
         l_tx_items_count += l_tx_item_size;
     }
     return obj_list;

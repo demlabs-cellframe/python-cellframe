@@ -28,7 +28,9 @@ PyObject* dap_exec_with_ret(PyObject* self, PyObject *args){
         return NULL;
     }
     char *l_ret = exec_with_ret_multistring(str);
-    return Py_BuildValue("s", l_ret);
+    PyObject *l_res_obj = Py_BuildValue("s", l_ret);
+    DAP_DELETE(l_ret);
+    return l_res_obj;
 }
 
 static PyMethodDef DapLogitMethods[] = {
