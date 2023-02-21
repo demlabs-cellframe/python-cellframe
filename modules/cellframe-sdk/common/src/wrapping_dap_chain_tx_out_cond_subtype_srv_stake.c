@@ -52,14 +52,12 @@ PyTypeObject DapChainTxOutCondSubTypeSrvStakePosDelegateObjectType = {
 PyObject *wrapping_dap_chain_tx_out_cond_subtype_srv_stake_get_uid(PyObject *self, void *closure){
     (void)closure;
     PyDapChainNetSrvUIDObject *obj_net_srv_uid = PyObject_New(PyDapChainNetSrvUIDObject, &DapChainNetSrvUidObjectType);
-    PyObject_Dir((PyObject*)obj_net_srv_uid);
     obj_net_srv_uid->net_srv_uid = ((PyDapChainTxOutCondObject*)self)->out_cond->header.srv_uid;
     return (PyObject*)obj_net_srv_uid;
 }
 PyObject *wrapping_dap_chain_tx_out_cond_subtype_srv_stake_get_addr(PyObject *self, void *closure){
     (void)closure;
     PyDapChainAddrObject *obj_addr = PyObject_New(PyDapChainAddrObject, &DapChainAddrObjectType);
-    PyObject_Dir((PyObject*)obj_addr);
     obj_addr->addr = &((PyDapChainTxOutCondObject*)self)->out_cond->subtype.srv_stake.fee_addr;
     return (PyObject*)obj_addr;
 }

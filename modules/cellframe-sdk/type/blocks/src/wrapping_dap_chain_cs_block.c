@@ -107,14 +107,17 @@ PyObject *wrapping_dap_chain_block_get_meta_data(PyObject *self, void *closure){
     PyDapHashFastObject *l_obj_prev_hash = PyObject_New(PyDapHashFastObject, &DapChainHashFastObjectType);
     l_obj_prev_hash->hash_fast = DAP_NEW(dap_chain_hash_fast_t);
     memcpy(l_obj_prev_hash->hash_fast, &l_block_prev_hash, sizeof(dap_chain_hash_fast_t));
+    l_obj_prev_hash->origin = true;
     PyDict_SetItemString(obj_dict, "blockPrevHash", (PyObject*)l_obj_prev_hash);
     PyDapHashFastObject *l_obj_anchor_hash = PyObject_New(PyDapHashFastObject, &DapChainHashFastObjectType);
     l_obj_anchor_hash->hash_fast = DAP_NEW(dap_chain_hash_fast_t);
     memcpy(l_obj_anchor_hash->hash_fast, &l_block_anchor_hash, sizeof(dap_chain_hash_fast_t));
+    l_obj_anchor_hash->origin = true;
     PyDict_SetItemString(obj_dict, "blockAnchorHash", (PyObject*)l_obj_anchor_hash);
     PyDapHashFastObject *l_obj_merkle = PyObject_New(PyDapHashFastObject, &DapChainHashFastObjectType);
     l_obj_merkle->hash_fast = DAP_NEW(dap_chain_hash_fast_t);
     memcpy(l_obj_merkle->hash_fast, &l_merkle, sizeof(dap_chain_hash_fast_t));
+    l_obj_merkle->origin = true;
     PyDict_SetItemString(obj_dict, "merkle", (PyObject*)l_obj_merkle);
     // Get List links
     PyObject *obj_block_links = PyList_New((Py_ssize_t)l_block_links_count);
@@ -122,6 +125,7 @@ PyObject *wrapping_dap_chain_block_get_meta_data(PyObject *self, void *closure){
         PyDapHashFastObject *obj_hf = PyObject_New(PyDapHashFastObject, &DapChainHashFastObjectType);
         obj_hf->hash_fast = DAP_NEW(dap_chain_hash_fast_t);
         memcpy(obj_hf->hash_fast, &l_block_links[i], sizeof(dap_chain_hash_fast_t));
+        obj_hf->origin = true;
 //        obj_hf->hash_fast = &(l_block_links[i]);
     }
     PyDict_SetItemString(obj_dict, "links", obj_block_links);
@@ -174,6 +178,7 @@ PyObject *wrapping_dap_chain_block_get_hash(PyObject *self, void *closure){
     obj_hf->hash_fast = DAP_NEW(dap_chain_hash_fast_t);
     dap_hash_fast(((PyDapChainCSBlockObject*)self)->block,
                   ((PyDapChainCSBlockObject*)self)->block_size, obj_hf->hash_fast);
+    obj_hf->origin = true;
     return (PyObject*)obj_hf;
 }
 

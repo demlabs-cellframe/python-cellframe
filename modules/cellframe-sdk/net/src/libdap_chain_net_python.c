@@ -139,9 +139,7 @@ PyObject *dap_chain_net_by_name_py(PyObject *self, PyObject *args){
                         "Invalid argument specified. The first argument for this function must be a string. ");
         return NULL;
     }
-    PyObject *obj_chain_net = _PyObject_New(&DapChainNetObjectType);
-    obj_chain_net = PyObject_Init(obj_chain_net, &DapChainNetObjectType);
-    PyObject_Dir(obj_chain_net);
+    PyDapChainNetObject *obj_chain_net = PyObject_New(PyDapChainNetObject, &DapChainNetObjectType);
     ((PyDapChainNetObject*)obj_chain_net)->chain_net = dap_chain_net_by_name(a_name);
     if (((PyDapChainNetObject*)obj_chain_net)->chain_net == NULL){
         PyObject_Del(obj_chain_net);
@@ -166,11 +164,9 @@ PyObject *dap_chain_net_by_id_py(PyObject *self, PyObject *args){
     PyObject *obj_net_id;
     if (!PyArg_ParseTuple(args, "O", &obj_net_id))
         return NULL;
-    PyObject *obj_net = _PyObject_New(&DapChainNetObjectType);
-    obj_net = PyObject_Init(obj_net, &DapChainNetObjectType);
+    PyDapChainNetObject *obj_net = PyObject_New(PyDapChainNetObject, &DapChainNetObjectType);
     ((PyDapChainNetObject*)obj_net)->chain_net = dap_chain_net_by_id(((PyDapChainNetIdObject*)obj_net_id)->net_id);
-    PyObject_Dir(obj_net);
-    return Py_BuildValue("O", obj_net);
+    return (PyObject*)obj_net;
 }
 PyObject *dap_chain_net_id_by_name_py(PyObject *self, PyObject *args){
     const char *name;
@@ -207,7 +203,6 @@ PyObject *dap_chain_net_get_chain_by_name_py(PyObject *self, PyObject *args){
 PyObject *dap_chain_net_python_get_id(PyObject *self, void *closure){
     (void)closure;
     PyDapChainNetIdObject *obj_net_id = PyObject_New(PyDapChainNetIdObject, &DapChainNetIdObjectType);
-    PyObject_Dir((PyObject*)obj_net_id);
     obj_net_id->net_id = ((PyDapChainNetObject*)self)->chain_net->pub.id;
     return (PyObject*)obj_net_id;
 }
@@ -244,7 +239,11 @@ PyObject *dap_chain_net_get_gdb_group_mempool_py(PyObject *self, PyObject *args)
     if (!PyArg_ParseTuple(args, "O", &obj_chain))
         return NULL;
     char *res = dap_chain_net_get_gdb_group_mempool(((PyDapChainObject*)obj_chain)->chain_t);
-    return Py_BuildValue("s", res);
+    if (!res)
+        Py_RETURN_NONE;
+    PyObject *l_obj_res = Py_BuildValue("s", res);
+    DAP_DELETE(res);
+    return l_obj_res;
 }
 PyObject *dap_chain_net_get_gdb_group_mempool_by_chain_type_py(PyObject *self, PyObject *args){
     PyObject *obj_chain_type;
@@ -252,8 +251,11 @@ PyObject *dap_chain_net_get_gdb_group_mempool_by_chain_type_py(PyObject *self, P
         return NULL;
     char *res = dap_chain_net_get_gdb_group_mempool_by_chain_type(((PyDapChainNetObject*)self)->chain_net,
                                                                   ((PyChainTypeObject*)obj_chain_type)->chain_type);
-    return Py_BuildValue("s", res);
-
+    if (!res)
+        Py_RETURN_NONE;
+    PyObject *l_obj_res = Py_BuildValue("s", res);
+    DAP_DELETE(res);
+    return l_obj_res;
 }
 PyObject *dap_chain_net_links_connect_py(PyObject *self, PyObject *args){
 //    dap_chain_net_links_connect(((PyDapChainNetObject*)self)->chain_net);
@@ -273,10 +275,9 @@ PyObject *dap_chain_net_get_chain_by_chain_type_py(PyObject *self, PyObject *arg
 
 PyObject *dap_chain_net_get_ledger_py(PyObject *self, PyObject *args){
     (void)args;
-    PyObject *obj_ledger = (PyObject *)PyObject_New(PyDapChainLedgerObject, &DapChainLedgerObjectType);
-    PyObject_Dir(obj_ledger);
-    ((PyDapChainLedgerObject*)obj_ledger)->ledger = ((PyDapChainNetObject*)self)->chain_net->pub.ledger;
-    return obj_ledger;
+    PyDapChainLedgerObject *obj_ledger = PyObject_New(PyDapChainLedgerObject, &DapChainLedgerObjectType);
+    obj_ledger->ledger = ((PyDapChainNetObject*)self)->chain_net->pub.ledger;
+    return (PyObject*)obj_ledger;
 }
 
 PyObject *dap_chain_net_get_name_py(PyObject *self, PyObject *args){

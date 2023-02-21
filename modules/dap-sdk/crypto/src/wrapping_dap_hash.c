@@ -77,7 +77,7 @@ PyTypeObject DapChainHashFastObjectType = {
         "DAP.Crypto.HashFast",          /* tp_name */
         sizeof(PyDapHashFastObject),   /* tp_basicsize */
         0,                               /* tp_itemsize */
-        0,                               /* tp_dealloc */
+        (destructor)PyDapHashFast_free,  /* tp_dealloc */
         0,                               /* tp_print */
         0,                               /* tp_getattr */
         0,                               /* tp_setattr */
@@ -113,6 +113,13 @@ PyTypeObject DapChainHashFastObjectType = {
         0,                               /* tp_alloc */
         PyType_GenericNew,               /* tp_new */
 };
+
+void PyDapHashFast_free(PyDapHashFastObject *self) {
+    if (self->origin == true) {
+        DAP_DELETE(self->hash_fast);
+    }
+    Py_TYPE(self)->tp_free((PyObject*)self);
+}
 
 PyObject* PyDapHashFast_compare(PyObject *self, PyObject *other, int op){
     if (!PyDapHashFast_Check((PyDapHashFastObject*)other)){
@@ -198,8 +205,11 @@ PyObject *dap_chain_str_to_hash_fast_py(PyObject *self, PyObject *args){
     obj_hash_fast->hash_fast = DAP_NEW(dap_hash_fast_t);
     if (dap_chain_hash_fast_from_str(hash_str, obj_hash_fast->hash_fast)) {
         DAP_DEL_Z(obj_hash_fast->hash_fast);
+        obj_hash_fast->origin = false;
+        Py_XDECREF(obj_hash_fast);
         Py_RETURN_NONE;
     }
+    obj_hash_fast->origin = true;
     return (PyObject*)obj_hash_fast;
 }
 
@@ -247,7 +257,9 @@ PyObject *dap_chain_hash_fast_to_str_py(PyObject *self, PyObject *args){
 
 PyObject *dap_chain_hash_fast_to_str_new_py(PyObject *self, PyObject *args){
     char *res = dap_chain_hash_fast_to_str_new(((PyDapHashFastObject*)self)->hash_fast);
-    return Py_BuildValue("s", res);
+    PyObject *l_obj_res = Py_BuildValue("s", res);
+    DAP_DELETE(res);
+    return l_obj_res;
 }
 
 PyObject *wrapping_dap_hash_to_str(PyObject *self) { return wrapping_dap_hash_to_str_implicit(self, NULL); }
