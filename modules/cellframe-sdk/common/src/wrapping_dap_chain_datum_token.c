@@ -237,6 +237,7 @@ PyObject *wrapping_dap_chain_datum_token_emission_get_hash(PyObject *self, void 
     dap_hash_fast(
             ((PyDapChainDatumTokenEmissionObject*)self)->token_emission,
             ((PyDapChainDatumTokenEmissionObject*)self)->token_size, obj_hf->hash_fast);
+    obj_hf->origin = true;
     return (PyObject*)obj_hf;
 }
 
@@ -284,7 +285,6 @@ PyObject *wrapping_dap_chain_datum_token_emission_get_ticker(PyObject *self, voi
 PyObject *wrapping_dap_chain_datum_token_emission_get_addr(PyObject *self, void *closure){
     (void)closure;
     PyDapChainAddrObject *obj_addr = PyObject_New(PyDapChainAddrObject, &DapChainAddrObjectType);
-    PyObject_Dir((PyObject*)obj_addr);
     obj_addr->addr = &((PyDapChainDatumTokenEmissionObject*)self)->token_emission->hdr.address;
     return (PyObject*)obj_addr;
 }
@@ -311,7 +311,6 @@ PyObject *wrapping_dap_chain_datum_token_emission_get_data(PyObject *self, void 
             for (size_t i = 0; i < token_emi->data.type_auth.signs_count && l_offset < token_emi_size; i++){
                 if(dap_sign_verify_size(l_sign_ptr, ((PyDapChainDatumTokenEmissionObject*)self)->token_size - l_offset)){
                     obj_tmp_sign = PyObject_New(PyDapSignObject, &DapCryptoSignObjectType);
-                    PyObject_Dir((PyObject*)obj_tmp_sign);
                     obj_tmp_sign->sign = DAP_NEW_Z_SIZE(dap_sign_t, dap_sign_get_size(l_sign_ptr));
                     memcpy(obj_tmp_sign->sign, l_sign_ptr, dap_sign_get_size(l_sign_ptr));
                     if (PyList_Append(obj_tmp, (PyObject*)obj_tmp_sign) == -1){

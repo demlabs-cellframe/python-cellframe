@@ -439,10 +439,10 @@ PyObject *dap_chain_python_get_txs(PyObject *self, PyObject *args){
         PyObject *l_obj_list = PyList_New(0);
         for (dap_list_t *l_ptr = l_list; l_ptr != NULL; l_ptr = l_ptr->next){
             PyDapChainDatumTxObject *l_obj_tx = PyObject_New(PyDapChainDatumTxObject, &DapChainDatumTxObjectType);
-            PyObject_Dir((PyObject*)l_obj_tx);
             l_obj_tx->datum_tx = l_ptr->data;
             l_obj_tx->original = false;
             PyList_Append(l_obj_list, (PyObject *)l_obj_tx);
+            Py_XDECREF((PyObject *)l_obj_tx);
         }
         dap_list_free(l_list);
         return l_obj_list;

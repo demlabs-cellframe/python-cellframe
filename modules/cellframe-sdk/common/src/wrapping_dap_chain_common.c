@@ -355,7 +355,9 @@ PyObject *dap_chain_addr_to_str_py(PyObject *self, PyObject *args){
         return NULL;
     const dap_chain_addr_t *addr = ((PyDapChainAddrObject*)obj_chain_addr)->addr;
     char *res = dap_chain_addr_to_str(addr);
-    return Py_BuildValue("s", res);
+    PyObject *l_obj_res =  Py_BuildValue("s", res);
+    DAP_DELETE(res);
+    return l_obj_res;
 }
 
 PyObject *dap_chain_addr_from_str_py(PyObject *self, PyObject *args){
@@ -366,11 +368,9 @@ PyObject *dap_chain_addr_from_str_py(PyObject *self, PyObject *args){
     if (!l_addr){
         Py_RETURN_NONE;
     }
-    PyObject *obj = _PyObject_New(&DapChainAddrObjectType);
-    obj = PyObject_Init(obj, &DapChainAddrObjectType);
-    ((PyDapChainAddrObject*)obj)->addr = l_addr;
-    PyObject_Dir(obj);
-    return Py_BuildValue("O", obj);
+    PyDapChainAddrObject *obj = PyObject_New(PyDapChainAddrObject, &DapChainAddrObjectType);
+    obj->addr = l_addr;
+    return (PyObject*)obj;
 }
 
 PyObject *dap_chain_addr_fill_py(PyObject *self, PyObject *args){
@@ -383,7 +383,6 @@ PyObject *dap_chain_addr_fill_py(PyObject *self, PyObject *args){
     }
     if (self == NULL){
         PyDapChainAddrObject *obj_addr = PyObject_New(PyDapChainAddrObject, &DapChainAddrObjectType);
-        PyObject_Dir((PyObject*)obj_addr);
         obj_addr->addr = DAP_NEW(dap_chain_addr_t);
         dap_chain_addr_fill(
                 obj_addr->addr,
@@ -419,7 +418,10 @@ PyObject *dap_chain_addr_check_sum_py(PyObject *self, PyObject *args){
 }
 
 PyObject *obj_addr_str(PyObject *self){
-    return Py_BuildValue("s", dap_chain_addr_to_str(((PyDapChainAddrObject*)self)->addr));
+    char *l_addr = dap_chain_addr_to_str(((PyDapChainAddrObject*)self)->addr);
+    PyObject* l_obj_res = Py_BuildValue("s", l_addr);
+    DAP_DELETE(l_addr);
+    return l_obj_res;
 }
 
 PyObject* dap_chain_addr_get_net_id_py(PyObject *self, PyObject *args){
@@ -516,7 +518,6 @@ PyObject *wrapping_dap_chain_net_srv_price_unit_uid_get_undefined(PyObject *self
     (void)args;
     PyDapChainNetSrvPriceUnitUIDObject *obj_srv_price_uid = PyObject_New(PyDapChainNetSrvPriceUnitUIDObject,
                                                                          &DapChainNetSrvPriceUnitUidObjectType);
-    PyObject_Dir((PyObject*)obj_srv_price_uid);
     obj_srv_price_uid->price_unit_uid.uint32 = SERV_UNIT_UNDEFINED;
     obj_srv_price_uid->price_unit_uid.enm = SERV_UNIT_UNDEFINED;
     return (PyObject*)obj_srv_price_uid;
@@ -526,7 +527,6 @@ PyObject *wrapping_dap_chain_net_srv_price_unit_uid_get_mb(PyObject *self, PyObj
     (void)args;
     PyDapChainNetSrvPriceUnitUIDObject *obj_srv_price_uid = PyObject_New(PyDapChainNetSrvPriceUnitUIDObject,
                                                                          &DapChainNetSrvPriceUnitUidObjectType);
-    PyObject_Dir((PyObject*)obj_srv_price_uid);
     obj_srv_price_uid->price_unit_uid.uint32 = SERV_UNIT_MB;
     obj_srv_price_uid->price_unit_uid.enm = SERV_UNIT_MB;
     return (PyObject*)obj_srv_price_uid;
@@ -536,7 +536,6 @@ PyObject *wrapping_dap_chain_net_srv_price_unit_uid_get_sec(PyObject *self, PyOb
     (void)args;
     PyDapChainNetSrvPriceUnitUIDObject *obj_srv_price_uid = PyObject_New(PyDapChainNetSrvPriceUnitUIDObject,
                                                                          &DapChainNetSrvPriceUnitUidObjectType);
-    PyObject_Dir((PyObject*)obj_srv_price_uid);
     obj_srv_price_uid->price_unit_uid.uint32 = SERV_UNIT_SEC;
     obj_srv_price_uid->price_unit_uid.enm = SERV_UNIT_SEC;
     return (PyObject*)obj_srv_price_uid;
@@ -546,7 +545,6 @@ PyObject *wrapping_dap_chain_net_srv_price_unit_uid_get_day(PyObject *self, PyOb
     (void)args;
     PyDapChainNetSrvPriceUnitUIDObject *obj_srv_price_uid = PyObject_New(PyDapChainNetSrvPriceUnitUIDObject,
                                                                          &DapChainNetSrvPriceUnitUidObjectType);
-    PyObject_Dir((PyObject*)obj_srv_price_uid);
     obj_srv_price_uid->price_unit_uid.uint32 = SERV_UNIT_DAY;
     obj_srv_price_uid->price_unit_uid.enm = SERV_UNIT_DAY;
     return (PyObject*)obj_srv_price_uid;
@@ -556,7 +554,6 @@ PyObject *wrapping_dap_chain_net_srv_price_unit_uid_get_kb(PyObject *self, PyObj
     (void)args;
     PyDapChainNetSrvPriceUnitUIDObject *obj_srv_price_uid = PyObject_New(PyDapChainNetSrvPriceUnitUIDObject,
                                                                          &DapChainNetSrvPriceUnitUidObjectType);
-    PyObject_Dir((PyObject*)obj_srv_price_uid);
     obj_srv_price_uid->price_unit_uid.uint32 = SERV_UNIT_KB;
     obj_srv_price_uid->price_unit_uid.enm = SERV_UNIT_KB;
     return (PyObject*)obj_srv_price_uid;
@@ -566,7 +563,6 @@ PyObject *wrapping_dap_chain_net_srv_price_unit_uid_get_b(PyObject *self, PyObje
     (void)args;
     PyDapChainNetSrvPriceUnitUIDObject *obj_srv_price_uid = PyObject_New(PyDapChainNetSrvPriceUnitUIDObject,
                                                                          &DapChainNetSrvPriceUnitUidObjectType);
-    PyObject_Dir((PyObject*)obj_srv_price_uid);
     obj_srv_price_uid->price_unit_uid.uint32 = SERV_UNIT_B;
     obj_srv_price_uid->price_unit_uid.enm = SERV_UNIT_B;
     return (PyObject*)obj_srv_price_uid;

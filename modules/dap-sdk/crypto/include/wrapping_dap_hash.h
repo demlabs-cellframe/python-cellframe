@@ -48,9 +48,12 @@ extern PyTypeObject DapHashTypeObject_DapChainHashTypeObjectType;
 typedef struct PyDapHashFast{
     PyObject_HEAD
     dap_chain_hash_fast_t *hash_fast;
+    bool origin;
 }PyDapHashFastObject;
 
 PyObject* PyDapHashFast_compare(PyObject *self, PyObject *other, int op);
+
+void PyDapHashFast_free(PyDapHashFastObject *self);
 
 int PyDapHashFast_init(PyObject *self, PyObject *args, PyObject *kwds);
 

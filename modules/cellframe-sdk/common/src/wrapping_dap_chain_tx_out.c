@@ -54,11 +54,9 @@ PyTypeObject DapChainTxOutObjectType = {
 
 PyObject *wrapping_dap_chain_tx_out_get_addr(PyObject *self, void *closure){
     (void)closure;
-    PyObject *obj_addr = _PyObject_New(&DapChainAddrObjectType);
-    obj_addr = PyObject_Init(obj_addr, &DapChainAddrObjectType);
-    PyObject_Dir(obj_addr);
-    ((PyDapChainAddrObject*)obj_addr)->addr = &((PyDapChainTXOutObject*)self)->tx_out->addr;
-    return obj_addr;
+    PyDapChainAddrObject *obj_addr = PyObject_New(PyDapChainAddrObject, &DapChainAddrObjectType);
+    obj_addr->addr = &((PyDapChainTXOutObject*)self)->tx_out->addr;
+    return (PyObject*)obj_addr;
 }
 PyObject *wrapping_dap_chain_tx_out_get_value(PyObject *self, void *closure){
     (void)closure;

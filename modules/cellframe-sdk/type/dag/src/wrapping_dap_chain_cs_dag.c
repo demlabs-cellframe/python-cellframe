@@ -79,7 +79,6 @@ PyObject *dap_chain_cs_dag_find_event_by_hash_py(PyObject *self, PyObject *args)
     }
     PyDapChainCsDagEventObject *obj_event = PyObject_New(PyDapChainCsDagEventObject,
                                                          &DapChainCsDagEventType);
-    PyObject_Dir((PyObject*)obj_event);
     obj_event->event = (dap_chain_cs_dag_event_t *)l_iter->cur;
     obj_event->event_size = l_iter->cur_size;
     return (PyObject*)obj_event;

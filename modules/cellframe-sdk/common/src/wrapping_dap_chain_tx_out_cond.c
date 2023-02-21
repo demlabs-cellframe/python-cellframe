@@ -110,7 +110,6 @@ PyObject *wrapping_dap_chain_tx_out_cond_get_type_subtype(PyObject *self, void *
     (void)closure;
     PyDapChainTxOutCondSubTypeObject *obj_type_subtype = PyObject_New(PyDapChainTxOutCondSubTypeObject,
                                               &DapChainTxOutCondSubType_DapChainTxOutCondSubTypeType);
-    PyObject_Dir((PyObject*)obj_type_subtype);
     obj_type_subtype->out_cond_subtype = &((PyDapChainTxOutCondObject*)self)->out_cond->header.subtype;
     return (PyObject*)obj_type_subtype;
 }

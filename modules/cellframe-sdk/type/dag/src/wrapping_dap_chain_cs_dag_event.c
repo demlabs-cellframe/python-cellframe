@@ -83,6 +83,7 @@ PyObject *wrapping_dap_chain_cs_dag_event_get_hash(PyObject *self, void *closure
             ((PyDapChainCsDagEventObject*)self)->event,
             ((PyDapChainCsDagEventObject*)self)->event_size,
             obj_hf->hash_fast);
+    obj_hf->origin = true;
     return (PyObject*)obj_hf;
 }
 
@@ -106,14 +107,12 @@ PyObject *wrapping_dap_chain_cs_dag_event_get_ts_created(PyObject *self, void *c
 PyObject *wrapping_dap_chain_cs_dag_event_get_chain_id(PyObject *self, void *closure){
     (void)closure;
     PyDapChainIDObject *obj_chain_id = PyObject_New(PyDapChainIDObject, &DapChainIdObjectType);
-    PyObject_Dir((PyObject*)obj_chain_id);
     obj_chain_id->chain_id = &((PyDapChainCsDagEventObject*)self)->event->header.chain_id;
     return (PyObject*)obj_chain_id;
 }
 PyObject *wrapping_dap_chain_cs_dag_event_get_cell_id(PyObject *self, void *closure){
     (void)closure;
     PyDapChainCellIDObject *obj_cell_id = PyObject_New(PyDapChainCellIDObject, &DapChainCellIdObjectType);
-    PyObject_Dir((PyObject*)obj_cell_id);
     obj_cell_id->cell_id = ((PyDapChainCsDagEventObject*)self)->event->header.cell_id;
     return (PyObject*)obj_cell_id;
 }
@@ -130,10 +129,10 @@ PyObject *wrapping_dap_chain_cs_dag_event_get_links(PyObject *self, void *closur
     PyObject *obj_list = PyList_New(((PyDapChainCsDagEventObject*)self)->event->header.hash_count);
     for (uint16_t i=0; i < ((PyDapChainCsDagEventObject*)self)->event->header.hash_count; i++){
         PyDapHashFastObject  *obj_hf = PyObject_New(PyDapHashFastObject, &DapChainHashFastObjectType);
-        PyObject_Dir((PyObject*)obj_hf);
         obj_hf->hash_fast =
                 (dap_chain_hash_fast_t *) (((PyDapChainCsDagEventObject*)self)->event->hashes_n_datum_n_signs +
                                                                     i*sizeof (dap_chain_hash_fast_t));
+        obj_hf->origin = false;
         PyList_SetItem(obj_list, i, (PyObject *)obj_hf);
     }
     return obj_list;
@@ -158,7 +157,6 @@ PyObject *wrapping_dap_chain_cs_dag_event_get_signs(PyObject *self, void *closur
             break;
         }
         PyDapSignObject *obj_sign = PyObject_New(PyDapSignObject, &DapCryptoSignObjectType);
-        PyObject_Dir((PyObject*)obj_sign);
         obj_sign->sign = l_sign;
         PyList_Append(obj_list, (PyObject*)obj_sign);
         l_offset += l_sign_size;

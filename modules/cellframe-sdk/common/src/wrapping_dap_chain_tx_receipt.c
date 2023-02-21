@@ -98,9 +98,6 @@ PyObject *wrapping_dap_chain_tx_receipt_get_sig_provider(PyObject *self, void *c
             Py_RETURN_NONE;
         size_t l_sign_size = dap_sign_get_size(l_sign);
         PyDapSignObject *obj_sign_provider = PyObject_New(PyDapSignObject, &DapCryptoSignObjectType);
-        obj_sign_provider = (PyDapSignObject *)PyObject_Init((PyObject *)obj_sign_provider,
-                                                             &DapCryptoSignObjectType);
-        PyObject_Dir((PyObject *)obj_sign_provider);
         obj_sign_provider->sign = DAP_DUP_SIZE(l_sign, l_sign_size);
         return (PyObject *)obj_sign_provider;
     }
@@ -123,9 +120,6 @@ PyObject *wrapping_dap_chain_tx_receipt_get_sig_client(PyObject *self, void *clo
             Py_RETURN_NONE;
         l_sign_size = dap_sign_get_size(l_sign);
         PyDapSignObject *obj_sign_client = PyObject_New(PyDapSignObject, &DapCryptoSignObjectType);
-        obj_sign_client = (PyDapSignObject *)PyObject_Init((PyObject *)obj_sign_client,
-                                                             &DapCryptoSignObjectType);
-        PyObject_Dir((PyObject *)obj_sign_client);
         obj_sign_client->sign = DAP_DUP_SIZE(l_sign, l_sign_size);
         return (PyObject *)obj_sign_client;
     }
