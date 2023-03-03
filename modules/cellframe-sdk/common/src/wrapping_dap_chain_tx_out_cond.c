@@ -28,7 +28,7 @@ PyObject *wrapping_dap_chain_tx_out_cond_get_value(PyObject *self, void *closure
 }
 
 // DapChaTxOutCondSubtype
-PyTypeObject DapChainTxOutCondSubType_DapChainTxOutCondSubTypeType = DAP_PY_TYPE_OBJECT(
+PyTypeObject DapChainTxOutCondSubTypeObjectType = DAP_PY_TYPE_OBJECT(
         "CellFrame.ChainTxOutCondSubType", sizeof(PyDapChainTxOutCondSubTypeObject),
         "Chain tx out cond object",
         .tp_str = PyDapChainTxOutCondSubType_str);
@@ -36,7 +36,7 @@ PyTypeObject DapChainTxOutCondSubType_DapChainTxOutCondSubTypeType = DAP_PY_TYPE
 PyObject *wrapping_dap_chain_tx_out_cond_get_type_subtype(PyObject *self, void *closure){
     (void)closure;
     PyDapChainTxOutCondSubTypeObject *obj_type_subtype = PyObject_New(PyDapChainTxOutCondSubTypeObject,
-                                              &DapChainTxOutCondSubType_DapChainTxOutCondSubTypeType);
+                                              &DapChainTxOutCondSubTypeObjectType);
     PyObject_Dir((PyObject*)obj_type_subtype);
     obj_type_subtype->out_cond_subtype = &((PyDapChainTxOutCondObject*)self)->out_cond->header.subtype;
     return (PyObject*)obj_type_subtype;
