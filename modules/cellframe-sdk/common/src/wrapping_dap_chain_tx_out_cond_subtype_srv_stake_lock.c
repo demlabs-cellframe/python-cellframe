@@ -85,14 +85,13 @@ PyObject *wrapping_dap_chain_net_srv_stake_lock_get_reinvest_percent(PyObject *s
 }
 PyObject *wrapping_dap_chain_net_srv_stake_lock_get_token_delegated(PyObject *self, void *closure) {
     UNUSED(closure);
-    PyDapHashFastObject *obj_hf = PyObject_New(PyDapHashFastObject, &DapChainHashFastObjectType);
-    //obj_hf->hash_fast = &PVT(self).token_delegated;
-    return (PyObject*)obj_hf;
+    Py_RETURN_NONE;
 }
 PyObject *wrapping_dap_chain_net_srv_stake_lock_get_pkey_delegated(PyObject *self, void *closure) {
     UNUSED(closure);
     PyDapHashFastObject *obj_hf = PyObject_New(PyDapHashFastObject, &DapChainHashFastObjectType);
     obj_hf->hash_fast = &PVT(self).pkey_delegated;
+    obj_hf->origin = false;
     return (PyObject*)obj_hf;
 }
 

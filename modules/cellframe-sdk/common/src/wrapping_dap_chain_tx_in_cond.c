@@ -47,11 +47,10 @@ PyObject *wrapping_dap_chain_tx_in_cond_get_receipt_prev_idx(PyObject *self, voi
 }
 PyObject *wrapping_dap_chain_tx_in_cond_get_prev_hash(PyObject *self, void *closure){
     (void)closure;
-    PyObject *obj_hash = _PyObject_New(&DapChainHashFastObjectType);
-    obj_hash = PyObject_Init(obj_hash, &DapChainHashFastObjectType);
-    PyObject_Dir(obj_hash);
-    ((PyDapHashFastObject*)obj_hash)->hash_fast = &((PyDapChainTXInCondObject*)self)->tx_in_cond->header.tx_prev_hash;
-    return obj_hash;
+    PyDapHashFastObject *obj_hash = PyObject_New(PyDapHashFastObject, &DapChainHashFastObjectType);
+    obj_hash->hash_fast = &((PyDapChainTXInCondObject*)self)->tx_in_cond->header.tx_prev_hash;
+    obj_hash->origin = false;
+    return (PyObject*)obj_hash;
 }
 PyObject *wrapping_dap_chain_tx_in_cond_get_out_prev_idx(PyObject *self, void *closure){
     (void)closure;

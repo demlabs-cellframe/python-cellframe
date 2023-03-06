@@ -126,7 +126,6 @@ PyObject *wrapping_dap_chain_datum_get_datum_token(PyObject *self, PyObject *arg
     if (((PyDapChainDatumObject*)self)->datum->header.type_id == DAP_CHAIN_DATUM_TOKEN_DECL ){
         PyDapChainDatumTokenObject *obj_token = PyObject_New(PyDapChainDatumTokenObject,
                                                              &DapChainDatumTokenObjectType);
-        PyObject_Dir((PyObject*)obj_token);
         size_t l_size_token = ((PyDapChainDatumObject*)self)->datum->header.data_size;
         obj_token->token = dap_chain_datum_token_read(((PyDapChainDatumObject*)self)->datum->data,
                                                       &l_size_token);
@@ -177,12 +176,10 @@ PyObject *wrapping_dap_chain_datum_is_type_custom(PyObject *self, PyObject *args
 PyObject *wrapping_dap_chain_datum_get_datum_tx(PyObject *self, PyObject *args){
     (void)args;
     if(((PyDapChainDatumObject *)self)->datum->header.type_id == DAP_CHAIN_DATUM_TX){
-        PyObject *obj_datum_tx = _PyObject_New(&DapChainDatumTxObjectType);
-        obj_datum_tx = PyObject_Init(obj_datum_tx, &DapChainDatumTxObjectType);
-        PyObject_Dir(obj_datum_tx);
-        ((PyDapChainDatumTxObject*)obj_datum_tx)->datum_tx = (dap_chain_datum_tx_t *)((PyDapChainDatumObject*)self)->datum->data;
-        ((PyDapChainDatumTxObject*)obj_datum_tx)->original = false;
-        return obj_datum_tx;
+        PyDapChainDatumTxObject *obj_datum_tx = PyObject_New(PyDapChainDatumTxObject, &DapChainDatumTxObjectType);
+        obj_datum_tx->datum_tx = (dap_chain_datum_tx_t *)((PyDapChainDatumObject*)self)->datum->data;
+        obj_datum_tx->original = false;
+        return (PyObject*)obj_datum_tx;
     }else{
         PyErr_SetString(PyExc_Exception, "Due to the type of this datum, it is not possible to get the transaction datum.");
         return NULL;
@@ -211,6 +208,7 @@ PyObject *wrapping_dap_chain_datum_get_hash_py(PyObject *self, void* closure){
             ((PyDapChainDatumObject*)self)->datum,
             dap_chain_datum_size(((PyDapChainDatumObject*)self)->datum),
             obj_hf->hash_fast);
+    obj_hf->origin = true;
     return (PyObject*)obj_hf;
 }
 
