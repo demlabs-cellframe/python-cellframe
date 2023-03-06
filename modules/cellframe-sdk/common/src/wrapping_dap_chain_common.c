@@ -211,8 +211,8 @@ int PyDapChainNetSrvUIDObject_init(PyObject *self, PyObject *args, PyObject *kwd
 }
 
 PyObject *PyDapChainNetSrvPriceUnitUID_str(PyObject *self){
-    serv_unit_enum_t l_enm = ((PyDapChainNetSrvPriceUnitUIDObject*)self)->price_unit_uid.enm;
-    return Py_BuildValue("s", serv_unit_enum_to_str(&l_enm));
+    dap_chain_srv_unit_enum_t l_enm = ((PyDapChainNetSrvPriceUnitUIDObject*)self)->price_unit_uid.enm;
+    return Py_BuildValue("s", dap_chain_srv_unit_enum_to_str(l_enm));
 }
 
 PyObject *wrapping_dap_chain_net_srv_price_unit_uid_get_undefined(PyObject *self, PyObject *args){
