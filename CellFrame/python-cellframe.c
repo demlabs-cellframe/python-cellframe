@@ -626,6 +626,7 @@ PyMODINIT_FUNC PyInit_libCellFrame(void)
         PyType_Ready( &DapChainTxTokenExtType ) < 0 ||
         PyType_Ready( &DapChainTxCondTypeObjectType ) < 0 ||
         PyType_Ready( &DapChainTxOutCondObjectType ) < 0 ||
+        PyType_Ready( &DapChainTxOutCondSubTypeObjectType ) < 0 ||
         PyType_Ready( &DapChainTxOutCondSubTypeSrvPayObjectType ) < 0 ||
         PyType_Ready( &DapChainTxOutCondSubTypeSrvStakePosDelegateObjectType ) < 0 ||
         PyType_Ready( &DapChainTxOutCondSubTypeSrvStakeLockObjectType ) < 0 ||

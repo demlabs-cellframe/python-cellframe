@@ -54,7 +54,7 @@ typedef struct PyDapChainTxOutCondSubType{
 
 PyObject *PyDapChainTxOutCondSubType_str(PyObject *self);
 
-extern PyTypeObject DapChainTxOutCondSubType_DapChainTxOutCondSubTypeType;
+extern PyTypeObject DapChainTxOutCondSubTypeObjectType;
 
 #ifdef __cplusplus
 }
