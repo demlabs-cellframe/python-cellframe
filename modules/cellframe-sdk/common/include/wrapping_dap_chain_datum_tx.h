@@ -73,15 +73,6 @@ extern PyTypeObject DapChainTxItemTypeObjectType;
 
 /* -------------------------------------- */
 
-/* DAP chain tx cond type */
-typedef struct PyDapChainTxCondType{
-    PyObject_HEAD
-    dap_chain_tx_cond_type_t tx_cond_type_t;
-}PyDapChainTxCondTypeObject;
-
-PyObject *COND_SERVICE_PROVIDE_PY(PyObject *self, PyObject *args);
-PyObject *COND_SERVICE_BILL_PY(PyObject *self, PyObject *args);
-
 extern PyTypeObject DapChainTxCondTypeObjectType;
 
 /* -------------------------------------- */

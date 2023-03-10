@@ -156,7 +156,7 @@ PyObject *python_cellframe_init(PyObject *self, PyObject *args)
         //            if (dap_enc_ks_
         } else if (strcmp(c_value, "GlobalDB") == 0){
             char l_gdb_path[MAX_PATH] = {'\0'};
-            dap_sprintf(l_gdb_path, "%s/var/lib/global_db", g_sys_dir_path);
+            sprintf(l_gdb_path, "%s/var/lib/global_db", g_sys_dir_path);
 
             if ( dap_global_db_init( dap_config_get_item_str_default( g_config,"global_db","path",l_gdb_path),
                                      dap_config_get_item_str_default( g_config,"global_db", "driver", "mdbx")) != 0 ) {
@@ -570,7 +570,6 @@ PyMODINIT_FUNC PyInit_libCellFrame(void)
         PyType_Ready( &DapChainDatumTxObjectType ) < 0 ||
         PyType_Ready( &DapChainTxItemTypeObjectType ) < 0 ||
         PyType_Ready( &DapChainTxTokenExtType ) < 0 ||
-        PyType_Ready( &DapChainTxCondTypeObjectType ) < 0 ||
         PyType_Ready( &DapChainTxOutCondObjectType ) < 0 ||
         PyType_Ready( &DapChainTxOutCondSubTypeSrvPayObjectType ) < 0 ||
         PyType_Ready( &DapChainTxOutCondSubTypeSrvStakePosDelegateObjectType ) < 0 ||
@@ -639,7 +638,6 @@ PyMODINIT_FUNC PyInit_libCellFrame(void)
     PyModule_AddObject(commonModule, "DatumTokenExt", (PyObject*)&DapChainTxTokenExtType);
     PyModule_AddObject(commonModule, "DatumEmission", (PyObject*)&DapChainDatumTokenEmissionObjectType);
     PyModule_AddObject(commonModule, "TxItemType", (PyObject*)&DapChainTxItemTypeObjectType);
-    PyModule_AddObject(commonModule, "TxCondType", (PyObject*)&DapChainTxCondTypeObjectType);
     PyModule_AddObject(commonModule, "DatumTx", (PyObject*)&DapChainDatumTxObjectType);
     PyModule_AddObject(commonModule, "TxOutCond", (PyObject*)&DapChainTxOutCondObjectType);
     PyModule_AddObject(commonModule, "TxOutCondSubtypeSrvPay", (PyObject*)&DapChainTxOutCondSubTypeSrvPayObjectType);
