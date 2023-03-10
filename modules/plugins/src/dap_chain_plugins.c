@@ -26,15 +26,9 @@ _dap_chain_plugins_module_t *_s_modules = NULL;
 
 int dap_chain_plugins_init(dap_config_t *a_config){
     if(dap_config_get_item_bool_default(a_config, "plugins", "py_load", false)){
-        const char *l_default_path_plugins = dap_strjoin(NULL, "/opt/", dap_get_appname(), "/var/plugins/", NULL);
-        const char *l_default_path_pyhome = dap_strjoin(NULL, "/opt/", dap_get_appname(), "/bin/python/", NULL);
-
+        const char *l_defaule_path_plugins = dap_strjoin(NULL, "/opt/", dap_get_appname(), "/var/plugins/", NULL);
         const char *l_plugins_root_path = dap_config_get_item_str_default(a_config, "plugins", "py_path",
-                                                            l_default_path_plugins);
-        
-        const char *l_plugins_pyhome = dap_config_get_item_str_default(a_config, "plugins", "py_home",
-                                                            l_default_path_pyhome);
-
+                                                            l_defaule_path_plugins);
         s_plugins_root_path = dap_strjoin(NULL, l_plugins_root_path, "/", NULL);
         log_it(L_INFO, "Start initialization of python plugins. Path plugins: %s", s_plugins_root_path);
         if (!dap_dir_test(s_plugins_root_path)){
@@ -43,10 +37,10 @@ int dap_chain_plugins_init(dap_config_t *a_config){
         }
         PyImport_AppendInittab("DAP", PyInit_libDAP);
         PyImport_AppendInittab("CellFrame", PyInit_libCellFrame);
-
-        log_it(L_NOTICE, "PYTHONHOME=\"%s\"", l_plugins_pyhome);
-        
-        Py_SetPythonHome(Py_DecodeLocale(l_plugins_pyhome, NULL));
+        #ifdef DAP_BUILD_WITH_PYTHON_ENV
+            const wchar_t *l_python_env_path = L"/opt/cellframe-node/lib/python3.7";
+            Py_SetPath(l_python_env_path);
+        #endif
         Py_Initialize();
         
         PyEval_InitThreads();
@@ -60,7 +54,7 @@ int dap_chain_plugins_init(dap_config_t *a_config){
 
             PyObject *l_obj_dir_path_sp = PyUnicode_FromString("/opt/cellframe-node/lib/python3.7/site-packages");
             PyList_Append(s_sys_path, l_obj_dir_path_sp);
-        #endif
+        #endif    
 
         //Get list files
         dap_list_name_directories_t *l_list_plugins_name = dap_get_subs(s_plugins_root_path);
@@ -265,21 +259,27 @@ int dap_chain_plugins_reload_plugin(const char * a_name_plugin){
     LL_DELETE(l_plugins, l_plugin);
     dap_chain_plugins_manifest_list_delete_name(a_name_plugin);
     //Loading plugin
+    char *l_path_plugin = dap_strjoin(NULL, s_plugins_root_path, a_name_plugin, NULL);
     char *l_name_file_manifest = dap_strjoin("",s_plugins_root_path, a_name_plugin, "/manifest.json", NULL);
     if (!dap_chain_plugins_manifest_list_add_from_file(l_name_file_manifest)){
-        log_it(L_ERROR, "Registration of  \"%s\" manifest is failed", l_name_file_manifest);
+        log_it(L_ERROR, "Registration of  \"%s\" manifest is failed", l_path_plugin);
         return -3;
     }
     DAP_FREE(l_name_file_manifest);
     dap_chain_plugins_list_manifest_t *l_manifest =  dap_chain_plugins_manifest_list_get_name(a_name_plugin);
-    if (l_manifest->dependencies &&
-            !dap_chain_plugins_list_check_load_plugins(l_manifest->dependencies)){
-        log_it(L_NOTICE, "\"%s\" plugin has unresolved dependencies, restart all plugins", l_manifest->name);
-        return -2;
+    if (l_manifest->dependencies != NULL){
+        if (!dap_chain_plugins_list_check_load_plugins(l_manifest->dependencies)){
+            log_it(L_NOTICE, "\"%s\" plugin has unresolved dependencies, restart all plugins", l_manifest->name);
+            return -2;
+        }else{
+            dap_chain_plugins_load_plugin(dap_strjoin("", s_plugins_root_path, l_manifest->name, "/", NULL), l_manifest->name);
+            return 0;
+        }
+    }else{
+        dap_chain_plugins_load_plugin(dap_strjoin("", s_plugins_root_path, l_manifest->name, "/", NULL), l_manifest->name);
+        return 0;
     }
-    char *l_plugin_path = dap_strjoin("", s_plugins_root_path, l_manifest->name, "/", NULL);
-    dap_chain_plugins_load_plugin(l_plugin_path, l_manifest->name);
-    DAP_DELETE(l_plugin_path);
-    return 0;
+
+    return -1;
 }
 
