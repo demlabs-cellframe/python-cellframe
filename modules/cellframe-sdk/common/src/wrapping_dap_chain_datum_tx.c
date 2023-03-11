@@ -59,32 +59,6 @@ PyObject *TX_ITEM_TYPE_TSD_PY(__attribute__((unused)) PyObject *self, __attribut
 
 /* -------------------------------------- */
 
-/* DAP chain tx cond type */
-static PyMethodDef DapChainTxCondTypeMethods[] = {
-        {"COND_SERVICE_PROVIDE", COND_SERVICE_PROVIDE_PY, METH_NOARGS | METH_STATIC, ""},
-        {"COND_SERVICE_BILL", COND_SERVICE_BILL_PY, METH_NOARGS | METH_STATIC, ""},
-        {}
-};
-
-PyTypeObject DapChainTxCondTypeObjectType = DAP_PY_TYPE_OBJECT(
-        "CellFrame.Chain.TxCondType", sizeof(PyDapChainTxCondTypeObject),
-        "Chain tx cond type object",
-        .tp_methods = DapChainTxCondTypeMethods);
-
-PyObject *COND_SERVICE_PROVIDE_PY(__attribute__((unused)) PyObject *self, __attribute__((unused)) PyObject *args)
-{
-    PyObject *obj = _PyObject_New(&DapChainTxCondTypeObjectType);
-    ((PyDapChainTxCondTypeObject*)obj)->tx_cond_type_t = COND_SERVICE_PROVIDE;
-    return Py_BuildValue("O", obj);
-}
-PyObject *COND_SERVICE_BILL_PY(__attribute__((unused)) PyObject *self, __attribute__((unused)) PyObject *args)
-{
-    PyObject *obj = _PyObject_New(&DapChainTxCondTypeObjectType);
-    ((PyDapChainTxCondTypeObject*)obj)->tx_cond_type_t = COND_SERVICE_BILL;
-    return Py_BuildValue("O", obj);
-}
-/* -------------------------------------- */
-
 /* DAP chain datum tx */
 static PyGetSetDef PyDaoChainDatumTxObjectGetsSets[] = {
         {"hash", (getter) wrapping_dap_chain_datum_tx_get_hash, NULL, NULL, NULL},
