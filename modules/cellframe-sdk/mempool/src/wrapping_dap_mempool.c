@@ -404,7 +404,11 @@ PyObject* pvt_dap_chain_mempool_list(dap_chain_t *a_chain){
         size_t l_objs_size = 0;
         dap_global_db_obj_t * l_objs = dap_global_db_get_all_sync(l_gdb_group_mempool, &l_objs_size);
         for (size_t i = 0; i < l_objs_size; i++){
-            dap_chain_datum_t * l_datum = (dap_chain_datum_t*) l_objs[i].value;
+
+        
+            dap_chain_datum_t * l_datum =  DAP_NEW_SIZE(dap_chain_datum_t, l_objs[i].value_len);
+            mempcpy(l_datum, l_objs[i].value, l_objs[i].value_len);
+
             PyDapChainDatumObject *obj_datum = PyObject_New(PyDapChainDatumObject, &DapChainDatumObjectType);
             obj_datum->datum = l_datum;
             obj_datum->origin = true;
