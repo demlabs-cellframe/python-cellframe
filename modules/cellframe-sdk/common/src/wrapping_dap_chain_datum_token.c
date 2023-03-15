@@ -22,24 +22,26 @@ PyObject *wrapping_dap_chain_datum_token_get_ticker(PyObject *self, void *closur
 PyObject *wrapping_dap_chain_datum_token_get_type_str(PyObject *self, void *closure){
     (void)closure;
     switch (((PyDapChainDatumTokenObject*)self)->token->type) {
-        case DAP_CHAIN_DATUM_TOKEN_TYPE_OLD_SIMPLE:
-        case DAP_CHAIN_DATUM_TOKEN_TYPE_SIMPLE:
-            return Py_BuildValue("s", "SIMPLE");
-        case DAP_CHAIN_DATUM_TOKEN_TYPE_PRIVATE_UPDATE:
-            return Py_BuildValue("s", "PRIVATE_UPDATE");
-        case DAP_CHAIN_DATUM_TOKEN_TYPE_PRIVATE_DECL:
-            return Py_BuildValue("s", "PRIVATE_DECL");
-        case DAP_CHAIN_DATUM_TOKEN_TYPE_OLD_PUBLIC:
-        case DAP_CHAIN_DATUM_TOKEN_TYPE_PUBLIC:
-            return Py_BuildValue("s", "PUBLIC");
-        case DAP_CHAIN_DATUM_TOKEN_TYPE_NATIVE_DECL:
-            return Py_BuildValue("s", "CF20_DECL");
-        case DAP_CHAIN_DATUM_TOKEN_TYPE_NATIVE_UPDATE:
-            return Py_BuildValue("s", "CF20_UPDATE");
+        case DAP_CHAIN_DATUM_TOKEN_TYPE_DECL: {
+            switch (((PyDapChainDatumTokenObject*)self)->token->subtype) {
+                case DAP_CHAIN_DATUM_TOKEN_SUBTYPE_SIMPLE: return Py_BuildValue("s", "SIMPLE");
+                case DAP_CHAIN_DATUM_TOKEN_SUBTYPE_PRIVATE: return Py_BuildValue("s", "PRIVATE_DECL");
+                case DAP_CHAIN_DATUM_TOKEN_SUBTYPE_NATIVE: return Py_BuildValue("s", "CF20_DECL");
+                case DAP_CHAIN_DATUM_TOKEN_SUBTYPE_PUBLIC: return Py_BuildValue("s", "PUBLIC");
+                default: return Py_BuildValue("s", "UNKNOWN");
+            }
+        }break;
+        case DAP_CHAIN_DATUM_TOKEN_TYPE_UPDATE: {
+            switch (((PyDapChainDatumTokenObject*)self)->token->subtype) {
+                case DAP_CHAIN_DATUM_TOKEN_SUBTYPE_SIMPLE: return Py_BuildValue("s", "SIMPLE");
+                case DAP_CHAIN_DATUM_TOKEN_SUBTYPE_PRIVATE: return Py_BuildValue("s", "PRIVATE_UPDATE");
+                case DAP_CHAIN_DATUM_TOKEN_SUBTYPE_NATIVE: return Py_BuildValue("s", "CF20_UPDATE");
+                default: return Py_BuildValue("s", "UNKNOWN");
+            }
+        }break;
         default:
             return Py_BuildValue("s", "UNKNOWN");
     }
-//    dap_chain_datum_token_flags_dump()
 }
 //PyObject *wrapping_dap_chain_datum_token_get_size(PyObject *self, void *closure){
 //    (void)closure;
@@ -51,26 +53,52 @@ PyObject *wrapping_dap_chain_datum_token_get_data(PyObject *self, void *closure)
     PyObject *obj_dict = PyDict_New();
     PyObject *obj = Py_None;
     switch(l_token->type){
-        case DAP_CHAIN_DATUM_TOKEN_TYPE_OLD_SIMPLE:
-        case DAP_CHAIN_DATUM_TOKEN_TYPE_SIMPLE:
-            obj = Py_BuildValue("H", l_token->signs_total);
-            PyDict_SetItemString(obj_dict, "signs_total", obj);
-            obj = Py_BuildValue("H", l_token->signs_valid);
-            PyDict_SetItemString(obj_dict, "signs_valid", obj);
-            if (dap_chain_datum_token_is_old(l_token->type))
-                obj = Py_BuildValue("k", l_token->total_supply);
-            else
-                obj = Py_BuildValue("s", dap_chain_balance_print(l_token->total_supply));
-            PyDict_SetItemString(obj_dict, "total_supply", obj);
-            break;
-        case DAP_CHAIN_DATUM_TOKEN_TYPE_NATIVE_DECL:
-            PyDict_SetItemString(obj_dict, "flags", Py_BuildValue("H", l_token->header_native_decl.flags));
-            PyDict_SetItemString(obj_dict, "decimals", Py_BuildValue("H", l_token->header_native_decl.decimals));
-            PyDict_SetItemString(obj_dict, "tsd_total_size", Py_BuildValue("k", l_token->header_native_decl.tsd_total_size));
-            break;
-        case DAP_CHAIN_DATUM_TOKEN_TYPE_NATIVE_UPDATE:
-            PyDict_SetItemString(obj_dict, "tsd_total_size", Py_BuildValue("k", l_token->header_native_update.tsd_total_size));
-            break;
+        case DAP_CHAIN_DATUM_TOKEN_TYPE_DECL: {
+            switch (l_token->subtype) {
+                case DAP_CHAIN_DATUM_TOKEN_SUBTYPE_SIMPLE: {
+                    obj = Py_BuildValue("H", l_token->signs_total);
+                    PyDict_SetItemString(obj_dict, "signs_total", obj);
+                    obj = Py_BuildValue("H", l_token->signs_valid);
+                    PyDict_SetItemString(obj_dict, "signs_valid", obj);
+                    if (dap_chain_datum_token_is_old(l_token->type))
+                        obj = Py_BuildValue("k", l_token->total_supply);
+                    else
+                        obj = Py_BuildValue("s", dap_chain_balance_print(l_token->total_supply));
+                    PyDict_SetItemString(obj_dict, "total_supply", obj);
+                }break;
+//                case DAP_CHAIN_DATUM_TOKEN_SUBTYPE_PRIVATE: {}break;
+                case DAP_CHAIN_DATUM_TOKEN_SUBTYPE_NATIVE: {
+                    PyDict_SetItemString(obj_dict, "flags", Py_BuildValue("H", l_token->header_native_decl.flags));
+                    PyDict_SetItemString(obj_dict, "decimals", Py_BuildValue("H", l_token->header_native_decl.decimals));
+                    PyDict_SetItemString(obj_dict, "tsd_total_size", Py_BuildValue("k", l_token->header_native_decl.tsd_total_size));
+                }break;
+//                case DAP_CHAIN_DATUM_TOKEN_SUBTYPE_PUBLIC: {}break;
+                default:
+                    Py_RETURN_NONE;
+            }
+        }break;
+        case DAP_CHAIN_DATUM_TOKEN_TYPE_UPDATE: {
+            switch (l_token->subtype) {
+                case DAP_CHAIN_DATUM_TOKEN_SUBTYPE_SIMPLE: {
+                    obj = Py_BuildValue("H", l_token->signs_total);
+                    PyDict_SetItemString(obj_dict, "signs_total", obj);
+                    obj = Py_BuildValue("H", l_token->signs_valid);
+                    PyDict_SetItemString(obj_dict, "signs_valid", obj);
+                    if (dap_chain_datum_token_is_old(l_token->type))
+                        obj = Py_BuildValue("k", l_token->total_supply);
+                    else
+                        obj = Py_BuildValue("s", dap_chain_balance_print(l_token->total_supply));
+                    PyDict_SetItemString(obj_dict, "total_supply", obj);
+                }break;
+//                case DAP_CHAIN_DATUM_TOKEN_SUBTYPE_PRIVATE: {}break;
+                case DAP_CHAIN_DATUM_TOKEN_SUBTYPE_NATIVE: {
+                    PyDict_SetItemString(obj_dict, "tsd_total_size", Py_BuildValue("k", l_token->header_native_update.tsd_total_size));
+                }break;
+//                case DAP_CHAIN_DATUM_TOKEN_SUBTYPE_PUBLIC: {}break;
+                default:
+                    Py_RETURN_NONE;
+            }
+        }break;
 //        case DAP_CHAIN_DATUM_TOKEN_TYPE_OLD_PRIVATE_UPDATE:
 //        case DAP_CHAIN_DATUM_TOKEN_TYPE_PRIVATE_UPDATE:
 ////            dap_tsd_t *l_tsd = dap_chain_datum_token_tsd_get(l_token, ((PyDapChainDatumTokenObject*)self)->token_size);
