@@ -46,12 +46,12 @@ PyObject *wrapping_dap_global_db_gr_set(PyObject *self, PyObject *args){
     char *l_group;
     bool l_is_pinned = true;
     PyObject *obj_byte;
-    if (!PyArg_ParseTuple(args, "ssOp", &l_key, &l_group, &obj_byte, &l_is_pinned)){
-        if (!PyArg_ParseTuple(args, "ssO", &l_key, &l_group, &obj_byte)){
-            return NULL;
-        }
+    if (!PyArg_ParseTuple(args, "ssO|p", &l_key, &l_group, &obj_byte, &l_is_pinned)){
+        return NULL;
     }
     if (!PyBytes_Check(obj_byte)){
+        PyErr_SetString(PyExc_AttributeError, "In the set function of the globalDB object, the third "
+                                              "argument must take an object of type bytes.");
         return NULL;
     }
     void *l_bytes = PyBytes_AsString(obj_byte);
