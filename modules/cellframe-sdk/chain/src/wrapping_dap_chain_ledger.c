@@ -40,7 +40,8 @@ PyObject *DapChainLedgerObject_create(PyTypeObject *type_object, PyObject *args,
     if (!PyArg_ParseTuple(args, "H|s", &check_flag, &net_name))
         return NULL;
     PyDapChainLedgerObject *obj = (PyDapChainLedgerObject *)PyType_GenericNew(type_object, args, kwds);
-    obj->ledger = dap_chain_ledger_create(check_flag, net_name);
+    // TODO add relevant arguments for ledger create
+    //obj->ledger = dap_chain_ledger_create(check_flag, net_name);
     return (PyObject *)obj;
 }
 void DapChainLedgerObject_free(PyDapChainLedgerObject* object){
