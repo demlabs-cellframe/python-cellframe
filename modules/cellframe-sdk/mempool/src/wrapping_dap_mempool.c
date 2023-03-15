@@ -392,7 +392,6 @@ PyObject *dap_chain_mempool_remove_py(PyObject *self, PyObject *args){
     } else {
         DAP_DELETE(l_gdb_group_mempool);
         DAP_DELETE(l_data_tmp);
-        DAP_DELETE(l_str_hash);
         Py_RETURN_FALSE;
     }
 }
