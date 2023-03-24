@@ -56,6 +56,28 @@ PyObject* wrapping_dap_chain_datum_decree_get_subtype_str(PyObject *self, void* 
     return Py_BuildValue("s", "UNKNOWN");
 }
 
+PyObject* wrapping_dap_chain_datum_decree_get_tsd(PyObject *self, void* closure) {
+    (void)closure;
+    size_t l_tsd_total_size = PVT(self)->decree->header.data_size;
+    if (l_tsd_total_size == 0)
+        Py_RETURN_NONE;
+    PyObject *obj_list = PyList_New(0);
+    for (size_t l_offset = 0; l_offset < l_tsd_total_size;) {
+        dap_tsd_t *l_tsd = (dap_tsd_t*)(((byte_t*)PVT(self)->decree->data_n_signs) + l_offset);
+        size_t l_tsd_size = dap_tsd_size(l_tsd);
+        if (l_tsd_size + l_offset > l_tsd_total_size)
+            break;
+        l_offset += l_tsd_size;
+        PyObject *obj_type = PyLong_FromLong(l_tsd->type);
+        PyObject *obj_value = NULL;
+        PyBytes_AsStringAndSize(obj_value, l_tsd->data, l_tsd->size);
+        PyObject *obj_dict = PyDict_New();
+        PyDict_SetItemString(obj_dict, "type", obj_type);
+        PyDict_SetItemString(obj_dict, "value", obj_value);
+        PyList_Append(obj_list, obj_dict);
+    }
+}
+
 PyObject* wrapping_dap_chain_datum_decree_get_signs(PyObject *self, void* closure) {
     (void)closure;
     size_t l_signs_size = 0;
@@ -79,6 +101,7 @@ PyGetSetDef  DapChainDatumDecreeGetSet[] = {
         {"subtype", (getter)wrapping_dap_chain_datum_decree_get_subtype, NULL, NULL, NULL},
         {"subtypeStr", (getter)wrapping_dap_chain_datum_decree_get_subtype_str, NULL, NULL, NULL},
         {"signs", (getter)wrapping_dap_chain_datum_decree_get_signs, NULL, NULL, NULL},
+        {"TSD", (getter)wrapping_dap_chain_datum_decree_get_tsd, NULL, NULL, NULL},
         {}
 };
 
