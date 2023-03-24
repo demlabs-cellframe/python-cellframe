@@ -70,7 +70,8 @@ PyObject* wrapping_dap_chain_datum_decree_get_tsd(PyObject *self, void* closure)
         l_offset += l_tsd_size;
         PyObject *obj_type = PyLong_FromLong(l_tsd->type);
         PyObject *obj_value = NULL;
-        PyBytes_AsStringAndSize(obj_value, l_tsd->data, l_tsd->size);
+        Py_ssize_t py_tsd_size = l_tsd_size;
+        PyBytes_AsStringAndSize(obj_value, (char **)&l_tsd->data, &py_tsd_size);
         PyObject *obj_dict = PyDict_New();
         PyDict_SetItemString(obj_dict, "type", obj_type);
         PyDict_SetItemString(obj_dict, "value", obj_value);
