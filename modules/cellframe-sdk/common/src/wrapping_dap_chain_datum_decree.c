@@ -76,6 +76,7 @@ PyObject* wrapping_dap_chain_datum_decree_get_tsd(PyObject *self, void* closure)
         PyDict_SetItemString(obj_dict, "value", obj_value);
         PyList_Append(obj_list, obj_dict);
     }
+    return (PyObject*)obj_list;
 }
 
 PyObject* wrapping_dap_chain_datum_decree_get_signs(PyObject *self, void* closure) {
