@@ -216,7 +216,7 @@ PyObject *dap_chain_ledger_tx_cache_check_py(PyObject *self, PyObject *args){
     dap_hash_fast(obj_datum_tx->datum_tx, dap_chain_datum_tx_get_size(obj_datum_tx->datum_tx), &l_tx_hash);
     int res = dap_chain_ledger_tx_cache_check(((PyDapChainLedgerObject*)self)->ledger,
                                               obj_datum_tx->datum_tx,
-                                              &l_tx_hash, false, bound_items, tx_out);
+                                              &l_tx_hash, false, bound_items, tx_out, NULL);
     return PyLong_FromLong(res);
 }
 PyObject *dap_chain_node_datum_tx_cache_check_py(PyObject *self, PyObject *args){
