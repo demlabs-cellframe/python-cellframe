@@ -288,7 +288,7 @@ PyObject *PyDapChainDatumDecreeObject_new(PyTypeObject *type_object, PyObject *a
 
 PyTypeObject DapChainDatumDecreeObjectType = {
         .ob_base = PyVarObject_HEAD_INIT(NULL, 0)
-        .tp_name = "CellFrame.Chain.DatumDecree",
+        .tp_name = "CellFrame.Common.DatumDecree",
         .tp_basicsize = sizeof(PyDapChainDatumDecreeObject),
         .tp_doc = "Chain datum type decree object",
         .tp_getset = DapChainDatumDecreeGetSet,
