@@ -30,6 +30,8 @@
 #include "datetime.h"
 #include "wrapping_dap_chain_datum_tx.h"
 #include "wrapping_dap_chain_datum_token.h"
+#include "wrapping_dap_chain_datum_anchor.h"
+#include "wrapping_dap_chain_datum_decree.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -69,6 +71,10 @@ PyObject *wrapping_dap_chain_datum_get_hash_py(PyObject *self, void* closure);
 PyObject *wrapping_dap_chain_datum_get_version_str_py(PyObject *self, void* closure);
 PyObject *wrapping_dap_chain_datum_get_raw_py(PyObject *self, void* closure);
 PyObject *wrapping_dap_chain_datum_get_data_raw_py(PyObject *self, void* closure);
+PyObject *wrapping_dap_chain_datum_is_type_decree(PyObject *self, PyObject *args);
+PyObject *wrapping_dap_chain_datum_get_decree(PyObject *self, PyObject *args);
+PyObject *wrapping_dap_chain_datum_is_type_anchor(PyObject *self, PyObject *args);
+PyObject *wrapping_dap_chain_datum_get_anchor(PyObject *self, PyObject *args);
 
 extern PyTypeObject DapChainDatumObjectType;
 /* -------------------------------- */

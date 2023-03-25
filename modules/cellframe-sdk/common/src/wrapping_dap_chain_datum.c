@@ -19,6 +19,10 @@ static PyMethodDef DapChainDatumMethods[] = {
         {"isDatumTokenEmission", dap_chain_datum_is_type_emission, METH_NOARGS, ""},
         {"getDatumTokenEmission", wrapping_dap_chain_datum_get_datum_token_emission, METH_NOARGS, ""},
         {"isDatumCustom", wrapping_dap_chain_datum_is_type_custom, METH_NOARGS, ""},
+        {"isDatumDecree", wrapping_dap_chain_datum_is_type_decree, METH_NOARGS, ""},
+        {"getDatumDecree", wrapping_dap_chain_datum_get_decree, METH_NOARGS, ""},
+        {"isDatumAnchor", wrapping_dap_chain_datum_is_type_anchor, METH_NOARGS, ""},
+        {"getDatumAnchor", wrapping_dap_chain_datum_get_anchor, METH_NOARGS, ""},
         {"getTypeStr", dap_chain_datum_get_type_str_py, METH_NOARGS, ""},
         {"getTypeId", wrapping_dap_chain_datum_get_type_id_py, METH_NOARGS, ""},
         {NULL}
@@ -235,6 +239,33 @@ PyObject *wrapping_dap_chain_datum_get_data_raw_py(PyObject *self, void* closure
             (char*)((PyDapChainDatumObject*)self)->datum->data,
             ((PyDapChainDatumObject*)self)->datum->header.data_size);
     return obj_bytes;
+}
+
+PyObject *wrapping_dap_chain_datum_is_type_decree(PyObject *self, PyObject *args) {
+    (void)args;
+    if (((PyDapChainDatumObject*)self)->datum->header.type_id == DAP_CHAIN_DATUM_DECREE)
+        Py_RETURN_TRUE;
+    else
+        Py_RETURN_FALSE;
+}
+PyObject *wrapping_dap_chain_datum_get_decree(PyObject *self, PyObject *args) {
+    (void)args;
+    PyDapChainDatumDecreeObject *obj_decree = PyObject_New(PyDapChainDatumDecreeObject, &DapChainDatumDecreeObjectType);
+    obj_decree->decree = ((PyDapChainDatumObject*)self)->datum->data;
+    return (PyObject*)obj_decree;
+}
+PyObject *wrapping_dap_chain_datum_is_type_anchor(PyObject *self, PyObject *args) {
+    (void)args;
+    if (((PyDapChainDatumObject*)self)->datum->header.type_id == DAP_CHAIN_DATUM_ANCHOR)
+        Py_RETURN_TRUE;
+    else
+        Py_RETURN_FALSE;
+}
+PyObject *wrapping_dap_chain_datum_get_anchor(PyObject *self, PyObject *args) {
+    (void)args;
+    PyDapChainDatumAnchorObject *obj_anchor = PyObject_New(PyDapChainDatumAnchorObject, &DapChainDatumAnchorObjectType);
+    obj_anchor->anchor = ((PyDapChainDatumObject*)self)->datum->data;
+    return (PyObject*)obj_anchor;
 }
 
 /* DAP chain datum iter */
