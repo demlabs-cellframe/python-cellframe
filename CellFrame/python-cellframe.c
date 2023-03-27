@@ -563,6 +563,7 @@ PyMODINIT_FUNC PyInit_libCellFrame(void)
         PyType_Ready( &DapChainDatumTypeIdObjectType ) < 0 ||
         PyType_Ready( &DapChainDatumObjectType ) < 0 ||
         PyType_Ready( &DapChainDatumDecreeObjectType ) < 0 ||
+        PyType_Ready( &DapChainDatumAnchorObjectType ) < 0 ||
         PyType_Ready( &DapChainDatumIterObjectType ) < 0 ||
         /// Token
         PyType_Ready( &DapChainDatumTokenObjectType ) < 0 ||
@@ -640,6 +641,7 @@ PyMODINIT_FUNC PyInit_libCellFrame(void)
     PyModule_AddObject(commonModule, "DatumTokenExt", (PyObject*)&DapChainTxTokenExtType);
     PyModule_AddObject(commonModule, "DatumEmission", (PyObject*)&DapChainDatumTokenEmissionObjectType);
     PyModule_AddObject(commonModule, "DatumDecree", (PyObject*)&DapChainDatumDecreeObjectType);
+    PyModule_AddObject(commonModule, "DatumAnchor", (PyObject*)&DapChainDatumAnchorObjectType);
     PyModule_AddObject(commonModule, "TxItemType", (PyObject*)&DapChainTxItemTypeObjectType);
     PyModule_AddObject(commonModule, "DatumTx", (PyObject*)&DapChainDatumTxObjectType);
     PyModule_AddObject(commonModule, "TxOutCond", (PyObject*)&DapChainTxOutCondObjectType);

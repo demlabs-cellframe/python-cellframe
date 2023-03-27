@@ -296,3 +296,7 @@ PyTypeObject DapChainDatumDecreeObjectType = {
         .tp_methods = DapChainDatumDecreeMethods,
         .tp_new = PyDapChainDatumDecreeObject_new
 };
+
+bool DapChainDatumDecree_Check(PyObject *self){
+    return PyObject_TypeCheck(self, &DapChainDatumDecreeObjectType);
+}
