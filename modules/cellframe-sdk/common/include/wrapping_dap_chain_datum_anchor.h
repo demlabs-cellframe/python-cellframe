@@ -13,3 +13,5 @@ PyObject *wrapping_dap_chain_datum_anchor_get_tsd(PyObject *self, void *closure)
 PyObject *wrapping_dap_chain_datum_anchor_get_sign(PyObject *self, void *closure);
 
 extern PyTypeObject DapChainDatumAnchorObjectType;
+
+bool DapChainDatumAnchor_Check(PyObject *self);

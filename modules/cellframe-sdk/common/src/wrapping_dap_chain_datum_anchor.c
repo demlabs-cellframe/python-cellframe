@@ -171,3 +171,7 @@ PyTypeObject DapChainDatumAnchorObjectType = {
         .tp_methods = DapChainDatumAnchorMethods,
         .tp_new = DapChainDatumAnchorObject_create
 };
+
+bool DapChainDatumAnchor_Check(PyObject *self) {
+    return PyObject_TypeCheck(self, &DapChainDatumAnchorObjectType);
+}
