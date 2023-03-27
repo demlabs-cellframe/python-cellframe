@@ -458,9 +458,9 @@ PyObject *dap_chain_mempool_list_py(PyObject *self, PyObject *args){
 
 PyObject *dap_chain_mempool_add_datum_py(PyObject *self, PyObject *args){
     (void)self;
-    PyDapChainDatumObject *obj_datum;
+    PyObject *obj_data;
     PyDapChainObject *obj_chain;
-    if (!PyArg_ParseTuple(args, "OO", &obj_chain, &obj_datum)){
+    if (!PyArg_ParseTuple(args, "OO", &obj_chain, &obj_data)){
         return NULL;
     }
     if (!PyDapChain_Check(obj_chain)){
@@ -468,15 +468,41 @@ PyObject *dap_chain_mempool_add_datum_py(PyObject *self, PyObject *args){
                                               "The first argument must be instance of an object of type Chain.");
         return NULL;
     }
-    if (!PyDapChainDatum_Check(obj_datum)){
+    dap_chain_datum_t *l_datum = NULL;
+    if (DapChainDatumDecree_Check(obj_data)) {
+        size_t l_data_size = sizeof(&((PyDapChainDatumDecreeObject*)obj_data)->decree) +
+                ((PyDapChainDatumDecreeObject*)obj_data)->decree->header.data_size +
+                ((PyDapChainDatumDecreeObject*)obj_data)->decree->header.signs_size;
+        l_datum = DAP_NEW_Z_SIZE(dap_chain_datum_t, sizeof(dap_chain_datum_t) + l_data_size);
+        l_datum->header.version_id = DAP_CHAIN_DATUM_VERSION;
+        l_datum->header.ts_create = dap_time_now();
+        l_datum->header.data_size = l_data_size;
+        l_datum->header.type_id = DAP_CHAIN_DATUM_DECREE;
+        memcpy(l_datum->data, ((PyDapChainDatumDecreeObject*)obj_data)->decree, l_data_size);
+    }
+    else if (DapChainDatumAnchor_Check(obj_data)) {
+        size_t l_data_size = sizeof(&((PyDapChainDatumAnchorObject*)obj_data)->anchor) +
+                ((PyDapChainDatumAnchorObject*)obj_data)->anchor->header.data_size +
+                ((PyDapChainDatumAnchorObject*)obj_data)->anchor->header.signs_size;
+        l_datum = DAP_NEW_Z_SIZE(dap_chain_datum_t, sizeof(dap_chain_datum_t) + l_data_size);
+        l_datum->header.version_id = DAP_CHAIN_DATUM_VERSION;
+        l_datum->header.ts_create = dap_time_now();
+        l_datum->header.data_size = l_data_size;
+        l_datum->header.type_id = DAP_CHAIN_DATUM_ANCHOR;
+        memcpy(l_datum->data, ((PyDapChainDatumAnchorObject*)obj_data)->anchor, l_data_size);
+    }
+    else if (PyDapChainDatum_Check(obj_data)) {
+        l_datum = ((PyDapChainDatumObject*)obj_data)->datum;
+        ((PyDapChainDatumObject*)obj_data)->origin = false;
+    } else {
         PyErr_SetString(PyExc_AttributeError, "The second argument was not passed correctly. "
-                                              "The second argument must be instance of an object of type Datum.");
+                                              "The second argument must be instance of an object of type"
+                                              " Datum, DatumDecree, DatumAnchor.");
         return NULL;
     }
-    char *l_str = dap_chain_mempool_datum_add(obj_datum->datum, obj_chain->chain_t, "hex");
+    char *l_str = dap_chain_mempool_datum_add(l_datum, obj_chain->chain_t, "hex");
     if (!l_str)
         return Py_None;
-    obj_datum->origin = false;
     PyObject *l_obj_ret = Py_BuildValue("s", l_str);
     DAP_DELETE(l_str);
     return l_obj_ret;

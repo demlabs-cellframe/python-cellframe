@@ -12,6 +12,8 @@
 #include "wrapping_dap_hash.h"
 #include "wrapping_cert.h"
 #include "dap_cert.h"
+#include "wrapping_dap_chain_datum_decree.h"
+#include "wrapping_dap_chain_datum_anchor.h"
 
 typedef struct PyDapMempool{
     PyObject_HEAD
