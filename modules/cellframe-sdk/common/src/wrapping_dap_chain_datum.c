@@ -55,7 +55,7 @@ void PyDapChainDatumObject_dealloc(PyDapChainDatumObject* self) {
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
-bool PyDapChainDatum_Check(PyDapChainDatumObject *self){
+bool PyDapChainDatum_Check(PyObject *self){
     return PyObject_TypeCheck(self, &DapChainDatumObjectType);
 }
 
@@ -251,7 +251,7 @@ PyObject *wrapping_dap_chain_datum_is_type_decree(PyObject *self, PyObject *args
 PyObject *wrapping_dap_chain_datum_get_decree(PyObject *self, PyObject *args) {
     (void)args;
     PyDapChainDatumDecreeObject *obj_decree = PyObject_New(PyDapChainDatumDecreeObject, &DapChainDatumDecreeObjectType);
-    obj_decree->decree = ((PyDapChainDatumObject*)self)->datum->data;
+    obj_decree->decree = (dap_chain_datum_decree_t*)((PyDapChainDatumObject*)self)->datum->data;
     return (PyObject*)obj_decree;
 }
 PyObject *wrapping_dap_chain_datum_is_type_anchor(PyObject *self, PyObject *args) {
@@ -264,7 +264,7 @@ PyObject *wrapping_dap_chain_datum_is_type_anchor(PyObject *self, PyObject *args
 PyObject *wrapping_dap_chain_datum_get_anchor(PyObject *self, PyObject *args) {
     (void)args;
     PyDapChainDatumAnchorObject *obj_anchor = PyObject_New(PyDapChainDatumAnchorObject, &DapChainDatumAnchorObjectType);
-    obj_anchor->anchor = ((PyDapChainDatumObject*)self)->datum->data;
+    obj_anchor->anchor = (dap_chain_datum_anchor_t*)((PyDapChainDatumObject*)self)->datum->data;
     return (PyObject*)obj_anchor;
 }
 

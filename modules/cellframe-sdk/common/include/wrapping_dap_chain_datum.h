@@ -53,7 +53,7 @@ typedef struct PyDapChainDatum{
     bool origin;
 }PyDapChainDatumObject;
 
-bool PyDapChainDatum_Check(PyDapChainDatumObject  *self);
+bool PyDapChainDatum_Check(PyObject *self);
 void PyDapChainDatumObject_dealloc(PyDapChainDatumObject* self);
 PyObject *PyDapChainDatumObject_new(PyTypeObject *type_object, PyObject *args, PyObject *kwds);
 PyObject *dap_chain_datum_size_py(PyObject *self, PyObject *args);
