@@ -72,7 +72,7 @@ PyObject * DapChainDatumAnchorObject_create(PyTypeObject *type_object, PyObject 
     if (!PyArg_ParseTuple(args, "OO", &obj_tsd_list, &obj_cert)) {
         return NULL;
     }
-    if (!PyCryptoKeyObject_check(obj_cert)) {
+    if (!PyObject_TypeCheck(obj_cert, &DapCryptoCertObjectType)) {
         PyErr_SetString(PyExc_AttributeError, "The second argument to the constructor was not correctly "
                                               "passed, the second argument must be DAP.Crypto.Cert");
         return NULL;
