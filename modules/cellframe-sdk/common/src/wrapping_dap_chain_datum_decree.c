@@ -112,7 +112,7 @@ PyObject *wrapping_dap_chain_datum_decree_add_sign(PyObject *self, PyObject *arg
     if (!PyArg_ParseTuple(args, "O", &obj_cert)) {
         return NULL;
     }
-    if (!PyCryptoKeyObject_check(obj_cert)) {
+    if (!PyObject_TypeCheck(obj_cert, &DapCryptoCertObjectType)) {
         PyErr_SetString(PyExc_AttributeError, "The first argument was not passed to the function "
                                               "correctly. The second argument must be of type DAP.Crypto.Cert.");
         return NULL;
@@ -162,7 +162,7 @@ PyObject *PyDapChainDatumDecreeObject_new(PyTypeObject *type_object, PyObject *a
                                               "passed, the first argument must be CellFrame.NetworkChain");
         return NULL;
     }
-    if (!PyCryptoKeyObject_check(obj_cert)) {
+    if (!PyObject_TypeCheck(obj_cert, &DapCryptoCertObjectType)) {
         PyErr_SetString(PyExc_AttributeError, "The second argument to the constructor was not correctly "
                                               "passed, the second argument must be DAP.Crypto.Cert");
         return NULL;
