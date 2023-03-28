@@ -29,12 +29,12 @@ PyObject *wrapping_dap_chain_datum_anchor_get_tsd(PyObject *self, void *closure)
         l_offset += l_tsd_size;
         PyObject *obj_type = PyLong_FromLong(l_tsd->type);
         PyObject *obj_value = NULL;
-        Py_ssize_t py_tsd_size = l_tsd_size;
-        PyBytes_AsStringAndSize(obj_value, (char**)&l_tsd->data, &py_tsd_size);
+        obj_value = PyBytes_FromStringAndSize((char*)l_tsd->data, l_tsd->size);
         PyObject *obj_dict = PyDict_New();
         PyDict_SetItemString(obj_dict, "type", obj_type);
         PyDict_SetItemString(obj_dict, "value", obj_value);
         PyList_Append(obj_list, obj_dict);
+        Py_XDECREF(obj_dict);
     }
     return (PyObject*)obj_list;
 }
@@ -50,6 +50,8 @@ PyObject *wrapping_dap_chain_datum_anchor_get_sign(PyObject *self, void *closure
         size_t l_sign_size = dap_sign_get_size(l_signs + l_offset);
         PyDapSignObject *obj_sign = PyObject_New(PyDapSignObject, &DapCryptoSignObjectType);
         obj_sign->sign = l_signs + l_offset;
+        PyList_Append(obj_list, (PyObject*)obj_sign);
+        Py_XDECREF((PyObject*)obj_sign);
         l_offset += l_sign_size;
     }
     return obj_list;
@@ -57,7 +59,7 @@ PyObject *wrapping_dap_chain_datum_anchor_get_sign(PyObject *self, void *closure
 
 static PyGetSetDef DapChainDatumAnchorGetSet[] = {
         {"created", (getter)wrapping_dap_chain_datum_anchor_get_ts_created, NULL, NULL, NULL},
-        {"tsd", (getter)wrapping_dap_chain_datum_anchor_get_tsd, NULL, NULL, NULL},
+        {"TSD", (getter)wrapping_dap_chain_datum_anchor_get_tsd, NULL, NULL, NULL},
         {"signs", (getter)wrapping_dap_chain_datum_anchor_get_sign, NULL, NULL, NULL},
         {}
 };
@@ -133,10 +135,10 @@ PyObject * DapChainDatumAnchorObject_create(PyTypeObject *type_object, PyObject 
     l_anchor->header.signs_size = 0;
 
     size_t l_data_tsd_offset = 0;
-    for ( dap_list_t* l_tsd_list_iter=dap_list_first(l_tsd_list); l_iter; l_tsd_list_iter=l_tsd_list_iter->next){
+    for ( dap_list_t* l_tsd_list_iter=dap_list_first(l_tsd_list); l_tsd_list_iter; l_tsd_list_iter=l_tsd_list_iter->next){
         dap_tsd_t * l_b_tsd = (dap_tsd_t *) l_tsd_list_iter->data;
         size_t l_tsd_size = dap_tsd_size(l_b_tsd);
-        memcpy((byte_t*)l_anchor + l_data_tsd_offset, l_b_tsd, l_tsd_size);
+        memcpy((byte_t*)l_anchor->data_n_sign + l_data_tsd_offset, l_b_tsd, l_tsd_size);
         l_data_tsd_offset += l_tsd_size;
     }
     dap_list_free_full(l_tsd_list, NULL);
