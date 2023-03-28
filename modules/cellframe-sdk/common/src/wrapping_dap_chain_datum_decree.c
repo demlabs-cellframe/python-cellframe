@@ -35,25 +35,7 @@ PyObject* wrapping_dap_chain_datum_decree_get_subtype(PyObject *self, void* clos
 }
 PyObject* wrapping_dap_chain_datum_decree_get_subtype_str(PyObject *self, void* closure){
     (void)closure;
-    switch(PVT(self)->decree->header.sub_type) {
-        case DAP_CHAIN_DATUM_DECREE_COMMON_SUBTYPE_FEE:
-            return Py_BuildValue("s", "DAP_CHAIN_DATUM_DECREE_COMMON_SUBTYPE_FEE");
-        case DAP_CHAIN_DATUM_DECREE_COMMON_SUBTYPE_OWNERS:
-            return Py_BuildValue("s", "DAP_CHAIN_DATUM_DECREE_COMMON_SUBTYPE_OWNERS");
-        case DAP_CHAIN_DATUM_DECREE_COMMON_SUBTYPE_OWNERS_MIN:
-            return Py_BuildValue("s", "DAP_CHAIN_DATUM_DECREE_COMMON_SUBTYPE_OWNERS_MIN");
-        case DAP_CHAIN_DATUM_DECREE_COMMON_SUBTYPE_TON_SIGNERS_MIN:
-            return Py_BuildValue("s", "DAP_CHAIN_DATUM_DECREE_COMMON_SUBTYPE_TON_SIGNERS_MIN");
-        case DAP_CHAIN_DATUM_DECREE_COMMON_SUBTYPE_STAKE_APPROVE:
-            return Py_BuildValue("s", "DAP_CHAIN_DATUM_DECREE_COMMON_SUBTYPE_STAKE_APPROVE");
-        case DAP_CHAIN_DATUM_DECREE_COMMON_SUBTYPE_STAKE_INVALIDATE:
-            return Py_BuildValue("s", "DAP_CHAIN_DATUM_DECREE_COMMON_SUBTYPE_STAKE_INVALIDATE");
-        case DAP_CHAIN_DATUM_DECREE_COMMON_SUBTYPE_STAKE_MIN_VALUE:
-            return Py_BuildValue("s", "DAP_CHAIN_DATUM_DECREE_COMMON_SUBTYPE_STAKE_MIN_VALUE");
-        case DAP_CHAIN_DATUM_DECREE_COMMON_SUBTYPE_STAKE_MIN_VALIDATORS_COUNT:
-            return Py_BuildValue("s", "DAP_CHAIN_DATUM_DECREE_COMMON_SUBTYPE_STAKE_MIN_VALIDATORS_COUNT");
-    }
-    return Py_BuildValue("s", "UNKNOWN");
+    return Py_BuildValue("s", dap_chain_datum_decree_subtype_to_str(PVT(self)->decree->header.sub_type));
 }
 
 PyObject* wrapping_dap_chain_datum_decree_get_tsd(PyObject *self, void* closure) {
@@ -182,14 +164,14 @@ PyObject *PyDapChainDatumDecreeObject_new(PyTypeObject *type_object, PyObject *a
         l_subtype = DAP_CHAIN_DATUM_DECREE_COMMON_SUBTYPE_OWNERS;
     } else if (strcmp(l_subtype_str, "DAP_CHAIN_DATUM_DECREE_COMMON_SUBTYPE_OWNERS_MIN") == 0) {
         l_subtype = DAP_CHAIN_DATUM_DECREE_COMMON_SUBTYPE_OWNERS_MIN;
-    } else if (strcmp(l_subtype_str, "DAP_CHAIN_DATUM_DECREE_COMMON_SUBTYPE_TON_SIGNERS_MIN") == 0) {
-        l_subtype = DAP_CHAIN_DATUM_DECREE_COMMON_SUBTYPE_TON_SIGNERS_MIN;
     } else if (strcmp(l_subtype_str, "DAP_CHAIN_DATUM_DECREE_COMMON_SUBTYPE_STAKE_APPROVE") == 0) {
         l_subtype = DAP_CHAIN_DATUM_DECREE_COMMON_SUBTYPE_STAKE_APPROVE;
     } else if (strcmp(l_subtype_str, "DAP_CHAIN_DATUM_DECREE_COMMON_SUBTYPE_STAKE_INVALIDATE") == 0) {
         l_subtype = DAP_CHAIN_DATUM_DECREE_COMMON_SUBTYPE_STAKE_INVALIDATE;
     } else if (strcmp(l_subtype_str, "DAP_CHAIN_DATUM_DECREE_COMMON_SUBTYPE_STAKE_MIN_VALUE") == 0) {
         l_subtype = DAP_CHAIN_DATUM_DECREE_COMMON_SUBTYPE_STAKE_MIN_VALUE;
+    } else if (strcmp(l_subtype_str, "DAP_CHAIN_DATUM_DECREE_COMMON_SUBTYPE_STAKE_MIN_VALIDATORS_COUNT") == 0) {
+        l_subtype = DAP_CHAIN_DATUM_DECREE_COMMON_SUBTYPE_STAKE_MIN_VALIDATORS_COUNT;
     } else {
         char *l_err_str = dap_strdup_printf("An unsupported %s subtype was passed as the third argument. Supported delegation token subtypes:\n"
                                             "\tDAP_CHAIN_DATUM_DECREE_COMMON_SUBTYPE_FEE\n"
