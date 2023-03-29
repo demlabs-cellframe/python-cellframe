@@ -238,7 +238,7 @@ void dap_chain_plugins_deinit(){
         LL_DELETE(l_plugins, l_plugin);
     }
     dap_chain_plugins_manifest_list_delete_all();
-    PyEval_RestoreThread(s_thread_state);
+    //PyEval_RestoreThread(s_thread_state);
     Py_Finalize();
 }
 int dap_chain_plugins_reload_plugin(const char * a_name_plugin){

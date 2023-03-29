@@ -95,6 +95,7 @@ void writeSectorsToFile(FILE *file, PyObject *sectors, int count, ...){
             writeContectSectorToFile(file, sector);
         }
         DAP_FREE(name_sector);
+        va_end(args);
     }
 }
 
