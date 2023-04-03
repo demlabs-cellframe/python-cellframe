@@ -4,6 +4,7 @@
 #include "wrapping_dap_sign.h"
 #include "libdap_chain_net_python.h"
 #include "wrapping_cert.h"
+#include "dap_chain_net_srv_stake_pos_delegate.h"
 
 #define PVT(a)((PyDapChainDatumDecreeObject*)a)
 
@@ -121,12 +122,55 @@ PyObject *wrapping_dap_chain_datum_decree_add_sign(PyObject *self, PyObject *arg
     Py_RETURN_NONE;
 }
 
+PyObject *wrapping_dap_chain_datum_decree_create_approve(PyObject *self, PyObject *args) {
+    (void)self;
+    PyObject *obj_net;
+    PyObject *obj_tx_hash;
+    PyObject *obj_cert;
+    if (!PyArg_ParseTuple(args, "OOO", &obj_net, &obj_tx_hash, &obj_cert)) {
+        return NULL;
+    }
+    if (!PyDapChainNet_Check((PyDapChainNetObject*)obj_net)) {
+        PyErr_SetString(PyExc_AttributeError, "The first argument was not correctly passed to the "
+                                              "function call. It must be a Net object.");
+        return NULL;
+    }
+    if (!PyDapHashFast_Check((PyDapHashFastObject*)obj_tx_hash)) {
+        PyErr_SetString(PyExc_AttributeError, "The second argument was not correctly passed to the "
+                                              "function call. It must be a HashFast object.");
+        return NULL;
+    }
+    if (!PyObject_TypeCheck(obj_cert, &DapCryptoCertObjectType)) {
+        PyErr_SetString(PyExc_AttributeError, "The third argument was incorrectly passed to the function"
+                                              " call. It must be a Cert object.");
+        return NULL;
+    }
+    dap_chain_datum_decree_t *l_decree = dap_chain_net_srv_stake_decree_approve(
+            ((PyDapChainNetObject*)obj_net)->chain_net,
+            ((PyDapHashFastObject*)obj_tx_hash)->hash_fast,
+            ((PyCryptoCertObject*)obj_cert)->cert);
+    if (!l_decree) {
+        PyErr_SetString(PyExc_RuntimeError, "It was not possible to create an approval directive, see "
+                                            "the node logs for the reasons for the error.");
+        return NULL;
+    }
+    PyDapChainDatumDecreeObject *obj_decree = PyObject_New(PyDapChainDatumDecreeObject, &DapChainDatumDecreeObjectType);
+    obj_decree->decree = l_decree;
+    return (PyObject*)obj_decree;
+}
+
 PyMethodDef DapChainDatumDecreeMethods[] = {
         {
                 "addSign",
                 wrapping_dap_chain_datum_decree_add_sign,
                 METH_VARARGS,
                 "Adding a signature for the decree datum."
+            },
+        {
+                "createApprove",
+                wrapping_dap_chain_datum_decree_create_approve,
+                METH_VARARGS | METH_STATIC,
+                "Creates a steak approval decree."
             },
         {}
 };
