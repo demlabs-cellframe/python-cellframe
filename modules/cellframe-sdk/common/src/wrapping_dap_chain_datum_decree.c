@@ -179,17 +179,20 @@ PyObject *wrapping_dap_chain_datum_decree_create_anchor(PyObject *self, PyObject
         return NULL;
     }
     if (obj_chain) {
-        if (!PyDapChain_Check((PyDapChainObject*)l_chain)) {
+        if (!PyDapChain_Check((PyDapChainObject*)obj_chain)) {
             PyErr_SetString(PyExc_AttributeError, "The third argument is incorrect, it must be an "
                                                   "object of type Chain.");
             return NULL;
         }
-        if (((PyDapChainObject*)l_chain)->chain_t != dap_chain_net_get_chain_by_chain_type(l_net, CHAIN_TYPE_ANCHOR)) {
-            char *l_err_str = dap_strdup_printf("Chain %s don't support decree.", ((PyDapChainObject*)l_chain)->chain_t->name);
+        if (((PyDapChainObject*)obj_chain)->chain_t != dap_chain_net_get_chain_by_chain_type(l_net,
+                                                                                             CHAIN_TYPE_ANCHOR)) {
+            char *l_err_str = dap_strdup_printf("Chain %s don't support decree.",
+                                                ((PyDapChainObject*)obj_chain)->chain_t->name);
             PyErr_SetString(PyExc_AttributeError, l_err_str);
             DAP_DELETE(l_err_str);
             return NULL;
         }
+        l_chain = ((PyDapChainObject*)obj_chain)->chain_t;
     } else {
         l_chain = dap_chain_net_get_chain_by_chain_type(l_net, CHAIN_TYPE_ANCHOR);
         if (!l_chain) {
