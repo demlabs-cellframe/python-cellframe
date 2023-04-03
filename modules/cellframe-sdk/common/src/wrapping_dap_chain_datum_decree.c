@@ -4,6 +4,7 @@
 #include "wrapping_dap_sign.h"
 #include "libdap_chain_net_python.h"
 #include "wrapping_cert.h"
+#include "dap_chain_net_srv_stake_pos_delegate.h"
 
 #define PVT(a)((PyDapChainDatumDecreeObject*)a)
 
@@ -121,12 +122,143 @@ PyObject *wrapping_dap_chain_datum_decree_add_sign(PyObject *self, PyObject *arg
     Py_RETURN_NONE;
 }
 
+PyObject *wrapping_dap_chain_datum_decree_create_approve(PyObject *self, PyObject *args) {
+    (void)self;
+    PyObject *obj_net;
+    PyObject *obj_tx_hash;
+    PyObject *obj_cert;
+    if (!PyArg_ParseTuple(args, "OOO", &obj_net, &obj_tx_hash, &obj_cert)) {
+        return NULL;
+    }
+    if (!PyDapChainNet_Check((PyDapChainNetObject*)obj_net)) {
+        PyErr_SetString(PyExc_AttributeError, "The first argument was not correctly passed to the "
+                                              "function call. It must be a Net object.");
+        return NULL;
+    }
+    if (!PyDapHashFast_Check((PyDapHashFastObject*)obj_tx_hash)) {
+        PyErr_SetString(PyExc_AttributeError, "The second argument was not correctly passed to the "
+                                              "function call. It must be a HashFast object.");
+        return NULL;
+    }
+    if (!PyObject_TypeCheck(obj_cert, &DapCryptoCertObjectType)) {
+        PyErr_SetString(PyExc_AttributeError, "The third argument was incorrectly passed to the function"
+                                              " call. It must be a Cert object.");
+        return NULL;
+    }
+    dap_chain_datum_decree_t *l_decree = dap_chain_net_srv_stake_decree_approve(
+            ((PyDapChainNetObject*)obj_net)->chain_net,
+            ((PyDapHashFastObject*)obj_tx_hash)->hash_fast,
+            ((PyCryptoCertObject*)obj_cert)->cert);
+    if (!l_decree) {
+        PyErr_SetString(PyExc_RuntimeError, "It was not possible to create an approval directive, see "
+                                            "the node logs for the reasons for the error.");
+        return NULL;
+    }
+    PyDapChainDatumDecreeObject *obj_decree = PyObject_New(PyDapChainDatumDecreeObject, &DapChainDatumDecreeObjectType);
+    obj_decree->decree = l_decree;
+    return (PyObject*)obj_decree;
+}
+
+PyObject *wrapping_dap_chain_datum_decree_create_anchor(PyObject *self, PyObject *args) {
+    PyObject *obj_net;
+    PyObject *obj_cert;
+    PyObject *obj_chain = NULL;
+    if (!PyArg_ParseTuple(args, "OO|O", &obj_net, &obj_cert, &obj_chain)) {
+        return NULL;
+    }
+    if (!PyDapChainNet_Check((PyDapChainNetObject*)obj_net)) {
+        PyErr_SetString(PyExc_AttributeError, "The first argument is incorrect, it must be an object "
+                                              "of type Net.");
+        return NULL;
+    }
+    dap_chain_net_t *l_net = ((PyDapChainNetObject*)obj_net)->chain_net;
+    dap_chain_t *l_chain;
+    if (!PyObject_TypeCheck(obj_cert, &DapCryptoCertObjectType)) {
+        PyErr_SetString(PyExc_AttributeError, "The second argument is incorrect, it must be an "
+                                              "object of type Crypto.");
+        return NULL;
+    }
+    if (obj_chain) {
+        if (!PyDapChain_Check((PyDapChainObject*)obj_chain)) {
+            PyErr_SetString(PyExc_AttributeError, "The third argument is incorrect, it must be an "
+                                                  "object of type Chain.");
+            return NULL;
+        }
+        if (((PyDapChainObject*)obj_chain)->chain_t != dap_chain_net_get_chain_by_chain_type(l_net,
+                                                                                             CHAIN_TYPE_ANCHOR)) {
+            char *l_err_str = dap_strdup_printf("Chain %s don't support decree.",
+                                                ((PyDapChainObject*)obj_chain)->chain_t->name);
+            PyErr_SetString(PyExc_AttributeError, l_err_str);
+            DAP_DELETE(l_err_str);
+            return NULL;
+        }
+        l_chain = ((PyDapChainObject*)obj_chain)->chain_t;
+    } else {
+        l_chain = dap_chain_net_get_chain_by_chain_type(l_net, CHAIN_TYPE_ANCHOR);
+        if (!l_chain) {
+            char *l_err_str = dap_strdup_printf("Network %s does not support Decree.", l_net->pub.name);
+            PyErr_SetString(PyExc_AttributeError, l_err_str);
+            DAP_DELETE(l_err_str);
+            return NULL;
+        }
+    }
+    dap_hash_fast_t l_decree_hash = {0};
+    dap_hash_fast(PVT(self)->decree, dap_chain_datum_decree_get_size(PVT(self)->decree), &l_decree_hash);
+    dap_tsd_t *l_tsd_decree_hash = dap_tsd_create(DAP_CHAIN_DATUM_ANCHOR_TSD_TYPE_DECREE_HASH,
+                                                  &l_decree_hash, sizeof(dap_hash_fast_t));
+    if (!l_tsd_decree_hash) {
+        PyErr_SetString(PyExc_RuntimeError, "Anchor creation failed. Memory allocation fail.");
+        return NULL;
+    }
+
+    dap_chain_datum_anchor_t *l_anchor = DAP_NEW_Z_SIZE(dap_chain_datum_anchor_t, sizeof(dap_chain_datum_anchor_t) +
+                                            dap_tsd_size(l_tsd_decree_hash));
+    if (!l_anchor) {
+        PyErr_SetString(PyExc_RuntimeError, "Anchor creation failed. Memory allocation fail.");
+        return NULL;
+    }
+    l_anchor->header.data_size = dap_tsd_size(l_tsd_decree_hash);
+    l_anchor->header.ts_created = dap_time_now();
+    memcpy(l_anchor->data_n_sign, l_tsd_decree_hash, dap_tsd_size(l_tsd_decree_hash));
+
+    DAP_DEL_Z(l_tsd_decree_hash);
+    dap_sign_t *l_sign = dap_cert_sign(((PyCryptoCertObject*)obj_cert)->cert, l_anchor,
+                                       sizeof(dap_chain_datum_anchor_t)+dap_tsd_size(l_tsd_decree_hash), 0);
+    if (l_sign) {
+        size_t l_sign_size = dap_sign_get_size(l_sign);
+        l_anchor = DAP_REALLOC(l_anchor, sizeof(dap_chain_datum_anchor_t)+dap_tsd_size(l_tsd_decree_hash)+l_sign_size);
+        memcpy(l_anchor->data_n_sign + dap_tsd_size(l_tsd_decree_hash), l_sign, l_sign_size);
+        l_anchor->header.signs_size = l_sign_size;
+        DAP_DELETE(l_sign);
+    } else {
+        PyErr_SetString(PyExc_RuntimeError, "Can't sign created anchor.");
+        DAP_DELETE(l_anchor);
+        return NULL;
+    }
+
+    PyDapChainDatumAnchorObject *obj_anchor = PyObject_New(PyDapChainDatumAnchorObject, &DapChainDatumAnchorObjectType);
+    obj_anchor->anchor = l_anchor;
+    return (PyObject*)obj_anchor;
+}
+
 PyMethodDef DapChainDatumDecreeMethods[] = {
         {
                 "addSign",
                 wrapping_dap_chain_datum_decree_add_sign,
                 METH_VARARGS,
                 "Adding a signature for the decree datum."
+            },
+        {
+                "createApprove",
+                wrapping_dap_chain_datum_decree_create_approve,
+                METH_VARARGS | METH_STATIC,
+                "Creates a steak approval decree."
+            },
+        {
+                "createAnchor",
+                wrapping_dap_chain_datum_decree_create_anchor,
+                METH_VARARGS,
+                "The function creates an anchor for the decree."
             },
         {}
 };
