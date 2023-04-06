@@ -228,7 +228,7 @@ PyObject *wrapping_dap_chain_datum_get_datum_token_emission(PyObject *self, PyOb
                 PyErr_SetString(PyExc_Exception, l_strerr); */
                 log_it(L_ERROR, "Emission with AUTH type is broken! Datum hash %s needs inspection. Skip it", l_hash_str);
                 DAP_DELETE(l_emission);
-                return NULL;
+                Py_RETURN_NONE;
             }
         }
         PyDapChainDatumTokenEmissionObject *obj_emission = PyObject_New(
