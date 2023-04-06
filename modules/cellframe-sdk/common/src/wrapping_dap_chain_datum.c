@@ -1,5 +1,5 @@
 #include "wrapping_dap_chain_datum.h"
-
+#define LOG_TAG "wrapping_dap_chain_datum"
 //void PyDapChainDatumObject_dealloc(PyDapChainDatumObject* object){
 //}
 
@@ -222,10 +222,11 @@ PyObject *wrapping_dap_chain_datum_get_datum_token_emission(PyObject *self, PyOb
         dap_chain_datum_token_emission_t *l_emission = dap_chain_datum_emission_read(l_datum->data, &l_token_emission_size);
         if (l_emission->hdr.type == DAP_CHAIN_DATUM_TOKEN_EMISSION_TYPE_AUTH) {
             if (((void*)l_emission->tsd_n_signs + l_emission->data.type_auth.tsd_total_size) > ((void*)l_emission + l_token_emission_size)) {
-                char l_strerr[256] = { '\0' };
                 dap_get_data_hash_str_static(l_datum, dap_chain_datum_size(l_datum), l_hash_str);
+                /*char l_strerr[256] = { '\0' };
                 dap_snprintf(l_strerr, sizeof(l_strerr), "Emission with AUTH type is broken! Datum hash %s needs inspection. Skip it", l_hash_str);
-                PyErr_SetString(PyExc_Exception, l_strerr);
+                PyErr_SetString(PyExc_Exception, l_strerr); */
+                log_it(L_ERROR, "Emission with AUTH type is broken! Datum hash %s needs inspection. Skip it", l_hash_str);
                 DAP_DELETE(l_emission);
                 return NULL;
             }
