@@ -180,12 +180,12 @@ PyObject *dap_chain_mempool_base_tx_create_py(PyObject *self, PyObject *args){
     PyDapHashFastObject *obj_emi_hash;
     DapMathObject *obj_emission_value;
     char *l_ticker;
-    uint256_t a_value_fee = {};
     dap_enc_key_t *a_key_from = NULL;
     PyDapChainAddrObject *obj_addr_to;
     PyObject *obj_certs;
-    if (!PyArg_ParseTuple(args, "OOOOsOO", &obj_chain, &obj_emi_hash, &obj_emi_chain, &obj_emission_value,
-                          &l_ticker, &obj_addr_to, &obj_certs)) {
+    DapMathObject *obj_value_fee;
+    if (!PyArg_ParseTuple(args, "OOOOsOOO", &obj_chain, &obj_emi_hash, &obj_emi_chain, &obj_emission_value,
+                          &l_ticker, &obj_addr_to, &obj_value_fee, &obj_certs)) {
         return NULL;
     }
     if (!PyDapChain_Check(obj_chain)){
@@ -212,9 +212,15 @@ PyObject *dap_chain_mempool_base_tx_create_py(PyObject *self, PyObject *args){
                                               "transaction should be made to. ");
         return NULL;
     }
-    if (!PyList_Check(obj_certs)){
+    if (!PyObject_TypeCheck(obj_value_fee, &DapMathObjectType)) {
         PyErr_SetString(PyExc_AttributeError, "The seventh argument was not correctly passed to this "
                                               "function. The seventh argument must be an instance of an object of type "
+                                              "DAP.Math that contains the fee for the underlying transaction.");
+        return NULL;
+    }
+    if (!PyList_Check(obj_certs)){
+        PyErr_SetString(PyExc_AttributeError, "The eighth argument was not correctly passed to this "
+                                              "function. The eighth argument must be an instance of an object of type "
                                               "list, which holds the list of certificates with which the underlying "
                                               "transaction is to be signed.");
         return NULL;
@@ -225,10 +231,11 @@ PyObject *dap_chain_mempool_base_tx_create_py(PyObject *self, PyObject *args){
         PyCryptoCertObject *l_ptr = (PyCryptoCertObject*)PyList_GetItem(obj_certs, (Py_ssize_t)i);
         l_certs[i] = l_ptr->cert;
     }
+    uint256_t l_value_fee = ((DapMathObject*)obj_value_fee)->value;
     char *l_tx_hash_str = dap_chain_mempool_base_tx_create(
             obj_chain->chain_t, obj_emi_hash->hash_fast,
             obj_emi_chain->chain_t->id, obj_emission_value->value, l_ticker,
-            a_key_from, obj_addr_to->addr, l_certs, l_certs_count, "hex", a_value_fee);
+            a_key_from, obj_addr_to->addr, l_certs, l_certs_count, "hex", l_value_fee);
     DAP_FREE(l_certs);
     if (l_tx_hash_str == NULL)
         Py_RETURN_NONE;
