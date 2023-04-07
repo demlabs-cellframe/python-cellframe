@@ -1,5 +1,5 @@
 #include "wrapping_dap_chain_datum.h"
-
+#define LOG_TAG "wrapping_dap_chain_datum"
 //void PyDapChainDatumObject_dealloc(PyDapChainDatumObject* object){
 //}
 
@@ -216,20 +216,30 @@ PyObject *dap_chain_datum_is_type_emission(PyObject *self, PyObject *args){
 
 PyObject *wrapping_dap_chain_datum_get_datum_token_emission(PyObject *self, PyObject *args){
     (void)args;
-    if (((PyDapChainDatumObject*)self)->datum->header.type_id == DAP_CHAIN_DATUM_TOKEN_EMISSION ){
+    dap_chain_datum_t *l_datum = ((PyDapChainDatumObject*)self)->datum;
+    if (l_datum->header.type_id == DAP_CHAIN_DATUM_TOKEN_EMISSION) {
+        size_t l_token_emission_size = l_datum->header.data_size;
+        dap_chain_datum_token_emission_t *l_emission = dap_chain_datum_emission_read(l_datum->data, &l_token_emission_size);
+        if (l_emission->hdr.type == DAP_CHAIN_DATUM_TOKEN_EMISSION_TYPE_AUTH) {
+            if (((void*)l_emission->tsd_n_signs + l_emission->data.type_auth.tsd_total_size) > ((void*)l_emission + l_token_emission_size)) {
+                dap_get_data_hash_str_static(l_datum, dap_chain_datum_size(l_datum), l_hash_str);
+                /*char l_strerr[256] = { '\0' };
+                dap_snprintf(l_strerr, sizeof(l_strerr), "Emission with AUTH type is broken! Datum hash %s needs inspection. Skip it", l_hash_str);
+                PyErr_SetString(PyExc_Exception, l_strerr); */
+                log_it(L_ERROR, "Emission with AUTH type is broken! Datum hash %s needs inspection. Skip it", l_hash_str);
+                DAP_DELETE(l_emission);
+                Py_RETURN_NONE;
+            }
+        }
         PyDapChainDatumTokenEmissionObject *obj_emission = PyObject_New(
                 PyDapChainDatumTokenEmissionObject,
                 &DapChainDatumTokenEmissionObjectType
                 );
-        size_t l_token_emission_size = ((PyDapChainDatumObject*)self)->datum->header.data_size;
-        obj_emission->token_emission = dap_chain_datum_emission_read(((PyDapChainDatumObject*)self)->datum->data,
-                                                                     &l_token_emission_size);
+        obj_emission->token_emission = l_emission;
         obj_emission->token_size = l_token_emission_size;
         obj_emission->copy = true;
-        
         return (PyObject*)obj_emission;
-
-    }else{
+    } else {
         PyErr_SetString(PyExc_Exception, "Incorrect of a datum type. Can't get a token datum");
         return NULL;
     }
