@@ -161,7 +161,8 @@ void dap_chain_plugins_load_plugin_initialization(){
         PyObject *l_res_int = NULL;
         PyErr_Clear();
         if (PyCallable_Check(l_func_init)) {
-            l_res_int = PyEval_CallObject(l_func_init, NULL);
+            PyObject *l_void_tuple = PyTuple_New(0);
+            l_res_int = PyEval_CallObject(l_func_init, l_void_tuple);
             if (l_res_int && PyLong_Check(l_res_int)) {
                 if (_PyLong_AsInt(l_res_int) == 0) {
                     dap_chain_plugins_list_add(l_container->module, l_container->name);
@@ -176,6 +177,7 @@ void dap_chain_plugins_load_plugin_initialization(){
                 log_it(L_ERROR, "The 'init' function of \"%s\" plugin didn't return an integer value", l_container->name);
             }
             Py_XDECREF(l_res_int);
+            Py_XDECREF(l_void_tuple);
         } else {
             log_it(L_ERROR, "Can't find 'init' function of \"%s\" plugin", l_container->name);
         }
@@ -199,7 +201,8 @@ void dap_chain_plugins_load_plugin(const char *a_dir_path, const char *a_name){
     PyObject *l_res_int = NULL;
     PyErr_Clear();
     if (l_func_init != NULL && PyCallable_Check(l_func_init)){
-        l_res_int = PyEval_CallObject(l_func_init, NULL);
+        PyObject *l_void_tuple = PyTuple_New(0);
+        l_res_int = PyEval_CallObject(l_func_init, l_void_tuple);
         if (l_res_int && PyLong_Check(l_res_int)){
             if (_PyLong_AsInt(l_res_int) == 0){
                 dap_chain_plugins_list_add(l_module, a_name);
@@ -212,6 +215,7 @@ void dap_chain_plugins_load_plugin(const char *a_dir_path, const char *a_name){
             log_it(L_ERROR, "The 'init' function of \"%s\" plugin didn't return an integer value", a_name);
         }
         Py_XDECREF(l_res_int);
+        Py_XDECREF(l_void_tuple);
     }else {
         log_it(L_ERROR, "Can't find 'init' function of \"%s\" plugin", a_name);
     }
@@ -228,13 +232,16 @@ void dap_chain_plugins_deinit(){
     PyObject *l_res_int = NULL;
     LL_FOREACH_SAFE(l_plugins, l_plugin, l_tmp){
         PyObject *l_func_deinit = PyObject_GetAttrString(l_plugin->obj_module, "deinit");
+        PyObject *l_void_tuple = PyTuple_New(0);
         if (l_func_deinit != NULL || PyCallable_Check(l_func_deinit)){
-            l_res_int = PyEval_CallObject(l_func_deinit, NULL);
+            l_res_int = PyEval_CallObject(l_func_deinit, l_void_tuple);
         } else {
             log_it(L_WARNING, "The 'deinit' object of \"%s\" plugin isn't a callable", l_plugin->name);
         }
         DAP_FREE(l_plugin->name);
         Py_XDECREF(l_plugin->obj_module);
+        Py_XDECREF(l_void_tuple);
+        Py_XDECREF(l_res_int);
         LL_DELETE(l_plugins, l_plugin);
     }
     dap_chain_plugins_manifest_list_delete_all();
