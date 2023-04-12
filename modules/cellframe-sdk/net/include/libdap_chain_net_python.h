@@ -36,6 +36,7 @@
 #include "wrapping_dap_chain_ledger.h"
 #include "libdap-chain-python.h"
 #include "libdap_chain_type_python.h"
+#include "dap_chain_net_srv_stake_pos_delegate.h"
 
 #ifdef __cplusplus
 extern "C"{
@@ -84,6 +85,11 @@ PyObject *dap_chain_net_python_get_id(PyObject *self, void *closure);
 PyObject *dap_chain_net_python_get_chains(PyObject *self, void *closure);
 PyObject *dap_chain_net_get_tx_by_hash_py(PyObject *self, PyObject *args);
 PyObject *dap_chain_net_add_notify_py(PyObject *self, PyObject *args);
+PyObject *dap_chain_net_get_tx_fee_py(PyObject *self, void *closure);
+PyObject *dap_chain_net_get_tx_fee_addr_py(PyObject *self, void *closure);
+PyObject *dap_chain_net_get_validator_max_fee_py(PyObject *self, void *closure);
+PyObject *dap_chain_net_get_validator_min_fee_py(PyObject *self, void *closure);
+PyObject *dap_chain_net_get_validator_average_fee_py(PyObject *self, void *closure);
 
 extern PyTypeObject DapChainNetObjectType;
 
