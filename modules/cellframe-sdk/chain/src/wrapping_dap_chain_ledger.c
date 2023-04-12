@@ -273,7 +273,7 @@ PyObject *dap_chain_ledger_tx_hash_is_used_out_item_py(PyObject *self, PyObject 
     int idx_out;
     if (!PyArg_ParseTuple(args, "O|i", &obj_h_fast, &idx_out))
             return NULL;
-    bool res = dap_chain_ledger_tx_hash_is_used_out_item(((PyDapChainLedgerObject*)self)->ledger, ((PyDapHashFastObject*)obj_h_fast)->hash_fast, idx_out);
+    bool res = dap_chain_ledger_tx_hash_is_used_out_item(((PyDapChainLedgerObject*)self)->ledger, ((PyDapHashFastObject*)obj_h_fast)->hash_fast, idx_out, NULL);
     if (res)
         Py_RETURN_TRUE;
     else
