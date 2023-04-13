@@ -251,7 +251,9 @@ PyObject *wrapping_dap_chain_datum_is_type_decree(PyObject *self, PyObject *args
 PyObject *wrapping_dap_chain_datum_get_decree(PyObject *self, PyObject *args) {
     (void)args;
     PyDapChainDatumDecreeObject *obj_decree = PyObject_New(PyDapChainDatumDecreeObject, &DapChainDatumDecreeObjectType);
-    obj_decree->decree = (dap_chain_datum_decree_t*)((PyDapChainDatumObject*)self)->datum->data;
+    size_t l_data_size = ((PyDapChainDatumObject*)self)->datum->header.data_size;
+    obj_decree->decree = DAP_NEW_Z_SIZE(dap_chain_datum_decree_t, l_data_size);
+    memcpy(obj_decree->decree, ((PyDapChainDatumObject*)self)->datum->data, l_data_size);
     return (PyObject*)obj_decree;
 }
 PyObject *wrapping_dap_chain_datum_is_type_anchor(PyObject *self, PyObject *args) {

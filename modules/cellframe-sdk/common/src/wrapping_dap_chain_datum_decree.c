@@ -403,10 +403,16 @@ PyObject *PyDapChainDatumDecreeObject_new(PyTypeObject *type_object, PyObject *a
     return (PyObject*)obj_self;
 }
 
+void DapChainDatumDecree_free(PyDapChainDatumDecreeObject *self){
+    DAP_DELETE(PVT(self)->decree);
+    Py_TYPE(self)->tp_free((PyObject*)self);
+}
+
 PyTypeObject DapChainDatumDecreeObjectType = {
         .ob_base = PyVarObject_HEAD_INIT(NULL, 0)
         .tp_name = "CellFrame.Common.DatumDecree",
         .tp_basicsize = sizeof(PyDapChainDatumDecreeObject),
+        .tp_dealloc = (destructor)DapChainDatumDecree_free,
         .tp_doc = "Chain datum type decree object",
         .tp_getset = DapChainDatumDecreeGetSet,
         .tp_methods = DapChainDatumDecreeMethods,
