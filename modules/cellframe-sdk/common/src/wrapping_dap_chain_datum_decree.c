@@ -71,9 +71,10 @@ PyObject* wrapping_dap_chain_datum_decree_get_signs(PyObject *self, void* closur
         Py_RETURN_NONE;
     PyObject *obj_list = PyList_New(0);
     for (size_t l_offset = 0; l_offset < l_signs_size; ) {
-        size_t l_sign_size = dap_sign_get_size(l_signs + l_offset);
+        dap_sign_t *l_sign = (dap_sign_t*)((byte_t*)l_signs + l_offset);
+        size_t l_sign_size = dap_sign_get_size(l_sign );
         PyDapSignObject *obj_sign = PyObject_New(PyDapSignObject, &DapCryptoSignObjectType);
-        obj_sign->sign = l_signs + l_offset;
+        obj_sign->sign = l_sign ;
         PyList_Append(obj_list, (PyObject*)obj_sign);
         Py_XDECREF((PyObject*)obj_sign);
         l_offset += l_sign_size;
