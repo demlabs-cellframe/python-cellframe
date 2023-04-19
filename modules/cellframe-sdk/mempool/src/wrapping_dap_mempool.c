@@ -477,9 +477,7 @@ PyObject *dap_chain_mempool_add_datum_py(PyObject *self, PyObject *args){
     }
     dap_chain_datum_t *l_datum = NULL;
     if (DapChainDatumDecree_Check(obj_data)) {
-        size_t l_data_size = sizeof(&((PyDapChainDatumDecreeObject*)obj_data)->decree) +
-                ((PyDapChainDatumDecreeObject*)obj_data)->decree->header.data_size +
-                ((PyDapChainDatumDecreeObject*)obj_data)->decree->header.signs_size;
+        size_t l_data_size = dap_chain_datum_decree_get_size(((PyDapChainDatumDecreeObject*)obj_data)->decree);
         l_datum = DAP_NEW_Z_SIZE(dap_chain_datum_t, sizeof(dap_chain_datum_t) + l_data_size);
         l_datum->header.version_id = DAP_CHAIN_DATUM_VERSION;
         l_datum->header.ts_create = dap_time_now();
@@ -488,9 +486,7 @@ PyObject *dap_chain_mempool_add_datum_py(PyObject *self, PyObject *args){
         memcpy(l_datum->data, ((PyDapChainDatumDecreeObject*)obj_data)->decree, l_data_size);
     }
     else if (DapChainDatumAnchor_Check(obj_data)) {
-        size_t l_data_size = sizeof(&((PyDapChainDatumAnchorObject*)obj_data)->anchor) +
-                ((PyDapChainDatumAnchorObject*)obj_data)->anchor->header.data_size +
-                ((PyDapChainDatumAnchorObject*)obj_data)->anchor->header.signs_size;
+        size_t l_data_size = dap_chain_datum_anchor_get_size(((PyDapChainDatumAnchorObject*)obj_data)->anchor);
         l_datum = DAP_NEW_Z_SIZE(dap_chain_datum_t, sizeof(dap_chain_datum_t) + l_data_size);
         l_datum->header.version_id = DAP_CHAIN_DATUM_VERSION;
         l_datum->header.ts_create = dap_time_now();

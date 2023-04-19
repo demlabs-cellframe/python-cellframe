@@ -81,8 +81,18 @@ PyObject* wrapping_dap_chain_datum_decree_get_signs(PyObject *self, void* closur
     }
     return obj_list;
 }
+PyObject* wrapping_dap_chain_datum_decree_get_hash(PyObject *self, void* closure){
+    (void)closure;
+    dap_chain_datum_decree_t *l_decree = ((PyDapChainDatumDecreeObject*)self)->decree;
+    dap_hash_fast_t *l_hf = DAP_NEW(dap_hash_fast_t);
+    dap_hash_fast(l_decree, dap_chain_datum_decree_get_size(l_decree), l_hf);
+    PyDapHashFastObject *obj_hf = PyObject_New(PyDapHashFastObject, &DapChainHashFastObjectType);
+    obj_hf->hash_fast = l_hf;
+    return (PyObject*)obj_hf;
+}
 
 PyGetSetDef  DapChainDatumDecreeGetSet[] = {
+        {"hash", (getter)wrapping_dap_chain_datum_decree_get_hash, NULL, NULL, NULL},
         {"tsCreated", (getter)wrapping_dap_chain_datum_decree_get_ts_created, NULL, NULL, NULL},
         {"type", (getter)wrapping_dap_chain_datum_decree_get_type, NULL, NULL, NULL},
         {"typeStr", (getter)wrapping_dap_chain_datum_decree_get_type_str, NULL, NULL, NULL},
