@@ -58,7 +58,18 @@ PyObject *wrapping_dap_chain_datum_anchor_get_sign(PyObject *self, void *closure
     return obj_list;
 }
 
+PyObject *wrapping_dap_chain_datum_anchor_get_hash(PyObject *self, void *closure){
+    (void)closure;
+    dap_chain_datum_anchor_t *l_anchor = ((PyDapChainDatumAnchorObject*)self)->anchor;
+    dap_hash_fast_t *l_hf = DAP_NEW(dap_hash_fast_t);
+    dap_hash_fast(l_anchor, dap_chain_datum_anchor_get_size(((PyDapChainDatumAnchorObject*)self)->anchor), l_hf);
+    PyDapHashFastObject *obj_hf = PyObject_New(PyDapHashFastObject, &DapChainHashFastObjectType);
+    obj_hf->hash_fast = l_hf;
+    return (PyObject*)obj_hf;
+}
+
 static PyGetSetDef DapChainDatumAnchorGetSet[] = {
+        {"hash", (getter)wrapping_dap_chain_datum_anchor_get_hash, NULL, NULL,NULL},
         {"created", (getter)wrapping_dap_chain_datum_anchor_get_ts_created, NULL, NULL, NULL},
         {"TSD", (getter)wrapping_dap_chain_datum_anchor_get_tsd, NULL, NULL, NULL},
         {"signs", (getter)wrapping_dap_chain_datum_anchor_get_sign, NULL, NULL, NULL},

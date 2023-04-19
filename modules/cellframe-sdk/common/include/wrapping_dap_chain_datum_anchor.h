@@ -11,6 +11,7 @@ typedef struct PyDapChainDatumAnchor{
 PyObject *wrapping_dap_chain_datum_anchor_get_ts_created(PyObject *self, void *closure);
 PyObject *wrapping_dap_chain_datum_anchor_get_tsd(PyObject *self, void *closure);
 PyObject *wrapping_dap_chain_datum_anchor_get_sign(PyObject *self, void *closure);
+PyObject *wrapping_dap_chain_datum_anchor_get_hash(PyObject *self, void *closure);
 
 extern PyTypeObject DapChainDatumAnchorObjectType;
 
