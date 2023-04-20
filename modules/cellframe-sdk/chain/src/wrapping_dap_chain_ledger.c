@@ -148,7 +148,7 @@ PyObject *dap_chain_ledger_addr_get_token_ticker_all_py(PyObject *self, PyObject
     for (size_t i = 0; i < l_ticker_count; i++) {
         PyObject *obj_unicode = PyUnicode_FromString(l_tickers[i]);
         DAP_DELETE(l_tickers[i]);
-        PyList_Append(l_obj_tickers, obj_unicode);
+        PyList_SetItem(l_obj_tickers, (Py_ssize_t)i, obj_unicode);
     }
     DAP_DELETE(l_tickers);
     return l_obj_tickers;
