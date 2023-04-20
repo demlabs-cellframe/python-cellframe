@@ -129,15 +129,27 @@ PyObject *dap_chain_ledger_tx_get_token_ticker_by_hash_py(PyObject *self, PyObje
     return Py_BuildValue("s", l_ticker);
 }
 PyObject *dap_chain_ledger_addr_get_token_ticker_all_py(PyObject *self, PyObject *args){
-    PyObject *obj_addr;
-    PyObject *obj_tickers;
-    PyObject *obj_tickers_size;
-    if (!PyArg_ParseTuple(args, "O|O|O", &obj_addr, &obj_tickers, &obj_tickers_size))
+    PyObject *obj_addr = NULL;
+    if (!PyArg_ParseTuple(args, "|O", &obj_addr))
         return NULL;
-    char ***tickers = ListStringToArrayStringFormatChar(obj_tickers);
-    size_t *tickers_size = ListIntToSizeT(obj_tickers_size);
-    dap_chain_ledger_addr_get_token_ticker_all(((PyDapChainLedgerObject*)self)->ledger, ((PyDapChainAddrObject*)obj_addr)->addr, tickers, tickers_size);
-    return PyLong_FromLong(0);
+    dap_chain_addr_t *l_addr = NULL;
+    if (obj_addr) {
+        if (!PyDapChainAddrObject_Check((PyDapChainAddrObject*)obj_addr)) {
+            PyErr_SetString(PyExc_AttributeError, "An invalid argument was passed, the first argument "
+                                                  "is optional and must be an object of type ChainAddr.");
+            return NULL;
+        }
+        l_addr = ((PyDapChainAddrObject*)obj_addr)->addr;
+    }
+    char **l_tickers = NULL;
+    size_t l_ticker_count = 0;
+    dap_chain_ledger_addr_get_token_ticker_all(((PyDapChainLedgerObject*)self)->ledger, l_addr, &l_tickers, &l_ticker_count);
+    PyObject *l_obj_tickers = PyList_New((Py_ssize_t)l_ticker_count);
+    for (size_t i = 0; i < l_ticker_count; i++) {
+        PyObject *obj_unicode = PyUnicode_FromString(l_tickers[i]);
+        PyList_Append(l_obj_tickers, obj_unicode);
+    }
+    return l_obj_tickers;
 }
 
 PyObject *dap_chain_ledger_tx_cache_check_py(PyObject *self, PyObject *args){
