@@ -162,7 +162,7 @@ PyObject *dap_chain_mempool_proc_py(PyObject *self, PyObject *args) {
     }
 
     if (dap_chain_node_mempool_process(l_chain, l_datum)) {
-        bool res_del_mempool = dap_global_db_del_sync(l_hash_str, l_gdb_group_mempool);
+        bool res_del_mempool = dap_global_db_del_sync(l_gdb_group_mempool, l_hash_str);
         if (!res_del_mempool) {
             char *l_str = dap_strdup_printf("Warning! Can't delete datum with hash: %s from mempool!", l_hash_str);
             PyErr_SetString(PyExc_Warning, l_str);
