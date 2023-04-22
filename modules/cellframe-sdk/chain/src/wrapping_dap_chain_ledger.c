@@ -469,6 +469,7 @@ PyObject * dap_chain_ledger_list_coins_py(PyObject *self,  PyObject *args)
         PyDapChainDatumTokenObject *obj_token = PyObject_New(PyDapChainDatumTokenObject, &DapChainDatumTokenObjectType);
         obj_token->token = (dap_chain_datum_token_t*)l_iter->data;
         PyList_Append(obj_list, (PyObject*)obj_token);
+        Py_XDCREF((PyObject*)obj_token) 
     }
     return obj_list;
 }
