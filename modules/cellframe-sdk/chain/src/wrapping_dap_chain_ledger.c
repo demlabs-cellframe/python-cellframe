@@ -8,6 +8,7 @@ PyMethodDef DapChainLedgerMethods[] = {
         {"tokenAdd", (PyCFunction)dap_chain_ledger_token_add_py, METH_VARARGS, ""},
         {"tokenEmissionLoad", (PyCFunction)dap_chain_ledger_token_emission_load_py, METH_VARARGS, ""},
         {"tokenEmissionFind", (PyCFunction)dap_chain_ledger_token_emission_find_py, METH_VARARGS, ""},
+        {"listCoins", (PyCFunction)dap_chain_ledger_list_coins_py, METH_VARARGS, ""},
         {"txGetTokenTickerByHash", (PyCFunction)dap_chain_ledger_tx_get_token_ticker_by_hash_py, METH_VARARGS, ""},
         {"addrGetTokenTickerAll", (PyCFunction)dap_chain_ledger_addr_get_token_ticker_all_py, METH_VARARGS, ""},
         {"addrGetTokenTickerAllFast", (PyCFunction)dap_chain_ledger_addr_get_token_ticker_all_fast_py, METH_VARARGS, ""},
@@ -458,7 +459,20 @@ static void pvt_wrapping_dap_chain_ledger_tx_add_notify(void *a_arg, dap_ledger_
     Py_XDECREF(argv);
     PyGILState_Release(state);
 }
-#undef LOG_TAG
+
+PyObject * dap_chain_ledger_list_coins_py(PyObject *self,  PyObject *args)
+{
+    dap_list_t * l_tokens = dap_chain_ledger_token_decl_all(((PyDapChainLedgerObject*)self)->ledger);
+
+    PyObject *obj_list = PyList_New(0);
+    for (dap_list_t *l_iter = l_tokens; l_iter != NULL; l_iter = l_iter->next){
+        PyDapChainDatumTokenObject *obj_token = PyObject_New(PyDapChainDatumTokenObject, &DapChainDatumTokenObjectType);
+        obj_token->token = (dap_chain_datum_token_t*)l_iter->data;
+        PyList_Append(obj_list, (PyObject*)obj_token);
+        Py_XDCREF((PyObject*)obj_token) 
+    }
+    return obj_list;
+}
 
 PyObject *dap_chain_ledger_tx_add_notify_py(PyObject *self, PyObject *args) {
     PyObject *obj_func, *obj_argv = NULL;
@@ -478,3 +492,8 @@ PyObject *dap_chain_ledger_tx_add_notify_py(PyObject *self, PyObject *args) {
     dap_chain_ledger_tx_add_notify(((PyDapChainLedgerObject*)self)->ledger, pvt_wrapping_dap_chain_ledger_tx_add_notify, notifier);
     Py_RETURN_NONE;
 }
+
+
+
+#undef LOG_TAG
+

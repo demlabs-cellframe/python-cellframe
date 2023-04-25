@@ -50,7 +50,7 @@ PyObject *dap_chain_ledger_tx_cache_find_out_cond_py(PyObject *self, PyObject *a
 PyObject *dap_chain_ledger_tx_cache_get_out_cond_value_py(PyObject *self, PyObject *args);
 PyObject *dap_chain_ledger_get_txs_py(PyObject *self, PyObject *args);
 PyObject *dap_chain_ledger_tx_add_notify_py(PyObject *self, PyObject *args);
-
+PyObject *dap_chain_ledger_list_coins_py(PyObject *self, PyObject *args); 
 extern PyTypeObject DapChainLedgerObjectType;
 
 static char*** ListStringToArrayStringFormatChar(PyObject *list);
