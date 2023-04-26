@@ -538,6 +538,7 @@ PyObject *dap_chain_ledger_token_auth_signs_valid_py(PyObject *self, PyObject *a
 
 PyObject *dap_chain_ledger_token_auth_signs_hashes_py(PyObject *self, PyObject *args)
 {
+    
     const char *token_ticker;
 
     if (!PyArg_ParseTuple(args, "s", &token_ticker))
@@ -550,12 +551,19 @@ PyObject *dap_chain_ledger_token_auth_signs_hashes_py(PyObject *self, PyObject *
     dap_list_t * l_hashes = dap_chain_ledger_token_auth_signs_hashes(((PyDapChainLedgerObject*)self)->ledger, token_ticker);
 
     PyObject *obj_list = PyList_New(0);
+    
     for (dap_list_t *l_iter = l_hashes; l_iter != NULL; l_iter = l_iter->next){
+        log_it(L_INFO, "SIGN HASHE");
         PyDapHashFastObject *obj_hash = PyObject_New(PyDapHashFastObject, &DapChainHashFastObjectType);
+    
         obj_hash->hash_fast = (dap_chain_hash_fast_t *)l_iter->data;
+        obj_hash->origin = false;
+    
         PyList_Append(obj_list, (PyObject*)obj_hash);
         Py_XDECREF((PyObject*)obj_hash);
     }
+
+    dap_list_free(l_hashes);
     return obj_list;
 }
 
