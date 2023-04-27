@@ -166,6 +166,10 @@ PyObject *wrapping_dap_sign_verify(PyObject *self, PyObject *args){
         l_data = ((PyDapChainDatumTxObject*)obj_data)->datum_tx;
         l_data_size = dap_chain_datum_tx_get_size(((PyDapChainDatumTxObject*)obj_data)->datum_tx);
     }
+    if (DapChainDatumDecree_Check(obj_data)) {
+        l_data = ((PyDapChainDatumDecreeObject*)self)->decree;
+        l_data_size = dap_chain_datum_decree_get_size(((PyDapChainDatumDecreeObject*)self)->decree);
+    }
     if (!l_data || l_data_size == 0){
         PyErr_SetString(PyExc_AttributeError, "The attribute of this function was passed incorrectly, "
                                               "the function accepts the attribute Datum, Datum Token, "
