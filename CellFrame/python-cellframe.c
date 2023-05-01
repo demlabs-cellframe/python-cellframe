@@ -605,6 +605,8 @@ PyMODINIT_FUNC PyInit_libCellFrame(void)
         PyType_Ready( &DapChainNetSrvUidObjectType ) < 0 ||
         PyType_Ready( &DapChainNetSrvPriceObjectType ) < 0 ||
         PyType_Ready( &DapChainNetSrvPriceUnitUidObjectType ) < 0 ||
+        /// Services
+        PyType_Ready( &PyDapChainNetSrvStakePosDelegateObjectType ) < 0 ||
         // === Chain consensuses
         PyType_Ready( &DapChainCsDagPoaObjectType ) < 0 ||
         PyType_Ready(&DapChainCsBlockType) < 0 ||
@@ -677,6 +679,7 @@ PyMODINIT_FUNC PyInit_libCellFrame(void)
     PyModule_AddObject(netModule, "ServiceOrderDirection", (PyObject*)&DapChainNetSrvOrderDirectionObjectType);
     PyModule_AddObject(netModule, "ServiceUID", (PyObject*)&DapChainNetSrvUidObjectType);
     PyModule_AddObject(netModule, "ServicePriceUnitUID", (PyObject*)&DapChainNetSrvPriceUnitUidObjectType);
+    PyModule_AddObject(netModule, "ServiceStakePosDelegate", (PyObject*)&PyDapChainNetSrvStakePosDelegateObjectType);
     PyObject *csModule = PyModule_Create(&CellframeConsensusPythonModule);
     // === Chain cs dag poa
     PyModule_AddObject(csModule, "DagPoa", (PyObject*)&DapChainCsDagPoaObjectType);
