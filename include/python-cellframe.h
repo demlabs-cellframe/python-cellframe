@@ -44,6 +44,9 @@
 #include "wrapping_dap_chain_net_node_info.h"
 #include "wrapping_dap_chain_net_state.h"
 // ============
+// === Chain net channel ===
+#include "wrapping_dap_stream_ch_chain_validator_test.h"
+// ============
 // === Chain net srv ===
 #include "wrapping_dap_chain_net_srv.h"
 #include "wrapping_dap_chain_net_srv_client.h"
@@ -102,6 +105,7 @@ BOOL WINAPI consoleHandler(DWORD);
 #include "signal.h"
 #include "wrapping_http_status_code.h"
 #include "wrapping_dap_http_simple.h"
+#include "wrapping_dap_chain_net_srv_stake_pos_delegate.h"
 #ifdef DAP_SUPPORT_PYTHON_PLUGINS
     #include "../modules/plugins/include/dap_plugins_python_app_context.h"
 #endif // DAP_SUPPORT_PYTHON_PLUGINS
