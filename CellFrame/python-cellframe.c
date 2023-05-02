@@ -65,7 +65,7 @@ static PyModuleDef CellframeNetworkPythonModule =   DAP_PY_MODULE(.m_name = "Cel
                                                                   .m_size = -1);
 
 static PyModuleDef CellframeServicesPythonModule =  DAP_PY_MODULE(.m_name = "Cellframe.Services",
-                                                                 .m_size = -1);
+                                                                  .m_size = -1);
 
 static PyModuleDef CellframeConsensusPythonModule = DAP_PY_MODULE(.m_name = "Cellframe.Consensus",
                                                                   .m_size = -1);
@@ -715,7 +715,7 @@ PyMODINIT_FUNC PyInit_libCellFrame(void)
     PyDict_SetItemString(moduleDict, "CellFrame.Network", netModule);
     Py_INCREF(servicesModule);
     PyModule_AddObject(cellframeModule, "Services", servicesModule);
-    PyDict_SetItemString(cellframeModule, "CellFrame.Services", servicesModule);
+    PyDict_SetItemString(moduleDict, "CellFrame.Services", servicesModule);
     Py_INCREF(csModule);
     PyModule_AddObject(cellframeModule, "Consensus", csModule);
     PyDict_SetItemString(moduleDict, "CellFrame.Consensus", csModule);
