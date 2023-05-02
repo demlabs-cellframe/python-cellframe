@@ -118,7 +118,7 @@ void PyDapStreamChChainValidatorTestObject_free(PyDapStreamChChainValidatorTestO
 }
 
 PyTypeObject PyDapStreamChChainValidatorTestObjectType = DAP_PY_TYPE_OBJECT(
-        "CellFrame.Services.StreamChChainValidatorTests",
+        "CellFrame.Services.StreamChChainValidatorTest",
         sizeof(PyDapStreamChChainValidatorTestObject),
         "Stream ch chain validator test info object",
         .tp_dealloc = (destructor)PyDapStreamChChainValidatorTestObject_free,

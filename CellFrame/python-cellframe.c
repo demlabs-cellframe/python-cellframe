@@ -64,6 +64,9 @@ static PyModuleDef CellframeCommonPythonModule =    DAP_PY_MODULE(.m_name = "Cel
 static PyModuleDef CellframeNetworkPythonModule =   DAP_PY_MODULE(.m_name = "Cellframe.Network",
                                                                   .m_size = -1);
 
+static PyModuleDef CellframeServicesPythonModule =  DAP_PY_MODULE(.m_name = "Cellframe.Services",
+                                                                 .m_size = -1);
+
 static PyModuleDef CellframeConsensusPythonModule = DAP_PY_MODULE(.m_name = "Cellframe.Consensus",
                                                                   .m_size = -1);
 #ifdef _WIN32
@@ -480,7 +483,6 @@ PyMODINIT_FUNC PyInit_libDAP()
         PyType_Ready( &DapEncServerObjectType ) < 0 ||
         PyType_Ready( &DapStreamObjectType ) < 0 ||
         PyType_Ready( &DapStreamCtlObjectType ) < 0 ||
-        PyType_Ready( &PyDapStreamChChainValidatorTestObjectType ) < 0 ||
         PyType_Ready( &DapJsonRpcRequestObjectType ) < 0 ||
         PyType_Ready( &DapJsonRpcResponseobjectType ) < 0
         ) {
@@ -514,7 +516,6 @@ PyMODINIT_FUNC PyInit_libDAP()
     PyModule_AddObject(netModule, "EncHttp", (PyObject*)&DapEncServerObjectType);
     PyModule_AddObject(netModule, "Stream", (PyObject*)&DapStreamObjectType);
     PyModule_AddObject(netModule, "StreamCtl", (PyObject*)&DapStreamCtlObjectType);
-    PyModule_AddObject(netModule, "StreamChChainNetRND", (PyObject*)&PyDapStreamChChainValidatorTestObjectType);
     PyModule_AddObject(netModule, "JSONRPCRequest", (PyObject*)&DapJsonRpcRequestObjectType);
     PyModule_AddObject(netModule, "JSONRPCResponse", (PyObject*)&DapJsonRpcResponseobjectType);
 
@@ -609,6 +610,7 @@ PyMODINIT_FUNC PyInit_libCellFrame(void)
         PyType_Ready( &DapChainNetSrvPriceUnitUidObjectType ) < 0 ||
         /// Services
         PyType_Ready( &PyDapChainNetSrvStakePosDelegateObjectType ) < 0 ||
+        PyType_Ready( &PyDapStreamChChainValidatorTestObjectType ) < 0 ||
         // === Chain consensuses
         PyType_Ready( &DapChainCsDagPoaObjectType ) < 0 ||
         PyType_Ready(&DapChainCsBlockType) < 0 ||
@@ -681,7 +683,11 @@ PyMODINIT_FUNC PyInit_libCellFrame(void)
     PyModule_AddObject(netModule, "ServiceOrderDirection", (PyObject*)&DapChainNetSrvOrderDirectionObjectType);
     PyModule_AddObject(netModule, "ServiceUID", (PyObject*)&DapChainNetSrvUidObjectType);
     PyModule_AddObject(netModule, "ServicePriceUnitUID", (PyObject*)&DapChainNetSrvPriceUnitUidObjectType);
-    PyModule_AddObject(netModule, "ServiceStakePosDelegate", (PyObject*)&PyDapChainNetSrvStakePosDelegateObjectType);
+
+    PyObject *servicesModule = PyModule_Create(&CellframeServicesPythonModule);
+    PyModule_AddObject(servicesModule, "StakePosDelegate", (PyObject*)&PyDapChainNetSrvStakePosDelegateObjectType);
+    PyModule_AddObject(servicesModule, "StreamChChainValidatorTest", (PyObject*)&PyDapStreamChChainValidatorTestObjectType);
+
     PyObject *csModule = PyModule_Create(&CellframeConsensusPythonModule);
     // === Chain cs dag poa
     PyModule_AddObject(csModule, "DagPoa", (PyObject*)&DapChainCsDagPoaObjectType);
@@ -707,6 +713,9 @@ PyMODINIT_FUNC PyInit_libCellFrame(void)
     Py_INCREF(netModule);
     PyModule_AddObject(cellframeModule, "Network", netModule);
     PyDict_SetItemString(moduleDict, "CellFrame.Network", netModule);
+    Py_INCREF(servicesModule);
+    PyModule_AddObject(cellframeModule, "Services", servicesModule);
+    PyDict_SetItemString(cellframeModule, "CellFrame.Services", servicesModule);
     Py_INCREF(csModule);
     PyModule_AddObject(cellframeModule, "Consensus", csModule);
     PyDict_SetItemString(moduleDict, "CellFrame.Consensus", csModule);
