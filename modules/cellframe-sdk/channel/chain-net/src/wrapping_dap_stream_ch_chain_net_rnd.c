@@ -112,8 +112,14 @@ PyGetSetDef PyDapStreamChChainNetRNDGetsSets[] = {
         {}
 };
 
+void PyDapStreamChChainNetRNDObject_free(PyDapStreamChChainNetRNDObject *self){
+    DAP_DELETE(self->rnd);
+    Py_TYPE(self)->tp_free((PyObject*)self);
+}
+
 PyTypeObject PyDapStreamChChainNetRNDObjectType = DAP_PY_TYPE_OBJECT(
         "CellFrame.Network.StreamChChainNetRND",
         sizeof(PyDapStreamChChainNetRNDObject),
         "Stream ch chain net rnd object",
+        .tp_dealloc = (destructor)PyDapStreamChChainNetRNDObject_free,
         .tp_getset = PyDapStreamChChainNetRNDGetsSets);

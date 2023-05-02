@@ -6,6 +6,8 @@ typedef struct PyDapStreamChChainNetRND{
     dap_stream_ch_chain_rnd_t *rnd;
 }PyDapStreamChChainNetRNDObject;
 
+void PyDapStreamChChainNetRNDObject_free(PyDapStreamChChainNetRNDObject *self);
+
 PyObject *wrapping_dap_stream_ch_chain_net_rnd_get_version(PyObject *self, void *closure);
 PyObject *wrapping_dap_stream_ch_chain_net_rnd_get_flags(PyObject *self, void *closure);
 PyObject *wrapping_dap_stream_ch_chain_net_rnd_get_sign_size(PyObject *self, void *closure);
