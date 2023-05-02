@@ -23,6 +23,8 @@ PyObject *wrapping_dap_chain_datum_decree_create_approve(PyObject *self, PyObjec
 
 PyObject *wrapping_dap_chain_datum_decree_create_anchor(PyObject *self, PyObject *args);
 
+PyObject *wrapping_decree_sign_check(PyObject *self, PyObject *args);
+
 bool DapChainDatumDecree_Check(PyObject *self);
 
 extern PyTypeObject DapChainDatumDecreeObjectType;
