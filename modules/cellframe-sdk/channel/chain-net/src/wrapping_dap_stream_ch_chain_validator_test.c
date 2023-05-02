@@ -1,16 +1,16 @@
-#include "wrapping_dap_stream_ch_chain_net_rnd.h"
+#include "wrapping_dap_stream_ch_chain_validator_test.h"
 #include "wrapping_dap_sign.h"
 //#include "wrapping_cry"
 #include "dap_common.h"
 #define LOG_TAG "wrapping_dap_stream_ch_chain_net"
 
-#define PVT(a) ((dap_stream_ch_chain_validator_test_t*)((PyDapStreamChChainNetRNDObject*)a)->rnd)
+#define PVT(a) ((dap_stream_ch_chain_validator_test_t*)((PyDapStreamChChainValidatorTestObject*)a)->rnd)
 
-PyObject *wrapping_dap_stream_ch_chain_net_rnd_get_version(PyObject *self, void *closure) {
+PyObject *wrapping_dap_stream_ch_chain_validator_test_get_version(PyObject *self, void *closure) {
     (void)closure;
     return Py_BuildValue("s", PVT(self)->header.version);
 }
-PyObject *wrapping_dap_stream_ch_chain_net_rnd_get_flags(PyObject *self, void *closure) {
+PyObject *wrapping_dap_stream_ch_chain_validator_test_get_flags(PyObject *self, void *closure) {
     (void)closure;
     PyObject *obj_dict = PyDict_New();
     bool auto_proc      = PVT(self)->header.flags & A_PROC ? true : false;
@@ -27,25 +27,25 @@ PyObject *wrapping_dap_stream_ch_chain_net_rnd_get_flags(PyObject *self, void *c
     PyDict_SetItemString(obj_dict, "FOUND_CERT", found_cert ? Py_True : Py_False);
     return obj_dict;
 }
-PyObject *wrapping_dap_stream_ch_chain_net_rnd_get_sign_size(PyObject *self, void *closure) {
+PyObject *wrapping_dap_stream_ch_chain_validator_test_get_sign_size(PyObject *self, void *closure) {
     (void)closure;
     return Py_BuildValue("I", PVT(self)->header.sign_size);
 }
-PyObject *wrapping_dap_stream_ch_chain_net_rnd_get_sign_correct(PyObject *self, void *closure) {
+PyObject *wrapping_dap_stream_ch_chain_validator_test_get_sign_correct(PyObject *self, void *closure) {
     (void)closure;
     if(PVT(self)->header.sign_correct)
         Py_RETURN_TRUE;
     else
         Py_RETURN_FALSE;
 }
-PyObject *wrapping_dap_stream_ch_chain_net_rnd_get_overall_correct(PyObject *self, void *closure) {
+PyObject *wrapping_dap_stream_ch_chain_validator_test_get_overall_correct(PyObject *self, void *closure) {
     (void)closure;
     if (PVT(self)->header.overall_correct)
         Py_RETURN_TRUE;
     else
         Py_RETURN_FALSE;
 }
-PyObject *wrapping_dap_stream_ch_chain_net_rnd_get_signs(PyObject *self, void *closure) {
+PyObject *wrapping_dap_stream_ch_chain_validator_test_get_signs(PyObject *self, void *closure) {
     (void)closure;
     size_t l_sign_size_max = 0;
     PyObject *obj_sign_list = PyList_New(0);
@@ -66,45 +66,45 @@ PyObject *wrapping_dap_stream_ch_chain_net_rnd_get_signs(PyObject *self, void *c
     return obj_sign_list;
 }
 
-PyGetSetDef PyDapStreamChChainNetRNDGetsSets[] = {
+PyGetSetDef PyDapStreamChChainValidatorTestGetsSets[] = {
         {
             "version",
-            (getter)wrapping_dap_stream_ch_chain_net_rnd_get_version,
+            (getter)wrapping_dap_stream_ch_chain_validator_test_get_version,
             NULL,
             NULL,
             NULL
         },
         {
             "flags",
-            (getter)wrapping_dap_stream_ch_chain_net_rnd_get_flags,
+            (getter)wrapping_dap_stream_ch_chain_validator_test_get_flags,
             NULL,
             NULL,
             NULL
         },
         {
             "signSize",
-            (getter)wrapping_dap_stream_ch_chain_net_rnd_get_sign_size,
+            (getter)wrapping_dap_stream_ch_chain_validator_test_get_sign_size,
             NULL,
             NULL,
             NULL
         },
         {
             "signCorrect",
-            (getter)wrapping_dap_stream_ch_chain_net_rnd_get_sign_correct,
+            (getter)wrapping_dap_stream_ch_chain_validator_test_get_sign_correct,
             NULL,
             NULL,
             NULL
         },
         {
             "overallCorrect",
-            (getter)wrapping_dap_stream_ch_chain_net_rnd_get_overall_correct,
+            (getter)wrapping_dap_stream_ch_chain_validator_test_get_overall_correct,
             NULL,
             NULL,
             NULL
         },
         {
             "signs",
-            (getter)wrapping_dap_stream_ch_chain_net_rnd_get_signs,
+            (getter)wrapping_dap_stream_ch_chain_validator_test_get_signs,
             NULL,
             NULL,
             NULL
@@ -112,14 +112,14 @@ PyGetSetDef PyDapStreamChChainNetRNDGetsSets[] = {
         {}
 };
 
-void PyDapStreamChChainNetRNDObject_free(PyDapStreamChChainNetRNDObject *self){
+void PyDapStreamChChainValidatorTestObject_free(PyDapStreamChChainValidatorTestObject *self){
     DAP_DELETE(self->rnd);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
-PyTypeObject PyDapStreamChChainNetRNDObjectType = DAP_PY_TYPE_OBJECT(
-        "CellFrame.Network.StreamChChainNetRND",
-        sizeof(PyDapStreamChChainNetRNDObject),
-        "Stream ch chain net rnd object",
-        .tp_dealloc = (destructor)PyDapStreamChChainNetRNDObject_free,
-        .tp_getset = PyDapStreamChChainNetRNDGetsSets);
+PyTypeObject PyDapStreamChChainValidatorTestObjectType = DAP_PY_TYPE_OBJECT(
+        "CellFrame.Services.StreamChChainValidatorTests",
+        sizeof(PyDapStreamChChainValidatorTestObject),
+        "Stream ch chain validator test info object",
+        .tp_dealloc = (destructor)PyDapStreamChChainValidatorTestObject_free,
+        .tp_getset = PyDapStreamChChainValidatorTestGetsSets);

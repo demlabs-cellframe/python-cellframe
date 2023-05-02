@@ -1,7 +1,7 @@
 #include "wrapping_dap_chain_net_srv_stake_pos_delegate.h"
 #include "libdap_chain_net_python.h"
 #include "wrapping_dap_hash.h"
-#include "wrapping_dap_stream_ch_chain_net_rnd.h"
+#include "wrapping_dap_stream_ch_chain_validator_test.h"
 #include "dap_chain_net_srv_stake_pos_delegate.h"
 
 PyObject *wrapping_dap_chain_net_srv_stake_check_validator(PyObject *self, PyObject *argv){
@@ -52,7 +52,7 @@ PyObject *wrapping_dap_chain_net_srv_stake_check_validator_full_info(PyObject *s
     dap_chain_net_srv_stake_check_validator(((PyDapChainNetObject*)obj_chain_net)->chain_net,
                                             ((PyDapHashFastObject*)obj_tx_hash)->hash_fast,
                                             &l_out, time_connect, time_response);
-    PyDapStreamChChainNetRNDObject *obj_rnd = PyObject_New(PyDapStreamChChainNetRNDObject, &PyDapStreamChChainNetRNDObjectType);
+    PyDapStreamChChainValidatorTestObject *obj_rnd = PyObject_New(PyDapStreamChChainValidatorTestObject, &PyDapStreamChChainValidatorTestObjectType);
     obj_rnd->rnd = DAP_NEW_Z_SIZE(dap_stream_ch_chain_validator_test_t, sizeof(dap_stream_ch_chain_validator_test_t) + l_out.header.sign_size);
     memcpy(obj_rnd->rnd, &l_out, sizeof(dap_stream_ch_chain_validator_test_t) + l_out.header.sign_size);
     return (PyObject*)obj_rnd;

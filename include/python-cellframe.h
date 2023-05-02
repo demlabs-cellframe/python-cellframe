@@ -45,7 +45,7 @@
 #include "wrapping_dap_chain_net_state.h"
 // ============
 // === Chain net channel ===
-#include "wrapping_dap_stream_ch_chain_net_rnd.h"
+#include "wrapping_dap_stream_ch_chain_validator_test.h"
 // ============
 // === Chain net srv ===
 #include "wrapping_dap_chain_net_srv.h"
