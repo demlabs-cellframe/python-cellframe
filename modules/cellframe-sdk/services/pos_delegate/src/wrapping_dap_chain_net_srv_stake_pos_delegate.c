@@ -21,7 +21,7 @@ PyObject *wrapping_dap_chain_net_srv_stake_check_validator(PyObject *self, PyObj
         PyErr_SetString(PyExc_AttributeError, "");
         return NULL;
     }
-    dap_stream_ch_chain_rnd_t l_out = {0};
+    dap_stream_ch_chain_validator_test_t l_out = {0};
     bool res = dap_chain_net_srv_stake_check_validator(((PyDapChainNetObject*)obj_chain_net)->chain_net,
                                             ((PyDapHashFastObject*)obj_tx_hash)->hash_fast,
                                             &l_out, time_connect, time_response);
@@ -48,13 +48,13 @@ PyObject *wrapping_dap_chain_net_srv_stake_check_validator_full_info(PyObject *s
         PyErr_SetString(PyExc_AttributeError, "");
         return NULL;
     }
-    dap_stream_ch_chain_rnd_t l_out = {0};
+    dap_stream_ch_chain_validator_test_t l_out = {0};
     dap_chain_net_srv_stake_check_validator(((PyDapChainNetObject*)obj_chain_net)->chain_net,
                                             ((PyDapHashFastObject*)obj_tx_hash)->hash_fast,
                                             &l_out, time_connect, time_response);
     PyDapStreamChChainNetRNDObject *obj_rnd = PyObject_New(PyDapStreamChChainNetRNDObject, &PyDapStreamChChainNetRNDObjectType);
-    obj_rnd->rnd = DAP_NEW_Z_SIZE(dap_stream_ch_chain_rnd_t, sizeof(dap_stream_ch_chain_rnd_t) + l_out.header.sign_size);
-    memcpy(obj_rnd->rnd, &l_out, sizeof(dap_stream_ch_chain_rnd_t) + l_out.header.sign_size);
+    obj_rnd->rnd = DAP_NEW_Z_SIZE(dap_stream_ch_chain_validator_test_t, sizeof(dap_stream_ch_chain_validator_test_t) + l_out.header.sign_size);
+    memcpy(obj_rnd->rnd, &l_out, sizeof(dap_stream_ch_chain_validator_test_t) + l_out.header.sign_size);
     return (PyObject*)obj_rnd;
 }
 

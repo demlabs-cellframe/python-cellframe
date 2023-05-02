@@ -3,7 +3,7 @@
 
 typedef struct PyDapStreamChChainNetRND{
     PyObject_HEAD
-    dap_stream_ch_chain_rnd_t *rnd;
+    dap_stream_ch_chain_validator_test_t *rnd;
 }PyDapStreamChChainNetRNDObject;
 
 void PyDapStreamChChainNetRNDObject_free(PyDapStreamChChainNetRNDObject *self);
