@@ -480,6 +480,7 @@ PyMODINIT_FUNC PyInit_libDAP()
         PyType_Ready( &DapEncServerObjectType ) < 0 ||
         PyType_Ready( &DapStreamObjectType ) < 0 ||
         PyType_Ready( &DapStreamCtlObjectType ) < 0 ||
+        PyType_Ready( &PyDapStreamChChainNetRNDObjectType ) < 0 ||
         PyType_Ready( &DapJsonRpcRequestObjectType ) < 0 ||
         PyType_Ready( &DapJsonRpcResponseobjectType ) < 0
         ) {
@@ -513,6 +514,7 @@ PyMODINIT_FUNC PyInit_libDAP()
     PyModule_AddObject(netModule, "EncHttp", (PyObject*)&DapEncServerObjectType);
     PyModule_AddObject(netModule, "Stream", (PyObject*)&DapStreamObjectType);
     PyModule_AddObject(netModule, "StreamCtl", (PyObject*)&DapStreamCtlObjectType);
+    PyModule_AddObject(netModule, "StreamChChainNetRND", (PyObject*)&PyDapStreamChChainNetRNDObjectType);
     PyModule_AddObject(netModule, "JSONRPCRequest", (PyObject*)&DapJsonRpcRequestObjectType);
     PyModule_AddObject(netModule, "JSONRPCResponse", (PyObject*)&DapJsonRpcResponseobjectType);
 
