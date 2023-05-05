@@ -252,6 +252,70 @@ PyObject *wrapping_dap_chain_datum_decree_create_anchor(PyObject *self, PyObject
     return (PyObject*)obj_anchor;
 }
 
+PyObject *wrapping_decree_sign_check(PyObject *self, PyObject *args){
+    (void)args;
+    dap_chain_datum_decree_t *l_decree = ((PyDapChainDatumDecreeObject*)self)->decree;
+    // Get pkeys sign from decree datum
+
+    size_t l_signs_size = 0;
+    //multiple signs reading from datum
+    dap_sign_t *l_signs_block = dap_chain_datum_decree_get_signs(l_decree, &l_signs_size);
+//    if (!l_signs_size || !l_signs_block)
+//    {
+//        log_it(L_WARNING,"Decree data sign not found");
+//        return -100;
+//    }
+
+    // Find unique pkeys in pkeys set from previous step and check that number of signs > min
+    size_t l_num_of_unique_signs = 0;
+    dap_sign_t **l_unique_signs = dap_sign_get_unique_signs(l_signs_block, l_signs_size, &l_num_of_unique_signs);
+
+    uint16_t l_min_signs = 1;//a_net->pub.decree->min_num_of_owners;
+//    if (l_num_of_unique_signs < l_min_signs) {
+//        log_it(L_WARNING, "Not enough unique signatures, get %zu from %hu", l_num_of_unique_signs, l_min_signs);
+//        return -106;
+//    }
+
+    // Verify all keys and its signatures
+    uint16_t l_signs_size_for_current_sign = 0, l_signs_verify_counter = 0, l_signs_not_verify_counter = 0;
+    l_decree->header.signs_size = 0;
+    size_t l_verify_data_size = l_decree->header.data_size + sizeof(dap_chain_datum_decree_t);
+
+    for(size_t i = 0; i < l_num_of_unique_signs; i++)
+    {
+        size_t l_sign_max_size = dap_sign_get_size(l_unique_signs[i]);
+//        if (s_verify_pkey(l_unique_signs[i], a_net))
+//        {
+            // 3. verify sign
+            if(!dap_sign_verify_all(l_unique_signs[i], l_sign_max_size, l_decree, l_verify_data_size))
+            {
+                l_signs_verify_counter++;
+            } else {
+                l_signs_not_verify_counter++;
+            }
+//        } else {
+//            dap_hash_fast_t l_sign_hash = {0};
+//            dap_hash_fast(l_unique_signs[i], l_sign_max_size, &l_sign_hash);
+//            char *l_sign_hash_str = dap_hash_fast_to_str_new(&l_sign_hash);
+//            log_it(L_WARNING, "Signature [%zu] %s failed public key verification.", i, l_sign_hash_str);
+//            DAP_DELETE(l_sign_hash_str);
+//        }
+        // Each sign change the sign_size field by adding its size after signing. So we need to change this field in header for each sign.
+        l_signs_size_for_current_sign += l_sign_max_size;
+        l_decree->header.signs_size = l_signs_size_for_current_sign;
+    }
+
+    l_decree->header.signs_size = l_signs_size;
+
+//    DAP_DELETE(l_signs_arr);
+    DAP_DELETE(l_unique_signs);
+
+    PyObject* obj_dict = PyDict_New();
+    PyDict_SetItemString(obj_dict, "VERIFY", Py_BuildValue("I", l_signs_verify_counter));
+    PyDict_SetItemString(obj_dict, "NOVERIFY", Py_BuildValue("I", l_signs_not_verify_counter));
+    return obj_dict;
+}
+
 PyMethodDef DapChainDatumDecreeMethods[] = {
         {
                 "addSign",
@@ -270,6 +334,12 @@ PyMethodDef DapChainDatumDecreeMethods[] = {
                 wrapping_dap_chain_datum_decree_create_anchor,
                 METH_VARARGS,
                 "The function creates an anchor for the decree."
+            },
+        {
+            "signCheck",
+            wrapping_decree_sign_check,
+            METH_NOARGS,
+            ""
             },
         {}
 };
