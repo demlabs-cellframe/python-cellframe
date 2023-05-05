@@ -8,6 +8,9 @@ static PyMethodDef DapChainLedgerMethods[] = {
         {"tokenAdd", (PyCFunction)dap_chain_ledger_token_add_py, METH_VARARGS, ""},
         {"tokenEmissionLoad", (PyCFunction)dap_chain_ledger_token_emission_load_py, METH_VARARGS, ""},
         {"tokenEmissionFind", (PyCFunction)dap_chain_ledger_token_emission_find_py, METH_VARARGS, ""},
+        {"tokenAuthSignsTotal", (PyCFunction)dap_chain_ledger_token_auth_signs_total_py, METH_VARARGS, ""},
+        {"tokenAuthSignsValid", (PyCFunction)dap_chain_ledger_token_auth_signs_valid_py, METH_VARARGS, ""},
+        {"tokenAuthSignsHashes", (PyCFunction)dap_chain_ledger_token_auth_signs_hashes_py, METH_VARARGS, ""},
         {"txGetTokenTickerByHash", (PyCFunction)dap_chain_ledger_tx_get_token_ticker_by_hash_py, METH_VARARGS, ""},
         {"addrGetTokenTickerAll", (PyCFunction)dap_chain_ledger_addr_get_token_ticker_all_py, METH_VARARGS, ""},
         {"txCacheCheck", (PyCFunction)dap_chain_ledger_tx_cache_check_py, METH_VARARGS, ""},
@@ -116,6 +119,57 @@ PyObject *dap_chain_ledger_token_emission_find_py(PyObject *self, PyObject *args
     else
         Py_RETURN_NONE;
 }
+
+PyObject *dap_chain_ledger_token_auth_signs_total_py(PyObject *self, PyObject *args) {
+    const char *token_ticker;
+    if (!PyArg_ParseTuple(args, "s", &token_ticker)) {
+        PyErr_SetString(PyExc_AttributeError, "This function, as the first argument, must take the"
+                                              " token ticker string");
+        return NULL;
+    }
+    size_t res = dap_chain_ledger_token_auth_signs_total(((PyDapChainLedgerObject*)self)->ledger, token_ticker);
+    if (res == 0)
+        Py_RETURN_NONE;
+    return Py_BuildValue("i", res);
+}
+
+PyObject *dap_chain_ledger_token_auth_signs_valid_py(PyObject *self, PyObject *args) {
+    const char *token_ticker;
+    if (!PyArg_ParseTuple(args, "s", &token_ticker)) {
+        PyErr_SetString(PyExc_AttributeError, "This function, as the first argument, must take the"
+                                              " token ticker string");
+        return NULL;
+    }
+    size_t res = dap_chain_ledger_token_auth_signs_valid(((PyDapChainLedgerObject*)self)->ledger, token_ticker);
+    if (res == 0)
+        Py_RETURN_NONE;
+
+    return Py_BuildValue("i", res);
+}
+
+PyObject *dap_chain_ledger_token_auth_signs_hashes_py(PyObject *self, PyObject *args)
+{
+    const char *token_ticker;
+    if (!PyArg_ParseTuple(args, "s", &token_ticker)) {
+        PyErr_SetString(PyExc_AttributeError, "This function, as the first argument, must take the"
+                                              " token ticker string");
+        return NULL;
+    }
+    dap_list_t * l_hashes = dap_chain_ledger_token_auth_signs_hashes(((PyDapChainLedgerObject*)self)->ledger, token_ticker);
+    PyObject *obj_list = PyList_New(0);
+
+    for (dap_list_t *l_iter = l_hashes; l_iter != NULL; l_iter = l_iter->next){
+        PyDapHashFastObject *obj_hash = PyObject_New(PyDapHashFastObject, &DapChainHashFastObjectType);
+        obj_hash->hash_fast = (dap_chain_hash_fast_t *)l_iter->data;
+        obj_hash->origin = false;
+        PyList_Append(obj_list, (PyObject*)obj_hash);
+        Py_XDECREF((PyObject*)obj_hash);
+    }
+
+    dap_list_free(l_hashes);
+    return obj_list;
+}
+
 
 PyObject *dap_chain_ledger_tx_get_token_ticker_by_hash_py(PyObject *self, PyObject *args){
     PyObject *obj_hash;
@@ -442,3 +496,5 @@ PyObject *dap_chain_ledger_tx_add_notify_py(PyObject *self, PyObject *args) {
     dap_chain_ledger_tx_add_notify(((PyDapChainLedgerObject*)self)->ledger, pvt_wrapping_dap_chain_ledger_tx_add_notify, notifier);
     Py_RETURN_NONE;
 }
+
+
