@@ -6,7 +6,7 @@ PyMethodDef DapChainGlobalDBMethods[] = {
         {"delete", (PyCFunction)wrapping_dap_chain_global_db_gr_del, METH_VARARGS | METH_STATIC, ""},
         {"pin", (PyCFunction)wrapping_dap_chain_global_db_gr_pin, METH_VARARGS | METH_STATIC, ""},
         {"grLoad", (PyCFunction)wrapping_dap_chain_global_db_gr_load, METH_VARARGS | METH_STATIC, ""},
-        {"grDelete", (PyCFunction)wrapping_dap_chain_global_db_gr_delete, METH_VARARGS | METH_STATIC, ""},
+        {"grDelete", (PyCFunction)wrapping_dap_chain_global_db_gr_delete_group, METH_VARARGS | METH_STATIC, ""},
         {"addSyncExtraGroup", (PyCFunction)wrapping_dap_chain_global_db_add_sync_extra_group, METH_VARARGS | METH_STATIC, ""},
         {NULL, NULL, 0, NULL}
 };
