@@ -6,6 +6,7 @@ PyMethodDef DapChainGlobalDBMethods[] = {
         {"delete", (PyCFunction)wrapping_dap_chain_global_db_gr_del, METH_VARARGS | METH_STATIC, ""},
         {"pin", (PyCFunction)wrapping_dap_chain_global_db_gr_pin, METH_VARARGS | METH_STATIC, ""},
         {"grLoad", (PyCFunction)wrapping_dap_chain_global_db_gr_load, METH_VARARGS | METH_STATIC, ""},
+        {"grDelete", (PyCFunction)wrapping_dap_chain_global_db_gr_delete_group, METH_VARARGS | METH_STATIC, ""},
         {"addSyncExtraGroup", (PyCFunction)wrapping_dap_chain_global_db_add_sync_extra_group, METH_VARARGS | METH_STATIC, ""},
         {NULL, NULL, 0, NULL}
 };
@@ -100,6 +101,22 @@ PyObject *wrapping_dap_chain_global_db_gr_del(PyObject *self, PyObject *args){
     else
         Py_RETURN_FALSE;
 }
+
+PyObject *wrapping_dap_chain_global_db_gr_delete_group(PyObject *self, PyObject *args){
+    (void)self;
+    
+    const char *l_group;
+    if (!PyArg_ParseTuple(args, "s", &l_group)){
+        return NULL;
+    }
+
+    bool ret = dap_chain_global_db_gr_del(NULL, l_group);
+    if (ret == true)
+        Py_RETURN_TRUE;
+    else
+        Py_RETURN_FALSE;
+}
+
 
 PyObject *wrapping_dap_chain_global_db_gr_pin(PyObject *self, PyObject *args){
     Py_RETURN_NONE;
