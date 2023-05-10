@@ -221,34 +221,45 @@ PyObject *dap_chain_python_atom_iter_get_dag(PyObject *self, PyObject *args){
     return (PyObject*)obj_dag;
 }
 
-typedef struct _wrapping_chain_mempool_notify_callback{
+typedef struct _wrapping_chain_mempool_notify_callback {
     PyObject *func;
     PyObject *arg;
-}_wrapping_chain_mempool_notify_callback_t;
+    dap_store_obj_t *obj;
+} _wrapping_chain_mempool_notify_callback_t;
 
-static void _wrapping_dap_chain_mempool_notify_handler(dap_global_db_context_t *a_context, dap_store_obj_t *a_obj, void *a_arg)
+bool dap_py_mempool_notifier(UNUSED_ARG dap_proc_thread_t *a_poc_thread, void *a_arg)
 {
-    UNUSED(a_context);
     if (!a_arg)
-        return;
-    _wrapping_chain_mempool_notify_callback_t *l_callback = (_wrapping_chain_mempool_notify_callback_t*)a_arg;
+        return true;
+    _wrapping_chain_mempool_notify_callback_t *l_callback = a_arg;
+    dap_store_obj_t *l_obj = l_callback->obj;
     char l_op_code[2];
-    l_op_code[0] = a_obj->type;
+    l_op_code[0] = l_obj->type;
     l_op_code[1] = '\0';
     PyObject *l_args;
     PyGILState_STATE state = PyGILState_Ensure();
-    if (a_obj->type == DAP_DB$K_OPTYPE_ADD) {
-        PyObject *l_value = PyBytes_FromStringAndSize((char *)a_obj->value, (Py_ssize_t)a_obj->value_len);
-        l_args = Py_BuildValue("sssOO", l_op_code, a_obj->group, a_obj->key, l_value, l_callback->arg);
+    if (l_obj->type == DAP_DB$K_OPTYPE_ADD) {
+        PyObject *l_value = PyBytes_FromStringAndSize((char *)l_obj->value, (Py_ssize_t)l_obj->value_len);
+        l_args = Py_BuildValue("sssOO", l_op_code, l_obj->group, l_obj->key, l_value, l_callback->arg);
         Py_DECREF(l_value);
     } else
-        l_args = Py_BuildValue("sssOO", l_op_code, a_obj->group, a_obj->key, Py_None, l_callback->arg);
-    log_it(L_DEBUG, "Call mempool notifier with key '%s'", a_obj->key ? a_obj->key : "null");
+        l_args = Py_BuildValue("sssOO", l_op_code, l_obj->group, l_obj->key, Py_None, l_callback->arg);
+    log_it(L_DEBUG, "Call mempool notifier with key '%s'", l_obj->key ? l_obj->key : "null");
     PyEval_CallObject(l_callback->func, l_args);
     Py_DECREF(l_args);
     PyGILState_Release(state);
+    Py_XDECREF(l_callback->arg);
+    Py_XDECREF(l_callback->func);
+    DAP_DELETE(l_callback);
+    return true;
 }
 
+static void _wrapping_dap_chain_mempool_notify_handler(UNUSED_ARG dap_global_db_context_t *a_context, dap_store_obj_t *a_obj, void *a_arg)
+{
+    // Notify python context from proc thread to avoid deadlock in GDB context with GIL accuire trying
+    ((_wrapping_chain_mempool_notify_callback_t *)a_arg)->obj = a_obj;
+    dap_proc_queue_add_callback(dap_events_worker_get_auto(), dap_py_mempool_notifier, a_arg);
+}
 /**
  * @brief _wrapping_dap_chain_atom_notify_handler
  * @param a_arg
@@ -306,7 +317,7 @@ PyObject *dap_chain_python_add_mempool_notify_callback(PyObject *self, PyObject 
                                               "argument must be an instance of an object of type Chain. ");
         return NULL;
     }
-    _wrapping_chain_mempool_notify_callback_t *l_callback = DAP_NEW(_wrapping_chain_mempool_notify_callback_t);
+    _wrapping_chain_mempool_notify_callback_t *l_callback = DAP_NEW_Z(_wrapping_chain_mempool_notify_callback_t);
     l_callback->func = obj_func;
     l_callback->arg = obj_arg;
     Py_INCREF(obj_func);
