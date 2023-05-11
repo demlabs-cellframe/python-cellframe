@@ -167,7 +167,13 @@ PyObject *dap_chain_ledger_tx_get_token_ticker_by_hash_py(PyObject *self, PyObje
     const char *l_ticker = dap_chain_ledger_tx_get_token_ticker_by_hash(
             ((PyDapChainLedgerObject*)self)->ledger,
             ((PyDapHashFastObject*)obj_hash)->hash_fast);
-    return Py_BuildValue("s", l_ticker);
+    if (l_ticker) {
+        if (l_ticker[0] == '\0')
+            Py_RETURN_NONE;
+        return Py_BuildValue("s", l_ticker);
+    } else {
+        Py_RETURN_NONE;
+    }
 }
 PyObject *dap_chain_ledger_addr_get_token_ticker_all_py(PyObject *self, PyObject *args){
     PyObject *obj_addr;
