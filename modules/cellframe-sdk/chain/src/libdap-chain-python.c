@@ -238,19 +238,31 @@ bool dap_py_mempool_notifier(UNUSED_ARG dap_proc_thread_t *a_poc_thread, void *a
     l_op_code[1] = '\0';
     PyObject *l_args;
     PyGILState_STATE state = PyGILState_Ensure();
+    PyObject *obj_key = NULL;
+    PyObject *obj_value = NULL;
+    if (l_obj->key && l_obj->key_len != 0) {
+        obj_key = PyUnicode_FromString(l_obj->key);
+    } else {
+        obj_key = Py_None;
+        Py_INCREF(Py_None);
+    }
     if (l_obj->type == DAP_DB$K_OPTYPE_ADD) {
-        PyObject *l_value = PyBytes_FromStringAndSize((char *)l_obj->value, (Py_ssize_t)l_obj->value_len);
-        l_args = Py_BuildValue("sssOO", l_op_code, l_obj->group, l_obj->key, l_value, l_callback->arg);
-        Py_DECREF(l_value);
-    } else
-        l_args = Py_BuildValue("sssOO", l_op_code, l_obj->group, l_obj->key, Py_None, l_callback->arg);
+        obj_value = PyBytes_FromStringAndSize((char *)l_obj->value, (Py_ssize_t)l_obj->value_len);
+    } else {
+        obj_value = Py_None;
+        Py_INCREF(Py_None);
+    }
+    l_args = Py_BuildValue("ssOOO", l_op_code, l_obj->group, obj_key, obj_value, l_callback->arg);
     log_it(L_DEBUG, "Call mempool notifier with key '%s'", l_obj->key ? l_obj->key : "null");
+    Py_XINCREF(l_callback->arg);
+    Py_XINCREF(l_callback->func);
     PyEval_CallObject(l_callback->func, l_args);
-    Py_DECREF(l_args);
+    Py_XDECREF(l_args);
     PyGILState_Release(state);
-    Py_XDECREF(l_callback->arg);
     Py_XDECREF(l_callback->func);
-    DAP_DELETE(l_callback);
+    Py_XDECREF(l_callback->arg);
+    Py_XDECREF(obj_key);
+    Py_XDECREF(obj_value);
     return true;
 }
 
