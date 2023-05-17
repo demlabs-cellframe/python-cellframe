@@ -263,13 +263,21 @@ bool dap_py_mempool_notifier(UNUSED_ARG dap_proc_thread_t *a_poc_thread, void *a
     Py_XDECREF(l_callback->arg);
     Py_XDECREF(obj_key);
     Py_XDECREF(obj_value);
+    DAP_DELETE(l_callback->obj->group);
+    DAP_DELETE(l_callback->obj->key);
+    DAP_DELETE(l_callback->obj->value);
+    DAP_DELETE(l_callback->obj);
     return true;
 }
 
 static void _wrapping_dap_chain_mempool_notify_handler(UNUSED_ARG dap_global_db_context_t *a_context, dap_store_obj_t *a_obj, void *a_arg)
 {
     // Notify python context from proc thread to avoid deadlock in GDB context with GIL accuire trying
-    ((_wrapping_chain_mempool_notify_callback_t *)a_arg)->obj = a_obj;
+    dap_store_obj_t *l_obj = DAP_DUP(a_obj);
+    l_obj->key = DAP_DUP_SIZE(a_obj->key, a_obj->key_len);
+    l_obj->value = DAP_DUP_SIZE(a_obj->value, a_obj->value_len);
+    l_obj->group = DAP_DUP_SIZE(a_obj->group, a_obj->group_len);
+    ((_wrapping_chain_mempool_notify_callback_t *)a_arg)->obj = l_obj;
     dap_proc_queue_add_callback(dap_events_worker_get_auto(), dap_py_mempool_notifier, a_arg);
 }
 /**
