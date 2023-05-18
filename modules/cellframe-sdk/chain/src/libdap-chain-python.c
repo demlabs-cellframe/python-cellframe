@@ -232,12 +232,17 @@ bool dap_py_mempool_notifier(UNUSED_ARG dap_proc_thread_t *a_poc_thread, void *a
     if (!a_arg)
         return true;
     _wrapping_chain_mempool_notify_callback_t *l_callback = a_arg;
+    if (!l_callback->obj) {
+        log_it(L_ERROR, "It is not possible to call a python function. An object with arguments was not passed.");
+        return true;
+    }
+    PyGILState_STATE state = PyGILState_Ensure();
     dap_store_obj_t *l_obj = l_callback->obj;
     char l_op_code[2];
-    l_op_code[0] = l_obj->type;
+    l_op_code[0] = (char)l_obj->type;
     l_op_code[1] = '\0';
     PyObject *l_args;
-    PyGILState_STATE state = PyGILState_Ensure();
+
     PyObject *obj_key = NULL;
     PyObject *obj_value = NULL;
     if (l_obj->key && l_obj->key_len != 0) {
@@ -258,15 +263,15 @@ bool dap_py_mempool_notifier(UNUSED_ARG dap_proc_thread_t *a_poc_thread, void *a
     Py_XINCREF(l_callback->func);
     PyEval_CallObject(l_callback->func, l_args);
     Py_XDECREF(l_args);
-    PyGILState_Release(state);
     Py_XDECREF(l_callback->func);
     Py_XDECREF(l_callback->arg);
     Py_XDECREF(obj_key);
     Py_XDECREF(obj_value);
-    DAP_DELETE(l_callback->obj->group);
-    DAP_DELETE(l_callback->obj->key);
-    DAP_DELETE(l_callback->obj->value);
-    DAP_DELETE(l_callback->obj);
+    DAP_DEL_Z(l_callback->obj->group);
+    DAP_DEL_Z(l_callback->obj->key);
+    DAP_DEL_Z(l_callback->obj->value);
+    DAP_DEL_Z(l_callback->obj);
+    PyGILState_Release(state);
     return true;
 }
 
