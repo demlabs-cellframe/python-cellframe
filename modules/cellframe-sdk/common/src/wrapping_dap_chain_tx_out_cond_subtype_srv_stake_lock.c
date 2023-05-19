@@ -10,8 +10,7 @@ PyGetSetDef DapChainTxOutCondSubtypeSrvStakeLockGetsSetsDef[]={
         {"flags", (getter)wrapping_dap_chain_net_srv_stake_lock_get_flags, NULL, NULL, NULL},
         {"reinvestPercent", (getter)wrapping_dap_chain_net_srv_stake_lock_get_reinvest_percent, NULL, NULL, NULL},
         {"hashTokenDelegate", (getter)wrapping_dap_chain_net_srv_stake_lock_get_token_delegated, NULL, NULL, NULL},
-        {"hashPkeyDelegate", (getter)wrapping_dap_chain_net_srv_stake_lock_get_pkey_delegated, NULL, NULL, NULL},
-        {NULL}
+        {}
 };
 
 PyTypeObject DapChainTxOutCondSubTypeSrvStakeLockObjectType = {
@@ -87,11 +86,3 @@ PyObject *wrapping_dap_chain_net_srv_stake_lock_get_token_delegated(PyObject *se
     UNUSED(closure);
     Py_RETURN_NONE;
 }
-PyObject *wrapping_dap_chain_net_srv_stake_lock_get_pkey_delegated(PyObject *self, void *closure) {
-    UNUSED(closure);
-    PyDapHashFastObject *obj_hf = PyObject_New(PyDapHashFastObject, &DapChainHashFastObjectType);
-    obj_hf->hash_fast = &PVT(self).pkey_delegated;
-    obj_hf->origin = false;
-    return (PyObject*)obj_hf;
-}
-
