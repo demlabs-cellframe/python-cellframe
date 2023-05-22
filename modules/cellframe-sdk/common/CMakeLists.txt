@@ -211,7 +211,7 @@ target_link_libraries(${PROJECT_NAME} dap_chain_common
         dap_crypto
         dap_crypto_python_module
         dap_chain_python_module
-        dap_chain_net_srv_stake_lock)
+        dap_chain_net_srv_stake)
 
 target_include_directories(${PROJECT_NAME} PUBLIC include/ )
 
