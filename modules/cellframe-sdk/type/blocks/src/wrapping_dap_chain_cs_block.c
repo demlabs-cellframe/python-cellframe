@@ -155,5 +155,6 @@ PyObject* dap_chain_cs_block_get_atom(PyObject *self, PyObject *args){
     PyDapChainCSBlockObject *obj_block = PyObject_New(PyDapChainCSBlockObject, &DapChainCsBlockType);
     obj_block->block = (dap_chain_block_t *)((PyChainAtomObject*)obj_atom_ptr)->atom;
     obj_block->block_size =  ((PyChainAtomObject*)obj_atom_ptr)->atom_size;
+
     return (PyObject*)obj_block;
 }
