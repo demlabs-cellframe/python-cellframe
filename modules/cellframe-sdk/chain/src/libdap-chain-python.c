@@ -160,6 +160,9 @@ PyObject *dap_chain_python_atom_iter_get_first(PyObject *self, PyObject *args){
     if (((PyChainAtomObject*)obj_atom_ptr)->atom == NULL){
         Py_RETURN_NONE;
     }
+
+    ((PyChainAtomObject*)obj_atom_ptr)->atom_size = l_atom_size;
+
     return Py_BuildValue("On", obj_atom_ptr, l_atom_size);
 }
 
@@ -211,6 +214,8 @@ PyObject *dap_chain_python_atom_iter_get_next(PyObject *self, PyObject *args){
     if (((PyChainAtomObject*)obj_atom_ptr)->atom == NULL){
         return Py_BuildValue("On", Py_None, 0);
     }
+
+    ((PyChainAtomObject*)obj_atom_ptr)->atom_size = atom_size;
     return Py_BuildValue("On", obj_atom_ptr, atom_size);
 }
 
