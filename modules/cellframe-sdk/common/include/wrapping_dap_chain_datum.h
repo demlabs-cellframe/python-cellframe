@@ -26,6 +26,7 @@
 #ifndef _WRAPPING_DAP_CHAIN_DATUM_
 #define _WRAPPING_DAP_CHAIN_DATUM_
 #include "Python.h"
+#include "dap_chain.h"
 #include "dap_chain_datum.h"
 #include "datetime.h"
 #include "wrapping_dap_chain_datum_tx.h"
