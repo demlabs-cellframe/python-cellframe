@@ -272,10 +272,13 @@ bool dap_py_mempool_notifier(UNUSED_ARG dap_proc_thread_t *a_poc_thread, void *a
     Py_XDECREF(l_callback->arg);
     Py_XDECREF(obj_key);
     Py_XDECREF(obj_value);
-    DAP_DEL_Z(l_callback->obj->group);
-    DAP_DEL_Z(l_callback->obj->key);
-    DAP_DEL_Z(l_callback->obj->value);
-    DAP_DEL_Z(l_callback->obj);
+    if (l_callback->obj)
+    {
+        DAP_DEL_Z(l_callback->obj->group);
+        DAP_DEL_Z(l_callback->obj->key);
+        DAP_DEL_Z(l_callback->obj->value);
+        DAP_DEL_Z(l_callback->obj);
+    }
     PyGILState_Release(state);
     return true;
 }
