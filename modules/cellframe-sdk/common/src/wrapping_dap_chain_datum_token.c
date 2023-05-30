@@ -126,6 +126,7 @@ static PyGetSetDef PyDapChainDatumTokenEmissionGetsSetsDef[]={
         {"value", (getter)wrapping_dap_chain_datum_token_emission_get_value, NULL, NULL, NULL},
         {"data", (getter)wrapping_dap_chain_datum_token_emission_get_data, NULL, NULL, NULL},
         {"signCount", (getter)wrapping_dap_chain_datum_token_emission_get_sign_count, NULL, NULL, NULL},
+        {"signs", (getter)wrapping_dap_chain_datum_token_emission_get_signs, NULL, NULL, NULL},
         {}
 };
 
