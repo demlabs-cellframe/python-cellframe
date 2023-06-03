@@ -52,7 +52,7 @@ PyObject *dap_chain_ledger_get_txs_py(PyObject *self, PyObject *args);
 PyObject *dap_chain_ledger_tx_add_notify_py(PyObject *self, PyObject *args);
 PyObject *dap_chain_ledger_token_auth_signs_total_py(PyObject *self, PyObject *args);
 PyObject *dap_chain_ledger_token_auth_signs_valid_py(PyObject *self, PyObject *args);
-PyObject *dap_chain_ledger_token_auth_signs_hashes_py(PyObject *self, PyObject *args);
+PyObject *dap_chain_ledger_token_auth_pkeys_hashes_py(PyObject *self, PyObject *args);
 
 extern PyTypeObject DapChainLedgerObjectType;
 
