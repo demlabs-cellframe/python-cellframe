@@ -72,10 +72,12 @@ PyObject *dap_chain_node_datum_tx_calc_hash_py(PyObject *self, PyObject *args){
 
 }
 PyObject *dap_chain_ledger_tx_add_py(PyObject *self, PyObject *args){
-    PyObject *obj_datum_tx;
+    PyDapChainDatumTxObject *obj_datum_tx;
     if (!PyArg_ParseTuple(args, "O", &obj_datum_tx))
         return NULL;
-    int res = dap_chain_ledger_tx_add(((PyDapChainLedgerObject*)self)->ledger, ((PyDapChainDatumTxObject*)obj_datum_tx)->datum_tx, NULL, false);
+    dap_hash_fast_t l_tx_hash;
+    dap_hash_fast(obj_datum_tx->datum_tx, dap_chain_datum_item_tx_get_size(obj_datum_tx->datum_tx), &l_tx_hash);
+    int res = dap_chain_ledger_tx_add(((PyDapChainLedgerObject*)self)->ledger, obj_datum_tx->datum_tx, &l_tx_hash, false);
     return PyLong_FromLong(res);
 }
 PyObject *dap_chain_ledger_token_add_py(PyObject *self, PyObject *args)
@@ -89,11 +91,16 @@ PyObject *dap_chain_ledger_token_add_py(PyObject *self, PyObject *args)
     return PyLong_FromLong(res);
 }
 PyObject *dap_chain_ledger_token_emission_load_py(PyObject *self, PyObject *args){
-    PyObject *token_emission;
+    PyDapChainDatumTokenEmissionObject *token_emission;
     size_t token_emissiom_size;
     if (!PyArg_ParseTuple(args, "O|n", &token_emission, &token_emissiom_size))
         return NULL;
-    int res = dap_chain_ledger_token_emission_load(((PyDapChainLedgerObject*)self)->ledger, (byte_t *)((PyDapChainDatumTokenEmissionObject*)token_emission)->token_emission, token_emissiom_size);
+    dap_hash_fast_t l_emission_hash;
+    dap_hash_fast(token_emission->token_emission, token_emissiom_size, &l_emission_hash);
+    int res = dap_chain_ledger_token_emission_load(((PyDapChainLedgerObject*)self)->ledger,
+                                                   (byte_t *)token_emission->token_emission,
+                                                   token_emissiom_size,
+                                                   &l_emission_hash);
     return PyLong_FromLong(res);
 }
 
