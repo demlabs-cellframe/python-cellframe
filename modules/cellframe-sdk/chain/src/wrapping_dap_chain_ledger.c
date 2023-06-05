@@ -10,7 +10,7 @@ static PyMethodDef DapChainLedgerMethods[] = {
         {"tokenEmissionFind", (PyCFunction)dap_chain_ledger_token_emission_find_py, METH_VARARGS, ""},
         {"tokenAuthSignsTotal", (PyCFunction)dap_chain_ledger_token_auth_signs_total_py, METH_VARARGS, ""},
         {"tokenAuthSignsValid", (PyCFunction)dap_chain_ledger_token_auth_signs_valid_py, METH_VARARGS, ""},
-        {"tokenAuthSignsHashes", (PyCFunction)dap_chain_ledger_token_auth_signs_hashes_py, METH_VARARGS, ""},
+        {"tokenAuthPkeysHashes", (PyCFunction)dap_chain_ledger_token_auth_pkeys_hashes_py, METH_VARARGS, ""},
         {"txGetTokenTickerByHash", (PyCFunction)dap_chain_ledger_tx_get_token_ticker_by_hash_py, METH_VARARGS, ""},
         {"addrGetTokenTickerAll", (PyCFunction)dap_chain_ledger_addr_get_token_ticker_all_py, METH_VARARGS, ""},
         {"txCacheCheck", (PyCFunction)dap_chain_ledger_tx_cache_check_py, METH_VARARGS, ""},
@@ -147,7 +147,7 @@ PyObject *dap_chain_ledger_token_auth_signs_valid_py(PyObject *self, PyObject *a
     return Py_BuildValue("i", res);
 }
 
-PyObject *dap_chain_ledger_token_auth_signs_hashes_py(PyObject *self, PyObject *args)
+PyObject *dap_chain_ledger_token_auth_pkeys_hashes_py(PyObject *self, PyObject *args)
 {
     const char *token_ticker;
     if (!PyArg_ParseTuple(args, "s", &token_ticker)) {
@@ -155,7 +155,7 @@ PyObject *dap_chain_ledger_token_auth_signs_hashes_py(PyObject *self, PyObject *
                                               " token ticker string");
         return NULL;
     }
-    dap_list_t * l_hashes = dap_chain_ledger_token_auth_signs_hashes(((PyDapChainLedgerObject*)self)->ledger, token_ticker);
+    dap_list_t * l_hashes = dap_chain_ledger_token_auth_pkeys_hashes(((PyDapChainLedgerObject*)self)->ledger, token_ticker);
     PyObject *obj_list = PyList_New(0);
 
     for (dap_list_t *l_iter = l_hashes; l_iter != NULL; l_iter = l_iter->next){
