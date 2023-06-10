@@ -31,7 +31,7 @@ void python_error_in_log_it(const char *a_tag){
     PyErr_NormalizeException(&type, &value, &trackback);
 
     PyObject* str_exc_value = PyObject_Repr(value);
-    PyObject* exect_value_str = PyUnicode_AsEncodedString(str_exc_value, "utf-8", "Error ~");
+    PyObject* exect_value_str = PyUnicode_AsEncodedString(str_exc_value, "utf-8", "strict");
 
     const char *l_str_value = PyBytes_AS_STRING(exect_value_str);
 
