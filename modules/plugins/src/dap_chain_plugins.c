@@ -60,14 +60,13 @@ int dap_chain_plugins_init(dap_config_t *a_config)
     PyStatus l_status;
     PyPreConfig l_preconfig;
     PyConfig l_config;
-    wchar_t *l_path;
 #ifdef DAP_BUILD_WITH_PYTHON_ENV
     PyPreConfig_InitIsolatedConfig(&l_preconfig);
     l_preconfig.utf8_mode = 1;
 
     PyConfig_InitIsolatedConfig(&l_config);
     l_config.module_search_paths_set = 1;
-    l_path = s_get_full_path(g_sys_dir_path, "python/lib/python3.10");
+    wchar_t *l_path = s_get_full_path(g_sys_dir_path, "python/lib/python3.10");
     l_status = PyWideStringList_Append(&l_config.module_search_paths, l_path);
     DAP_DELETE(l_path);
     if (PyStatus_Exception(l_status))
@@ -90,14 +89,6 @@ int dap_chain_plugins_init(dap_config_t *a_config)
 #else
     PyPreConfig_InitPythonConfig(&l_preconfig);
     PyConfig_InitPythonConfig(&l_config);
-    l_config.module_search_paths_set = 1;
-    char *l_python_ver = dap_strdup_printf("python%d.%d", PY_MAJOR_VERSION, PY_MINOR_VERSION);
-    l_path = s_get_full_path("/usr/lib", l_python_ver);
-    DAP_DELETE(l_python_ver);
-    l_status = PyWideStringList_Insert(&l_config.module_search_paths, 0, l_path);
-    DAP_DELETE(l_path);
-    if (PyStatus_Exception(l_status))
-        goto excpt;
 #endif
 
     l_status = Py_PreInitialize(&l_preconfig);
