@@ -14,6 +14,11 @@ typedef struct PyDapServer {
 
 extern PyTypeObject DapServerObjectType;
 
+int py_server_init(uint32_t l_thread_cnt, size_t conn_t);
+void py_server_deinit(void);
+
+PyObject *py_server_loop(PyObject *self, PyObject *args);
+
 #ifdef __cplusplus
 }
 #endif

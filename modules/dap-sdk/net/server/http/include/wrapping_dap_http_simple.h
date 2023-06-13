@@ -6,7 +6,6 @@
 #include "Python.h"
 #include "wrapping_http.h"
 #include "wrapping_http_status_code.h"
-#include "libdap-io-python.h"
 #include "uthash.h"
 
 #ifdef __cplusplus
