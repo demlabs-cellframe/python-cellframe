@@ -29,7 +29,15 @@ PyObject *wrapping_dap_chain_datum_anchor_get_tsd(PyObject *self, void *closure)
         l_offset += l_tsd_size;
         PyObject *obj_type = PyLong_FromLong(l_tsd->type);
         PyObject *obj_value = NULL;
-        obj_value = PyBytes_FromStringAndSize((char*)l_tsd->data, l_tsd->size);
+        if (l_tsd->type == DAP_CHAIN_DATUM_ANCHOR_TSD_TYPE_DECREE_HASH) {
+            dap_hash_fast_t l_hf = dap_tsd_get_scalar(l_tsd, dap_hash_fast_t);
+            PyDapHashFastObject *l_obj_hf = PyObject_New(PyDapHashFastObject, &DapChainHashFastObjectType);
+            l_obj_hf->hash_fast = DAP_NEW(dap_hash_fast_t);
+            memcpy(l_obj_hf->hash_fast, &l_hf, sizeof(dap_hash_fast_t));
+            obj_value = (PyObject*)l_obj_hf;
+        } else {
+            obj_value = PyBytes_FromStringAndSize((char*)l_tsd->data, l_tsd->size);
+        }
         PyObject *obj_dict = PyDict_New();
         PyDict_SetItemString(obj_dict, "type", obj_type);
         PyDict_SetItemString(obj_dict, "value", obj_value);
