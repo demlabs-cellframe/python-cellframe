@@ -379,7 +379,7 @@ PyObject *python_dap_init(PyObject *self, PyObject *args)
             PyObject *ll_conn = PyNumber_Long(Nl_conn);
             uint32_t ul_thread_cnt = (uint32_t)PyLong_AsUnsignedLong(ll_thread_cnt);
             size_t ul_conn = PyLong_AsSize_t(ll_conn);
-            if(dap_io_init(ul_thread_cnt, ul_conn) != 0 ){
+            if(py_server_init(ul_thread_cnt, ul_conn) != 0 ){
                 PyErr_SetString(CellFrame_error, "Failed to initialize \"IO\" module");
                 return NULL;
             }
@@ -474,7 +474,7 @@ PyMODINIT_FUNC PyInit_libDAP()
         PyType_Ready( &DapCryptoSignObjectType ) < 0 ||
         PyType_Ready( &DapChainHashFastObjectType ) < 0 ||
         // === Network ==
-        PyType_Ready( &DapIOObjectType ) < 0 ||
+        PyType_Ready( &DapServerObjectType ) < 0 ||
         PyType_Ready( &DapEventsObjectType ) < 0 ||
         PyType_Ready( &DapEventsSocketObjectType ) < 0 ||
         PyType_Ready( &DapHttpCodeObjectType ) < 0 ||
@@ -507,7 +507,7 @@ PyMODINIT_FUNC PyInit_libDAP()
     PyModule_AddObject(cryptoModule, "HashFast", (PyObject*)&DapChainHashFastObjectType);
 
     PyObject *netModule = PyModule_Create(&DapNetPythonModule);
-    PyModule_AddObject(netModule, "IO", (PyObject*)&DapIOObjectType);
+    PyModule_AddObject(netModule, "Server", (PyObject*)&DapServerObjectType);
     PyModule_AddObject(netModule, "Events", (PyObject*)&DapEventsObjectType);
     PyModule_AddObject(netModule, "EventsSocket", (PyObject*)&DapEventsSocketObjectType);
     PyModule_AddObject(netModule, "Http", (PyObject*)&DapHttpObjectType);
@@ -746,7 +746,7 @@ void deinit_modules(void){
             dap_http_deinit();
         }
         if (s_io_core){
-            dap_io_deinit();
+            py_server_deinit();
         }
         if (s_init_ks){
             dap_enc_ks_deinit();
