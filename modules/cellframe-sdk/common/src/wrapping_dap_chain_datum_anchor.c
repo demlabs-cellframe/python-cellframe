@@ -12,7 +12,29 @@ PyObject *wrapping_dap_chain_datum_anchor_get_ts_created(PyObject *self, void *c
     PyObject *obj_ts = Py_BuildValue("(O)", obj_ts_float);
     PyObject *obj_dt = PyDateTime_FromTimestamp(obj_ts);
     return obj_dt;
+}
 
+PyObject *wrapping_dap_chain_datum_anchor_get_decree_hash(PyObject *self, void *closure){
+    (void)closure;
+    size_t l_tsd_total_size = PVT(self)->anchor->header.data_size;
+    if (l_tsd_total_size == 0)
+        Py_RETURN_NONE;
+    PyObject *obj_list = PyList_New(0);
+    for (size_t l_offset = 0; l_offset < l_tsd_total_size;) {
+        dap_tsd_t *l_tsd = (dap_tsd_t*)(((byte_t*)PVT(self)->anchor->data_n_sign) + l_offset);
+        size_t l_tsd_size = dap_tsd_size(l_tsd);
+        if (l_tsd_size + l_offset > l_tsd_total_size)
+            break;
+        l_offset += l_tsd_size;
+        if (l_tsd->type == DAP_CHAIN_DATUM_ANCHOR_TSD_TYPE_DECREE_HASH) {
+            dap_hash_fast_t l_hf = dap_tsd_get_scalar(l_tsd, dap_hash_fast_t);
+            PyDapHashFastObject *l_obj_hf = PyObject_New(PyDapHashFastObject, &DapChainHashFastObjectType);
+            l_obj_hf->hash_fast = DAP_NEW(dap_hash_fast_t);
+            memcpy(l_obj_hf->hash_fast, &l_hf, sizeof(dap_hash_fast_t));
+            return (PyObject*)l_obj_hf;
+        }
+    }
+    Py_RETURN_NONE;
 }
 
 PyObject *wrapping_dap_chain_datum_anchor_get_tsd(PyObject *self, void *closure) {
@@ -28,8 +50,7 @@ PyObject *wrapping_dap_chain_datum_anchor_get_tsd(PyObject *self, void *closure)
             break;
         l_offset += l_tsd_size;
         PyObject *obj_type = PyLong_FromLong(l_tsd->type);
-        PyObject *obj_value = NULL;
-        obj_value = PyBytes_FromStringAndSize((char*)l_tsd->data, l_tsd->size);
+        PyObject *obj_value = PyBytes_FromStringAndSize((char*)l_tsd->data, l_tsd->size);
         PyObject *obj_dict = PyDict_New();
         PyDict_SetItemString(obj_dict, "type", obj_type);
         PyDict_SetItemString(obj_dict, "value", obj_value);
@@ -73,6 +94,7 @@ static PyGetSetDef DapChainDatumAnchorGetSet[] = {
         {"created", (getter)wrapping_dap_chain_datum_anchor_get_ts_created, NULL, NULL, NULL},
         {"TSD", (getter)wrapping_dap_chain_datum_anchor_get_tsd, NULL, NULL, NULL},
         {"signs", (getter)wrapping_dap_chain_datum_anchor_get_sign, NULL, NULL, NULL},
+        {"decreeHash", (getter)wrapping_dap_chain_datum_anchor_get_decree_hash, NULL, NULL, NULL},
         {}
 };
 
