@@ -82,6 +82,28 @@ int dap_chain_plugins_init(dap_config_t *a_config)
     if (PyStatus_Exception(l_status))
         goto excpt;
 
+    l_path = s_get_full_path(g_sys_dir_path, "python");
+    l_status = PyConfig_SetString(&l_config, &l_config.base_exec_prefix, l_path);
+    if (PyStatus_Exception(l_status)) {
+        DAP_DELETE(l_path);
+        goto excpt;
+    }
+    l_status = PyConfig_SetString(&l_config, &l_config.base_prefix, l_path);
+    if (PyStatus_Exception(l_status)) {
+        DAP_DELETE(l_path);
+        goto excpt;
+    }
+    l_status = PyConfig_SetString(&l_config, &l_config.exec_prefix, l_path);
+    if (PyStatus_Exception(l_status)) {
+        DAP_DELETE(l_path);
+        goto excpt;
+    }
+    l_status = PyConfig_SetString(&l_config, &l_config.prefix, l_path);
+    if (PyStatus_Exception(l_status)) {
+        DAP_DELETE(l_path);
+        goto excpt;
+    }
+
     l_path = s_get_full_path(g_sys_dir_path, "python/bin/python3.10");
     l_status = PyConfig_SetString(&l_config, &l_config.executable, l_path);
     if (PyStatus_Exception(l_status))
