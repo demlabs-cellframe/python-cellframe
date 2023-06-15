@@ -391,7 +391,7 @@ PyObject *dap_chain_mempool_remove_py(PyObject *self, PyObject *args){
         return NULL;
     }
     char *l_gdb_group_mempool = dap_chain_net_get_gdb_group_mempool_new(obj_chain->chain_t);
-    if (!dap_global_db_del(l_gdb_group_mempool, l_str_hash, NULL, NULL)) {
+    if (!dap_global_db_del_sync(l_gdb_group_mempool, l_str_hash)) {
         DAP_DELETE(l_gdb_group_mempool);
         Py_RETURN_TRUE;
     } else {
