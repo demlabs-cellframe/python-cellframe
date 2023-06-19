@@ -141,8 +141,6 @@ PyObject *wrapping_dap_chain_global_db_gr_load(PyObject *self, PyObject *args){
         PyList_SetItem(l_list, i, (PyObject*)l_obj);
     }
 
-    dap_chain_global_db_objs_delete(l_db_obj, l_data_out);
-
     return l_list;
 }
 
