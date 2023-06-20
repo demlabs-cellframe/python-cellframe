@@ -241,6 +241,11 @@ bool dap_py_mempool_notifier(UNUSED_ARG dap_proc_thread_t *a_poc_thread, void *a
         log_it(L_ERROR, "It is not possible to call a python function. An object with arguments was not passed.");
         return true;
     }
+    if (l_callback->obj->group_len == 0 || !l_callback->obj->group)
+    {
+        log_it(L_WARNING, "Called mempool notify in python with None group");
+        return true;
+    }
     PyGILState_STATE state = PyGILState_Ensure();
     dap_store_obj_t *l_obj = l_callback->obj;
     char l_op_code[2];
