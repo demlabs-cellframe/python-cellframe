@@ -363,7 +363,7 @@ PyObject *dap_chain_mempool_tx_create_cond_input_py(PyObject *self, PyObject *ar
             ((PyDapChainAddrObject *)obj_addr_to)->addr,
             ((PyCryptoKeyObject*)obj_key_tx_sign)->key,
             ((PyDapChainTXReceiptObject*)obj_receipt)->tx_receipt,
-            "hex");
+            "hex", NULL);
     if (!l_tx_hash_str)
         Py_RETURN_NONE;
     PyDapHashFastObject *l_obj_hf = PyObject_New(PyDapHashFastObject, &DapChainHashFastObjectType);
