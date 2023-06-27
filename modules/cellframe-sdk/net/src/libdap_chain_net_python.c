@@ -279,27 +279,46 @@ PyObject *dap_chain_net_get_tx_by_hash_py(PyObject *self, PyObject *args){
 typedef struct _wrapping_dap_chain_net_notify_callback{
     PyObject *arg;
     PyObject *func;
+    dap_store_obj_t *store_obj;
 }_wrapping_dap_chain_net_notify_callback_t;
+
+bool dap_py_chain_net_gdb_notifier(UNUSED_ARG dap_proc_thread_t *a_poc_thread, void *a_arg) {
+    if (!a_arg)
+        return true;
+
+    _wrapping_dap_chain_net_notify_callback_t *l_callback = (_wrapping_dap_chain_net_notify_callback_t *)a_arg;
+    PyGILState_STATE state = PyGILState_Ensure();
+    char l_op_code[2];
+    l_op_code[0] = l_callback->store_obj->type;
+    l_op_code[1] = '\0';
+    PyObject *l_obj_value = NULL;
+    if (!l_callback->store_obj->value || !l_callback->store_obj->value_len)
+        l_obj_value = Py_None;
+    else
+        l_obj_value = PyBytes_FromStringAndSize((char *)l_callback->store_obj->value, (Py_ssize_t)l_callback->store_obj->value_len);
+    PyObject *argv = Py_BuildValue("sssOO", l_op_code, l_callback->store_obj->group, l_callback->store_obj->key, l_obj_value, l_callback->arg);
+    Py_XINCREF(l_callback->func);
+    Py_XINCREF(l_callback->arg);
+    PyEval_CallObject(l_callback->func, argv);
+    Py_DECREF(argv);
+    Py_XDECREF(l_callback->func);
+    Py_XDECREF(l_callback->arg);
+    PyGILState_Release(state);
+    dap_store_obj_free_one(l_callback->store_obj);
+    return true;
+}
 
 void pvt_dap_chain_net_py_notify_handler(dap_global_db_context_t *a_context, dap_store_obj_t *a_obj, void *a_arg)
 {
     UNUSED(a_context);
     if (!a_arg)
         return;
-    _wrapping_dap_chain_net_notify_callback_t *l_callback = (_wrapping_dap_chain_net_notify_callback_t *)a_arg;
-    PyObject *l_obj_value = NULL;
-    char l_op_code[2];
-    l_op_code[0] = a_obj->type;
-    l_op_code[1] = '\0';
-    PyGILState_STATE state = PyGILState_Ensure();
-    if (!a_obj->value || !a_obj->value_len)
-        l_obj_value = Py_None;
-    else
-        l_obj_value = PyBytes_FromStringAndSize((char *)a_obj->value, (Py_ssize_t)a_obj->value_len);
-    PyObject *argv = Py_BuildValue("sssOO", l_op_code, a_obj->group, a_obj->key, l_obj_value, l_callback->arg);
-    PyEval_CallObject(l_callback->func, argv);
-    Py_DECREF(argv);
-    PyGILState_Release(state);
+
+    _wrapping_dap_chain_net_notify_callback_t *l_obj = DAP_NEW(_wrapping_dap_chain_net_notify_callback_t);
+    l_obj->store_obj = dap_store_obj_copy(a_obj, 1);
+    l_obj->func = ((_wrapping_dap_chain_net_notify_callback_t*)a_arg)->func;
+    l_obj->arg = ((_wrapping_dap_chain_net_notify_callback_t*)a_arg)->arg;
+    dap_proc_queue_add_callback(dap_events_worker_get_auto(), dap_py_chain_net_gdb_notifier, l_obj);
 }
 
 PyObject *dap_chain_net_add_notify_py(PyObject *self, PyObject *args){
