@@ -25,5 +25,7 @@ PyObject *wrapping_dap_chain_tx_out_ext_get_token(PyObject *self, void *closure)
 }
 PyObject *wrapping_dap_chain_tx_out_ext_get_value(PyObject *self, void *closure){
     (void)closure;
-    return Py_BuildValue("k", ((PyDapChainTXOutExtObject*)self)->out_ext->header.value);
+    DapMathObject *l_math = PyObject_New(DapMathObject, &DapMathObjectType);
+    l_math->value = ((PyDapChainTXOutExtObject*)self)->out_ext->header.value;
+    return (PyObject*)l_math;
 }
