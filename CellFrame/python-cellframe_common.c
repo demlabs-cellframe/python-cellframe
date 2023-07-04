@@ -1,5 +1,9 @@
-#include "python-cellframe_common.h"
+#include <Python.h>
+#include <pytypedefs.h>
+#include <patchlevel.h>
 #include <frameobject.h>
+
+#include "python-cellframe_common.h"
 
 void _PyErr_logIt(const dap_log_level_t a_level, const char *a_tag, const char *a_msg){
     _log_it(a_tag, a_level, "%s", a_msg);
@@ -10,6 +14,7 @@ char* _PyErr_get_stacktrace(PyObject *a_obj){
         return "No stack trace";
     }
     PyTracebackObject *l_traceback = (PyTracebackObject*)a_obj;
+#if PY_MAJOR_VERSION >=3 && PY_MINOR_VERSION<11
     char  *s = "\tStack trace:\n";
     size_t cnt = 0;
     while (l_traceback != NULL)  {
@@ -21,6 +26,9 @@ char* _PyErr_get_stacktrace(PyObject *a_obj){
         l_traceback = l_traceback->tb_next;
         cnt++;
     }
+#else
+    char  *s = "\tStack trace not implemented for this Python's version:\n";
+#endif
     return s;
 }
 

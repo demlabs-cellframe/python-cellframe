@@ -410,7 +410,7 @@ PyObject* pvt_dap_chain_mempool_list(dap_chain_t *a_chain){
 
         
             dap_chain_datum_t * l_datum =  DAP_NEW_SIZE(dap_chain_datum_t, l_objs[i].value_len);
-            mempcpy(l_datum, l_objs[i].value, l_objs[i].value_len);
+            memcpy(l_datum, l_objs[i].value, l_objs[i].value_len);
 
             PyDapChainDatumObject *obj_datum = PyObject_New(PyDapChainDatumObject, &DapChainDatumObjectType);
             obj_datum->datum = l_datum;
