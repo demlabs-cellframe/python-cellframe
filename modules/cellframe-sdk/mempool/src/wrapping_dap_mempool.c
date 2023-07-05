@@ -180,12 +180,12 @@ PyObject *dap_chain_mempool_base_tx_create_py(PyObject *self, PyObject *args){
     PyDapHashFastObject *obj_emi_hash;
     DapMathObject *obj_emission_value;
     char *l_ticker;
-    dap_enc_key_t *a_key_from = NULL;
     PyDapChainAddrObject *obj_addr_to;
+    PyObject *obj_wallet_fee_key = NULL;
     PyObject *obj_certs;
     DapMathObject *obj_value_fee;
-    if (!PyArg_ParseTuple(args, "OOOOsOOO", &obj_chain, &obj_emi_hash, &obj_emi_chain, &obj_emission_value,
-                          &l_ticker, &obj_addr_to, &obj_value_fee, &obj_certs)) {
+    if (!PyArg_ParseTuple(args, "OOOOsOOOO", &obj_chain, &obj_emi_hash, &obj_emi_chain, &obj_emission_value,
+                          &l_ticker, &obj_addr_to, &obj_value_fee, &obj_wallet_fee_key, &obj_certs)) {
         return NULL;
     }
     if (!PyDapChain_Check(obj_chain)){
@@ -218,24 +218,40 @@ PyObject *dap_chain_mempool_base_tx_create_py(PyObject *self, PyObject *args){
                                               "DAP.Math that contains the fee for the underlying transaction.");
         return NULL;
     }
-    if (!PyList_Check(obj_certs)){
-        PyErr_SetString(PyExc_AttributeError, "The eighth argument was not correctly passed to this "
-                                              "function. The eighth argument must be an instance of an object of type "
-                                              "list, which holds the list of certificates with which the underlying "
-                                              "transaction is to be signed.");
-        return NULL;
-    }
-    size_t l_certs_count = PyList_Size(obj_certs);
-    dap_cert_t **l_certs = DAP_NEW_Z_SIZE(dap_cert_t*, l_certs_count);
-    for (size_t i=0; i < l_certs_count; i++){
-        PyCryptoCertObject *l_ptr = (PyCryptoCertObject*)PyList_GetItem(obj_certs, (Py_ssize_t)i);
-        l_certs[i] = l_ptr->cert;
+    dap_enc_key_t *l_key_wallet_fee = NULL;
+    size_t l_certs_count = 0;
+    dap_cert_t **l_certs = NULL;
+    dap_chain_net_t *l_net = dap_chain_net_by_id(obj_chain->chain_t->net_id);
+    bool not_native = dap_strcmp(l_ticker, l_net->pub.native_ticker);
+    if (not_native) {
+        if (!PyCryptoKeyObject_check(obj_wallet_fee_key)) {
+            PyErr_SetString(PyExc_AttributeError, "The eighth argument was passed incorrectly for a "
+                                                  "transaction in a non-native ticker. The eighth argument should be "
+                                                  "the wallet key from which the commission will be charged for the "
+                                                  "underlying transaction.");
+            return NULL;
+        }
+        l_key_wallet_fee = ((PyCryptoKeyObject*)obj_wallet_fee_key)->key;
+    } else {
+        if (!PyList_Check(obj_certs)) {
+            PyErr_SetString(PyExc_AttributeError, "The ninth argument was not correctly passed to this "
+                                                  "function. The ninth argument must be an instance of an object of type "
+                                                  "list, which holds the list of certificates with which the underlying "
+                                                  "transaction in the native ticker is to be signed.");
+            return NULL;
+        }
+        l_certs_count = PyList_Size(obj_certs);
+        l_certs = DAP_NEW_Z_SIZE(dap_cert_t*, l_certs_count);
+        for (size_t i = 0; i < l_certs_count; i++) {
+            PyCryptoCertObject *l_ptr = (PyCryptoCertObject *) PyList_GetItem(obj_certs, (Py_ssize_t) i);
+            l_certs[i] = l_ptr->cert;
+        }
     }
     uint256_t l_value_fee = ((DapMathObject*)obj_value_fee)->value;
     char *l_tx_hash_str = dap_chain_mempool_base_tx_create(
             obj_chain->chain_t, obj_emi_hash->hash_fast,
             obj_emi_chain->chain_t->id, obj_emission_value->value, l_ticker,
-            a_key_from, obj_addr_to->addr, l_certs, l_certs_count, "hex", l_value_fee);
+            l_key_wallet_fee, obj_addr_to->addr, l_certs, l_certs_count, "hex", l_value_fee);
     DAP_FREE(l_certs);
     if (l_tx_hash_str == NULL)
         Py_RETURN_NONE;
