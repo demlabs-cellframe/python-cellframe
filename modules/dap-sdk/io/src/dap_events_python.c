@@ -34,6 +34,7 @@ static PyObject *dap_events_socket_remove_and_delete_py(PyDapEventsObject *self,
     bool preserve_inheritor = true;
     if (in_bool == Py_False)
         preserve_inheritor = false;
+    UNUSED(preserve_inheritor); // Is it really need for?
     dap_events_socket_remove_and_delete_mt(((PyDapEventsSocketObject*)in_obj)->t_events_socket->context->worker,
                                            ((PyDapEventsSocketObject*)in_obj)->t_events_socket->uuid);
     return PyLong_FromLong(0);
