@@ -21,7 +21,7 @@ char* _PyErr_get_stacktrace(PyObject *a_obj){
     while (l_traceback != NULL)  {
         const char *l_name, *l_file;
 #if PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION < 10
-        l_name = l_file = "unknown"
+        l_name = l_file = "unknown";
 #else
         PyCodeObject *l_code = PyFrame_GetCode(l_traceback->tb_frame);
         l_name = PyUnicode_AsUTF8(l_code->co_name);
