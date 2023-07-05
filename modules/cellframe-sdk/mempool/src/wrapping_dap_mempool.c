@@ -185,7 +185,7 @@ PyObject *dap_chain_mempool_base_tx_create_py(PyObject *self, PyObject *args){
     PyObject *obj_certs;
     DapMathObject *obj_value_fee;
     if (!PyArg_ParseTuple(args, "OOOOsOOOO", &obj_chain, &obj_emi_hash, &obj_emi_chain, &obj_emission_value,
-                          &l_ticker, &obj_addr_to, &obj_value_fee, &obj_wallet_fee_key, &obj_certs)) {
+                          &l_ticker, &obj_addr_to, &obj_value_fee, &obj_certs, &obj_wallet_fee_key)) {
         return NULL;
     }
     if (!PyDapChain_Check(obj_chain)){
@@ -225,8 +225,8 @@ PyObject *dap_chain_mempool_base_tx_create_py(PyObject *self, PyObject *args){
     bool not_native = dap_strcmp(l_ticker, l_net->pub.native_ticker);
     if (not_native) {
         if (!PyCryptoKeyObject_check(obj_wallet_fee_key)) {
-            PyErr_SetString(PyExc_AttributeError, "The eighth argument was passed incorrectly for a "
-                                                  "transaction in a non-native ticker. The eighth argument should be "
+            PyErr_SetString(PyExc_AttributeError, "The ninth argument was passed incorrectly for a "
+                                                  "transaction in a non-native ticker. The ninth argument should be "
                                                   "the wallet key from which the commission will be charged for the "
                                                   "underlying transaction.");
             return NULL;
@@ -234,8 +234,8 @@ PyObject *dap_chain_mempool_base_tx_create_py(PyObject *self, PyObject *args){
         l_key_wallet_fee = ((PyCryptoKeyObject*)obj_wallet_fee_key)->key;
     } else {
         if (!PyList_Check(obj_certs)) {
-            PyErr_SetString(PyExc_AttributeError, "The ninth argument was not correctly passed to this "
-                                                  "function. The ninth argument must be an instance of an object of type "
+            PyErr_SetString(PyExc_AttributeError, "The eighth argument was not correctly passed to this "
+                                                  "function. The eighth argument must be an instance of an object of type "
                                                   "list, which holds the list of certificates with which the underlying "
                                                   "transaction in the native ticker is to be signed.");
             return NULL;
