@@ -44,6 +44,10 @@ PyObject *dap_chain_wallet_get_key_py(PyObject *self, PyObject *argv);
 
 extern PyTypeObject DapChainWalletObjectType;
 
+static bool PyDapChainWalletObject_Check(PyObject *self) {
+    return PyObject_TypeCheck(self, &DapChainWalletObjectType);
+}
+
 
 #ifdef __cplusplus
 }

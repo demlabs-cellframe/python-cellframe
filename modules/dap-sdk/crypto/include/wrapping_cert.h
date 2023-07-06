@@ -59,6 +59,10 @@ PyObject *wrapping_cert_get_enc_key(PyObject *self, void *closure);
 
 extern PyTypeObject DapCryptoCertObjectType;
 
+static bool PyDapCryptoCertObject_Check(PyObject *self) {
+    return PyObject_TypeCheck(self, &DapCryptoCertObjectType);
+}
+
 #ifdef __cplusplus
 }
 #endif
