@@ -220,30 +220,18 @@ PyObject *dap_chain_mempool_base_tx_create_py(PyObject *self, PyObject *args){
                                               "DAP.Math that contains the fee for the underlying transaction.");
         return NULL;
     }
-//    dap_enc_key_t *l_key_wallet_fee = NULL;
-//    size_t l_certs_count = 0;
-//    dap_cert_t **l_certs = NULL;
-    dap_chain_net_t *l_net = dap_chain_net_by_id(obj_chain->chain_t->net_id);
-    bool not_native = dap_strcmp(l_ticker, l_net->pub.native_ticker);
-    if (not_native) {
-        if (!PyDapChainWalletObject_Check(obj_wallet_or_cert)) {
-            PyErr_SetString(PyExc_AttributeError, "The eighth argument was passed incorrectly for a "
-                                                  "transaction in a non-native ticker. The eighth argument should be "
-                                                  "the wallet from which the commission will be charged for the "
-                                                  "underlying transaction.");
-            return NULL;
-        }
+    
+    if (PyDapChainWalletObject_Check(obj_wallet_or_cert)) 
         l_priv_key = dap_chain_wallet_get_key(((PyDapChainWalletObject*)obj_wallet_or_cert)->wallet, 0);
-    } else {
-        if (!PyDapCryptoCertObject_Check(obj_wallet_or_cert)) {
-            PyErr_SetString(PyExc_AttributeError, "The eighth argument was not correctly passed to this "
-                                                  "function. The eighth argument must be an instance of an object of "
-                                                  "type certificate, which holds the of certificates with which the "
-                                                  "underlying transaction in the native ticker is to be signed.");
-            return NULL;
-        }
+    else  if (PyDapCryptoCertObject_Check(obj_wallet_or_cert)) 
         l_priv_key = ((PyCryptoCertObject*)obj_wallet_or_cert)->cert->enc_key;
+    else
+    {
+            PyErr_SetString(PyExc_AttributeError, "The eighth argument was passed incorrectly: "
+                                                  "The eighth argument should be DapChainWallet or CryptoCert");
+            return NULL;
     }
+    
     uint256_t l_value_fee = ((DapMathObject*)obj_value_fee)->value;
     char *l_tx_hash_str = dap_chain_mempool_base_tx_create(
             obj_chain->chain_t, obj_emi_hash->hash_fast,
