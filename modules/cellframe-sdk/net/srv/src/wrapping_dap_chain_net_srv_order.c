@@ -75,6 +75,7 @@ int PyDapChainNetSrvOrder_init(PyDapChainNetSrvOrderObject *self, PyObject *args
             "priceTicker",
             "expires",
             "ext",
+            "units"
 //            "extSize",
 //            "region",
 //            "continentNum",
@@ -86,10 +87,11 @@ int PyDapChainNetSrvOrder_init(PyDapChainNetSrvOrderObject *self, PyObject *args
     uint64_t price;
     char *price_ticker;
     unsigned long expires;
+    unsigned long units;
     PyObject *obj_ext, *obj_key;
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "OOOOOkOsOOO", (char **)kwlist, &obj_net, &obj_direction, &obj_srv_uid,
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "OOOOOkOsOOIO", (char **)kwlist, &obj_net, &obj_direction, &obj_srv_uid,
                                      &obj_node_addr, &obj_tx_cond_hash, &price, &obj_price_unit, &price_ticker,
-                                     &expires, &obj_ext, &obj_key)){
+                                     &expires, &obj_ext, &units, &obj_key)){
         return -1;
     }
     if (!PyDapChainNet_Check(obj_net)){
@@ -113,6 +115,7 @@ int PyDapChainNetSrvOrder_init(PyDapChainNetSrvOrderObject *self, PyObject *args
             (time_t) expires,
             l_ext,
             l_ext_size,
+            units,
             "",
             0,
             ((PyCryptoKeyObject *) obj_key)->key
