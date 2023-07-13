@@ -331,6 +331,9 @@ PyObject *wrapping_dap_chain_datum_token_emission_get_signs(PyObject *self, void
         }
         obj_sign = PyObject_New(PyDapSignObject, &DapCryptoSignObjectType);
         obj_sign->sign = DAP_NEW_Z_SIZE(dap_sign_t, l_sign_size);
+        if (!obj_sign->sign) {
+            return NULL;
+        }
         memcpy(obj_sign->sign, l_sign, l_sign_size);
         if (PyList_Append(obj_list, (PyObject*)obj_sign) == -1) {
             return NULL;

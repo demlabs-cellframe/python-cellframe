@@ -24,6 +24,10 @@ dap_chain_plugins_list_manifest_t *dap_chain_plugins_manifest_new(const char *a_
                                                                   const char *a_author,
                                                                   const char *a_description){
     dap_chain_plugins_list_manifest_t *l_man = (dap_chain_plugins_list_manifest_t*)DAP_NEW(dap_chain_plugins_list_manifest_t);
+    if (!l_man) {
+        log_it(L_ERROR, "Memory allocation error in dap_chain_plugins_manifest_new");
+        return NULL;
+    }
     l_man->name = dap_strdup(a_name);
     l_man->author = dap_strdup(a_author);
     l_man->version = dap_strdup(a_version);
@@ -45,6 +49,10 @@ static dap_chain_plugins_list_char_t* JSON_array_to_dap_list_char(json_object *a
     dap_chain_plugins_list_char_t *l_element = NULL;
     for (size_t i = 0; i < (size_t)json_object_array_length(a_j_obj); i++){
         l_element = (dap_chain_plugins_list_char_t*)DAP_NEW(dap_chain_plugins_list_char_t);
+        if (!l_element) {
+            log_it(L_ERROR, "Memory allocation error in JSON_array_to_dap_list_char");
+            return l_list;
+        }
         l_element->value = dap_strdup(json_object_get_string(json_object_array_get_idx(a_j_obj, i)));
         LL_APPEND(l_list, l_element);
     }

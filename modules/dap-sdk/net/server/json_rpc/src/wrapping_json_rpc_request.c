@@ -92,6 +92,10 @@ PyObject* dap_json_rpc_request_reg_handler_py(PyObject *self, PyObject *args){
         return NULL;
     }
     struct _w_json_rpc_handler *handler = DAP_NEW(struct _w_json_rpc_handler);
+    if (!handler) {
+        log_it(L_ERROR, "Memory allocation error in dap_json_rpc_request_reg_handler_py");
+        return NULL;
+    }
     handler->method = dap_strdup(method);
     Py_INCREF(obj_func);
     handler->call_func = obj_func;

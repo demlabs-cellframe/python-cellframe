@@ -9,6 +9,10 @@ void dap_chain_plugins_list_init(){
 
 void dap_chain_plugins_list_add(PyObject *a_module, const char *a_name){
     dap_chain_plugin_list_module_t *elemnet = (dap_chain_plugin_list_module_t*)DAP_NEW(dap_chain_plugin_list_module_t);
+    if (!elemnet) {
+        log_it(L_ERROR, "Memory allocation error in dap_chain_plugins_list_add");
+        return;
+    }
     elemnet->name = dap_strdup(a_name);
     elemnet->obj_module = a_module;
     LL_APPEND(s_dap_chain_plugins_module_list, elemnet);
@@ -27,7 +31,10 @@ bool dap_chain_plugins_list_check_load_plugins(dap_chain_plugins_list_char_t *a_
     dap_chain_plugin_list_module_t *l_element_from_list_module;
     dap_chain_plugin_list_module_t *l_element_lnk = (dap_chain_plugin_list_module_t*)DAP_NEW(
                 dap_chain_plugin_list_module_t);
-
+    if (!l_element_lnk) {
+        log_it(L_ERROR, "Memory allocation error in dap_chain_plugins_list_check_load_plugins");
+        return false;
+    }
     int lenght;
     LL_COUNT(s_dap_chain_plugins_module_list, l_element_from_list_module, lenght);
     if (lenght == 0){
