@@ -315,6 +315,9 @@ void pvt_dap_chain_net_py_notify_handler(dap_global_db_context_t *a_context, dap
         return;
 
     _wrapping_dap_chain_net_notify_callback_t *l_obj = DAP_NEW(_wrapping_dap_chain_net_notify_callback_t);
+    if (!l_obj)
+        return;
+        
     l_obj->store_obj = dap_store_obj_copy(a_obj, 1);
     l_obj->func = ((_wrapping_dap_chain_net_notify_callback_t*)a_arg)->func;
     l_obj->arg = ((_wrapping_dap_chain_net_notify_callback_t*)a_arg)->arg;
