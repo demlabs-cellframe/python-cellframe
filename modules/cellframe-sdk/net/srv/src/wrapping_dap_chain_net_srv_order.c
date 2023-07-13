@@ -75,6 +75,7 @@ int PyDapChainNetSrvOrder_init(PyDapChainNetSrvOrderObject *self, PyObject *args
             "priceTicker",
             "expires",
             "ext",
+            "units",
 //            "extSize",
 //            "region",
 //            "continentNum",
@@ -87,9 +88,10 @@ int PyDapChainNetSrvOrder_init(PyDapChainNetSrvOrderObject *self, PyObject *args
     char *price_ticker;
     unsigned long expires;
     PyObject *obj_ext, *obj_key;
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "OOOOOkOsOOO", (char **)kwlist, &obj_net, &obj_direction, &obj_srv_uid,
+    unsigned int units;
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "OOOOOkOsOOIO", (char **)kwlist, &obj_net, &obj_direction, &obj_srv_uid,
                                      &obj_node_addr, &obj_tx_cond_hash, &price, &obj_price_unit, &price_ticker,
-                                     &expires, &obj_ext, &obj_key)){
+                                     &expires, &obj_ext, &units, &obj_key)){
         return -1;
     }
     if (!PyDapChainNet_Check(obj_net)){
@@ -113,6 +115,7 @@ int PyDapChainNetSrvOrder_init(PyDapChainNetSrvOrderObject *self, PyObject *args
             (time_t) expires,
             l_ext,
             l_ext_size,
+            units,
             "",
             0,
             ((PyCryptoKeyObject *) obj_key)->key
@@ -392,6 +395,10 @@ PyObject *wrapping_dap_chain_net_srv_order_add_notify_callback(PyObject *self, P
         return NULL;
     }
     _wrapping_order_callable_t *l_callback = DAP_NEW(_wrapping_order_callable_t);
+    if (!l_callback) {
+        log_it(L_ERROR, "Memory allocation error in wrapping_dap_chain_net_srv_order_add_notify_callback");
+        return NULL;
+    }
     l_callback->func = func_call;
     l_callback->arg = call_arg;
     Py_INCREF(func_call);

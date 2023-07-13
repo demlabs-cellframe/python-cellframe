@@ -38,6 +38,8 @@ static wrapping_dap_http_simple_proc_t *s_simple_proc = NULL;
 
 void _w_simple_proc_add(const char *url, PyObject *func_call){
     wrapping_dap_http_simple_proc_t *l_simple_proc = DAP_NEW(wrapping_dap_http_simple_proc_t);
+    if (!l_simple_proc)
+        return;
     l_simple_proc->url = dap_strdup(url);
     l_simple_proc->func_call = func_call;
     Py_XINCREF(l_simple_proc->func_call);

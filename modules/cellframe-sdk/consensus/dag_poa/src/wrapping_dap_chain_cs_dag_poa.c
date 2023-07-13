@@ -68,6 +68,9 @@ PyObject* wrapping_dap_chain_cs_dag_poa_presign_callback_set(PyObject *self, PyO
         return NULL;
     }
     _wrapping_dap_chain_cs_dag_poa_callback_t *l_callback = DAP_NEW(_wrapping_dap_chain_cs_dag_poa_callback_t);
+    if (!l_callback) {
+        return NULL;
+    }
     l_callback->func = obj_func;
     l_callback->arg = obj_arg;
     Py_INCREF(obj_func);

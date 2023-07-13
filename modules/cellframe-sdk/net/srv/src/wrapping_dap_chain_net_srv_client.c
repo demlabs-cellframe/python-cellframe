@@ -113,6 +113,10 @@ static void _wrapping_dap_chain_net_srv_client_callback_success(dap_chain_net_sr
                                                          &DapHashTypeObject_DapChainHashTypeObjectType);
         if (a_pkt_size == sizeof(dap_stream_ch_chain_net_srv_pkt_success_t) + sizeof(dap_chain_hash_fast_t)) {
             py_cond_hash->hash_fast = DAP_NEW(dap_chain_hash_fast_t);
+            if (!py_cond_hash->hash_fast) {
+                log_it(L_ERROR, "Memory allocaiton error in _wrapping_dap_chain_net_srv_client_callback_success");
+                return;
+            }
             memcpy(py_cond_hash->hash_fast, a_pkt->custom_data, sizeof(dap_chain_hash_fast_t));
         } else
             py_cond_hash->hash_fast = NULL;

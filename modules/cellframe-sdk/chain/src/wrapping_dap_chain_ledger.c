@@ -223,6 +223,10 @@ PyObject *dap_chain_ledger_tx_cache_check_py(PyObject *self, PyObject *args){
         return NULL;
     Py_ssize_t size_list_bound_item = PyList_Size(list_bound_items);
     dap_list_t **bound_items = calloc(sizeof(dap_list_t**), (size_t)size_list_bound_item);
+    if (!bound_items) {
+        log_it(L_ERROR, "Memory allocation error in dap_chain_ledger_tx_cache_check_py");
+        return NULL;
+    }
     for (Py_ssize_t i = 0; i < size_list_bound_item;i++){
         PyObject *obj = PyList_GetItem(list_bound_items, i);
         dap_list_t *l = pyListToDapList(obj);
@@ -230,6 +234,11 @@ PyObject *dap_chain_ledger_tx_cache_check_py(PyObject *self, PyObject *args){
     }
     Py_ssize_t size_tx_out = PyList_Size(list_tx_out);
     dap_list_t **tx_out = calloc(sizeof(dap_list_t**), (size_t)size_tx_out);
+    if (!tx_out) {
+        log_it(L_ERROR, "Memory allocation error in dap_chain_ledger_tx_cache_check_py");
+        DAP_DELETE(bound_items);
+        return NULL;
+    }
     for (Py_ssize_t i = 0; i < size_tx_out;i++){
         PyObject *obj = PyList_GetItem(list_bound_items, i);
         dap_list_t *l = pyListToDapList(obj);
@@ -403,10 +412,19 @@ PyObject *dap_chain_ledger_tx_cache_get_out_cond_value_py(PyObject *self, PyObje
 static char*** ListStringToArrayStringFormatChar(PyObject *list){
     Py_ssize_t size = PyList_Size(list);
     char ***data = calloc(sizeof(char**), (size_t)size);
+    if(!data) {
+        log_it(L_ERROR, "Memory allocation error in ListStringToArrayStringFormatChar");
+        return NULL;
+    }
     for (Py_ssize_t i = 0; i < size; i++){
         PyObject *obj_two = PyList_GetItem(list,i);
         Py_ssize_t size_seentenses = PyList_Size(obj_two);
         char **sentences = calloc(sizeof(char**), (size_t)size_seentenses);
+        if(!sentences) {
+            log_it(L_ERROR, "Memory allocation error in ListStringToArrayStringFormatChar");
+            DAP_DELETE(data);
+            return NULL;
+        }
         for (int j=0; j < size_seentenses;j++){
             PyObject *obj_byte = PyList_GetItem(obj_two, j);
             char *word = PyBytes_AsString(obj_byte);
@@ -420,6 +438,10 @@ static char*** ListStringToArrayStringFormatChar(PyObject *list){
 static size_t *ListIntToSizeT(PyObject *list){
     Py_ssize_t size = PyList_Size(list);
     size_t *res_size_t = calloc(sizeof(size_t), (size_t)size);
+    if(!res_size_t) {
+        log_it(L_ERROR, "Memory allocation error in ListIntToSizeT");
+        return NULL;
+    }
     for (Py_ssize_t i=0; i<size;i++){
         PyObject *obj = PyList_GetItem(list, i);
         res_size_t[i] = (size_t)PyLong_AsSsize_t(obj);
@@ -496,6 +518,10 @@ PyObject *dap_chain_ledger_tx_add_notify_py(PyObject *self, PyObject *args) {
         return NULL;
     }
     pvt_ledger_notify_t *notifier = DAP_NEW(pvt_ledger_notify_t);
+    if(!notifier) {
+        log_it(L_ERROR, "Memory allocation error in dap_chain_ledger_tx_add_notify_py");
+        return NULL;
+    }
     notifier->func = obj_func;
     notifier->argv = obj_argv;
     Py_INCREF(obj_func);
