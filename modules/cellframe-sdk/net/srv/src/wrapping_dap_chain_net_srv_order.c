@@ -2,6 +2,8 @@
 
 #define WRAPPING_DAP_CHAIN_NET_SRV_ORDER(a) ((PyDapChainNetSrvOrderObject*)a)
 
+#define LOG_TAG "Service order wrapper"
+
 static PyMethodDef DapChainNetSrvOrderMethods[]={
         {"size", (PyCFunction)wrapping_dap_chain_net_srv_order_get_size, METH_VARARGS, ""},
         {"find", (PyCFunction)wrapping_dap_chain_net_srv_order_find, METH_VARARGS | METH_STATIC, ""},

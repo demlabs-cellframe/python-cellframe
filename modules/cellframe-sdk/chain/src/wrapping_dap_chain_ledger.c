@@ -1,6 +1,8 @@
 #include "wrapping_dap_chain_ledger.h"
 #include "python-cellframe_common.h"
 
+#define LOG_TAG "ledger wrapper"
+
 static PyMethodDef DapChainLedgerMethods[] = {
         {"setLocalCellId", (PyCFunction)dap_chain_ledger_set_local_cell_id_py, METH_VARARGS, ""},
         {"nodeDatumTxCalcHash", (PyCFunction)dap_chain_node_datum_tx_calc_hash_py, METH_VARARGS, ""},
@@ -483,7 +485,6 @@ typedef struct pvt_ledger_notify{
     PyObject *argv;
 }pvt_ledger_notify_t;
 
-#define LOG_TAG "wrapping_dap_chain_ledger"
 static void pvt_wrapping_dap_chain_ledger_tx_add_notify(void *a_arg, dap_ledger_t *a_ledger,
                                                         dap_chain_datum_tx_t *a_tx){
     if (!a_arg)
@@ -505,7 +506,6 @@ static void pvt_wrapping_dap_chain_ledger_tx_add_notify(void *a_arg, dap_ledger_
     Py_XDECREF(argv);
     PyGILState_Release(state);
 }
-#undef LOG_TAG
 
 PyObject *dap_chain_ledger_tx_add_notify_py(PyObject *self, PyObject *args) {
     PyObject *obj_func, *obj_argv = NULL;

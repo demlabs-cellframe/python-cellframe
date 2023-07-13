@@ -1,5 +1,7 @@
 #include "wrapping_dap_chain_cs_block.h"
 
+#define LOG_TAG "CS blocks wrapper"
+
 static PyGetSetDef DapChainCsBlockGetsSetsDef[] = {
         {"hash", (getter)wrapping_dap_chain_block_get_hash, NULL, NULL, NULL},
         {"version", (getter)wrapping_dap_chain_block_get_version, NULL, NULL, NULL},

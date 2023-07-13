@@ -42,7 +42,7 @@ size_t elements_str_reply_add(char** str_reply){
     size_t new_index = max_index+1;
     element_str_reply_t *new_el = DAP_NEW(element_str_reply_t);
     if (!new_el) {
-        return NULL;
+        return 0;
     }
     new_el->str_reply = str_reply;
     new_el->id = new_index;
@@ -102,7 +102,7 @@ PyObject *element_py_func_get(char *name){
     element_py_func_t *el, *like;
     like = DAP_NEW(element_py_func_t);
     if (!like) {
-        return;
+        return NULL;
     }
     like->name = name;
     LL_SEARCH(l_element_py_func_list, el, like,  element_py_func_cmp_by_name);

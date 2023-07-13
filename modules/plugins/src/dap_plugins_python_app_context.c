@@ -1,6 +1,8 @@
 #include "libdap-python.h"
 #include "dap_plugins_python_app_context.h"
 
+#define LOG_TAG "App conext for python"
+
 dap_plugins_python_app_context_t *s_app_context = NULL;
 
 static PyMethodDef DapAppContextMethods[] = {
