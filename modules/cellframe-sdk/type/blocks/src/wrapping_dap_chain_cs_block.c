@@ -1,5 +1,7 @@
 #include "wrapping_dap_chain_cs_block.h"
 
+#define LOG_TAG "CS blocks wrapper"
+
 static PyGetSetDef DapChainCsBlockGetsSetsDef[] = {
         {"hash", (getter)wrapping_dap_chain_block_get_hash, NULL, NULL, NULL},
         {"version", (getter)wrapping_dap_chain_block_get_version, NULL, NULL, NULL},
@@ -70,16 +72,34 @@ PyObject *wrapping_dap_chain_block_get_meta_data(PyObject *self, void *closure){
     PyObject *obj_dict = PyDict_New();
     PyDapHashFastObject *l_obj_prev_hash = PyObject_New(PyDapHashFastObject, &DapChainHashFastObjectType);
     l_obj_prev_hash->hash_fast = DAP_NEW(dap_chain_hash_fast_t);
+    if (!l_obj_prev_hash->hash_fast) {
+        log_it(L_ERROR, "Memory allocation error in wrapping_dap_chain_block_get_meta_data");
+        return NULL;
+    }
+
     memcpy(l_obj_prev_hash->hash_fast, &l_block_prev_hash, sizeof(dap_chain_hash_fast_t));
     l_obj_prev_hash->origin = true;
     PyDict_SetItemString(obj_dict, "blockPrevHash", (PyObject*)l_obj_prev_hash);
     PyDapHashFastObject *l_obj_anchor_hash = PyObject_New(PyDapHashFastObject, &DapChainHashFastObjectType);
     l_obj_anchor_hash->hash_fast = DAP_NEW(dap_chain_hash_fast_t);
+    if (!l_obj_anchor_hash->hash_fast) {
+        log_it(L_ERROR, "Memory allocation error in wrapping_dap_chain_block_get_meta_data");
+        DAP_DEL_Z(l_obj_prev_hash->hash_fast);
+        return NULL;
+    }
+
     memcpy(l_obj_anchor_hash->hash_fast, &l_block_anchor_hash, sizeof(dap_chain_hash_fast_t));
     l_obj_anchor_hash->origin = true;
     PyDict_SetItemString(obj_dict, "blockAnchorHash", (PyObject*)l_obj_anchor_hash);
     PyDapHashFastObject *l_obj_merkle = PyObject_New(PyDapHashFastObject, &DapChainHashFastObjectType);
     l_obj_merkle->hash_fast = DAP_NEW(dap_chain_hash_fast_t);
+    if (!l_obj_merkle->hash_fast) {
+        log_it(L_ERROR, "Memory allocation error in wrapping_dap_chain_block_get_meta_data");
+        DAP_DEL_Z(l_obj_anchor_hash->hash_fast);
+        DAP_DEL_Z(l_obj_prev_hash->hash_fast);
+        return NULL;
+    }
+
     memcpy(l_obj_merkle->hash_fast, &l_merkle, sizeof(dap_chain_hash_fast_t));
     l_obj_merkle->origin = true;
     PyDict_SetItemString(obj_dict, "merkle", (PyObject*)l_obj_merkle);
@@ -88,6 +108,14 @@ PyObject *wrapping_dap_chain_block_get_meta_data(PyObject *self, void *closure){
     for (size_t i = 0; i < l_block_links_count; i++){
         PyDapHashFastObject *obj_hf = PyObject_New(PyDapHashFastObject, &DapChainHashFastObjectType);
         obj_hf->hash_fast = DAP_NEW(dap_chain_hash_fast_t);
+        if (!obj_hf->hash_fast) {
+            log_it(L_ERROR, "Memory allocation error in wrapping_dap_chain_block_get_meta_data");
+            DAP_DEL_Z(l_obj_merkle->hash_fast);
+            DAP_DEL_Z(l_obj_anchor_hash->hash_fast);
+            DAP_DEL_Z(l_obj_prev_hash->hash_fast);
+            return NULL;
+        }
+
         memcpy(obj_hf->hash_fast, &l_block_links[i], sizeof(dap_chain_hash_fast_t));
         obj_hf->origin = true;
 //        obj_hf->hash_fast = &(l_block_links[i]);

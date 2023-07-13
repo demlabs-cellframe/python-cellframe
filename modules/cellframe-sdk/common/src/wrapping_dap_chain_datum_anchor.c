@@ -30,6 +30,9 @@ PyObject *wrapping_dap_chain_datum_anchor_get_decree_hash(PyObject *self, void *
             dap_hash_fast_t l_hf = dap_tsd_get_scalar(l_tsd, dap_hash_fast_t);
             PyDapHashFastObject *l_obj_hf = PyObject_New(PyDapHashFastObject, &DapChainHashFastObjectType);
             l_obj_hf->hash_fast = DAP_NEW(dap_hash_fast_t);
+            if (!l_obj_hf->hash_fast) {
+                return NULL;
+            }
             memcpy(l_obj_hf->hash_fast, &l_hf, sizeof(dap_hash_fast_t));
             return (PyObject*)l_obj_hf;
         }

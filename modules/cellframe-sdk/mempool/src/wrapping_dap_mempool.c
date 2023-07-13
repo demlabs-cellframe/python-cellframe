@@ -1,4 +1,6 @@
 #include "wrapping_dap_mempool.h"
+#include "dap_chain_wallet_python.h"
+
 #define LOG_TAG "python-mempool"
 
 static PyMethodDef  DapMempoolMethods[] = {
@@ -180,12 +182,12 @@ PyObject *dap_chain_mempool_base_tx_create_py(PyObject *self, PyObject *args){
     PyDapHashFastObject *obj_emi_hash;
     DapMathObject *obj_emission_value;
     char *l_ticker;
-    dap_enc_key_t *a_key_from = NULL;
     PyDapChainAddrObject *obj_addr_to;
-    PyObject *obj_certs;
+    PyObject *obj_wallet_or_cert;
+    dap_enc_key_t *l_priv_key = NULL;
     DapMathObject *obj_value_fee;
     if (!PyArg_ParseTuple(args, "OOOOsOOO", &obj_chain, &obj_emi_hash, &obj_emi_chain, &obj_emission_value,
-                          &l_ticker, &obj_addr_to, &obj_value_fee, &obj_certs)) {
+                          &l_ticker, &obj_addr_to, &obj_value_fee, &obj_wallet_or_cert)) {
         return NULL;
     }
     if (!PyDapChain_Check(obj_chain)){
@@ -218,25 +220,23 @@ PyObject *dap_chain_mempool_base_tx_create_py(PyObject *self, PyObject *args){
                                               "DAP.Math that contains the fee for the underlying transaction.");
         return NULL;
     }
-    if (!PyList_Check(obj_certs)){
-        PyErr_SetString(PyExc_AttributeError, "The eighth argument was not correctly passed to this "
-                                              "function. The eighth argument must be an instance of an object of type "
-                                              "list, which holds the list of certificates with which the underlying "
-                                              "transaction is to be signed.");
-        return NULL;
+    
+    if (PyDapChainWalletObject_Check(obj_wallet_or_cert)) 
+        l_priv_key = dap_chain_wallet_get_key(((PyDapChainWalletObject*)obj_wallet_or_cert)->wallet, 0);
+    else  if (PyDapCryptoCertObject_Check(obj_wallet_or_cert)) 
+        l_priv_key = ((PyCryptoCertObject*)obj_wallet_or_cert)->cert->enc_key;
+    else
+    {
+            PyErr_SetString(PyExc_AttributeError, "The eighth argument was passed incorrectly: "
+                                                  "The eighth argument should be DapChainWallet or CryptoCert");
+            return NULL;
     }
-    size_t l_certs_count = PyList_Size(obj_certs);
-    dap_cert_t **l_certs = DAP_NEW_Z_SIZE(dap_cert_t*, l_certs_count);
-    for (size_t i=0; i < l_certs_count; i++){
-        PyCryptoCertObject *l_ptr = (PyCryptoCertObject*)PyList_GetItem(obj_certs, (Py_ssize_t)i);
-        l_certs[i] = l_ptr->cert;
-    }
+    
     uint256_t l_value_fee = ((DapMathObject*)obj_value_fee)->value;
     char *l_tx_hash_str = dap_chain_mempool_base_tx_create(
             obj_chain->chain_t, obj_emi_hash->hash_fast,
             obj_emi_chain->chain_t->id, obj_emission_value->value, l_ticker,
-            a_key_from, obj_addr_to->addr, l_certs, l_certs_count, "hex", l_value_fee);
-    DAP_FREE(l_certs);
+            obj_addr_to->addr, l_priv_key, "hex", l_value_fee);
     if (l_tx_hash_str == NULL)
         Py_RETURN_NONE;
     PyDapHashFastObject *l_obj_hf = PyObject_New(PyDapHashFastObject, &DapChainHashFastObjectType);

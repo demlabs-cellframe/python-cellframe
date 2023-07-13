@@ -244,6 +244,11 @@ void dap_chain_plugins_load_plugin_importing(const char *a_dir_path, const char 
         return;
     }
     _dap_chain_plugins_module_t *module = DAP_NEW(_dap_chain_plugins_module_t);
+    if (!module) {
+        python_error_in_log_it(LOG_TAG);
+        PyErr_Clear();
+        return;
+    }
     module->module = l_module;
     module->name = dap_strdup(a_name);
     Py_INCREF(l_module);

@@ -41,6 +41,9 @@ size_t elements_str_reply_add(char** str_reply){
     }
     size_t new_index = max_index+1;
     element_str_reply_t *new_el = DAP_NEW(element_str_reply_t);
+    if (!new_el) {
+        return 0;
+    }
     new_el->str_reply = str_reply;
     new_el->id = new_index;
     LL_APPEND(l_str_reply_list, new_el);
@@ -55,6 +58,9 @@ int elements_str_reply_cmp_by_id(element_str_reply_t *e1, element_str_reply_t *e
 char** elements_str_reply_get_by_id(size_t id){
     element_str_reply_t *el, *tmp;
     tmp = DAP_NEW(element_str_reply_t);
+    if (!tmp) {
+        return NULL;
+    }
     tmp->id = id;
     LL_SEARCH(l_str_reply_list, el, tmp, elements_str_reply_cmp_by_id);
     DAP_FREE(tmp);
@@ -81,6 +87,9 @@ void elements_str_reply_delete_all(){
 
 void element_py_func_add(const char *name, PyObject *func){
     element_py_func_t *el = DAP_NEW(element_py_func_t);
+    if (!el) {
+        return;
+    }
     el->name = dap_strdup(name);
     el->func = func;
     Py_XINCREF(el->func);
@@ -92,6 +101,9 @@ int element_py_func_cmp_by_name(element_py_func_t *e1, element_py_func_t *e2){
 PyObject *element_py_func_get(char *name){
     element_py_func_t *el, *like;
     like = DAP_NEW(element_py_func_t);
+    if (!like) {
+        return NULL;
+    }
     like->name = name;
     LL_SEARCH(l_element_py_func_list, el, like,  element_py_func_cmp_by_name);
     DAP_FREE(like);
@@ -100,6 +112,9 @@ PyObject *element_py_func_get(char *name){
 void element_py_func_del_by_name(char *name){
     element_py_func_t *el, *like;
     like = DAP_NEW(element_py_func_t);
+    if (!like) {
+        return;
+    }
     like->name = name;
     LL_SEARCH(l_element_py_func_list, el, like,  element_py_func_cmp_by_name);
     DAP_FREE(like);
