@@ -1,5 +1,5 @@
 #include "wrapping_dap_chain_datum.h"
-
+#define LOG_TAG "wrapping_dap_chain_datum"
 //void PyDapChainDatumObject_dealloc(PyDapChainDatumObject* object){
 //}
 
@@ -151,19 +151,35 @@ PyObject *dap_chain_datum_is_type_emission(PyObject *self, PyObject *args){
 
 PyObject *wrapping_dap_chain_datum_get_datum_token_emission(PyObject *self, PyObject *args){
     (void)args;
-    if (((PyDapChainDatumObject*)self)->datum->header.type_id == DAP_CHAIN_DATUM_TOKEN_EMISSION ){
+    if (((PyDapChainDatumObject*)self)->datum->header.type_id == DAP_CHAIN_DATUM_TOKEN_EMISSION) {
+        size_t l_token_emission_size = ((PyDapChainDatumObject*)self)->datum->header.data_size;
+        dap_chain_datum_token_emission_t *l_token_emission =
+                dap_chain_datum_emission_read(((PyDapChainDatumObject*)self)->datum->data, &l_token_emission_size);
+        if ((void*)l_token_emission->tsd_n_signs + l_token_emission->data.type_auth.tsd_total_size
+                > (void*)l_token_emission + l_token_emission_size)
+        {
+            /*char *l_strerr = dap_strdup_printf("Malformed datum type '%d', TSD sections are out-of-buf (%lu > %lu)",
+                                               l_token_emission->hdr.type, l_token_emission->data.type_auth.tsd_total_size,
+                                               l_token_emission_size);
+            PyErr_SetString(PyExc_ValueError, l_strerr);
+            DAP_DELETE(l_strerr);
+            DAP_DELETE(l_token_emission);
+            return NULL;*/
+            log_it(L_ERROR, "Malformed datum type '%d', TSD sections are out-of-buf (%lu > %lu)",
+                   l_token_emission->hdr.type, l_token_emission->data.type_auth.tsd_total_size,
+                   l_token_emission_size);
+            Py_RETURN_NONE;
+        }
         PyDapChainDatumTokenEmissionObject *obj_emission = PyObject_New(
                 PyDapChainDatumTokenEmissionObject,
                 &DapChainDatumTokenEmissionObjectType
                 );
-        size_t l_token_emission_size = ((PyDapChainDatumObject*)self)->datum->header.data_size;
-        obj_emission->token_emission = dap_chain_datum_emission_read(((PyDapChainDatumObject*)self)->datum->data,
-                                                                     &l_token_emission_size);
+        obj_emission->token_emission = l_token_emission;
         obj_emission->token_size = l_token_emission_size;
         obj_emission->copy = true;
         return (PyObject*)obj_emission;
 
-    }else{
+    } else {
         PyErr_SetString(PyExc_Exception, "Incorrect of a datum type. Can't get a token datum");
         return NULL;
     }
