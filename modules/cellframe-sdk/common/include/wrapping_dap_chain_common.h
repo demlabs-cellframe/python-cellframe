@@ -79,6 +79,7 @@ typedef struct PyDapChainNetId{
 }PyDapChainNetIdObject;
 
 PyObject *dap_chain_net_id_from_str_py(PyObject *self, PyObject *args);
+PyObject *dap_chain_net_id_get_long(PyObject *self, PyObject *args);
 
 extern PyTypeObject DapChainNetIdObjectType;
 
