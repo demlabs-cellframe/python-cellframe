@@ -36,7 +36,8 @@ PyTypeObject DapChainAddrObjectType = DAP_PY_TYPE_OBJECT(
 /* Chain net id */
 static PyMethodDef DapChainNetIdObjectMethods[] = {
         {"fromStr", (PyCFunction)dap_chain_net_id_from_str_py, METH_VARARGS | METH_STATIC, ""},
-        {}
+        {"long", (PyCFunction)dap_chain_net_id_get_long, METH_VARARGS, ""},
+        {NULL}
 };
 
 PyTypeObject DapChainNetIdObjectType = DAP_PY_TYPE_OBJECT(
@@ -181,6 +182,13 @@ PyObject *dap_chain_net_id_from_str_py(PyObject *self, PyObject *args){
     }
     return Py_BuildValue("O", obj_net_id);
 }
+
+PyObject *dap_chain_net_id_get_long(PyObject *self, PyObject *args)
+{
+    uint64_t l_id =((PyDapChainNetIdObject*)self)->net_id.uint64;
+    return Py_BuildValue("L", l_id);
+}
+
 
 /* Chain net srv price unit uid */
 static PyMethodDef PyDapChainNetSrvPriceUnitUID_Methods[] = {
