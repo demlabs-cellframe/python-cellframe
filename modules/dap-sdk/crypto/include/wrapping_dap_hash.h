@@ -40,7 +40,7 @@ typedef struct PyDapHashType{
 PyObject *DAP_HASH_TYPE_KECCAK_PY();
 PyObject *DAP_HASH_TYPE_SLOW_0_PY();
 
-extern PyTypeObject DapHashTypeObject_DapChainHashTypeObjectType;
+extern PyTypeObject DapHashFastObjectType;
 
 /*=================*/
 
