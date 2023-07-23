@@ -8,18 +8,18 @@ static PyMethodDef DapHashTypeMethods[] = {
         {}
 };
 
-PyTypeObject DapHashTypeObject_DapChainHashTypeObjectType = DAP_PY_TYPE_OBJECT(
+PyTypeObject DapHashFastObjectType = DAP_PY_TYPE_OBJECT(
         "DAP.Crypto.HashType", sizeof(PyDapHashTypeObject),
         "Hash type object",
         .tp_methods = DapHashTypeMethods);
 
 PyObject *DAP_HASH_TYPE_KECCAK_PY(){
-    PyObject *obj = _PyObject_New(&DapHashTypeObject_DapChainHashTypeObjectType);
+    PyObject *obj = _PyObject_New(&DapHashFastObjectType);
     ((PyDapHashTypeObject*)obj)->hash_type = DAP_HASH_TYPE_KECCAK;
     return Py_BuildValue("O", obj);
 }
 PyObject *DAP_HASH_TYPE_SLOW_0_PY(){
-    PyObject *obj = _PyObject_New(&DapHashTypeObject_DapChainHashTypeObjectType);
+    PyObject *obj = _PyObject_New(&DapHashFastObjectType);
     ((PyDapHashTypeObject*)obj)->hash_type = DAP_HASH_TYPE_SLOW_0;
     return Py_BuildValue("O", obj);
 }
