@@ -35,9 +35,9 @@ PyObject *wrapping_dap_chain_net_srv_stake_check_validator_full_info(PyObject *s
     (void)self;
     PyObject *obj_chain_net;
     PyObject *obj_tx_hash;
-    uint16_t time_connect;
-    uint16_t time_response;
-    if (!PyArg_ParseTuple(argv, "OOHH", &obj_chain_net, &obj_tx_hash, &time_connect, &time_response)) {
+    uint16_t time_connect = 7000;
+    uint16_t time_response = 12000;
+    if (!PyArg_ParseTuple(argv, "OO|HH", &obj_chain_net, &obj_tx_hash, &time_connect, &time_response)) {
         return NULL;
     }
     if (!PyDapChainNet_Check((PyDapChainNetObject*)obj_chain_net)) {
@@ -45,7 +45,16 @@ PyObject *wrapping_dap_chain_net_srv_stake_check_validator_full_info(PyObject *s
         return NULL;
     }
     if (!PyDapHashFast_Check((PyDapHashFastObject*)obj_tx_hash)) {
-        PyErr_SetString(PyExc_AttributeError, "");
+        PyErr_SetString(PyExc_AttributeError, "The second argument is incorrect. This must be the hash "
+                                              "of the transaction that was made in order to become a validator.");
+        return NULL;
+    }
+    if (time_connect < 1000) {
+        PyErr_SetString(PyExc_AttributeError, "The connection timeout must be greater than 1000ms.");
+        return NULL;
+    }
+    if (time_response < 1000){
+        PyErr_SetString(PyExc_AttributeError, "The timeout for receiving data must be greater than 1000 ms.");
         return NULL;
     }
     dap_stream_ch_chain_validator_test_t l_out = {0};
@@ -54,7 +63,8 @@ PyObject *wrapping_dap_chain_net_srv_stake_check_validator_full_info(PyObject *s
                                             &l_out, time_connect, time_response);
     PyDapStreamChChainValidatorTestObject *obj_rnd = PyObject_New(PyDapStreamChChainValidatorTestObject, &PyDapStreamChChainValidatorTestObjectType);
     obj_rnd->rnd = DAP_NEW_Z_SIZE(dap_stream_ch_chain_validator_test_t, sizeof(dap_stream_ch_chain_validator_test_t) + l_out.header.sign_size);
-    memcpy(obj_rnd->rnd, &l_out, sizeof(dap_stream_ch_chain_validator_test_t) + l_out.header.sign_size);
+    memcpy(obj_rnd->rnd, &l_out, sizeof(dap_stream_ch_chain_validator_test_t));
+    memcpy(obj_rnd->rnd->sign, l_out.sign, l_out.header.sign_size);
     return (PyObject*)obj_rnd;
 }
 
