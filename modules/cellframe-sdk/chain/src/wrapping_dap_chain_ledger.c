@@ -552,7 +552,8 @@ static bool s_python_obj_notificator(UNUSED_ARG dap_proc_thread_t *a_thread, voi
     obj_tx->datum_tx = l_args->tx;
     PyDapHashFastObject *obj_tx_hash = PyObject_NEW(PyDapHashFastObject, &DapHashFastObjectType);
     obj_tx_hash->hash_fast = &l_args->tx_hash;
-    PyObject *l_notify_arg = l_notificator->argv ? ( Py_INCREF(Py_None), Py_None ) : l_notificator->argv;
+    PyObject *l_notify_arg = l_notificator->argv ? Py_None : l_notificator->argv;
+    Py_INCREF(l_notify_arg);
     log_it(L_DEBUG, "Call bridged tx ledger notifier for net %s", l_args->ledger->net_name);
     PyGILState_STATE state = PyGILState_Ensure();
     PyObject *result = PyObject_CallFunctionObjArgs(l_notificator->func, obj_ledger, obj_tx, l_notify_arg);
@@ -565,7 +566,6 @@ static bool s_python_obj_notificator(UNUSED_ARG dap_proc_thread_t *a_thread, voi
         python_error_in_log_it(LOG_TAG);
     Py_XDECREF(result);
     DAP_DELETE(l_args->tx);
-    DAP_DELETE(l_args->arg);
     DAP_DELETE(l_args);
     return true;
 }
@@ -578,6 +578,7 @@ static void s_python_proc_notificator(dap_ledger_t *a_ledger, dap_chain_datum_tx
     l_args->ledger = a_ledger;
     l_args->tx = DAP_DUP_SIZE(a_tx, dap_chain_datum_tx_get_size(a_tx));
     l_args->tx_hash = *a_tx_hash;
+    l_args->arg = a_arg;
     dap_proc_queue_add_callback(dap_events_worker_get_auto(), s_python_obj_notificator, l_args);
 }
 
