@@ -550,13 +550,12 @@ static bool s_python_obj_notificator(UNUSED_ARG dap_proc_thread_t *a_thread, voi
     obj_ledger->ledger = l_args->ledger;
     PyDapChainDatumTxObject *obj_tx = PyObject_NEW(PyDapChainDatumTxObject, &DapChainDatumTxObjectType);
     obj_tx->datum_tx = l_args->tx;
-    PyObject *l_notify_arg = l_notificator->argv ? Py_None : l_notificator->argv;
+    PyObject *l_notify_arg = !l_notificator->argv ? Py_None : l_notificator->argv;
     Py_INCREF(l_notify_arg);
     log_it(L_DEBUG, "Call bridged tx ledger notifier for net %s", l_args->ledger->net_name);
     PyGILState_STATE state = PyGILState_Ensure();
     PyObject *obj_argv = Py_BuildValue("OOO", obj_ledger, obj_tx, l_notify_arg);
     PyObject *result = PyEval_CallObject(l_notificator->func, obj_argv);
-//    PyObject *result = PyObject_CallFunctionObjArgs(l_notificator->func, obj_ledger, obj_tx, l_notify_arg);
     PyGILState_Release(state);
     Py_DECREF(obj_argv);
     Py_DECREF(obj_ledger);
