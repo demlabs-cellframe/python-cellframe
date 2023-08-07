@@ -1,6 +1,7 @@
 #include "libdap-chain-python.h"
 #include "dap_chain_pvt.h"
 #include "python-cellframe_common.h"
+#include "libdap_chain_net_python.h"
 
 #define LOG_TAG "libdap-chain-python"
 
@@ -32,6 +33,7 @@ static PyMethodDef DapChainMethods[] = {
         {"countTx", (PyCFunction)dap_chain_python_get_count_tx, METH_NOARGS, ""},
         {"getTransactions", (PyCFunction)dap_chain_python_get_txs, METH_VARARGS, ""},
         {"getCSName", (PyCFunction)dap_chain_python_get_cs_name, METH_NOARGS, ""},
+        {"getNet", (PyCFunction) dap_chain_python_get_net, METH_NOARGS, ""},
         {}
 };
 
@@ -536,4 +538,11 @@ PyObject *dap_chain_python_get_cs_name(PyObject *self, PyObject *args){
 
 PyObject *PyDapChain_str(PyObject *self){
     return Py_BuildValue("s", ((PyDapChainObject*)self)->chain_t->name);
+}
+
+PyObject *dap_chain_python_get_net(PyObject *self, PyObject *args){
+    (void)args;
+    PyDapChainNetObject *obj_net = PyObject_New(PyDapChainNetObject, &DapChainNetObjectType);
+    obj_net->chain_net = dap_chain_net_by_id(((PyDapChainObject*)self)->chain_t->net_id);
+    return (PyObject*)obj_net;
 }

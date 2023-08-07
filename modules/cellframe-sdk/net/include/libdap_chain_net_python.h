@@ -90,6 +90,7 @@ PyObject *dap_chain_net_get_tx_fee_addr_py(PyObject *self, void *closure);
 PyObject *dap_chain_net_get_validator_max_fee_py(PyObject *self, void *closure);
 PyObject *dap_chain_net_get_validator_min_fee_py(PyObject *self, void *closure);
 PyObject *dap_chain_net_get_validator_average_fee_py(PyObject *self, void *closure);
+PyObject *dap_chain_net_convert_verify_code_to_str(PyObject *self, PyObject *args);
 
 extern PyTypeObject DapChainNetObjectType;
 
