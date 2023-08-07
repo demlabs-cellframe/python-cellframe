@@ -26,6 +26,7 @@ static PyMethodDef DapChainNetMethods[] = {
         {"getName", dap_chain_net_get_name_py, METH_NOARGS, ""},
         {"getTxByHash", dap_chain_net_get_tx_by_hash_py, METH_VARARGS, ""},
         {"addNotify", (PyCFunction)dap_chain_net_add_notify_py, METH_VARARGS, ""},
+        {"verifyCodeToStr", (PyCFunction)dap_chain_net_convert_verify_code_to_str, METH_VARARGS | METH_STATIC, ""},
         {}
 };
 
@@ -391,4 +392,20 @@ PyObject *dap_chain_net_get_validator_average_fee_py(PyObject *self, void *closu
     DapMathObject *l_obj_value = PyObject_New(DapMathObject, &DapMathObjectType);
     l_obj_value->value = l_average;
     return (PyObject*)l_obj_value;
+}
+
+PyObject *dap_chain_net_convert_verify_code_to_str(PyObject *self, PyObject *args){
+    (void)self;
+    PyObject *obj_datum = NULL;
+    unsigned int a_code = 0;
+    if (!PyArg_ParseTuple(args, "OI", &obj_datum, &a_code)) {
+        return NULL;
+    }
+    if (!PyDapChainDatum_Check(obj_datum)) {
+        PyErr_SetString(PyExc_AttributeError, "The first argument was not passed correctly. The first "
+                                              "argument must be an instance of a datum object.");
+        return NULL;
+    }
+    return Py_BuildValue("s", dap_chain_net_verify_datum_err_code_to_str(
+            ((PyDapChainDatumObject*)obj_datum)->datum, (int)a_code));
 }
