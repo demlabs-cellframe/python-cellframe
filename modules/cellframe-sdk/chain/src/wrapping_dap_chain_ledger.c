@@ -1,7 +1,11 @@
 #include "wrapping_dap_chain_ledger.h"
 #include "python-cellframe_common.h"
+#include "dap_proc_queue.h"
+#include "dap_events.h"
 
 #define LOG_TAG "ledger wrapper"
+
+static PyObject *s_bridged_tx_notify_add(PyObject *self, PyObject *args);
 
 static PyMethodDef DapChainLedgerMethods[] = {
         {"setLocalCellId", (PyCFunction)dap_chain_ledger_set_local_cell_id_py, METH_VARARGS, ""},
@@ -31,6 +35,7 @@ static PyMethodDef DapChainLedgerMethods[] = {
         {"txCacheGetOutCondValue", (PyCFunction)dap_chain_ledger_tx_cache_get_out_cond_value_py, METH_VARARGS, ""},
         {"getTransactions", (PyCFunction) dap_chain_ledger_get_txs_py, METH_VARARGS, ""},
         {"txAddNotify", (PyCFunction)dap_chain_ledger_tx_add_notify_py, METH_VARARGS, ""},
+        {"bridgedTxNotifyAdd", (PyCFunction)s_bridged_tx_notify_add, METH_VARARGS, ""},
         {}
 };
 
@@ -226,7 +231,7 @@ PyObject *dap_chain_ledger_tx_cache_check_py(PyObject *self, PyObject *args){
     Py_ssize_t size_list_bound_item = PyList_Size(list_bound_items);
     dap_list_t **bound_items = calloc(sizeof(dap_list_t**), (size_t)size_list_bound_item);
     if (!bound_items) {
-        log_it(L_ERROR, "Memory allocation error in dap_chain_ledger_tx_cache_check_py");
+        log_it(L_ERROR, "Memory allocation error in %s, line %d", __PRETTY_FUNCTION__, __LINE__);
         return NULL;
     }
     for (Py_ssize_t i = 0; i < size_list_bound_item;i++){
@@ -237,7 +242,7 @@ PyObject *dap_chain_ledger_tx_cache_check_py(PyObject *self, PyObject *args){
     Py_ssize_t size_tx_out = PyList_Size(list_tx_out);
     dap_list_t **tx_out = calloc(sizeof(dap_list_t**), (size_t)size_tx_out);
     if (!tx_out) {
-        log_it(L_ERROR, "Memory allocation error in dap_chain_ledger_tx_cache_check_py");
+        log_it(L_ERROR, "Memory allocation error in %s, line %d", __PRETTY_FUNCTION__, __LINE__);
         DAP_DELETE(bound_items);
         return NULL;
     }
@@ -415,7 +420,7 @@ static char*** ListStringToArrayStringFormatChar(PyObject *list){
     Py_ssize_t size = PyList_Size(list);
     char ***data = calloc(sizeof(char**), (size_t)size);
     if(!data) {
-        log_it(L_ERROR, "Memory allocation error in ListStringToArrayStringFormatChar");
+        log_it(L_ERROR, "Memory allocation error in %s, line %d", __PRETTY_FUNCTION__, __LINE__);
         return NULL;
     }
     for (Py_ssize_t i = 0; i < size; i++){
@@ -423,7 +428,7 @@ static char*** ListStringToArrayStringFormatChar(PyObject *list){
         Py_ssize_t size_seentenses = PyList_Size(obj_two);
         char **sentences = calloc(sizeof(char**), (size_t)size_seentenses);
         if(!sentences) {
-            log_it(L_ERROR, "Memory allocation error in ListStringToArrayStringFormatChar");
+        log_it(L_ERROR, "Memory allocation error in %s, line %d", __PRETTY_FUNCTION__, __LINE__);
             DAP_DELETE(data);
             return NULL;
         }
@@ -441,7 +446,7 @@ static size_t *ListIntToSizeT(PyObject *list){
     Py_ssize_t size = PyList_Size(list);
     size_t *res_size_t = calloc(sizeof(size_t), (size_t)size);
     if(!res_size_t) {
-        log_it(L_ERROR, "Memory allocation error in ListIntToSizeT");
+        log_it(L_ERROR, "Memory allocation error in %s, line %d", __PRETTY_FUNCTION__, __LINE__);
         return NULL;
     }
     for (Py_ssize_t i=0; i<size;i++){
@@ -498,7 +503,7 @@ static void pvt_wrapping_dap_chain_ledger_tx_add_notify(void *a_arg, dap_ledger_
     PyObject *notify_arg = !notifier->argv ? Py_None : notifier->argv;
     PyObject *argv = Py_BuildValue("OOO", (PyObject*)obj_ledger, (PyObject*)obj_tx, notify_arg);
     log_it(L_DEBUG, "Call tx added ledger notifier for net %s", a_ledger->net_name);
-    PyObject* result = PyEval_CallObject(notifier->func, argv);
+    PyObject* result = PyObject_CallObject(notifier->func, argv);
     if (!result){
         python_error_in_log_it(LOG_TAG);
     }
@@ -519,7 +524,7 @@ PyObject *dap_chain_ledger_tx_add_notify_py(PyObject *self, PyObject *args) {
     }
     pvt_ledger_notify_t *notifier = DAP_NEW(pvt_ledger_notify_t);
     if(!notifier) {
-        log_it(L_ERROR, "Memory allocation error in dap_chain_ledger_tx_add_notify_py");
+        log_it(L_ERROR, "Memory allocation error in %s, line %d", __PRETTY_FUNCTION__, __LINE__);
         return NULL;
     }
     notifier->func = obj_func;
@@ -530,4 +535,74 @@ PyObject *dap_chain_ledger_tx_add_notify_py(PyObject *self, PyObject *args) {
     Py_RETURN_NONE;
 }
 
+struct py_notificator_callback_args {
+    dap_ledger_t *ledger;
+    dap_chain_datum_tx_t *tx;
+    dap_hash_fast_t tx_hash;
+    void *arg;
+};
 
+static bool s_python_obj_notificator(UNUSED_ARG dap_proc_thread_t *a_thread, void *a_arg)
+{
+    struct py_notificator_callback_args *l_args = a_arg;
+    pvt_ledger_notify_t *l_notificator = l_args->arg;
+    PyDapChainLedgerObject *obj_ledger = PyObject_NEW(PyDapChainLedgerObject, &DapChainLedgerObjectType);
+    obj_ledger->ledger = l_args->ledger;
+    PyDapChainDatumTxObject *obj_tx = PyObject_NEW(PyDapChainDatumTxObject, &DapChainDatumTxObjectType);
+    obj_tx->datum_tx = l_args->tx;
+    PyObject *l_notify_arg = !l_notificator->argv ? Py_None : l_notificator->argv;
+    Py_INCREF(l_notify_arg);
+    log_it(L_DEBUG, "Call bridged tx ledger notifier for net %s", l_args->ledger->net_name);
+    PyGILState_STATE state = PyGILState_Ensure();
+    PyObject *obj_argv = Py_BuildValue("OOO", obj_ledger, obj_tx, l_notify_arg);
+    Py_INCREF(l_notificator->func);
+    PyObject *result = PyEval_CallObject(l_notificator->func, obj_argv);
+    Py_XDECREF(l_notificator->func);
+    Py_DECREF(obj_argv);
+    Py_DECREF(obj_ledger);
+    Py_DECREF(obj_tx);
+    Py_DECREF(l_notify_arg);
+    if (!result)
+        python_error_in_log_it(LOG_TAG);
+    Py_XDECREF(result);
+    DAP_DELETE(l_args->tx);
+    DAP_DELETE(l_args);
+    PyGILState_Release(state);
+    return true;
+}
+
+static void s_python_proc_notificator(dap_ledger_t *a_ledger, dap_chain_datum_tx_t *a_tx, dap_hash_fast_t *a_tx_hash, void *a_arg)
+{
+    if (!a_arg)
+        return;
+    struct py_notificator_callback_args *l_args = DAP_NEW_Z(struct py_notificator_callback_args);
+    l_args->ledger = a_ledger;
+    l_args->tx = DAP_DUP_SIZE(a_tx, dap_chain_datum_tx_get_size(a_tx));
+    l_args->tx_hash = *a_tx_hash;
+    l_args->arg = a_arg;
+    dap_proc_queue_add_callback(dap_events_worker_get_auto(), s_python_obj_notificator, l_args);
+}
+
+static PyObject *s_bridged_tx_notify_add(PyObject *self, PyObject *args)
+{
+    PyObject *obj_func, *obj_argv = NULL;
+    if (!PyArg_ParseTuple(args, "O|O", &obj_func, &obj_argv)) {
+        return NULL;
+    }
+    if (!PyCallable_Check(obj_func)) {
+        PyErr_SetString(PyExc_AttributeError, "This function, as the first argument, must take the"
+                                              " function called by the callback.");
+        return NULL;
+    }
+    pvt_ledger_notify_t *l_notificator = DAP_NEW(pvt_ledger_notify_t);
+    if (!l_notificator) {
+        log_it(L_ERROR, "Memory allocation error in %s, line %d", __PRETTY_FUNCTION__, __LINE__);
+        return NULL;
+    }
+    l_notificator->func = obj_func;
+    l_notificator->argv = obj_argv;
+    Py_INCREF(obj_func);
+    Py_XINCREF(obj_argv);
+    dap_chain_ledger_bridged_tx_notify_add(((PyDapChainLedgerObject*)self)->ledger, s_python_proc_notificator, l_notificator);
+    Py_RETURN_NONE;
+}

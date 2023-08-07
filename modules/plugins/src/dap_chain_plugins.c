@@ -266,7 +266,7 @@ void dap_chain_plugins_load_plugin_initialization(){
             PyObject *l_void_tuple = PyTuple_New(0);
             PyGILState_STATE l_gil_state;
             l_gil_state = PyGILState_Ensure();
-            l_res_int = PyEval_CallObject(l_func_init, l_void_tuple);
+            l_res_int = PyObject_CallObject(l_func_init, l_void_tuple);
             PyGILState_Release(l_gil_state);
             if (l_res_int && PyLong_Check(l_res_int)) {
                 if (_PyLong_AsInt(l_res_int) == 0) {
@@ -307,7 +307,7 @@ void dap_chain_plugins_load_plugin(const char *a_dir_path, const char *a_name){
     PyErr_Clear();
     if (l_func_init != NULL && PyCallable_Check(l_func_init)){
         PyObject *l_void_tuple = PyTuple_New(0);
-        l_res_int = PyEval_CallObject(l_func_init, l_void_tuple);
+        l_res_int = PyObject_CallObject(l_func_init, l_void_tuple);
         if (l_res_int && PyLong_Check(l_res_int)){
             if (_PyLong_AsInt(l_res_int) == 0){
                 dap_chain_plugins_list_add(l_module, a_name);
@@ -339,7 +339,7 @@ void dap_chain_plugins_deinit(){
         PyObject *l_func_deinit = PyObject_GetAttrString(l_plugin->obj_module, "deinit");
         PyObject *l_void_tuple = PyTuple_New(0);
         if (l_func_deinit != NULL || PyCallable_Check(l_func_deinit)){
-            l_res_int = PyEval_CallObject(l_func_deinit, l_void_tuple);
+            l_res_int = PyObject_CallObject(l_func_deinit, l_void_tuple);
         } else {
             log_it(L_WARNING, "The 'deinit' object of \"%s\" plugin isn't a callable", l_plugin->name);
         }
@@ -362,7 +362,7 @@ int dap_chain_plugins_reload_plugin(const char * a_name_plugin){
         return -4;
     PyObject *l_func_deinit = PyObject_GetAttrString(l_plugin->obj_module, "deinit");
     if (l_func_deinit != NULL || PyCallable_Check(l_func_deinit)){
-        PyEval_CallObject(l_func_deinit, NULL);
+        PyObject_CallObject(l_func_deinit, NULL);
     } else {
         log_it(L_WARNING, "The 'deinit' object of \"%s\" plugin isn't a callable", l_plugin->name);
     }

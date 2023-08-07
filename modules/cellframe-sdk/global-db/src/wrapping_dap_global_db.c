@@ -161,7 +161,7 @@ bool dap_py_chain_net_extra_group_notifier(UNUSED_ARG dap_proc_thread_t *a_poc_t
     PyObject *argv = Py_BuildValue("sssOO", l_op_code, l_callback->store_obj->group, l_callback->store_obj->key, l_obj_value, l_callback->arg);
     Py_XINCREF(l_callback->func);
     Py_XINCREF(l_callback->arg);
-    PyEval_CallObject(l_callback->func, argv);
+    PyObject_CallObject(l_callback->func, argv);
     Py_DECREF(argv);
     Py_XDECREF(l_callback->func);
     Py_XDECREF(l_callback->arg);

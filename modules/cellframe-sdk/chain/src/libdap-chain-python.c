@@ -271,7 +271,7 @@ bool dap_py_mempool_notifier(UNUSED_ARG dap_proc_thread_t *a_poc_thread, void *a
     log_it(L_DEBUG, "Call mempool notifier with key '%s'", l_obj->key ? l_obj->key : "null");
     Py_XINCREF(l_callback->arg);
     Py_XINCREF(l_callback->func);
-    PyEval_CallObject(l_callback->func, l_args);
+    PyObject_CallObject(l_callback->func, l_args);
     Py_XDECREF(l_args);
     Py_XDECREF(l_callback->func);
     Py_XDECREF(l_callback->arg);
@@ -287,7 +287,7 @@ static void _wrapping_dap_chain_mempool_notify_handler(UNUSED_ARG dap_global_db_
     // Notify python context from proc thread to avoid deadlock in GDB context with GIL accuire trying
     _wrapping_chain_mempool_notify_callback_t *l_obj = DAP_NEW(_wrapping_chain_mempool_notify_callback_t);
     if (!l_obj) {
-        log_it(L_ERROR, "Memory allocation error in _wrapping_dap_chain_mempool_notify_handler");
+        log_it(L_ERROR, "Memory allocation error in %s, line %d", __PRETTY_FUNCTION__, __LINE__);
         return;
     }
     l_obj->obj = dap_store_obj_copy(a_obj, 1);
@@ -324,7 +324,7 @@ static void _wrapping_dap_chain_atom_notify_handler(void * a_arg, dap_chain_t *a
     }
 
     log_it(L_DEBUG, "Call atom notifier for chain %s with atom size %zd", a_chain->name, a_atom_size );
-    PyObject *result = PyEval_CallObject(l_callback->func, l_args);
+    PyObject *result = PyObject_CallObject(l_callback->func, l_args);
     if (!result) {
         python_error_in_log_it(LOG_TAG);
     }
@@ -354,7 +354,7 @@ PyObject *dap_chain_python_add_mempool_notify_callback(PyObject *self, PyObject 
     }
     _wrapping_chain_mempool_notify_callback_t *l_callback = DAP_NEW_Z(_wrapping_chain_mempool_notify_callback_t);
     if (!l_callback) {
-        log_it(L_ERROR, "Memory allocation error in dap_chain_python_add_mempool_notify_callback");
+        log_it(L_ERROR, "Memory allocation error in %s, line %d", __PRETTY_FUNCTION__, __LINE__);
         return NULL;
     }
     l_callback->func = obj_func;
@@ -386,7 +386,7 @@ PyObject *dap_chain_net_add_atom_notify_callback(PyObject *self, PyObject *args)
     }
     _wrapping_chain_mempool_notify_callback_t *l_callback = DAP_NEW_Z(_wrapping_chain_mempool_notify_callback_t);
     if (!l_callback) {
-        log_it(L_ERROR, "Memory allocation error in dap_chain_net_add_atom_notify_callback");
+        log_it(L_ERROR, "Memory allocation error in %s, line %d", __PRETTY_FUNCTION__, __LINE__);
         return NULL;
     }
     l_callback->func = obj_func;

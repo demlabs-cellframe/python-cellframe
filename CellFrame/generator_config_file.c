@@ -32,7 +32,7 @@ char* getCharFromPyObject(PyObject *obj){
         size_t size_bytes = (size_t)PyBytes_Size(obj);
         res = calloc(size_bytes+1, sizeof(char));
         if (!res) {
-            log_it(L_ERROR, "Memory allocation error in getCharFromPyObject");
+            log_it(L_ERROR, "Memory allocation error in %s, line %d", __PRETTY_FUNCTION__, __LINE__);
             return NULL;
         }
         memcpy(res, PyBytes_AsString(obj), size_bytes);

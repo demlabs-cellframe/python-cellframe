@@ -60,7 +60,7 @@ void _wrapping_handler_add_order_notify(dap_global_db_context_t *a_context, dap_
     l_op_code[0] = a_obj->type;
     l_op_code[1] = '\0';
     PyObject *l_args = Py_BuildValue("sssOO", l_op_code, a_obj->group, a_obj->key, l_obj_order, l_callback->arg);
-    PyEval_CallObject(l_callback->func, l_args);
+    PyObject_CallObject(l_callback->func, l_args);
     Py_DECREF(l_args);
     PyGILState_Release(state);
 }
@@ -398,7 +398,7 @@ PyObject *wrapping_dap_chain_net_srv_order_add_notify_callback(PyObject *self, P
     }
     _wrapping_order_callable_t *l_callback = DAP_NEW(_wrapping_order_callable_t);
     if (!l_callback) {
-        log_it(L_ERROR, "Memory allocation error in wrapping_dap_chain_net_srv_order_add_notify_callback");
+        log_it(L_ERROR, "Memory allocation error in %s, line %d", __PRETTY_FUNCTION__, __LINE__);
         return NULL;
     }
     l_callback->func = func_call;
