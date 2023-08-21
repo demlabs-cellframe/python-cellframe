@@ -371,7 +371,7 @@ PyObject *dap_chain_net_get_tx_fee_addr_py(PyObject *self, void *closure){
 PyObject *dap_chain_net_get_validator_max_fee_py(PyObject *self, void *closure){
     (void)closure;
     uint256_t l_max = {0};
-    dap_chain_net_srv_stake_get_fee_validators(((PyDapChainNetObject*)self)->chain_net, &l_max, NULL, NULL);
+    dap_chain_net_srv_stake_get_fee_validators(((PyDapChainNetObject*)self)->chain_net, &l_max, NULL, NULL, NULL);
     DapMathObject *l_obj_value = PyObject_New(DapMathObject, &DapMathObjectType);
     l_obj_value->value = l_max;
     return (PyObject*)l_obj_value;
@@ -379,7 +379,7 @@ PyObject *dap_chain_net_get_validator_max_fee_py(PyObject *self, void *closure){
 PyObject *dap_chain_net_get_validator_min_fee_py(PyObject *self, void *closure){
     (void)closure;
     uint256_t l_min = {0};
-    dap_chain_net_srv_stake_get_fee_validators(((PyDapChainNetObject*)self)->chain_net, NULL, NULL, &l_min);
+    dap_chain_net_srv_stake_get_fee_validators(((PyDapChainNetObject*)self)->chain_net, NULL, NULL, &l_min, NULL);
     DapMathObject *l_obj_value = PyObject_New(DapMathObject, &DapMathObjectType);
     l_obj_value->value = l_min;
     return (PyObject*)l_obj_value;
@@ -387,7 +387,7 @@ PyObject *dap_chain_net_get_validator_min_fee_py(PyObject *self, void *closure){
 PyObject *dap_chain_net_get_validator_average_fee_py(PyObject *self, void *closure){
     (void)closure;
     uint256_t l_average = {0};
-    dap_chain_net_srv_stake_get_fee_validators(((PyDapChainNetObject*)self)->chain_net, NULL, &l_average, NULL);
+    dap_chain_net_srv_stake_get_fee_validators(((PyDapChainNetObject*)self)->chain_net, NULL, &l_average, NULL, NULL);
     DapMathObject *l_obj_value = PyObject_New(DapMathObject, &DapMathObjectType);
     l_obj_value->value = l_average;
     return (PyObject*)l_obj_value;
