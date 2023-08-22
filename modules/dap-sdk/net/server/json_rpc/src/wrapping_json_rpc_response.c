@@ -19,10 +19,10 @@ int wrapping_json_rpc_response_set_result(PyObject *self, PyObject *value, void 
     UNUSED(closure);
     dap_json_rpc_response_t *l_resp = ((PyDapJSONRPCResponseObject*)self)->response;
     if (value == NULL){
-        if (l_resp->type_result == TYPE_RESPONSE_STRING){
+        if (l_resp->type == TYPE_RESPONSE_STRING){
             DAP_FREE(l_resp->result_string);
         }
-        l_resp->type_result = TYPE_RESPONSE_NULL;
+        l_resp->type = TYPE_RESPONSE_NULL;
         return 0;
     }
     if(PyUnicode_Check(value)){
@@ -30,7 +30,7 @@ int wrapping_json_rpc_response_set_result(PyObject *self, PyObject *value, void 
         size_t l_size_str = dap_strlen(tmp_ptr);
         l_resp->result_string = DAP_NEW_SIZE(char, l_size_str);
         memcpy(l_resp->result_string, tmp_ptr, l_size_str);
-        l_resp->type_result = TYPE_RESPONSE_STRING;
+        l_resp->type = TYPE_RESPONSE_STRING;
     }
     if (PyBool_Check(value)){
         if (value == Py_True){
@@ -38,23 +38,23 @@ int wrapping_json_rpc_response_set_result(PyObject *self, PyObject *value, void 
         } else {
             l_resp->result_boolean = false;
         }
-        l_resp->type_result = TYPE_RESPONSE_BOOLEAN;
+        l_resp->type = TYPE_RESPONSE_BOOLEAN;
     }
     if (PyLong_Check(value)){
         int tmp = _PyLong_AsInt(value);
         l_resp->result_int = tmp;
-        l_resp->type_result = TYPE_RESPONSE_INTEGER;
+        l_resp->type = TYPE_RESPONSE_INTEGER;
     }
     if (PyFloat_Check(value)){
         l_resp->result_double = PyFloat_AsDouble(value);
-        l_resp->type_result = TYPE_RESPONSE_DOUBLE;
+        l_resp->type = TYPE_RESPONSE_DOUBLE;
     }
     return 0;
 }
 PyObject *wrapping_json_rpc_response_get_result(PyObject *self, void *closure){
     UNUSED(closure);
     dap_json_rpc_response_t *l_resp = ((PyDapJSONRPCResponseObject*)self)->response;
-    switch (l_resp->type_result) {
+    switch (l_resp->type) {
     case TYPE_RESPONSE_BOOLEAN:
         if (l_resp->result_boolean)
             Py_RETURN_TRUE;
