@@ -135,6 +135,9 @@ PyObject *wrapping_dap_global_db_gr_load(PyObject *self, PyObject *args){
         l_obj->obj = l_db_obj[i];
         PyList_SetItem(l_list, i, (PyObject*)l_obj);
     }
+
+    DAP_DELETE(l_db_obj); 
+    
     return l_list;
 }
 
