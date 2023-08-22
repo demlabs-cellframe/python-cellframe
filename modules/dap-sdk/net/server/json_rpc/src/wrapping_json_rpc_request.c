@@ -15,7 +15,7 @@ PyTypeObject DapJsonRpcRequestObjectType = DAP_PY_TYPE_OBJECT(
 struct _w_json_rpc_handler *handlers = NULL;
 
 void _w_dap_json_rpc_request_handler(dap_json_rpc_params_t *a_params, dap_json_rpc_response_t *a_response, const char *a_method){
-    int count_params = a_params->lenght;
+    int count_params = a_params->length;
     PyGILState_STATE GILState = PyGILState_Ensure();
     PyDapJSONRPCResponseObject *obj_response = PyObject_NEW(PyDapJSONRPCResponseObject, &DapJsonRpcResponseobjectType);
     obj_response->response = a_response;
