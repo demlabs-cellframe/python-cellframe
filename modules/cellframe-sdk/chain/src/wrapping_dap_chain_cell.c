@@ -30,7 +30,7 @@ PyObject *dap_chain_cell_load_py(PyObject *self, PyObject *args){
     const char *cell_file_path;
     if (!PyArg_ParseTuple(args, "O|s", &obj_chain, &cell_file_path))
         return NULL;
-    int res = dap_chain_cell_load(((PyDapChainObject*)obj_chain)->chain_t, cell_file_path);
+    int res = 0;//dap_chain_cell_load(((PyDapChainObject*)obj_chain)->chain_t, cell_file_path);
     return PyLong_FromLong(res);
 }
 PyObject *dap_chain_cell_file_update_py(PyObject *self, PyObject *args){

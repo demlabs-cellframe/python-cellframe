@@ -231,7 +231,7 @@ PyObject *dap_chain_ledger_tx_cache_check_py(PyObject *self, PyObject *args){
     Py_ssize_t size_list_bound_item = PyList_Size(list_bound_items);
     dap_list_t **bound_items = calloc(sizeof(dap_list_t**), (size_t)size_list_bound_item);
     if (!bound_items) {
-        log_it(L_ERROR, "Memory allocation error in %s, line %d", __PRETTY_FUNCTION__, __LINE__);
+        log_it(L_CRITICAL, "Memory allocation error");
         return NULL;
     }
     for (Py_ssize_t i = 0; i < size_list_bound_item;i++){
@@ -242,7 +242,7 @@ PyObject *dap_chain_ledger_tx_cache_check_py(PyObject *self, PyObject *args){
     Py_ssize_t size_tx_out = PyList_Size(list_tx_out);
     dap_list_t **tx_out = calloc(sizeof(dap_list_t**), (size_t)size_tx_out);
     if (!tx_out) {
-        log_it(L_ERROR, "Memory allocation error in %s, line %d", __PRETTY_FUNCTION__, __LINE__);
+        log_it(L_CRITICAL, "Memory allocation error");
         DAP_DELETE(bound_items);
         return NULL;
     }
@@ -420,7 +420,7 @@ static char*** ListStringToArrayStringFormatChar(PyObject *list){
     Py_ssize_t size = PyList_Size(list);
     char ***data = calloc(sizeof(char**), (size_t)size);
     if(!data) {
-        log_it(L_ERROR, "Memory allocation error in %s, line %d", __PRETTY_FUNCTION__, __LINE__);
+        log_it(L_CRITICAL, "Memory allocation error");
         return NULL;
     }
     for (Py_ssize_t i = 0; i < size; i++){
@@ -428,7 +428,7 @@ static char*** ListStringToArrayStringFormatChar(PyObject *list){
         Py_ssize_t size_seentenses = PyList_Size(obj_two);
         char **sentences = calloc(sizeof(char**), (size_t)size_seentenses);
         if(!sentences) {
-        log_it(L_ERROR, "Memory allocation error in %s, line %d", __PRETTY_FUNCTION__, __LINE__);
+        log_it(L_CRITICAL, "Memory allocation error");
             DAP_DELETE(data);
             return NULL;
         }
@@ -446,7 +446,7 @@ static size_t *ListIntToSizeT(PyObject *list){
     Py_ssize_t size = PyList_Size(list);
     size_t *res_size_t = calloc(sizeof(size_t), (size_t)size);
     if(!res_size_t) {
-        log_it(L_ERROR, "Memory allocation error in %s, line %d", __PRETTY_FUNCTION__, __LINE__);
+        log_it(L_CRITICAL, "Memory allocation error");
         return NULL;
     }
     for (Py_ssize_t i=0; i<size;i++){
@@ -524,7 +524,7 @@ PyObject *dap_chain_ledger_tx_add_notify_py(PyObject *self, PyObject *args) {
     }
     pvt_ledger_notify_t *notifier = DAP_NEW(pvt_ledger_notify_t);
     if(!notifier) {
-        log_it(L_ERROR, "Memory allocation error in %s, line %d", __PRETTY_FUNCTION__, __LINE__);
+        log_it(L_CRITICAL, "Memory allocation error");
         return NULL;
     }
     notifier->func = obj_func;
@@ -596,7 +596,7 @@ static PyObject *s_bridged_tx_notify_add(PyObject *self, PyObject *args)
     }
     pvt_ledger_notify_t *l_notificator = DAP_NEW(pvt_ledger_notify_t);
     if (!l_notificator) {
-        log_it(L_ERROR, "Memory allocation error in %s, line %d", __PRETTY_FUNCTION__, __LINE__);
+        log_it(L_CRITICAL, "Memory allocation error");
         return NULL;
     }
     l_notificator->func = obj_func;

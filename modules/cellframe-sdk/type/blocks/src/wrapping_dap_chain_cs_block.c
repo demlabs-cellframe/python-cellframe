@@ -75,7 +75,7 @@ PyObject *wrapping_dap_chain_block_get_meta_data(PyObject *self, void *closure){
     PyDapHashFastObject *l_obj_prev_hash = PyObject_New(PyDapHashFastObject, &DapChainHashFastObjectType);
     l_obj_prev_hash->hash_fast = DAP_NEW(dap_chain_hash_fast_t);
     if (!l_obj_prev_hash->hash_fast) {
-        log_it(L_ERROR, "Memory allocation error in %s, line %d", __PRETTY_FUNCTION__, __LINE__);
+        log_it(L_CRITICAL, "Memory allocation error");
         return NULL;
     }
 
@@ -85,7 +85,7 @@ PyObject *wrapping_dap_chain_block_get_meta_data(PyObject *self, void *closure){
     PyDapHashFastObject *l_obj_anchor_hash = PyObject_New(PyDapHashFastObject, &DapChainHashFastObjectType);
     l_obj_anchor_hash->hash_fast = DAP_NEW(dap_chain_hash_fast_t);
     if (!l_obj_anchor_hash->hash_fast) {
-        log_it(L_ERROR, "Memory allocation error in %s, line %d", __PRETTY_FUNCTION__, __LINE__);
+        log_it(L_CRITICAL, "Memory allocation error");
         DAP_DEL_Z(l_obj_prev_hash->hash_fast);
         return NULL;
     }
@@ -96,7 +96,7 @@ PyObject *wrapping_dap_chain_block_get_meta_data(PyObject *self, void *closure){
     PyDapHashFastObject *l_obj_merkle = PyObject_New(PyDapHashFastObject, &DapChainHashFastObjectType);
     l_obj_merkle->hash_fast = DAP_NEW(dap_chain_hash_fast_t);
     if (!l_obj_merkle->hash_fast) {
-        log_it(L_ERROR, "Memory allocation error in %s, line %d", __PRETTY_FUNCTION__, __LINE__);
+        log_it(L_CRITICAL, "Memory allocation error");
         DAP_DEL_Z(l_obj_anchor_hash->hash_fast);
         DAP_DEL_Z(l_obj_prev_hash->hash_fast);
         return NULL;
@@ -111,7 +111,7 @@ PyObject *wrapping_dap_chain_block_get_meta_data(PyObject *self, void *closure){
         PyDapHashFastObject *obj_hf = PyObject_New(PyDapHashFastObject, &DapChainHashFastObjectType);
         obj_hf->hash_fast = DAP_NEW(dap_chain_hash_fast_t);
         if (!obj_hf->hash_fast) {
-            log_it(L_ERROR, "Memory allocation error in %s, line %d", __PRETTY_FUNCTION__, __LINE__);
+            log_it(L_CRITICAL, "Memory allocation error");
             DAP_DEL_Z(l_obj_merkle->hash_fast);
             DAP_DEL_Z(l_obj_anchor_hash->hash_fast);
             DAP_DEL_Z(l_obj_prev_hash->hash_fast);
