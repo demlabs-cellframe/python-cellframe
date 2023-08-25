@@ -206,7 +206,8 @@ PyObject *wrapping_dap_chain_block_get_ledger_ret_code(PyObject *self, PyObject 
                                               "instance of a DapHashFast object.");
         return NULL;
     }
-    int l_ledger_ret_code = dap_chain_cs_block_get_ret_code_ledger(chain->chain_t, obj_datum_hash->hash_fast);
+    int l_ledger_ret_code = 0;
+    chain->chain_t->callback_datum_find_by_hash(chain->chain_t, obj_datum_hash->hash_fast, NULL, &l_ledger_ret_code);
     if (l_ledger_ret_code == -1) {
         Py_RETURN_NONE;
     } else {
@@ -232,7 +233,7 @@ PyObject *wrapping_dap_chain_block_get_block_from_hash(PyObject *self, PyObject 
         return NULL;
     }
     size_t l_block_size = 0;
-    dap_chain_block_t *l_blocks = dap_chain_cs_blocks_get_block_find_by_tx_hash(obj_chain->chain_t, obj_datum_hash->hash_fast, &l_block_size);
+    dap_chain_block_t *l_blocks = (dap_chain_block_t *)obj_chain->chain_t->callback_block_find_by_tx_hash(obj_chain->chain_t, obj_datum_hash->hash_fast, &l_block_size);
     if (!l_blocks || l_block_size == 0) {
         Py_RETURN_NONE;
     }
