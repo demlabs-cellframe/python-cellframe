@@ -1,4 +1,5 @@
 #include "wrapping_dap_chain_cs_block.h"
+#include "dap_chain_cs_blocks.h"
 
 #define LOG_TAG "CS blocks wrapper"
 
@@ -17,6 +18,8 @@ static PyGetSetDef DapChainCsBlockGetsSetsDef[] = {
 
 static PyMethodDef DapChainCsBlockMethods[] = {
         {"fromAtom", dap_chain_cs_block_get_atom, METH_VARARGS | METH_STATIC, ""},
+        {"ledgerRetCode", wrapping_dap_chain_block_get_ledger_ret_code, METH_VARARGS | METH_STATIC, ""},
+        {"byTxHash", wrapping_dap_chain_block_get_block_from_hash, METH_VARARGS | METH_STATIC, ""},
         {}
 };
 
@@ -184,5 +187,58 @@ PyObject* dap_chain_cs_block_get_atom(PyObject *self, PyObject *args){
     obj_block->block = (dap_chain_block_t *)((PyChainAtomObject*)obj_atom_ptr)->atom;
     obj_block->block_size =  ((PyChainAtomObject*)obj_atom_ptr)->atom_size;
 
+    return (PyObject*)obj_block;
+}
+
+PyObject *wrapping_dap_chain_block_get_ledger_ret_code(PyObject *self, PyObject *argv){
+    PyDapChainObject *chain;
+    PyDapHashFastObject *obj_datum_hash;
+    if (!PyArg_ParseTuple(argv, "OO", &chain, &obj_datum_hash)) {
+        return NULL;
+    }
+    if (!PyDapChain_Check(chain)) {
+        PyErr_SetString(PyExc_AttributeError, "The first argument is set incorrectly, it must be a "
+                                              "network chain.");
+        return NULL;
+    }
+    if (!PyDapHashFast_Check(obj_datum_hash)) {
+        PyErr_SetString(PyExc_AttributeError, "The second argument is set incorrectly and must be an "
+                                              "instance of a DapHashFast object.");
+        return NULL;
+    }
+    int l_ledger_ret_code = 0;
+    chain->chain_t->callback_datum_find_by_hash(chain->chain_t, obj_datum_hash->hash_fast, NULL, &l_ledger_ret_code);
+    if (l_ledger_ret_code == -1) {
+        Py_RETURN_NONE;
+    } else {
+        return Py_BuildValue("I", l_ledger_ret_code);
+    }
+}
+
+PyObject *wrapping_dap_chain_block_get_block_from_hash(PyObject *self, PyObject *argv){
+    (void)self;
+    PyDapHashFastObject  *obj_datum_hash;
+    PyDapChainObject  *obj_chain;
+    if (!PyArg_ParseTuple(argv, "OO", &obj_chain, &obj_datum_hash)) {
+        return NULL;
+    }
+    if (!PyDapChain_Check(obj_chain)) {
+        PyErr_SetString(PyExc_AttributeError, "The first argument is set incorrectly, it must be a "
+                                              "network chain.");
+        return NULL;
+    }
+    if (!PyDapHashFast_Check(obj_datum_hash)) {
+        PyErr_SetString(PyExc_AttributeError, "The second argument is set incorrectly and must be an "
+                                              "instance of a DapHashFast object.");
+        return NULL;
+    }
+    size_t l_block_size = 0;
+    dap_chain_block_t *l_blocks = (dap_chain_block_t *)obj_chain->chain_t->callback_block_find_by_tx_hash(obj_chain->chain_t, obj_datum_hash->hash_fast, &l_block_size);
+    if (!l_blocks || l_block_size == 0) {
+        Py_RETURN_NONE;
+    }
+    PyDapChainCSBlockObject *obj_block = PyObject_NEW(PyDapChainCSBlockObject, &DapChainCsBlockType);
+    obj_block->block = l_blocks;
+    obj_block->block_size = l_block_size;
     return (PyObject*)obj_block;
 }
