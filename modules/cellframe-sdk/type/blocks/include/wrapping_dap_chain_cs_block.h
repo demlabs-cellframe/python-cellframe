@@ -24,6 +24,7 @@ PyObject *wrapping_dap_chain_block_get_datums(PyObject *self, void *closure);
 PyObject *wrapping_dap_chain_block_get_signs(PyObject *self, void *closure);
 PyObject *wrapping_dap_chain_block_get_hash(PyObject *self, void *closure);
 PyObject *wrapping_dap_chain_block_get_ledger_ret_code(PyObject *self, PyObject *argv);
+PyObject *wrapping_dap_chain_block_get_block_from_hash(PyObject *self, PyObject *argv);
 //PyObject *wrapping_dap_chain_block_get_block_cache(PyObject *self, void *closure);
 
 PyObject* dap_chain_cs_block_get_atom(PyObject *self, PyObject *args);
