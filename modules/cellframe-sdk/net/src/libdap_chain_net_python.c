@@ -300,7 +300,10 @@ bool dap_py_chain_net_gdb_notifier(UNUSED_ARG dap_proc_thread_t *a_poc_thread, v
     Py_XINCREF(l_callback->func);
     Py_XINCREF(l_callback->arg);
     PyObject_CallObject(l_callback->func, argv);
-    Py_DECREF(argv);
+    
+    if (argv)
+        Py_DECREF(argv);
+
     Py_XDECREF(l_callback->func);
     Py_XDECREF(l_callback->arg);
     PyGILState_Release(state);
