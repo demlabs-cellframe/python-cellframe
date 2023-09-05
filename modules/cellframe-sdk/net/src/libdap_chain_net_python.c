@@ -38,6 +38,7 @@ static PyGetSetDef DapChainNetGetsSetsDef[] = {
         {"validatorAverageFee", (getter)dap_chain_net_get_validator_average_fee_py, NULL, NULL, NULL},
         {"validatorMinFee", (getter)dap_chain_net_get_validator_min_fee_py, NULL, NULL, NULL},
         {"nativeTicker", (getter)dap_chain_net_get_native_ticker_py, NULL, NULL, NULL},
+        {"autoproc", (getter)dap_chain_net_get_mempool_autoproc_py, NULL, NULL, NULL},
         {}
 };
 
