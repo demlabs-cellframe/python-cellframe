@@ -8,10 +8,21 @@ static PyGetSetDef DapChainGlobalDBContainerGetSet[] = {
         {NULL}
 };
 
+
+void PyDapChainGlobalDBObject_dealloc(PyObject *self) {
+    
+    DAP_DEL_Z(((PyDapChainGlobalDBContainerObject*)self)->obj.key);
+    DAP_DEL_Z(((PyDapChainGlobalDBContainerObject*)self)->obj.value);
+    PyTypeObject *tp = Py_TYPE(self);
+    tp->tp_free(self);
+}
+
 PyTypeObject DapChainGlobalDBContainerObjectType = DAP_PY_TYPE_OBJECT(
         "CellFrame.ChainGlobalDBContainer", sizeof(PyDapChainGlobalDBContainerObject),
         "Chain GlobalDB container object",
-        .tp_getset = DapChainGlobalDBContainerGetSet);
+        .tp_getset = DapChainGlobalDBContainerGetSet,
+        .tp_dealloc = PyDapChainGlobalDBObject_dealloc
+        );
 
 PyObject *wrapping_dap_global_db_obj_get_id(PyObject *self, void *closure){
     (void)closure;
