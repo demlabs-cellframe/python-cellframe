@@ -91,6 +91,8 @@ PyObject *dap_chain_net_get_validator_max_fee_py(PyObject *self, void *closure);
 PyObject *dap_chain_net_get_validator_min_fee_py(PyObject *self, void *closure);
 PyObject *dap_chain_net_get_validator_average_fee_py(PyObject *self, void *closure);
 PyObject *dap_chain_net_convert_verify_code_to_str(PyObject *self, PyObject *args);
+PyObject *dap_chain_net_get_native_ticker_py(PyObject *self, void *closure);
+PyObject *dap_chain_net_get_mempool_autoproc_py(PyObject *self, void *closure);
 
 extern PyTypeObject DapChainNetObjectType;
 

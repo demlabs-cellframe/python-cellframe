@@ -38,6 +38,8 @@ static PyGetSetDef DapChainNetGetsSetsDef[] = {
         {"validatorMaxFee", (getter)dap_chain_net_get_validator_max_fee_py, NULL, NULL, NULL},
         {"validatorAverageFee", (getter)dap_chain_net_get_validator_average_fee_py, NULL, NULL, NULL},
         {"validatorMinFee", (getter)dap_chain_net_get_validator_min_fee_py, NULL, NULL, NULL},
+        {"nativeTicker", (getter)dap_chain_net_get_native_ticker_py, NULL, NULL, NULL},
+        {"autoproc", (getter)dap_chain_net_get_mempool_autoproc_py, NULL, NULL, NULL},
         {}
 };
 
@@ -301,7 +303,10 @@ bool dap_py_chain_net_gdb_notifier(UNUSED_ARG dap_proc_thread_t *a_poc_thread, v
     Py_XINCREF(l_callback->func);
     Py_XINCREF(l_callback->arg);
     PyObject_CallObject(l_callback->func, argv);
-    Py_DECREF(argv);
+    
+    if (argv)
+        Py_DECREF(argv);
+
     Py_XDECREF(l_callback->func);
     Py_XDECREF(l_callback->arg);
     PyGILState_Release(state);
@@ -408,4 +413,15 @@ PyObject *dap_chain_net_convert_verify_code_to_str(PyObject *self, PyObject *arg
     }
     return Py_BuildValue("s", dap_chain_net_verify_datum_err_code_to_str(
             ((PyDapChainDatumObject*)obj_datum)->datum, (int)a_code));
+}
+PyObject *dap_chain_net_get_native_ticker_py(PyObject *self, void *closure){
+    (void)closure;
+    return Py_BuildValue("s", ((PyDapChainNetObject*)self)->chain_net->pub.native_ticker);
+}
+
+PyObject *dap_chain_net_get_mempool_autoproc_py(PyObject *self, void *closure)
+{
+    (void)closure;
+    bool autoproc =  ((PyDapChainNetObject*)self)->chain_net->pub.mempool_autoproc;    
+    return Py_BuildValue("O", autoproc ? Py_True: Py_False);
 }
