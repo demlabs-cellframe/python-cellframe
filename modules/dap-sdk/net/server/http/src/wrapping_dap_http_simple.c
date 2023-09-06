@@ -76,7 +76,7 @@ void wrapping_dap_http_simple_callback(dap_http_simple_t *sh, void *obj){
         *ret = Http_Status_InternalServerError;
     }
     *ret = ((PyHttpStatusCodeObject*)obj_http_status_code)->http_status;
-    if (!Py_IsNone(obj_http_simple->response_http_header)) {
+    if (obj_http_simple->response_http_header != Py_None) {
         for (dap_http_header_t *i = ((PyDapHttpHeaderObject*)obj_http_simple->response_http_header)->header; i; i = i->next) {
             dap_http_header_add(&obj_http_simple->sh->ext_headers, i->name, i->value);
         }
@@ -170,7 +170,7 @@ PyObject *dap_http_simple_set_flag_generate_default_header_py(PyObject *self, Py
                                               "The function takes a boolean value as an input argument.");
         return NULL;
     }
-    ((PyDapHttpSimpleObject*)self)->sh->generate_default_header = Py_IsTrue(flag) ? true : false;
+    ((PyDapHttpSimpleObject*)self)->sh->generate_default_header = (flag == Py_True) ? true : false;
     Py_RETURN_NONE;
 }
 
