@@ -37,6 +37,8 @@ static PyGetSetDef DapChainNetGetsSetsDef[] = {
         {"validatorMaxFee", (getter)dap_chain_net_get_validator_max_fee_py, NULL, NULL, NULL},
         {"validatorAverageFee", (getter)dap_chain_net_get_validator_average_fee_py, NULL, NULL, NULL},
         {"validatorMinFee", (getter)dap_chain_net_get_validator_min_fee_py, NULL, NULL, NULL},
+        {"nativeTicker", (getter)dap_chain_net_get_native_ticker_py, NULL, NULL, NULL},
+        {"autoproc", (getter)dap_chain_net_get_mempool_autoproc_py, NULL, NULL, NULL},
         {}
 };
 
@@ -394,4 +396,16 @@ PyObject *dap_chain_net_get_validator_average_fee_py(PyObject *self, void *closu
     DapMathObject *l_obj_value = PyObject_New(DapMathObject, &DapMathObjectType);
     l_obj_value->value = l_average;
     return (PyObject*)l_obj_value;
+}
+
+PyObject *dap_chain_net_get_native_ticker_py(PyObject *self, void *closure){
+    (void)closure;
+    return Py_BuildValue("s", ((PyDapChainNetObject*)self)->chain_net->pub.native_ticker);
+}
+
+PyObject *dap_chain_net_get_mempool_autoproc_py(PyObject *self, void *closure)
+{
+    (void)closure;
+    bool autoproc =  ((PyDapChainNetObject*)self)->chain_net->pub.mempool_autoproc;    
+    return Py_BuildValue("O", autoproc ? Py_True: Py_False);
 }
