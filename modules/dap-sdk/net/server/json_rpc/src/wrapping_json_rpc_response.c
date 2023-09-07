@@ -73,34 +73,34 @@ PyObject *wrapping_json_rpc_response_get_result(PyObject *self, void *closure){
     Py_RETURN_NONE;
 }
 PyObject *wrapping_json_rpc_response_get_error(PyObject *self, void *closure){
-    UNUSED(closure);
-    dap_json_rpc_response_t* l_resp = ((PyDapJSONRPCResponseObject*)self)->response;
-    if (l_resp->error)
-        return Py_BuildValue("is", l_resp->error->code_error, l_resp->error->msg);
-    else
-        return PyTuple_New(2);
+    // UNUSED(closure);
+    // dap_json_rpc_response_t* l_resp = ((PyDapJSONRPCResponseObject*)self)->response;
+    // if (l_resp->error)
+    //     return Py_BuildValue("is", l_resp->error->code_error, l_resp->error->msg);
+    // else
+    //     return PyTuple_New(2);
 }
 int wrapping_json_rpc_response_set_error(PyObject *self, PyObject *args, void *closure){
-    UNUSED(closure);
-    if (args == NULL){
-        if (((PyDapJSONRPCResponseObject*)self)->response->error == NULL){
-            return -1;
-        }
-        DAP_FREE(((PyDapJSONRPCResponseObject*)self)->response->error->msg);
-        DAP_FREE(((PyDapJSONRPCResponseObject*)self)->response->error);
-        return 0;
-    }
-    int code;
-    char *message;
-    if(!PyArg_ParseTuple(args, "is", &code, &message)){
-        return -1;
-    }
-    ((PyDapJSONRPCResponseObject*)self)->response->error = DAP_NEW(dap_json_rpc_error_t);
-    ((PyDapJSONRPCResponseObject*)self)->response->error->code_error = code;
-    size_t lenght_message = dap_strlen(message);
-    ((PyDapJSONRPCResponseObject*)self)->response->error->msg = DAP_NEW_SIZE(char, lenght_message);
-    memcpy(((PyDapJSONRPCResponseObject*)self)->response->error->msg, message, lenght_message);
-    return 0;
+    // UNUSED(closure);
+    // if (args == NULL){
+    //     if (((PyDapJSONRPCResponseObject*)self)->response->error == NULL){
+    //         return -1;
+    //     }
+    //     DAP_FREE(((PyDapJSONRPCResponseObject*)self)->response->error->msg);
+    //     DAP_FREE(((PyDapJSONRPCResponseObject*)self)->response->error);
+    //     return 0;
+    // }
+    // int code;
+    // char *message;
+    // if(!PyArg_ParseTuple(args, "is", &code, &message)){
+    //     return -1;
+    // }
+    // ((PyDapJSONRPCResponseObject*)self)->response->error = DAP_NEW(dap_json_rpc_error_t);
+    // ((PyDapJSONRPCResponseObject*)self)->response->error->code_error = code;
+    // size_t lenght_message = dap_strlen(message);
+    // ((PyDapJSONRPCResponseObject*)self)->response->error->msg = DAP_NEW_SIZE(char, lenght_message);
+    // memcpy(((PyDapJSONRPCResponseObject*)self)->response->error->msg, message, lenght_message);
+    // return 0;
 }
 PyObject *wrapping_json_rpc_response_get_id(PyObject *self, void *closure){
     UNUSED(closure);
