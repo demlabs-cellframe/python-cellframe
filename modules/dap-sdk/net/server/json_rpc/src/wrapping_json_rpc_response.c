@@ -51,6 +51,7 @@ int wrapping_json_rpc_response_set_result(PyObject *self, PyObject *value, void 
     // }
     // return 0;
 }
+
 PyObject *wrapping_json_rpc_response_get_result(PyObject *self, void *closure){
     // UNUSED(closure);
     // dap_json_rpc_response_t *l_resp = ((PyDapJSONRPCResponseObject*)self)->response;
@@ -72,6 +73,7 @@ PyObject *wrapping_json_rpc_response_get_result(PyObject *self, void *closure){
     // }
     // Py_RETURN_NONE;
 }
+
 PyObject *wrapping_json_rpc_response_get_error(PyObject *self, void *closure){
     // UNUSED(closure);
     // dap_json_rpc_response_t* l_resp = ((PyDapJSONRPCResponseObject*)self)->response;
@@ -80,6 +82,7 @@ PyObject *wrapping_json_rpc_response_get_error(PyObject *self, void *closure){
     // else
     //     return PyTuple_New(2);
 }
+
 int wrapping_json_rpc_response_set_error(PyObject *self, PyObject *args, void *closure){
 //     UNUSED(closure);
 //     if (args == NULL){
@@ -102,7 +105,8 @@ int wrapping_json_rpc_response_set_error(PyObject *self, PyObject *args, void *c
 //     memcpy(((PyDapJSONRPCResponseObject*)self)->response->error->msg, message, lenght_message);
 //     return 0;
 // }
-// PyObject *wrapping_json_rpc_response_get_id(PyObject *self, void *closure){
+
+PyObject *wrapping_json_rpc_response_get_id(PyObject *self, void *closure){
 //     UNUSED(closure);
 //     dap_json_rpc_response_t* l_resp = ((PyDapJSONRPCResponseObject*)self)->response;
 //     return  PyLong_FromLong(l_resp->id);
