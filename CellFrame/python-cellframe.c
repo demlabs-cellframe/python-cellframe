@@ -480,6 +480,7 @@ PyMODINIT_FUNC PyInit_libDAP()
         PyType_Ready( &DapHttpCodeObjectType ) < 0 ||
         PyType_Ready( &DapHttpObjectType ) < 0 ||
         PyType_Ready( &DapHttpSimpleObjectType ) < 0 ||
+        PyType_Ready( &DapHttpHeaderObjectType ) < 0 ||
         PyType_Ready( &DapEncServerObjectType ) < 0 ||
         PyType_Ready( &DapStreamObjectType ) < 0 ||
         PyType_Ready( &DapStreamCtlObjectType ) < 0 ||
@@ -513,6 +514,7 @@ PyMODINIT_FUNC PyInit_libDAP()
     PyModule_AddObject(netModule, "Http", (PyObject*)&DapHttpObjectType);
     PyModule_AddObject(netModule, "HttpCode", (PyObject*)&DapHttpCodeObjectType);
     PyModule_AddObject(netModule, "HttpSimple", (PyObject*)&DapHttpSimpleObjectType);
+    PyModule_AddObject(netModule, "HttpHeader", (PyObject*)&DapHttpHeaderObjectType);
     PyModule_AddObject(netModule, "EncHttp", (PyObject*)&DapEncServerObjectType);
     PyModule_AddObject(netModule, "Stream", (PyObject*)&DapStreamObjectType);
     PyModule_AddObject(netModule, "StreamCtl", (PyObject*)&DapStreamCtlObjectType);
