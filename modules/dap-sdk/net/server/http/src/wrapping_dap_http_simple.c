@@ -1,5 +1,6 @@
 #include "wrapping_dap_http_simple.h"
 #include "python-cellframe_common.h"
+#include "wrapping_dap_http_header.h"
 
 #define LOG_TAG "wrapping_dap_http_simple"
 
@@ -9,7 +10,10 @@ static PyMethodDef PyDapHttpSimpleMethods[] = {
         {"deinit", dap_http_simple_module_deinit_py,  METH_NOARGS | METH_STATIC, "Deinitialization module http simple"},
         {"addProc", dap_http_simple_add_proc_py, METH_VARARGS | METH_STATIC, "Add HTTP URL"},
         {"setPassUnknownUserAgents", dap_http_simple_set_pass_unknown_user_agents_py, METH_VARARGS | METH_STATIC, ""},
+        {"setFlagGenerateDefaultHeader", dap_http_simple_set_flag_generate_default_header_py, METH_VARARGS, ""},
         {"replyAdd", dap_http_simple_reply_py, METH_VARARGS, "Reply for request"},
+        {"setResponseHeader", dap_http_simple_set_response_headers, METH_VARARGS, "Set header for response"},
+        {"getResponseHeader", dap_http_simple_get_response_headers, METH_NOARGS, "Get header for response"},
         {}
 };
 
@@ -59,6 +63,8 @@ void wrapping_dap_http_simple_callback(dap_http_simple_t *sh, void *obj){
     PyDapHttpSimpleObject *obj_http_simple = PyObject_NEW(PyDapHttpSimpleObject, &DapHttpSimpleObjectType);
     PyObject *obj_http_status_code = _PyObject_New(&DapHttpCodeObjectType);
     ((PyDapHttpSimpleObject*)obj_http_simple)->sh = sh;
+    obj_http_simple->response_http_header = Py_None;
+    Py_INCREF(Py_None);
     http_status_code_t *ret = (http_status_code_t*)obj;
     ((PyHttpStatusCodeObject*)obj_http_status_code)->http_status = *ret;
     PyObject *obj_argv = Py_BuildValue("OO", obj_http_simple, obj_http_status_code);
@@ -70,6 +76,12 @@ void wrapping_dap_http_simple_callback(dap_http_simple_t *sh, void *obj){
         *ret = Http_Status_InternalServerError;
     }
     *ret = ((PyHttpStatusCodeObject*)obj_http_status_code)->http_status;
+    if (obj_http_simple->response_http_header != Py_None) {
+        for (dap_http_header_t *i = ((PyDapHttpHeaderObject*)obj_http_simple->response_http_header)->header; i; i = i->next) {
+            dap_http_header_add(&obj_http_simple->sh->ext_headers, i->name, i->value);
+        }
+        Py_XDECREF(obj_http_simple->response_http_header);
+    }
     Py_XDECREF(obj_argv);
     Py_XDECREF(obj_http_status_code);
     Py_XDECREF(obj_http_simple);
@@ -146,8 +158,38 @@ PyObject *dap_http_simple_reply_py(PyObject *self, PyObject *args){
     size_t l_bytes_size = (size_t)PyBytes_Size(l_obj_bytes);
     void *l_bytes = PyBytes_AsString(l_obj_bytes);
     size_t l_size = dap_http_simple_reply(((PyDapHttpSimpleObject*)self)->sh, l_bytes, l_bytes_size);
-//    DAP_FREE(l_bytes);
     return PyLong_FromLong(l_size);
+}
+
+PyObject *dap_http_simple_set_flag_generate_default_header_py(PyObject *self, PyObject *args){
+    PyObject *flag;
+    if (!PyArg_ParseTuple(args, "O", &flag))
+        return NULL;
+    if (!PyBool_Check(flag)) {
+        PyErr_SetString(PyExc_AttributeError, "An invalid argument was passed to the function. "
+                                              "The function takes a boolean value as an input argument.");
+        return NULL;
+    }
+    ((PyDapHttpSimpleObject*)self)->sh->generate_default_header = (flag == Py_True) ? true : false;
+    Py_RETURN_NONE;
+}
+
+PyObject *dap_http_simple_get_response_headers(PyObject *self, PyObject *args){
+    (void)args;
+    Py_INCREF(((PyDapHttpSimpleObject*)self)->response_http_header);
+    return ((PyDapHttpSimpleObject*)self)->response_http_header;
+}
+PyObject *dap_http_simple_set_response_headers(PyObject *self, PyObject *args){
+    PyObject *obj_http_headers;
+    if (!PyArg_ParseTuple(args, "O", &obj_http_headers))
+        return NULL;
+    if (!PyObject_TypeCheck(obj_http_headers, &DapHttpHeaderObjectType)) {
+        PyErr_SetString(PyExc_AttributeError, "The first argument is invalid. The first argument must "
+                                              "be an instance of the DAP.Network.HttpHeader object.");
+        return NULL;
+    }
+    ((PyDapHttpSimpleObject*)self)->response_http_header = obj_http_headers;
+    Py_RETURN_NONE;
 }
 
 PyObject *dap_http_simple_method_py(PyDapHttpSimpleObject *self, void *clouser){
