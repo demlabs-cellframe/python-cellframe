@@ -15,6 +15,7 @@ extern "C" {
 typedef struct PyDapHttpSimple{
     PyObject_HEAD
     dap_http_simple_t *sh;
+    PyObject *response_http_header;
 }PyDapHttpSimpleObject;
 
 PyObject *dap_http_simple_add_proc_py(PyObject *self, PyObject *args);
@@ -23,6 +24,9 @@ PyObject *dap_http_simple_module_deinit_py(PyObject *self, PyObject *args);
 PyObject *dap_http_simple_set_supported_user_agents_py(PyObject *self, PyObject *args);
 PyObject *dap_http_simple_set_pass_unknown_user_agents_py(PyObject *self, PyObject *args);
 PyObject *dap_http_simple_reply_py(PyObject *self, PyObject *args);
+PyObject *dap_http_simple_set_flag_generate_default_header_py(PyObject *self, PyObject *args);
+PyObject *dap_http_simple_get_response_headers(PyObject *self, PyObject *args);
+PyObject *dap_http_simple_set_response_headers(PyObject *self, PyObject *args);
 
 /* Attributes */
 PyObject *dap_http_simple_method_py(PyDapHttpSimpleObject *self, void *clouser);

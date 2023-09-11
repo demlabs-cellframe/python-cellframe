@@ -77,9 +77,9 @@ dap_chain_plugins_list_manifest_t* dap_chain_plugins_add_manifest_from_file(cons
     }
     fseek(file, 0, SEEK_END);
     size_t size_file = (size_t)ftell(file);
-    char *json = DAP_NEW_SIZE(char, size_file);
+    char *json = DAP_NEW_Z_SIZE(char, size_file + 1);
     rewind(file);
-    fread(json, sizeof(char), size_file, file);
+    fread(json, size_file, 1, file);
     fclose(file);
     //Parse JSON
     json_object *j_obj = json_tokener_parse(json);
