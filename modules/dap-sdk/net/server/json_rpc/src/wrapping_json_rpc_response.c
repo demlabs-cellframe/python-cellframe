@@ -79,7 +79,7 @@ PyObject *wrapping_json_rpc_response_get_result(PyObject *self, void *closure){
 PyObject *wrapping_json_rpc_response_get_error(PyObject *self, void *closure){
     UNUSED(closure);
     dap_json_rpc_response_t* l_resp = ((PyDapJSONRPCResponseObject*)self)->response;
-    if (l_resp->errors)
+    if (l_resp->json_arr_errors)
         // return Py_BuildValue("is", l_resp->error->code_error, l_resp->error->msg);
         return PyTuple_New(2);
     else
