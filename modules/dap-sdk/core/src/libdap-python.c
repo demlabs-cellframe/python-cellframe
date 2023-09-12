@@ -222,24 +222,27 @@ PyObject* py_m_dap_config_get_item_default(PyObject *self, PyObject *args){
     return Py_BuildValue("s", res);
 }
 
-PyObject *dapListToPyList(dap_list_t *list ){
-    unsigned int len = dap_list_length(list);
-    PyObject *obj = PyList_New((Py_ssize_t)len);
-    for (unsigned int l = 0; l <len; l++){
-        void *data = dap_list_nth_data(list, l);
-        PyObject *obj_data = PyBytes_FromString((const char*)data);
-        PyList_Append(obj, obj_data);
+PyObject *dapListToPyList(dap_list_t *list) {
+    ssize_t len = dap_list_length(list), i = 0;
+    PyObject *pylist = PyList_New(len);
+    dap_list_t *el;
+    DL_FOREACH(list, el) {
+        PyList_SetItem(pylist, i, PyBytes_FromString((const char*)el->data));
     }
-    return obj;
+    return pylist;
 }
 
-dap_list_t *pyListToDapList(PyObject *list ){
-    Py_ssize_t len = PyList_Size(list);
-    dap_list_t *dap_list = dap_list_alloc();
-    for (Py_ssize_t i = 0; i < len; i++){
-        PyObject *obj = PyList_GetItem(list, i);
-        void *data = PyBytes_AsString(obj);
-        dap_list = dap_list_append(dap_list, data);
+dap_list_t *pyListToDapList(PyObject *list) {
+    PyObject *iter, *item;
+    if (!(iter = PyObject_GetIter(list))) {
+        // Empty list :c
+        return NULL;
     }
+    dap_list_t *dap_list = NULL;
+    while ((item = PyIter_Next(iter))) {
+        dap_list = dap_list_append(dap_list, PyBytes_AsString(item));
+        Py_DECREF(item);
+    }
+    Py_DECREF(iter);
     return dap_list;
 }
