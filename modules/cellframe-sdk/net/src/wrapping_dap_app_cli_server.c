@@ -181,7 +181,7 @@ PyObject *dap_chain_node_cli_set_reply_text_py(PyObject *self, PyObject *args){
     if (!PyArg_ParseTuple(args, "sO", &str_reply_text, &obj_id_str_reply))
         return NULL;
     size_t id_str_reply = PyLong_AsSize_t(obj_id_str_reply);
-    dap_cli_server_cmd_set_reply_text(elements_str_reply_get_by_id(id_str_reply), str_reply_text);
+    dap_cli_server_cmd_set_reply_text(elements_str_reply_get_by_id(id_str_reply), "%s", str_reply_text);
     return PyLong_FromLong(0);
 }
 
