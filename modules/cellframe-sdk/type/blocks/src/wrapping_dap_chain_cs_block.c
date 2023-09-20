@@ -121,6 +121,7 @@ PyObject *wrapping_dap_chain_block_get_meta_data(PyObject *self, void *closure){
 
         memcpy(obj_hf->hash_fast, &l_block_links[i], sizeof(dap_chain_hash_fast_t));
         obj_hf->origin = true;
+        PyList_SetItem(obj_block_links, i, (PyObject*)obj_hf);
 //        obj_hf->hash_fast = &(l_block_links[i]);
     }
     PyDict_SetItemString(obj_dict, "links", obj_block_links);

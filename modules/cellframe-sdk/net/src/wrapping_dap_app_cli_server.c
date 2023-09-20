@@ -207,9 +207,9 @@ char **PyListToString(PyObject *list){
 }
 
 PyObject *stringToPyList(int argc, char **list){
-    PyObject *obj_list = PyList_New(0);
-    for (int i=0; i < argc; i++){
-        PyList_Append(obj_list, PyUnicode_FromString(list[i]));
+    PyObject *obj_list = PyList_New(argc);
+    for (int i=0; i < argc; ++i){
+        PyList_SetItem(obj_list, i, PyUnicode_FromString(list[i]));
     }
     return obj_list;
 }
