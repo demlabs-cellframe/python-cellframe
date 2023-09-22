@@ -109,9 +109,6 @@ PyObject *PyDapChainObject_new(PyTypeObject *type_object, PyObject *args, PyObje
 }
 
 void PyDapChainObject_dealloc(PyDapChainObject* chain){
-    if (chain->chain_t) {
-        dap_chain_delete(chain->chain_t);
-    }
     Py_TYPE(chain)->tp_free((PyObject*)chain);
 }
 
