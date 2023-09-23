@@ -482,6 +482,7 @@ PyObject *dap_chain_ledger_get_txs_py(PyObject *self, PyObject *args){
         obj_tx->original = false;
         PyList_SetItem(obj_list, i, (PyObject*)obj_tx);
     }
+    dap_list_free(l_txs);
     return obj_list;
 }
 

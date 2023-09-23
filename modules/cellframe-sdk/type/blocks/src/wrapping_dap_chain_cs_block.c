@@ -152,6 +152,7 @@ PyObject *wrapping_dap_chain_block_get_datums(PyObject *self, void *closure){
         obj_datum->origin = false;
         PyList_SetItem(obj_datums, (Py_ssize_t) i, (PyObject *)obj_datum);
     }
+    DAP_DELETE(l_datums);
     return obj_datums;
 }
 PyObject *wrapping_dap_chain_block_get_signs(PyObject *self, void *closure){

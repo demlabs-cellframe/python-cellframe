@@ -50,6 +50,8 @@ typedef struct PyDapSign{
     dap_sign_t *sign;
 }PyDapSignObject;
 
+void PyDapSignObject_free(PyDapSignObject*);
+
 PyObject *wrapping_dap_sign_get_type(PyObject *self, void *closure);
 PyObject *wrapping_dap_sign_get_pkey(PyObject *self, void *closure);
 PyObject *wrapping_dap_sign_get_pkey_hash(PyObject *self, void *closure);

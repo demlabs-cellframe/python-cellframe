@@ -188,6 +188,7 @@ PyObject *dap_chain_python_atom_get_datums(PyObject *self, PyObject *args){
         l_obj_datum_py->origin = false;
         PyList_SetItem(list_datums, i, (PyObject*)l_obj_datum_py);
     }
+    DAP_DELETE(l_datums);
     return list_datums;
 }
 
@@ -473,6 +474,7 @@ PyObject *dap_chain_python_get_atoms(PyObject *self, PyObject *args) {
         obj_atom->atom_size = *((size_t *) l_iter->data);
         PyList_SetItem(obj_list, i, (PyObject*)obj_atom);
     }
+    dap_list_free(l_atoms);
     return obj_list;
 }
 

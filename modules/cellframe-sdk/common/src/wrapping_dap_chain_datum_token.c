@@ -264,10 +264,10 @@ PyObject *wrapping_dap_chain_datum_token_emission_get_data(PyObject *self, void 
             for (size_t i = 0; i < token_emi->data.type_auth.signs_count && l_offset < token_emi_size; ++i){
                 if(dap_sign_verify_size(l_sign_ptr, ((PyDapChainDatumTokenEmissionObject*)self)->token_size - l_offset)){
                     obj_tmp_sign = PyObject_New(PyDapSignObject, &DapCryptoSignObjectType);
-                    obj_tmp_sign->sign = DAP_NEW_Z_SIZE(dap_sign_t, dap_sign_get_size(l_sign_ptr));
-                    memcpy(obj_tmp_sign->sign, l_sign_ptr, dap_sign_get_size(l_sign_ptr));
+                    size_t l_sign_size = dap_sign_get_size(l_sign_ptr);
+                    obj_tmp_sign->sign = l_sign_ptr; //DAP_DUP_SIZE(l_sign_ptr, l_sign_size);
                     PyList_SetItem(obj_tmp, i, (PyObject*)obj_tmp_sign);
-                    l_offset += dap_sign_get_size(l_sign_ptr);
+                    l_offset += l_sign_size;
                     l_sign_ptr = (dap_sign_t*)((byte_t*)token_emi + l_offset);
                 } else {
                     break;
@@ -328,11 +328,7 @@ PyObject *wrapping_dap_chain_datum_token_emission_get_signs(PyObject *self, void
             break;
         }
         obj_sign = PyObject_New(PyDapSignObject, &DapCryptoSignObjectType);
-        obj_sign->sign = DAP_NEW_Z_SIZE(dap_sign_t, l_sign_size);
-        if (!obj_sign->sign) {
-            return NULL;
-        }
-        memcpy(obj_sign->sign, l_sign, l_sign_size);
+        obj_sign->sign = l_sign; //DAP_DUP_SIZE(l_sign, l_sign_size);
         PyList_SetItem(obj_list, l_count, (PyObject*)obj_sign);
         l_sign = (dap_sign_t *)((byte_t *)l_sign + l_sign_size);
     }
