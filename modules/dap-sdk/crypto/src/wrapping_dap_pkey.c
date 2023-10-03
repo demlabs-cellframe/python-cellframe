@@ -17,9 +17,16 @@ static PyGetSetDef PyDapPkeyGetsSetsDef[] = {
         {}
 };
 
+static PyMethodDef PyDapPkeyMethodsDef[] = {
+        {"toBytes", (PyCFunction)wrapping_dap_pkey_to_bytes, METH_NOARGS, ""},
+        {"fromBytes", (PyCFunction)wrapping_dap_pkey_from_bytes, METH_VARARGS | METH_STATIC, ""},
+        {}
+};
+
 PyTypeObject DapPkeyObject_DapPkeyObjectType = DAP_PY_TYPE_OBJECT(
         "CellFrame.Pkey", sizeof(PyDapPkeyObject),
         "Pkey object",
+        .tp_methods = PyDapPkeyMethodsDef,
         .tp_getset = PyDapPkeyGetsSetsDef);
 
 PyObject *wrapping_dap_pkey_get_type(PyObject *self, void *closure){
@@ -38,4 +45,29 @@ PyObject *wrapping_dap_pkey_get_hash(PyObject *self, void *closure){
 PyObject *wrapping_dap_pkey_get_size(PyObject *self, void *closure){
     (void)closure;
     return Py_BuildValue("I", ((PyDapPkeyObject*)self)->pkey->header.size);
+}
+
+PyObject *wrapping_dap_pkey_to_bytes(PyObject *self, PyObject *args){
+    (void)args;
+    return PyBytes_FromStringAndSize((char*)((PyDapPkeyObject*)self)->pkey,
+                                     sizeof(dap_pkey_t) + ((PyDapPkeyObject*)self)->pkey->header.size);
+}
+
+PyObject *wrapping_dap_pkey_from_bytes(PyObject *self, PyObject *args) {
+    (void)self;
+    PyObject *obj_bytes;
+    if (!PyArg_ParseTuple(args, "O", &obj_bytes))
+        return NULL;
+    if (!PyBytes_Check(obj_bytes)) {
+        PyErr_SetString(PyExc_ValueError, "An invalid argument was passed, the incoming argument must be of type bytes.");
+        return NULL;
+    }
+    char *buff;
+    Py_ssize_t l_buff_size = 0;
+    if (PyBytes_AsStringAndSize(obj_bytes, &buff, &l_buff_size) == -1)
+        return NULL;
+    PyDapPkeyObject *obj_pkey = PyObject_New(PyDapPkeyObject, &DapPkeyTypeObject_DapPkeyTypeObjectType);
+    obj_pkey->pkey = DAP_NEW_Z_SIZE(dap_pkey_t, l_buff_size);
+    memcpy(obj_pkey->pkey, buff, l_buff_size);
+    return (PyObject*)obj_pkey;
 }
