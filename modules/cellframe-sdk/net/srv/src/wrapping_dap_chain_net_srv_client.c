@@ -18,9 +18,10 @@ PyTypeObject DapChainNetSrvClientObjectType = DAP_PY_TYPE_OBJECT(
 static void _wrapping_dap_chain_net_srv_client_callback_connected(dap_chain_net_srv_client_t* a_client, void *a_arg){
     PyDapChainNetSrvClientObject *py_client = (PyDapChainNetSrvClientObject *)a_client->_inheritor;
     PyObject *l_call = py_client->callback_connected;
+    PyObject *l_arg_obj = (PyObject*)a_arg;
     if (PyCallable_Check(l_call)) {
         PyGILState_STATE state = PyGILState_Ensure();
-        PyObject *l_args = Py_BuildValue("OO", py_client, a_arg);
+        PyObject *l_args = Py_BuildValue("OO", py_client, l_arg_obj);
         PyObject_CallObject(l_call, l_args);
         Py_DECREF(l_args);
         PyGILState_Release(state);
@@ -205,6 +206,7 @@ int PyDapChainNetSrvClient_init(PyDapChainNetSrvClientObject* self, PyObject *ar
             !PyCallable_Check(py_cb_data)) {
         return -3;
     }
+    Py_INCREF(py_cb_arg);
     dap_chain_net_srv_client_callbacks_t callbacks = {0};
     callbacks.connected = _wrapping_dap_chain_net_srv_client_callback_connected;
     callbacks.disconnected = _wrapping_dap_chain_net_srv_client_callback_disconnected;
