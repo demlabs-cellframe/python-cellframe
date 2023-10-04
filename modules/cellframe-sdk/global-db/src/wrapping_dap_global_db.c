@@ -149,7 +149,7 @@ typedef struct _wrapping_dap_global_db_add_sync_extra_group_callback{
 
 bool dap_py_chain_net_extra_group_notifier(UNUSED_ARG dap_proc_thread_t *a_poc_thread, void *a_arg) {
     if (!a_arg)
-        return true;
+        return false;
 
     _wrapping_dap_global_db_add_sync_extra_group_callback_t *l_callback = (_wrapping_dap_global_db_add_sync_extra_group_callback_t *)a_arg;
     PyGILState_STATE state = PyGILState_Ensure();
@@ -170,7 +170,7 @@ bool dap_py_chain_net_extra_group_notifier(UNUSED_ARG dap_proc_thread_t *a_poc_t
     Py_XDECREF(l_callback->arg);
     PyGILState_Release(state);
     dap_store_obj_free_one(l_callback->store_obj);
-    return true;
+    return false;
 }
 
 void pvt_wrapping_dap_global_db_add_sync_extra_group_func_callback(dap_global_db_context_t *a_context, dap_store_obj_t *a_obj, void *a_arg)
@@ -183,7 +183,7 @@ void pvt_wrapping_dap_global_db_add_sync_extra_group_func_callback(dap_global_db
     l_obj->store_obj = dap_store_obj_copy(a_obj, 1);
     l_obj->func = ((_wrapping_dap_global_db_add_sync_extra_group_callback_t*)a_arg)->func;
     l_obj->arg = ((_wrapping_dap_global_db_add_sync_extra_group_callback_t*)a_arg)->arg;
-    dap_proc_queue_add_callback(dap_events_worker_get_auto(), dap_py_chain_net_extra_group_notifier, l_obj);
+    dap_proc_thread_callback_add(NULL, dap_py_chain_net_extra_group_notifier, l_obj);
 }
 
 PyObject *wrapping_dap_global_db_add_sync_extra_group(PyObject *self, PyObject *args){

@@ -568,7 +568,7 @@ static bool s_python_obj_notificator(UNUSED_ARG dap_proc_thread_t *a_thread, voi
     DAP_DELETE(l_args->tx);
     DAP_DELETE(l_args);
     PyGILState_Release(state);
-    return true;
+    return false;
 }
 
 static void s_python_proc_notificator(dap_ledger_t *a_ledger, dap_chain_datum_tx_t *a_tx, dap_hash_fast_t *a_tx_hash, void *a_arg)
@@ -580,7 +580,7 @@ static void s_python_proc_notificator(dap_ledger_t *a_ledger, dap_chain_datum_tx
     l_args->tx = DAP_DUP_SIZE(a_tx, dap_chain_datum_tx_get_size(a_tx));
     l_args->tx_hash = *a_tx_hash;
     l_args->arg = a_arg;
-    dap_proc_queue_add_callback(dap_events_worker_get_auto(), s_python_obj_notificator, l_args);
+    dap_proc_thread_callback_add(NULL, s_python_obj_notificator, l_args);
 }
 
 static PyObject *s_bridged_tx_notify_add(PyObject *self, PyObject *args)

@@ -237,16 +237,16 @@ typedef struct _wrapping_chain_mempool_notify_callback {
 bool dap_py_mempool_notifier(UNUSED_ARG dap_proc_thread_t *a_poc_thread, void *a_arg)
 {
     if (!a_arg)
-        return true;
+        return false;
     _wrapping_chain_mempool_notify_callback_t *l_callback = a_arg;
     if (!l_callback->obj) {
         log_it(L_ERROR, "It is not possible to call a python function. An object with arguments was not passed.");
-        return true;
+        return false;
     }
     if (l_callback->obj->group_len == 0 || !l_callback->obj->group)
     {
         log_it(L_WARNING, "Called mempool notify in python with None group");
-        return true;
+        return false;
     }
     PyGILState_STATE state = PyGILState_Ensure();
     dap_store_obj_t *l_obj = l_callback->obj;
@@ -281,7 +281,7 @@ bool dap_py_mempool_notifier(UNUSED_ARG dap_proc_thread_t *a_poc_thread, void *a
     Py_XDECREF(obj_value);
     dap_store_obj_free_one(l_callback->obj);
     PyGILState_Release(state);
-    return true;
+    return false;
 }
 
 static void _wrapping_dap_chain_mempool_notify_handler(UNUSED_ARG dap_global_db_context_t *a_context, dap_store_obj_t *a_obj, void *a_arg)
@@ -295,7 +295,7 @@ static void _wrapping_dap_chain_mempool_notify_handler(UNUSED_ARG dap_global_db_
     l_obj->obj = dap_store_obj_copy(a_obj, 1);
     l_obj->func = ((_wrapping_chain_mempool_notify_callback_t *)a_arg)->func;
     l_obj->arg = ((_wrapping_chain_mempool_notify_callback_t *)a_arg)->arg;
-    dap_proc_queue_add_callback(dap_events_worker_get_auto(), dap_py_mempool_notifier, l_obj);
+    dap_proc_thread_callback_add(NULL, dap_py_mempool_notifier, l_obj);
 }
 /**
  * @brief _wrapping_dap_chain_atom_notify_handler
