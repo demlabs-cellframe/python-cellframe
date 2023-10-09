@@ -66,7 +66,7 @@ PyObject *wrapping_dap_pkey_from_bytes(PyObject *self, PyObject *args) {
     Py_ssize_t l_buff_size = 0;
     if (PyBytes_AsStringAndSize(obj_bytes, &buff, &l_buff_size) == -1)
         return NULL;
-    PyDapPkeyObject *obj_pkey = PyObject_New(PyDapPkeyObject, &DapPkeyTypeObject_DapPkeyTypeObjectType);
+    PyDapPkeyObject *obj_pkey = PyObject_New(PyDapPkeyObject, &DapPkeyObject_DapPkeyObjectType);
     obj_pkey->pkey = DAP_NEW_Z_SIZE(dap_pkey_t, l_buff_size);
     memcpy(obj_pkey->pkey, buff, l_buff_size);
     return (PyObject*)obj_pkey;
