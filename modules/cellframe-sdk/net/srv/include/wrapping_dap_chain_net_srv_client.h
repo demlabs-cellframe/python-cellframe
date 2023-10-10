@@ -2,6 +2,7 @@
 
 #include "Python.h"
 #include "dap_chain_net_srv_client.h"
+#include "dap_chain_node_client.h"
 #include "libdap_chain_net_python.h"
 
 typedef struct PyDapChainNetSrvClient{
@@ -21,5 +22,6 @@ int PyDapChainNetSrvClient_init(PyDapChainNetSrvClientObject* self, PyObject *ar
 PyObject *wrapping_dap_chain_net_srv_client_check(PyObject *self, PyObject *args);
 PyObject *wrapping_dap_chain_net_srv_client_request(PyObject *self, PyObject *args);
 PyObject *wrapping_dap_chain_net_srv_client_write(PyObject *self, PyObject *args);
+PyObject *wrapping_dap_chain_net_srv_client_close(PyObject *self, void *closure);
 
 extern PyTypeObject DapChainNetSrvClientObjectType;

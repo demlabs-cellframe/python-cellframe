@@ -6,8 +6,10 @@ static PyMethodDef DapChainNetSrvClientMethods[]={
         {"check", (PyCFunction)wrapping_dap_chain_net_srv_client_check, METH_VARARGS, ""},
         {"request", (PyCFunction)wrapping_dap_chain_net_srv_client_request, METH_VARARGS, ""},
         {"write", (PyCFunction)wrapping_dap_chain_net_srv_client_write, METH_VARARGS, ""},
+        {"close", (PyCFunction)wrapping_dap_chain_net_srv_client_close, METH_VARARGS, ""},
         {NULL, NULL, 0, NULL}
 };
+
 
 PyTypeObject DapChainNetSrvClientObjectType = DAP_PY_TYPE_OBJECT(
         "CellFrame.ChainNetSrvClient", sizeof(PyDapChainNetSrvClientObject),
@@ -28,6 +30,12 @@ static void _wrapping_dap_chain_net_srv_client_callback_connected(dap_chain_net_
     } else {
         log_it(L_ERROR, "Can't call a python handler on connected event");
     }
+}
+
+PyObject *wrapping_dap_chain_net_srv_client_close(PyObject *self, void *closure)
+{
+    dap_chain_net_srv_client_close(((PyDapChainNetSrvClientObject*)self)->srv_client);
+    return Py_True;
 }
 
 static void _wrapping_dap_chain_net_srv_client_callback_disconnected(dap_chain_net_srv_client_t* a_client, void *a_arg){
