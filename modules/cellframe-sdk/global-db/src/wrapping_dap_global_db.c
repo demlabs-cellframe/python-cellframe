@@ -173,7 +173,7 @@ bool dap_py_chain_net_extra_group_notifier(UNUSED_ARG dap_proc_thread_t *a_poc_t
     return false;
 }
 
-void pvt_wrapping_dap_global_db_add_sync_extra_group_func_callback(dap_global_db_context_t *a_context, dap_store_obj_t *a_obj, void *a_arg)
+void pvt_wrapping_dap_global_db_add_sync_extra_group_func_callback(dap_global_db_instance_t *a_dbi, dap_store_obj_t *a_obj, void *a_arg)
 {
     if (!a_arg)
         return;

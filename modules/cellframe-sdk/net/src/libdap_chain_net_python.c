@@ -314,7 +314,7 @@ bool dap_py_chain_net_gdb_notifier(UNUSED_ARG dap_proc_thread_t *a_poc_thread, v
     return false;
 }
 
-void pvt_dap_chain_net_py_notify_handler(dap_global_db_context_t *a_context, dap_store_obj_t *a_obj, void *a_arg)
+void pvt_dap_chain_net_py_notify_handler(dap_global_db_instance_t *a_dbi, dap_store_obj_t *a_obj, void *a_arg)
 {
     UNUSED(a_context);
     if (!a_arg)

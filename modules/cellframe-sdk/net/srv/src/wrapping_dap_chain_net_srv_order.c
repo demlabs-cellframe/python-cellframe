@@ -44,7 +44,7 @@ typedef struct _wrapping_order_callable{
     PyObject *arg;
 }_wrapping_order_callable_t;
 
-void _wrapping_handler_add_order_notify(dap_global_db_context_t *a_context, dap_store_obj_t *a_obj, void *a_arg)
+void _wrapping_handler_add_order_notify(dap_global_db_instance_t *a_dbi, dap_store_obj_t *a_obj, void *a_arg)
 {
     UNUSED(a_context);
     if (!a_arg)
