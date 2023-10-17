@@ -20,8 +20,10 @@ static PyGetSetDef PyDapPkeyGetsSetsDef[] = {
 static PyMethodDef PyDapPkeyMethodsDef[] = {
         {"toBytes", (PyCFunction)wrapping_dap_pkey_to_bytes, METH_NOARGS, ""},
         {"fromBytes", (PyCFunction)wrapping_dap_pkey_from_bytes, METH_VARARGS | METH_STATIC, ""},
+        {"encrypt", (PyCFunction)wrapping_dap_pkey_encrypt, METH_VARARGS, ""},
         {}
 };
+
 
 PyTypeObject DapPkeyObject_DapPkeyObjectType = DAP_PY_TYPE_OBJECT(
         "CellFrame.Pkey", sizeof(PyDapPkeyObject),
@@ -70,4 +72,45 @@ PyObject *wrapping_dap_pkey_from_bytes(PyObject *self, PyObject *args) {
     obj_pkey->pkey = DAP_NEW_Z_SIZE(dap_pkey_t, l_buff_size);
     memcpy(obj_pkey->pkey, buff, l_buff_size);
     return (PyObject*)obj_pkey;
+}
+
+
+PyObject *wrapping_dap_pkey_encrypt(PyDapPkeyObject *self, PyObject *args)
+{
+    PyObject *obj_bytes;
+    if (!PyArg_ParseTuple(args, "O", &obj_bytes))
+        return NULL;
+
+    if (!PyBytes_Check(obj_bytes)) {
+        PyErr_SetString(PyExc_ValueError, "An invalid argument was passed, the incoming argument must be of type bytes.");
+        return NULL;
+    }
+    
+    char *buff;
+    Py_ssize_t l_buff_size = 0;
+    if (PyBytes_AsStringAndSize(obj_bytes, &buff, &l_buff_size) == -1)
+        return NULL;
+
+    dap_enc_key_t *key = dap_enc_key_new(dap_pkey_type_to_enc_key_type(self->pkey->header.type));
+
+    if (dap_enc_key_deserialize_pub_key(key, self->pkey->pkey, self->pkey->header.size) != 0)
+    {
+        PyErr_SetString(PyExc_ValueError, "Can't deserialize pubkey to enckey.");
+        return NULL;
+    }
+
+    size_t encrypt_buff_size = dap_enc_code_out_size(key, l_buff_size, DAP_ENC_DATA_TYPE_RAW);
+    uint8_t *encrypt_result = DAP_NEW_SIZE(uint8_t, encrypt_buff_size);
+
+    
+    size_t encrypted_size = dap_enc_code(key, buff,
+                                            l_buff_size,
+                                            encrypt_result,
+                                            encrypt_buff_size,
+                                            DAP_ENC_DATA_TYPE_RAW);
+
+
+    dap_enc_key_delete(key);
+
+    return PyBytes_FromStringAndSize(encrypt_result, encrypt_buff_size);
 }

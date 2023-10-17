@@ -34,8 +34,9 @@ static void _wrapping_dap_chain_net_srv_client_callback_connected(dap_chain_net_
 }
 
 PyObject *wrapping_dap_chain_net_srv_client_close(PyObject *self, void *closure)
-{
-    dap_chain_net_srv_client_close(((PyDapChainNetSrvClientObject*)self)->srv_client);
+{   
+    if (((PyDapChainNetSrvClientObject*)self)->srv_client)
+        dap_chain_net_srv_client_close(((PyDapChainNetSrvClientObject*)self)->srv_client);
     return Py_True;
 }
 
@@ -228,6 +229,7 @@ void PyDapChainNetSrvClient_dealloc(PyDapChainNetSrvClientObject* self)
 {
     if (self->srv_client)
         dap_chain_net_srv_client_close(self->srv_client);
+
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
