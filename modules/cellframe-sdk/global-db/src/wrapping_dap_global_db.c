@@ -2,6 +2,7 @@
 #include "libdap-python.h"
 #include "wrapping_dap_global_db.h"
 #include "dap_events.h"
+#include "dap_proc_thread.h"
 
 static PyMethodDef DapChainGlobalDBMethods[] = {
         {"get", (PyCFunction)wrapping_dap_global_db_gr_get, METH_VARARGS | METH_STATIC, ""},
@@ -204,6 +205,7 @@ PyObject *wrapping_dap_global_db_add_sync_extra_group(PyObject *self, PyObject *
     l_callback->arg = args_func;
     Py_INCREF(call_func);
     Py_INCREF(args_func);
-    dap_global_db_add_sync_extra_group(net_name, group_mask, pvt_wrapping_dap_global_db_add_sync_extra_group_func_callback, l_callback);
+    // TODO implement GlobalDB cluster wrapping
+    //dap_global_db_add_sync_extra_group(net_name, group_mask, pvt_wrapping_dap_global_db_add_sync_extra_group_func_callback, l_callback);
     Py_RETURN_NONE;
 }

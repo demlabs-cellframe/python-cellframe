@@ -2,12 +2,10 @@
 #include "wrapping_dap_global_db_obj.h"
 
 static PyGetSetDef DapChainGlobalDBContainerGetSet[] = {
-        {"id", (getter)wrapping_dap_global_db_obj_get_id, NULL, NULL, NULL},
         {"key", (getter)wrapping_dap_global_db_obj_get_key, NULL, NULL, NULL},
         {"value", (getter)wrapping_dap_global_db_obj_get_value, NULL, NULL, NULL},
         {NULL}
 };
-
 
 void PyDapChainGlobalDBObject_dealloc(PyObject *self) {
     
@@ -24,10 +22,6 @@ PyTypeObject DapChainGlobalDBContainerObjectType = DAP_PY_TYPE_OBJECT(
         .tp_dealloc = PyDapChainGlobalDBObject_dealloc
         );
 
-PyObject *wrapping_dap_global_db_obj_get_id(PyObject *self, void *closure){
-    (void)closure;
-    return Py_BuildValue("k", ((PyDapChainGlobalDBContainerObject*)self)->obj.id);
-}
 PyObject *wrapping_dap_global_db_obj_get_key(PyObject *self, void *closure){
     (void)closure;
     return Py_BuildValue("s", ((PyDapChainGlobalDBContainerObject*)self)->obj.key);

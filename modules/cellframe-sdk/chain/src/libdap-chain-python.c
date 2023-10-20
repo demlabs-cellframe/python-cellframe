@@ -1,5 +1,4 @@
 #include "libdap-chain-python.h"
-#include "dap_chain_pvt.h"
 #include "python-cellframe_common.h"
 #include "libdap_chain_net_python.h"
 
@@ -234,7 +233,7 @@ typedef struct _wrapping_chain_mempool_notify_callback {
     dap_store_obj_t *obj;
 } _wrapping_chain_mempool_notify_callback_t;
 
-bool dap_py_mempool_notifier(UNUSED_ARG dap_proc_thread_t *a_poc_thread, void *a_arg)
+bool dap_py_mempool_notifier(dap_proc_thread_t UNUSED_ARG *a_poc_thread, void *a_arg)
 {
     if (!a_arg)
         return false;
@@ -243,7 +242,7 @@ bool dap_py_mempool_notifier(UNUSED_ARG dap_proc_thread_t *a_poc_thread, void *a
         log_it(L_ERROR, "It is not possible to call a python function. An object with arguments was not passed.");
         return false;
     }
-    if (l_callback->obj->group_len == 0 || !l_callback->obj->group)
+    if (!l_callback->obj->group)
     {
         log_it(L_WARNING, "Called mempool notify in python with None group");
         return false;
@@ -263,7 +262,7 @@ bool dap_py_mempool_notifier(UNUSED_ARG dap_proc_thread_t *a_poc_thread, void *a
         obj_key = Py_None;
         Py_INCREF(Py_None);
     }
-    if (l_obj->type == DAP_DB$K_OPTYPE_ADD) {
+    if (l_obj->type == DAP_GLOBAL_DB_OPTYPE_ADD) {
         obj_value = PyBytes_FromStringAndSize((char *)l_obj->value, (Py_ssize_t)l_obj->value_len);
     } else {
         obj_value = Py_None;

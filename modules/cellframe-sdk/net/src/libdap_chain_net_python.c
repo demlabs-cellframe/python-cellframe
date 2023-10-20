@@ -193,7 +193,7 @@ PyObject *dap_chain_net_python_get_chains(PyObject *self, void *closure){
 
 PyObject *dap_chain_net_get_cur_addr_py(PyObject *self, PyObject *args){
     PyObject *obj_node_addr = _PyObject_New(&DapChainNodeAddrObjectType);
-    ((PyDapChainNodeAddrObject*)obj_node_addr)->node_addr = dap_chain_net_get_cur_addr(((PyDapChainNetObject*)self)->chain_net);
+    ((PyDapChainNodeAddrObject*)obj_node_addr)->node_addr = g_node_addr;
     return Py_BuildValue("O", obj_node_addr);
 }
 PyObject *dap_chain_net_get_cur_cell_py(PyObject *self, PyObject *args){
@@ -314,9 +314,8 @@ bool dap_py_chain_net_gdb_notifier(UNUSED_ARG dap_proc_thread_t *a_poc_thread, v
     return false;
 }
 
-void pvt_dap_chain_net_py_notify_handler(dap_global_db_instance_t *a_dbi, dap_store_obj_t *a_obj, void *a_arg)
+void pvt_dap_chain_net_py_notify_handler(dap_global_db_instance_t UNUSED_ARG *a_dbi, dap_store_obj_t *a_obj, void *a_arg)
 {
-    UNUSED(a_context);
     if (!a_arg)
         return;
 

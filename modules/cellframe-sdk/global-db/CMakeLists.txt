@@ -147,13 +147,6 @@ if(NOT (${SUBMODULES_NO_BUILD} MATCHES ON))
        "-fpic"
        )
    endif()
-   if (NOT (TARGET dap_chain_gdb))
-       add_subdirectory(libdap-chain-gdb)
-       target_compile_options(
-            dap_chain_gdb PRIVATE
-            "-fpic"
-       )
-   endif()
    #if (NOT (TARGET dap_python_module))
    #    add_subdirectory(libdap-python)
    #    target_compile_options(

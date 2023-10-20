@@ -1,6 +1,6 @@
 #include "wrapping_dap_chain_ledger.h"
 #include "python-cellframe_common.h"
-#include "dap_proc_queue.h"
+#include "dap_proc_thread.h"
 #include "dap_events.h"
 
 #define LOG_TAG "ledger wrapper"
