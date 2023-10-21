@@ -5,7 +5,6 @@
 static PyMethodDef DapChainNodeCliMethods[] = {
         {"cmdItemCreate", dap_chain_node_cli_cmd_item_create_py, METH_VARARGS| METH_STATIC, ""},
         {"setReplyText", dap_chain_node_cli_set_reply_text_py, METH_VARARGS| METH_STATIC, ""},
-        {"getByAlias", dap_chain_node_addr_get_by_alias_py, METH_VARARGS | METH_STATIC, ""},
         {}
 };
 
@@ -183,17 +182,6 @@ PyObject *dap_chain_node_cli_set_reply_text_py(PyObject *self, PyObject *args){
     size_t id_str_reply = PyLong_AsSize_t(obj_id_str_reply);
     dap_cli_server_cmd_set_reply_text(elements_str_reply_get_by_id(id_str_reply), str_reply_text);
     return PyLong_FromLong(0);
-}
-
-PyObject *dap_chain_node_addr_get_by_alias_py(PyObject *self, PyObject *args){
-    (void) self;
-    PyObject *chain_net;
-    const char *alias;
-    if (!PyArg_ParseTuple(args, "O|s", &chain_net, &alias))
-        return NULL;
-    PyObject *obj_node_addr = _PyObject_New(&DapChainNodeAddrObjectType);
-    ((PyDapChainNodeAddrObject*)obj_node_addr)->node_addr = dap_chain_node_addr_get_by_alias(((PyDapChainNetObject*)chain_net)->chain_net, alias);
-    return Py_BuildValue("O", obj_node_addr);
 }
 
 char **PyListToString(PyObject *list){

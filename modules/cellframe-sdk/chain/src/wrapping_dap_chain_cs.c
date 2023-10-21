@@ -98,6 +98,6 @@ PyObject *dap_chain_class_create_py(PyObject *self, PyObject *args){
     PyObject *obj_chain;
     if (!PyArg_ParseTuple(args, "O", &obj_chain))
         return NULL;
-    int res = dap_chain_cs_type_create(((PyDapChainObject*)obj_chain)->chain_t, g_config);
+    int res = dap_chain_cs_type_create("class_name" /* TODO */, ((PyDapChainObject*)obj_chain)->chain_t, g_config);
     return PyLong_FromLong(res);
 }

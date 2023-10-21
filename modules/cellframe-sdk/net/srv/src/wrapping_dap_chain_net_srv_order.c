@@ -44,15 +44,14 @@ typedef struct _wrapping_order_callable{
     PyObject *arg;
 }_wrapping_order_callable_t;
 
-void _wrapping_handler_add_order_notify(dap_global_db_context_t *a_context, dap_store_obj_t *a_obj, void *a_arg)
+void _wrapping_handler_add_order_notify(dap_global_db_instance_t UNUSED_ARG *a_dbi, dap_store_obj_t *a_obj, void *a_arg)
 {
-    UNUSED(a_context);
     if (!a_arg)
         return;
     _wrapping_order_callable_t *l_callback = (_wrapping_order_callable_t *)a_arg;
     PyGILState_STATE state = PyGILState_Ensure();
     PyDapChainNetSrvOrderObject *l_obj_order = (PyDapChainNetSrvOrderObject *)Py_None;
-    if (a_obj->value_len != 0 && a_obj->type != DAP_DB$K_OPTYPE_DEL) {
+    if (a_obj->value_len != 0 && a_obj->type != DAP_GLOBAL_DB_OPTYPE_DEL) {
         l_obj_order = PyObject_New(PyDapChainNetSrvOrderObject, &DapChainNetSrvOrderObjectType);
         l_obj_order->order = DAP_DUP_SIZE(a_obj->value, a_obj->value_len);
     }
@@ -109,7 +108,7 @@ int PyDapChainNetSrvOrder_init(PyDapChainNetSrvOrderObject *self, PyObject *args
             ((PyDapChainNetObject *) obj_net)->chain_net,
             ((PyDapChainNetSrvOrderDirectionObject *) obj_direction)->direction,
             ((PyDapChainNetSrvUIDObject *) obj_srv_uid)->net_srv_uid,
-            *((PyDapChainNodeAddrObject *) obj_node_addr)->node_addr,
+            ((PyDapChainNodeAddrObject *) obj_node_addr)->node_addr,
             l_hf,
             &l_price,
             ((PyDapChainNetSrvPriceUnitUIDObject *) obj_price_unit)->price_unit_uid,
@@ -162,7 +161,7 @@ PyObject *wrapping_dap_chain_net_srv_order_get_srv_node_addr(PyObject *self, voi
         Py_RETURN_NONE;
     }else{
         PyDapChainNodeAddrObject *l_obj_node_addr = PyObject_New(PyDapChainNodeAddrObject, &DapChainNodeAddrObjectType);
-        l_obj_node_addr->node_addr = &WRAPPING_DAP_CHAIN_NET_SRV_ORDER(self)->order->node_addr;
+        l_obj_node_addr->node_addr = WRAPPING_DAP_CHAIN_NET_SRV_ORDER(self)->order->node_addr;
         return (PyObject*)l_obj_node_addr;
     }
 }

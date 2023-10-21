@@ -25,6 +25,7 @@ PyObject *dap_chain_node_info_read_py(PyObject *self, PyObject *args){
     if (!PyArg_ParseTuple(args, "O|O", &obj_net, &obj_node_addr))
         return  NULL;
     PyObject *obj_node_info = _PyObject_New(&DapChainNodeInfoObjectType);
-    ((PyDapChainNodeInfoObject*)obj_node_info)->node_info = dap_chain_node_info_read(((PyDapChainNetObject*)obj_net)->chain_net, ((PyDapChainNodeAddrObject*)obj_node_addr)->node_addr);
+    ((PyDapChainNodeInfoObject*)obj_node_info)->node_info = dap_chain_node_info_read(((PyDapChainNetObject*)obj_net)->chain_net,
+                                                                                     &((PyDapChainNodeAddrObject*)obj_node_addr)->node_addr);
     return Py_BuildValue("O", &obj_node_info);
 }

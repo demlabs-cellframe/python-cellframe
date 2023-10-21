@@ -217,5 +217,5 @@ PyObject *dap_http_simple_query_py(PyDapHttpSimpleObject *self, void *clouser){
 
 PyObject *dap_http_simple_ip_client_py(PyDapHttpSimpleObject *self, void *clouser){
     (void)clouser;
-    return Py_BuildValue("s", self->sh->esocket->hostaddr);
+    return Py_BuildValue("s", self->sh->esocket->remote_addr_str);
 }
