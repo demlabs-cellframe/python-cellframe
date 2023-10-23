@@ -4,6 +4,7 @@
 #include "math_python.h"
 #include "libdap-crypto-python.h"
 #include "libdap_crypto_key_type_python.h"
+#include "wrapping_dap_crypto_key_types.h"
 #include "libdap_crypto_data_type.h"
 #include "wrapping_dap_sign.h"
 // === CHAIN ==

@@ -469,6 +469,7 @@ PyMODINIT_FUNC PyInit_libDAP()
         PyType_Ready( &DapCryptoAlgoObjectType ) < 0 ||
         PyType_Ready( &DapCryptoCertObjectType ) < 0 ||
         PyType_Ready( &DapCryptoKeyTypeObjectType ) < 0 ||
+        PyType_Ready( &DapCryptoKeyTypesObjectType ) < 0 ||
         PyType_Ready( &DapCryptoDataTypeObjectType ) < 0 ||
         PyType_Ready( &DapCryproSignTypeObjectType ) < 0 ||
         PyType_Ready( &DapCryptoSignObjectType ) < 0 ||
@@ -499,11 +500,13 @@ PyMODINIT_FUNC PyInit_libDAP()
 #endif
 
     PyObject *cryptoModule = PyModule_Create(&DapCryptoPythonModule);
+    PyObject *cryptoKeyTypes = PyObject_NEW(PyObject, &DapCryptoKeyTypesObjectType);
     PyModule_AddObject(cryptoModule, "Algo", (PyObject*)&DapCryptoAlgoObjectType);
     PyModule_AddObject(cryptoModule, "Cert", (PyObject*)&DapCryptoCertObjectType);
     PyModule_AddObject(cryptoModule, "SignType", (PyObject*)&DapCryproSignTypeObjectType);
     PyModule_AddObject(cryptoModule, "Sign", (PyObject*)&DapCryptoSignObjectType);
     PyModule_AddObject(cryptoModule, "CryptoKeyType", (PyObject*)&DapCryptoKeyTypeObjectType);
+    PyModule_AddObject(cryptoModule, "KeyTypes", cryptoKeyTypes);
     PyModule_AddObject(cryptoModule, "CryptoDataType", (PyObject*)&DapCryptoDataTypeObjectType);
     PyModule_AddObject(cryptoModule, "HashFast", (PyObject*)&DapChainHashFastObjectType);
 
