@@ -457,20 +457,21 @@ static size_t *ListIntToSizeT(PyObject *list){
 
 PyObject *dap_chain_ledger_get_txs_py(PyObject *self, PyObject *args){
     size_t count, page;
-    PyObject *obj_reverse;
-    if (!PyArg_ParseTuple(args, "nnO",&count, &page, &obj_reverse)){
+    PyObject *obj_reverse, *obj_unspent;
+    if (!PyArg_ParseTuple(args, "nnOO",&count, &page, &obj_reverse, &obj_unspent)){
         return NULL;
     }
     if (!PyBool_Check(obj_reverse)){
         PyErr_SetString(PyExc_AttributeError, "");
         return NULL;
     }
-    bool reverse = (obj_reverse == Py_True) ? true : false;
+    bool    reverse = obj_reverse == Py_True ? true : false,
+            unspent = obj_unspent == Py_True ? true : false;
     dap_list_t *l_txs = dap_chain_ledger_get_txs(
             ((PyDapChainLedgerObject*)self)->ledger,
             count,
             page,
-            reverse);
+            reverse, unspent);
     if (!l_txs){
         Py_RETURN_NONE;
     }
