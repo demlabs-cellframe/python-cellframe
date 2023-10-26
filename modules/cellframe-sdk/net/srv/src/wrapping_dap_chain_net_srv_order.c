@@ -10,7 +10,6 @@ static PyMethodDef DapChainNetSrvOrderMethods[]={
         {"delete", (PyCFunction)wrapping_dap_chain_net_srv_order_delete, METH_VARARGS | METH_STATIC, ""},
         {"save", (PyCFunction)wrapping_dap_chain_net_srv_order_save, METH_VARARGS, ""},
         {"getGdbGroup", (PyCFunction)wrapping_dap_chain_net_srv_order_get_gdb_group, METH_VARARGS | METH_STATIC, ""},
-        {"getNodelistGroup", (PyCFunction)wrapping_dap_chain_net_srv_order_get_nodelist_group, METH_VARARGS | METH_STATIC, ""},
         {"addNotify", (PyCFunction)wrapping_dap_chain_net_srv_order_add_notify_callback, METH_VARARGS | METH_STATIC, ""},
         {}
 };
@@ -44,7 +43,7 @@ typedef struct _wrapping_order_callable{
     PyObject *arg;
 }_wrapping_order_callable_t;
 
-void _wrapping_handler_add_order_notify(dap_global_db_instance_t UNUSED_ARG *a_dbi, dap_store_obj_t *a_obj, void *a_arg)
+void _wrapping_handler_add_order_notify(dap_store_obj_t *a_obj, void *a_arg)
 {
     if (!a_arg)
         return;
@@ -360,24 +359,6 @@ PyObject *wrapping_dap_chain_net_srv_order_get_gdb_group(PyObject *self, PyObjec
     PyObject *l_str_ret_obj = Py_BuildValue("s", l_str_srv_order_gdb_group);
     DAP_DELETE(l_str_srv_order_gdb_group);
     return l_str_ret_obj;
-}
-PyObject *wrapping_dap_chain_net_srv_order_get_nodelist_group(PyObject *self, PyObject *args){
-    (void)self;
-    PyDapChainNetObject *obj_net;
-    if(!PyArg_ParseTuple(args, "O", &obj_net)){
-        PyErr_SetString(PyExc_ValueError, "This function must take one argument");
-        return NULL;
-    }
-    if(!PyDapChainNet_Check(obj_net)){
-        PyErr_SetString(PyExc_ValueError, "The first argument must be ChainNet object");
-        return NULL;
-    }
-    char *l_node_list_group = dap_chain_net_srv_order_get_nodelist_group(obj_net->chain_net);
-    if (!l_node_list_group)
-        Py_RETURN_NONE;
-    PyObject *l_obj_res = Py_BuildValue("s", l_node_list_group);
-    DAP_DELETE(l_node_list_group);
-    return l_obj_res;
 }
 
 PyObject *wrapping_dap_chain_net_srv_order_add_notify_callback(PyObject *self, PyObject *args){

@@ -84,7 +84,6 @@ PyObject *dap_chain_net_get_name_py(PyObject *self, PyObject *args);
 PyObject *dap_chain_net_python_get_id(PyObject *self, void *closure);
 PyObject *dap_chain_net_python_get_chains(PyObject *self, void *closure);
 PyObject *dap_chain_net_get_tx_by_hash_py(PyObject *self, PyObject *args);
-PyObject *dap_chain_net_add_notify_py(PyObject *self, PyObject *args);
 PyObject *dap_chain_net_get_tx_fee_py(PyObject *self, void *closure);
 PyObject *dap_chain_net_get_tx_fee_addr_py(PyObject *self, void *closure);
 PyObject *dap_chain_net_get_validator_max_fee_py(PyObject *self, void *closure);

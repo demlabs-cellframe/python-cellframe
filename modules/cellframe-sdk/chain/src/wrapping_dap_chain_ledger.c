@@ -494,16 +494,16 @@ static void pvt_wrapping_dap_chain_ledger_tx_add_notify(void *a_arg, dap_ledger_
                                                         dap_chain_datum_tx_t *a_tx){
     if (!a_arg)
         return;
-    pvt_ledger_notify_t *notifier = (pvt_ledger_notify_t*)a_arg;
+    pvt_ledger_notify_t *notificator = (pvt_ledger_notify_t*)a_arg;
     PyGILState_STATE state = PyGILState_Ensure();
     PyDapChainLedgerObject *obj_ledger = PyObject_NEW(PyDapChainLedgerObject, &DapChainLedgerObjectType);
     PyDapChainDatumTxObject *obj_tx = PyObject_NEW(PyDapChainDatumTxObject, &DapChainDatumTxObjectType);
     obj_ledger->ledger = a_ledger;
     obj_tx->datum_tx = a_tx;
-    PyObject *notify_arg = !notifier->argv ? Py_None : notifier->argv;
+    PyObject *notify_arg = !notificator->argv ? Py_None : notificator->argv;
     PyObject *argv = Py_BuildValue("OOO", (PyObject*)obj_ledger, (PyObject*)obj_tx, notify_arg);
-    log_it(L_DEBUG, "Call tx added ledger notifier for net %s", a_ledger->net_name);
-    PyObject* result = PyObject_CallObject(notifier->func, argv);
+    log_it(L_DEBUG, "Call tx added ledger notificator for net %s", a_ledger->net_name);
+    PyObject* result = PyObject_CallObject(notificator->func, argv);
     if (!result){
         python_error_in_log_it(LOG_TAG);
     }
@@ -522,16 +522,16 @@ PyObject *dap_chain_ledger_tx_add_notify_py(PyObject *self, PyObject *args) {
                                               " function called by the callback.");
         return NULL;
     }
-    pvt_ledger_notify_t *notifier = DAP_NEW(pvt_ledger_notify_t);
-    if(!notifier) {
+    pvt_ledger_notify_t *notificator = DAP_NEW(pvt_ledger_notify_t);
+    if(!notificator) {
         log_it(L_CRITICAL, "Memory allocation error");
         return NULL;
     }
-    notifier->func = obj_func;
-    notifier->argv = obj_argv;
+    notificator->func = obj_func;
+    notificator->argv = obj_argv;
     Py_INCREF(obj_func);
     Py_XINCREF(obj_argv);
-    dap_chain_ledger_tx_add_notify(((PyDapChainLedgerObject*)self)->ledger, pvt_wrapping_dap_chain_ledger_tx_add_notify, notifier);
+    dap_chain_ledger_tx_add_notify(((PyDapChainLedgerObject*)self)->ledger, pvt_wrapping_dap_chain_ledger_tx_add_notify, notificator);
     Py_RETURN_NONE;
 }
 
@@ -552,7 +552,7 @@ static bool s_python_obj_notificator(UNUSED_ARG dap_proc_thread_t *a_thread, voi
     obj_tx->datum_tx = l_args->tx;
     PyObject *l_notify_arg = !l_notificator->argv ? Py_None : l_notificator->argv;
     Py_INCREF(l_notify_arg);
-    log_it(L_DEBUG, "Call bridged tx ledger notifier for net %s", l_args->ledger->net_name);
+    log_it(L_DEBUG, "Call bridged tx ledger notificator for net %s", l_args->ledger->net_name);
     PyGILState_STATE state = PyGILState_Ensure();
     PyObject *obj_argv = Py_BuildValue("OOO", obj_ledger, obj_tx, l_notify_arg);
     Py_INCREF(l_notificator->func);

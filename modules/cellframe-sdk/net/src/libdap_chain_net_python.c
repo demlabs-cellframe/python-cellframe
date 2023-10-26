@@ -25,7 +25,6 @@ static PyMethodDef DapChainNetMethods[] = {
         {"getLedger", dap_chain_net_get_ledger_py, METH_NOARGS, ""},
         {"getName", dap_chain_net_get_name_py, METH_NOARGS, ""},
         {"getTxByHash", dap_chain_net_get_tx_by_hash_py, METH_VARARGS, ""},
-        {"addNotify", (PyCFunction)dap_chain_net_add_notify_py, METH_VARARGS, ""},
         {"verifyCodeToStr", (PyCFunction)dap_chain_net_convert_verify_code_to_str, METH_VARARGS | METH_STATIC, ""},
         {}
 };
@@ -285,7 +284,7 @@ typedef struct _wrapping_dap_chain_net_notify_callback{
     dap_store_obj_t *store_obj;
 }_wrapping_dap_chain_net_notify_callback_t;
 
-bool dap_py_chain_net_gdb_notifier(UNUSED_ARG dap_proc_thread_t *a_poc_thread, void *a_arg) {
+bool dap_py_chain_net_gdb_notificator(UNUSED_ARG dap_proc_thread_t *a_poc_thread, void *a_arg) {
     if (!a_arg)
         return true;
 
@@ -326,25 +325,7 @@ void pvt_dap_chain_net_py_notify_handler(dap_global_db_instance_t UNUSED_ARG *a_
     l_obj->store_obj = dap_store_obj_copy(a_obj, 1);
     l_obj->func = ((_wrapping_dap_chain_net_notify_callback_t*)a_arg)->func;
     l_obj->arg = ((_wrapping_dap_chain_net_notify_callback_t*)a_arg)->arg;
-    dap_proc_thread_callback_add(NULL, dap_py_chain_net_gdb_notifier, l_obj);
-}
-
-PyObject *dap_chain_net_add_notify_py(PyObject *self, PyObject *args){
-    PyObject *obj_func = NULL, *obj_arg;
-    if (!PyArg_ParseTuple(args, "OO", &obj_func, &obj_arg)){
-        return NULL;
-    }
-    if (!PyCallable_Check(obj_func)){
-        PyErr_SetString(PyExc_AttributeError, "Argument must be callable");
-        return NULL;
-    }
-    _wrapping_dap_chain_net_notify_callback_t *l_callback = DAP_NEW(_wrapping_dap_chain_net_notify_callback_t);
-    l_callback->func = obj_func;
-    l_callback->arg = obj_arg;
-    Py_INCREF(obj_func);
-    Py_INCREF(obj_arg);
-    dap_chain_net_add_gdb_notify_callback(((PyDapChainNetObject*)self)->chain_net, pvt_dap_chain_net_py_notify_handler, l_callback);
-    Py_RETURN_NONE;
+    dap_proc_thread_callback_add(NULL, dap_py_chain_net_gdb_notificator, l_obj);
 }
 
 PyObject *dap_chain_net_get_tx_fee_py(PyObject *self, void *closure){
