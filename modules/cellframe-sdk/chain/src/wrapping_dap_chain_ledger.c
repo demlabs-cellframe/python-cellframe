@@ -21,7 +21,6 @@ static PyMethodDef DapChainLedgerMethods[] = {
         {"addrGetTokenTickerAll", (PyCFunction)dap_chain_ledger_addr_get_token_ticker_all_py, METH_VARARGS, ""},
         {"txCacheCheck", (PyCFunction)dap_chain_ledger_tx_cache_check_py, METH_VARARGS, ""},
         {"datumTxCacheCheck", (PyCFunction)dap_chain_node_datum_tx_cache_check_py, METH_VARARGS, ""},
-        {"txRemove", (PyCFunction)dap_chain_ledger_tx_remove_py, METH_VARARGS, ""},
         {"purge", (PyCFunction)dap_chain_ledger_purge_py, METH_VARARGS, ""},
         {"count", (PyCFunction)dap_chain_ledger_count_py, METH_VARARGS, ""},
         {"countFromTo", (PyCFunction)dap_chain_ledger_count_from_to_py, METH_VARARGS, ""},
@@ -276,14 +275,7 @@ PyObject *dap_chain_node_datum_tx_cache_check_py(PyObject *self, PyObject *args)
 //    int res = dap_chain_node_datum_tx_cache_check(((PyDapChainDatumTxObject*)obj_datum_tx)->datum_tx, bound_items);
 //    return PyLong_FromLong(res);
 }
-PyObject *dap_chain_ledger_tx_remove_py(PyObject *self, PyObject *args){
-    PyObject *obj_h_fast;
-    if (!PyArg_ParseTuple(args, "O", &obj_h_fast))
-        return NULL;
-    int res = dap_chain_ledger_tx_remove(((PyDapChainLedgerObject*)self)->ledger,
-                                         ((PyDapHashFastObject*)obj_h_fast)->hash_fast, 0);
-    return PyLong_FromLong(res);
-}
+
 PyObject *dap_chain_ledger_purge_py(PyObject *self, PyObject *args){
     dap_chain_ledger_purge(((PyDapChainLedgerObject*)self)->ledger, false);
     return PyLong_FromLong(0);
