@@ -151,8 +151,7 @@ PyObject *dap_chain_addr_fill_from_key_py(PyObject *self, PyObject *args){
 }
 
 PyObject *dap_chain_addr_check_sum_py(PyObject *self, PyObject *args){
-    int res = dap_chain_addr_check_sum(((PyDapChainAddrObject*)self)->addr);
-    return PyLong_FromLong(res);
+    return PyLong_FromLong(dap_chain_addr_check_sum(((PyDapChainAddrObject*)self)->addr));
 }
 
 PyObject *obj_addr_str(PyObject *self){
