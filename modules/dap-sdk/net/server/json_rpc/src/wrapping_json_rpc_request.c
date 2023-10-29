@@ -64,6 +64,7 @@ void _w_dap_json_rpc_request_handler(dap_json_rpc_params_t *a_params, dap_json_r
             a_response->error = DAP_NEW(dap_json_rpc_error_t);
             a_response->error->code_error = 0xF1;
             a_response->error->msg = "Can't call method";
+            Py_XDECREF(args);
             //a_response->error = dap_json_rpc_error_search_by_code(1);
             return;
         }

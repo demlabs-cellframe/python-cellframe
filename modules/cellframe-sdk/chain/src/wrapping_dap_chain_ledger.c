@@ -170,14 +170,13 @@ PyObject *dap_chain_ledger_token_auth_pkeys_hashes_py(PyObject *self, PyObject *
         return NULL;
     }
     dap_list_t * l_hashes = dap_chain_ledger_token_auth_pkeys_hashes(((PyDapChainLedgerObject*)self)->ledger, token_ticker);
-    PyObject *obj_list = PyList_New(0);
-
-    for (dap_list_t *l_iter = l_hashes; l_iter != NULL; l_iter = l_iter->next){
+    PyObject *obj_list = PyList_New(dap_list_length(l_hashes));
+    size_t i = 0;
+    for (dap_list_t *l_iter = l_hashes; l_iter != NULL; l_iter = l_iter->next, ++i){
         PyDapHashFastObject *obj_hash = PyObject_New(PyDapHashFastObject, &DapChainHashFastObjectType);
         obj_hash->hash_fast = (dap_chain_hash_fast_t *)l_iter->data;
         obj_hash->origin = false;
-        PyList_Append(obj_list, (PyObject*)obj_hash);
-        Py_XDECREF((PyObject*)obj_hash);
+        PyList_SetItem(obj_list, i, (PyObject*)obj_hash);
     }
 
     dap_list_free(l_hashes);
@@ -475,13 +474,15 @@ PyObject *dap_chain_ledger_get_txs_py(PyObject *self, PyObject *args){
     if (!l_txs){
         Py_RETURN_NONE;
     }
-    PyObject *obj_list = PyList_New(0);
-    for (dap_list_t *l_iter = l_txs; l_iter != NULL; l_iter = l_iter->next){
+    PyObject *obj_list = PyList_New(dap_list_length(l_txs));
+    size_t i = 0;
+    for (dap_list_t *l_iter = l_txs; l_iter != NULL; l_iter = l_iter->next, ++i) {
         PyDapChainDatumTxObject *obj_tx = PyObject_New(PyDapChainDatumTxObject, &DapChainDatumTxObjectType);
         obj_tx->datum_tx = l_iter->data;
         obj_tx->original = false;
-        PyList_Append(obj_list, (PyObject*)obj_tx);
+        PyList_SetItem(obj_list, i, (PyObject*)obj_tx);
     }
+    dap_list_free(l_txs);
     return obj_list;
 }
 
