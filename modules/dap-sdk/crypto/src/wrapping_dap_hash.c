@@ -46,7 +46,7 @@ PyTypeObject DapChainHashFastObjectType = DAP_PY_TYPE_OBJECT(
         .tp_init = PyDapHashFast_init);
 
 void PyDapHashFast_free(PyDapHashFastObject *self) {
-    if (self->origin == true) {
+    if (self->origin == true ) {
         DAP_DELETE(self->hash_fast);
     }
     Py_TYPE(self)->tp_free((PyObject*)self);
