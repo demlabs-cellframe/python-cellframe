@@ -171,11 +171,6 @@ PyObject *python_cellframe_init(PyObject *self, PyObject *args)
                 PyErr_SetString(CellFrame_error, "Failed to initialize \"Client\" module");
                 return NULL;
             }
-        }else if (strcmp(c_value, "GDB") == 0){
-            if (dap_chain_gdb_init_py() != 0){
-                PyErr_SetString(CellFrame_error, "Failed to initialize \"GDB\" module");
-                return NULL;
-            }
         }else if (strcmp(c_value, "Net") == 0){
             if (dap_chain_net_init_py() != 0 ){
                 PyErr_SetString(CellFrame_error, "Failed to initialize \"Net\" module");
@@ -619,8 +614,7 @@ PyMODINIT_FUNC PyInit_libCellFrame(void)
         PyType_Ready( &DapChainCsDagPoaObjectType ) < 0 ||
         PyType_Ready(&DapChainCsBlockType) < 0 ||
         PyType_Ready(&DapChainCsDagType) < 0 ||
-        PyType_Ready(&DapChainCsDagEventType) < 0 ||
-        PyType_Ready( &DapChainGdbObjectType ) < 0
+        PyType_Ready(&DapChainCsDagEventType) < 0
         ) {
         log_it(L_CRITICAL,"Not all python type objects are initialized for CellFrame module");
         return NULL;
@@ -698,7 +692,7 @@ PyMODINIT_FUNC PyInit_libCellFrame(void)
     PyModule_AddObject(csModule, "Block", (PyObject*)&DapChainCsBlockType);
     PyModule_AddObject(csModule, "ChainCSDag", (PyObject*)&DapChainCsDagType);
     PyModule_AddObject(csModule, "DAG", (PyObject*)&DapChainCsDagEventType);
-    PyModule_AddObject(csModule, "GDB", (PyObject*)&DapChainGdbObjectType);
+    // TODO PyModule_AddObject(csModule, "None", (PyObject*)&DapNonconsensusObjectType);
 
     PyObject *cellframeModule = PyModule_Create(&CellFramePythonModule);
     PyModule_AddStringConstant(cellframeModule, "__author__", "Alexey Stratulat <alexey.stratulat@demlabs.net>");

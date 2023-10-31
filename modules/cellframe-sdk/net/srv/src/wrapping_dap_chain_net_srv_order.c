@@ -10,7 +10,6 @@ static PyMethodDef DapChainNetSrvOrderMethods[]={
         {"delete", (PyCFunction)wrapping_dap_chain_net_srv_order_delete, METH_VARARGS | METH_STATIC, ""},
         {"save", (PyCFunction)wrapping_dap_chain_net_srv_order_save, METH_VARARGS, ""},
         {"getGdbGroup", (PyCFunction)wrapping_dap_chain_net_srv_order_get_gdb_group, METH_VARARGS | METH_STATIC, ""},
-        {"getNodelistGroup", (PyCFunction)wrapping_dap_chain_net_srv_order_get_nodelist_group, METH_VARARGS | METH_STATIC, ""},
         {"addNotify", (PyCFunction)wrapping_dap_chain_net_srv_order_add_notify_callback, METH_VARARGS | METH_STATIC, ""},
         {}
 };
@@ -44,15 +43,14 @@ typedef struct _wrapping_order_callable{
     PyObject *arg;
 }_wrapping_order_callable_t;
 
-void _wrapping_handler_add_order_notify(dap_global_db_context_t *a_context, dap_store_obj_t *a_obj, void *a_arg)
+void _wrapping_handler_add_order_notify(dap_store_obj_t *a_obj, void *a_arg)
 {
-    UNUSED(a_context);
     if (!a_arg)
         return;
     _wrapping_order_callable_t *l_callback = (_wrapping_order_callable_t *)a_arg;
     PyGILState_STATE state = PyGILState_Ensure();
     PyDapChainNetSrvOrderObject *l_obj_order = (PyDapChainNetSrvOrderObject *)Py_None;
-    if (a_obj->value_len != 0 && a_obj->type != DAP_DB$K_OPTYPE_DEL) {
+    if (a_obj->value_len != 0 && a_obj->type != DAP_GLOBAL_DB_OPTYPE_DEL) {
         l_obj_order = PyObject_New(PyDapChainNetSrvOrderObject, &DapChainNetSrvOrderObjectType);
         l_obj_order->order = DAP_DUP_SIZE(a_obj->value, a_obj->value_len);
     }
@@ -89,8 +87,8 @@ int PyDapChainNetSrvOrder_init(PyDapChainNetSrvOrderObject *self, PyObject *args
     uint64_t price;
     char *price_ticker;
     unsigned long expires;
+    unsigned long units;
     PyObject *obj_ext, *obj_key;
-    unsigned int units;
     if (!PyArg_ParseTupleAndKeywords(args, kwds, "OOOOOkOsOOIO", (char **)kwlist, &obj_net, &obj_direction, &obj_srv_uid,
                                      &obj_node_addr, &obj_tx_cond_hash, &price, &obj_price_unit, &price_ticker,
                                      &expires, &obj_ext, &units, &obj_key)){
@@ -109,7 +107,7 @@ int PyDapChainNetSrvOrder_init(PyDapChainNetSrvOrderObject *self, PyObject *args
             ((PyDapChainNetObject *) obj_net)->chain_net,
             ((PyDapChainNetSrvOrderDirectionObject *) obj_direction)->direction,
             ((PyDapChainNetSrvUIDObject *) obj_srv_uid)->net_srv_uid,
-            *((PyDapChainNodeAddrObject *) obj_node_addr)->node_addr,
+            ((PyDapChainNodeAddrObject *) obj_node_addr)->node_addr,
             l_hf,
             &l_price,
             ((PyDapChainNetSrvPriceUnitUIDObject *) obj_price_unit)->price_unit_uid,
@@ -162,7 +160,7 @@ PyObject *wrapping_dap_chain_net_srv_order_get_srv_node_addr(PyObject *self, voi
         Py_RETURN_NONE;
     }else{
         PyDapChainNodeAddrObject *l_obj_node_addr = PyObject_New(PyDapChainNodeAddrObject, &DapChainNodeAddrObjectType);
-        l_obj_node_addr->node_addr = &WRAPPING_DAP_CHAIN_NET_SRV_ORDER(self)->order->node_addr;
+        l_obj_node_addr->node_addr = WRAPPING_DAP_CHAIN_NET_SRV_ORDER(self)->order->node_addr;
         return (PyObject*)l_obj_node_addr;
     }
 }
@@ -361,24 +359,6 @@ PyObject *wrapping_dap_chain_net_srv_order_get_gdb_group(PyObject *self, PyObjec
     PyObject *l_str_ret_obj = Py_BuildValue("s", l_str_srv_order_gdb_group);
     DAP_DELETE(l_str_srv_order_gdb_group);
     return l_str_ret_obj;
-}
-PyObject *wrapping_dap_chain_net_srv_order_get_nodelist_group(PyObject *self, PyObject *args){
-    (void)self;
-    PyDapChainNetObject *obj_net;
-    if(!PyArg_ParseTuple(args, "O", &obj_net)){
-        PyErr_SetString(PyExc_ValueError, "This function must take one argument");
-        return NULL;
-    }
-    if(!PyDapChainNet_Check(obj_net)){
-        PyErr_SetString(PyExc_ValueError, "The first argument must be ChainNet object");
-        return NULL;
-    }
-    char *l_node_list_group = dap_chain_net_srv_order_get_nodelist_group(obj_net->chain_net);
-    if (!l_node_list_group)
-        Py_RETURN_NONE;
-    PyObject *l_obj_res = Py_BuildValue("s", l_node_list_group);
-    DAP_DELETE(l_node_list_group);
-    return l_obj_res;
 }
 
 PyObject *wrapping_dap_chain_net_srv_order_add_notify_callback(PyObject *self, PyObject *args){

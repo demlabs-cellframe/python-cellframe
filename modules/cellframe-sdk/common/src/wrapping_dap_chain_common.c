@@ -284,7 +284,7 @@ PyTypeObject DapChainNodeAddrObjectType = DAP_PY_TYPE_OBJECT(
         .tp_str = PyDapChainNodeAddrObject_str);
 
 PyObject* PyDapChainNodeAddrObject_str(PyObject* self){
-    char *ret = dap_strdup_printf(NODE_ADDR_FP_STR, NODE_ADDR_FP_ARGS(((PyDapChainNodeAddrObject *) self)->node_addr));
+    char *ret = dap_strdup_printf(NODE_ADDR_FP_STR, NODE_ADDR_FP_ARGS_S(((PyDapChainNodeAddrObject *) self)->node_addr));
     PyObject *l_obj = Py_BuildValue("s", ret);
     DAP_FREE(ret);
     return l_obj;

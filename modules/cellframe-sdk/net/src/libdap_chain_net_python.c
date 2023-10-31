@@ -25,7 +25,7 @@ static PyMethodDef DapChainNetMethods[] = {
         {"getLedger", dap_chain_net_get_ledger_py, METH_NOARGS, ""},
         {"getName", dap_chain_net_get_name_py, METH_NOARGS, ""},
         {"getTxByHash", dap_chain_net_get_tx_by_hash_py, METH_VARARGS, ""},
-        {"addNotify", (PyCFunction)dap_chain_net_add_notify_py, METH_VARARGS, ""},
+        {"verifyCodeToStr", (PyCFunction)dap_chain_net_convert_verify_code_to_str, METH_VARARGS | METH_STATIC, ""},
         {}
 };
 
@@ -195,7 +195,7 @@ PyObject *dap_chain_net_python_get_chains(PyObject *self, void *closure){
 
 PyObject *dap_chain_net_get_cur_addr_py(PyObject *self, PyObject *args){
     PyObject *obj_node_addr = _PyObject_New(&DapChainNodeAddrObjectType);
-    ((PyDapChainNodeAddrObject*)obj_node_addr)->node_addr = dap_chain_net_get_cur_addr(((PyDapChainNetObject*)self)->chain_net);
+    ((PyDapChainNodeAddrObject*)obj_node_addr)->node_addr = g_node_addr;
     return Py_BuildValue("O", obj_node_addr);
 }
 PyObject *dap_chain_net_get_cur_cell_py(PyObject *self, PyObject *args){
@@ -287,7 +287,7 @@ typedef struct _wrapping_dap_chain_net_notify_callback{
     dap_store_obj_t *store_obj;
 }_wrapping_dap_chain_net_notify_callback_t;
 
-bool dap_py_chain_net_gdb_notifier(UNUSED_ARG dap_proc_thread_t *a_poc_thread, void *a_arg) {
+bool dap_py_chain_net_gdb_notificator(UNUSED_ARG dap_proc_thread_t *a_poc_thread, void *a_arg) {
     if (!a_arg)
         return true;
 
@@ -313,12 +313,11 @@ bool dap_py_chain_net_gdb_notifier(UNUSED_ARG dap_proc_thread_t *a_poc_thread, v
     Py_XDECREF(l_callback->arg);
     PyGILState_Release(state);
     dap_store_obj_free_one(l_callback->store_obj);
-    return true;
+    return false;
 }
 
-void pvt_dap_chain_net_py_notify_handler(dap_global_db_context_t *a_context, dap_store_obj_t *a_obj, void *a_arg)
+void pvt_dap_chain_net_py_notify_handler(dap_global_db_instance_t UNUSED_ARG *a_dbi, dap_store_obj_t *a_obj, void *a_arg)
 {
-    UNUSED(a_context);
     if (!a_arg)
         return;
 
@@ -329,25 +328,7 @@ void pvt_dap_chain_net_py_notify_handler(dap_global_db_context_t *a_context, dap
     l_obj->store_obj = dap_store_obj_copy(a_obj, 1);
     l_obj->func = ((_wrapping_dap_chain_net_notify_callback_t*)a_arg)->func;
     l_obj->arg = ((_wrapping_dap_chain_net_notify_callback_t*)a_arg)->arg;
-    dap_proc_queue_add_callback(dap_events_worker_get_auto(), dap_py_chain_net_gdb_notifier, l_obj);
-}
-
-PyObject *dap_chain_net_add_notify_py(PyObject *self, PyObject *args){
-    PyObject *obj_func = NULL, *obj_arg;
-    if (!PyArg_ParseTuple(args, "OO", &obj_func, &obj_arg)){
-        return NULL;
-    }
-    if (!PyCallable_Check(obj_func)){
-        PyErr_SetString(PyExc_AttributeError, "Argument must be callable");
-        return NULL;
-    }
-    _wrapping_dap_chain_net_notify_callback_t *l_callback = DAP_NEW(_wrapping_dap_chain_net_notify_callback_t);
-    l_callback->func = obj_func;
-    l_callback->arg = obj_arg;
-    Py_INCREF(obj_func);
-    Py_INCREF(obj_arg);
-    dap_chain_net_add_gdb_notify_callback(((PyDapChainNetObject*)self)->chain_net, pvt_dap_chain_net_py_notify_handler, l_callback);
-    Py_RETURN_NONE;
+    dap_proc_thread_callback_add(NULL, dap_py_chain_net_gdb_notificator, l_obj);
 }
 
 PyObject *dap_chain_net_get_tx_fee_py(PyObject *self, void *closure){
@@ -401,6 +382,21 @@ PyObject *dap_chain_net_get_validator_average_fee_py(PyObject *self, void *closu
     return (PyObject*)l_obj_value;
 }
 
+PyObject *dap_chain_net_convert_verify_code_to_str(PyObject *self, PyObject *args){
+    (void)self;
+    PyObject *obj_datum = NULL;
+    unsigned int a_code = 0;
+    if (!PyArg_ParseTuple(args, "OI", &obj_datum, &a_code)) {
+        return NULL;
+    }
+    if (!PyDapChainDatum_Check(obj_datum)) {
+        PyErr_SetString(PyExc_AttributeError, "The first argument was not passed correctly. The first "
+                                              "argument must be an instance of a datum object.");
+        return NULL;
+    }
+    return Py_BuildValue("s", dap_chain_net_verify_datum_err_code_to_str(
+            ((PyDapChainDatumObject*)obj_datum)->datum, (int)a_code));
+}
 PyObject *dap_chain_net_get_native_ticker_py(PyObject *self, void *closure){
     (void)closure;
     return Py_BuildValue("s", ((PyDapChainNetObject*)self)->chain_net->pub.native_ticker);

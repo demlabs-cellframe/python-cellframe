@@ -30,9 +30,9 @@ else()
 
     SET( CPACK_GENERATOR "DEB")
     SET( CPACK_PACKAGE_NAME  "${PROJECT_NAME}")
-    SET( CPACK_PACKAGE_VERSION_MAJOR 0)
-    SET( CPACK_PACKAGE_VERSION_MINOR 9)
-    SET( CPACK_PACKAGE_VERSION_PATCH 15)
+    SET( CPACK_PACKAGE_VERSION_MAJOR 3)
+    SET( CPACK_PACKAGE_VERSION_MINOR 0)
+    SET( CPACK_PACKAGE_VERSION_PATCH 0)
 
     add_definitions("-DDAP_VERSION_MAJOR=\"${CPACK_PACKAGE_VERSION_MAJOR}\"")
     add_definitions("-DDAP_VERSION_MINOR=\"${CPACK_PACKAGE_VERSION_MINOR}\"")
@@ -83,7 +83,6 @@ add_subdirectory(modules/cellframe-sdk/common)
 add_subdirectory(modules/cellframe-sdk/mempool)
 add_subdirectory(modules/cellframe-sdk/net)
 add_subdirectory(modules/cellframe-sdk/net/srv)
-add_subdirectory(modules/cellframe-sdk/gdb)
 add_subdirectory(modules/cellframe-sdk/chain)
 add_subdirectory(modules/cellframe-sdk/app-cli)
 add_subdirectory(modules/cellframe-sdk/wallet)
@@ -99,7 +98,6 @@ add_subdirectory(modules/cellframe-sdk/channel/chain-net)
     target_compile_options(dap_crypto_python_module PRIVATE "-fpic" )
     target_compile_options(dap_chain_net_python_module PRIVATE "-fpic")
     target_compile_options(dap_chain_net_srv_python_module PRIVATE "-fpic")
-    target_compile_options(dap_chain_gdb_python_module PRIVATE "-fpic")
     target_compile_options(dap_chain_python_module PRIVATE "-fpic")
     target_compile_options(dap_app_cli_python_module PRIVATE "-fpic")
     target_compile_options(dap_client_python_module PRIVATE "-fpic")
@@ -189,7 +187,6 @@ target_link_libraries(${PROJECT_NAME} cellframe-sdk dap_python_module
                       dap_chain_net_python_module
                       dap_chain_net_srv_python_module
                       dap_mempool_python_module
-                      dap_chain_gdb_python_module
                       dap_app_cli_python_module
                       dap_chain_wallet_python_module
                       dap_server_json_rpc_python_module

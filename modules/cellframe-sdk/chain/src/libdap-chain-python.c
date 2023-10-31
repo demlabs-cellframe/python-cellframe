@@ -1,6 +1,6 @@
 #include "libdap-chain-python.h"
-#include "dap_chain_pvt.h"
 #include "python-cellframe_common.h"
+#include "libdap_chain_net_python.h"
 
 #define LOG_TAG "libdap-chain-python"
 
@@ -32,6 +32,7 @@ static PyMethodDef DapChainMethods[] = {
         {"countTx", (PyCFunction)dap_chain_python_get_count_tx, METH_NOARGS, ""},
         {"getTransactions", (PyCFunction)dap_chain_python_get_txs, METH_VARARGS, ""},
         {"getCSName", (PyCFunction)dap_chain_python_get_cs_name, METH_NOARGS, ""},
+        {"getNet", (PyCFunction) dap_chain_python_get_net, METH_NOARGS, ""},
         {}
 };
 
@@ -230,19 +231,19 @@ typedef struct _wrapping_chain_mempool_notify_callback {
     dap_store_obj_t *obj;
 } _wrapping_chain_mempool_notify_callback_t;
 
-bool dap_py_mempool_notifier(UNUSED_ARG dap_proc_thread_t *a_poc_thread, void *a_arg)
+bool dap_py_mempool_notificator(dap_proc_thread_t UNUSED_ARG *a_poc_thread, void *a_arg)
 {
     if (!a_arg)
-        return true;
+        return false;
     _wrapping_chain_mempool_notify_callback_t *l_callback = a_arg;
     if (!l_callback->obj) {
         log_it(L_ERROR, "It is not possible to call a python function. An object with arguments was not passed.");
-        return true;
+        return false;
     }
-    if (l_callback->obj->group_len == 0 || !l_callback->obj->group)
+    if (!l_callback->obj->group)
     {
         log_it(L_WARNING, "Called mempool notify in python with None group");
-        return true;
+        return false;
     }
     PyGILState_STATE state = PyGILState_Ensure();
     dap_store_obj_t *l_obj = l_callback->obj;
@@ -259,14 +260,14 @@ bool dap_py_mempool_notifier(UNUSED_ARG dap_proc_thread_t *a_poc_thread, void *a
         obj_key = Py_None;
         Py_INCREF(Py_None);
     }
-    if (l_obj->type == DAP_DB$K_OPTYPE_ADD) {
+    if (l_obj->type == DAP_GLOBAL_DB_OPTYPE_ADD) {
         obj_value = PyBytes_FromStringAndSize((char *)l_obj->value, (Py_ssize_t)l_obj->value_len);
     } else {
         obj_value = Py_None;
         Py_INCREF(Py_None);
     }
     l_args = Py_BuildValue("ssOOO", l_op_code, l_obj->group, obj_key, obj_value, l_callback->arg);
-    log_it(L_DEBUG, "Call mempool notifier with key '%s'", l_obj->key ? l_obj->key : "null");
+    log_it(L_DEBUG, "Call mempool notificator with key '%s'", l_obj->key ? l_obj->key : "null");
     Py_XINCREF(l_callback->arg);
     Py_XINCREF(l_callback->func);
     PyObject_CallObject(l_callback->func, l_args);
@@ -277,10 +278,10 @@ bool dap_py_mempool_notifier(UNUSED_ARG dap_proc_thread_t *a_poc_thread, void *a
     Py_XDECREF(obj_value);
     dap_store_obj_free_one(l_callback->obj);
     PyGILState_Release(state);
-    return true;
+    return false;
 }
 
-static void _wrapping_dap_chain_mempool_notify_handler(UNUSED_ARG dap_global_db_context_t *a_context, dap_store_obj_t *a_obj, void *a_arg)
+static void _wrapping_dap_chain_mempool_notify_handler(dap_store_obj_t *a_obj, void *a_arg)
 {
     // Notify python context from proc thread to avoid deadlock in GDB context with GIL accuire trying
     _wrapping_chain_mempool_notify_callback_t *l_obj = DAP_NEW(_wrapping_chain_mempool_notify_callback_t);
@@ -291,7 +292,7 @@ static void _wrapping_dap_chain_mempool_notify_handler(UNUSED_ARG dap_global_db_
     l_obj->obj = dap_store_obj_copy(a_obj, 1);
     l_obj->func = ((_wrapping_chain_mempool_notify_callback_t *)a_arg)->func;
     l_obj->arg = ((_wrapping_chain_mempool_notify_callback_t *)a_arg)->arg;
-    dap_proc_queue_add_callback(dap_events_worker_get_auto(), dap_py_mempool_notifier, l_obj);
+    dap_proc_thread_callback_add(NULL, dap_py_mempool_notificator, l_obj);
 }
 /**
  * @brief _wrapping_dap_chain_atom_notify_handler
@@ -321,7 +322,7 @@ static void _wrapping_dap_chain_atom_notify_handler(void * a_arg, dap_chain_t *a
         l_args = Py_BuildValue("OO", Py_None, l_callback->arg);
     }
 
-    log_it(L_DEBUG, "Call atom notifier for chain %s with atom size %zd", a_chain->name, a_atom_size );
+    log_it(L_DEBUG, "Call atom notificator for chain %s with atom size %zd", a_chain->name, a_atom_size );
     PyObject *result = PyObject_CallObject(l_callback->func, l_args);
     if (!result) {
         python_error_in_log_it(LOG_TAG);
@@ -534,4 +535,11 @@ PyObject *dap_chain_python_get_cs_name(PyObject *self, PyObject *args){
 
 PyObject *PyDapChain_str(PyObject *self){
     return Py_BuildValue("s", ((PyDapChainObject*)self)->chain_t->name);
+}
+
+PyObject *dap_chain_python_get_net(PyObject *self, PyObject *args){
+    (void)args;
+    PyDapChainNetObject *obj_net = PyObject_New(PyDapChainNetObject, &DapChainNetObjectType);
+    obj_net->chain_net = dap_chain_net_by_id(((PyDapChainObject*)self)->chain_t->net_id);
+    return (PyObject*)obj_net;
 }
