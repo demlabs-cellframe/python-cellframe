@@ -287,7 +287,7 @@ typedef struct _wrapping_dap_chain_net_notify_callback{
     dap_store_obj_t *store_obj;
 }_wrapping_dap_chain_net_notify_callback_t;
 
-bool dap_py_chain_net_gdb_notificator(UNUSED_ARG dap_proc_thread_t *a_poc_thread, void *a_arg) {
+bool dap_py_chain_net_gdb_notifier(UNUSED_ARG dap_proc_thread_t *a_poc_thread, void *a_arg) {
     if (!a_arg)
         return true;
 
@@ -328,7 +328,7 @@ void pvt_dap_chain_net_py_notify_handler(dap_global_db_instance_t UNUSED_ARG *a_
     l_obj->store_obj = dap_store_obj_copy(a_obj, 1);
     l_obj->func = ((_wrapping_dap_chain_net_notify_callback_t*)a_arg)->func;
     l_obj->arg = ((_wrapping_dap_chain_net_notify_callback_t*)a_arg)->arg;
-    dap_proc_thread_callback_add(NULL, dap_py_chain_net_gdb_notificator, l_obj);
+    dap_proc_thread_callback_add(NULL, dap_py_chain_net_gdb_notifier, l_obj);
 }
 
 PyObject *dap_chain_net_get_tx_fee_py(PyObject *self, void *closure){

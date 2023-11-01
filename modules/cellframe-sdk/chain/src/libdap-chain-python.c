@@ -231,7 +231,7 @@ typedef struct _wrapping_chain_mempool_notify_callback {
     dap_store_obj_t *obj;
 } _wrapping_chain_mempool_notify_callback_t;
 
-bool dap_py_mempool_notificator(dap_proc_thread_t UNUSED_ARG *a_poc_thread, void *a_arg)
+bool dap_py_mempool_notifier(dap_proc_thread_t UNUSED_ARG *a_poc_thread, void *a_arg)
 {
     if (!a_arg)
         return false;
@@ -267,7 +267,7 @@ bool dap_py_mempool_notificator(dap_proc_thread_t UNUSED_ARG *a_poc_thread, void
         Py_INCREF(Py_None);
     }
     l_args = Py_BuildValue("ssOOO", l_op_code, l_obj->group, obj_key, obj_value, l_callback->arg);
-    log_it(L_DEBUG, "Call mempool notificator with key '%s'", l_obj->key ? l_obj->key : "null");
+    log_it(L_DEBUG, "Call mempool notifier with key '%s'", l_obj->key ? l_obj->key : "null");
     Py_XINCREF(l_callback->arg);
     Py_XINCREF(l_callback->func);
     PyObject_CallObject(l_callback->func, l_args);
@@ -292,7 +292,7 @@ static void _wrapping_dap_chain_mempool_notify_handler(dap_store_obj_t *a_obj, v
     l_obj->obj = dap_store_obj_copy(a_obj, 1);
     l_obj->func = ((_wrapping_chain_mempool_notify_callback_t *)a_arg)->func;
     l_obj->arg = ((_wrapping_chain_mempool_notify_callback_t *)a_arg)->arg;
-    dap_proc_thread_callback_add(NULL, dap_py_mempool_notificator, l_obj);
+    dap_proc_thread_callback_add(NULL, dap_py_mempool_notifier, l_obj);
 }
 /**
  * @brief _wrapping_dap_chain_atom_notify_handler
@@ -322,7 +322,7 @@ static void _wrapping_dap_chain_atom_notify_handler(void * a_arg, dap_chain_t *a
         l_args = Py_BuildValue("OO", Py_None, l_callback->arg);
     }
 
-    log_it(L_DEBUG, "Call atom notificator for chain %s with atom size %zd", a_chain->name, a_atom_size );
+    log_it(L_DEBUG, "Call atom notifier for chain %s with atom size %zd", a_chain->name, a_atom_size );
     PyObject *result = PyObject_CallObject(l_callback->func, l_args);
     if (!result) {
         python_error_in_log_it(LOG_TAG);
