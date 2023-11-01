@@ -110,9 +110,6 @@ PyObject *PyDapChainObject_new(PyTypeObject *type_object, PyObject *args, PyObje
 }
 
 void PyDapChainObject_dealloc(PyDapChainObject* chain){
-    if (chain->chain_t) {
-        dap_chain_delete(chain->chain_t);
-    }
     Py_TYPE(chain)->tp_free((PyObject*)chain);
 }
 
@@ -192,6 +189,7 @@ PyObject *dap_chain_python_atom_get_datums(PyObject *self, PyObject *args){
         l_obj_datum_py->origin = false;
         PyList_SetItem(list_datums, i, (PyObject*)l_obj_datum_py);
     }
+    DAP_DELETE(l_datums);
     return list_datums;
 }
 
@@ -468,16 +466,16 @@ PyObject *dap_chain_python_get_atoms(PyObject *self, PyObject *args) {
     if (!l_atoms) {
         Py_RETURN_NONE;
     }
-    PyObject *obj_list = PyList_New(0);
-    for (dap_list_t *l_iter = l_atoms; l_iter != NULL; l_iter = l_iter->next) {
+    PyObject *obj_list = PyList_New(dap_list_length(l_atoms) / 2);
+    size_t i = 0;
+    for (dap_list_t *l_iter = l_atoms; l_iter != NULL; l_iter = l_iter->next, ++i) {
         PyChainAtomObject *obj_atom = PyObject_New(PyChainAtomObject, &DapChainAtomPtrObjectType);
         obj_atom->atom = l_iter->data;
         l_iter = l_iter->next;
         obj_atom->atom_size = *((size_t *) l_iter->data);
-        PyObject *obj_ptr = Py_BuildValue("O", (PyObject *) obj_atom);
-        PyList_Append(obj_list, obj_ptr);
-        Py_XDECREF(obj_ptr);
+        PyList_SetItem(obj_list, i, (PyObject*)obj_atom);
     }
+    dap_list_free(l_atoms);
     return obj_list;
 }
 
@@ -514,13 +512,13 @@ PyObject *dap_chain_python_get_txs(PyObject *self, PyObject *args){
     bool l_reverse = (obj_reverse == Py_True) ? true : false;
     dap_list_t *l_list = l_chain->callback_get_txs(l_chain, count, page, l_reverse);
     if (l_list != NULL){
-        PyObject *l_obj_list = PyList_New(0);
-        for (dap_list_t *l_ptr = l_list; l_ptr != NULL; l_ptr = l_ptr->next){
+        PyObject *l_obj_list = PyList_New(dap_list_length(l_list));
+        size_t i = 0;
+        for (dap_list_t *l_ptr = l_list; l_ptr != NULL; l_ptr = l_ptr->next, ++i) {
             PyDapChainDatumTxObject *l_obj_tx = PyObject_New(PyDapChainDatumTxObject, &DapChainDatumTxObjectType);
             l_obj_tx->datum_tx = l_ptr->data;
             l_obj_tx->original = false;
-            PyList_Append(l_obj_list, (PyObject *)l_obj_tx);
-            Py_XDECREF((PyObject *)l_obj_tx);
+            PyList_SetItem(l_obj_list, i, (PyObject*)l_obj_tx);
         }
         dap_list_free(l_list);
         return l_obj_list;

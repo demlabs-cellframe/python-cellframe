@@ -58,7 +58,7 @@ PyObject* wrapping_dap_chain_datum_decree_get_tsd(PyObject *self, void* closure)
         PyDict_SetItemString(obj_dict, "type", obj_type);
         PyDict_SetItemString(obj_dict, "value", obj_value);
         PyList_Append(obj_list, obj_dict);
-        Py_XDECREF(obj_dict);
+        Py_DECREF(obj_dict);
     }
     return (PyObject*)obj_list;
 }
@@ -76,7 +76,7 @@ PyObject* wrapping_dap_chain_datum_decree_get_signs(PyObject *self, void* closur
         PyDapSignObject *obj_sign = PyObject_New(PyDapSignObject, &DapCryptoSignObjectType);
         obj_sign->sign = l_sign ;
         PyList_Append(obj_list, (PyObject*)obj_sign);
-        Py_XDECREF((PyObject*)obj_sign);
+        Py_DECREF((PyObject*)obj_sign);
         l_offset += l_sign_size;
     }
     return obj_list;
