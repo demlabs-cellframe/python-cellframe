@@ -6,27 +6,38 @@ static PyMethodDef DapChainNetSrvClientMethods[]={
         {"check", (PyCFunction)wrapping_dap_chain_net_srv_client_check, METH_VARARGS, ""},
         {"request", (PyCFunction)wrapping_dap_chain_net_srv_client_request, METH_VARARGS, ""},
         {"write", (PyCFunction)wrapping_dap_chain_net_srv_client_write, METH_VARARGS, ""},
+        {"close", (PyCFunction)wrapping_dap_chain_net_srv_client_close, METH_VARARGS, ""},
         {NULL, NULL, 0, NULL}
 };
+
 
 PyTypeObject DapChainNetSrvClientObjectType = DAP_PY_TYPE_OBJECT(
         "CellFrame.ChainNetSrvClient", sizeof(PyDapChainNetSrvClientObject),
         "Chain net service client object",
         .tp_methods = DapChainNetSrvClientMethods,
-        .tp_init = (initproc)PyDapChainNetSrvClient_init);
+        .tp_init = (initproc)PyDapChainNetSrvClient_init,
+        .tp_dealloc = (destructor)PyDapChainNetSrvClient_dealloc);
 
 static void _wrapping_dap_chain_net_srv_client_callback_connected(dap_chain_net_srv_client_t* a_client, void *a_arg){
     PyDapChainNetSrvClientObject *py_client = (PyDapChainNetSrvClientObject *)a_client->_inheritor;
     PyObject *l_call = py_client->callback_connected;
+    PyObject *l_arg_obj = (PyObject*)a_arg;
     if (PyCallable_Check(l_call)) {
         PyGILState_STATE state = PyGILState_Ensure();
-        PyObject *l_args = Py_BuildValue("OO", py_client, a_arg);
+        PyObject *l_args = Py_BuildValue("OO", py_client, l_arg_obj);
         PyObject_CallObject(l_call, l_args);
         Py_DECREF(l_args);
         PyGILState_Release(state);
     } else {
         log_it(L_ERROR, "Can't call a python handler on connected event");
     }
+}
+
+PyObject *wrapping_dap_chain_net_srv_client_close(PyObject *self, void *closure)
+{   
+    if (((PyDapChainNetSrvClientObject*)self)->srv_client)
+        dap_chain_net_srv_client_close(((PyDapChainNetSrvClientObject*)self)->srv_client);
+    return Py_True;
 }
 
 static void _wrapping_dap_chain_net_srv_client_callback_disconnected(dap_chain_net_srv_client_t* a_client, void *a_arg){
@@ -41,21 +52,6 @@ static void _wrapping_dap_chain_net_srv_client_callback_disconnected(dap_chain_n
         PyGILState_Release(state);
     } else {
         log_it(L_ERROR, "Can't call a python handler on disconnected event");
-    }
-}
-
-static void _wrapping_dap_chain_net_srv_client_callback_deleted(dap_chain_net_srv_client_t* a_client, void *a_arg){
-    UNUSED(a_client);
-    PyDapChainNetSrvClientObject *py_client = (PyDapChainNetSrvClientObject *)a_client->_inheritor;
-    PyObject *l_call = py_client->callback_deleted;
-    if (PyCallable_Check(l_call)) {
-        PyGILState_STATE state = PyGILState_Ensure();
-        PyObject *l_args = Py_BuildValue("OO", py_client, a_arg);
-        PyObject_CallObject(l_call, l_args);
-        Py_DECREF(l_args);
-        PyGILState_Release(state);
-    } else {
-        log_it(L_ERROR, "Can't call a python handler on delete event");
     }
 }
 
@@ -170,7 +166,6 @@ int PyDapChainNetSrvClient_init(PyDapChainNetSrvClientObject* self, PyObject *ar
             "port",
             "callback_connected",
             "callback_disconnected",
-            "callback_deleted",
             "callback_check",
             "callback_sign",
             "callback_success",
@@ -180,14 +175,14 @@ int PyDapChainNetSrvClient_init(PyDapChainNetSrvClientObject* self, PyObject *ar
             NULL
     };
     PyDapChainNetObject *py_net;
-    PyObject *py_cb_conn, *py_cb_disc, *py_cb_del, *py_cb_check, *py_cb_sign;
+    PyObject *py_cb_conn, *py_cb_disc, *py_cb_check, *py_cb_sign;
     PyObject *py_cb_success, *py_cb_error, *py_cb_data, *py_cb_arg;
     const char *addr;
     uint16_t port;
     if (!PyArg_ParseTupleAndKeywords(
-                args, kwds, "OsHOOOOOOOOO", (char **)kwlist,
+                args, kwds, "OsHOOOOOOOO", (char **)kwlist,
                 &py_net, &addr, &port, &py_cb_conn,
-                &py_cb_disc, &py_cb_del, &py_cb_check,
+                &py_cb_disc,  &py_cb_check,
                 &py_cb_sign, &py_cb_success, &py_cb_error,
                 &py_cb_data, &py_cb_arg
                 )){
@@ -197,7 +192,6 @@ int PyDapChainNetSrvClient_init(PyDapChainNetSrvClientObject* self, PyObject *ar
        return -2;
     if (!PyCallable_Check(py_cb_conn) ||
             !PyCallable_Check(py_cb_disc) ||
-            !PyCallable_Check(py_cb_del) ||
             !PyCallable_Check(py_cb_check) ||
             !PyCallable_Check(py_cb_sign) ||
             !PyCallable_Check(py_cb_success) ||
@@ -205,31 +199,40 @@ int PyDapChainNetSrvClient_init(PyDapChainNetSrvClientObject* self, PyObject *ar
             !PyCallable_Check(py_cb_data)) {
         return -3;
     }
+    Py_INCREF(py_cb_arg);
     dap_chain_net_srv_client_callbacks_t callbacks = {0};
     callbacks.connected = _wrapping_dap_chain_net_srv_client_callback_connected;
     callbacks.disconnected = _wrapping_dap_chain_net_srv_client_callback_disconnected;
-    callbacks.deleted = _wrapping_dap_chain_net_srv_client_callback_deleted;
     callbacks.check = _wrapping_dap_chain_net_srv_client_callback_check;
     callbacks.sign = _wrapping_dap_chain_net_srv_client_callback_sign;
     callbacks.success = _wrapping_dap_chain_net_srv_client_callback_success;
     callbacks.error = _wrapping_dap_chain_net_srv_client_callback_error;
     callbacks.data = _wrapping_dap_chain_net_srv_client_callback_data;
+
     dap_chain_net_srv_client_t *l_client =
             dap_chain_net_srv_client_create_n_connect(py_net->chain_net,
                                                       (char *)addr, port, &callbacks, py_cb_arg);
     self->srv_client = l_client;
     self->callback_connected = py_cb_conn;
     self->callback_disconnected = py_cb_disc;
-    self->callback_deleted = py_cb_del;
     self->callback_check = py_cb_check;
     self->callback_sign = py_cb_sign;
     self->callback_success = py_cb_success;
     self->callback_error = py_cb_error;
     self->callback_data = py_cb_data;
+    
     Py_INCREF(self);
     l_client->_inheritor = self;
     return 0;
 }
+void PyDapChainNetSrvClient_dealloc(PyDapChainNetSrvClientObject* self)
+{
+    if (self->srv_client)
+        dap_chain_net_srv_client_close(self->srv_client);
+
+    Py_TYPE(self)->tp_free((PyObject*)self);
+}
+
 
 
 PyObject *wrapping_dap_chain_net_srv_client_check(PyObject *self, PyObject *args) {

@@ -21,7 +21,6 @@ static PyMethodDef DapChainLedgerMethods[] = {
         {"addrGetTokenTickerAll", (PyCFunction)dap_chain_ledger_addr_get_token_ticker_all_py, METH_VARARGS, ""},
         {"txCacheCheck", (PyCFunction)dap_chain_ledger_tx_cache_check_py, METH_VARARGS, ""},
         {"datumTxCacheCheck", (PyCFunction)dap_chain_node_datum_tx_cache_check_py, METH_VARARGS, ""},
-        {"txRemove", (PyCFunction)dap_chain_ledger_tx_remove_py, METH_VARARGS, ""},
         {"purge", (PyCFunction)dap_chain_ledger_purge_py, METH_VARARGS, ""},
         {"count", (PyCFunction)dap_chain_ledger_count_py, METH_VARARGS, ""},
         {"countFromTo", (PyCFunction)dap_chain_ledger_count_from_to_py, METH_VARARGS, ""},
@@ -276,14 +275,7 @@ PyObject *dap_chain_node_datum_tx_cache_check_py(PyObject *self, PyObject *args)
 //    int res = dap_chain_node_datum_tx_cache_check(((PyDapChainDatumTxObject*)obj_datum_tx)->datum_tx, bound_items);
 //    return PyLong_FromLong(res);
 }
-PyObject *dap_chain_ledger_tx_remove_py(PyObject *self, PyObject *args){
-    PyObject *obj_h_fast;
-    if (!PyArg_ParseTuple(args, "O", &obj_h_fast))
-        return NULL;
-    int res = dap_chain_ledger_tx_remove(((PyDapChainLedgerObject*)self)->ledger,
-                                         ((PyDapHashFastObject*)obj_h_fast)->hash_fast, 0);
-    return PyLong_FromLong(res);
-}
+
 PyObject *dap_chain_ledger_purge_py(PyObject *self, PyObject *args){
     dap_chain_ledger_purge(((PyDapChainLedgerObject*)self)->ledger, false);
     return PyLong_FromLong(0);
@@ -457,20 +449,21 @@ static size_t *ListIntToSizeT(PyObject *list){
 
 PyObject *dap_chain_ledger_get_txs_py(PyObject *self, PyObject *args){
     size_t count, page;
-    PyObject *obj_reverse;
-    if (!PyArg_ParseTuple(args, "nnO",&count, &page, &obj_reverse)){
+    PyObject *obj_reverse, *obj_unspent;
+    if (!PyArg_ParseTuple(args, "nnOO",&count, &page, &obj_reverse, &obj_unspent)){
         return NULL;
     }
     if (!PyBool_Check(obj_reverse)){
         PyErr_SetString(PyExc_AttributeError, "");
         return NULL;
     }
-    bool reverse = (obj_reverse == Py_True) ? true : false;
+    bool    reverse = obj_reverse == Py_True ? true : false,
+            unspent = obj_unspent == Py_True ? true : false;
     dap_list_t *l_txs = dap_chain_ledger_get_txs(
             ((PyDapChainLedgerObject*)self)->ledger,
             count,
             page,
-            reverse);
+            reverse, unspent);
     if (!l_txs){
         Py_RETURN_NONE;
     }
