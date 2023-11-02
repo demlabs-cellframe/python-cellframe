@@ -1,6 +1,6 @@
 #include "wrapping_dap_crypto_key_types.h"
 #include "libdap-python.h"
-#include "libdap_crypto_key_type_python.h"
+#include "wrapping_dap_enc_key_type.h"
 #include "dap_enc_key.h"
 
 static PyGetSetDef PyCryptoKeyTypesObjectGetSetDef [] = {

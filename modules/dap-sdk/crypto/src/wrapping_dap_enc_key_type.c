@@ -1,5 +1,5 @@
 #include "libdap-python.h"
-#include "libdap_crypto_key_type_python.h"
+#include "wrapping_dap_enc_key_type.h"
 
 
 PyTypeObject DapCryptoKeyTypeObjectType = DAP_PY_TYPE_OBJECT(
