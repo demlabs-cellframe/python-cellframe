@@ -29,6 +29,7 @@
 #include "libdap-python.h"
 #include "wrapping_cert.h"
 #include "libdap_crypto_key_type_python.h"
+#include "wrapping_dap_pkey.h"
 #define LOG_TAG "wrapping_cert"
 
 PyMethodDef PyCryptoCertMethods[] = {
@@ -104,11 +105,22 @@ PyObject* dap_cert_dump_py(PyObject *self, PyObject *args)
 
 PyObject* dap_cert_pkey_py(PyObject *self, PyObject *args)
 {
-    (void) self;
     (void) args;
-    /// TODO: Implement it!
-    PyErr_SetString(PyExc_TypeError, "Unimplemented function");
-    return NULL;
+    size_t l_bytes_size = 0;
+    uint8_t *l_bytes = dap_enc_key_serialize_pub_key(((PyCryptoCertObject*)self)->cert->enc_key, &l_bytes_size);
+    if (l_bytes_size == 0) {
+        PyErr_SetString(PyExc_ValueError, "This key type does not support serialization into a public key.");
+        return NULL;
+    }
+    PyDapPkeyObject *obj_pkey = PyObject_New(PyDapPkeyObject, &DapPkeyObject_DapPkeyObjectType);
+    obj_pkey->pkey = DAP_NEW_Z_SIZE(dap_pkey_t, sizeof(dap_pkey_t) + l_bytes_size);
+    obj_pkey->pkey->header.size = l_bytes_size;
+    if (((PyCryptoCertObject*)self)->cert->enc_key->type == DAP_ENC_KEY_TYPE_SIG_DILITHIUM) {
+        obj_pkey->pkey->header.type.type = PKEY_TYPE_SIGN_DILITHIUM;
+        memcpy(obj_pkey->pkey->pkey, l_bytes, l_bytes_size);
+        obj_pkey->pkey->header.size = l_bytes_size;
+    }
+    return (PyObject*)obj_pkey;
 }
 
 PyObject* dap_cert_find_py(PyObject *self, PyObject *args)
