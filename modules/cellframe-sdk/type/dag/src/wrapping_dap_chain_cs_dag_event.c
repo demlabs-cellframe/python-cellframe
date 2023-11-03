@@ -108,21 +108,21 @@ PyObject *wrapping_dap_chain_cs_dag_event_get_datum(PyObject *self, void *closur
     datum->origin = false;
     return (PyObject*)datum;
 }
-PyObject *wrapping_dap_chain_cs_dag_event_get_signs(PyObject *self, void *closure){
-    size_t l_offset =  ((PyDapChainCsDagEventObject*)self)->event->header.hash_count*sizeof (dap_chain_hash_fast_t);
-    dap_chain_datum_t  *l_datum = (dap_chain_datum_t*) (((PyDapChainCsDagEventObject*)self)->event->hashes_n_datum_n_signs + l_offset);
-    l_offset += dap_chain_datum_size(l_datum);
-    PyObject *obj_list = PyList_New(0);
-    while (l_offset + sizeof(((PyDapChainCsDagEventObject*)self)->event->header) < ((PyDapChainCsDagEventObject*)self)->event_size){
-        dap_sign_t * l_sign =(dap_sign_t *) (((PyDapChainCsDagEventObject*)self)->event->hashes_n_datum_n_signs +l_offset);
-        size_t l_sign_size = dap_sign_get_size(l_sign);
-        if (l_sign_size == 0){
-            break;
-        }
+PyObject *wrapping_dap_chain_cs_dag_event_get_signs(PyObject *self, void *closure) {
+    dap_chain_cs_dag_event_t *l_event = ((PyDapChainCsDagEventObject*)self)->event;
+    size_t l_event_size = ((PyDapChainCsDagEventObject*)self)->event_size;
+    size_t l_sign_offset = dap_chain_cs_dag_event_calc_size_excl_signs(l_event, l_event_size);
+    if (l_sign_offset >= l_event_size) {
+        Py_RETURN_NONE;
+    }
+    size_t l_signs_count = ((PyDapChainCsDagEventObject*)self)->event->header.signs_count;
+    PyObject *obj_list = PyList_New(l_signs_count);
+    for (uint8_t i = 0; i < l_event->header.signs_count && l_sign_offset < l_event_size; ++i) {
+        dap_sign_t *l_sign = (dap_sign_t*)((uint8_t*)l_event + l_sign_offset);
         PyDapSignObject *obj_sign = PyObject_New(PyDapSignObject, &DapCryptoSignObjectType);
         obj_sign->sign = l_sign;
-        PyList_Append(obj_list, (PyObject*)obj_sign);
-        l_offset += l_sign_size;
+        PyList_SetItem(obj_list, i, (PyObject*)obj_sign);
+        l_sign_offset += dap_sign_get_size(l_sign);
     }
     return obj_list;
 }

@@ -181,11 +181,14 @@ PyObject *dap_chain_net_python_get_id(PyObject *self, void *closure){
 PyObject *dap_chain_net_python_get_chains(PyObject *self, void *closure){
     (void)closure;
     dap_chain_t *l_chain = NULL;
-    PyObject *obj_list = PyList_New(0);
+    size_t l_count = 0, i = 0;
+    DL_COUNT(((PyDapChainNetObject*)self)->chain_net->pub.chains, l_chain, l_count);
+    PyObject *obj_list = PyList_New(l_count);
+    l_chain = NULL;
     DL_FOREACH(((PyDapChainNetObject*)self)->chain_net->pub.chains, l_chain) {
         PyDapChainObject *obj_chain = PyObject_New(PyDapChainObject, &DapChainObjectType);
         obj_chain->chain_t = l_chain;
-        PyList_Append(obj_list, (PyObject*)obj_chain);
+        PyList_SetItem(obj_list, i++, (PyObject*)obj_chain);
     }
     return obj_list;
 }

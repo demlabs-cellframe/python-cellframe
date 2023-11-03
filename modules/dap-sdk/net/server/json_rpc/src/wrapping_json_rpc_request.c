@@ -58,11 +58,12 @@ void _w_dap_json_rpc_request_handler(dap_json_rpc_params_t *a_params, dap_json_r
     if (func != NULL){
         //Called python func
         PyObject *obj_result = PyObject_CallObject(func->call_func, args);
-        // python_error_in_log_it(LOG_TAG);
+        python_error_in_log_it(LOG_TAG);
         PyGILState_Release(GILState);
         if (!obj_result){
             log_it(L_ERROR, "Can't call method: %s", a_method);
             a_response->type = TYPE_RESPONSE_NULL;
+            Py_XDECREF(args);
             // a_response->error = DAP_NEW(dap_json_rpc_error_t);
             // a_response->error->code_error = 0xF1;
             // a_response->error->msg = "Can't call method";

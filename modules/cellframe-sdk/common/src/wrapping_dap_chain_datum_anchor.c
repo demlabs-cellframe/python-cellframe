@@ -11,6 +11,7 @@ PyObject *wrapping_dap_chain_datum_anchor_get_ts_created(PyObject *self, void *c
     PyObject *obj_ts_float = PyLong_FromLong(PVT(self)->anchor->header.ts_created);
     PyObject *obj_ts = Py_BuildValue("(O)", obj_ts_float);
     PyObject *obj_dt = PyDateTime_FromTimestamp(obj_ts);
+    Py_DECREF(obj_ts_float);
     return obj_dt;
 }
 
@@ -19,7 +20,6 @@ PyObject *wrapping_dap_chain_datum_anchor_get_decree_hash(PyObject *self, void *
     size_t l_tsd_total_size = PVT(self)->anchor->header.data_size;
     if (l_tsd_total_size == 0)
         Py_RETURN_NONE;
-    PyObject *obj_list = PyList_New(0);
     for (size_t l_offset = 0; l_offset < l_tsd_total_size;) {
         dap_tsd_t *l_tsd = (dap_tsd_t*)(((byte_t*)PVT(self)->anchor->data_n_sign) + l_offset);
         size_t l_tsd_size = dap_tsd_size(l_tsd);
@@ -27,13 +27,14 @@ PyObject *wrapping_dap_chain_datum_anchor_get_decree_hash(PyObject *self, void *
             break;
         l_offset += l_tsd_size;
         if (l_tsd->type == DAP_CHAIN_DATUM_ANCHOR_TSD_TYPE_DECREE_HASH) {
-            dap_hash_fast_t l_hf = dap_tsd_get_scalar(l_tsd, dap_hash_fast_t);
+            dap_hash_fast_t *l_hf = _dap_tsd_get_object(l_tsd, dap_hash_fast_t);
             PyDapHashFastObject *l_obj_hf = PyObject_New(PyDapHashFastObject, &DapChainHashFastObjectType);
             l_obj_hf->hash_fast = DAP_NEW(dap_hash_fast_t);
             if (!l_obj_hf->hash_fast) {
+                Py_DECREF(l_obj_hf);
                 return NULL;
             }
-            memcpy(l_obj_hf->hash_fast, &l_hf, sizeof(dap_hash_fast_t));
+            memcpy(l_obj_hf->hash_fast, l_hf, sizeof(dap_hash_fast_t));
             return (PyObject*)l_obj_hf;
         }
     }
@@ -58,7 +59,7 @@ PyObject *wrapping_dap_chain_datum_anchor_get_tsd(PyObject *self, void *closure)
         PyDict_SetItemString(obj_dict, "type", obj_type);
         PyDict_SetItemString(obj_dict, "value", obj_value);
         PyList_Append(obj_list, obj_dict);
-        Py_XDECREF(obj_dict);
+        Py_DECREF(obj_dict);
     }
     return (PyObject*)obj_list;
 }
@@ -76,7 +77,7 @@ PyObject *wrapping_dap_chain_datum_anchor_get_sign(PyObject *self, void *closure
         PyDapSignObject *obj_sign = PyObject_New(PyDapSignObject, &DapCryptoSignObjectType);
         obj_sign->sign = l_sign ;
         PyList_Append(obj_list, (PyObject*)obj_sign);
-        Py_XDECREF((PyObject*)obj_sign);
+        Py_DECREF((PyObject*)obj_sign);
         l_offset += l_sign_size;
     }
     return obj_list;
