@@ -27,6 +27,7 @@ PyObject *wrapping_dap_chain_net_srv_get_price_list(PyObject *self, void *closur
 PyObject *wrapping_dap_chain_net_srv_get_ban_list(PyObject *self, void *closure);
 PyObject *wrapping_dap_chain_net_srv_get_grace_period(PyObject *self, void *closure);
 
+
 //Function
 PyObject *wrapping_dap_chain_net_srv_set_callback_channel(PyObject *self, PyObject *args);
 //PyObject *wrapping_dap_chain_net_srv_issue_receipt(PyObject *self, PyObject *args);
