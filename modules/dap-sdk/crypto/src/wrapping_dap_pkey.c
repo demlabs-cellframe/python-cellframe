@@ -108,9 +108,7 @@ PyObject *wrapping_dap_pkey_encrypt(PyDapPkeyObject *self, PyObject *args)
                                             encrypt_result,
                                             encrypt_buff_size,
                                             DAP_ENC_DATA_TYPE_RAW);
-
-
+    UNUSED(encrypted_size);
     dap_enc_key_delete(key);
-
-    return PyBytes_FromStringAndSize(encrypt_result, encrypt_buff_size);
+    return PyBytes_FromStringAndSize((char *)encrypt_result, (Py_ssize_t)encrypt_buff_size);
 }
