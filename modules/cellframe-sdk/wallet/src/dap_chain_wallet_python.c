@@ -122,7 +122,7 @@ PyObject *dap_cert_to_addr_py(PyObject *self, PyObject *argv){
         return NULL;
     PyDapChainAddrObject *obj_addr = PyObject_New(PyDapChainAddrObject, &DapChainAddrObjectType);
     obj_addr->addr = dap_cert_to_addr(
-                ((PyCryptoCertObject*)obj_cert)->cert,
+                &((PyCryptoCertObject*)obj_cert)->cert, 1, 0,
                 ((PyDapChainNetIdObject*)obj_net_id)->net_id
                 );
     return (PyObject*)obj_addr;
