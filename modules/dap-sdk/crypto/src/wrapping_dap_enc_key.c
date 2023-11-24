@@ -143,7 +143,7 @@ PyObject *dap_enc_gen_pub_key_from_priv_py(PyObject *self, PyObject *args){ //NO
 }
 
 
-PyObject *dap_enc_gen_key_public_size_py(PyObject *self, PyObject *args){
+PyObject *dap_enc_ser_pub_key_size_py(PyObject *self, PyObject *args){
     PyObject *in_key;
     if (PyArg_ParseTuple(args, "h", &in_key)){
         return NULL;
@@ -152,7 +152,7 @@ PyObject *dap_enc_gen_key_public_size_py(PyObject *self, PyObject *args){
 //    if (key == NULL){
 //        return NULL;
 //    }
-    size_t size = dap_enc_gen_key_public_size(((PyCryptoKeyObject*)in_key)->key);
+    size_t size = dap_enc_ser_pub_key_size(((PyCryptoKeyObject*)in_key)->key);
     return PyLong_FromSize_t(size);
 }
 
