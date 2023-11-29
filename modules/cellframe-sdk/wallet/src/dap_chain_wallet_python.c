@@ -116,15 +116,31 @@ void dap_chain_wallet_close_py(PyDapChainWalletObject *self){
 
 PyObject *dap_cert_to_addr_py(PyObject *self, PyObject *argv){
     (void)self;
-    PyObject *obj_cert;
+    PyObject *obj_certs;
     PyObject *obj_net_id;
-    if (!PyArg_ParseTuple(argv, "OO", &obj_cert, &obj_net_id))
+    if (!PyArg_ParseTuple(argv, "OO", &obj_certs, &obj_net_id))
         return NULL;
+    if (!PyList_Check(obj_certs)) {
+        PyErr_SetString(PyExc_AttributeError, "An invalid function argument was specified. The first argument must be "
+                                              "an array of certificates.");
+        return NULL;
+    }
+    size_t l_certs_size = PyList_Size(obj_certs);
+    dap_cert_t **l_certs = DAP_NEW_Z_SIZE(dap_cert_t*, l_certs_size);
+    for (size_t i = 0; i < l_certs_size; i++){
+        PyObject *obj_cert = PyList_GetItem(obj_certs, i);
+        if (!PyCryptoKeyObject_check(obj_cert)) {
+            char *l_str_err = dap_strdup_printf("The %zu element in the list of certificates is not a certificate.", i);
+            PyErr_SetString(PyExc_RuntimeError, l_str_err);
+            DAP_DELETE(l_str_err);
+            DAP_DELETE(l_certs);
+            return NULL;
+        }
+        l_certs[i] = ((PyCryptoCertObject*)obj_cert)->cert;
+    }
     PyDapChainAddrObject *obj_addr = PyObject_New(PyDapChainAddrObject, &DapChainAddrObjectType);
-    obj_addr->addr = dap_cert_to_addr(
-                &((PyCryptoCertObject*)obj_cert)->cert, 1, 0,
-                ((PyDapChainNetIdObject*)obj_net_id)->net_id
-                );
+    obj_addr->addr = dap_cert_to_addr(l_certs, l_certs_size, 0, ((PyDapChainNetIdObject*)obj_net_id)->net_id);
+    DAP_DELETE(l_certs);
     return (PyObject*)obj_addr;
 }
 
