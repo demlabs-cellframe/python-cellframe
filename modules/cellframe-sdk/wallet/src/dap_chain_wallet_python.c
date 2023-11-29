@@ -133,6 +133,7 @@ PyObject *dap_cert_to_addr_py(PyObject *self, PyObject *argv){
             char *l_str_err = dap_strdup_printf("The %zu element in the list of certificates is not a certificate.", i);
             PyErr_SetString(PyExc_RuntimeError, l_str_err);
             DAP_DELETE(l_str_err);
+            DAP_DELETE(l_certs);
             return NULL;
         }
         l_certs[i] = ((PyCryptoCertObject*)obj_cert)->cert;
