@@ -6,6 +6,7 @@
 static PyMethodDef DapChainGlobalDBMethods[] = {
         {"get", (PyCFunction)wrapping_dap_global_db_gr_get, METH_VARARGS | METH_STATIC, ""},
         {"set", (PyCFunction)wrapping_dap_global_db_gr_set, METH_VARARGS | METH_STATIC, ""},
+        {"set_sync", (PyCFunction)wrapping_dap_global_db_gr_set_sync, METH_VARARGS | METH_STATIC, ""},
         {"delete", (PyCFunction)wrapping_dap_global_db_gr_del, METH_VARARGS | METH_STATIC, ""},
         {"pin", (PyCFunction)wrapping_dap_global_db_gr_pin, METH_VARARGS | METH_STATIC, ""},
         {"unpin", (PyCFunction)wrapping_dap_global_db_gr_unpin, METH_VARARGS | METH_STATIC, ""},
@@ -58,6 +59,36 @@ PyObject *wrapping_dap_global_db_gr_set(PyObject *self, PyObject *args){
     void *l_bytes = PyBytes_AsString(obj_byte);
     size_t l_bytes_size = PyBytes_Size(obj_byte);
     int ret = dap_global_db_set(l_group, l_key, l_bytes, l_bytes_size, l_is_pinned, NULL, NULL);
+    if (ret == DAP_GLOBAL_DB_RC_SUCCESS) {
+        Py_RETURN_TRUE;
+    } else {
+        Py_RETURN_FALSE;
+    }
+}
+
+/**
+ * @brief wrapping_dap_global_db_gr_set_sync
+ * @param self
+ * @param args
+ * @return
+ */
+PyObject *wrapping_dap_global_db_gr_set_sync(PyObject *self, PyObject *args){
+    (void)self;
+    char *l_key;
+    char *l_group;
+    bool l_is_pinned = true;
+    PyObject *obj_byte;
+    if (!PyArg_ParseTuple(args, "ssO|p", &l_key, &l_group, &obj_byte, &l_is_pinned)){
+        return NULL;
+    }
+    if (!PyBytes_Check(obj_byte)){
+        PyErr_SetString(PyExc_AttributeError, "In the set function of the globalDB object, the third "
+                                              "argument must take an object of type bytes.");
+        return NULL;
+    }
+    void *l_bytes = PyBytes_AsString(obj_byte);
+    size_t l_bytes_size = PyBytes_Size(obj_byte);
+    int ret = dap_global_db_set_sync(l_group, l_key, l_bytes, l_bytes_size, l_is_pinned);
     if (ret == DAP_GLOBAL_DB_RC_SUCCESS) {
         Py_RETURN_TRUE;
     } else {

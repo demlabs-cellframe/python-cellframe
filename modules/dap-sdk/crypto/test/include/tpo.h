@@ -2,7 +2,6 @@
 #include "Python.h"
 #include "libdap-crypto-python.h"
 #include "libdap_crypto_data_type.h"
-#include "libdap_crypto_key_type_python.h"
 
 #ifdef __cplusplus
 extern "C" {

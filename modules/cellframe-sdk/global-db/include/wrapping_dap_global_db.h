@@ -11,6 +11,7 @@ typedef struct PyDapChainGlobalDB{
 
 PyObject *wrapping_dap_global_db_gr_get(PyObject *self, PyObject *args);
 PyObject *wrapping_dap_global_db_gr_set(PyObject *self, PyObject *args);
+PyObject *wrapping_dap_global_db_gr_set_sync(PyObject *self, PyObject *args);
 PyObject *wrapping_dap_global_db_gr_del(PyObject *self, PyObject *args);
 PyObject *wrapping_dap_global_db_gr_pin(PyObject *self, PyObject *args);
 PyObject *wrapping_dap_global_db_gr_unpin(PyObject *self, PyObject *args);
