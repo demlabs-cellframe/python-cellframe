@@ -30,7 +30,6 @@ PyObject *PyDapChainObject_new(PyTypeObject *type_object, PyObject *args, PyObje
 
 
 PyObject *dap_chain_find_by_id_py(PyObject *self, PyObject *args);
-//PyObject *dap_chain_load_from_cfg_py(PyObject *self, PyObject *args);
 PyObject *dap_chain_has_file_store_py(PyObject *self, PyObject *args);
 PyObject *dap_chain_save_all_py(PyObject *self, PyObject *args);
 PyObject *dap_chain_load_all_py(PyObject *self, PyObject *args);
