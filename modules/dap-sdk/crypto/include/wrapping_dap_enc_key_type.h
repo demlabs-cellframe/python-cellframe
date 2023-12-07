@@ -33,25 +33,11 @@ extern "C" {
 
 typedef struct PyCryptoKeyType{
     PyObject_HEAD
+    dap_enc_key_type_t type;
 }PyCryptoKeyTypeObject;
 
-PyObject *get_ENC_KEY_TYPE_IAES();
-PyObject *get_ENC_KEY_TYPE_OAES();
-PyObject *get_ENC_KEY_TYPE_RLWE_NEWHOPE();
-PyObject *get_ENC_KEY_TYPE_SIDH_CLN16();
-PyObject *get_ENC_KEY_TYPE_DEFEO();
-PyObject *get_ENC_KEY_TYPE_MSRLN();
-PyObject *get_ENC_KEY_TYPE_MSRLN16();
-PyObject *get_ENC_KEY_TYPE_RLWE_BCNS15();
-PyObject *get_ENC_KEY_TYPE_LWE_FRODO();
-PyObject *get_ENC_KEY_TYPE_SIDH_IQC_REF();
-PyObject *get_ENC_KEY_TYPE_CODE_MCBITS();
-PyObject *get_ENC_KEY_TYPE_NTRU();
-PyObject *get_ENC_KEY_TYPE_MLWE_KYBER();
-PyObject *get_ENC_KEY_TYPE_SIG_PICNIC();
-PyObject *get_ENC_KEY_TYPE_SIG_BLISS();
-PyObject *get_ENC_KEY_TYPE_SIG_TESLA();
-PyObject *get_ENC_KEY_TYPE_SIG_DILITHIUM();
+PyObject *CryptoKeyType_toStr(PyObject *self);
+PyObject *CryptoKeyType_richcompare(PyObject *self, PyObject *other, int op);
 PyObject *get_ENC_KEY_TYPE_NULL();
 
 extern PyTypeObject DapCryptoKeyTypeObjectType;
