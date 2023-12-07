@@ -51,7 +51,7 @@ PyObject *wrapping_dap_sign_get_type(PyObject *self, void *closure){
 PyObject *wrapping_dap_sign_get_pkey(PyObject *self, void *closure){
     (void)closure;
     PyDapPkeyObject *obj_pkey = PyObject_New(PyDapPkeyObject, &DapPkeyObject_DapPkeyObjectType);
-    obj_pkey->pkey = (dap_pkey_t*)((PyDapSignObject*)self)->sign->pkey_n_sign;
+    obj_pkey->pkey = dap_pkey_get_from_sign_deserialization(((PyDapSignObject*)self)->sign);
     return (PyObject*)obj_pkey;
 }
 
