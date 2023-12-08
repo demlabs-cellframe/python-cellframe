@@ -167,6 +167,10 @@ PyObject * DapChainDatumAnchorObject_create(PyTypeObject *type_object, PyObject 
     }
     //Creating datum anchor
     dap_chain_datum_anchor_t *l_anchor = DAP_NEW_Z_SIZE(dap_chain_datum_anchor_t, sizeof(dap_chain_datum_anchor_t) + l_total_tsd_size);
+    if (!l_anchor) {
+        PyErr_SetString(PyExc_RuntimeError, "Anchor creation failed");
+        return NULL;
+    }
     l_anchor->anchor_version = 1;
     l_anchor->header.ts_created = dap_time_now();
     l_anchor->header.data_size = l_total_tsd_size;
@@ -187,7 +191,12 @@ PyObject * DapChainDatumAnchorObject_create(PyTypeObject *type_object, PyObject 
     if (l_sign) {
         size_t l_sign_size = dap_sign_get_size(l_sign);
         l_anchor = DAP_REALLOC(l_anchor, sizeof(dap_chain_datum_anchor_t) + l_anchor->header.data_size + l_sign_size);
-        memcpy((byte_t*)l_anchor->data_n_sign + l_total_tsd_size, l_sign, l_sign_size);
+        if (!l_anchor) {
+            DAP_DELETE(l_sign);
+            PyErr_SetString(PyExc_RuntimeError, "Anchor resizing failed");
+            return NULL;
+        }
+        memcpy(l_anchor->data_n_sign + l_total_tsd_size, l_sign, l_sign_size);
         l_anchor->header.signs_size = l_sign_size;
         DAP_DELETE(l_sign);
     } else {

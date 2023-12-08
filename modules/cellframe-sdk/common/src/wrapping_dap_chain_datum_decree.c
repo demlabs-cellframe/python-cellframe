@@ -444,6 +444,10 @@ PyObject *PyDapChainDatumDecreeObject_new(PyTypeObject *type_object, PyObject *a
     }
     //Creating datum decree
     dap_chain_datum_decree_t *l_decree = DAP_NEW_Z_SIZE(dap_chain_datum_decree_t, sizeof(dap_chain_datum_decree_t) + l_total_tsd_size);
+    if (!l_decree) {
+        PyErr_SetString(PyExc_RuntimeError, "Decree creation failed");
+        return NULL;
+    }
     l_decree->decree_version = DAP_CHAIN_DATUM_DECREE_VERSION;
     l_decree->header.ts_created = dap_time_now();
     l_decree->header.type = DAP_CHAIN_DATUM_DECREE_TYPE_COMMON;
@@ -470,6 +474,11 @@ PyObject *PyDapChainDatumDecreeObject_new(PyTypeObject *type_object, PyObject *a
     if (l_sign) {
         size_t l_sign_size = dap_sign_get_size(l_sign);
         l_decree = DAP_REALLOC(l_decree, sizeof(dap_chain_datum_decree_t) + l_total_tsd_size + l_sign_size);
+        if (!l_decree) {
+            DAP_DELETE(l_sign);
+            PyErr_SetString(PyExc_RuntimeError, "Decree resize failed");
+            return NULL;
+        }
         memcpy((byte_t*)l_decree->data_n_signs + l_total_tsd_size, l_sign, l_sign_size);
         l_decree->header.signs_size = l_sign_size;
         DAP_DELETE(l_sign);
