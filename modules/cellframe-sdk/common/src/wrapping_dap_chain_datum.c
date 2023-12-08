@@ -25,6 +25,7 @@ static PyMethodDef DapChainDatumMethods[] = {
         {"getDatumAnchor", wrapping_dap_chain_datum_get_anchor, METH_NOARGS, ""},
         {"getTypeStr", dap_chain_datum_get_type_str_py, METH_NOARGS, ""},
         {"getTypeId", wrapping_dap_chain_datum_get_type_id_py, METH_NOARGS, ""},
+        {"fromBytes", wrapping_dap_chain_datum_create_from_bytes, METH_VARARGS | METH_STATIC, ""},
         {NULL}
 };
 
@@ -284,6 +285,26 @@ PyObject *wrapping_dap_chain_datum_get_anchor(PyObject *self, PyObject *args) {
     PyDapChainDatumAnchorObject *obj_anchor = PyObject_New(PyDapChainDatumAnchorObject, &DapChainDatumAnchorObjectType);
     obj_anchor->anchor = (dap_chain_datum_anchor_t*)((PyDapChainDatumObject*)self)->datum->data;
     return (PyObject*)obj_anchor;
+}
+
+PyObject *wrapping_dap_chain_datum_create_from_bytes(PyObject *self, PyObject *args){
+    (void)self;
+    PyObject *obj_bytes;
+    if (!PyArg_ParseTuple(args, "O", &obj_bytes)){
+        return NULL;
+    }
+    if (!PyBytes_Check(obj_bytes)){
+        PyErr_SetString(PyExc_AttributeError, "An invalid attribute was passed to the function. An "
+                                              "object of type Bytes is required.");
+        return NULL;
+    }
+    size_t l_bytes_size = PyBytes_Size(obj_bytes);
+    PyDapChainDatumObject *obj_datum = PyObject_New(PyDapChainDatumObject, &DapChainDatumObjectType);
+    obj_datum->datum = DAP_NEW_Z_SIZE(dap_chain_datum_t, l_bytes_size);
+    void *l_btd = PyBytes_AsString(obj_bytes);
+    memcpy(obj_datum->datum, l_btd, l_bytes_size);
+    obj_datum->origin = true;
+    return (PyObject*)obj_datum;
 }
 
 /* DAP chain datum iter */

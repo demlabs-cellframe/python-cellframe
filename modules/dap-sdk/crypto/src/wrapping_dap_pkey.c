@@ -1,14 +1,5 @@
 #include "wrapping_dap_pkey.h"
 
-PyTypeObject DapPkeyTypeObject_DapPkeyTypeObjectType = DAP_PY_TYPE_OBJECT(
-        "CellFrame.PkeyType", sizeof(PyDapPkeyTypeObject),
-        "Pkey type object",
-        .tp_str = PyDapPkeyType_str);
-
-PyObject *PyDapPkeyType_str(PyObject *self){
-    const char *str = dap_pkey_type_to_str(((PyDapPkeyTypeObject*)self)->pkey_type);
-    return Py_BuildValue("s", str);
-}
 
 static PyGetSetDef PyDapPkeyGetsSetsDef[] = {
         {"hash", (getter)wrapping_dap_pkey_get_hash, NULL, NULL, NULL},
@@ -33,15 +24,16 @@ PyTypeObject DapPkeyObject_DapPkeyObjectType = DAP_PY_TYPE_OBJECT(
 
 PyObject *wrapping_dap_pkey_get_type(PyObject *self, void *closure){
     (void)closure;
-    PyDapPkeyTypeObject *obj_type_pkey = PyObject_New(PyDapPkeyTypeObject, &DapPkeyTypeObject_DapPkeyTypeObjectType);
-    obj_type_pkey->pkey_type = ((PyDapPkeyObject*)self)->pkey->header.type;
-    return (PyObject*)obj_type_pkey;
+    const char *str = dap_pkey_type_to_str(((PyDapPkeyObject*)self)->pkey->header.type);
+    return Py_BuildValue("s", str);
 }
+
 PyObject *wrapping_dap_pkey_get_hash(PyObject *self, void *closure){
     (void)closure;
     PyDapHashFastObject *obj_hash = PyObject_New(PyDapHashFastObject, &DapChainHashFastObjectType);
-    dap_hash_fast(((PyDapPkeyObject*)self)->pkey->pkey, ((PyDapPkeyObject*)self)->pkey->header.size, obj_hash->hash_fast);
-    obj_hash->origin = true;
+    obj_hash->hash_fast =  DAP_NEW_Z(dap_chain_hash_fast_t);
+    dap_pkey_get_hash(((PyDapPkeyObject*)self)->pkey, obj_hash->hash_fast);
+    obj_hash->origin = false;
     return (PyObject*)obj_hash;
 }
 PyObject *wrapping_dap_pkey_get_size(PyObject *self, void *closure){
@@ -112,3 +104,4 @@ PyObject *wrapping_dap_pkey_encrypt(PyDapPkeyObject *self, PyObject *args)
 
     return PyBytes_FromStringAndSize((char *)encrypt_result, (Py_ssize_t)encrypt_buff_size);
 }
+

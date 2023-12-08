@@ -132,11 +132,19 @@ PyObject *dap_chain_get_nets_py(PyObject *self, PyObject *args){
     return obj_nets;
 }
 PyObject *dap_chain_net_by_id_py(PyObject *self, PyObject *args){
+    
     PyObject *obj_net_id;
     if (!PyArg_ParseTuple(args, "O", &obj_net_id))
         return NULL;
+    
+    dap_chain_net_t * net = dap_chain_net_by_id(((PyDapChainNetIdObject*)obj_net_id)->net_id);
+    
+    if (!net)
+        return Py_None;
+
     PyDapChainNetObject *obj_net = PyObject_New(PyDapChainNetObject, &DapChainNetObjectType);
-    obj_net->chain_net = dap_chain_net_by_id(((PyDapChainNetIdObject*)obj_net_id)->net_id);
+    obj_net->chain_net = net;
+
     return (PyObject*)obj_net;
 }
 PyObject *dap_chain_net_id_by_name_py(PyObject *self, PyObject *args){
