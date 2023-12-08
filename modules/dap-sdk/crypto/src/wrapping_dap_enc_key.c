@@ -23,6 +23,7 @@
     along with any CellFrame SDK based project.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "wrapping_dap_enc_key.h"
+#include "wrapping_dap_enc_key_type.h"
 
 #define LOG_TAG "wrapping-dap-enc-key"
 
@@ -58,14 +59,16 @@ PyObject* dap_enc_key_get_dec_size_py(PyObject *self, PyObject *args){
 
 // allocate memory for key struct
 PyObject* dap_enc_key_new_py(PyObject *self, PyObject *args){
-    uint8_t type_key;
-    if(!PyArg_ParseTuple(args, "h", &type_key)){
+    PyObject *obj_type_key;
+    if(!PyArg_ParseTuple(args, "O", &obj_type_key)){
         return NULL;
     }
-    if (type_key > 16){
-        return PyLong_FromLong(-1);
+    if (!PyObject_TypeCheck(obj_type_key, &DapCryptoKeyTypeObjectType)) {
+        PyErr_SetString(PyExc_AttributeError, "An invalid argument was passed to a function. This must "
+                                              "be the type of key that needs to be created.");
+        return NULL;
     }
-    dap_enc_key_t *new_key = dap_enc_key_new(type_key);
+    dap_enc_key_t *new_key = dap_enc_key_new(((PyCryptoKeyTypeObject *)obj_type_key)->type);
     PyObject *obj = _PyObject_New(&PyCryptoKeyObjectType);
     ((PyCryptoKeyObject*)obj)->key = new_key;
     return  Py_BuildValue("O", obj);

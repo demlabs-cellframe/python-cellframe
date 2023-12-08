@@ -28,7 +28,8 @@
 
 #include "libdap-python.h"
 #include "wrapping_cert.h"
-#include "libdap_crypto_key_type_python.h"
+#include "libdap_crypto_key_python.h"
+#include "wrapping_dap_enc_key_type.h"
 #include "wrapping_dap_pkey.h"
 #define LOG_TAG "wrapping_cert"
 
@@ -66,10 +67,11 @@ PyObject* dap_cert_generate_py(PyObject *self, PyObject *args)
     const char * l_seed = NULL;
 
     const char *l_arg_cert_name = NULL;
-    dap_enc_key_type_t l_arg_cert_key_type = DAP_ENC_KEY_TYPE_SIG_DILITHIUM;
+//    dap_enc_key_type_t l_arg_cert_key_type = DAP_ENC_KEY_TYPE_SIG_DILITHIUM;
+    PyObject *l_arg_key_type = NULL;
     const char *l_arg_seed_string = NULL;
 
-    if (!PyArg_ParseTuple(args, "s|is", &l_arg_cert_name, &l_arg_cert_key_type, &l_arg_seed_string) ){
+    if (!PyArg_ParseTuple(args, "s|Os", &l_arg_cert_name, &l_arg_key_type, &l_arg_seed_string) ){
         PyErr_SetString(PyExc_SyntaxError, "Wrong argument list");
         return NULL;
     }
@@ -85,6 +87,8 @@ PyObject* dap_cert_generate_py(PyObject *self, PyObject *args)
         l_seed = l_arg_seed_string;
 
     PyCryptoCertObject *obj_cert = PyObject_New(PyCryptoCertObject, &DapCryptoCertObjectType);
+    dap_enc_key_type_t l_arg_cert_key_type = l_arg_key_type ?
+            ((PyCryptoKeyTypeObject*)l_arg_key_type)->type : DAP_ENC_KEY_TYPE_SIG_DILITHIUM;
     obj_cert->cert = l_seed ? dap_cert_generate_mem_with_seed( l_cert_name, l_arg_cert_key_type, l_seed, strlen(l_seed) )
               :dap_cert_generate_mem( l_cert_name,l_arg_cert_key_type );
     if (!obj_cert->cert){
