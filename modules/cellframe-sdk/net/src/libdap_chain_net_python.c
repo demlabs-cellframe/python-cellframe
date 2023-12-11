@@ -160,7 +160,7 @@ PyObject *dap_chain_ledger_by_net_name_py(PyObject *self, PyObject *args){
     if (!PyArg_ParseTuple(args, "s", &net_name))
         return NULL;
     PyObject *obj_ledger = _PyObject_New(&DapChainLedgerObjectType);
-    ((PyDapChainLedgerObject*)obj_ledger)->ledger = dap_chain_ledger_by_net_name(net_name);
+    ((PyDapChainLedgerObject*)obj_ledger)->ledger = dap_ledger_by_net_name(net_name);
     return Py_BuildValue("O", obj_ledger);
 }
 
