@@ -56,10 +56,6 @@ PyObject *wrapping_dap_chain_block_get_ts_created(PyObject *self, void *closure)
 }
 PyObject *wrapping_dap_chain_block_get_meta_data(PyObject *self, void *closure){
     (void)closure;
-    size_t l_count = 0;
-    dap_chain_block_meta_t **l_meta = dap_chain_block_get_meta(((PyDapChainCSBlockObject*)self)->block,
-            ((PyDapChainCSBlockObject*)self)->block_size,
-            &l_count);
     dap_chain_hash_fast_t l_block_prev_hash = {0};
     dap_chain_hash_fast_t l_block_anchor_hash = {0};
     dap_chain_hash_fast_t l_merkle = {0};
@@ -68,7 +64,7 @@ PyObject *wrapping_dap_chain_block_get_meta_data(PyObject *self, void *closure){
     bool l_is_genesis = false;
     uint64_t l_nonce = {0}, l_nonce2 = {0};
     dap_chain_block_meta_extract(
-            l_meta, l_count,
+            ((PyDapChainCSBlockObject*)self)->block, ((PyDapChainCSBlockObject*)self)->block_size,
             &l_block_prev_hash, &l_block_anchor_hash,
             &l_merkle, &l_block_links,
             &l_block_links_count, &l_is_genesis, &l_nonce, &l_nonce2);
