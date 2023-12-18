@@ -57,10 +57,6 @@ PyObject *dap_chain_find_by_id_py(PyObject *self, PyObject *args){
     return Py_BuildValue("O", &new_obj);
 }
 
-//PyObject *dap_chain_load_from_cfg_py(PyObject *self, PyObject *args){
-//return NULL;
-//}
-
 PyObject *dap_chain_has_file_store_py(PyObject *self, PyObject *args){
     bool res = dap_chain_has_file_store(((PyDapChainObject*)self)->chain_t);
     if (res)
@@ -78,30 +74,15 @@ PyObject *dap_chain_load_all_py(PyObject *self, PyObject *args){
 }
 
 PyObject *dap_chain_load_from_cfg_py(PyObject *self, PyObject *args){
-    PyObject *obj_ledger;
     const char *chain_net_name;
     PyObject *obj_net_id;
     const char *cfg_name;
-    if (!PyArg_ParseTuple(args, "O|s|O|s", &obj_ledger, &chain_net_name, &obj_net_id, &cfg_name))
+    if (!PyArg_ParseTuple(args, "s|O|s", &chain_net_name, &obj_net_id, &cfg_name))
         return NULL;
     PyObject *res_obj = _PyObject_New(&DapChainObjectType);
-    ((PyDapChainObject*)res_obj)->chain_t = dap_chain_load_from_cfg(((PyDapChainLedgerObject*)obj_ledger)->ledger, chain_net_name, ((PyDapChainNetIdObject*)obj_net_id)->net_id, cfg_name);
+    ((PyDapChainObject*)res_obj)->chain_t = dap_chain_load_from_cfg(chain_net_name, ((PyDapChainNetIdObject*)obj_net_id)->net_id, cfg_name);
     return Py_BuildValue("O", &res_obj);
 }
-
-//PyObject *dap_chain_init_net_cfg_name_py(PyObject *self, PyObject *args){
-//return NULL;
-//}
-
-//PyObject *dap_chain_close_py(PyObject *self, PyObject *args){
-//    dap_chain_close(((PyDapChainObject*)self)->chain_t);
-//    return PyLong_FromLong(0);
-//}
-
-//PyObject *dap_chain_info_dump_log_py(PyObject *self, PyObject *args){
-//return NULL;
-//}
-
 
 PyObject *PyDapChainObject_new(PyTypeObject *type_object, PyObject *args, PyObject *kwds){
     PyDapChainObject *obj = (PyDapChainObject*)PyType_GenericNew(type_object, args, kwds);

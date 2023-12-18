@@ -244,7 +244,7 @@ PyObject *wrapping_dap_chain_datum_token_emission_get_addr(PyObject *self, void 
 PyObject *wrapping_dap_chain_datum_token_emission_get_value(PyObject *self, void *closure){
     (void)closure;
     DapMathObject *l_math = PyObject_New(DapMathObject, &DapMathObjectType);
-    l_math->value = ((PyDapChainDatumTokenEmissionObject*)self)->token_emission->hdr.value_256;
+    l_math->value = ((PyDapChainDatumTokenEmissionObject*)self)->token_emission->hdr.value;
     return (PyObject*)l_math;
 }
 PyObject *wrapping_dap_chain_datum_token_emission_get_data(PyObject *self, void *closure){
