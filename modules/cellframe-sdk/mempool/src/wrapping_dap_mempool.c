@@ -235,8 +235,7 @@ PyObject *dap_chain_mempool_base_tx_create_py(PyObject *self, PyObject *args){
     uint256_t l_value_fee = ((DapMathObject*)obj_value_fee)->value;
     char *l_tx_hash_str = dap_chain_mempool_base_tx_create(
             obj_chain->chain_t, obj_emi_hash->hash_fast,
-            obj_emi_chain->chain_t->id, obj_emission_value->value, l_ticker,
-            obj_addr_to->addr, l_priv_key, "hex", l_value_fee);
+            obj_emi_chain->chain_t->id, l_priv_key, "hex", l_value_fee);
     if (l_tx_hash_str == NULL)
         Py_RETURN_NONE;
     PyDapHashFastObject *l_obj_hf = PyObject_New(PyDapHashFastObject, &DapChainHashFastObjectType);
