@@ -27,6 +27,7 @@ char** elements_str_reply_get_by_id(size_t id);
 void elements_str_reply_delete(size_t id);
 void elements_str_reply_delete_all();
 
+
 typedef struct element_py_func{
     char *name;
     PyObject *func;
@@ -52,8 +53,8 @@ PyObject *DapChainNodeCliObject_new(PyTypeObject *type_object, PyObject *args, P
 
 PyObject *dap_chain_node_cli_cmd_item_create_py(PyObject *a_self, PyObject *a_args);
 PyObject *dap_chain_node_cli_set_reply_text_py(PyObject *self, PyObject *args);
-
 PyObject *dap_chain_node_addr_get_by_alias_py(PyObject *self, PyObject *args);
+PyObject *dap_chain_node_cli_cmd_exec_str(PyObject *self, PyObject *args);
 
 extern PyTypeObject DapChainNodeCliObjectType;
 
