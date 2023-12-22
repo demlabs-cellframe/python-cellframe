@@ -201,3 +201,54 @@ PyObject *stringToPyList(int argc, char **list){
     }
     return obj_list;
 }
+
+PyObject *dap_chain_node_cli_cmd_exec_str(PyObject *a_self, PyObject *a_args){
+    
+    const char *full_cmd;
+    
+    if (!PyArg_ParseTuple(a_args, "s", &full_cmd))
+        return NULL;
+
+    char **l_argv = dap_strsplit(full_cmd, " ", -1);
+    size_t l_argc = dap_str_countv(l_argv);
+    
+    char *cmd_name = l_argv[0];
+
+    dap_cli_cmd_t *l_cmd = dap_cli_server_cmd_find(cmd_name);
+    char *l_append_cmd = NULL;
+    char *l_ncmd = NULL;
+
+    if (!l_cmd)
+        l_cmd = dap_cli_server_cmd_find_by_alias(cmd_name, &l_append_cmd, &l_ncmd);
+
+    if(!l_cmd) {
+        PyErr_SetString(PyExc_TypeError, "No such command found!");
+        return NULL;
+    }
+
+    if(!l_argv) {
+        PyErr_SetString(PyExc_TypeError, "Can't make parameters from string!");
+        return NULL;
+    }
+
+    if(l_cmd->overrides.log_cmd_call)
+        l_cmd->overrides.log_cmd_call(full_cmd);
+      
+    char *str_reply = NULL;
+
+    if( !l_cmd->func)
+    {
+        PyErr_SetString(PyExc_TypeError, "No function for command, but registration present");
+        return NULL;
+    } 
+
+    if (l_cmd->arg_func) {
+        l_cmd->func_ex(l_argc, l_argv, l_cmd->arg_func, &str_reply);
+    } else {
+        l_cmd->func(l_argc, l_argv, &str_reply);
+    }     
+    
+    dap_strfreev(l_argv);
+
+    return Py_BuildValue("s", str_reply);
+}
