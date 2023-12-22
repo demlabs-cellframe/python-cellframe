@@ -228,15 +228,12 @@ PyObject *dap_chain_node_cli_cmd_exec_str(PyObject *a_self, PyObject *a_args){
     char *cmd_name = l_argv[0];
 
     dap_cli_cmd_t *l_cmd = dap_cli_server_cmd_find(cmd_name);
-    bool l_finded_by_alias = false;
     char *l_append_cmd = NULL;
     char *l_ncmd = NULL;
 
-    if (!l_cmd) {
+    if (!l_cmd)
         l_cmd = dap_cli_server_cmd_find_by_alias(cmd_name, &l_append_cmd, &l_ncmd);
-        l_finded_by_alias = true;
-    }
-    
+
     if(!l_cmd) {
         PyErr_SetString(PyExc_TypeError, "No such command found!");
         return NULL;
@@ -249,9 +246,7 @@ PyObject *dap_chain_node_cli_cmd_exec_str(PyObject *a_self, PyObject *a_args){
 
     if(l_cmd->overrides.log_cmd_call)
         l_cmd->overrides.log_cmd_call(full_cmd);
-    
-    int res = -1;
-    
+      
     char *str_reply = NULL;
 
     if( !l_cmd->func)
@@ -261,9 +256,9 @@ PyObject *dap_chain_node_cli_cmd_exec_str(PyObject *a_self, PyObject *a_args){
     } 
 
     if (l_cmd->arg_func) {
-        res = l_cmd->func_ex(l_argc, l_argv, l_cmd->arg_func, &str_reply);
+        l_cmd->func_ex(l_argc, l_argv, l_cmd->arg_func, &str_reply);
     } else {
-        res = l_cmd->func(l_argc, l_argv, &str_reply);
+        l_cmd->func(l_argc, l_argv, &str_reply);
     }     
     
     dap_strfreev(l_argv);
