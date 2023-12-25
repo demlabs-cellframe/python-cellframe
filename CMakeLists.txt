@@ -92,6 +92,7 @@ add_subdirectory(modules/cellframe-sdk/type/blocks)
 add_subdirectory(modules/cellframe-sdk/consensus/dag_poa)
 add_subdirectory(modules/cellframe-sdk/global-db)
 add_subdirectory(modules/cellframe-sdk/services/pos_delegate)
+add_subdirectory(modules/cellframe-sdk/services/xchange)
 add_subdirectory(modules/cellframe-sdk/channel/chain-net)
 
     target_compile_options(dap_chain_common_python_module PRIVATE "-fpic")
