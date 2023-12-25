@@ -37,5 +37,5 @@ PyObject *wrapping_dap_chain_tx_out_cond_subtype_srv_xchange_get_token(PyObject 
 }
 PyObject *wrapping_dap_chain_tx_out_cond_subtype_srv_xchange_get_value(PyObject *self, void *closure){
     (void)closure;
-    return Py_BuildValue("k", ((PyDapChainTxOutCondObject*)self)->out_cond->subtype.srv_xchange.rate);
+    return Py_BuildValue("k", ((PyDapChainTxOutCondObject*)self)->out_cond->header.value);
 }
