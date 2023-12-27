@@ -77,7 +77,7 @@ PyObject *wrapping_json_rpc_response_get_error(PyObject *self, void *closure){
     UNUSED(closure);
     dap_json_rpc_response_t* l_resp = ((PyDapJSONRPCResponseObject*)self)->response;
     if (l_resp->json_arr_errors) {
-        json_object * a_obj = dap_json_rpc_error_get_json(l_resp->json_arr_errors);
+        json_object * a_jobj = dap_json_rpc_error_get_json(l_resp->json_arr_errors);
         json_object *l_jobj_code_eror = json_object_object_get(a_jobj, "code");
         json_object *l_jobj_msg = json_object_object_get(a_jobj, "message");
         return Py_BuildValue("is", json_object_get_string(l_jobj_code_eror), json_object_get_string(l_jobj_msg));
