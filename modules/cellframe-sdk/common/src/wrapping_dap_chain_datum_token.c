@@ -1,5 +1,6 @@
 #include "wrapping_dap_chain_datum_token.h"
 #include "wrapping_cert.h"
+#include "python-cellframe_common.h"
 
 /* Token */
 static PyGetSetDef  PyDapChainDatumTokenGetsSetsDef[]={
