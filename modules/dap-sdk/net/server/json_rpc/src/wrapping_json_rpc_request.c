@@ -15,7 +15,7 @@ PyTypeObject DapJsonRpcRequestObjectType = DAP_PY_TYPE_OBJECT(
 struct _w_json_rpc_handler *handlers = NULL;
 
 void _w_dap_json_rpc_request_handler(dap_json_rpc_params_t *a_params, dap_json_rpc_response_t *a_response, const char *a_method){
-    int count_params = a_params->lenght;
+    int count_params = a_params->length;
     PyGILState_STATE GILState = PyGILState_Ensure();
     PyDapJSONRPCResponseObject *obj_response = PyObject_NEW(PyDapJSONRPCResponseObject, &DapJsonRpcResponseobjectType);
     obj_response->response = a_response;
@@ -60,10 +60,10 @@ void _w_dap_json_rpc_request_handler(dap_json_rpc_params_t *a_params, dap_json_r
         PyGILState_Release(GILState);
         if (!obj_result){
             log_it(L_ERROR, "Can't call method: %s", a_method);
-            a_response->type_result = TYPE_RESPONSE_NULL;
-            a_response->error = DAP_NEW(dap_json_rpc_error_t);
-            a_response->error->code_error = 0xF1;
-            a_response->error->msg = "Can't call method";
+            // a_response->type = TYPE_RESPONSE_NULL;
+            // a_response->error = DAP_NEW(dap_json_rpc_error_t);
+            // a_response->error->code_error = 0xF1;
+            // a_response->error->msg = "Can't call method";
             Py_XDECREF(args);
             //a_response->error = dap_json_rpc_error_search_by_code(1);
             return;
@@ -71,8 +71,8 @@ void _w_dap_json_rpc_request_handler(dap_json_rpc_params_t *a_params, dap_json_r
     } else {
         PyGILState_Release(GILState);
         log_it(L_WARNING, "Can't call method: %s. It isn't in the python function table", a_method);
-        a_response->type_result = TYPE_RESPONSE_NULL;
-        a_response->error = dap_json_rpc_error_search_by_code(1);
+        a_response->type = TYPE_RESPONSE_NULL;
+        // a_response->error = dap_json_rpc_error_search_by_code(1);
     }
     Py_XDECREF(args);
 }
