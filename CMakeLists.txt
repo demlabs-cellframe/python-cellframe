@@ -198,6 +198,7 @@ target_link_libraries(${PROJECT_NAME} cellframe-sdk dap_python_module
                       dap_chain_cs_blocks_python_module
                       dap_global_db_python_module
                       dap_chain_net_srv_stake_pos_delegate_python_module
+                      wrapping_dap_chain_net_srv_xchange
                       dap_stream_ch_chain_net_python_module
                       ${PYTHON_LIBRARIES}
                      )

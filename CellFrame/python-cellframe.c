@@ -618,6 +618,8 @@ PyMODINIT_FUNC PyInit_libCellFrame(void)
         /// Services
         PyType_Ready( &PyDapChainNetSrvStakePosDelegateObjectType ) < 0 ||
         PyType_Ready( &PyDapStreamChChainValidatorTestObjectType ) < 0 ||
+        PyType_Ready( &DapChainNetSrvXchangeObjectType ) < 0 ||
+        PyType_Ready( &PyDapChainNetSrvXchangePriceObjectType ) < 0 ||
         // === Chain consensuses
         PyType_Ready( &DapChainCsDagPoaObjectType ) < 0 ||
         PyType_Ready(&DapChainCsBlockType) < 0 ||
@@ -693,6 +695,7 @@ PyMODINIT_FUNC PyInit_libCellFrame(void)
 
     PyObject *servicesModule = PyModule_Create(&CellframeServicesPythonModule);
     PyModule_AddObject(servicesModule, "StakePosDelegate", (PyObject*)&PyDapChainNetSrvStakePosDelegateObjectType);
+    PyModule_AddObject(servicesModule, "Xchange", (PyObject*)&DapChainNetSrvXchangeObjectType);
     PyModule_AddObject(servicesModule, "StreamChChainValidatorTest", (PyObject*)&PyDapStreamChChainValidatorTestObjectType);
 
     PyObject *csModule = PyModule_Create(&CellframeConsensusPythonModule);
