@@ -710,6 +710,7 @@ PyMODINIT_FUNC PyInit_libCellFrame(void)
     PyModule_AddStringConstant(cellframeModule, "__author__", "Alexey Stratulat <alexey.stratulat@demlabs.net>");
     PyModule_AddStringConstant(cellframeModule, "__version__", DAP_VERSION);
     CellFrame_error = PyErr_NewException("CellFrame.error", NULL, NULL);
+    CellFrame_Xchange_error = PyErr_NewException("CellFrame.Service.XchangeError", NULL, NULL);
     PyModule_AddObject(cellframeModule, "error", CellFrame_error);
     PyModule_AddObject(cellframeModule, "AppCli", (PyObject*)&DapAppCliObjectType);
     PyModule_AddObject(cellframeModule, "AppCliServer", (PyObject*)&DapChainNodeCliObjectType);
