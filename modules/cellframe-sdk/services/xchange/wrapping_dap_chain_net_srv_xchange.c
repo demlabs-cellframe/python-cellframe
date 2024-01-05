@@ -91,6 +91,10 @@ PyObject *wrapping_dap_chain_net_srv_xchange_create(PyObject *self, PyObject *ar
             PyErr_SetString(CellFrame_Xchange_error, "Fee is zero");
             return NULL;
         }
+        case XCHANGE_CREATE_ERROR_VALUE_SELL_IS_ZERO: {
+            PyErr_SetString(CellFrame_Xchange_error, "Value sell is zero");
+            return NULL;
+        }
         case XCHANGE_CREATE_ERROR_INTEGER_OVERFLOW_WITH_SUM_OF_VALUE_AND_FEE:{
             PyErr_SetString(CellFrame_Xchange_error, "An overflow occurred when adding the transaction "
                                                      "value and commission.");
