@@ -17,6 +17,12 @@ PyMethodDef DapChainNetSrvXchangeMethods[] = {
             METH_VARARGS | METH_STATIC,
             "The function creates a base transaction and an exchange order."
         },
+        {
+            "removeExchange",
+            wrapping_dap_chain_net_srv_xchange_remove,
+            METH_VARARGS | METH_STATIC,
+            "This function deletes an exchange order."
+            },
         {NULL, NULL, 0, NULL}
 };
 
@@ -121,6 +127,52 @@ PyObject *wrapping_dap_chain_net_srv_xchange_create(PyObject *self, PyObject *ar
         case XCHANGE_CREATE_ERROR_CAN_NOT_PUT_TRANSACTION_TO_MEMPOOL: {
             PyErr_SetString(CellFrame_Xchange_error, "The created conditional exchange transaction "
                                                      "could not be posted to the mempool.");
+            return NULL;
+        }
+        default: {
+            char *l_ret = dap_strdup_printf("An error occurred with an unknown code: %d.", l_ret_code);
+            PyErr_SetString(CellFrame_Xchange_error, l_ret);
+            DAP_DELETE(l_ret);
+            return NULL;
+        }
+    }
+}
+
+PyObject *wrapping_dap_chain_net_srv_xchange_remove(PyObject *self, PyObject *argv){
+    (void)self;
+    PyObject *obj_net;
+    PyObject *obj_fee;
+    PyObject *obj_wallet;
+    PyObject *obj_tx_hash;
+    if (!PyArg_ParseTuple(argv, "OOOO", &obj_net, &obj_tx_hash, &obj_fee, &obj_wallet))
+        return NULL;
+    char *l_tx_hash_out = NULL;
+    int l_ret_code = dap_chain_net_srv_xchange_remove(((PyDapChainNetObject*)obj_net)->chain_net,
+                                     ((PyDapHashFastObject*)obj_tx_hash)->hash_fast,
+                                     ((DapMathObject*)obj_fee)->value,
+                                     ((PyDapChainWalletObject*)obj_wallet)->wallet, &l_tx_hash_out);
+    switch (l_ret_code) {
+        case XCHANGE_REMOVE_ERROR_OK:{
+            return Py_BuildValue("s", l_tx_hash_out);
+        }
+        case XCHANGE_REMOVE_ERROR_INVALID_ARGUMENT: {
+            PyErr_SetString(CellFrame_Xchange_error, "One of the input arguments is not set correctly.");
+            return NULL;
+        }
+        case XCHANGE_REMOVE_ERROR_FEE_IS_ZERO: {
+            PyErr_SetString(CellFrame_Xchange_error, "Fee is zero.");
+            return NULL;
+        }
+        case XCHANGE_REMOVE_ERROR_CAN_NOT_FIND_TX: {
+            PyErr_SetString(CellFrame_Xchange_error, "Specified order not found.");
+            return NULL;
+        }
+        case XCHANGE_REMOVE_ERROR_CAN_NOT_CREATE_PRICE: {
+            PyErr_SetString(CellFrame_Xchange_error, "Can't create price object from order.");
+            return NULL;
+        }
+        case XCHANGE_REMOVE_ERROR_CAN_NOT_INVALIDATE_TX: {
+            PyErr_SetString(CellFrame_Xchange_error, "Can't create invalidate transaction.");
             return NULL;
         }
         default: {
