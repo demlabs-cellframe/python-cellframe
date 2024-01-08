@@ -21,7 +21,7 @@ typedef struct element_str_reply{
 }element_str_reply_t;
 
 static element_str_reply_t *l_str_reply_list;
-size_t elements_str_reply_add(char** str_reply);
+size_t elements_str_reply_add(char **a_str_reply);
 int elements_str_reply_cmp_by_id(element_str_reply_t *e1, element_str_reply_t *e2);
 char** elements_str_reply_get_by_id(size_t id);
 void elements_str_reply_delete(size_t id);

@@ -31,7 +31,8 @@ void dap_chain_node_cli_delete_py(void){
     dap_chain_node_cli_delete();
 }
 
-size_t elements_str_reply_add(char** str_reply){
+size_t elements_str_reply_add(char **a_str_reply)
+{
     size_t max_index = 0;
     element_str_reply_t *el;
     LL_FOREACH(l_str_reply_list, el){
@@ -43,7 +44,7 @@ size_t elements_str_reply_add(char** str_reply){
     if (!new_el) {
         return 0;
     }
-    new_el->str_reply = str_reply;
+    new_el->str_reply = a_str_reply;
     new_el->id = new_index;
     LL_APPEND(l_str_reply_list, new_el);
     return new_index;
@@ -130,9 +131,10 @@ void element_py_func_del_all(){
     }
 }
 
-static int wrapping_cmdfunc(int argc, char **argv, char **str_reply){
+static int wrapping_cmdfunc(int argc, char **argv, void **a_str_reply)
+{
     PyGILState_STATE l_state = PyGILState_Ensure();
-    size_t id_str_replay = elements_str_reply_add(str_reply);
+    size_t id_str_replay = elements_str_reply_add((char **)a_str_reply);
     PyObject *obj_argv = stringToPyList(argc, argv);
     PyObject *obj_id_str_replay = PyLong_FromSize_t(id_str_replay);
     PyObject *arglist = Py_BuildValue("OO", obj_argv, obj_id_str_replay);
@@ -180,7 +182,7 @@ PyObject *dap_chain_node_cli_set_reply_text_py(PyObject *self, PyObject *args){
     if (!PyArg_ParseTuple(args, "sO", &str_reply_text, &obj_id_str_reply))
         return NULL;
     size_t id_str_reply = PyLong_AsSize_t(obj_id_str_reply);
-    dap_cli_server_cmd_set_reply_text(elements_str_reply_get_by_id(id_str_reply), "%s", str_reply_text);
+    dap_cli_server_cmd_set_reply_text((void **)elements_str_reply_get_by_id(id_str_reply), "%s", str_reply_text);
     return PyLong_FromLong(0);
 }
 
@@ -243,9 +245,9 @@ PyObject *dap_chain_node_cli_cmd_exec_str(PyObject *a_self, PyObject *a_args){
     } 
 
     if (l_cmd->arg_func) {
-        l_cmd->func_ex(l_argc, l_argv, l_cmd->arg_func, &str_reply);
+        l_cmd->func_ex(l_argc, l_argv, l_cmd->arg_func, (void **)&str_reply);
     } else {
-        l_cmd->func(l_argc, l_argv, &str_reply);
+        l_cmd->func(l_argc, l_argv, (void **)&str_reply);
     }     
     
     dap_strfreev(l_argv);
