@@ -313,26 +313,50 @@ PyObject *wrapping_dap_chain_datum_token_emission_get_signs(PyObject *self, void
     (void)closure;
     dap_chain_datum_token_emission_t *l_emi = ((PyDapChainDatumTokenEmissionObject*)self)->token_emission;
     if (l_emi->hdr.type != DAP_CHAIN_DATUM_TOKEN_EMISSION_TYPE_AUTH) {
-        PyErr_SetString(PyExc_AttributeError, "Wrong datum type");
-        return NULL;
-     }
-    if (!l_emi->data.type_auth.signs_count || l_emi->data.type_auth.size <= l_emi->data.type_auth.tsd_total_size) {
-        PyErr_SetString(PyExc_AttributeError, "No signes found");
-        return NULL;
+        _PyErr_logIt(L_ERROR, "datum_token_ems", "Emission hdr type not DAP_CHAIN_DATUM_TOKEN_EMISSION_TYPE_AUTH, return empty signs list");
+        return PyList_New(0);
     }
+    if (!l_emi->data.type_auth.signs_count || l_emi->data.type_auth.size <= l_emi->data.type_auth.tsd_total_size) {
+        _PyErr_logIt(L_ERROR, "datum_token_ems", "Emission datum has no signs!");
+        return PyList_New(0);
+    }
+    
     dap_sign_t *l_sign = (dap_sign_t*)(l_emi->tsd_n_signs + l_emi->data.type_auth.tsd_total_size);
+    size_t l_count, l_sign_size;
+    size_t l_cert_size = l_emi->data.type_auth.size - l_emi->data.type_auth.tsd_total_size;
+    
+    for (l_count = 0, l_sign_size = 0; l_count < l_emi->data.type_auth.signs_count && (l_sign_size = dap_sign_get_size(l_sign)); ++l_count) {
+        
+        if (!dap_sign_verify_size(l_sign, l_sign_size)) {
+            _PyErr_logIt(L_ERROR, "datum_token_ems", "Emission datum sign corrupted!");
+            return PyList_New(0);
+        }
+        
+        if (l_sign->header.sign_size == 0) {
+            _PyErr_logIt(L_ERROR, "datum_token_ems", "sign <CORRUPTED - 0 size signature>");
+            return PyList_New(0);
+        }
+        
+        if (l_sign->header.sign_size > l_cert_size)
+        {
+            _PyErr_logIt(L_ERROR, "datum_token_ems", "<CORRUPTED - signature size is greater than a_certs_size>");
+            return PyList_New(0);
+        }
+
+        l_sign = (dap_sign_t *)((byte_t *)l_sign + l_sign_size);
+    }
+
     PyObject *obj_list = PyList_New(l_emi->data.type_auth.signs_count);
     PyDapSignObject *obj_sign = (PyDapSignObject*)Py_None;
-    size_t l_count, l_sign_size;
+    l_sign = (dap_sign_t*)(l_emi->tsd_n_signs + l_emi->data.type_auth.tsd_total_size);
     for (l_count = 0, l_sign_size = 0; l_count < l_emi->data.type_auth.signs_count && (l_sign_size = dap_sign_get_size(l_sign)); ++l_count) {
-        if (!dap_sign_verify_size(l_sign, l_sign_size)) {
-            break;
-        }
+        
         obj_sign = PyObject_New(PyDapSignObject, &DapCryptoSignObjectType);
         obj_sign->sign = l_sign; //DAP_DUP_SIZE(l_sign, l_sign_size);
         PyList_SetItem(obj_list, l_count, (PyObject*)obj_sign);
-        l_sign = (dap_sign_t *)((byte_t *)l_sign + l_sign_size);
+        l_sign = (dap_sign_t *)((byte_t *)l_sign + l_sign_size);    
     }
+
     return obj_list;
 }
 

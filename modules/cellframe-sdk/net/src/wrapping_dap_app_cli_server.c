@@ -5,6 +5,7 @@
 static PyMethodDef DapChainNodeCliMethods[] = {
         {"cmdItemCreate", dap_chain_node_cli_cmd_item_create_py, METH_VARARGS| METH_STATIC, ""},
         {"setReplyText", dap_chain_node_cli_set_reply_text_py, METH_VARARGS| METH_STATIC, ""},
+        {"cli_exec_str", dap_chain_node_cli_cmd_exec_str, METH_VARARGS| METH_STATIC, ""},
         {}
 };
 
