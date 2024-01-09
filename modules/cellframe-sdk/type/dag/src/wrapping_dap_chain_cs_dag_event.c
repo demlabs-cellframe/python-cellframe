@@ -112,12 +112,26 @@ PyObject *wrapping_dap_chain_cs_dag_event_get_signs(PyObject *self, void *closur
     dap_chain_cs_dag_event_t *l_event = ((PyDapChainCsDagEventObject*)self)->event;
     size_t l_event_size = ((PyDapChainCsDagEventObject*)self)->event_size;
     size_t l_sign_offset = dap_chain_cs_dag_event_calc_size_excl_signs(l_event, l_event_size);
+    
     if (l_sign_offset >= l_event_size) {
-        Py_RETURN_NONE;
+        _PyErr_logIt(L_ERROR, "event", "<corrupted: invalid signes offset>");
+        return PyList_New(0);
     }
+    
+    //count real signatures (first N not corrupted)
+    size_t l_real_signs_count = 0;
     size_t l_signs_count = ((PyDapChainCsDagEventObject*)self)->event->header.signs_count;
-    PyObject *obj_list = PyList_New(l_signs_count);
-    for (uint8_t i = 0; i < l_event->header.signs_count && l_sign_offset < l_event_size; ++i) {
+    
+    for (l_real_signs_count = 0; l_real_signs_count < l_event->header.signs_count && l_sign_offset < l_event_size; ++l_real_signs_count) {
+        dap_sign_t *l_sign = (dap_sign_t*)((uint8_t*)l_event + l_sign_offset);
+        l_sign_offset += dap_sign_get_size(l_sign);
+    }
+
+    
+    l_sign_offset = dap_chain_cs_dag_event_calc_size_excl_signs(l_event, l_event_size);
+    PyObject *obj_list = PyList_New(l_real_signs_count);
+
+    for (uint8_t i = 0; i < l_real_signs_count; ++i) {
         dap_sign_t *l_sign = (dap_sign_t*)((uint8_t*)l_event + l_sign_offset);
         PyDapSignObject *obj_sign = PyObject_New(PyDapSignObject, &DapCryptoSignObjectType);
         obj_sign->sign = l_sign;
