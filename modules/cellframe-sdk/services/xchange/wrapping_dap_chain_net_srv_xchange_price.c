@@ -2,10 +2,11 @@
 #include "libdap-python.h"
 #include "libdap_chain_net_python.h"
 #include "libdap_crypto_key_python.h"
+#include "dap_chain_wallet_python.h"
 
 #define PRICE(a) ((PyDapChainNetSrvXchangePriceObject*)a)->price
 
-PyGetSetDef DapChainNetSrvXchangeGetSetDef[] = {
+PyGetSetDef DapChainNetSrvXchangePriceGetSetDef[] = {
         {"walletStr", (getter)wrapping_dap_chain_net_srv_xchange_price_get_wallet_str, NULL, NULL, NULL},
         {"tokenSell", (getter)wrapping_dap_chain_net_srv_xchange_price_get_token_sell, NULL, NULL, NULL},
         {"datoshiSell", (getter)wrapping_dap_chain_net_srv_xchange_price_get_datoshi_sell, NULL, NULL, NULL},
@@ -18,6 +19,16 @@ PyGetSetDef DapChainNetSrvXchangeGetSetDef[] = {
         {"orderHash", (getter)wrapping_dap_chain_net_srv_xchange_price_get_order_hash, NULL, NULL, NULL},
         {"walletKey", (getter)wrapping_dap_chain_net_srv_xchange_price_get_wallet_key, NULL, NULL, NULL},
         {}
+};
+
+PyMethodDef DapChainNetSrvXchangePriceMethods[] = {
+        {
+            "purchase",
+            wrapping_dap_chain_net_srv_xchange_price_purchase,
+            METH_VARARGS,
+            "Function for partial or full purchase of an order."
+            },
+        {NULL}
 };
 
 PyObject *wrapping_dap_chain_net_srv_xchange_price_get_wallet_str(PyObject *self, void *closure){
@@ -90,10 +101,71 @@ PyObject *wrapping_dap_chain_net_srv_xchange_price_get_wallet_key(PyObject *self
 PyTypeObject PyDapChainNetSrvXchangePriceObjectType = DAP_PY_TYPE_OBJECT(
         "CellFrame.Service.Xchange.Price", sizeof(PyDapChainNetSrvXchangePriceObject),
         "Price from service xchange",
-        .tp_getset = DapChainNetSrvXchangeGetSetDef);
+        .tp_getset = DapChainNetSrvXchangePriceGetSetDef,
+        .tp_methods = DapChainNetSrvXchangePriceMethods);
 
 PyObject *wrapping_dap_chain_net_srv_xchange_price_create_object(dap_chain_net_srv_xchange_price_t *a_price) {
     PyDapChainNetSrvXchangePriceObject *self = PyObject_New(PyDapChainNetSrvXchangePriceObject, &PyDapChainNetSrvXchangePriceObjectType);
     self->price = a_price;
     return (PyObject*)self;
+}
+
+PyObject *wrapping_dap_chain_net_srv_xchange_price_purchase(PyObject *self, PyObject *argv){
+    PyObject *obj_wallet, *obj_fee, *obj_value;
+    if (!PyArg_ParseTuple(argv, "OOO", &obj_value, &obj_fee, &obj_wallet)) {
+        return NULL;
+    }
+    if (!DapMathObject_Check(obj_value)) {
+        PyErr_SetString(PyExc_AttributeError, "The first argument was passed incorrectly. This must be "
+                                              "an instance of an object of type Math.");
+        return NULL;
+    }
+    if (!DapMathObject_Check(obj_fee)) {
+        PyErr_SetString(PyExc_AttributeError, "The second argument was passed incorrectly. This must be "
+                                              "an instance of an object of type Math.");
+        return NULL;
+    }
+    if (!PyDapChainWalletObject_Check(obj_wallet)) {
+        PyErr_SetString(PyExc_AttributeError, "The third parameter to the function passed an incorrect "
+                                              "argument. This must be an instance of the Wallet class.");
+        return NULL;
+    }
+    char *l_ret_tx_hash = NULL;
+    dap_chain_net_srv_xchange_price_t *l_price = PRICE(self);
+    int l_ret_code = dap_chain_net_srv_xchange_purchase(l_price->net, &l_price->order_hash,
+                                                        ((DapMathObject*)obj_value)->value,
+                                                        ((DapMathObject*)obj_fee)->value,
+                                                        ((PyDapChainWalletObject*)obj_wallet)->wallet,
+                                                        &l_ret_tx_hash);
+    switch (l_ret_code) {
+        case XCHANGE_PURCHASE_ERROR_OK: {
+            return Py_BuildValue("s", l_ret_tx_hash);
+        }
+        case XCHANGE_PURCHASE_ERROR_INVALID_ARGUMENT: {
+            PyErr_SetString(CellFrame_Xchange_Price_error, "An internal error occurred in the order "
+                                                           "purchase function; not all arguments were passed.");
+            return NULL;
+        }
+        case XCHANGE_PURCHASE_ERROR_SPECIFIED_ORDER_NOT_FOUND: {
+            PyErr_SetString(CellFrame_Xchange_Price_error, "An error occurred: the order was not found "
+                                                           "for the hash specified in the price list.");
+            return NULL;
+        }
+        case XCHANGE_PURCHASE_ERROR_CAN_NOT_CREATE_PRICE: {
+            PyErr_SetString(CellFrame_Xchange_Price_error, "An error occurred. It was not possible to "
+                                                           "create a new price list to create an exchange transaction.");
+            return NULL;
+        }
+        case XCHANGE_PURCHASE_ERROR_CAN_NOT_CREATE_EXCHANGE_TX: {
+            PyErr_SetString(CellFrame_Xchange_Price_error, "An error occurred: it was not possible to "
+                                                           "create an exchange transaction.");
+            return NULL;
+        }
+        default: {
+            char *l_ret = dap_strdup_printf("An error occurred with an unknown code: %d.", l_ret_code);
+            PyErr_SetString(CellFrame_Xchange_Price_error, l_ret);
+            DAP_DELETE(l_ret);
+            return NULL;
+        }
+    }
 }
