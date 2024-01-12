@@ -214,7 +214,8 @@ PyObject *wrapping_dap_chain_datum_tx_get_items(PyObject *self, PyObject *args){
         uint8_t *item = ((PyDapChainDatumTxObject*)self)->datum_tx->tx_items + l_tx_items_count;
         size_t l_tx_item_size = dap_chain_datum_item_tx_get_size(item);
         if (l_tx_item_size == 0){
-            return NULL;
+            _PyErr_logIt(L_ERROR, "datum_tx", "Datum has no tiems!");
+            return PyList_New(0);
         }
         PyObject *obj_tx_item = NULL;
         switch (dap_chain_datum_tx_item_get_type(item)) {
