@@ -84,9 +84,10 @@ PyObject *wrapping_json_rpc_response_get_error(PyObject *self, void *closure){
             //TODO make a touple return
             return Py_BuildValue("is", json_object_get_string(l_jobj_code_eror), json_object_get_string(l_jobj_msg));
         }
-    } else
-        return PyTuple_New(2);
+    }
+    return PyTuple_New(2);
 }
+
 int wrapping_json_rpc_response_set_error(PyObject *self, PyObject *args, void *closure){
     UNUSED(closure);
     // if (args == NULL){
