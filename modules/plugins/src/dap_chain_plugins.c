@@ -1,10 +1,11 @@
 #include "dap_config.h"
+#include "dap_plugin.h"
 #include "dap_common.h"
 #include "dap_file_utils.h"
-#include "dap_chain_plugins_manifest.h"
-#include "dap_chain_plugins_list.h"
+//#include "dap_chain_plugins_manifest.h"
+//#include "dap_chain_plugins_list.h"
 #include "python-cellframe.h"
-#include "dap_chain_plugins_command.h"
+//#include "dap_chain_plugins_command.h"
 
 #include "dap_chain_plugins.h"
 
@@ -26,6 +27,11 @@ typedef struct _dap_chain_plugins_module{
 
 _dap_chain_plugins_module_t *_s_modules = NULL;
 
+static int s_dap_chain_plugins_load(dap_plugin_manifest_t * a_manifest, void ** a_pvt_data, char ** a_error_str );
+static int s_dap_chain_plugins_unload(dap_plugin_manifest_t * a_manifest, void * a_pvt_data, char ** a_error_str );
+static void s_plugins_load_plugin_initialization(void* a_module);
+static void s_plugins_load_plugin_uninitialization(void* a_module);
+
 wchar_t *s_get_full_path(const char *a_prefix, const char *a_path)
 {
     char *l_full_char_path = dap_strjoin("", a_prefix, "/", a_path, NULL);
@@ -40,6 +46,11 @@ int dap_chain_plugins_init(dap_config_t *a_config)
 {
     if (!dap_config_get_item_bool_default(a_config, "plugins", "py_load", false))
         return -1;
+
+    dap_plugin_type_callbacks_t l_callbacks={};
+    l_callbacks.load = s_dap_chain_plugins_load;
+    l_callbacks.unload = s_dap_chain_plugins_unload;
+    dap_plugin_type_create("python",&l_callbacks);
 
     s_debug_more = dap_config_get_item_bool_default(a_config, "plugins", "debug_more", s_debug_more);
 
@@ -156,83 +167,49 @@ excpt:
                                "\tprint(\"sys.%s = %r\" % (attr, getattr(sys, attr)))\n");
     }
 
-    //Get list files
-    dap_list_name_directories_t *l_list_plugins_name = dap_get_subs(s_plugins_root_path);
-    dap_list_name_directories_t *l_element;
-    //Loading manifest and start module
-    log_it(L_NOTICE, "Start registration of manifests");
-    dap_chain_plugins_manifest_list_create();
-    dap_chain_plugins_list_init();
-    char *l_name_file = NULL;
-    LL_FOREACH(l_list_plugins_name, l_element){
-        log_it(L_NOTICE, "Registration of \"%s\" manifest", l_element->name_directory);
-        l_name_file = dap_strjoin("", s_plugins_root_path, l_element->name_directory, "/manifest.json", NULL);
-        if (!dap_chain_plugins_manifest_list_add_from_file(l_name_file)){
-            log_it(L_ERROR, "Registration of \"%s\" manifest is failed", l_element->name_directory);
-        }
-        DAP_FREE(l_name_file);
-    }
-    dap_chain_plugins_loading();
-    dap_chain_plugins_command_create();
     s_thread_state = PyEval_SaveThread();
     return 0;
 }
 
-void dap_chain_plugins_loading(){
+static int s_dap_chain_plugins_load(dap_plugin_manifest_t * a_manifest, void ** a_pvt_data, char ** a_error_str )
+{
     log_it(L_NOTICE, "Loading plugins");
-    dap_chain_plugins_list_manifest_t *l_manifests = dap_chain_plugins_manifests_get_list();
-    dap_chain_plugins_list_manifest_t *l_man = NULL;
-    dap_chain_plugins_list_manifest_t *l_treshold = NULL;
-    dap_chain_plugins_list_manifest_t *l_tmp = NULL;
-    if (l_manifests == NULL)
-        return;
-    LL_FOREACH_SAFE(l_manifests, l_man, l_tmp){
-        if (l_man->name == NULL){
-            log_it(L_ERROR, "Can't load a plugin, file not found");
-            break;
-        }
-        log_it(L_NOTICE, "Check dependencies for plugin: %s", l_man->name);
-        if (l_man->dependencies != NULL){
-            log_it(L_NOTICE, "Plugin has dependencies");
-            if (!dap_chain_plugins_list_check_load_plugins(l_man->dependencies)){
-                log_it(L_NOTICE, "Plugin %s add treshold", l_man->name);
-                LL_APPEND(l_treshold, l_man);
-            }else{
-                dap_chain_plugins_load_plugin_importing(dap_strjoin("", s_plugins_root_path, l_man->name, "/", NULL), l_man->name);
-            }
-        }else{
-            dap_chain_plugins_load_plugin_importing(dap_strjoin("", s_plugins_root_path, l_man->name, "/", NULL), l_man->name);
-        }
+    dap_plugin_manifest_t *l_manifest = a_manifest;
+    void *l_pvt_data = NULL;
+    if (l_manifest == NULL)
+        return -100;
+    if (l_manifest->name == NULL){
+        log_it(L_ERROR, "Can't load a plugin, file not found");
+        return -101;
     }
+    log_it(L_NOTICE, "Check dependencies for plugin: %s", l_manifest->name);
+    l_pvt_data = dap_chain_plugins_load_plugin_importing(dap_strjoin("", s_plugins_root_path, l_manifest->name, "/", NULL), l_manifest->name);
 
-    int l_c_processed = 0;
-    int l_step_processed = 0;
-    int l_len;
-    LL_COUNT(l_treshold, l_man, l_len);
-    do{
-        LL_FOREACH_SAFE(l_treshold, l_man, l_tmp){
-            if (dap_chain_plugins_list_check_load_plugins(l_man->dependencies)){
-                log_it(L_NOTICE, "For \"%s\" plugin all dependecies is loaded", l_man->name);
-                dap_chain_plugins_load_plugin_importing(dap_strjoin("", s_plugins_root_path, l_man->name, "/", NULL), l_man->name);
-                LL_DELETE(l_treshold, l_man);
-                l_c_processed++;
-                l_step_processed = 0;
-            }
-        }
-        l_step_processed++;
-    }while(l_c_processed < l_len && l_step_processed <= 2);
-    dap_chain_plugins_load_plugin_initialization();
-    //Check loading all treshold
-    LL_COUNT(l_treshold, l_man, l_len);
-    if (l_len > 0){
-        log_it(L_WARNING, "Can't load some plugins from list treshold");
-        LL_FOREACH(l_treshold, l_man){
-            log_it(L_ERROR, "The \"%s\" plugin isn't loaded with a dependency resolution error", l_man->name);
-        }
-    }
+    if (!l_pvt_data)
+        return -102;
+
+    *a_pvt_data = l_pvt_data;
+    s_plugins_load_plugin_initialization(l_pvt_data);
+    return 0;
 }
 
-void dap_chain_plugins_load_plugin_importing(const char *a_dir_path, const char *a_name){
+static int s_dap_chain_plugins_unload(dap_plugin_manifest_t * a_manifest, void * a_pvt_data, char ** a_error_str )
+{
+    log_it(L_NOTICE, "Unloading plugins");
+    dap_plugin_manifest_t *l_manifest = a_manifest;
+    void *l_pvt_data = a_pvt_data;
+    if (l_manifest == NULL)
+        return -100;
+    if (l_manifest->name == NULL){
+        log_it(L_ERROR, "Can't load a plugin, file not found");
+        return -101;
+    }
+
+    s_plugins_load_plugin_uninitialization(l_pvt_data);
+    return 0;
+}
+
+void* dap_chain_plugins_load_plugin_importing(const char *a_dir_path, const char *a_name){
     log_it(L_NOTICE, "Import \"%s\" module from \"%s\" directory", a_name, a_dir_path);
     PyObject *l_obj_dir_path = PyUnicode_FromString(a_dir_path);
     PyList_Append(s_sys_path, l_obj_dir_path);
@@ -241,54 +218,86 @@ void dap_chain_plugins_load_plugin_importing(const char *a_dir_path, const char 
     if (!l_module){
         python_error_in_log_it(LOG_TAG);
         PyErr_Clear();
-        return;
+        return NULL;
     }
     _dap_chain_plugins_module_t *module = DAP_NEW(_dap_chain_plugins_module_t);
     if (!module) {
         python_error_in_log_it(LOG_TAG);
         PyErr_Clear();
-        return;
+        return NULL;
     }
     module->module = l_module;
     module->name = dap_strdup(a_name);
     Py_INCREF(l_module);
-    LL_APPEND(_s_modules, module);
+    return module;
 }
 
-void dap_chain_plugins_load_plugin_initialization(){
-    _dap_chain_plugins_module_t  *l_container = NULL;
-    LL_FOREACH(_s_modules, l_container){
-        PyObject *l_func_init = PyObject_GetAttrString(l_container->module, "init");
-        PyObject *l_func_deinit = PyObject_GetAttrString(l_container->module, "deinit");
-        PyObject *l_res_int = NULL;
-        PyErr_Clear();
-        if (PyCallable_Check(l_func_init)) {
-            PyObject *l_void_tuple = PyTuple_New(0);
-            PyGILState_STATE l_gil_state;
-            l_gil_state = PyGILState_Ensure();
-            l_res_int = PyObject_CallObject(l_func_init, l_void_tuple);
-            PyGILState_Release(l_gil_state);
-            if (l_res_int && PyLong_Check(l_res_int)) {
-                if (_PyLong_AsInt(l_res_int) == 0) {
-                    dap_chain_plugins_list_add(l_container->module, l_container->name);
-                    Py_INCREF(l_container->module);
-                } else {
-                    python_error_in_log_it(LOG_TAG);
-                    log_it(L_ERROR, "Can't initialize \"%s\" plugin. Code error: %i", l_container->name,
-                     _PyLong_AsInt(l_res_int));
-                }
+static void s_plugins_load_plugin_initialization(void* a_module){
+    if (!a_module)
+        return;
+    _dap_chain_plugins_module_t  *l_container = (_dap_chain_plugins_module_t  *)a_module;
+    PyObject *l_func_init = PyObject_GetAttrString(l_container->module, "init");
+    PyObject *l_func_deinit = PyObject_GetAttrString(l_container->module, "deinit");
+    PyObject *l_res_int = NULL;
+    PyErr_Clear();
+    if (PyCallable_Check(l_func_init)) {
+        PyObject *l_void_tuple = PyTuple_New(0);
+        PyGILState_STATE l_gil_state;
+        l_gil_state = PyGILState_Ensure();
+        l_res_int = PyObject_CallObject(l_func_init, l_void_tuple);
+        PyGILState_Release(l_gil_state);
+        if (l_res_int && PyLong_Check(l_res_int)) {
+            if (_PyLong_AsInt(l_res_int) == 0) {
+                Py_INCREF(l_container->module);
             } else {
                 python_error_in_log_it(LOG_TAG);
-                log_it(L_ERROR, "The 'init' function of \"%s\" plugin didn't return an integer value", l_container->name);
+                log_it(L_ERROR, "Can't initialize \"%s\" plugin. Code error: %i", l_container->name,
+                 _PyLong_AsInt(l_res_int));
             }
-            Py_XDECREF(l_res_int);
-            Py_XDECREF(l_void_tuple);
         } else {
-            log_it(L_ERROR, "Can't find 'init' function of \"%s\" plugin", l_container->name);
+            python_error_in_log_it(LOG_TAG);
+            log_it(L_ERROR, "The 'init' function of \"%s\" plugin didn't return an integer value", l_container->name);
         }
-        if (l_func_deinit == NULL || !PyCallable_Check(l_func_deinit)){
-            log_it(L_WARNING, "Can't find 'deinit' function of \"%s\" plugin", l_container->name);
+        Py_XDECREF(l_res_int);
+        Py_XDECREF(l_void_tuple);
+    } else {
+        log_it(L_ERROR, "Can't find 'init' function of \"%s\" plugin", l_container->name);
+    }
+    if (l_func_deinit == NULL || !PyCallable_Check(l_func_deinit)){
+        log_it(L_WARNING, "Can't find 'deinit' function of \"%s\" plugin", l_container->name);
+    }
+}
+
+static void s_plugins_load_plugin_uninitialization(void* a_module){
+    if (!a_module)
+        return;
+    _dap_chain_plugins_module_t  *l_container = (_dap_chain_plugins_module_t  *)a_module;
+    PyObject *l_func_deinit = PyObject_GetAttrString(l_container->module, "deinit");
+    PyObject *l_res_int = NULL;
+    PyErr_Clear();
+    if (PyCallable_Check(l_func_deinit)) {
+        PyObject *l_void_tuple = PyTuple_New(0);
+        PyGILState_STATE l_gil_state;
+        l_gil_state = PyGILState_Ensure();
+        l_res_int = PyObject_CallObject(l_func_deinit, l_void_tuple);
+        PyGILState_Release(l_gil_state);
+        if (l_res_int && PyLong_Check(l_res_int)) {
+            if (_PyLong_AsInt(l_res_int) == 0) {
+//                dap_chain_plugins_list_add(l_container->module, l_container->name);
+                Py_INCREF(l_container->module);
+            } else {
+                python_error_in_log_it(LOG_TAG);
+                log_it(L_ERROR, "Can't deinitialize \"%s\" plugin. Code error: %i", l_container->name,
+                       _PyLong_AsInt(l_res_int));
+            }
+        } else {
+            python_error_in_log_it(LOG_TAG);
+            log_it(L_ERROR, "The 'deinit' function of \"%s\" plugin didn't return an integer value", l_container->name);
         }
+        Py_XDECREF(l_res_int);
+        Py_XDECREF(l_void_tuple);
+    } else {
+        log_it(L_ERROR, "Can't find 'deinit' function of \"%s\" plugin", l_container->name);
     }
 }
 
@@ -309,9 +318,7 @@ void dap_chain_plugins_load_plugin(const char *a_dir_path, const char *a_name){
         PyObject *l_void_tuple = PyTuple_New(0);
         l_res_int = PyObject_CallObject(l_func_init, l_void_tuple);
         if (l_res_int && PyLong_Check(l_res_int)){
-            if (_PyLong_AsInt(l_res_int) == 0){
-                dap_chain_plugins_list_add(l_module, a_name);
-            } else {
+            if (_PyLong_AsInt(l_res_int) != 0){
                 python_error_in_log_it(LOG_TAG);
                 log_it(L_ERROR, "Can't initialize \"%s\" plugin. Code error: %i", a_name, _PyLong_AsInt(l_res_int));
             }
@@ -328,70 +335,3 @@ void dap_chain_plugins_load_plugin(const char *a_dir_path, const char *a_name){
         log_it(L_WARNING, "Can't find 'deinit' function of \"%s\" plugin", a_name);
     }
 }
-
-void dap_chain_plugins_deinit(){
-    log_it(L_NOTICE, "Deinitialize python plugins");
-    dap_chain_plugin_list_module_t *l_plugins = dap_chain_plugins_list_get();
-    dap_chain_plugin_list_module_t *l_plugin;
-    dap_chain_plugin_list_module_t *l_tmp;
-    PyObject *l_res_int = NULL;
-    LL_FOREACH_SAFE(l_plugins, l_plugin, l_tmp){
-        PyObject *l_func_deinit = PyObject_GetAttrString(l_plugin->obj_module, "deinit");
-        PyObject *l_void_tuple = PyTuple_New(0);
-        if (l_func_deinit != NULL || PyCallable_Check(l_func_deinit)){
-            l_res_int = PyObject_CallObject(l_func_deinit, l_void_tuple);
-        } else {
-            log_it(L_WARNING, "The 'deinit' object of \"%s\" plugin isn't a callable", l_plugin->name);
-        }
-        DAP_FREE(l_plugin->name);
-        Py_XDECREF(l_plugin->obj_module);
-        Py_XDECREF(l_void_tuple);
-        Py_XDECREF(l_res_int);
-        LL_DELETE(l_plugins, l_plugin);
-    }
-    dap_chain_plugins_manifest_list_delete_all();
-    //PyEval_RestoreThread(s_thread_state);
-    Py_Finalize();
-}
-int dap_chain_plugins_reload_plugin(const char * a_name_plugin){
-    log_it(L_NOTICE, "Reload \"%s\" plugin", a_name_plugin);
-    dap_chain_plugin_list_module_t *l_plugins = dap_chain_plugins_list_get();
-    dap_chain_plugin_list_module_t *l_plugin = NULL;
-    LL_SEARCH(l_plugins, l_plugin, a_name_plugin, dap_chain_plugins_list_name_cmp);
-    if (l_plugin == NULL)
-        return -4;
-    PyObject *l_func_deinit = PyObject_GetAttrString(l_plugin->obj_module, "deinit");
-    if (l_func_deinit != NULL || PyCallable_Check(l_func_deinit)){
-        PyObject_CallObject(l_func_deinit, NULL);
-    } else {
-        log_it(L_WARNING, "The 'deinit' object of \"%s\" plugin isn't a callable", l_plugin->name);
-    }
-    DAP_FREE(l_plugin->name);
-    Py_XDECREF(l_plugin->obj_module);
-    LL_DELETE(l_plugins, l_plugin);
-    dap_chain_plugins_manifest_list_delete_name(a_name_plugin);
-    //Loading plugin
-    char *l_path_plugin = dap_strjoin(NULL, s_plugins_root_path, a_name_plugin, NULL);
-    char *l_name_file_manifest = dap_strjoin("",s_plugins_root_path, a_name_plugin, "/manifest.json", NULL);
-    if (!dap_chain_plugins_manifest_list_add_from_file(l_name_file_manifest)){
-        log_it(L_ERROR, "Registration of  \"%s\" manifest is failed", l_path_plugin);
-        return -3;
-    }
-    DAP_FREE(l_name_file_manifest);
-    dap_chain_plugins_list_manifest_t *l_manifest =  dap_chain_plugins_manifest_list_get_name(a_name_plugin);
-    if (l_manifest->dependencies != NULL){
-        if (!dap_chain_plugins_list_check_load_plugins(l_manifest->dependencies)){
-            log_it(L_NOTICE, "\"%s\" plugin has unresolved dependencies, restart all plugins", l_manifest->name);
-            return -2;
-        }else{
-            dap_chain_plugins_load_plugin(dap_strjoin("", s_plugins_root_path, l_manifest->name, "/", NULL), l_manifest->name);
-            return 0;
-        }
-    }else{
-        dap_chain_plugins_load_plugin(dap_strjoin("", s_plugins_root_path, l_manifest->name, "/", NULL), l_manifest->name);
-        return 0;
-    }
-
-    return -1;
-}
-
