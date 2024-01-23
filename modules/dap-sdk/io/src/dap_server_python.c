@@ -54,10 +54,9 @@ static PyObject *py_server_listen(PyObject *self, PyObject *args)
 
     uint16_t l_count = PyList_Size(addr_list);
     char **l_addrs = DAP_NEW_Z_COUNT(char *, l_count);
-    for (uint16_t i = 0; i < PyList_Size(addr_list); i++){
+    for (uint16_t i = 0; i < l_count; i++){
         char *l_current_addr = NULL;
         uint16_t l_current_port = 0;
-        char *l_full_addr;
         if (!PyArg_ParseTuple(PyList_GetItem(addr_list, i), "sH", &l_current_addr, &l_current_port)) {
             char *l_str_err = dap_strdup_printf("The %zu element in the list of server addresses is not a string or port not integer", i);
             PyErr_SetString(PyExc_AttributeError, l_str_err);
