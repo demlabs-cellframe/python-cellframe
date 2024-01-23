@@ -338,8 +338,7 @@ PyObject *wrapping_dap_chain_net_srv_order_save(PyObject *self, PyObject *args){
     }
     char* res = NULL;
     dap_chain_net_t *l_net = obj_net->chain_net;
-    res = dap_chain_net_srv_order_save(l_net,
-                                           WRAPPING_DAP_CHAIN_NET_SRV_ORDER(self)->order);
+    res = dap_chain_net_srv_order_save(l_net, WRAPPING_DAP_CHAIN_NET_SRV_ORDER(self)->order, false);
     if (res == NULL)
         Py_RETURN_NONE;
     PyObject *l_obj_ret = Py_BuildValue("s", res);
