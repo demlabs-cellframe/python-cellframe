@@ -1,4 +1,5 @@
 #include "wrapping_dap_chain_cs_dag_event.h"
+#include "python-cellframe_common.h"
 
 static PyMethodDef PyDapChainCsDagEventMethodsDef[] = {
         {"fromAtom", (PyCFunction)wrapping_dap_chain_cs_dag_event_from_atom, METH_VARARGS | METH_STATIC, ""},
