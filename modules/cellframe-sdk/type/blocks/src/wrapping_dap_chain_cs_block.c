@@ -29,6 +29,14 @@ PyTypeObject DapChainCsBlockType = DAP_PY_TYPE_OBJECT(
         .tp_methods = DapChainCsBlockMethods,
         .tp_getset = DapChainCsBlockGetsSetsDef);
 
+
+static PyGetSetDef DapChainCsBlockMetaDataGetsSetsDef[] = {
+        {"prev_hash", (getter)wrapping_dap_chain_blockmeta_get_prev_hash, NULL, NULL, NULL},
+        {"genesis", (getter)wrapping_dap_chain_blockmeta_get_genesis, NULL, NULL, NULL},
+        {"nonce", (getter)wrapping_dap_chain_blockmeta_get_nonce, NULL, NULL, NULL},
+        {}
+};
+
 PyObject *wrapping_dap_chain_block_get_version(PyObject *self, void *closure){
     (void)closure;
     return Py_BuildValue("i", ((PyDapChainCSBlockObject*)self)->block->hdr.version);
