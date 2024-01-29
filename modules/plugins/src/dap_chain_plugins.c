@@ -174,23 +174,30 @@ void dap_chain_plugins_save_thread()
 
 static int s_dap_chain_plugins_load(dap_plugin_manifest_t * a_manifest, void ** a_pvt_data, char ** a_error_str ){
     log_it(L_NOTICE, "Loading plugins");
-
     dap_plugin_manifest_t *l_manifest = a_manifest;
     void *l_pvt_data = NULL;
-    if (l_manifest == NULL)
+    if (l_manifest == NULL){
         return -100;
+    }
+
     if (l_manifest->name == NULL){
         log_it(L_ERROR, "Can't load a plugin, file not found");
         return -101;
     }
     log_it(L_NOTICE, "Check dependencies for plugin: %s", l_manifest->name);
+
+    PyGILState_STATE l_gil_state;
+    l_gil_state = PyGILState_Ensure();
     l_pvt_data = dap_chain_plugins_load_plugin_importing(dap_strjoin("", s_plugins_root_path, l_manifest->name, "/", NULL), l_manifest->name);
 
-    if (!l_pvt_data)
+    if (!l_pvt_data){
+        PyGILState_Release(l_gil_state);
         return -102;
+    }
 
     *a_pvt_data = l_pvt_data;
     s_plugins_load_plugin_initialization(l_pvt_data);
+    PyGILState_Release(l_gil_state);
     return 0;
 
 }
@@ -206,8 +213,10 @@ static int s_dap_chain_plugins_unload(dap_plugin_manifest_t * a_manifest, void *
         log_it(L_ERROR, "Can't load a plugin, file not found");
         return -101;
     }
-
+    PyGILState_STATE l_gil_state;
+    l_gil_state = PyGILState_Ensure();
     s_plugins_load_plugin_uninitialization(l_pvt_data);
+    PyGILState_Release(l_gil_state);
     return 0;
 }
 
