@@ -178,6 +178,8 @@ void dap_chain_plugins_save_thread()
 static int s_dap_chain_plugins_load(dap_plugin_manifest_t * a_manifest, void ** a_pvt_data, char ** a_error_str )
 {
     log_it(L_NOTICE, "Loading plugins");
+    PyGILState_STATE l_gil_state;
+    l_gil_state = PyGILState_Ensure();
     dap_plugin_manifest_t *l_manifest = a_manifest;
     void *l_pvt_data = NULL;
     if (l_manifest == NULL)
@@ -194,6 +196,7 @@ static int s_dap_chain_plugins_load(dap_plugin_manifest_t * a_manifest, void ** 
 
     *a_pvt_data = l_pvt_data;
     s_plugins_load_plugin_initialization(l_pvt_data);
+    PyGILState_Release(l_gil_state);
     return 0;
 }
 
@@ -205,7 +208,7 @@ static int s_dap_chain_plugins_unload(dap_plugin_manifest_t * a_manifest, void *
     if (l_manifest == NULL)
         return -100;
     if (l_manifest->name == NULL){
-        log_it(L_ERROR, "Can't load a plugin, file not found");
+        log_it(L_ERROR, "Can't unload a plugin, file not found");
         return -101;
     }
 
@@ -215,6 +218,7 @@ static int s_dap_chain_plugins_unload(dap_plugin_manifest_t * a_manifest, void *
 
 void* dap_chain_plugins_load_plugin_importing(const char *a_dir_path, const char *a_name){
     log_it(L_NOTICE, "Import \"%s\" module from \"%s\" directory", a_name, a_dir_path);
+
     PyObject *l_obj_dir_path = PyUnicode_FromString(a_dir_path);
     PyList_Append(s_sys_path, l_obj_dir_path);
     Py_XDECREF(l_obj_dir_path);
@@ -275,19 +279,17 @@ static void s_plugins_load_plugin_initialization(void* a_module){
 static void s_plugins_load_plugin_uninitialization(void* a_module){
     if (!a_module)
         return;
+    PyGILState_STATE l_gil_state;
+    l_gil_state = PyGILState_Ensure();
     _dap_chain_plugins_module_t  *l_container = (_dap_chain_plugins_module_t  *)a_module;
     PyObject *l_func_deinit = PyObject_GetAttrString(l_container->module, "deinit");
     PyObject *l_res_int = NULL;
     PyErr_Clear();
     if (PyCallable_Check(l_func_deinit)) {
         PyObject *l_void_tuple = PyTuple_New(0);
-        PyGILState_STATE l_gil_state;
-        l_gil_state = PyGILState_Ensure();
         l_res_int = PyObject_CallObject(l_func_deinit, l_void_tuple);
-        PyGILState_Release(l_gil_state);
         if (l_res_int && PyLong_Check(l_res_int)) {
             if (_PyLong_AsInt(l_res_int) == 0) {
-//                dap_chain_plugins_list_add(l_container->module, l_container->name);
                 Py_INCREF(l_container->module);
             } else {
                 python_error_in_log_it(LOG_TAG);
@@ -303,6 +305,7 @@ static void s_plugins_load_plugin_uninitialization(void* a_module){
     } else {
         log_it(L_ERROR, "Can't find 'deinit' function of \"%s\" plugin", l_container->name);
     }
+    PyGILState_Release(l_gil_state);
 }
 
 void dap_chain_plugins_load_plugin(const char *a_dir_path, const char *a_name){
