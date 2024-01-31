@@ -335,7 +335,7 @@ void pvt_dap_chain_net_py_notify_handler(dap_global_db_context_t *a_context, dap
     if (!l_obj)
         return;
         
-    l_obj->store_obj = dap_store_obj_copy(a_obj, 1);
+    l_obj->store_obj = dap_store_obj_copy(a_obj, 1, true);
     l_obj->func = ((_wrapping_dap_chain_net_notify_callback_t*)a_arg)->func;
     l_obj->arg = ((_wrapping_dap_chain_net_notify_callback_t*)a_arg)->arg;
     dap_proc_queue_add_callback(dap_events_worker_get_auto(), dap_py_chain_net_gdb_notifier, l_obj);
