@@ -1,4 +1,5 @@
 #include "wrapping_dap_chain_datum_tx.h"
+#include "python-cellframe_common.h"
 
 /* DAP chain tx iter type */
 
@@ -279,7 +280,7 @@ PyObject *wrapping_dap_chain_datum_tx_get_items(PyObject *self, PyObject *args){
                 ((PyDapChainTxTSDObject*)obj_tx_item)->tsd = (dap_chain_tx_tsd_t*)item;
                 break;
             default:
-                obj_tx_item = Py_None;
+                obj_tx_item = Py_BuildNone;
                 break;
         }
         PyList_Append(obj_list, obj_tx_item);
