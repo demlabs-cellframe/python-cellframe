@@ -1,4 +1,5 @@
 #include "libdap_chain_net_python.h"
+#include "python-cellframe_common.h"
 
 static PyMethodDef DapChainNetMethods[] = {
         {"loadAll", dap_chain_net_load_all_py, METH_NOARGS | METH_STATIC, ""},
@@ -140,7 +141,7 @@ PyObject *dap_chain_net_by_id_py(PyObject *self, PyObject *args){
     dap_chain_net_t * net = dap_chain_net_by_id(((PyDapChainNetIdObject*)obj_net_id)->net_id);
     
     if (!net)
-        return Py_None;
+        return Py_BuildNone;
 
     PyDapChainNetObject *obj_net = PyObject_New(PyDapChainNetObject, &DapChainNetObjectType);
     obj_net->chain_net = net;
@@ -306,7 +307,7 @@ bool dap_py_chain_net_gdb_notifier(UNUSED_ARG dap_proc_thread_t *a_poc_thread, v
     l_op_code[1] = '\0';
     PyObject *l_obj_value = NULL;
     if (!l_callback->store_obj->value || !l_callback->store_obj->value_len)
-        l_obj_value = Py_None;
+        l_obj_value = Py_BuildNone;
     else
         l_obj_value = PyBytes_FromStringAndSize((char *)l_callback->store_obj->value, (Py_ssize_t)l_callback->store_obj->value_len);
     PyObject *argv = Py_BuildValue("sssOO", l_op_code, l_callback->store_obj->group, l_callback->store_obj->key, l_obj_value, l_callback->arg);
