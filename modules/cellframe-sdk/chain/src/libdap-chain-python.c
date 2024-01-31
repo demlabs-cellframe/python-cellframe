@@ -237,14 +237,12 @@ bool dap_py_mempool_notifier(UNUSED_ARG dap_proc_thread_t *a_poc_thread, void *a
     if (l_obj->key) {
         obj_key = PyUnicode_FromString(l_obj->key);
     } else {
-        obj_key = Py_None;
-        Py_INCREF(Py_None);
+        obj_key = Py_BuildNone;
     }
     if (l_obj->type == DAP_DB$K_OPTYPE_ADD) {
         obj_value = PyBytes_FromStringAndSize((char *)l_obj->value, (Py_ssize_t)l_obj->value_len);
     } else {
-        obj_value = Py_None;
-        Py_INCREF(Py_None);
+        obj_value = Py_BuildNone;
     }
     l_args = Py_BuildValue("ssOOO", l_op_code, l_obj->group, obj_key, obj_value, l_callback->arg);
     log_it(L_DEBUG, "Call mempool notifier with key '%s'", l_obj->key ? l_obj->key : "null");

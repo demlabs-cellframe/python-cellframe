@@ -1,6 +1,7 @@
 #include "wrapping_dap_http_simple.h"
 #include "python-cellframe_common.h"
 #include "wrapping_dap_http_header.h"
+#include "python-cellframe_common.h"
 
 #define LOG_TAG "wrapping_dap_http_simple"
 
@@ -63,8 +64,8 @@ void wrapping_dap_http_simple_callback(dap_http_simple_t *sh, void *obj){
     PyDapHttpSimpleObject *obj_http_simple = PyObject_NEW(PyDapHttpSimpleObject, &DapHttpSimpleObjectType);
     PyObject *obj_http_status_code = _PyObject_New(&DapHttpCodeObjectType);
     ((PyDapHttpSimpleObject*)obj_http_simple)->sh = sh;
-    obj_http_simple->response_http_header = Py_None;
-    Py_INCREF(Py_None);
+    obj_http_simple->response_http_header = Py_BuildNone;
+    
     http_status_code_t *ret = (http_status_code_t*)obj;
     ((PyHttpStatusCodeObject*)obj_http_status_code)->http_status = *ret;
     PyObject *obj_argv = Py_BuildValue("OO", obj_http_simple, obj_http_status_code);

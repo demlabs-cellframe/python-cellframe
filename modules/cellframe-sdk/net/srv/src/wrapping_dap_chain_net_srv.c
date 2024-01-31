@@ -1,4 +1,5 @@
 #include "wrapping_dap_chain_net_srv.h"
+#include "python-cellframe_common.h"
 
 #define LOG_TAG "wrapping_dap_chain_net_srv"
 
@@ -23,7 +24,7 @@ PyObject *_wrapping_dac_chain_callback_data_t_get_tuple(
     PyDapChainNetSrvObject *pyNetSrvObj = (PyDapChainNetSrvObject *)a_srv->_inheritor;
     PyDapChainNetSrvClientRemoteObject *l_obj_srv_client = NULL;
     if (a_srv_client == NULL){
-        l_obj_srv_client = (PyDapChainNetSrvClientRemoteObject *)Py_None;
+        l_obj_srv_client = (PyDapChainNetSrvClientRemoteObject *)Py_BuildNone;
     } else {
         l_obj_srv_client = PyObject_New(PyDapChainNetSrvClientRemoteObject,
                                         &DapChainNetSrvClientRemoteObject_DapChainNetSrvClientRemoteObjectType);
@@ -31,7 +32,7 @@ PyObject *_wrapping_dac_chain_callback_data_t_get_tuple(
     }
     PyObject *l_obj_custom_data = NULL;
     if (a_custom_data == NULL || a_custom_data_size == 0){
-        l_obj_custom_data = Py_None;
+        l_obj_custom_data = Py_BuildNone;
     }else{
         l_obj_custom_data = PyBytes_FromStringAndSize((char*)a_custom_data, (Py_ssize_t)a_custom_data_size);
     }
