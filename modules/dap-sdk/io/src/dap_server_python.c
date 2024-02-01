@@ -1,6 +1,7 @@
 #include "dap_common.h"
 #include "dap_server.h"
 #include "dap_events.h"
+#include "dap_strfuncs.h"
 #include "libdap-python.h"
 #include "dap_events_python.h"
 #include "dap_events_socket_python.h"
@@ -58,7 +59,7 @@ static PyObject *py_server_listen(PyObject *self, PyObject *args)
         char *l_current_addr = NULL;
         uint16_t l_current_port = 0;
         if (!PyArg_ParseTuple(PyList_GetItem(addr_list, i), "sH", &l_current_addr, &l_current_port)) {
-            char *l_str_err = dap_strdup_printf("The %zu element in the list of server addresses is not a string or port not integer", i);
+            char *l_str_err = dap_strdup_printf("The %u element in the list of server addresses is not a string or port not integer", i);
             PyErr_SetString(PyExc_AttributeError, l_str_err);
             DAP_DELETE(l_str_err);
             for (uint16_t j = i; j > 0; --j) {
@@ -67,7 +68,7 @@ static PyObject *py_server_listen(PyObject *self, PyObject *args)
             DAP_DELETE(l_addrs);
             return NULL;
         }
-        l_addrs[i] = dap_strdup_printf("%s:%zu", l_current_addr, l_current_port);
+        l_addrs[i] = dap_strdup_printf("%s:%u", l_current_addr, l_current_port);
     }
     PyObject *obj = _PyObject_New(&DapServerObjectType);
     ((PyDapServerObject*)obj)->t_server = dap_server_new(l_addrs, l_count, l_type, NULL);

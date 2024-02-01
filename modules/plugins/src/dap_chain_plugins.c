@@ -180,7 +180,7 @@ static int s_dap_chain_plugins_load(dap_plugin_manifest_t * a_manifest, void ** 
         return -100;
     }
 
-    if (l_manifest->name == NULL){
+    if (*l_manifest->name == 0){
         log_it(L_ERROR, "Can't load a plugin, file not found");
         return -101;
     }
@@ -209,7 +209,7 @@ static int s_dap_chain_plugins_unload(dap_plugin_manifest_t * a_manifest, void *
     void *l_pvt_data = a_pvt_data;
     if (l_manifest == NULL)
         return -100;
-    if (l_manifest->name == NULL){
+    if (*l_manifest->name == 0){
         log_it(L_ERROR, "Can't load a plugin, file not found");
         return -101;
     }
