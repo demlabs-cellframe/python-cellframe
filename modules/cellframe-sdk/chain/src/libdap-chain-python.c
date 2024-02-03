@@ -267,7 +267,7 @@ static void _wrapping_dap_chain_mempool_notify_handler(UNUSED_ARG dap_global_db_
         log_it(L_CRITICAL, "Memory allocation error");
         return;
     }
-    l_obj->obj = dap_store_obj_copy(a_obj, 1);
+    l_obj->obj = dap_store_obj_copy(a_obj, 1, true);
     l_obj->func = ((_wrapping_chain_mempool_notify_callback_t *)a_arg)->func;
     l_obj->arg = ((_wrapping_chain_mempool_notify_callback_t *)a_arg)->arg;
     dap_proc_queue_add_callback(dap_events_worker_get_auto(), dap_py_mempool_notifier, l_obj);
