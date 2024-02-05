@@ -173,3 +173,18 @@ PyObject *wrapping_dap_chain_net_srv_vote_create(PyObject *self, PyObject *args)
         }
     }
 }
+
+PyObject *wrapping_dap_chain_net_srv_voting_list(PyObject *self, PyObject *argv) {
+    PyObject *obj_net;
+    if (!PyArg_ParseTuple(argv, "O", &obj_net)) {
+        return NULL;
+    }
+    if (!PyDapChainNet_Check((PyDapChainNetObject*)obj_net)) {
+        return NULL;
+    }
+    dap_list_t *l_list = dap_chain_net_vote_list(((PyDapChainNetObject*)obj_net)->chain_net);
+    uint64_t l_list_count = dap_list_length(l_list);
+    dap_list_free(l_list);
+//    PyObject *obj_list = P
+//    dap_chain_net_srv_list
+}
