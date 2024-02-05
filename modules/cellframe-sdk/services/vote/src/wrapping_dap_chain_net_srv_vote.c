@@ -5,6 +5,7 @@
 #include "datetime.h"
 #include "dap_chain_wallet_python.h"
 #include "libdap_chain_net_python.h"
+#include "wrapping_dap_chain_net_srv_vote_info.h"
 
 PyObject *wrapping_dap_chain_net_srv_vote_list(PyObject *self, PyObject *args){
     PyObject *obj_net;
@@ -182,9 +183,17 @@ PyObject *wrapping_dap_chain_net_srv_voting_list(PyObject *self, PyObject *argv)
     if (!PyDapChainNet_Check((PyDapChainNetObject*)obj_net)) {
         return NULL;
     }
-    dap_list_t *l_list = dap_chain_net_vote_list(((PyDapChainNetObject*)obj_net)->chain_net);
-    uint64_t l_list_count = dap_list_length(l_list);
-    dap_list_free(l_list);
-//    PyObject *obj_list = P
-//    dap_chain_net_srv_list
+
+    size_t l_list_count = 0;
+    dap_chain_net_vote_info_t **l_list = dap_chain_net_vote_list(((PyDapChainNetObject*)obj_net)->chain_net, &l_list_count);
+    if (!l_list_count) {
+        Py_RETURN_NONE;
+    }
+    PyObject *obj_list = PyList_New(l_list_count);
+    for (size_t i = l_list_count; --l_list_count;) {
+        PyDapChainNetSrvVoteInfoObject *obj = PyObject_New(PyDapChainNetSrvVoteInfoObject, &DapChainNetSrvVoteInfoObjectType);
+        obj->info = l_list[i];
+        PyList_SetItem(obj_list, i, (PyObject*)obj);
+    }
+    return obj_list;
 }
