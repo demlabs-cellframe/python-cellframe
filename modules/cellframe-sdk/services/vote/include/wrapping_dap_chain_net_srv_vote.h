@@ -4,7 +4,7 @@ typedef struct PyDapChainNetSrvVote{
 	PyObject_HEAD
 }PyDapChainNetSrvVoteObject;
 
-extern PyObject *DapChainNetSrvVoteError;
+static PyObject *DapChainNetSrvVoteError;
 
 PyObject *wrapping_dap_chain_net_srv_vote_create(PyObject *self, PyObject *args);
 PyObject *wrapping_dap_chain_net_srv_vote_list(PyObject *self, PyObject *args);

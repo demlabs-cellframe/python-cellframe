@@ -71,7 +71,7 @@ PyObject *wrapping_dap_chain_net_srv_vote_get_is_vote_changing_allowed(PyObject 
 }
 
 PyTypeObject DapChainNetSrvVoteInfoObjectType = DAP_PY_TYPE_OBJECT(
-        "VoteInfo",
+        "CellFrame.Services.VoteInfo",
         sizeof(PyDapChainNetSrvVoteInfoObject),
         "CellFrame.Services.VoteInfo",
         .tp_dealloc = (destructor)DapChainNetSrvVoteInfo_dealloc,
@@ -100,7 +100,7 @@ PyObject *wrapping_dap_chain_net_srv_vote_option_get_weights(PyObject *self, voi
 }
 
 PyTypeObject DapChainNetSrvVoteInfoOptionObjectType = DAP_PY_TYPE_OBJECT(
-        "VoteInfoOption",
+        "CellFrame.Services.VoteInfoOption",
         sizeof(PyDapChainNetSrvVoteInfoOptionObject),
         "CellFrame.Services.VoteInfoOption",
         .tp_getset = DapChainNetSrvVoteInfoOptionGetSet);

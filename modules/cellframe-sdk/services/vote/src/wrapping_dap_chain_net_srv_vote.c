@@ -7,9 +7,11 @@
 #include "libdap_chain_net_python.h"
 #include "wrapping_dap_chain_net_srv_vote_info.h"
 
-PyObject *wrapping_dap_chain_net_srv_vote_list(PyObject *self, PyObject *args){
-    PyObject *obj_net;
-}
+PyMethodDef DapChainNetSrvVoteMethods[] = {
+        {"create", (PyCFunction)wrapping_dap_chain_net_srv_vote_create, METH_VARARGS | METH_STATIC, ""},
+        {"list", (PyCFunction)wrapping_dap_chain_net_srv_vote_list, METH_VARARGS | METH_STATIC, ""},
+        {NULL, NULL, 0, NULL}
+};
 
 PyObject *wrapping_dap_chain_net_srv_vote_create(PyObject *self, PyObject *args) {
     const char *question;
@@ -175,7 +177,7 @@ PyObject *wrapping_dap_chain_net_srv_vote_create(PyObject *self, PyObject *args)
     }
 }
 
-PyObject *wrapping_dap_chain_net_srv_voting_list(PyObject *self, PyObject *argv) {
+PyObject *wrapping_dap_chain_net_srv_vote_list(PyObject *self, PyObject *argv) {
     PyObject *obj_net;
     if (!PyArg_ParseTuple(argv, "O", &obj_net)) {
         return NULL;
@@ -197,3 +199,9 @@ PyObject *wrapping_dap_chain_net_srv_voting_list(PyObject *self, PyObject *argv)
     }
     return obj_list;
 }
+
+PyTypeObject PyDapChainNetSrvVoteObjectType = DAP_PY_TYPE_OBJECT(
+        "CellFrame.Services.Vote",
+        sizeof(PyDapChainNetSrvVoteObject),
+        "CellFrame.Service.Vote",
+        .tp_methods = DapChainNetSrvVoteMethods);

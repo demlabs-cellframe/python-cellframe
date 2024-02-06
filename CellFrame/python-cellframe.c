@@ -618,6 +618,9 @@ PyMODINIT_FUNC PyInit_libCellFrame(void)
         /// Services
         PyType_Ready( &PyDapChainNetSrvStakePosDelegateObjectType ) < 0 ||
         PyType_Ready( &PyDapStreamChChainValidatorTestObjectType ) < 0 ||
+        PyType_Ready( &PyDapChainNetSrvVoteObjectType ) < 0 ||
+        PyType_Ready( &DapChainNetSrvVoteInfoObjectType ) < 0 ||
+        PyType_Ready( &DapChainNetSrvVoteInfoOptionObjectType ) < 0 ||
         // === Chain consensuses
         PyType_Ready( &DapChainCsDagPoaObjectType ) < 0 ||
         PyType_Ready(&DapChainCsBlockType) < 0 ||
@@ -694,6 +697,7 @@ PyMODINIT_FUNC PyInit_libCellFrame(void)
     PyObject *servicesModule = PyModule_Create(&CellframeServicesPythonModule);
     PyModule_AddObject(servicesModule, "StakePosDelegate", (PyObject*)&PyDapChainNetSrvStakePosDelegateObjectType);
     PyModule_AddObject(servicesModule, "StreamChChainValidatorTest", (PyObject*)&PyDapStreamChChainValidatorTestObjectType);
+    PyModule_AddObject(servicesModule, "Vote", (PyObject*)&PyDapChainNetSrvVoteObjectType);
 
     PyObject *csModule = PyModule_Create(&CellframeConsensusPythonModule);
     // === Chain cs dag poa
@@ -707,6 +711,7 @@ PyMODINIT_FUNC PyInit_libCellFrame(void)
     PyModule_AddStringConstant(cellframeModule, "__author__", "Alexey Stratulat <alexey.stratulat@demlabs.net>");
     PyModule_AddStringConstant(cellframeModule, "__version__", DAP_VERSION);
     CellFrame_error = PyErr_NewException("CellFrame.error", NULL, NULL);
+    DapChainNetSrvVoteError = PyErr_NewException("CellFrame.Service.VoteError", NULL, NULL);
     PyModule_AddObject(cellframeModule, "error", CellFrame_error);
     PyModule_AddObject(cellframeModule, "AppCli", (PyObject*)&DapAppCliObjectType);
     PyModule_AddObject(cellframeModule, "AppCliServer", (PyObject*)&DapChainNodeCliObjectType);
@@ -721,6 +726,7 @@ PyMODINIT_FUNC PyInit_libCellFrame(void)
     PyModule_AddObject(cellframeModule, "Network", netModule);
     PyDict_SetItemString(moduleDict, "CellFrame.Network", netModule);
     Py_INCREF(servicesModule);
+    PyModule_AddObject(servicesModule, "VoteError", DapChainNetSrvVoteError);
     PyModule_AddObject(cellframeModule, "Services", servicesModule);
     PyDict_SetItemString(moduleDict, "CellFrame.Services", servicesModule);
     Py_INCREF(csModule);
