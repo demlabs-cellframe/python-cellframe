@@ -212,7 +212,7 @@ typedef struct _wrapping_chain_mempool_notify_callback {
     dap_store_obj_t *obj;
 } _wrapping_chain_mempool_notify_callback_t;
 
-bool dap_py_mempool_notifier(dap_proc_thread_t UNUSED_ARG *a_poc_thread, void *a_arg)
+bool dap_py_mempool_notifier(void *a_arg)
 {
     if (!a_arg)
         return false;

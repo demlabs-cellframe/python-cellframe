@@ -535,7 +535,7 @@ struct py_notifier_callback_args {
     void *arg;
 };
 
-static bool s_python_obj_notifier(UNUSED_ARG dap_proc_thread_t *a_thread, void *a_arg)
+static bool s_python_obj_notifier(void *a_arg)
 {
     struct py_notifier_callback_args *l_args = a_arg;
     pvt_ledger_notify_t *l_notifier = l_args->arg;

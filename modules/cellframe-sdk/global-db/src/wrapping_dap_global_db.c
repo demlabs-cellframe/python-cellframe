@@ -179,7 +179,7 @@ typedef struct _wrapping_dap_global_db_add_sync_extra_group_callback{
     dap_store_obj_t *store_obj;
 }_wrapping_dap_global_db_add_sync_extra_group_callback_t;
 
-bool dap_py_chain_net_extra_group_notifier(UNUSED_ARG dap_proc_thread_t *a_poc_thread, void *a_arg) {
+bool dap_py_chain_net_extra_group_notifier(void *a_arg) {
     if (!a_arg)
         return false;
 
