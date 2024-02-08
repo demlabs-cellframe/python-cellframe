@@ -16,6 +16,7 @@ static PyGetSetDef DapChainNetSrvVoteInfoGetSet[] = {
 
 void DapChainNetSrvVoteInfo_dealloc(PyDapChainNetSrvVoteInfoObject *self) {
     PyTypeObject *tp = Py_TYPE(self);
+    DAP_DELETE(PVT(self)->options.options->hashes_tx_votes);
     DAP_DELETE(PVT(self)->options.options);
     tp->tp_free(self);
     Py_DECREF(self);
