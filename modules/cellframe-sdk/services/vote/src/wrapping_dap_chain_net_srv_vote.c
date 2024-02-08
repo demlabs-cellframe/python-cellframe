@@ -9,6 +9,7 @@
 
 PyMethodDef DapChainNetSrvVoteMethods[] = {
         {"create", (PyCFunction)wrapping_dap_chain_net_srv_vote_create, METH_VARARGS | METH_STATIC, ""},
+        {"vote", (PyCFunction)wrapping_dap_chain_net_srv_vote, METH_VARARGS | METH_STATIC, ""},
         {"list", (PyCFunction)wrapping_dap_chain_net_srv_vote_list, METH_VARARGS | METH_STATIC, ""},
         {NULL, NULL, 0, NULL}
 };
@@ -198,6 +199,141 @@ PyObject *wrapping_dap_chain_net_srv_vote_list(PyObject *self, PyObject *argv) {
         PyList_SetItem(obj_list, i, (PyObject*)obj);
     }
     return obj_list;
+}
+
+PyObject *wrapping_dap_chain_net_srv_vote(PyObject *self, PyObject *args){
+    (void)self;
+    PyObject *obj_cert = NULL;
+    PyObject *obj_fee;
+    PyObject *obj_wallet;
+    PyObject *obj_vote;
+    unsigned long option_index;
+    PyObject *obj_net;
+    if (!PyArg_ParseTuple("OkOOO|O", &obj_vote, &option_index, &obj_fee, &obj_wallet, &obj_net, &obj_cert))
+        return NULL;
+    if (!PyDapHashFast_Check((PyDapHashFastObject*)obj_vote) && !PyObject_TypeCheck(obj_vote, &DapChainNetSrvVoteInfoObjectType)) {
+        PyErr_SetString(DapChainNetSrvVoteError, "The first argument is incorrect. "
+                                                 "The first argument must be an object of type HashFast or VoteInfo.");
+        return NULL;
+    }
+    if (!PyObject_TypeCheck(obj_fee, &DapMathObjectType)) {
+        PyErr_SetString(DapChainNetSrvVoteError, "The third argument is incorrect. "
+                                                 "The third argument must be an object of type DapMath.");
+        return NULL;
+    }
+    if (!PyDapChainWalletObject_Check(obj_wallet)) {
+        PyErr_SetString(DapChainNetSrvVoteError, "The fourth argument is incorrect. "
+                                                 "The fourth argument must be an object of type Wallet.");
+        return NULL;
+    }
+    if (!PyDapChainNet_Check(obj_net)) {
+        PyErr_SetString(DapChainNetSrvVoteError, "The fifth argument is incorrect. "
+                                                 "The fifth argument must be an object of type Net.");
+        return NULL;
+    }
+    if (obj_cert && !PyDapCryptoCertObject_Check(obj_cert)) {
+        PyErr_SetString(DapChainNetSrvVoteError, "The sixth argument is incorrect. "
+                                                 "The sixth argument must be an object of type Cert.");
+        return NULL;
+    }
+    dap_cert_t *l_cert = obj_cert ? ((PyCryptoCertObject*)obj_cert)->cert : NULL;
+    dap_hash_fast_t *l_hf;
+    if (PyDapHashFast_Check((PyDapHashFastObject*)obj_vote)) {
+        l_hf = ((PyDapHashFastObject*)obj_vote)->hash_fast;
+    } else {
+        l_hf = &((PyDapChainNetSrvVoteInfoObject*)obj_vote)->info->hash;
+    }
+    char *l_hash_ret = NULL;
+    int res = dap_chain_net_vote_voting(l_cert, ((DapMathObject*)obj_fee)->value,
+                                        ((PyDapChainWalletObject*)obj_wallet)->wallet, *l_hf, option_index,
+                                        ((PyDapChainNetObject*)obj_net)->chain_net, "hex", &l_hash_ret);
+    switch (res) {
+        case DAP_CHAIN_NET_VOTE_VOTING_OK: {
+            PyObject *obj_ret = Py_BuildValue("s", l_hash_ret);
+            DAP_DELETE(l_hash_ret);
+            return obj_ret;
+        }
+        case DAP_CHAIN_NET_VOTE_VOTING_CAN_NOT_FIND_VOTE: {
+            PyErr_SetString(DapChainNetSrvVoteError, "Can't find voting");
+            return NULL;
+        }
+        case DAP_CHAIN_NET_VOTE_VOTING_THIS_VOTING_HAVE_MAX_VALUE_VOTES: {
+            PyErr_SetString(DapChainNetSrvVoteError, "This voting already received the required number of votes.");
+            return NULL;
+        }
+        case DAP_CHAIN_NET_VOTE_VOTING_ALREADY_EXPIRED: {
+            PyErr_SetString(DapChainNetSrvVoteError, "This voting already expired.");
+            return NULL;
+        }
+        case DAP_CHAIN_NET_VOTE_VOTING_NO_KEY_FOUND_IN_CERT: {
+            const char *l_cert_name = ((PyCryptoCertObject *) obj_cert)->cert->name;
+            char *l_ret_err = dap_strdup_printf("No key found in \"%s\" certificate", l_cert_name);
+            PyErr_SetString(DapChainNetSrvVoteError, l_ret_err);
+            DAP_DELETE(l_ret_err);
+            return NULL;
+        }
+        case DAP_CHAIN_NET_VOTE_VOTING_NO_PUBLIC_KEY_IN_CERT: {
+            const char *l_cert_name = ((PyCryptoCertObject *) obj_cert)->cert->name;
+            char *l_ret_err = dap_strdup_printf("Can't serialize public key of certificate \"%s\"", l_cert_name);
+            PyErr_SetString(DapChainNetSrvVoteError, l_ret_err);
+            DAP_DELETE(l_ret_err);
+            return NULL;
+        }
+        case DAP_CHAIN_NET_VOTE_VOTING_KEY_IS_NOT_DELEGATED: {
+            PyErr_SetString(DapChainNetSrvVoteError, "Your key is not delegated.");
+            return NULL;
+        }
+        case DAP_CHAIN_NET_VOTE_VOTING_DOES_NOT_ALLOW_CHANGE_YOUR_VOTE: {
+            PyErr_SetString(DapChainNetSrvVoteError, "The voting doesn't allow change your vote.");
+            return NULL;
+        }
+        case DAP_CHAIN_NET_VOTE_VOTING_SOURCE_ADDRESS_INVALID: {
+            PyErr_SetString(DapChainNetSrvVoteError, "source address is invalid");
+            return NULL;
+        }
+        case DAP_CHAIN_NET_VOTE_VOTING_NOT_ENOUGH_FUNDS_TO_TRANSFER: {
+            PyErr_SetString(DapChainNetSrvVoteError, "Not enough funds to transfer");
+            return NULL;
+        }
+        case DAP_CHAIN_NET_VOTE_VOTING_UNSPENT_UTX0_FOR_PARTICIPATION_THIS_VOTING: {
+            PyErr_SetString(DapChainNetSrvVoteError, "You have not unspent UTXO for participation in this voting.");
+            return NULL;
+        }
+        case DAP_CHAIN_NET_VOTE_VOTING_INVALID_OPTION_INDEX: {
+            PyErr_SetString(DapChainNetSrvVoteError, "Invalid option index.");
+            return NULL;
+        }
+        case DAP_CHAIN_NET_VOTE_VOTING_CAN_NOT_CREATE_VOTE_ITEM: {
+            PyErr_SetString(DapChainNetSrvVoteError, "Can't create vote item.");
+            return NULL;
+        }
+        case DAP_CHAIN_NET_VOTE_VOTING_CAN_NOT_CREATE_TSD_TX_COND_ITEM: {
+            PyErr_SetString(DapChainNetSrvVoteError, "Can't create tsd tx cond item.");
+            return NULL;
+        }
+        case DAP_CHAIN_NET_VOTE_VOTING_CAN_NOT_ADD_NET_FEE_OUT: {
+            PyErr_SetString(DapChainNetSrvVoteError, "Can't add net fee out.");
+            return NULL;
+        }
+        case DAP_CHAIN_NET_VOTE_VOTING_CAN_NOT_ADD_OUT_WITH_VALUE_BACK: {
+            PyErr_SetString(DapChainNetSrvVoteError, "Can't add out with value back");
+            return NULL;
+        }
+        case DAP_CHAIN_NET_VOTE_VOTING_CAN_NOT_SIGN_TX: {
+            PyErr_SetString(DapChainNetSrvVoteError, "Can't sign tx");
+            return NULL;
+        }
+        case DAP_CHAIN_NET_VOTE_VOTING_CAN_NOT_POOL_IN_MEMPOOL: {
+            PyErr_SetString(DapChainNetSrvVoteError, "Can't add datum to mempool");
+            return NULL;
+        }
+        default: {
+            char *l_ret_err = dap_strdup_printf("Undefined error code: %d", res);
+            PyErr_SetString(DapChainNetSrvVoteError, l_ret_err);
+            DAP_DELETE(l_ret_err);
+            return NULL;
+        }
+    }
 }
 
 PyTypeObject PyDapChainNetSrvVoteObjectType = DAP_PY_TYPE_OBJECT(
