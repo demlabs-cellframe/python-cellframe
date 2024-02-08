@@ -23,5 +23,6 @@ extern PyTypeObject DapChainNetSrvVoteInfoObjectType;
 PyObject *wrapping_dap_chain_net_srv_vote_option_get_description(PyObject *self, void *closure);
 PyObject *wrapping_dap_chain_net_srv_vote_option_get_votes(PyObject *self, void *closure);
 PyObject *wrapping_dap_chain_net_srv_vote_option_get_weights(PyObject *self, void *closure);
+PyObject *wrapping_dap_chain_net_srv_vote_option_txs(PyObject *self, void *closure);
 
 extern PyTypeObject DapChainNetSrvVoteInfoOptionObjectType;

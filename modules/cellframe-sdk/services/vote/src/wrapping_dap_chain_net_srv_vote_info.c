@@ -81,6 +81,7 @@ static PyGetSetDef DapChainNetSrvVoteInfoOptionGetSet[] = {
         {"description", wrapping_dap_chain_net_srv_vote_option_get_description, NULL, NULL, NULL},
         {"votes", wrapping_dap_chain_net_srv_vote_option_get_votes, NULL, NULL, NULL},
         {"weights", wrapping_dap_chain_net_srv_vote_option_get_weights, NULL, NULL, NULL},
+        {"hashTxs", wrapping_dap_chain_net_srv_vote_option_txs, NULL, NULL, NULL},
         {}
 };
 
@@ -97,6 +98,18 @@ PyObject *wrapping_dap_chain_net_srv_vote_option_get_weights(PyObject *self, voi
     DapMathObject *obj_weights = PyObject_New(DapMathObject, &DapMathObjectType);
     obj_weights->value = PVT_OPTION(self).weight;
     return (PyObject*)obj_weights;
+}
+
+PyObject *wrapping_dap_chain_net_srv_vote_option_txs(PyObject *self, void *closure){
+    (void)closure;
+    PyObject *obj_list_tx = PyList_New(PVT_OPTION(self).votes_count);
+    for (uint64_t i = PVT_OPTION(self).votes_count; --i;) {
+        dap_hash_fast_t *l_hf_tx = (dap_hash_fast_t*)(PVT_OPTION(self).hashes_tx_votes + i);
+        PyDapHashFastObject *obj_hf = PyObject_New(PyDapHashFastObject, &DapHashFastObjectType);
+        obj_hf->hash_fast = l_hf_tx;
+        PyList_SetItem(obj_list_tx, i, (PyObject*)obj_hf);
+    }
+    return obj_list_tx;
 }
 
 PyTypeObject DapChainNetSrvVoteInfoOptionObjectType = DAP_PY_TYPE_OBJECT(
