@@ -30,11 +30,21 @@ typedef struct PyDapChainTXVoting{
     dap_chain_datum_tx_voting_params_t *voting;
 }PyDapChainTXVotingObject;
 
+PyObject *wrapping_dap_chain_tx_voting_get_question(PyObject *self, void *closure);
+PyObject *wrapping_dap_chain_tx_voting_get_answers(PyObject *self, void *closure);
+PyObject *wrapping_dap_chain_tx_voting_get_max_count(PyObject *self, void *closure);
+PyObject *wrapping_dap_chain_tx_voting_get_expire(PyObject *self, void *closure);
+PyObject *wrapping_dap_chain_tx_voting_get_is_delegate_key_required(PyObject *self, void *closure);
+PyObject *wrapping_dap_chain_tx_voting_get_is_vote_changing_allowed(PyObject *self, void *closure);
+
 extern PyTypeObject PyDapChainTxVotingObjectType;
 
 typedef struct PyDapChainTXVote{
     PyObject_HEAD
     dap_chain_tx_vote_t *vote;
 }PyDapChainTXVoteObject;
+
+PyObject *wrapping_dap_chain_tx_vote_get_hash(PyObject *self, void *closure);
+PyObject *wrapping_dap_chain_tx_vote_get_answer_idx(PyObject *self, void *closure);
 
 extern PyTypeObject PyDapChainTXVoteObjectType;

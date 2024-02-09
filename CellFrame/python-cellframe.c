@@ -674,6 +674,8 @@ PyMODINIT_FUNC PyInit_libCellFrame(void)
     PyModule_AddObject(commonModule, "TxReceipt", (PyObject*)&DapChainTxReceiptObjectType);
     PyModule_AddObject(commonModule, "TxOutExt", (PyObject*)&DapChainTxOutExtObjectType);
     PyModule_AddObject(commonModule, "TxTSD", (PyObject*)&DapChainTxTSDObjectType);
+    PyModule_AddObject(commonModule, "TxVote", (PyObject*)&PyDapChainTXVoteObjectType);
+    PyModule_AddObject(commonModule, "TxVoting", (PyObject*)&PyDapChainTxVotingObjectType);
 
     PyObject *netModule = PyModule_Create(&CellframeNetworkPythonModule);
     // === Chain node ===
