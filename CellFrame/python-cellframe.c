@@ -139,11 +139,6 @@ PyObject *python_cellframe_init(PyObject *self, PyObject *args)
                 PyErr_SetString(CellFrame_error, "Failed to initialize \"ChainNetSrv\" module");
                 return NULL;
             }
-        }else if (strcmp(c_value, "StreamChChain") == 0){
-            if (dap_stream_ch_chain_init() != 0 ){
-                PyErr_SetString(CellFrame_error, "Failed to initialize \"StreamChChain\" module");
-                return NULL;
-            }
         } else if (strcmp(c_value, "StreamChChainNet") == 0){
             if (dap_stream_ch_chain_net_init() != 0 ){
                 PyErr_SetString(CellFrame_error, "Failed to initialize \"StreamChChainNet\" module");
@@ -158,11 +153,7 @@ PyObject *python_cellframe_init(PyObject *self, PyObject *args)
         //            if (dap_enc_ks_init())
         //            if (dap_enc_ks_
         } else if (strcmp(c_value, "GlobalDB") == 0){
-            char l_gdb_path[MAX_PATH] = {'\0'};
-            sprintf(l_gdb_path, "%s/var/lib/global_db", g_sys_dir_path);
-
-            if ( dap_global_db_init( dap_config_get_item_str_default( g_config,"global_db","path",l_gdb_path),
-                                     dap_config_get_item_str_default( g_config,"global_db", "driver", "mdbx")) != 0 ) {
+            if ( dap_global_db_init() != 0 ) {
                 PyErr_SetString(CellFrame_error, "Failed to initialize \"GlobalDB\" module");
                 return NULL;
             }

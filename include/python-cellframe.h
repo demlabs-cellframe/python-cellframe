@@ -78,7 +78,6 @@
 //#include "dap_chain_cs_dag_pos.h"
 #include "dap_chain_net_srv.h"
 #include "dap_http_simple.h"
-#include "dap_stream_ch_chain.h"
 #include "dap_stream_ch_chain_net.h"
 #include "dap_stream_ch_chain_net_srv.h"
 #include "dap_enc_ks.h"
