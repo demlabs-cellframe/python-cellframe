@@ -89,8 +89,11 @@ PyObject *wrapping_dap_chain_net_srv_vote_create(PyObject *self, PyObject *args)
             PyErr_SetString(DapChainNetSrvVoteError, "The list passed as the second argument does not contain a string.");
             return NULL;
         }
-        char *value = PyUnicode_AsUTF8(el);
-        l_option = dap_list_append(l_option, value);
+        Py_ssize_t l_value_size = 0;
+        const char *value = PyUnicode_AsUTF8AndSize(el, &l_value_size);
+        char *l_value = DAP_NEW_Z_SIZE(char, l_value_size);
+        memcpy(l_value, value, sizeof(char) * l_value_size);
+        l_option = dap_list_append(l_option, l_value);
     }
     dap_list_free(l_option);
     bool l_delegated_key_required = Py_IsTrue(obj_delegate_key_required) ? true : false;
@@ -226,7 +229,7 @@ PyObject *wrapping_dap_chain_net_srv_vote(PyObject *self, PyObject *args){
                                                  "The fourth argument must be an object of type Wallet.");
         return NULL;
     }
-    if (!PyDapChainNet_Check(obj_net)) {
+    if (!PyDapChainNet_Check((PyDapChainNetObject*)obj_net)) {
         PyErr_SetString(DapChainNetSrvVoteError, "The fifth argument is incorrect. "
                                                  "The fifth argument must be an object of type Net.");
         return NULL;
