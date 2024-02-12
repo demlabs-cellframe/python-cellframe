@@ -209,7 +209,7 @@ PyObject *wrapping_dap_chain_net_srv_vote(PyObject *self, PyObject *args){
     PyObject *obj_vote;
     unsigned long option_index;
     PyObject *obj_net;
-    if (!PyArg_ParseTuple("OkOOO|O", &obj_vote, &option_index, &obj_fee, &obj_wallet, &obj_net, &obj_cert))
+    if (!PyArg_ParseTuple(args, "OkOOO|O", &obj_vote, &option_index, &obj_fee, &obj_wallet, &obj_net, &obj_cert))
         return NULL;
     if (!PyDapHashFast_Check((PyDapHashFastObject*)obj_vote) && !PyObject_TypeCheck(obj_vote, &DapChainNetSrvVoteInfoObjectType)) {
         PyErr_SetString(DapChainNetSrvVoteError, "The first argument is incorrect. "
