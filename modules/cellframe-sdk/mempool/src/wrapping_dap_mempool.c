@@ -1,5 +1,6 @@
 #include "wrapping_dap_mempool.h"
 #include "dap_chain_wallet_python.h"
+#include "python-cellframe_common.h"
 
 #define LOG_TAG "python-mempool"
 
@@ -503,7 +504,7 @@ PyObject *dap_chain_mempool_add_datum_py(PyObject *self, PyObject *args){
     }
     char *l_str = dap_chain_mempool_datum_add(l_datum, obj_chain->chain_t, "hex");
     if (!l_str)
-        return Py_None;
+        return Py_BuildNone;
     PyObject *l_obj_ret = Py_BuildValue("s", l_str);
     DAP_DELETE(l_str);
     return l_obj_ret;

@@ -52,7 +52,7 @@ PyObject *wrapping_dap_chain_datum_token_get_data(PyObject *self, void *closure)
     (void)closure;
     dap_chain_datum_token_t  *l_token = ((PyDapChainDatumTokenObject*)self)->token;
     PyObject *obj_dict = PyDict_New();
-    PyObject *obj = Py_None;
+    PyObject *obj = Py_BuildNone;
     switch(l_token->type){
         case DAP_CHAIN_DATUM_TOKEN_TYPE_DECL: {
             switch (l_token->subtype) {
@@ -251,10 +251,10 @@ PyObject *wrapping_dap_chain_datum_token_emission_get_value(PyObject *self, void
 PyObject *wrapping_dap_chain_datum_token_emission_get_data(PyObject *self, void *closure){
     (void)closure;
     PyObject *obj_dict = NULL;
-    PyObject *obj_tmp = Py_None;
+    PyObject *obj_tmp = Py_BuildNone;
     dap_chain_datum_token_emission_t *token_emi = ((PyDapChainDatumTokenEmissionObject*)self)->token_emission;
     size_t token_emi_size = ((PyDapChainDatumTokenEmissionObject*)self)->token_size;
-    PyDapSignObject *obj_tmp_sign = (PyDapSignObject *)Py_None;
+    PyDapSignObject *obj_tmp_sign = (PyDapSignObject *)Py_BuildNone;
     dap_sign_t *l_sign_ptr = NULL;
     size_t l_offset = 0;
     switch(token_emi->hdr.type){
@@ -347,7 +347,7 @@ PyObject *wrapping_dap_chain_datum_token_emission_get_signs(PyObject *self, void
     }
 
     PyObject *obj_list = PyList_New(l_emi->data.type_auth.signs_count);
-    PyDapSignObject *obj_sign = (PyDapSignObject*)Py_None;
+    PyDapSignObject *obj_sign = (PyDapSignObject*)Py_BuildNone;
     l_sign = (dap_sign_t*)(l_emi->tsd_n_signs + l_emi->data.type_auth.tsd_total_size);
     for (l_count = 0, l_sign_size = 0; l_count < l_emi->data.type_auth.signs_count && (l_sign_size = dap_sign_get_size(l_sign)); ++l_count) {
         
