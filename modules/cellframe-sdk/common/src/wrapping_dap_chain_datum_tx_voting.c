@@ -59,6 +59,12 @@ PyObject *wrapping_dap_chain_tx_voting_get_is_vote_changing_allowed(PyObject *se
         Py_RETURN_FALSE;
 }
 
+PyTypeObject PyDapChainTxVotingObjectType = DAP_PY_TYPE_OBJECT(
+        "CellFrame.Common.TxVoting",
+        sizeof(PyDapChainTXVotingObject),
+        "Wrapping item voting for transaction",
+        .tp_getset = PyDapChainTxVotingGetSetDef);
+
 //Vote
 
 PyGetSetDef PyDapChainTxVoteGetSetDef[] = {
