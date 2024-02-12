@@ -22,6 +22,7 @@
     You should have received a copy of the GNU General Public License
     along with any DAP based project.  If not, see <http://www.gnu.org/licenses/>.
 */
+#pragma once
 #include "Python.h"
 #include "dap_chain_datum_tx_voting.h"
 
