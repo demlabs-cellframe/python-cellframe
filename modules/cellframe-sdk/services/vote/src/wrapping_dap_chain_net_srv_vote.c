@@ -96,8 +96,8 @@ PyObject *wrapping_dap_chain_net_srv_vote_create(PyObject *self, PyObject *args)
         l_option = dap_list_append(l_option, l_value);
     }
     dap_list_free(l_option);
-    bool l_delegated_key_required = Py_IsTrue(obj_delegate_key_required) ? true : false;
-    bool l_vote_changing_allowed = Py_IsTrue(obj_vote_changing_allowed) ? true : false;
+    bool l_delegated_key_required = (obj_delegate_key_required == Py_True) ? true : false;
+    bool l_vote_changing_allowed = (obj_vote_changing_allowed == Py_True) ? true : false;
     char *l_hash_ret;
     int res = dap_chain_net_vote_create(question, l_option, l_obj_expire_option ? &l_time_expire_option : NULL, &max_vote,
                               ((DapMathObject*)fee)->value, l_delegated_key_required, l_vote_changing_allowed,
