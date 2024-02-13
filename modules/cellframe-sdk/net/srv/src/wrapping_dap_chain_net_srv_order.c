@@ -1,4 +1,5 @@
 #include "wrapping_dap_chain_net_srv_order.h"
+#include "python-cellframe_common.h"
 
 #define WRAPPING_DAP_CHAIN_NET_SRV_ORDER(a) ((PyDapChainNetSrvOrderObject*)a)
 
@@ -51,7 +52,7 @@ void _wrapping_handler_add_order_notify(dap_global_db_context_t *a_context, dap_
         return;
     _wrapping_order_callable_t *l_callback = (_wrapping_order_callable_t *)a_arg;
     PyGILState_STATE state = PyGILState_Ensure();
-    PyDapChainNetSrvOrderObject *l_obj_order = (PyDapChainNetSrvOrderObject *)Py_None;
+    PyDapChainNetSrvOrderObject *l_obj_order = (PyDapChainNetSrvOrderObject *)Py_BuildNone;
     if (a_obj->value_len != 0 && a_obj->type != DAP_DB$K_OPTYPE_DEL) {
         l_obj_order = PyObject_New(PyDapChainNetSrvOrderObject, &DapChainNetSrvOrderObjectType);
         l_obj_order->order = DAP_DUP_SIZE(a_obj->value, a_obj->value_len);
@@ -338,8 +339,7 @@ PyObject *wrapping_dap_chain_net_srv_order_save(PyObject *self, PyObject *args){
     }
     char* res = NULL;
     dap_chain_net_t *l_net = obj_net->chain_net;
-    res = dap_chain_net_srv_order_save(l_net,
-                                           WRAPPING_DAP_CHAIN_NET_SRV_ORDER(self)->order);
+    res = dap_chain_net_srv_order_save(l_net, WRAPPING_DAP_CHAIN_NET_SRV_ORDER(self)->order, false);
     if (res == NULL)
         Py_RETURN_NONE;
     PyObject *l_obj_ret = Py_BuildValue("s", res);
