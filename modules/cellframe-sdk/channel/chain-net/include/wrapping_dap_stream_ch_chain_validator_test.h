@@ -3,7 +3,7 @@
 
 typedef struct PyDapStreamChChainValidatorTest{
     PyObject_HEAD
-    dap_stream_ch_chain_validator_test_t *rnd;
+    dap_chain_ch_validator_test_t *rnd;
 }PyDapStreamChChainValidatorTestObject;
 
 void PyDapStreamChChainValidatorTestObject_free(PyDapStreamChChainValidatorTestObject *self);

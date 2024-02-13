@@ -4,7 +4,7 @@
 #include "dap_common.h"
 #define LOG_TAG "wrapping_dap_stream_ch_chain_net"
 
-#define PVT(a) ((dap_stream_ch_chain_validator_test_t*)((PyDapStreamChChainValidatorTestObject*)a)->rnd)
+#define PVT(a) ((dap_chain_ch_validator_test_t*)((PyDapStreamChChainValidatorTestObject*)a)->rnd)
 
 PyObject *wrapping_dap_stream_ch_chain_validator_test_get_version(PyObject *self, void *closure) {
     (void)closure;

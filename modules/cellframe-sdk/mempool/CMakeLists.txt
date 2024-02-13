@@ -104,10 +104,10 @@ if (NOT (${SUBMODULES_NO_BUILD} MATCHES ON))
              "-fpic"   
        )
    endif()
-   if (NOT (TARGET dap_stream_ch_chain))
+   if (NOT (TARGET dap_chain_ch))
        add_subdirectory(libdap-stream-ch-chain)
        target_compile_options(
-            dap_stream_ch_chain PRIVATE
+            dap_chain_ch PRIVATE
             "-fpic"   
        )
    endif()
