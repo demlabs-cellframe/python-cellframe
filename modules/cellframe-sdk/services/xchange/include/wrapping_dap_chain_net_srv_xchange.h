@@ -30,7 +30,7 @@ typedef struct PyDapChainNetSrvXchange{
 
 static PyObject *CellFrame_Xchange_error;
 
-PyObject *wrapping_dap_chain_net_srv_xchange_get_prices(PyObject *self, PyObject *argv);
+PyObject *wrapping_dap_chain_net_srv_xchange_get_orders(PyObject *self, PyObject *argv);
 PyObject *wrapping_dap_chain_net_srv_xchange_create(PyObject *self, PyObject *argv);
 PyObject *wrapping_dap_chain_net_srv_xchange_remove(PyObject *self, PyObject *argv);
 

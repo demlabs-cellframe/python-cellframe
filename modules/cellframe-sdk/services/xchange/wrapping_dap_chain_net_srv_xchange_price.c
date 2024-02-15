@@ -4,7 +4,7 @@
 #include "libdap_crypto_key_python.h"
 #include "dap_chain_wallet_python.h"
 
-#define PRICE(a) ((PyDapChainNetSrvXchangePriceObject*)a)->price
+#define PRICE(a) ((PyDapChainNetSrvXchangeOrderObject*)a)->price
 
 PyGetSetDef DapChainNetSrvXchangePriceGetSetDef[] = {
         {"walletStr", (getter)wrapping_dap_chain_net_srv_xchange_price_get_wallet_str, NULL, NULL, NULL},
@@ -16,7 +16,6 @@ PyGetSetDef DapChainNetSrvXchangePriceGetSetDef[] = {
         {"rate", (getter)wrapping_dap_chain_net_srv_xchange_price_get_rate, NULL, NULL, NULL},
         {"fee", (getter)wrapping_dap_chain_net_srv_xchange_price_get_fee, NULL, NULL, NULL},
         {"txHash", (getter)wrapping_dap_chain_net_srv_xchange_price_get_tx_hash, NULL, NULL, NULL},
-        {"orderHash", (getter)wrapping_dap_chain_net_srv_xchange_price_get_order_hash, NULL, NULL, NULL},
         {"walletKey", (getter)wrapping_dap_chain_net_srv_xchange_price_get_wallet_key, NULL, NULL, NULL},
         {}
 };
@@ -30,6 +29,11 @@ PyMethodDef DapChainNetSrvXchangePriceMethods[] = {
             },
         {NULL}
 };
+
+void DapChainNetSrvXchangePrice_free(PyDapChainDatumDecreeObject *self){
+    DAP_DELETE(self->decree);
+    Py_TYPE(self)->tp_free((PyObject*)self);
+}
 
 PyObject *wrapping_dap_chain_net_srv_xchange_price_get_wallet_str(PyObject *self, void *closure){
     UNUSED(closure);
@@ -82,18 +86,6 @@ PyObject *wrapping_dap_chain_net_srv_xchange_price_get_tx_hash(PyObject *self, v
     obj_hf->origin = true;
     return (PyObject*)obj_hf;
 }
-PyObject *wrapping_dap_chain_net_srv_xchange_price_get_order_hash(PyObject *self, void *closure){
-    UNUSED(closure);
-    dap_chain_hash_fast_t l_hf = PRICE(self)->order_hash;
-    if (dap_hash_fast_is_blank(&l_hf)) {
-        Py_RETURN_NONE;
-    }
-    PyDapHashFastObject *obj_hash = PyObject_NEW(PyDapHashFastObject, &DapChainHashFastObjectType);
-    obj_hash->hash_fast = DAP_NEW(dap_chain_hash_fast_t);
-    memcpy(obj_hash->hash_fast, &l_hf, sizeof(dap_chain_hash_fast_t));
-    obj_hash->origin = true;
-    return (PyObject*)obj_hash;
-}
 PyObject *wrapping_dap_chain_net_srv_xchange_price_get_wallet_key(PyObject *self, void *closure){
     UNUSED(closure);
     PyCryptoKeyObject *obj_key = PyObject_New(PyCryptoKeyObject, &PyCryptoKeyObjectType);
@@ -101,15 +93,17 @@ PyObject *wrapping_dap_chain_net_srv_xchange_price_get_wallet_key(PyObject *self
     return (PyObject*)obj_key;
 }
 
-PyTypeObject PyDapChainNetSrvXchangePriceObjectType = DAP_PY_TYPE_OBJECT(
-        "CellFrame.Service.Xchange.Price", sizeof(PyDapChainNetSrvXchangePriceObject),
+PyTypeObject PyDapChainNetSrvXchangeOrderObjectType = DAP_PY_TYPE_OBJECT(
+        "CellFrame.Service.XchangeOrder", sizeof(PyDapChainNetSrvXchangeOrderObject),
         "Price from service xchange",
+        .tp_dealloc = (destructor)DapChainNetSrvXchangePrice_free,
         .tp_getset = DapChainNetSrvXchangePriceGetSetDef,
         .tp_methods = DapChainNetSrvXchangePriceMethods);
 
 PyObject *wrapping_dap_chain_net_srv_xchange_price_create_object(dap_chain_net_srv_xchange_price_t *a_price) {
-    PyDapChainNetSrvXchangePriceObject *self = PyObject_New(PyDapChainNetSrvXchangePriceObject, &PyDapChainNetSrvXchangePriceObjectType);
-    self->price = a_price;
+    PyDapChainNetSrvXchangeOrderObject *self = PyObject_New(PyDapChainNetSrvXchangeOrderObject, &PyDapChainNetSrvXchangeOrderObjectType);
+    self->price = DAP_NEW(dap_chain_net_srv_xchange_price_t);
+    memcpy(self->price, a_price, sizeof (dap_chain_net_srv_xchange_price_t ));
     return (PyObject*)self;
 }
 
