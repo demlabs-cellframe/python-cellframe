@@ -75,18 +75,21 @@ PyObject *wrapping_dap_chain_net_srv_xchange_price_get_fee(PyObject *self, void 
 }
 PyObject *wrapping_dap_chain_net_srv_xchange_price_get_tx_hash(PyObject *self, void *closure){
     UNUSED(closure);
-    PyDapHashFastObject *obj_hash = PyObject_NEW(PyDapHashFastObject, &DapHashFastObjectType);
-    obj_hash->hash_fast = DAP_NEW(dap_chain_hash_fast_t);
+    PyDapHashFastObject *obj_hf = PyObject_New(PyDapHashFastObject, &DapChainHashFastObjectType);
+    obj_hf->hash_fast = DAP_NEW(dap_hash_fast_t);
     dap_chain_hash_fast_t l_hf = PRICE(self)->tx_hash;
-    memcpy(obj_hash->hash_fast, &l_hf, sizeof(dap_chain_hash_fast_t));
-    obj_hash->origin = true;
-    return (PyObject*)obj_hash;
+    memcpy(obj_hf->hash_fast, &l_hf, sizeof(dap_chain_hash_fast_t));
+    obj_hf->origin = true;
+    return (PyObject*)obj_hf;
 }
 PyObject *wrapping_dap_chain_net_srv_xchange_price_get_order_hash(PyObject *self, void *closure){
     UNUSED(closure);
-    PyDapHashFastObject *obj_hash = PyObject_NEW(PyDapHashFastObject, &DapHashFastObjectType);
-    obj_hash->hash_fast = DAP_NEW(dap_chain_hash_fast_t);
     dap_chain_hash_fast_t l_hf = PRICE(self)->order_hash;
+    if (dap_hash_fast_is_blank(&l_hf)) {
+        Py_RETURN_NONE;
+    }
+    PyDapHashFastObject *obj_hash = PyObject_NEW(PyDapHashFastObject, &DapChainHashFastObjectType);
+    obj_hash->hash_fast = DAP_NEW(dap_chain_hash_fast_t);
     memcpy(obj_hash->hash_fast, &l_hf, sizeof(dap_chain_hash_fast_t));
     obj_hash->origin = true;
     return (PyObject*)obj_hash;
