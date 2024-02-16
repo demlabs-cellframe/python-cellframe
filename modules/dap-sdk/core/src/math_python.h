@@ -46,3 +46,7 @@ PyObject *wrapping_dap_math_get_coins(PyObject *self, void *closure);
 PyObject *wrapping_dap_math_get_balance(PyObject *self, void *closure);
 
 extern PyTypeObject DapMathObjectType;
+
+DAP_STATIC_INLINE bool DapMathObject_Check(PyObject *obj_math){
+    return PyObject_TypeCheck(obj_math, &DapMathObjectType) == 0 ? true : false;
+}
