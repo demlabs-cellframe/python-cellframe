@@ -3,7 +3,7 @@
 #include "dap_common.h"
 #include "dap_enc_http.h"
 #include "dap_server_python.h"
-#include "dap_http.h"
+#include "dap_http_server.h"
 #include "dap_http_simple.h"
 #include "wrapping_dap_http_simple.h"
 #include "Python.h"

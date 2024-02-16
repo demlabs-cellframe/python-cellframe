@@ -19,7 +19,7 @@ PyObject *dap_http_folder_add_py(PyObject *self, PyObject *args){
         return NULL;
     dap_server_t *l_server = ((PyDapServerObject*)obj_server)->t_server;
     if (l_server) {
-        int res = dap_http_folder_add(DAP_HTTP(l_server), url_path, local_path);
+        int res = dap_http_folder_add(DAP_HTTP_SERVER(l_server), url_path, local_path);
         return PyLong_FromLong(res);
     } else {
         PyErr_SetString(PyExc_SystemError, "It is not possible to add a handler to a non-existent server. Check the configuration.");

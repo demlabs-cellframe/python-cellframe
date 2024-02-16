@@ -5,7 +5,7 @@
 #include "dap_enc_key.h"
 #include "dap_stream_ctl.h"
 #include "dap_server_python.h"
-#include "dap_http.h"
+#include "dap_http_server.h"
 #include "dap_enc_http.h"
 
 typedef struct PyDapStreamCtl{

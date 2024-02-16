@@ -46,6 +46,6 @@ PyObject *dap_plugins_python_app_context_get_http(PyObject *self, PyObject *args
     (void)self;
     (void)args;
     PyDapHttpObject *l_obj_http = PyObject_NEW(PyDapHttpObject, &DapHttpObjectType);
-    l_obj_http->http = DAP_HTTP(s_app_context->server);
+    l_obj_http->http = DAP_HTTP_SERVER(s_app_context->server);
     return Py_BuildValue("O", l_obj_http);
 }

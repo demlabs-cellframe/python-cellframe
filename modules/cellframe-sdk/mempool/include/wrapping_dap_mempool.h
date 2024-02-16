@@ -4,7 +4,7 @@
 #include <Python.h>
 #include "dap_chain_mempool.h"
 #include "dap_server_python.h"
-#include "dap_http.h"
+#include "dap_http_server.h"
 #include "libdap-chain-python.h"
 #include "wrapping_dap_pkey.h"
 #include "wrapping_dap_chain_common.h"

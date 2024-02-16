@@ -105,7 +105,7 @@ PyObject *dap_http_simple_add_proc_py(PyObject *self, PyObject *args){
     _w_simple_proc_add(url, func_callback);
     dap_server_t *l_server = ((PyDapServerObject*) obj_server)->t_server;
     if (l_server) {
-        dap_http_t *l_http = DAP_HTTP(l_server);
+        dap_http_server_t *l_http = DAP_HTTP_SERVER(l_server);
         dap_http_simple_proc_add(l_http,
                                  url,
                                  reply_size_max,

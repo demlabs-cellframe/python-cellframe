@@ -2,7 +2,7 @@
 #define _WRAPPING_HTTP_
 
 #include <Python.h>
-#include "dap_http.h"
+#include "dap_http_server.h"
 #include "dap_server_python.h"
 
 #ifdef __cplusplus
@@ -11,7 +11,7 @@ extern "C" {
 
 typedef struct PyDapHttp{
     PyObject_HEAD
-    struct dap_http *http;
+    struct dap_http_server*http;
 }PyDapHttpObject;
 
 PyObject *dap_http_new_py(PyObject *self, PyObject *args);
