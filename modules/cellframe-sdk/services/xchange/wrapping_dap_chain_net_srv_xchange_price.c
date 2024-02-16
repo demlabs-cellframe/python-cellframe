@@ -7,7 +7,6 @@
 #define PRICE(a) ((PyDapChainNetSrvXchangePriceObject*)a)->price
 
 PyGetSetDef DapChainNetSrvXchangePriceGetSetDef[] = {
-        {"walletStr", (getter)wrapping_dap_chain_net_srv_xchange_price_get_wallet_str, NULL, NULL, NULL},
         {"tokenSell", (getter)wrapping_dap_chain_net_srv_xchange_price_get_token_sell, NULL, NULL, NULL},
         {"datoshiSell", (getter)wrapping_dap_chain_net_srv_xchange_price_get_datoshi_sell, NULL, NULL, NULL},
         {"net", (getter)wrapping_dap_chain_net_srv_xchange_price_get_net, NULL, NULL, NULL},
@@ -31,10 +30,6 @@ PyMethodDef DapChainNetSrvXchangePriceMethods[] = {
         {NULL}
 };
 
-PyObject *wrapping_dap_chain_net_srv_xchange_price_get_wallet_str(PyObject *self, void *closure){
-    UNUSED(closure);
-    return Py_BuildValue("s", PRICE(self)->wallet_str);
-}
 PyObject *wrapping_dap_chain_net_srv_xchange_price_get_token_sell(PyObject *self, void *closure){
     UNUSED(closure);
     return Py_BuildValue("s", PRICE(self)->token_sell);

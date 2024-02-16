@@ -32,7 +32,6 @@ typedef struct PyDapChainNetSrvXchangePrice {
 
 static PyObject *CellFrame_Xchange_Price_error;
 
-PyObject *wrapping_dap_chain_net_srv_xchange_price_get_wallet_str(PyObject *self, void *closure);
 PyObject *wrapping_dap_chain_net_srv_xchange_price_get_token_sell(PyObject *self, void *closure);
 PyObject *wrapping_dap_chain_net_srv_xchange_price_get_datoshi_sell(PyObject *self, void *closure);
 PyObject *wrapping_dap_chain_net_srv_xchange_price_get_net(PyObject *self, void *closure);
