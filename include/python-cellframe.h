@@ -105,6 +105,8 @@ BOOL WINAPI consoleHandler(DWORD);
 #include "wrapping_dap_http_simple.h"
 #include "wrapping_dap_http_header.h"
 #include "wrapping_dap_chain_net_srv_stake_pos_delegate.h"
+#include "wrapping_dap_chain_net_srv_xchange.h"
+#include "wrapping_dap_chain_net_srv_xchange_price.h"
 #ifdef DAP_SUPPORT_PYTHON_PLUGINS
     #include "../modules/plugins/include/dap_plugins_python_app_context.h"
 #endif // DAP_SUPPORT_PYTHON_PLUGINS
