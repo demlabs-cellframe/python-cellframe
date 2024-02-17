@@ -32,7 +32,6 @@ typedef struct PyDapChainNetSrvXchangePrice {
 
 static PyObject *CellFrame_Xchange_Price_error;
 
-PyObject *wrapping_dap_chain_net_srv_xchange_price_get_wallet_str(PyObject *self, void *closure);
 PyObject *wrapping_dap_chain_net_srv_xchange_price_get_token_sell(PyObject *self, void *closure);
 PyObject *wrapping_dap_chain_net_srv_xchange_price_get_datoshi_sell(PyObject *self, void *closure);
 PyObject *wrapping_dap_chain_net_srv_xchange_price_get_net(PyObject *self, void *closure);
@@ -40,10 +39,10 @@ PyObject *wrapping_dap_chain_net_srv_xchange_price_get_token_buy(PyObject *self,
 PyObject *wrapping_dap_chain_net_srv_xchange_price_get_datoshi_buy(PyObject *self, void *closure);
 PyObject *wrapping_dap_chain_net_srv_xchange_price_get_rate(PyObject *self, void *closure);
 PyObject *wrapping_dap_chain_net_srv_xchange_price_get_fee(PyObject *self, void *closure);
-PyObject *wrapping_dap_chain_net_srv_xchange_price_get_tx_hash(PyObject *self, void *closure);
-PyObject *wrapping_dap_chain_net_srv_xchange_price_get_wallet_key(PyObject *self, void *closure);
-
-PyObject *wrapping_dap_chain_net_srv_xchange_price_create_object(dap_chain_net_srv_xchange_price_t *a_price);
+PyObject *wrapping_dap_chain_net_srv_xchange_price_get_tx_hash(PyObject *self, void *closure); 
+PyObject *wrapping_dap_chain_net_srv_xchange_price_get_completion_rate(PyObject *self, void *closure);
+PyObject *wrapping_dap_chain_net_srv_xchange_price_get_status(PyObject *self, void *closure);
+PyObject *wrapping_dap_chain_net_srv_xchange_price_get_order_hash(PyObject *self, void *closure);
 
 PyObject *wrapping_dap_chain_net_srv_xchange_price_purchase(PyObject *self, PyObject *argv);
 

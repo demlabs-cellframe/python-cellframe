@@ -3,6 +3,7 @@
 #include "dap_chain_net_srv_xchange.h"
 #include "dap_chain_wallet_python.h"
 #include "libdap_chain_net_python.h"
+#include "python-cellframe_common.h"
 #include "libdap-python.h"
 
 PyMethodDef DapChainNetSrvXchangeMethods[] = {
@@ -37,9 +38,10 @@ PyObject *wrapping_dap_chain_net_srv_xchange_get_orders(PyObject *self, PyObject
     PyObject *obj_list_price = PyList_New(0);
     while (tmp) {
         dap_chain_net_srv_xchange_price_t *l_price = (dap_chain_net_srv_xchange_price_t*)tmp->data;
-        PyObject *l_obj_price = wrapping_dap_chain_net_srv_xchange_price_create_object(l_price);
-        PyList_Append(obj_list_price, l_obj_price);
-        Py_XDECREF(l_obj_price);
+        PyDapChainNetSrvXchangeOrderObject *nob = PyObject_New(PyDapChainNetSrvXchangeOrderObject, &PyDapChainNetSrvXchangeOrderObjectType);
+        nob->price = DAP_NEW(dap_chain_net_srv_xchange_price_t);
+        memcpy(nob->price, l_price, sizeof (dap_chain_net_srv_xchange_price_t ));
+        PyList_Append(obj_list_price, nob);
         tmp = tmp->next;
     }
     dap_list_free(l_list_prices);
