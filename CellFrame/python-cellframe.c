@@ -597,6 +597,8 @@ PyMODINIT_FUNC PyInit_libCellFrame(void)
         PyType_Ready( &DapChainTxReceiptObjectType ) < 0 ||
         PyType_Ready( &DapChainTxOutExtObjectType ) < 0 ||
         PyType_Ready( &DapChainTxTSDObjectType ) < 0 ||
+        PyType_Ready( &PyDapChainTXVoteObjectType) < 0 ||
+        PyType_Ready( &PyDapChainTxVotingObjectType ) < 0 ||
         // === Chain net ===
         /// Node
         PyType_Ready( &DapChainNodeObjectType ) < 0 ||
