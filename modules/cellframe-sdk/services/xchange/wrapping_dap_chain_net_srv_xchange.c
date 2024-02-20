@@ -42,7 +42,7 @@ PyObject *wrapping_dap_chain_net_srv_xchange_get_orders(PyObject *self, PyObject
     return obj_list_price;
 }
 
-#define LOG_TAG "AZAZAZ"
+
 PyObject *wrapping_dap_chain_net_srv_xchange_create(PyObject *self, PyObject *argv) {
     (void)self;
     PyObject *obj_net;
@@ -52,47 +52,40 @@ PyObject *wrapping_dap_chain_net_srv_xchange_create(PyObject *self, PyObject *ar
     PyObject *obj_rate;
     PyObject *obj_fee;
     PyObject *obj_wallet;
-    log_it(L_ERROR, "a1");
     if (!PyArg_ParseTuple(argv, "OssOOOO", &obj_net, &l_token_sell, &l_token_buy, &obj_value_sell, &obj_rate, &obj_fee,
                           &obj_wallet)) {
         PyErr_SetString(PyExc_AttributeError, "Cant parse args");
         return NULL;
     }
-    log_it(L_ERROR, "a2");
     if (!PyDapChainNet_Check(obj_net)) {
         PyErr_SetString(PyExc_AttributeError, "The first parameter to the function passed an incorrect "
                                               "argument. This must be an instance of the dapchain net class.");
         return NULL;
     }
 
-    log_it(L_ERROR, "a3");
     if (!DapMathObject_Check(obj_value_sell)) {
         PyErr_SetString(PyExc_AttributeError, "The forth argument was passed incorrectly. This must be "
                                               "an instance of an object of type Math.");
         return NULL;
     }
 
-    log_it(L_ERROR, "a4");
     if (!DapMathObject_Check(obj_rate)) {
         PyErr_SetString(PyExc_AttributeError, "The fifth argument was passed incorrectly. This must be "
                                               "an instance of an object of type Math.");
         return NULL;
     }
 
-    log_it(L_ERROR, "a5");
     if (!DapMathObject_Check(obj_fee)) {
         PyErr_SetString(PyExc_AttributeError, "The sixth parameter to the function passed an incorrect "
                                               "argument. This must be an instance of the Wallet class.");
         return NULL;
     }
-    log_it(L_ERROR, "a6");
     if (!PyDapChainWalletObject_Check(obj_wallet)) {
         PyErr_SetString(PyExc_AttributeError, "The seventh parameter to the function passed an incorrect "
                                               "argument. This must be an instance of the Wallet class.");
         return NULL;
     }
 
-    log_it(L_ERROR, "a7");
     dap_chain_net_t *l_net  = ((PyDapChainNetObject*)obj_net)->chain_net;
     uint256_t l_value_sell  = ((DapMathObject*)obj_value_sell)->value;
     uint256_t l_rate        = ((DapMathObject*)obj_rate)->value;
@@ -104,7 +97,6 @@ PyObject *wrapping_dap_chain_net_srv_xchange_create(PyObject *self, PyObject *ar
                                                       l_wallet, &l_hash_ret);
 
 
-    log_it(L_ERROR, "a8 %d", l_ret_code);
 
     switch (l_ret_code) {
         case XCHANGE_CREATE_ERROR_OK:{
