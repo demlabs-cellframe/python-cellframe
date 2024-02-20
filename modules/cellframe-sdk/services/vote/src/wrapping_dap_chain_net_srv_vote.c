@@ -195,8 +195,8 @@ PyObject *wrapping_dap_chain_net_srv_vote_list(PyObject *self, PyObject *argv) {
     if (!l_list_count) {
         Py_RETURN_NONE;
     }
-    PyObject *obj_list = PyList_New(l_list_count);
-    for (size_t i = l_list_count; --l_list_count;) {
+    PyObject *obj_list = PyList_New((Py_ssize_t)l_list_count);
+    for (Py_ssize_t i = (Py_ssize_t)l_list_count; --l_list_count;) {
         PyDapChainNetSrvVoteInfoObject *obj = PyObject_New(PyDapChainNetSrvVoteInfoObject, &DapChainNetSrvVoteInfoObjectType);
         obj->info = l_list[i];
         PyList_SetItem(obj_list, i, (PyObject*)obj);
