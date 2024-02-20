@@ -43,6 +43,8 @@ PyObject *wrapping_dap_chain_net_srv_xchange_price_get_tx_hash(PyObject *self, v
 PyObject *wrapping_dap_chain_net_srv_xchange_price_get_completion_rate(PyObject *self, void *closure);
 PyObject *wrapping_dap_chain_net_srv_xchange_price_get_status(PyObject *self, void *closure);
 PyObject *wrapping_dap_chain_net_srv_xchange_price_get_order_hash(PyObject *self, void *closure);
+PyObject *wrapping_dap_chain_net_srv_xchange_price_get_order_creator_address(PyObject *self, void *closure);
+PyObject *wrapping_dap_chain_net_srv_xchange_price_get_order_creation_date(PyObject *self, void *closure);
 
 PyObject *wrapping_dap_chain_net_srv_xchange_price_purchase(PyObject *self, PyObject *argv);
 PyObject *wrapping_dap_chain_net_srv_xchange_price_invalidate(PyObject *self, PyObject *argv);

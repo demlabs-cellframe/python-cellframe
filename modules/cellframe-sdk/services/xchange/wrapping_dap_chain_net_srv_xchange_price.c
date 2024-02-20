@@ -18,6 +18,9 @@ PyGetSetDef DapChainNetSrvXchangePriceGetSetDef[] = {
         {"orderHash", (getter)wrapping_dap_chain_net_srv_xchange_price_get_order_hash, NULL, NULL, NULL},
         {"completionRate", (getter)wrapping_dap_chain_net_srv_xchange_price_get_completion_rate, NULL, NULL, NULL},
         {"status", (getter)wrapping_dap_chain_net_srv_xchange_price_get_status, NULL, NULL, NULL},
+        {"creator_addr", (getter)wrapping_dap_chain_net_srv_xchange_price_get_order_creator_address, NULL, NULL, NULL},
+        {"creation_date", (getter)wrapping_dap_chain_net_srv_xchange_price_get_order_creation_date, NULL, NULL, NULL},
+        
         {}
 };
 
@@ -127,6 +130,23 @@ PyObject *wrapping_dap_chain_net_srv_xchange_price_get_order_hash(PyObject *self
 
 PyObject *wrapping_dap_chain_net_srv_xchange_price_get_completion_rate(PyObject *self, void *closure){
     return Py_BuildValue("l",dap_chain_net_srv_xchange_get_order_completion_rate(PRICE(self)->net, PRICE(self)->order_hash));
+}
+
+PyObject *wrapping_dap_chain_net_srv_xchange_price_get_order_creator_address(PyObject *self, void *closure){
+    
+    PyDapChainAddrObject *obj_addr = PyObject_New(PyDapChainAddrObject, &DapChainAddrObjectType);
+    obj_addr->addr = DAP_NEW(dap_chain_addr_t);
+    mempcpy(obj_addr->addr, &PRICE(self)->creator_addr, sizeof(dap_chain_addr_t));
+    return obj_addr; 
+}
+
+PyObject *wrapping_dap_chain_net_srv_xchange_price_get_order_creation_date(PyObject *self, void *closure){
+
+    PyObject *obj_ts_float = PyLong_FromLong(PRICE(self)->creation_date);
+    PyObject *obj_ts = Py_BuildValue("(O)", obj_ts_float);
+    PyDateTime_IMPORT;
+    PyObject *obj_dt = PyDateTime_FromTimestamp(obj_ts);
+    return obj_dt;
 }
 
 PyObject *wrapping_dap_chain_net_srv_xchange_price_get_status(PyObject *self, void *closure){
