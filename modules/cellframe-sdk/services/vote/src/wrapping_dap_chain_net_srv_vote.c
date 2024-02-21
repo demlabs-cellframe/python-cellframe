@@ -190,16 +190,16 @@ PyObject *wrapping_dap_chain_net_srv_vote_list(PyObject *self, PyObject *argv) {
         return NULL;
     }
 
-    size_t l_list_count = 0;
-    dap_chain_net_vote_info_t **l_list = dap_chain_net_vote_list(((PyDapChainNetObject*)obj_net)->chain_net, &l_list_count);
-    if (!l_list_count) {
+    dap_list_t *l_list = dap_chain_net_vote_list(((PyDapChainNetObject*)obj_net)->chain_net);
+    if (!l_list) {
         Py_RETURN_NONE;
     }
-    PyObject *obj_list = PyList_New((Py_ssize_t)l_list_count);
-    for (Py_ssize_t i = (Py_ssize_t)l_list_count; --l_list_count;) {
+    PyObject *obj_list = PyList_New(0);
+    for (dap_list_t *it = l_list; it;it = it->next) {
         PyDapChainNetSrvVoteInfoObject *obj = PyObject_New(PyDapChainNetSrvVoteInfoObject, &DapChainNetSrvVoteInfoObjectType);
-        obj->info = l_list[i];
-        PyList_SetItem(obj_list, i, (PyObject*)obj);
+        obj->info = (dap_chain_net_vote_info_t*)l_list->data;
+        PyList_Append(obj_list, (PyObject*)obj);
+        Py_XDECREF((PyObject*)obj);
     }
     return obj_list;
 }
