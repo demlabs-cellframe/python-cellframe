@@ -16,33 +16,37 @@ static PyGetSetDef DapChainNetSrvVoteInfoGetSet[] = {
 
 void DapChainNetSrvVoteInfo_dealloc(PyDapChainNetSrvVoteInfoObject *self) {
     PyTypeObject *tp = Py_TYPE(self);
-    DAP_DELETE(PVT(self)->options.options->hashes_tx_votes);
-    DAP_DELETE(PVT(self)->options.options);
+    dap_chain_net_vote_info_t *l_info = self->info;
+    dap_chain_net_vote_info_free(l_info);
     tp->tp_free(self);
-    Py_DECREF(self);
 }
 
 PyObject *wrapping_dap_chain_net_srv_vote_get_hash(PyObject *self, void *closure) {
     (void)closure;
-    PyDapHashFastObject *obj = PyObject_New(PyDapHashFastObject, &DapHashFastObjectType);
+    PyDapHashFastObject *obj = PyObject_New(PyDapHashFastObject, &DapChainHashFastObjectType);
     obj->hash_fast = DAP_NEW(dap_hash_fast_t);
     memcpy(obj->hash_fast, &PVT(self)->hash, sizeof(dap_hash_fast_t));
     return (PyObject*)obj;
 }
 PyObject *wrapping_dap_chain_net_srv_vote_get_question(PyObject *self, void *closure) {
     (void)closure;
-    return Py_BuildValue("s", PVT(self)->question);
+    PyObject *obj_str = PyUnicode_FromStringAndSize(PVT(self)->question.question_str, PVT(self)->question.question_size);
+    return obj_str;
 }
 PyObject *wrapping_dap_chain_net_srv_vote_get_options(PyObject *self, void *closure) {
     (void)closure;
+    Py_ssize_t l_count_option = PVT(self)->options.count_option;
     if (PVT(self)->options.count_option == 0) {
         Py_RETURN_NONE;
     }
-    PyObject *obj_list = PyList_New(PVT(self)->options.count_option);
-    for (size_t i = PVT(self)->options.count_option; --i;) {
+    PyObject *obj_list = PyList_New(l_count_option);
+    dap_chain_net_vote_info_option_t **l_infs = PVT(self)->options.options;
+    for (Py_ssize_t i = l_count_option; i;) {
         PyDapChainNetSrvVoteInfoOptionObject *option  = PyObject_New(PyDapChainNetSrvVoteInfoOptionObject,
-                                                                     &DapChainNetSrvVoteInfoObjectType);
-        option->option = PVT(self)->options.options[i];
+                                                                     &DapChainNetSrvVoteInfoOptionObjectType);
+        i -= 1;
+        dap_chain_net_vote_info_option_t * l_option = l_infs[i];
+        option->option = l_option;
         PyList_SetItem(obj_list, i, (PyObject*)option);
     }
     return obj_list;
@@ -50,7 +54,8 @@ PyObject *wrapping_dap_chain_net_srv_vote_get_options(PyObject *self, void *clos
 PyObject *wrapping_dap_chain_net_srv_vote_get_expire_datetime(PyObject *self, void *closure) {
     (void)closure;
     PyDateTime_IMPORT;
-    PyObject *obj_ts_long =  Py_BuildValue("(k)",((PyDapChainDatumObject*)self)->datum->header.ts_create);
+    uint64_t l_ts_create = ((PyDapChainDatumObject*)self)->datum->header.ts_create / 1000000000;
+    PyObject *obj_ts_long =  Py_BuildValue("(k)", l_ts_create);
     PyObject *obj_ts = PyDateTime_FromTimestamp(obj_ts_long);
     return obj_ts;
 }
@@ -88,26 +93,29 @@ static PyGetSetDef DapChainNetSrvVoteInfoOptionGetSet[] = {
 
 PyObject *wrapping_dap_chain_net_srv_vote_option_get_description(PyObject *self, void *closure) {
     (void)closure;
-    return Py_BuildValue("s", PVT_OPTION(self).description);
+    PyObject *obj_desc = PyUnicode_FromStringAndSize(PVT_OPTION(self)->description, PVT_OPTION(self)->description_size);
+    return obj_desc;
 }
 PyObject *wrapping_dap_chain_net_srv_vote_option_get_votes(PyObject *self, void *closure) {
     (void)closure;
-    return Py_BuildValue("k", PVT_OPTION(self).votes_count);
+    return Py_BuildValue("k", PVT_OPTION(self)->votes_count);
 }
 PyObject *wrapping_dap_chain_net_srv_vote_option_get_weights(PyObject *self, void *closure) {
     (void)closure;
     DapMathObject *obj_weights = PyObject_New(DapMathObject, &DapMathObjectType);
-    obj_weights->value = PVT_OPTION(self).weight;
+    obj_weights->value = PVT_OPTION(self)->weight;
     return (PyObject*)obj_weights;
 }
 
 PyObject *wrapping_dap_chain_net_srv_vote_option_txs(PyObject *self, void *closure){
     (void)closure;
-    PyObject *obj_list_tx = PyList_New(PVT_OPTION(self).votes_count);
-    for (uint64_t i = PVT_OPTION(self).votes_count; --i;) {
-        dap_hash_fast_t *l_hf_tx = (dap_hash_fast_t*)(PVT_OPTION(self).hashes_tx_votes + i);
-        PyDapHashFastObject *obj_hf = PyObject_New(PyDapHashFastObject, &DapHashFastObjectType);
+    PyObject *obj_list_tx = PyList_New(PVT_OPTION(self)->votes_count);
+    for (uint64_t i = PVT_OPTION(self)->votes_count; i;) {
+        i -= 1;
+        dap_hash_fast_t *l_hf_tx = (dap_hash_fast_t*)(PVT_OPTION(self)->hashes_tx_votes + i);
+        PyDapHashFastObject *obj_hf = PyObject_New(PyDapHashFastObject, &DapChainHashFastObjectType);
         obj_hf->hash_fast = l_hf_tx;
+        obj_hf->origin = false;
         PyList_SetItem(obj_list_tx, i, (PyObject*)obj_hf);
     }
     return obj_list_tx;
