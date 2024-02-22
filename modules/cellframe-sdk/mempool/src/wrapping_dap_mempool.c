@@ -1,5 +1,6 @@
 #include "wrapping_dap_mempool.h"
 #include "dap_chain_wallet_python.h"
+#include "python-cellframe_common.h"
 
 #define LOG_TAG "python-mempool"
 
@@ -8,6 +9,8 @@ static PyMethodDef  DapMempoolMethods[] = {
         {"emissionPlace", wrapping_dap_mempool_emission_place, METH_VARARGS | METH_STATIC, ""},
         {"emissionGet", dap_chain_mempool_emission_get_py, METH_VARARGS | METH_STATIC, ""},
         {"emissionExtract", dap_chain_mempool_datum_emission_extract_py, METH_VARARGS | METH_STATIC, ""},
+        {"datumExtract", dap_chain_mempool_datum_extract_py, METH_VARARGS | METH_STATIC, ""},
+        {"datumGet", dap_chain_mempool_datum_get_py, METH_VARARGS | METH_STATIC, ""},
         {"txCreate", dap_chain_mempool_tx_create_py, METH_VARARGS | METH_STATIC, ""},
         {"baseTxCreate", dap_chain_mempool_base_tx_create_py, METH_VARARGS | METH_STATIC, ""},
         {"txCreateCond", dap_chain_mempool_tx_create_cond_py, METH_VARARGS | METH_STATIC, ""},
@@ -503,9 +506,61 @@ PyObject *dap_chain_mempool_add_datum_py(PyObject *self, PyObject *args){
     }
     char *l_str = dap_chain_mempool_datum_add(l_datum, obj_chain->chain_t, "hex");
     if (!l_str)
-        return Py_None;
+        return Py_BuildNone;
     PyObject *l_obj_ret = Py_BuildValue("s", l_str);
     DAP_DELETE(l_str);
     return l_obj_ret;
 }
 
+
+PyObject *dap_chain_mempool_datum_extract_py(PyObject *self, PyObject *args)
+{
+    (void)self;
+    
+    PyObject *obj_bytes;
+    if (!PyArg_ParseTuple(args, "O", &obj_bytes)){
+        return NULL;
+    }
+    
+    if (!PyBytes_Check(obj_bytes)){
+        PyErr_SetString(PyExc_AttributeError, "The first argument of the function was passed incorrectly,"
+                                              " this function takes an instance of an object of the bytes type as the "
+                                              "first argument.");
+        return NULL;
+    }
+    void *l_bytes = PyBytes_AsString(obj_bytes);
+    size_t l_bytes_size = PyBytes_Size(obj_bytes);
+    
+    dap_chain_datum_t * l_datum =  DAP_NEW_SIZE(dap_chain_datum_t, l_bytes_size);
+    memcpy(l_datum, l_bytes, l_bytes_size);
+
+    PyDapChainDatumObject *obj_datum = PyObject_New(PyDapChainDatumObject, &DapChainDatumObjectType);
+    obj_datum->datum = l_datum;
+    obj_datum->origin = true;
+    
+    return obj_datum;
+}
+
+PyObject *dap_chain_mempool_datum_get_py(PyObject *self, PyObject *args)
+{
+      PyDapChainObject *obj_chain;
+    char *l_emission_hash;
+    if (!PyArg_ParseTuple(args, "Os", &obj_chain, &l_emission_hash)){
+        return NULL;
+    }
+    if (!PyDapChain_Check(obj_chain)){
+        PyErr_SetString(PyExc_AttributeError, "The first argument passed to the wrong function, the first"
+                                              " argument must be an object of type Chain.");
+        return NULL;
+    }
+    dap_chain_datum_t *l_datum = dap_chain_mempool_datum_get(
+            obj_chain->chain_t, l_emission_hash);
+    if (l_datum == NULL){
+        Py_RETURN_NONE;
+    }
+    PyDapChainDatumObject *l_pydatum = PyObject_New(PyDapChainDatumObject,
+                                                             &DapChainDatumObjectType);
+    l_pydatum->datum = l_datum;
+    l_pydatum->origin = true;
+    return (PyObject*)l_pydatum;
+}
