@@ -12,7 +12,7 @@ class ServerType(Enum):
 # TODO: уточнить верно ли я понял сишную реализацию
 class Server(Protocol):
     @staticmethod
-    def listen(addr: str, port: int, type: ServerType) -> Server:
+    def listen(addr: str, port: int, type: ServerType, /) -> Server:
         pass
 
 
