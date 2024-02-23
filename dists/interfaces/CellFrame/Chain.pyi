@@ -1,80 +1,86 @@
-from typing import Protocol, Any
-from .Common import DatumEmission
+from typing import Protocol, Any, Literal, NewType, Optional, Callable
+from .Common import Datum, DatumEmission, DatumTx, DatumToken, DatumDecree, DatumAnchor
+from .Network import NetID, Net, ServicePriceUnitUID
+from .Consensus import DAG, DagPoa, ChainCSDag
+
+from DAP.Crypto import Sign, SignType, HashFast, Pkey, Cert
+from DAP.Core import Math
+
+from .types import ticker
 
 
 # chainModule
 # DapChainObjectType
 class Chain(Protocol):
     @staticmethod
-    def findById(*args):
+    def findById(net_id: NetID, chain_id: 'ChainID', /) -> Chain:
         pass
 
     @staticmethod
-    def loadFromCfg(*args):
+    def loadFromCfg(ledger: 'Ledger', net_name: str, net_id: NetID, cfg_name: str, /) -> Chain:
         pass
 
-    @staticmethod
-    def hasFileStore():
+    def __str__(self):  # chain_name
         pass
 
-    @staticmethod
-    def saveAll():
+    def hasFileStore(self) -> bool:
+        # проверка на то что чейн не inmemory (такой тоже может быть)
         pass
 
-    @staticmethod
-    def loadAll():
+    def saveAll(self) -> int:
+        # зафлагить в файл все изменения которые могли быть сделаны в чейне извне.
+        # Принудительно на диск сохранить, если он hasFileStore
         pass
 
-    @staticmethod
-    def createAtomIter(*args):
+    def loadAll(self) -> int:
         pass
 
-    @staticmethod
-    def atomIterGetFirst(*args):
+    def createAtomIter(self, with_treshold: bool, /) -> 'ChainAtomIter':
+        # Если там true, то итератор будет обходить также трешхолды - временные хранилища эвентов,
+        # которые пока не удовлетворяют условиям попадания в общий список, но со временем могут сделать это
         pass
 
-    @staticmethod
-    def atomGetDatums(*args):
+    def atomIterGetFirst(self, iter: 'ChainAtomIter', /) -> tuple['ChainAtomPtr', int] | None:
         pass
 
-    @staticmethod
-    def atomIterGetNext(*args):
+    def atomGetDatums(self, atom: 'ChainAtomPtr', /) -> list[Datum]:
         pass
 
-    @staticmethod
-    def getDag():
+    def atomIterGetNext(self, iter: 'ChainAtomIter', /) -> tuple['ChainAtomPtr', int] | tuple[None, int]:
         pass
 
-    @staticmethod
-    def addMempoolNotify(*args):
+    def getDag(self) -> ChainCSDag:
         pass
 
-    @staticmethod
-    def addAtomNotify(*args):
+    # callback
+    def addMempoolNotify(self, callback: Callable[[Literal["a", "d"], str, str, bytes, tuple], None], args: tuple, /) -> None:
+        """
+        Callable[op_code, table_name, hash/key, value, add_args
+        """
+
         pass
 
-    @staticmethod
-    def atomFindByHash(*args):
+    # callback
+    def addAtomNotify(self, callback: Callable, args: tuple, /) -> None:
         pass
 
-    @staticmethod
-    def countAtom():
+    def atomFindByHash(self, iter: 'ChainAtomIter', hash: HashFast, /):
         pass
 
-    @staticmethod
-    def getAtoms(*args):
+    def countAtom(self) -> int:
         pass
 
-    @staticmethod
-    def countTx():
+    def getAtoms(self, count: int, page: int, reverse: bool, /) -> list[ChainAtomPtr] | None:
         pass
 
-    @staticmethod
-    def getTransactions(*args):
+    def countTx(self) -> int:
         pass
 
-    @staticmethod
-    def getCSName():
+    def getTransactions(self, count: int, page: int, reverse: bool, /) -> list[DatumTx] | None:
+        pass
+
+    def getCSName(self) -> Literal["esbocs", "dag_poa"]:
+        # esbocs || block_poa
         pass
 
 
@@ -108,8 +114,10 @@ class ChainAtomIter(Protocol):
 
 
 # DapChainAtomPtrObjectType
+# Atom
 class ChainAtomPtr(Protocol):
     # no methods
+    # Хранит адрес сишной структуры для получения Block/DAG(Event)
     pass
 
 
@@ -141,7 +149,7 @@ class ChainCellID(Protocol):
 # DapChainHashSlowObjectType
 class ChainHashSlow(Protocol):
     @staticmethod
-    def toStr(*args):
+    def toStr(hash_slow, string, string_max):
         pass
 
 
@@ -153,46 +161,52 @@ class ChainHashSlowKind(Protocol):
 
 # DapChainAddrObjectType
 class ChainAddr(Protocol):
-    def toStr(self, *args):
+    def toStr(self, chain_address: ChainAddr, /) -> str:
+        pass
+
+    def __str__(self) -> str:
         pass
 
     @staticmethod
-    def fromStr(*args):
+    def fromStr(address: str, /) -> ChainAddr:
         pass
 
     @staticmethod
-    def fill(*args):
+    def fill(sign_type: SignType, pkey_hash: HashFast, net_id: NetID, /) -> ChainAddr:
         pass
 
     @staticmethod
-    def fillFromKey(*args):
+    # TODO: CryptoKeyObject - WTF
+    def fillFromKey(key: 'CryptoKeyObject', net_id: NetID, /) -> ChainAddr:
         pass
 
-    def checkSum(self, *args):
+    def checkSum(self) -> int:
         pass
 
-    def getNetId(self):
+    def getNetId(self) -> NetID:
         pass
 
 
 # DapChainCsObjectType
 class ChainCS(Protocol):
-    def csAdd(self, *args):
+    # TODO: что за сущность?
+    def csAdd(self, cs: str, callback: Callable, /) -> None:  # return 0
         pass
 
-    def csCreate(self, *args):
+    def csCreate(self, chain: Chain) -> int:
         pass
 
-    def classAdd(self, *args):
+    def classAdd(self, cs: str, callback: Callable, /) -> None:  # return 0
         pass
 
-    def classCreate(self, *args):
+    def classCreate(self, chain: Chain) -> int:
         pass
+
 
 # DapChainGlobalDBObjectType
 class GlobalDB(Protocol):
     @staticmethod
-    def get(*args):
+    def get(key: str, group: str, /) -> 'json':
         pass
 
     @staticmethod
@@ -221,28 +235,36 @@ class GlobalDB(Protocol):
 
 
 # DapChainWalletObjectType
+# Parent task
+# Task
+# path_wallets - убрать и сделать как cli
 class Wallet(Protocol):
+
+    def __new__(cls, wallet_name: str, path_wallets: str, sign_type: SignType) -> Wallet | None:
+        pass
+
+    # TODO: разобраться с типами
     @staticmethod
     def getPath(self) -> str:
         pass
 
     @staticmethod
-    def createWithSeed(wallet_name: str, path_wallets: str, sig_type: object, seed: bytes) -> 'Wallet':
+    def createWithSeed(wallet_name: str, path_wallets: str, sig_type: SignType, seed: bytes) -> Wallet:
         pass
 
     @staticmethod
-    def openFile(file_path: str, password: str = None, /) -> 'Wallet':
+    def openFile(file_path: str, password: str = None, /) -> Wallet:
         pass
 
     @staticmethod
-    def open(wallet_name: str, wallet_path: str) -> 'Wallet':
+    def open(wallet_name: str, wallet_path: str, /) -> Wallet:
         pass
 
     def save(self) -> int:
         pass
 
     @staticmethod
-    def certToAddr(cert: object, net_id: object) -> 'ChainAddr':
+    def certToAddr(cert: Cert, net_id: object, /) -> 'ChainAddr':
         pass
 
     def getAddr(net_id: object) -> 'ChainAddr':
@@ -261,86 +283,99 @@ class Wallet(Protocol):
 # DapChainMempoolObjectType
 class Mempool(Protocol):
     @staticmethod
-    def proc(hash_str: str, chain: Chain) -> None:
+    def proc(hash_datum: str, chain: Chain, /) -> None:
+        # обработать этот датум
         pass
 
     @staticmethod
-    def emissionPlace(chain: Any, emission: Any) -> str:
+    def emissionPlace(chain: Chain, emission: DatumEmission, /) -> str | None:  # str - DatumHash
+        pass
+
+    # TODO: emissionGet emissionExtract - делают примерно одно и тоже.
+    @staticmethod
+    def emissionGet(chain: Chain, emission_hash: str, /) -> DatumEmission | None:
         pass
 
     @staticmethod
-    def emissionGet(chain: Any, emission_hash: str) -> None | str:
+    def emissionExtract(chain: Chain, bytes_obj: bytes, /) -> DatumEmission | None:
         pass
 
     @staticmethod
-    def emissionExtract(chain: Any, bytes_obj: Any) -> None | DatumEmission:
+    def txCreate(chain: Chain, key_from: 'CryptoKeyObject', addr_from: ChainAddr, addr_to: ChainAddr,
+                 token_ticker: ticker, value: int, value_fee: int) -> HashFast | str:
         pass
 
     @staticmethod
-    def txCreate(chain: Any, key_from: Any, addr_from: Any, addr_to: Any, token_ticker: str,
-                 value: str, value_fee: str) -> None | str:
+    def baseTxCreate(chain: Chain, emi_hash: HashFast, emi_chain: Chain, emission_value: Math, ticker: ticker,
+                     addr_to: ChainAddr, value_fee: Math, wallet_or_cert: Wallet | Cert) -> HashFast | None:
         pass
 
     @staticmethod
-    def baseTxCreate(chain: Any, emi_hash: Any, emi_chain: Any, emission_value: str, ticker: str,
-                     addr_to: Any, value_fee: str, wallet_or_cert: Any) -> None | str:
+    # TODO: value то строка, то int, то Math. unit: ServicePriceUnitUID - уточнить
+    def txCreateCond(net: Net, key_from: 'CryptoKeyObject', key_cond: Pkey, token_ticker: ticker, value: str,
+                     value_per_unit_max: str, unit: ServicePriceUnitUID, srv_uid: Any, fee: str,
+                     condition: bytes) -> HashFast | None:
         pass
 
     @staticmethod
-    def txCreateCond(chain: Any, key_from: Any, key_cond: Any, token_ticker: str, value: str,
-                     value_per_unit_max: str, unit: Any, srv_uid: Any, fee: str, condition: Any) -> None | str:
+    def txCreateCondInput(net: Net, tx_prev_hash: HashFast, addr_to: ChainAddr, key_tx_sign: Sign,
+                          receipt: Any) -> HashFast | None:
         pass
 
     @staticmethod
-    def txCreateCondInput(chain: Any, tx_prev_hash: Any, addr_to: Any, key_tx_sign: Any, receipt: Any) -> None | str:
+    # TODO: hash - то HashFast, то str - задумка или халтура?
+    def remove(chain: Chain, hash_str: str) -> bool:
         pass
 
     @staticmethod
-    def remove(chain: Any, hash_str: str) -> bool:
+    def list(net: Net, chain: Chain) -> dict[str, Datum]:
         pass
 
     @staticmethod
-    def list(chain_net: Any, chain: Any | None = None) -> dict[str, Any]:
-        pass
-
-    @staticmethod
-    def addDatum(data: Any, chain: Any) -> None | str:
+    def addDatum(chain: Chain, data: Datum | DatumDecree | DatumAnchor) -> str | None:
         pass
 
 
 # DapChainLedgerObjectType
 class Ledger(Protocol):
-    def setLocalCellId(self, *args):
+    """
+    Unified distributed registry of confirmed transactions
+    """
+
+    def setLocalCellId(self, local_cell_id: ChainCellID, /):
+        # TODO: WTF
         pass
 
-    def nodeDatumTxCalcHash(self, *args):
+    def nodeDatumTxCalcHash(self, tx: DatumTx, /) -> HashFast:
         pass
 
-    def txAdd(self, *args):
+    # def txAdd(self, tx: DatumTx, /) -> Literal[-1, 0]:
+    #     pass
+
+    def tokenAdd(self, token: DatumTx, token_size: int, /) -> Literal[-1, 0]:
         pass
 
-    def tokenAdd(self, *args):
+    def tokenEmissionLoad(self, token_emission: DatumEmission, token_emission_size: int, /) -> Literal[-1, 0]:
         pass
 
-    def tokenEmissionLoad(self, *args):
+    def tokenEmissionFind(self, token_ticker: ticker, hash_fast: HashFast, /) -> DatumEmission | None:
         pass
 
-    def tokenEmissionFind(self, *args):
+    def tokenAuthSignsTotal(self, token_ticker: ticker, /) -> int | None:
+        # TODO: WTF
         pass
 
-    def tokenAuthSignsTotal(self, *args):
+    def tokenAuthSignsValid(self, token_ticker: ticker, /) -> int | None:
+        # TODO: WTF
         pass
 
-    def tokenAuthSignsValid(self, *args):
+    def tokenAuthPkeysHashes(self, token_ticker: ticker, /) -> list[HashFast]:
         pass
 
-    def tokenAuthPkeysHashes(self, *args):
+    def txGetTokenTickerByHash(self, hash: HashFast) -> ticker | None:
         pass
 
-    def txGetTokenTickerByHash(self, *args):
-        pass
-
-    def addrGetTokenTickerAll(self, *args):
+    def addrGetTokenTickerAll(self, chain_address: ChainAddr) -> list[ticker]:
         pass
 
     def txCacheCheck(self, *args):
@@ -358,16 +393,19 @@ class Ledger(Protocol):
     def count(self, *args):
         pass
 
-    def countFromTo(self, *args):
+    def countFromTo(self, ts_from: int = 0, ts_to: int = 0, /) -> int:
+        # Количество транзакций за промежуток времени. ts - timestamp
         pass
 
     def txHashIsUsedOutItem(self, *args):
         pass
 
-    def calcBalance(self, *args):
+    def calcBalance(self, chain_address: ChainAddr, token_ticker: ticker, /) -> Math:  # DapMathObject
+        # Получить баланс из кэша Ledger'а (это не точно)
         pass
 
-    def calcBalanceFull(self, *args):
+    def calcBalanceFull(self, chain_address: ChainAddr, token_ticker: ticker, /) -> Math:
+        # Пересчет баланса по всем транз (это не точно)
         pass
 
     def txFindByHash(self, *args):
@@ -385,7 +423,7 @@ class Ledger(Protocol):
     def txCacheGetOutCondValue(self, *args):
         pass
 
-    def getTransactions(self, *args):
+    def getTransactions(self, count: int, page: int, reverse: bool, unspent: bool) -> list[DatumTx]:
         pass
 
     def txAddNotify(self, *args):
