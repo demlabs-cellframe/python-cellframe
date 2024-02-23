@@ -30,7 +30,12 @@ PyObject *wrapping_dap_chain_net_srv_vote_get_hash(PyObject *self, void *closure
 }
 PyObject *wrapping_dap_chain_net_srv_vote_get_question(PyObject *self, void *closure) {
     (void)closure;
-    PyObject *obj_str = PyUnicode_FromStringAndSize(PVT(self)->question.question_str, PVT(self)->question.question_size);
+    dap_chain_net_vote_info_t *l_info = PVT(self);
+    if (!PVT(self)->question.question_str)
+        Py_RETURN_NONE;
+    char *l_str = dap_strup(l_info->question.question_str, l_info->question.question_size);
+    PyObject *obj_str = Py_BuildValue("s", l_str);
+    DAP_DELETE(l_str);
     return obj_str;
 }
 PyObject *wrapping_dap_chain_net_srv_vote_get_options(PyObject *self, void *closure) {
@@ -93,8 +98,10 @@ static PyGetSetDef DapChainNetSrvVoteInfoOptionGetSet[] = {
 
 PyObject *wrapping_dap_chain_net_srv_vote_option_get_description(PyObject *self, void *closure) {
     (void)closure;
-    PyObject *obj_desc = PyUnicode_FromStringAndSize(PVT_OPTION(self)->description, PVT_OPTION(self)->description_size);
-    return obj_desc;
+    char *l_str = dap_strup(PVT_OPTION(self)->description, PVT_OPTION(self)->description_size);
+    PyObject *obj_ret = Py_BuildValue("s",l_str);
+    DAP_DELETE(l_str);
+    return obj_ret;
 }
 PyObject *wrapping_dap_chain_net_srv_vote_option_get_votes(PyObject *self, void *closure) {
     (void)closure;
@@ -109,10 +116,15 @@ PyObject *wrapping_dap_chain_net_srv_vote_option_get_weights(PyObject *self, voi
 
 PyObject *wrapping_dap_chain_net_srv_vote_option_txs(PyObject *self, void *closure){
     (void)closure;
-    PyObject *obj_list_tx = PyList_New(PVT_OPTION(self)->votes_count);
+    dap_chain_net_vote_info_option_t *l_option = PVT_OPTION(self);
+    PyObject *obj_list_tx = PyList_New(l_option->votes_count);
     for (uint64_t i = PVT_OPTION(self)->votes_count; i;) {
         i -= 1;
         dap_hash_fast_t *l_hf_tx = (dap_hash_fast_t*)(PVT_OPTION(self)->hashes_tx_votes + i);
+        if (dap_hash_fast_is_blank(l_hf_tx)) {
+            PyList_SetItem(obj_list_tx, i, Py_None);
+            continue;
+        }
         PyDapHashFastObject *obj_hf = PyObject_New(PyDapHashFastObject, &DapChainHashFastObjectType);
         obj_hf->hash_fast = l_hf_tx;
         obj_hf->origin = false;
