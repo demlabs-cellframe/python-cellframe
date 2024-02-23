@@ -4,4 +4,4 @@
 	branch = master
 [submodule "dists/python-modules/pycfhelpers"]
 	path = dists/python-modules/pycfhelpers
-	url = git@gitlab.demlabs.net:cellframe/python-cellframe-modules/pycfhelpers.git
+	url = https://gitlab.demlabs.net/cellframe/pycfhelpers.git
