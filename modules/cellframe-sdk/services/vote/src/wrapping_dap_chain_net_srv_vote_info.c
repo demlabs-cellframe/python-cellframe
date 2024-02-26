@@ -118,17 +118,15 @@ PyObject *wrapping_dap_chain_net_srv_vote_option_txs(PyObject *self, void *closu
     (void)closure;
     dap_chain_net_vote_info_option_t *l_option = PVT_OPTION(self);
     PyObject *obj_list_tx = PyList_New(l_option->votes_count);
-    for (uint64_t i = PVT_OPTION(self)->votes_count; i;) {
-        i -= 1;
-        dap_hash_fast_t *l_hf_tx = (dap_hash_fast_t*)(PVT_OPTION(self)->hashes_tx_votes + i);
-        if (dap_hash_fast_is_blank(l_hf_tx)) {
-            PyList_SetItem(obj_list_tx, i, Py_None);
-            continue;
-        }
+    dap_list_t *l_tmp = l_option->hashes_tx_votes;
+    for (size_t i = 0; i < l_option->votes_count && l_tmp; i++) {
+        dap_hash_fast_t *l_hf_tx = (dap_hash_fast_t*)l_tmp->data;
         PyDapHashFastObject *obj_hf = PyObject_New(PyDapHashFastObject, &DapChainHashFastObjectType);
-        obj_hf->hash_fast = l_hf_tx;
-        obj_hf->origin = false;
+        obj_hf->hash_fast = DAP_NEW(dap_chain_hash_fast_t);
+        memcpy(obj_hf->hash_fast, l_hf_tx, sizeof(dap_hash_fast_t));
+        obj_hf->origin = true;
         PyList_SetItem(obj_list_tx, i, (PyObject*)obj_hf);
+        l_tmp = l_tmp->next;
     }
     return obj_list_tx;
 }
