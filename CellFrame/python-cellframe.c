@@ -583,7 +583,9 @@ PyMODINIT_FUNC PyInit_libCellFrame(void)
         PyType_Ready( &DapChainTxReceiptObjectType ) < 0 ||
         PyType_Ready( &DapChainTxOutExtObjectType ) < 0 ||
         PyType_Ready( &DapChainTxTSDObjectType ) < 0 ||
-        // === Chain net ===
+        PyType_Ready( &PyDapChainTXVoteObjectType) < 0 ||
+        PyType_Ready( &PyDapChainTxVotingObjectType ) < 0 ||
+                // === Chain net ===
         /// Node
         PyType_Ready( &DapChainNodeObjectType ) < 0 ||
         PyType_Ready( &DapChainNodeCliObjectType ) < 0 ||
@@ -606,7 +608,10 @@ PyMODINIT_FUNC PyInit_libCellFrame(void)
         PyType_Ready( &PyDapStreamChChainValidatorTestObjectType ) < 0 ||
         PyType_Ready( &DapChainNetSrvXchangeObjectType ) < 0 ||
         PyType_Ready( &PyDapChainNetSrvXchangePriceObjectType ) < 0 ||
-                // === Chain consensuses
+        PyType_Ready( &PyDapChainNetSrvVoteObjectType ) < 0 ||
+        PyType_Ready( &DapChainNetSrvVoteInfoObjectType ) < 0 ||
+        PyType_Ready( &DapChainNetSrvVoteInfoOptionObjectType ) < 0 ||
+        // === Chain consensuses
         PyType_Ready( &DapChainCsDagPoaObjectType ) < 0 ||
         PyType_Ready(&DapChainCsBlockType) < 0 ||
         PyType_Ready(&DapChainCsDagType) < 0 ||
@@ -658,6 +663,8 @@ PyMODINIT_FUNC PyInit_libCellFrame(void)
     PyModule_AddObject(commonModule, "TxReceipt", (PyObject*)&DapChainTxReceiptObjectType);
     PyModule_AddObject(commonModule, "TxOutExt", (PyObject*)&DapChainTxOutExtObjectType);
     PyModule_AddObject(commonModule, "TxTSD", (PyObject*)&DapChainTxTSDObjectType);
+    PyModule_AddObject(commonModule, "TxVote", (PyObject*)&PyDapChainTXVoteObjectType);
+    PyModule_AddObject(commonModule, "TxVoting", (PyObject*)&PyDapChainTxVotingObjectType);
 
     PyObject *netModule = PyModule_Create(&CellframeNetworkPythonModule);
     // === Chain node ===
@@ -682,6 +689,7 @@ PyMODINIT_FUNC PyInit_libCellFrame(void)
     PyModule_AddObject(servicesModule, "StakePosDelegate", (PyObject*)&PyDapChainNetSrvStakePosDelegateObjectType);
     PyModule_AddObject(servicesModule, "Xchange", (PyObject*)&DapChainNetSrvXchangeObjectType);
     PyModule_AddObject(servicesModule, "StreamChChainValidatorTest", (PyObject*)&PyDapStreamChChainValidatorTestObjectType);
+    PyModule_AddObject(servicesModule, "Vote", (PyObject*)&PyDapChainNetSrvVoteObjectType);
 
     PyObject *csModule = PyModule_Create(&CellframeConsensusPythonModule);
     // === Chain cs dag poa
@@ -696,6 +704,7 @@ PyMODINIT_FUNC PyInit_libCellFrame(void)
     PyModule_AddStringConstant(cellframeModule, "__version__", DAP_VERSION);
     CellFrame_error = PyErr_NewException("CellFrame.error", NULL, NULL);
     CellFrame_Xchange_error = PyErr_NewException("CellFrame.Service.XchangeError", NULL, NULL);
+    DapChainNetSrvVoteError = PyErr_NewException("CellFrame.Service.VoteError", NULL, NULL);
     PyModule_AddObject(cellframeModule, "error", CellFrame_error);
     PyModule_AddObject(cellframeModule, "AppCli", (PyObject*)&DapAppCliObjectType);
     PyModule_AddObject(cellframeModule, "AppCliServer", (PyObject*)&DapChainNodeCliObjectType);
@@ -710,6 +719,7 @@ PyMODINIT_FUNC PyInit_libCellFrame(void)
     PyModule_AddObject(cellframeModule, "Network", netModule);
     PyDict_SetItemString(moduleDict, "CellFrame.Network", netModule);
     Py_INCREF(servicesModule);
+    PyModule_AddObject(servicesModule, "VoteError", DapChainNetSrvVoteError);
     PyModule_AddObject(cellframeModule, "Services", servicesModule);
     PyDict_SetItemString(moduleDict, "CellFrame.Services", servicesModule);
     Py_INCREF(csModule);
