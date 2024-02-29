@@ -605,7 +605,7 @@ PyMODINIT_FUNC PyInit_libCellFrame(void)
         PyType_Ready( &PyDapChainNetSrvStakePosDelegateObjectType ) < 0 ||
         PyType_Ready( &PyDapStreamChChainValidatorTestObjectType ) < 0 ||
         PyType_Ready( &DapChainNetSrvXchangeObjectType ) < 0 ||
-        PyType_Ready( &PyDapChainNetSrvXchangePriceObjectType ) < 0 ||
+        PyType_Ready( &PyDapChainNetSrvXchangeOrderObjectType ) < 0 ||
                 // === Chain consensuses
         PyType_Ready( &DapChainCsDagPoaObjectType ) < 0 ||
         PyType_Ready(&DapChainCsBlockType) < 0 ||
