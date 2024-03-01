@@ -277,6 +277,14 @@ PyObject *wrapping_dap_chain_datum_tx_get_items(PyObject *self, PyObject *args){
                 obj_tx_item = (PyObject*)PyObject_New(PyDapChainTxTSDObject, &DapChainTxTSDObjectType);
                 ((PyDapChainTxTSDObject*)obj_tx_item)->tsd = (dap_chain_tx_tsd_t*)item;
                 break;
+            case TX_ITEM_TYPE_VOTE:
+                obj_tx_item = (PyObject*) PyObject_New(PyDapChainTXVoteObject, &PyDapChainTXVoteObjectType);
+                ((PyDapChainTXVoteObject*)obj_tx_item)->vote = (dap_chain_tx_vote_t*)item;
+                break;
+            case TX_ITEM_TYPE_VOTING:
+                obj_tx_item = (PyObject*)PyObject_New(PyDapChainTXVotingObject, &PyDapChainTxVotingObjectType);
+                ((PyDapChainTXVotingObject*)obj_tx_item)->voting = dap_chain_voting_parse_tsd(((PyDapChainDatumTxObject*)self)->datum_tx);
+                break;
             default:
                 obj_tx_item = Py_None;
                 break;
