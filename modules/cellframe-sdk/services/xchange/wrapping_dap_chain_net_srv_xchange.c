@@ -57,7 +57,7 @@ PyObject *wrapping_dap_chain_net_srv_xchange_create(PyObject *self, PyObject *ar
         PyErr_SetString(PyExc_AttributeError, "Cant parse args");
         return NULL;
     }
-    if (!PyDapChainNet_Check(obj_net)) {
+    if (!PyDapChainNet_Check((PyDapChainNetObject *)obj_net)) {
         PyErr_SetString(PyExc_AttributeError, "The first parameter to the function passed an incorrect "
                                               "argument. This must be an instance of the dapchain net class.");
         return NULL;

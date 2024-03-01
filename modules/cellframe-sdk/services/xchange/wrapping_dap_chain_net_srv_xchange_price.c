@@ -95,9 +95,9 @@ PyObject *wrapping_dap_chain_net_srv_xchange_price_get_fee(PyObject *self, void 
     mempcpy(obj_addr->addr, &comission_addr, sizeof(dap_chain_addr_t));
 
     PyObject *res = PyDict_New();
-    PyDict_SetItemString(res, "order_fee", order_fee);
-    PyDict_SetItemString(res, "network_fee", order_fee);
-    PyDict_SetItemString(res, "address", obj_addr);
+    PyDict_SetItemString(res, "order_fee", (PyObject *)order_fee);
+    PyDict_SetItemString(res, "network_fee", (PyObject *)network_fee);
+    PyDict_SetItemString(res, "address", (PyObject *)obj_addr);
     PyDict_SetItemString(res, "type", Py_BuildValue("s", dap_chain_net_srv_fee_type_to_str(comission_type)));
 
     const char *l_native_ticker = PRICE(self)->net->pub.native_ticker;
@@ -135,7 +135,7 @@ PyObject *wrapping_dap_chain_net_srv_xchange_price_get_order_creator_address(PyO
     PyDapChainAddrObject *obj_addr = PyObject_New(PyDapChainAddrObject, &DapChainAddrObjectType);
     obj_addr->addr = DAP_NEW(dap_chain_addr_t);
     mempcpy(obj_addr->addr, &PRICE(self)->creator_addr, sizeof(dap_chain_addr_t));
-    return obj_addr;
+    return (PyObject *)obj_addr;
 }
 
 PyObject *wrapping_dap_chain_net_srv_xchange_price_get_order_creation_date(PyObject *self, void *closure){
@@ -155,6 +155,7 @@ PyObject *wrapping_dap_chain_net_srv_xchange_price_get_status(PyObject *self, vo
 
         case XCHANGE_ORDER_STATUS_CLOSED:
             return Py_BuildValue("s", "CLOSED");
+        default:;
     }
     return Py_BuildValue("s", "UNKNOWN");
 }
