@@ -7,26 +7,20 @@
 
 PyMethodDef DapChainNetSrvXchangeMethods[] = {
         {
-                "getPrices",
-                wrapping_dap_chain_net_srv_xchange_get_prices,
+                "getOrders",
+                wrapping_dap_chain_net_srv_xchange_get_orders,
                 METH_VARARGS | METH_STATIC,
                         "The function receives a list of prices for exchange; if there are no prices, then an empty list is returned."},
         {
-                "createExchange",
+                "createOrder",
                 wrapping_dap_chain_net_srv_xchange_create,
                 METH_VARARGS | METH_STATIC,
                         "The function creates a base transaction and an exchange order."
         },
-        {
-                "removeExchange",
-                wrapping_dap_chain_net_srv_xchange_remove,
-                METH_VARARGS | METH_STATIC,
-                        "This function deletes an exchange order."
-        },
         {NULL, NULL, 0, NULL}
 };
 
-PyObject *wrapping_dap_chain_net_srv_xchange_get_prices(PyObject *self, PyObject *argv){
+PyObject *wrapping_dap_chain_net_srv_xchange_get_orders(PyObject *self, PyObject *argv){
     (void)self;
     PyObject *obj_net;
     if (!PyArg_ParseTuple(argv, "O", &obj_net)) {
@@ -37,8 +31,11 @@ PyObject *wrapping_dap_chain_net_srv_xchange_get_prices(PyObject *self, PyObject
     PyObject *obj_list_price = PyList_New(0);
     while (tmp) {
         dap_chain_net_srv_xchange_price_t *l_price = (dap_chain_net_srv_xchange_price_t*)tmp->data;
-        PyObject *l_obj_price = wrapping_dap_chain_net_srv_xchange_price_create_object(l_price);
-        PyList_Append(obj_list_price, l_obj_price);
+        PyDapChainNetSrvXchangeOrderObject *l_obj_price = PyObject_New(PyDapChainNetSrvXchangeOrderObject,
+                                                                       &PyDapChainNetSrvXchangeOrderObjectType);
+        l_obj_price->price = DAP_NEW(dap_chain_net_srv_xchange_price_t);
+        memcpy(l_obj_price->price, l_price, sizeof(dap_chain_net_srv_xchange_price_t));
+        PyList_Append(obj_list_price, (PyObject*)l_obj_price);
         Py_XDECREF(l_obj_price);
         tmp = tmp->next;
     }
@@ -57,6 +54,32 @@ PyObject *wrapping_dap_chain_net_srv_xchange_create(PyObject *self, PyObject *ar
     PyObject *obj_wallet;
     if (!PyArg_ParseTuple(argv, "OssOOOO", &obj_net, &l_token_sell, &l_token_buy, &obj_value_sell, &obj_rate, &obj_fee,
                           &obj_wallet)) {
+        PyErr_SetString(PyExc_AttributeError, "Cant parse args");
+        return NULL;
+    }
+    if (!PyDapChainNet_Check((PyDapChainNetObject *)obj_net)) {
+        PyErr_SetString(PyExc_AttributeError, "The first parameter to the function passed an incorrect "
+                                              "argument. This must be an instance of the dapchain net class.");
+        return NULL;
+    }
+    if (!DapMathObject_Check(obj_value_sell)) {
+        PyErr_SetString(PyExc_AttributeError, "The forth argument was passed incorrectly. This must be "
+                                              "an instance of an object of type Math.");
+        return NULL;
+    }
+    if (!DapMathObject_Check(obj_rate)) {
+        PyErr_SetString(PyExc_AttributeError, "The fifth argument was passed incorrectly. This must be "
+                                              "an instance of an object of type Math.");
+        return NULL;
+    }
+    if (!DapMathObject_Check(obj_fee)) {
+        PyErr_SetString(PyExc_AttributeError, "The sixth parameter to the function passed an incorrect "
+                                              "argument. This must be an instance of the Wallet class.");
+        return NULL;
+    }
+    if (!PyDapChainWalletObject_Check(obj_wallet)) {
+        PyErr_SetString(PyExc_AttributeError, "The seventh parameter to the function passed an incorrect "
+                                              "argument. This must be an instance of the Wallet class.");
         return NULL;
     }
     dap_chain_net_t *l_net  = ((PyDapChainNetObject*)obj_net)->chain_net;
@@ -138,51 +161,6 @@ PyObject *wrapping_dap_chain_net_srv_xchange_create(PyObject *self, PyObject *ar
     }
 }
 
-PyObject *wrapping_dap_chain_net_srv_xchange_remove(PyObject *self, PyObject *argv){
-    (void)self;
-    PyObject *obj_net;
-    PyObject *obj_fee;
-    PyObject *obj_wallet;
-    PyObject *obj_tx_hash;
-    if (!PyArg_ParseTuple(argv, "OOOO", &obj_net, &obj_tx_hash, &obj_fee, &obj_wallet))
-        return NULL;
-    char *l_tx_hash_out = NULL;
-    int l_ret_code = dap_chain_net_srv_xchange_remove(((PyDapChainNetObject*)obj_net)->chain_net,
-                                                      ((PyDapHashFastObject*)obj_tx_hash)->hash_fast,
-                                                      ((DapMathObject*)obj_fee)->value,
-                                                      ((PyDapChainWalletObject*)obj_wallet)->wallet, &l_tx_hash_out);
-    switch (l_ret_code) {
-        case XCHANGE_REMOVE_ERROR_OK:{
-            return Py_BuildValue("s", l_tx_hash_out);
-        }
-        case XCHANGE_REMOVE_ERROR_INVALID_ARGUMENT: {
-            PyErr_SetString(CellFrame_Xchange_error, "One of the input arguments is not set correctly.");
-            return NULL;
-        }
-        case XCHANGE_REMOVE_ERROR_FEE_IS_ZERO: {
-            PyErr_SetString(CellFrame_Xchange_error, "Fee is zero.");
-            return NULL;
-        }
-        case XCHANGE_REMOVE_ERROR_CAN_NOT_FIND_TX: {
-            PyErr_SetString(CellFrame_Xchange_error, "Specified order not found.");
-            return NULL;
-        }
-        case XCHANGE_REMOVE_ERROR_CAN_NOT_CREATE_PRICE: {
-            PyErr_SetString(CellFrame_Xchange_error, "Can't create price object from order.");
-            return NULL;
-        }
-        case XCHANGE_REMOVE_ERROR_CAN_NOT_INVALIDATE_TX: {
-            PyErr_SetString(CellFrame_Xchange_error, "Can't create invalidate transaction.");
-            return NULL;
-        }
-        default: {
-            char *l_ret = dap_strdup_printf("An error occurred with an unknown code: %d.", l_ret_code);
-            PyErr_SetString(CellFrame_Xchange_error, l_ret);
-            DAP_DELETE(l_ret);
-            return NULL;
-        }
-    }
-}
 
 PyTypeObject DapChainNetSrvXchangeObjectType = DAP_PY_TYPE_OBJECT(
         "CellFrame.Service.Xchange",

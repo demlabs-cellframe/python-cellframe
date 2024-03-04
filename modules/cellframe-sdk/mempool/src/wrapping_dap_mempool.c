@@ -538,7 +538,7 @@ PyObject *dap_chain_mempool_datum_extract_py(PyObject *self, PyObject *args)
     obj_datum->datum = l_datum;
     obj_datum->origin = true;
     
-    return obj_datum;
+    return (PyObject *)obj_datum;
 }
 
 PyObject *dap_chain_mempool_datum_get_py(PyObject *self, PyObject *args)
