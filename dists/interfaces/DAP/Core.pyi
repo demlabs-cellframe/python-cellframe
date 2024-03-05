@@ -66,15 +66,32 @@ class logIt(Protocol):
         """
         pass
 
+
 # DapCommonObjectType
 class Common(Protocol):
     pass
 
+
 # DapMathObjectType
 class Math(Protocol):
-    pass
+    @property
+    def coins(self) -> str: # balance/18
+        pass
 
-#D apAppContextObjectType
+    @property
+    def balance(self) -> str: # datoshi тоже, что и __str__
+        pass
+
+    @staticmethod
+    def balanceToCoins(balance: int) -> str:
+        """The function calculates the number of coins from the number of datoshi."""
+        pass
+
+    def __str__(self) -> str: # тоже, что и balance
+        pass
+
+
+#DapAppContextObjectType
 class AppContext(Protocol):
     @staticmethod
     def getServer(server, /):
