@@ -101,7 +101,9 @@ PyObject *wrapping_dap_chain_net_srv_xchange_create(PyObject *self, PyObject *ar
 
     switch (l_ret_code) {
         case XCHANGE_CREATE_ERROR_OK:{
-            return Py_BuildValue("s", l_hash_ret);
+            PyObject *l_obj_ret = Py_BuildValue("s", l_hash_ret);
+            DAP_FREE(l_hash_ret);
+            return l_obj_ret;
         }
         case XCHANGE_CREATE_ERROR_INVALID_ARGUMENT:{
             PyErr_SetString(CellFrame_Xchange_error, "One of the input arguments is not set correctly.");
