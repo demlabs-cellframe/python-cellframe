@@ -44,6 +44,7 @@ int _wrapping_callback_handler(dap_chain_t *a_chain, dap_chain_cs_dag_event_t *a
         }
     }else{
         log_it(L_ERROR, "An error occurred while executing a Python function. ");
+        python_error_in_log_it(LOG_TAG);
         return -2;
     }
 }

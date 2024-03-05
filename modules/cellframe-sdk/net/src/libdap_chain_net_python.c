@@ -40,6 +40,8 @@ static PyGetSetDef DapChainNetGetsSetsDef[] = {
         {"validatorMinFee", (getter)dap_chain_net_get_validator_min_fee_py, NULL, NULL, NULL},
         {"nativeTicker", (getter)dap_chain_net_get_native_ticker_py, NULL, NULL, NULL},
         {"autoproc", (getter)dap_chain_net_get_mempool_autoproc_py, NULL, NULL, NULL},
+        {"gdb_group_alias", (getter)dap_chain_net_get_gdb_alias_py, NULL, NULL, NULL},
+
         {}
 };
 
@@ -313,7 +315,10 @@ bool dap_py_chain_net_gdb_notifier(UNUSED_ARG dap_proc_thread_t *a_poc_thread, v
     PyObject *argv = Py_BuildValue("sssOO", l_op_code, l_callback->store_obj->group, l_callback->store_obj->key, l_obj_value, l_callback->arg);
     Py_XINCREF(l_callback->func);
     Py_XINCREF(l_callback->arg);
-    PyObject_CallObject(l_callback->func, argv);
+    if (NULL == PyObject_CallObject(l_callback->func, argv))
+    {
+        python_error_in_log_it("python");
+    }
     
     if (argv)
         Py_DECREF(argv);
@@ -420,4 +425,9 @@ PyObject *dap_chain_net_get_mempool_autoproc_py(PyObject *self, void *closure)
     (void)closure;
     bool autoproc =  ((PyDapChainNetObject*)self)->chain_net->pub.mempool_autoproc;    
     return Py_BuildValue("O", autoproc ? Py_True: Py_False);
+}
+
+PyObject *dap_chain_net_get_gdb_alias_py(PyObject *self, void *closure)
+{
+    return Py_BuildValue("s", ((PyDapChainNetObject*)self)->chain_net->pub.gdb_groups_prefix);
 }
