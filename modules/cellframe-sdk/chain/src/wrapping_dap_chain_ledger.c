@@ -17,6 +17,7 @@ static PyMethodDef DapChainLedgerMethods[] = {
         {"tokenAuthSignsTotal", (PyCFunction)dap_chain_ledger_token_auth_signs_total_py, METH_VARARGS, ""},
         {"tokenAuthSignsValid", (PyCFunction)dap_chain_ledger_token_auth_signs_valid_py, METH_VARARGS, ""},
         {"tokenAuthPkeysHashes", (PyCFunction)dap_chain_ledger_token_auth_pkeys_hashes_py, METH_VARARGS, ""},
+        {"txGetMainTickerAndLedgerRc", (PyCFunction)dap_chain_ledger_tx_get_main_ticker_py, METH_VARARGS, ""},
         {"txGetTokenTickerByHash", (PyCFunction)dap_chain_ledger_tx_get_token_ticker_by_hash_py, METH_VARARGS, ""},
         {"addrGetTokenTickerAll", (PyCFunction)dap_chain_ledger_addr_get_token_ticker_all_py, METH_VARARGS, ""},
         {"txCacheCheck", (PyCFunction)dap_chain_ledger_tx_cache_check_py, METH_VARARGS, ""},
@@ -37,7 +38,6 @@ static PyMethodDef DapChainLedgerMethods[] = {
         {"bridgedTxNotifyAdd", (PyCFunction)s_bridged_tx_notify_add, METH_VARARGS, ""},
         {}
 };
-
 PyTypeObject DapChainLedgerObjectType = DAP_PY_TYPE_OBJECT(
         "CellFrame.ChainLedger", sizeof(PyDapChainLedgerObject),
         "Chain ledger objects",
@@ -599,3 +599,19 @@ static PyObject *s_bridged_tx_notify_add(PyObject *self, PyObject *args)
     dap_ledger_bridged_tx_notify_add(((PyDapChainLedgerObject*)self)->ledger, s_python_proc_notifier, l_notificator);
     Py_RETURN_NONE;
 }
+
+PyObject *dap_chain_ledger_tx_get_main_ticker_py(PyObject *self, PyObject *args)
+{
+    PyObject *l_obj_tx = NULL;
+    if (!PyArg_ParseTuple(args, "O", &l_obj_tx)) {
+         PyErr_SetString(PyExc_AttributeError, "This function, as the first argument, accepts DatumTx.");
+        return NULL;
+    }
+    
+    PyDapChainDatumTxObject *obj_tx = l_obj_tx;
+
+    int l_ledger_rc = DAP_LEDGER_TX_CHECK_NULL_TX;
+    char * ticker = dap_ledger_tx_get_main_ticker(((PyDapChainLedgerObject*)self)->ledger, obj_tx->datum_tx, &l_ledger_rc );
+    return Py_BuildValue("(s,s)", ticker ? ticker : "UNKWNOWN", dap_ledger_tx_check_err_str(l_ledger_rc));
+}
+

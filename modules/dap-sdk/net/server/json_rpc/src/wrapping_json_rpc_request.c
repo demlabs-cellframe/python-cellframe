@@ -62,6 +62,7 @@ void _w_dap_json_rpc_request_handler(dap_json_rpc_params_t *a_params, dap_json_r
         PyGILState_Release(GILState);
         if (!obj_result){
             log_it(L_ERROR, "Can't call method: %s", a_method);
+            python_error_in_log_it(LOG_TAG);
             a_response->type = TYPE_RESPONSE_NULL;
             Py_XDECREF(args);
             // a_response->error = DAP_NEW(dap_json_rpc_error_t);

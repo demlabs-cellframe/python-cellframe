@@ -1,3 +1,2 @@
-### Python interfaces
-
-Interfaces in development may have incorrect input and output types.
+# CellFrame Interfaces
+pyi-files for CellFrame python SDK

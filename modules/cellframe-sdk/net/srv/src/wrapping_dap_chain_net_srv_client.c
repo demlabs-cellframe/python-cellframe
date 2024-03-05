@@ -25,7 +25,8 @@ static void _wrapping_dap_chain_net_srv_client_callback_connected(dap_chain_net_
     if (PyCallable_Check(l_call)) {
         PyGILState_STATE state = PyGILState_Ensure();
         PyObject *l_args = Py_BuildValue("OO", py_client, l_arg_obj);
-        PyObject_CallObject(l_call, l_args);
+        if (NULL==PyObject_CallObject(l_call, l_args))
+            python_error_in_log_it(LOG_TAG);
         Py_DECREF(l_args);
         PyGILState_Release(state);
     } else {
@@ -47,7 +48,8 @@ static void _wrapping_dap_chain_net_srv_client_callback_disconnected(dap_chain_n
     if (PyCallable_Check(l_call)) {
         PyGILState_STATE state = PyGILState_Ensure();
         PyObject *l_args = Py_BuildValue("OO", py_client, a_arg);
-        PyObject_CallObject(l_call, l_args);
+        if (NULL==PyObject_CallObject(l_call, l_args))
+            python_error_in_log_it(LOG_TAG);
         Py_DECREF(l_args);
         PyGILState_Release(state);
     } else {
@@ -65,7 +67,8 @@ static void _wrapping_dap_chain_net_srv_client_callback_check(dap_chain_net_srv_
     if (PyCallable_Check(l_call)) {
         PyGILState_STATE state = PyGILState_Ensure();
         PyObject *l_args = Py_BuildValue("OO", py_client, (PyObject *)a_arg);
-        PyObject_CallObject(l_call, l_args);
+        if (NULL == PyObject_CallObject(l_call, l_args))
+            python_error_in_log_it(LOG_TAG);
         Py_DECREF(l_args);
         PyGILState_Release(state);
     } else {
@@ -87,6 +90,7 @@ static dap_chain_datum_tx_receipt_t * _wrapping_dap_chain_net_srv_client_callbac
         py_receipt->tx_receipt = a_receipt;
         PyObject *l_args = Py_BuildValue("OOO", py_client, py_receipt, (PyObject *)a_arg);
         py_ret = (PyDapChainTXReceiptObject *)PyObject_CallObject(l_call, l_args);
+        if (py_ret == NULL) python_error_in_log_it(LOG_TAG);
         Py_DECREF(l_args);
         PyGILState_Release(state);
     } else {
@@ -117,7 +121,8 @@ static void _wrapping_dap_chain_net_srv_client_callback_success(dap_chain_net_sr
         } else
             py_cond_hash->hash_fast = NULL;
         PyObject *l_args = Py_BuildValue("OOO", py_client, py_cond_hash, (PyObject *)a_arg);
-        PyObject_CallObject(l_call, l_args);
+        if (NULL == PyObject_CallObject(l_call, l_args))
+            python_error_in_log_it(LOG_TAG);
         Py_DECREF(l_args);
         PyGILState_Release(state);
     } else {
@@ -133,7 +138,8 @@ static void _wrapping_dap_chain_net_srv_client_callback_error(dap_chain_net_srv_
     if (PyCallable_Check(l_call)) {
         PyGILState_STATE state = PyGILState_Ensure();
         PyObject *l_args = Py_BuildValue("OiO", py_client, a_error_code, (PyObject *)a_arg);
-        PyObject_CallObject(l_call, l_args);
+        if (NULL == PyObject_CallObject(l_call, l_args))
+            python_error_in_log_it(LOG_TAG);
         Py_DECREF(l_args);
         PyGILState_Release(state);
     } else {
@@ -151,7 +157,8 @@ static void _wrapping_dap_chain_net_srv_client_callback_data(dap_chain_net_srv_c
         PyGILState_STATE state = PyGILState_Ensure();
         PyObject *l_data = PyBytes_FromStringAndSize((char *)a_data, a_data_size);
         PyObject *l_args = Py_BuildValue("OOO", py_client, l_data, (PyObject *)a_arg);
-        PyObject_CallObject(l_call, l_args);
+        if (NULL == PyObject_CallObject(l_call, l_args))
+            python_error_in_log_it(LOG_TAG);
         Py_DECREF(l_args);
         PyGILState_Release(state);
     } else {

@@ -61,7 +61,8 @@ void _wrapping_handler_add_order_notify(dap_global_db_context_t *a_context, dap_
     l_op_code[0] = a_obj->type;
     l_op_code[1] = '\0';
     PyObject *l_args = Py_BuildValue("sssOO", l_op_code, a_obj->group, a_obj->key, l_obj_order, l_callback->arg);
-    PyObject_CallObject(l_callback->func, l_args);
+    if (NULL == PyObject_CallObject(l_callback->func, l_args))
+        python_error_in_log_it(LOG_TAG);
     Py_DECREF(l_args);
     PyGILState_Release(state);
 }
