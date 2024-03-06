@@ -49,6 +49,7 @@
 #include "wrapping_dap_chain_tx_token.h"
 #include "wrapping_dap_chain_tx_token_ext.h"
 #include "wrapping_dap_chain_tx_tsd.h"
+#include "wrapping_dap_chain_datum_tx_voting.h"
 
 #ifdef __cplusplus
 extern "C" {

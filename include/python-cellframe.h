@@ -34,6 +34,7 @@
 #include "wrapping_dap_chain_tx_receipt.h"
 #include "wrapping_dap_chain_tx_out_ext.h"
 #include "wrapping_dap_chain_tx_tsd.h"
+#include "wrapping_dap_chain_datum_tx_voting.h"
 #include "wrapping_dap_global_db.h"
 #include "wrapping_dap_global_db_obj.h"
 // ============
@@ -107,6 +108,8 @@ BOOL WINAPI consoleHandler(DWORD);
 #include "wrapping_dap_http_simple.h"
 #include "wrapping_dap_http_header.h"
 #include "wrapping_dap_chain_net_srv_stake_pos_delegate.h"
+#include "wrapping_dap_chain_net_srv_vote.h"
+#include "wrapping_dap_chain_net_srv_vote_info.h"
 #include "wrapping_dap_chain_net_srv_xchange.h"
 #include "wrapping_dap_chain_net_srv_xchange_price.h"
 #ifdef DAP_SUPPORT_PYTHON_PLUGINS
