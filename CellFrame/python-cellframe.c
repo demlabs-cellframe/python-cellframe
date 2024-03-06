@@ -618,6 +618,8 @@ PyMODINIT_FUNC PyInit_libCellFrame(void)
         /// Services
         PyType_Ready( &PyDapChainNetSrvStakePosDelegateObjectType ) < 0 ||
         PyType_Ready( &PyDapStreamChChainValidatorTestObjectType ) < 0 ||
+        PyType_Ready( &DapChainNetSrvXchangeObjectType ) < 0 ||
+        PyType_Ready( &PyDapChainNetSrvXchangeOrderObjectType ) < 0 ||
         // === Chain consensuses
         PyType_Ready( &DapChainCsDagPoaObjectType ) < 0 ||
         PyType_Ready(&DapChainCsBlockType) < 0 ||
@@ -693,6 +695,7 @@ PyMODINIT_FUNC PyInit_libCellFrame(void)
 
     PyObject *servicesModule = PyModule_Create(&CellframeServicesPythonModule);
     PyModule_AddObject(servicesModule, "StakePosDelegate", (PyObject*)&PyDapChainNetSrvStakePosDelegateObjectType);
+    PyModule_AddObject(servicesModule, "Xchange", (PyObject*)&DapChainNetSrvXchangeObjectType);
     PyModule_AddObject(servicesModule, "StreamChChainValidatorTest", (PyObject*)&PyDapStreamChChainValidatorTestObjectType);
 
     PyObject *csModule = PyModule_Create(&CellframeConsensusPythonModule);
@@ -707,6 +710,7 @@ PyMODINIT_FUNC PyInit_libCellFrame(void)
     PyModule_AddStringConstant(cellframeModule, "__author__", "Alexey Stratulat <alexey.stratulat@demlabs.net>");
     PyModule_AddStringConstant(cellframeModule, "__version__", DAP_VERSION);
     CellFrame_error = PyErr_NewException("CellFrame.error", NULL, NULL);
+    CellFrame_Xchange_error = PyErr_NewException("CellFrame.Service.XchangeError", NULL, NULL);
     PyModule_AddObject(cellframeModule, "error", CellFrame_error);
     PyModule_AddObject(cellframeModule, "AppCli", (PyObject*)&DapAppCliObjectType);
     PyModule_AddObject(cellframeModule, "AppCliServer", (PyObject*)&DapChainNodeCliObjectType);
