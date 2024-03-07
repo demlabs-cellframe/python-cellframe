@@ -1,138 +1,295 @@
-from typing import Protocol, Any
+from typing import Protocol, Any, Literal
+from datetime import datetime
 
+from DAP.Crypto import HashFast, Sign, Cert, SignType, Pkey
+from DAP.Core import Math
+from .Chain import ChainID, ChainAddr, Chain
+from .Network import NetID, Net, ServiceUID
+from .types import ticker, TSD, SignCheck, ItemTypes
 
-# commonModule
 
 # DapChainDatumTypeIdObjectType
 class DatumTypeID(Protocol):
+    # no methods
     pass
 
 
 # DapChainDatumObjectType
 class Datum(Protocol):
-    hash: str
-    versionStr: str
-    tsCreated: Any
-    raw: Any
-    dataRaw: Any
-
-    def getSize(self):
+    @property
+    def hash(self) -> HashFast:
         pass
 
-    def isDatumTX(self):
+    @property
+    def versionStr(self) -> str:
         pass
 
-    def getDatumTX(self):
+    @property
+    def tsCreated(self) -> datetime:
         pass
 
-    def isDatumToken(self):
+    @property
+    def raw(self) -> bytes:
         pass
 
-    def getDatumToken(self):
+    @property
+    def dataRaw(self) -> bytes:
         pass
 
-    def isDatumTokenEmission(self):
+    def getSize(self) -> int:
         pass
 
-    def getDatumTokenEmission(self):
+    def isDatumTX(self) -> bool:
         pass
 
-    def isDatumCustom(self):
+    def getDatumTX(self) -> DatumTx:
         pass
 
-    def isDatumDecree(self):
+    def isDatumToken(self) -> bool:
         pass
 
-    def getDatumDecree(self):
+    def getDatumToken(self) -> DatumToken:
         pass
 
-    def isDatumAnchor(self):
+    def isDatumTokenEmission(self) -> bool:
         pass
 
-    def getDatumAnchor(self):
+    def getDatumTokenEmission(self) -> DatumEmission:
         pass
 
-    def getTypeStr(self):
+    def isDatumCustom(self) -> bool:
+        # get data from dataRaw()
         pass
 
-    def getTypeId(self):
+    def isDatumDecree(self) -> bool:
+        pass
+
+    def getDatumDecree(self) -> DatumDecree:
+        pass
+
+    def isDatumAnchor(self) -> bool:
+        pass
+
+    def getDatumAnchor(self) -> DatumAnchor:
+        pass
+
+    def getTypeStr(self) -> Literal[
+        "DATUM_TX", "DATUM_TOKEN_DECL", "DATUM_TOKEN_EMISSION",
+        "DATUM_CUSTOM", "DATUM_DECREE", "DATUM_ANCHOR"
+    ]:
+        pass
+
+    def getTypeId(self) -> int:
         pass
 
 
 # DapChainDatumIterObjectType
-class DatumIter(Protocol):
-    pass
+# class DatumIter(Protocol):
+#     # no methods
+#     pass
 
 
 # DapChainDatumTokenObjectType
 class DatumToken(Protocol):
-    pass
+    @property
+    def ticker(self) -> ticker:  # token name
+        pass
+
+    @property
+    def typeStr(self) -> Literal[
+        "SIMPLE", "PRIVATE_DECL", "CF20_DECL", "PUBLIC",
+        "PRIVATE_UPDATE", "CF20_UPDATE", "UNKNOWN"
+    ]:
+        pass
+
+    @property
+    def data(self) -> dict[str, Any]:
+        pass
+
+    @property
+    def signs(self) -> list[Sign]:
+        pass
 
 
 # DapChainTxTokenExtType
 class DatumTokenExt(Protocol):
-    pass
+    @property
+    def version(self) -> int:
+        pass
+
+    @property
+    def ticker(self) -> ticker:  # token name
+        pass
+
+    @property
+    def chainId(self) -> ChainID:  # str(ChainID)
+        pass
+
+    @property
+    def netId(self) -> NetID:
+        pass
+
+    @property
+    def txHash(self) -> HashFast:
+        pass
+
+    @property
+    def txOutIdx(self) -> int:
+        pass
 
 
 # DapChainDatumTokenEmissionObjectType
 class DatumEmission(Protocol):
-    hash: Any
-    version: Any
-    typeStr: Any
-    ticker: Any
-    addr: Any
-    value: Any
-    data: Any
-    signCount: Any
-    signs: Any
-
-    def __init__(self):
+    @property
+    def hash(self) -> HashFast:
         pass
 
-    # Методы объекта
-    def addSign(self, args):
+    @property
+    def version(self) -> int:
         pass
 
-    def appendSign(self, args):
+    @property
+    def typeStr(self) -> Literal[
+        "TOKEN_EMISSION_TYPE_UNDEFINED", "TOKEN_EMISSION_TYPE_AUTH", "TOKEN_EMISSION_TYPE_ALGO",
+        "TOKEN_EMISSION_TYPE_ATOM_OWNER", "TOKEN_EMISSION_TYPE_SMART_CONTRACT", "UNDEFINED"
+    ]:
         pass
 
-    def addTSD(self, args):
+    @property
+    def ticker(self) -> ticker:  # token name
         pass
 
-    def getTSD(self, args):
+    @property
+    def addr(self) -> ChainAddr:
+        pass
+
+    @property
+    def value(self) -> Math:
+        pass
+
+    @property
+    def data(self) -> dict[str, Any] | list[Sign] | None:
+        pass
+
+    @property
+    def signCount(self) -> int:
+        pass
+
+    @property
+    def signs(self) -> list[Sign]:
+        pass
+
+    def addSign(self, cert: Cert, /) -> None:
+        pass
+
+    def appendSign(self, data: bytes, /) -> bool:  # only True
+        pass
+
+    def addTSD(self, type: int, data: bytes, /) -> None:
+        pass
+
+    def getTSD(self, type: int, /) -> bytes | None:
         pass
 
 
 # DapChainDatumDecreeObjectType
 class DatumDecree(Protocol):
-    pass
+    # Декрет - управляет настройки сети
+    @property
+    def hash(self) -> HashFast:
+        pass
+
+    @property
+    def tsCreated(self) -> datetime:
+        pass
+
+    @property
+    def type(self) -> int:
+        pass
+
+    @property
+    def typeStr(self) -> Literal[
+        "DAP_CHAIN_DATUM_DECREE_TYPE_COMMON", "DAP_CHAIN_DATUM_DECREE_TYPE_SERVICE", "UNKNOWN"
+    ]:
+        pass
+
+    @property
+    def subtype(self) -> int:
+        pass
+
+    @property
+    def subtypeStr(self) -> Literal[
+        "DECREE_COMMON_SUBTYPE_FEE", "DECREE_COMMON_SUBTYPE_OWNERS", "DECREE_COMMON_SUBTYPE_OWNERS_MIN",
+        "DAP_CHAIN_DATUM_DECREE_COMMON_SUBTYPE_STAKE_APPROVE", "DAP_CHAIN_DATUM_DECREE_COMMON_SUBTYPE_STAKE_INVALIDATE",
+        "DAP_CHAIN_DATUM_DECREE_COMMON_SUBTYPE_STAKE_MIN_VALUE", "DAP_CHAIN_DATUM_DECREE_COMMON_SUBTYPE_STAKE_MIN_VALIDATORS_COUNT",
+        "DECREE_SUBTYPE_UNKNOWN"
+    ]:
+        pass
+
+    @property
+    def signs(self) -> list[Sign]:
+        pass
+
+    @property
+    def TSD(self) -> list[TSD]:
+        pass
+
+    def addSign(self, cert: Cert, /) -> None:
+        pass
+
+    @staticmethod
+    def createApprove(net: Net, tx_hash: HashFast, cert: Cert, /) -> DatumDecree:
+        pass
+
+    def createAnchor(self, net: Net, cert: Cert, chain: Chain, /) -> DatumAnchor:
+        pass
+
+    def signCheck(self, /) -> SignCheck:
+        pass
 
 
 # DapChainDatumAnchorObjectType
 class DatumAnchor(Protocol):
-    pass
+    @property
+    def hash(self) -> HashFast:
+        pass
 
+    @property
+    def created(self) -> datetime:
+        pass
 
-# DapChainTxItemTypeObjectType
-class TxItemType(Protocol):
-    pass
+    @property
+    def TSD(self) -> list[TSD]:
+        pass
+
+    @property
+    def signs(self) -> list[Sign]:
+        pass
+
+    @property
+    def decreeHash(self) -> HashFast:
+        pass
+
+    # no methods
 
 
 # DapChainDatumTxObjectType
 class DatumTx(Protocol):
-    hash: Any
-    dateCreated: Any
-
-    def __init__(self):
+    @property
+    def hash(self) -> HashFast:
         pass
 
-    def getItems(self):
+    @property
+    def dateCreated(self) -> datetime:  # type it is not exactly
         pass
 
-    def getSize(self, args):
+    def getItems(self) -> list[ItemTypes]:
         pass
 
-    def addItem(self, args):
+    def getSize(self, item: bytes) -> int:
+        pass
+
+    def addItem(self, item):
         pass
 
     def addInItem(self, args):
@@ -155,70 +312,272 @@ class DatumTx(Protocol):
 
 
 # DapChainTxOutCondObjectType
-class TxOutCond(Protocol):
-    pass
 
-
-# DapChainTxOutCondSubTypeSrvPayObjectType
-class TxOutCondSubtypeSrvPay(Protocol):
-    pass
-
-
-# DapChainTxOutCondSubTypeSrvStakeLockObjectType
-class TxOutCondSubtypeSrvStakeLock(Protocol):
-    pass
-
-
-# DapChainTxOutCondSubTypeSrvStakePosDelegateObjectType
-class TxOutCondSubtypeSrvStakePosDelegate(Protocol):
-    pass
-
-
-# DapChainTxOutCondSubTypeSrvXchangeObjectType
-class TxOutCondSubtypeSrvXchange(Protocol):
-    pass
-
-
-# DapChainTxInObjectType
+# DapChainTxInObjectType [DatumItems]
+# TX_ITEM_TYPE_IN
 class TxIn(Protocol):
-    pass
+    # Вход
+    @property
+    def prevHash(self) -> HashFast:
+        pass
+
+    @property
+    def prevIdx(self) -> int:
+        pass
 
 
 # DapChainTxInCondObjectType
+# TX_ITEM_TYPE_IN_COND
 class TxInCond(Protocol):
-    pass
+    # Условный вход[при условии]
+    @property
+    def prevHash(self) -> HashFast:
+        pass
+
+    @property
+    def outPrevIdx(self) -> int:
+        pass
+
+    @property
+    def receiptPrevIdx(self) -> int:
+        pass
 
 
 # DapChainTxOutObjectType
+# TX_ITEM_TYPE_OUT
 class TxOut(Protocol):
-    pass
+    # выход
+    @property
+    def addr(self) -> ChainAddr:
+        pass
+
+    @property
+    def value(self) -> Math:
+        pass
+
+# DapChainTxOutCondObjectType
+# TX_ITEM_TYPE_OUT_COND
+class TxOutCond(Protocol):  # в JSON
+    # тип items датума транзакции
+    @property
+    def tsExpires(self) -> datetime:
+        pass
+
+    @property
+    def value(self) -> Math:
+        pass
+
+    @property
+    def typeSubtype(self) -> Literal[
+        "DAP_CHAIN_TX_OUT_COND_SUBTYPE_SRV_PAY","DAP_CHAIN_TX_OUT_COND_SUBTYPE_SRV_XCHANGE",
+        "DAP_CHAIN_TX_OUT_COND_SUBTYPE_SRV_STAKE_POS_DELEGATE",
+        "DAP_CHAIN_TX_OUT_COND_SUBTYPE_SRV_STAKE_LOCK", "DAP_CHAIN_TX_OUT_COND_SUBTYPE_FEE",
+        "DAP_CHAIN_TX_OUT_COND_SUBTYPE_UNDEFINED"
+    ]:
+        pass
+
+    @property
+    def subtype(self) -> None:
+        # Not implemented
+        pass
 
 
 # DapChainTxPkeyObjectType
+# TX_ITEM_TYPE_PKEY
 class TxPkey(Protocol):
-    pass
+    """public key"""
+
+    @property
+    def sigType(self) -> SignType:
+        pass
+
+    @property
+    def sigSize(self) -> int:
+        pass
+
+    @property
+    def sequenceNumber(self) -> int:
+        pass
+
+    @property
+    def pkey(self) -> Pkey:
+        pass
 
 
 # DapChainTxSigObjectType
+# TX_ITEM_TYPE_SIG
 class TxSig(Protocol):
-    pass
+    # подпись
+    @property
+    def sign(self) -> Sign:
+        pass
+
+    @property
+    def sigSize(self) -> int:
+        pass
 
 
 # DapChainTxTokenObjectType
+# TX_ITEM_TYPE_IN_EMS
 class TxToken(Protocol):
-    pass
+    # тикер
+    @property
+    def ticker(self) -> str:  # token name
+        pass
+
+    @property
+    def tokenEmissionHash(self) -> HashFast:
+        pass
+
+    @property
+    def tokenEmissionChainId(self) -> ChainID:
+        pass
 
 
 # DapChainTxReceiptObjectType
+# TX_ITEM_TYPE_RECEIPT
 class TxReceipt(Protocol):
-    pass
+    # Чек
+    @property
+    def size(self) -> int:
+        pass
+
+    @property
+    def extSize(self) -> int:
+        pass
+
+    @property
+    def units(self) -> int:
+        pass
+
+    @property
+    def uid(self) -> int:
+        pass
+
+    @property
+    def unitsType(self) -> str:
+        pass
+
+    @property
+    def value(self) -> int:
+        pass
+
+    @property
+    def provider(self) -> Sign | None:
+        pass
+
+    @property
+    def client(self) -> Sign | None:
+        pass
+
+    def sign(self, cert: Cert) -> TxReceipt:  # self
+        pass
 
 
 # DapChainTxOutExtObjectType
+# TX_ITEM_TYPE_OUT_EXT
 class TxOutExt(Protocol):
-    pass
+    # расширенный выход
+    @property
+    def addr(self) -> ChainAddr:
+        pass
+
+    @property
+    def token(self) -> str:
+        # TODO: token и ticker одно и тоже?
+        pass
+
+    @property
+    def value(self) -> Math:
+        pass
 
 
 # DapChainTxTSDObjectType
+# TX_ITEM_TYPE_TSD
 class TxTSD(Protocol):
-    pass
+    # ТСД
+    @property
+    def data(self) -> bytes:
+        pass
+
+    @property
+    def type(self) -> int:
+        pass
+
+
+# DapChainTxOutCondSubTypeSrvPayObjectType
+# DAP_CHAIN_TX_OUT_COND_SUBTYPE_SRV_PAY
+class TxOutCondSubtypeSrvPay(Protocol):
+    # TODO: .tp_base = &DapChainTxOutCondObjectType,
+    @property
+    def unit(self) -> int:
+        pass
+
+    @property
+    def uid(self) -> ServiceUID:
+        pass
+
+    @property
+    def pkeyHash(self) -> HashFast:
+        pass
+
+    @property
+    def maxPrice(self) -> int:
+        pass
+
+
+# DapChainTxOutCondSubTypeSrvStakeLockObjectType
+# DAP_CHAIN_TX_OUT_COND_SUBTYPE_SRV_STAKE_LOCK
+class TxOutCondSubtypeSrvStakeLock(Protocol):
+    # TODO: .tp_base = &DapChainTxOutCondObjectType
+    @property
+    def timeUnlock(self) -> datetime:
+        pass
+
+    @property
+    def flags(self) -> int:
+        pass
+
+    @property
+    def reinvestPercent(self) -> int:
+        pass
+
+    @property
+    def hashTokenDelegate(self) -> None:
+        pass
+
+
+# DapChainTxOutCondSubTypeSrvStakePosDelegateObjectType
+# DAP_CHAIN_TX_OUT_COND_SUBTYPE_SRV_STAKE_POS_DELEGATE
+class TxOutCondSubtypeSrvStakePosDelegate(Protocol):
+    @property
+    def uid(self) -> ServiceUID:
+        pass
+
+    @property
+    def addr(self) -> ChainAddr:
+        pass
+
+    @property
+    def value(self) -> None:
+        pass
+
+
+# DapChainTxOutCondSubTypeSrvXchangeObjectType
+# DAP_CHAIN_TX_OUT_COND_SUBTYPE_SRV_XCHANGE
+class TxOutCondSubtypeSrvXchange(Protocol):
+    @property
+    def uid(self) -> ServiceUID:
+        pass
+
+    @property
+    def netId(self) -> NetID:
+        pass
+
+    @property
+    def token(self) -> str:
+        pass
+
+    @property
+    def value(self) -> int:
+        pass

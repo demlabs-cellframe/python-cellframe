@@ -27,6 +27,10 @@ static int wrapping_dap_chain_callback_new_cfg(dap_chain_t* chain, dap_config_t*
     ((PyDapChainObject*)obj_chain)->chain_t = chain;
     arglist = Py_BuildValue("O", obj_chain);
     result = PyObject_CallObject(binded_object_callback_new_cfg, arglist);
+    if (NULL == result )
+    {
+        python_error_in_log_it("python");
+    }
     Py_DECREF(arglist);
     int r = -1;
     if (PyLong_Check(result)){

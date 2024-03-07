@@ -1,5 +1,13 @@
-from typing import Protocol
+from typing import Any, Protocol, Literal, Callable, NewType
+from .Chain import Ledger, Chain, ChainAddr, ChainCellID, ChainType
+from .Common import DatumTx
 
+from DAP.Core import Math
+from DAP.Crypto import HashFast
+
+mempool_group = str
+# net_name = NewType("net_name", str)
+net_name = str
 
 # === Chain node ===
 # DapChainNodeObjectType
@@ -25,54 +33,198 @@ class NodeAddr(Protocol):
 # === Chain net ===
 # DapChainNetObjectType
 class Net(Protocol):
-    # properties
-    # {"id", (getter)dap_chain_net_python_get_id, NULL, NULL, NULL},
-    # {"chains", (getter)dap_chain_net_python_get_chains, NULL, NULL, NULL},
-    # {"txFee", (getter)dap_chain_net_get_tx_fee_py, NULL, NULL, NULL},
-    # {"txFeeAddr", (getter)dap_chain_net_get_tx_fee_addr_py, NULL, NULL, NULL},
-    # {"validatorMaxFee", (getter)dap_chain_net_get_validator_max_fee_py, NULL, NULL, NULL},
-    # {"validatorAverageFee", (getter)dap_chain_net_get_validator_average_fee_py, NULL, NULL, NULL},
-    # {"validatorMinFee", (getter)dap_chain_net_get_validator_min_fee_py, NULL, NULL, NULL},
-    # {"nativeTicker", (getter)dap_chain_net_get_native_ticker_py, NULL, NULL, NULL},
-    # {"autoproc", (getter)dap_chain_net_get_mempool_autoproc_py, NULL, NULL, NULL},
-    # methods
-    def loadAll(self):
+    @property
+    def id(self) -> NetID:
         pass
-    # {"", dap_chain_net_load_all_py, METH_NOARGS | METH_STATIC, ""},
-    # {"stateGoTo", dap_chain_net_state_go_to_py, METH_VARARGS, ""},
-    # {"start", dap_chain_net_start_py, METH_VARARGS, ""},
-    # {"stop", dap_chain_net_stop_py, METH_VARARGS, ""},
-    # {"linksEstablish", dap_chain_net_links_establish_py, METH_VARARGS, ""},
-    # {"syncChains", dap_chain_net_sync_all_py, METH_VARARGS, ""},
-    # {"syncGdb", dap_chain_net_sync_gdb_py, METH_VARARGS, ""},
-    # {"syncAll", dap_chain_net_sync_all_py, METH_VARARGS, ""},
-    # {"procDatapool", dap_chain_net_proc_datapool_py, METH_VARARGS, ""},
-    # {"byName", dap_chain_net_by_name_py, METH_VARARGS | METH_STATIC, ""},
-    # {"getNets", dap_chain_get_nets_py, METH_NOARGS | METH_STATIC, ""},
-    # {"byId", dap_chain_net_by_id_py, METH_VARARGS | METH_STATIC, ""},
-    # {"idByName", dap_chain_net_id_by_name_py, METH_VARARGS | METH_STATIC, ""},
-    # {"ledgerByNetName", dap_chain_ledger_by_net_name_py, METH_VARARGS | METH_STATIC, ""},
-    # {"getChainByName", dap_chain_net_get_chain_by_name_py, METH_VARARGS, ""},
-    # {"getCurAddr", dap_chain_net_get_cur_addr_py, METH_VARARGS, ""},
-    # {"getCurCell", dap_chain_net_get_cur_cell_py, METH_VARARGS, ""},
-    # {"getGdbGroupMempool", dap_chain_net_get_gdb_group_mempool_py, METH_VARARGS | METH_STATIC, ""},
-    # {"getGdbGroupMempoolByChainType", dap_chain_net_get_gdb_group_mempool_by_chain_type_py, METH_VARARGS, ""},
-    # {"linksConnect", dap_chain_net_links_connect_py, METH_VARARGS, ""},
-    # {"getChainByChainType", dap_chain_net_get_chain_by_chain_type_py, METH_VARARGS, ""},
-    # {"getLedger", dap_chain_net_get_ledger_py, METH_NOARGS, ""},
-    # {"getName", dap_chain_net_get_name_py, METH_NOARGS, ""},
-    # {"getTxByHash", dap_chain_net_get_tx_by_hash_py, METH_VARARGS, ""},
-    # {"addNotify", (PyCFunction)dap_chain_net_add_notify_py, METH_VARARGS, ""},
+
+    @property
+    def chains(self) -> list[Chain]:
+        pass
+
+    @property
+    def txFee(self) -> Math | None:
+        pass
+
+    @property
+    def txFeeAddr(self) -> ChainAddr | None:
+        pass
+
+    @property
+    def validatorMaxFee(self) -> Math:
+        pass
+
+    @property
+    def validatorAverageFee(self) -> Math:
+        pass
+
+    @property
+    def validatorMinFee(self) -> Math:
+        pass
+
+    @property
+    def nativeTicker(self) -> str:
+        # TODO: выяснить, что такое native ticker
+        pass
+
+    @property
+    def autoproc(self) -> bool:
+        # TODO: выяснить, что делает метод. Подразумевается mempool_autoproc
+        pass
+
+    @property
+    def gdb_group_alias(self) -> str:
+        # TODO: выяснить, что делает метод. Подразумевается mempool_autoproc
+        pass
+
+    # methods
+    def stateGoTo(self, net_state: NetState, /) -> Literal[-1, 0]:
+        # TODO: интерпретировать -1 как Exception
+        pass
+
+    def start(self) -> Literal[-1, 0]:
+        # TODO: WTF
+        pass
+
+    def stop(self) -> Literal[1, 0]:
+        # TODO: WTF
+        pass
+
+    def linksEstablish(self):
+        # go_to(a_net,NET_STATE_LINKS_ESTABLISHED)
+        pass
+
+    def syncChains(self):
+        # go_to(a_net,NET_STATE_SYNC_CHAINS)
+        pass
+
+    def syncGdb(self, args):
+        # go_to(a_net,NET_STATE_SYNC_GDB
+        pass
+
+    def syncAll(self, args):
+        # go_to(a_net,NET_STATE_SYNC_CHAINS)
+        pass
+
+    # def procDatapool(self, args):
+    #     pass
+
+    @staticmethod
+    def loadAll():
+        # TODO: WTF
+        pass
+
+    @staticmethod
+    def byName(net_name: str) -> Net:
+        pass
+
+    @staticmethod
+    def getNets() -> list[Net]:
+        # TODO: зачем сети передаем через hostsettings?
+        pass
+
+    @staticmethod
+    def byId(net_id: NetID, /) -> Net | None:
+        pass
+
+    @staticmethod
+    def idByName(net_id: NetID, /) -> Net | None:
+        pass
+
+    @staticmethod
+    def ledgerByNetName(net_name: str, /) -> Ledger | None:
+        pass
+
+    @staticmethod
+    def getGdbGroupMempool(chain: Chain, /) -> mempool_group:
+        # TODO: что такое группы мемпула?
+        pass
+
+    def getChainByName(self, chain_name: str, /) -> Chain | None:
+        pass
+
+    def getCurAddr(self) -> NodeAddr:
+        # TODO: видимо адрес текущей ноды в сети. Уточнить
+        pass
+
+    def getCurCell(self) -> ChainCellID:
+        pass
+
+    def getGdbGroupMempoolByChainType(self, chain_type: ChainType, /) -> mempool_group:
+        pass
+
+    # def linksConnect(self, args):
+    #     pass
+
+    def getChainByChainType(self, chain_type: ChainType, /) -> Chain:
+        pass
+
+    def getLedger(self) -> Ledger:
+        pass
+
+    def getName(self) -> str:
+        pass
+
+    def getTxByHash(self, hash: HashFast, /) -> DatumTx:
+        pass
+
+    def addNotify(self, callback: Callable[[int, str, str, Any, net_name], None], args: tuple=(), /) -> None:
+        """
+        CellframeNetwork.gdbsync_notification_callback
+        Callable[['op_code', 'group', 'key', 'value', 'net_name']
+        """
+        pass
 
 
 # DapChainNetIdObjectType
 class NetID(Protocol):
-    pass
+    @staticmethod
+    def fromStr(net_str: str) -> NetID | None:
+        pass
 
+    def long(self) -> int:
+        pass
+
+
+# typedef enum dap_chain_net_state{
+#     NET_STATE_OFFLINE = 0,
+#     NET_STATE_LINKS_PREPARE,
+#     NET_STATE_LINKS_CONNECTING,
+#     NET_STATE_LINKS_ESTABLISHED,
+#     NET_STATE_ADDR_REQUEST, // Waiting for address assign
+#     NET_STATE_SYNC_GDB,
+#     NET_STATE_SYNC_CHAINS,
+#     NET_STATE_ONLINE
+# } dap_chain_net_state_t;
 
 # DapChainNetStateObjectType
 class NetState(Protocol):
-    pass
+    @staticmethod
+    def NET_STATE_OFFLINE():
+        pass
+
+    @staticmethod
+    def NET_STATE_LINKS_PREPARE():
+        pass
+
+    @staticmethod
+    def NET_STATE_LINKS_CONNECTING():
+        pass
+
+    @staticmethod
+    def NET_STATE_LINKS_ESTABLISHED():
+        pass
+
+    @staticmethod
+    def NET_STATE_ADDR_REQUEST():
+        pass
+
+    @staticmethod
+    def NET_STATE_SYNC_GDB():
+        pass
+
+    @staticmethod
+    def NET_STATE_SYNC_CHAINS():
+        pass
 
 
 # === Chain net srv ===

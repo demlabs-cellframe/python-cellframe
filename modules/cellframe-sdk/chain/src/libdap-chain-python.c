@@ -248,7 +248,12 @@ bool dap_py_mempool_notifier(UNUSED_ARG dap_proc_thread_t *a_poc_thread, void *a
     log_it(L_DEBUG, "Call mempool notifier with key '%s'", l_obj->key ? l_obj->key : "null");
     Py_XINCREF(l_callback->arg);
     Py_XINCREF(l_callback->func);
-    PyObject_CallObject(l_callback->func, l_args);
+    if (NULL == PyObject_CallObject(l_callback->func, l_args))
+    {
+        log_it(L_ERROR, "Exception happend during python callback:");
+        python_error_in_log_it(LOG_TAG);
+    }
+
     Py_XDECREF(l_args);
     Py_XDECREF(l_callback->func);
     Py_XDECREF(l_callback->arg);
@@ -303,6 +308,7 @@ static void _wrapping_dap_chain_atom_notify_handler(void * a_arg, dap_chain_t *a
     log_it(L_DEBUG, "Call atom notifier for chain %s with atom size %zd", a_chain->name, a_atom_size );
     PyObject *result = PyObject_CallObject(l_callback->func, l_args);
     if (!result) {
+        log_it(L_ERROR, "Exception happend during python callback:");
         python_error_in_log_it(LOG_TAG);
     }
     Py_XDECREF(result);

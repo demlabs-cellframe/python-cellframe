@@ -32,6 +32,10 @@ PyObject *dap_chain_mempool_remove_py(PyObject *self, PyObject *args);
 PyObject *dap_chain_mempool_list_py(PyObject *self, PyObject *args);
 PyObject *dap_chain_mempool_add_datum_py(PyObject *self, PyObject *args);
 
+
+PyObject *dap_chain_mempool_datum_extract_py(PyObject *self, PyObject *args);
+PyObject *dap_chain_mempool_datum_get_py(PyObject *self, PyObject *args);
+
 extern PyTypeObject DapChainMempoolObjectType;
 
 

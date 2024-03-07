@@ -92,6 +92,8 @@ add_subdirectory(modules/cellframe-sdk/type/blocks)
 add_subdirectory(modules/cellframe-sdk/consensus/dag_poa)
 add_subdirectory(modules/cellframe-sdk/global-db)
 add_subdirectory(modules/cellframe-sdk/services/pos_delegate)
+add_subdirectory(modules/cellframe-sdk/services/vote)
+add_subdirectory(modules/cellframe-sdk/services/xchange)
 add_subdirectory(modules/cellframe-sdk/channel/chain-net)
 
     target_compile_options(dap_chain_common_python_module PRIVATE "-fpic")
@@ -197,6 +199,8 @@ target_link_libraries(${PROJECT_NAME} cellframe-sdk dap_python_module
                       dap_chain_cs_blocks_python_module
                       dap_global_db_python_module
                       dap_chain_net_srv_stake_pos_delegate_python_module
+                      dap_chain_net_srv_vote_python
+                      wrapping_dap_chain_net_srv_xchange
                       dap_stream_ch_chain_net_python_module
                       ${PYTHON_LIBRARIES}
                      )
