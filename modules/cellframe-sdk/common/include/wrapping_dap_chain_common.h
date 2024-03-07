@@ -112,10 +112,7 @@ typedef struct PyDapChainNetSrvPriceUnitUID{
 PyObject *PyDapChainNetSrvPriceUnitUID_str(PyObject *self);
 
 PyObject *wrapping_dap_chain_net_srv_price_unit_uid_get_undefined(PyObject *self, PyObject *args);
-PyObject *wrapping_dap_chain_net_srv_price_unit_uid_get_mb(PyObject *self, PyObject *args);
 PyObject *wrapping_dap_chain_net_srv_price_unit_uid_get_sec(PyObject *self, PyObject *args);
-PyObject *wrapping_dap_chain_net_srv_price_unit_uid_get_day(PyObject *self, PyObject *args);
-PyObject *wrapping_dap_chain_net_srv_price_unit_uid_get_kb(PyObject *self, PyObject *args);
 PyObject *wrapping_dap_chain_net_srv_price_unit_uid_get_b(PyObject *self, PyObject *args);
 
 extern PyTypeObject DapChainNetSrvPriceUnitUidObjectType;
