@@ -172,7 +172,9 @@ excpt:
 
 void dap_chain_plugins_save_thread()
 {
-    s_thread_state = PyEval_SaveThread();
+    if (PyGILState_Check()) 
+        s_thread_state = PyEval_SaveThread();
+
 }
 
 static int s_dap_chain_plugins_load(dap_plugin_manifest_t * a_manifest, void ** a_pvt_data, char ** a_error_str )
