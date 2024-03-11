@@ -27,16 +27,16 @@ PyObject *wrapping_dap_chain_net_srv_xchange_get_orders(PyObject *self, PyObject
         return NULL;
     }
     dap_list_t *l_list_prices = dap_chain_net_srv_xchange_get_prices(((PyDapChainNetObject*)obj_net)->chain_net);
+    size_t l_list_prices_count = dap_list_length(l_list_prices);
     dap_list_t *tmp = l_list_prices;
-    PyObject *obj_list_price = PyList_New(0);
-    while (tmp) {
+    PyObject *obj_list_price = PyList_New((Py_ssize_t)l_list_prices_count);
+    for (size_t i = 0; i < l_list_prices_count; i++){
         dap_chain_net_srv_xchange_price_t *l_price = (dap_chain_net_srv_xchange_price_t*)tmp->data;
         PyDapChainNetSrvXchangeOrderObject *l_obj_price = PyObject_New(PyDapChainNetSrvXchangeOrderObject,
                                                                        &PyDapChainNetSrvXchangeOrderObjectType);
         l_obj_price->price = DAP_NEW(dap_chain_net_srv_xchange_price_t);
         memcpy(l_obj_price->price, l_price, sizeof(dap_chain_net_srv_xchange_price_t));
-        PyList_Append(obj_list_price, (PyObject*)l_obj_price);
-        Py_XDECREF(l_obj_price);
+        PyList_SetItem(obj_list_price, (Py_ssize_t)i, (PyObject*)l_obj_price);
         tmp = tmp->next;
     }
     dap_list_free(l_list_prices);
@@ -92,7 +92,9 @@ PyObject *wrapping_dap_chain_net_srv_xchange_create(PyObject *self, PyObject *ar
                                                       l_wallet, &l_hash_ret);
     switch (l_ret_code) {
         case XCHANGE_CREATE_ERROR_OK:{
-            return Py_BuildValue("s", l_hash_ret);
+            PyObject *l_obj_ret = Py_BuildValue("s", l_hash_ret);
+            DAP_FREE(l_hash_ret);
+            return l_obj_ret;
         }
         case XCHANGE_CREATE_ERROR_INVALID_ARGUMENT:{
             PyErr_SetString(CellFrame_Xchange_error, "One of the input arguments is not set correctly.");
