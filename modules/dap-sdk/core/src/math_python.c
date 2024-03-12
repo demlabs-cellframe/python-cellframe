@@ -4,7 +4,8 @@ PyNumberMethods DapMathNumberMethods = {
         .nb_add = wrapping_math_python_add,
         .nb_subtract = wrapping_math_python_subtract,
         .nb_multiply = wrapping_math_python_multiply,
-        .nb_true_divide = wrapping_math_python_true_divide
+        .nb_true_divide = wrapping_math_python_true_divide,
+        .nb_power = wrapping_math_python_power
 };
 
 static PyGetSetDef DapMathGetsSets[] = {
@@ -203,6 +204,34 @@ PyObject *wrapping_math_python_true_divide(PyObject *o1, PyObject *o2){
         PyErr_SetString(PyExc_AttributeError, "An error has occurred, the cause cannot be determined");
         return NULL;
     }
+}
+
+PyObject *wrapping_math_python_power(PyObject *o1, PyObject *o2, PyObject *o3){
+    uint256_t a = uint256_0, b = uint256_0, res = uint256_0;
+    if (o3 != Py_None) {
+        PyErr_SetString(PyExc_AttributeError, "The 256-bit math in SDK does not support operations "
+                                              "on complex numbers and floating point numbers.");
+        return NULL;
+    }
+    if (!PyObject_TypeCheck(o1, &DapMathObjectType)) {
+        PyErr_SetString(PyExc_AttributeError, "The 256-bit math in SDK does not support operations "
+                                              "on complex numbers and floating point numbers.");
+        return NULL;
+    }
+    a = ((DapMathObject*)o1)->value;
+    if (!PyObject_TypeCheck(o2, &DapMathObjectType)) {
+        PyErr_SetString(PyExc_AttributeError, "The 256-bit math in SDK does not support operations "
+                                              "on complex numbers and floating point numbers.");
+        return NULL;
+    }
+    b = ((DapMathObject*)o2)->value;
+    res = a;
+    for (uint256_t i = uint256_1; compare256(i, b) == -1; SUM_256_256(i, uint256_1, &i)){
+        MULT_256_256(res, a, &res);
+    }
+    DapMathObject *obj_math = PyObject_New(DapMathObject, &DapMathObjectType);
+    obj_math->value = res;
+    return (PyObject*)obj_math;
 }
 
 PyObject *math_python_richcompare(PyObject *O1, PyObject *O2, int opid){
