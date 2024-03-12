@@ -115,7 +115,7 @@ PyObject *wrapping_dap_chain_net_srv_vote_create(PyObject *self, PyObject *args)
             return NULL;
         } break;
         case DAP_CHAIN_NET_VOTE_CREATE_COUNT_OPTION_OVERSIZE_MAX: {
-            char *l_ret = dap_strdup_printf("The voting can to contain no more than %d options",
+            char *l_ret = dap_strdup_printf("The voting can contain no more than %d options",
                                             DAP_CHAIN_DATUM_TX_VOTING_OPTION_MAX_COUNT);
             PyErr_SetString(DapChainNetSrvVoteError, l_ret);
             DAP_DELETE(l_ret);

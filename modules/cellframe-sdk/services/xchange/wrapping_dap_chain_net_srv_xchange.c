@@ -36,7 +36,8 @@ PyObject *wrapping_dap_chain_net_srv_xchange_get_orders(PyObject *self, PyObject
                                                                        &PyDapChainNetSrvXchangeOrderObjectType);
         l_obj_price->price = DAP_NEW(dap_chain_net_srv_xchange_price_t);
         memcpy(l_obj_price->price, l_price, sizeof(dap_chain_net_srv_xchange_price_t));
-        PyList_SetItem(obj_list_price, (Py_ssize_t)i, (PyObject*)l_obj_price);
+        PyList_Append(obj_list_price, (PyObject*)l_obj_price);
+        Py_XDECREF(l_obj_price);
         tmp = tmp->next;
     }
     dap_list_free(l_list_prices);
@@ -57,7 +58,7 @@ PyObject *wrapping_dap_chain_net_srv_xchange_create(PyObject *self, PyObject *ar
         PyErr_SetString(PyExc_AttributeError, "Cant parse args");
         return NULL;
     }
-    if (!PyDapChainNet_Check(obj_net)) {
+    if (!PyDapChainNet_Check((PyDapChainNetObject *)obj_net)) {
         PyErr_SetString(PyExc_AttributeError, "The first parameter to the function passed an incorrect "
                                               "argument. This must be an instance of the dapchain net class.");
         return NULL;

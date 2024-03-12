@@ -121,16 +121,17 @@ PyObject *dap_chain_net_by_name_py(PyObject *self, PyObject *args){
 PyObject *dap_chain_get_nets_py(PyObject *self, PyObject *args){
     (void)self;
     (void)args;
-    uint16_t l_net_count = 0;
-    dap_chain_net_t **l_nets = dap_chain_net_list(&l_net_count);
+    size_t l_net_count = dap_chain_net_count();
     PyObject *obj_nets = PyList_New(l_net_count);
-    for (uint16_t i = 0; i < l_net_count; i++) {
+    size_t i = 0;
+    for (dap_chain_net_t *l_net = dap_chain_net_iter_start(); l_net; l_net = dap_chain_net_iter_next(l_net)) {    
         PyDapChainNetObject *l_obj_net = PyObject_New(PyDapChainNetObject, &DapChainNetObjectType);
-        l_obj_net->chain_net = l_nets[i];
-        PyList_SetItem(obj_nets, i, (PyObject*)l_obj_net);
+        l_obj_net->chain_net = l_net;
+        PyList_SetItem(obj_nets, i++, (PyObject*)l_obj_net);
     }
     return obj_nets;
 }
+
 PyObject *dap_chain_net_by_id_py(PyObject *self, PyObject *args){
     
     PyObject *obj_net_id;
