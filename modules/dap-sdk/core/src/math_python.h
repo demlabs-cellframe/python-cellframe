@@ -40,6 +40,9 @@ PyObject *wrapping_math_python_subtract(PyObject *o1, PyObject *o2);
 PyObject *wrapping_math_python_multiply(PyObject *o1, PyObject *o2);
 PyObject *wrapping_math_python_true_divide(PyObject *o1, PyObject *o2);
 PyObject *wrapping_math_python_power(PyObject *o1, PyObject *o2, PyObject *o3);
+PyObject *wrapping_math_python_floor_divmode(PyObject *o1, PyObject *o2);
+PyObject *wrapping_math_python_remainder(PyObject *o1, PyObject *o2);
+PyObject *wrapping_math_python_divmode(PyObject *o1, PyObject *o2);
 PyObject *math_python_richcompare(PyObject *O1, PyObject *O2, int opid);
 
 PyObject *wrapping_dap_chain_balance_to_coins(PyObject *self, PyObject *args);
