@@ -1,6 +1,5 @@
-from typing import Protocol, Callable, Iterator
+from typing import Protocol, Callable, Iterator, NewType
 from DAP.Crypto import HashFast
-
 
 # PyModule_AddObject(cellframeModule, "error", CellFrame_error);
 
@@ -9,8 +8,7 @@ from DAP.Crypto import HashFast
 #     # no attrs
 #     pass
 
-class ReplyObject(Protocol):
-    pass
+ReplyId = NewType("ReplyId", int)
 
 
 # DapAppCliObjectType
@@ -25,7 +23,7 @@ class AppCli(Protocol):
 class AppCliServer(Protocol):
     @staticmethod
     def cmdItemCreate(command: str,
-                      callback: Callable[[tuple, ReplyObject], None],
+                      callback: Callable[[list, ReplyId], None],
                       help_text: str, doc_ex: str, /) -> None:
         """
         Add cli command
@@ -35,9 +33,11 @@ class AppCliServer(Protocol):
         pass
 
     @staticmethod
-    def setReplyText(reply_text: str, reply_obj: ReplyObject) -> None:
+    def setReplyText(reply_text: str, reply_obj: ReplyId) -> None:
         pass
 
     @staticmethod
     def getByAlias(chain_net, alias: str):
         pass
+
+# /python/interfaces -> feature-... merge -> master

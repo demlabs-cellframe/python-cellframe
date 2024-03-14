@@ -53,7 +53,8 @@ class Chain(Protocol):
         pass
 
     # callback
-    def addMempoolNotify(self, callback: Callable[[Literal["a", "d"], str, str, bytes, tuple], None], args: tuple, /) -> None:
+    def addMempoolNotify(self, callback: Callable[[Literal["a", "d"], str, str, bytes, tuple], None], args: tuple,
+                         /) -> None:
         """
         Callable[op_code, table_name, hash/key, value, add_args
         """
@@ -203,34 +204,64 @@ class ChainCS(Protocol):
         pass
 
 
+# DapChainGlobalDBContainerObjectType
+class ChainGlobalDBContainer(Protocol):
+    @property
+    def id(self) -> int:
+        pass
+
+    @property
+    def key(self) -> str:
+        pass
+
+    @property
+    def value(self) -> bytes:
+        pass
+
+
 # DapChainGlobalDBObjectType
 class GlobalDB(Protocol):
     @staticmethod
-    def get(key: str, group: str, /) -> 'json':
+    def get(key: str, group: str, /) -> bytes:  # 'json'
         pass
 
     @staticmethod
-    def set(*args):
+    def set(key: str, group: str, obj_byte: bytes, is_pinned: bool = False, /) -> bool:
+        pass
+
+    # deprecated
+    @staticmethod
+    def set_sync(key: str, group: str, obj_byte: bytes, is_pinned: bool = False, /) -> bool:
+        """
+        Блокирующий set
+        """
         pass
 
     @staticmethod
-    def delete(*args):
+    def delete(key: str, group: str, /) -> bool:
         pass
 
     @staticmethod
-    def pin(*args):
+    def pin(key: str, group: str, /) -> bool:
+        """
+        Блокировка записей от авто-удаления трехчасовым таймером
+        """
         pass
 
     @staticmethod
-    def unpin(*args):
+    def unpin(key: str, group: str, /) -> bool:
         pass
 
     @staticmethod
-    def grLoad(*args):
+    def grLoad(group: str, /) -> list[ChainGlobalDBContainer]:
         pass
 
     @staticmethod
-    def addSyncExtraGroup(*args):
+    def addSyncExtraGroup(net_name: str, group_mask: str, callback: Callable,
+                          callback_args: list, /):
+        """
+        add to white-list current node(sync table)
+        """
         pass
 
 
@@ -289,6 +320,9 @@ class Mempool(Protocol):
 
     @staticmethod
     def emissionPlace(chain: Chain, emission: DatumEmission, /) -> str | None:  # str - DatumHash
+        """
+        Get DatumEmission hash
+        """
         pass
 
     # TODO: emissionGet emissionExtract - делают примерно одно и тоже.
@@ -297,7 +331,15 @@ class Mempool(Protocol):
         pass
 
     @staticmethod
-    def emissionExtract(chain: Chain, bytes_obj: bytes, /) -> DatumEmission | None:
+    def emissionExtract(chain: Chain, value: bytes, /) -> DatumEmission | None:
+        pass
+
+    @staticmethod
+    def datumExtract(value: bytes, /) -> Datum | None:
+        pass
+
+    @staticmethod
+    def datumGet(chain: Chain, emission_hash: str, /) -> Datum | None:
         pass
 
     @staticmethod
@@ -324,15 +366,15 @@ class Mempool(Protocol):
 
     @staticmethod
     # TODO: hash - то HashFast, то str - задумка или халтура?
-    def remove(chain: Chain, hash_str: str) -> bool:
+    def remove(chain: Chain, hash_str: str, /) -> bool:
         pass
 
     @staticmethod
-    def list(net: Net, chain: Chain) -> dict[str, Datum]:
+    def list(net: Net, chain: Chain, /) -> dict[str, Datum]:
         pass
 
     @staticmethod
-    def addDatum(chain: Chain, data: Datum | DatumDecree | DatumAnchor) -> str | None:
+    def addDatum(chain: Chain, data: Datum | DatumDecree | DatumAnchor, /) -> str | None:
         pass
 
 
@@ -358,7 +400,7 @@ class Ledger(Protocol):
     def tokenEmissionLoad(self, token_emission: DatumEmission, token_emission_size: int, /) -> Literal[-1, 0]:
         pass
 
-    def tokenEmissionFind(self, token_ticker: ticker, hash_fast: HashFast, /) -> DatumEmission | None:
+    def tokenEmissionFind(self, hash_fast: HashFast, /) -> DatumEmission | None:
         pass
 
     def tokenAuthSignsTotal(self, token_ticker: ticker, /) -> int | None:
@@ -408,7 +450,7 @@ class Ledger(Protocol):
         # Пересчет баланса по всем транз (это не точно)
         pass
 
-    def txFindByHash(self, *args):
+    def txFindByHash(self, hash: HashFast, /) -> DatumTx | None:
         pass
 
     def txFindByAddr(self, *args):
