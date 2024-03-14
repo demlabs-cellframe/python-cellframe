@@ -68,12 +68,13 @@ class Net(Protocol):
 
     @property
     def autoproc(self) -> bool:
-        # TODO: выяснить, что делает метод. Подразумевается mempool_autoproc
+        """
+        True: User Mempool.proc() auto
+        """
         pass
 
     @property
     def gdb_group_alias(self) -> str:
-        # TODO: выяснить, что делает метод. Подразумевается mempool_autoproc
         pass
 
     # methods
