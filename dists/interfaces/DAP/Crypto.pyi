@@ -1,5 +1,7 @@
 from typing import Protocol
 from CellFrame.Common import *
+from CellFrame.Network import Net
+from CellFrame.Chain import ChainAddr
 
 
 # DapCryptoAlgoObjectType
@@ -16,7 +18,7 @@ class Algo(Protocol):
 # DapCryptoCertObjectType
 class Cert(Protocol):
     @property
-    def key(self) -> Key | None:  # private  Key --> EKey
+    def key(self) -> 'Key' | None:  # private  Key --> EKey
         pass
 
     def pkey(self) -> Pkey:  # public
@@ -71,49 +73,8 @@ class Cert(Protocol):
         pass
 
 
-# DapCryproSignTypeObjectType
-class SignType(Protocol):
-    def __str__(self):
-        pass
-
-
-# DapCryptoSignObjectType
-class Sign(Protocol):
-    @property
-    def type(self) -> SignType:
-        pass
-
-    @property
-    def pkey(self) -> Pkey:
-        pass
-
-    @property
-    def pkeyHash(self) -> HashFast:
-        pass
-
-    @property
-    def size(self) -> int:
-        pass
-
-    def verify(self, *args):
-        pass
-
-    @staticmethod
-    def fromBytes(*args):
-        pass
-
-    def toBytes(self):
-        pass
-
-    @staticmethod
-    def fromBase64(*args):
-        pass
-
-    def toBase64(self):
-        pass
-
-    def getAddr(self, *args):
-        pass
+class CryptoDataType(Protocol):
+    pass
 
 
 # PyDapCryptoKeyTypesObject
@@ -124,6 +85,39 @@ class CryptoKeyType(Protocol):
         pass
 
     def __eq__(self, other: CryptoKeyType):
+        pass
+
+
+# DapChainHashFastObjectType
+class HashFast(Protocol):
+    def __init__(self, data: bytes | DatumTx | DatumEmission | DatumEmission):
+        pass
+
+    @staticmethod
+    def fromString(hash: str, /) -> HashFast:
+        pass
+
+    @staticmethod
+    def compare(hash1: HashFast, hash2: HashFast) -> bool:
+        pass
+
+    def __eq__(self, other):
+        ...
+
+    # def hashFast(self, bytes: bytes, size: int, /) -> bool:
+    #     # TODO: WTF
+    #     pass
+
+    def isBlank(self) -> bool:
+        pass
+
+    # def toStr(self, string: str, string_max: int):
+    #     pass
+
+    # def toStrNew(self) -> str:
+    #     pass
+
+    def __str__(self):
         pass
 
 
@@ -222,73 +216,12 @@ class KeyTypes(Protocol):
         pass
 
 
-# DapCryptoDataTypeObjectType
-class CryptoDataType(Protocol):
-    pass
-
-
-# DapChainHashFastObjectType
-class HashFast(Protocol):
-    def __init__(self, data: bytes | DatumTx | DatumEmission | DatumEmission):
-        pass
-
-    @staticmethod
-    def fromString(hash: str, /) -> HashFast:
-        pass
-
-    @staticmethod
-    def compare(hash1: HashFast, hash2: HashFast) -> bool:
-        pass
-
-    def __eq__(self, other):
-        ...
-
-    # def hashFast(self, bytes: bytes, size: int, /) -> bool:
-    #     # TODO: WTF
-    #     pass
-
-    def isBlank(self) -> bool:
-        pass
-
-    # def toStr(self, string: str, string_max: int):
-    #     pass
-
-    # def toStrNew(self) -> str:
-    #     pass
-
-    def __str__(self):
-        pass
-
-
-# DapHashFastObjectType
-# TODO: не нашел явного импорта в python
-# class HashType(Protocol):
-#     @staticmethod
-#     def DAP_HASH_TYPE_KECCAK():
-#         pass
-#
-#     @staticmethod
-#     def DAP_HASH_TYPE_SLOW_0():
-#         pass
-
-# PyCryptoKeyObject
-# private key
-class Key(Protocol):
-    pass
-
-
-# class PkeyType(Protocol):
-#     def __str__(self):
-#         pass
-
-
-# DapPkeyObject_DapPkeyObjectType
 class Pkey(Protocol):
     def toBytes(self) -> bytes:
         pass
 
     @staticmethod
-    def fromBytes(self, data: bytes, /) -> Pkey:
+    def fromBytes(data: bytes, /) -> Pkey:
         pass
 
     def encrypt(self, data: bytes):
@@ -305,3 +238,72 @@ class Pkey(Protocol):
     @property
     def size(self) -> int:
         pass
+
+
+# DapCryptoSignObjectType
+class Sign(Protocol):
+    @property
+    def type(self) -> SignType:
+        pass
+
+    @property
+    def pkey(self) -> Pkey:
+        pass
+
+    @property
+    def pkeyHash(self) -> HashFast:
+        pass
+
+    @property
+    def size(self) -> int:
+        pass
+
+    def verify(self, data: Datum | DatumToken | DatumEmission | DatumTx | bytes, /) -> bool:
+        """
+        Проверка, что подпись была сделана для переданных данных
+        """
+        pass
+
+    @staticmethod
+    def fromBytes(data: bytes, /) -> Sign:
+        pass
+
+    def toBytes(self) -> bytes:
+        pass
+
+    @staticmethod
+    def fromBase64(base64: str) -> Sign:
+        pass
+
+    def toBase64(self) -> str:  # base64 string
+        pass
+
+    def getAddr(self, net: Net) -> ChainAddr:
+        pass
+
+
+# DapCryproSignTypeObjectType
+class SignType(Protocol):
+    def __str__(self):
+        pass
+
+# DapHashFastObjectType
+# TODO: не нашел явного импорта в python
+# class HashType(Protocol):
+#     @staticmethod
+#     def DAP_HASH_TYPE_KECCAK():
+#         pass
+#
+#     @staticmethod
+#     def DAP_HASH_TYPE_SLOW_0():
+#         pass
+
+# PyCryptoKeyObject
+# private key
+# class Key(Protocol):
+#     pass
+
+
+# class PkeyType(Protocol):
+#     def __str__(self):
+#         pass
