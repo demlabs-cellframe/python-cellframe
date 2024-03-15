@@ -7,12 +7,12 @@ set(CMAKE_C_STANDARD 11)
 add_definitions("-fpic")
 add_definitions("-DDAP_LOG_MT")
 
-file (GLOB DAP_CHAIN_CH_NET_PYTHON_SRCS src/*.c)
-file (GLOB DAP_CHAIN_CH_NET_PYTHON_HEADERS include/*.h)
+file (GLOB DAP_STREAM_CH_CHAIN_NET_PYTHON_SRCS src/*.c)
+file (GLOB DAP_STREAM_CH_CHAIN_NET_PYTHON_HEADERS include/*.h)
 
 include_directories(${PYTHON_INCLUDE_DIR} include/)
 
-add_library(${PROJECT_NAME} STATIC ${DAP_CHAIN_CH_NET_PYTHON_SRCS} ${DAP_CHAIN_CH_NET_PYTHON_HEADERS})
+add_library(${PROJECT_NAME} STATIC ${DAP_STREAM_CH_CHAIN_NET_PYTHON_SRCS} ${DAP_STREAM_CH_CHAIN_NET_PYTHON_HEADERS})
 
 target_link_libraries(${PROJECT_NAME} dap_chain_python_module dap_stream_ch_chain_net)
 
