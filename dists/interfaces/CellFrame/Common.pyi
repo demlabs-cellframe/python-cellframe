@@ -30,10 +30,16 @@ class Datum(Protocol):
 
     @property
     def raw(self) -> bytes:
+        """
+        serialize Datum full
+        """
         pass
 
     @property
     def dataRaw(self) -> bytes:
+        """
+        serialize Datum SubDatum
+        """
         pass
 
     def getSize(self) -> int:
