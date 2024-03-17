@@ -8,7 +8,8 @@ PyNumberMethods DapMathNumberMethods = {
         .nb_floor_divide = wrapping_math_python_floor_divmode,
         .nb_remainder = wrapping_math_python_remainder,
         .nb_divmod = wrapping_math_python_divmode,
-        .nb_power = wrapping_math_python_power
+        .nb_power = wrapping_math_python_power,
+        .nb_float = wrapping_math_python_float
 };
 
 static PyGetSetDef DapMathGetsSets[] = {
@@ -20,6 +21,8 @@ static PyGetSetDef DapMathGetsSets[] = {
 static PyMethodDef DapMathMethods[] = {
         {"balanceToCoins", wrapping_dap_chain_balance_to_coins,
          METH_VARARGS | METH_STATIC, "The function calculates the number of coins from the number of datoshi."},
+        {"percent", math_python_calc_percent,
+         METH_VARARGS, "The function calculates the specified percentage of a number."},
         {NULL, NULL, 0, NULL}
 };
 
@@ -306,6 +309,13 @@ PyObject *wrapping_math_python_divmode(PyObject *o1, PyObject *o2){
     }
 }
 
+PyObject *wrapping_math_python_float(PyObject *o1){
+    uint256_t in = ((DapMathObject*)o1)->value;
+    double out = dap_uint256_decimal_to_double(in);
+    PyObject *obj_ret = PyFloat_FromDouble(out);
+    return obj_ret;
+}
+
 PyObject *math_python_richcompare(PyObject *O1, PyObject *O2, int opid){
     pvt_struct_parse_numbers_t l_result = {0};
     int res = pvt_parse_object(O1, O2, &l_result);
@@ -369,4 +379,22 @@ PyObject *wrapping_dap_chain_balance_to_coins(PyObject *self, PyObject *args){
     PyObject *l_obj_balance = Py_BuildValue("s", l_balance);
     DAP_DELETE(l_balance);
     return l_obj_balance;
+}
+
+PyObject *math_python_calc_percent(PyObject *self, PyObject *argv){
+    uint256_t l_o1 = ((DapMathObject*)self)->value;
+    uint256_t l_o2 = uint256_0;
+    uint256_t l_result = uint256_0;
+    uint256_t l_base = dap_chain_balance_scan("100");
+    PyObject *obj_o2;
+    if (!PyArg_ParseTuple(argv, "O", obj_o2)){
+        return NULL;
+    }
+    l_o2 = ((DapMathObject*)obj_o2)->value;
+    uint256_t t1 = uint256_0;
+    DIV_256_COIN(l_o2, l_base, &t1);
+    MULT_256_256(l_o1, t1, &l_result);
+    DapMathObject *l_obj_result = PyObject_New(DapMathObject, &DapMathObjectType);
+    l_obj_result->value = l_result;
+    return (PyObject*)l_obj_result;
 }

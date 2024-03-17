@@ -33,6 +33,7 @@ typedef struct DapMath{
 }DapMathObject;
 
 int math_python_create(PyObject *self, PyObject *argv, PyObject *kwds);
+PyObject *math_python_calc_percent(PyObject *self, PyObject *argv);
 PyObject *math_python_str(PyObject *self);
 
 PyObject *wrapping_math_python_add(PyObject *o1, PyObject *o2);
@@ -43,6 +44,7 @@ PyObject *wrapping_math_python_power(PyObject *o1, PyObject *o2, PyObject *o3);
 PyObject *wrapping_math_python_floor_divmode(PyObject *o1, PyObject *o2);
 PyObject *wrapping_math_python_remainder(PyObject *o1, PyObject *o2);
 PyObject *wrapping_math_python_divmode(PyObject *o1, PyObject *o2);
+PyObject *wrapping_math_python_float(PyObject *o1);
 PyObject *math_python_richcompare(PyObject *O1, PyObject *O2, int opid);
 
 PyObject *wrapping_dap_chain_balance_to_coins(PyObject *self, PyObject *args);
