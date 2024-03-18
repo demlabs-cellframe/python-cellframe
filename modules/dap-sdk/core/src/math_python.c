@@ -49,7 +49,14 @@ int math_python_create(PyObject *self, PyObject *argv, PyObject *kwds){
     char *l_number_str;
     if (!PyArg_ParseTupleAndKeywords(argv, kwds, "s", (char**)kwlist, &l_number_str))
         return -1;
-    ((DapMathObject*)self)->value = dap_chain_balance_scan(l_number_str);
+    bool l_is_decimal = false;
+    for (size_t i = 0; i < dap_strlen(l_number_str); i++){
+        if (l_number_str[i] == '.') {
+            l_is_decimal = true;
+            break;
+        }
+    }
+    ((DapMathObject*)self)->value = l_is_decimal ? dap_chain_coins_to_balance(l_number_str) : dap_chain_balance_scan(l_number_str);
     return 0;
 }
 
@@ -192,7 +199,7 @@ PyObject *wrapping_math_python_true_divide(PyObject *o1, PyObject *o2){
     int res = pvt_parse_object(o1, o2, &l_numbers);
     if (res == 0){
         uint256_t l_result = {0};
-        DIV_256(l_numbers.n1, l_numbers.n2, &l_result);
+        DIV_256_COIN(l_numbers.n1, l_numbers.n2, &l_result);
         DapMathObject *obj_result = PyObject_New(DapMathObject, &DapMathObjectType);
         obj_result->value = l_result;
         return (PyObject*)obj_result;
