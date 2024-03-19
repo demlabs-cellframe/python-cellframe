@@ -39,11 +39,12 @@ def multiTest():
     return False
 
 def divTest():
-    a = Math("25100100000000000000000000000000000000000000000000000000000000000000")
-    b = a / 2
-    if b == Math("12550050000000000000000000000000000000000000000000000000000000000000"):
+    a = Math("15.0")
+    b = a / Math("2.0")
+    c = Math("7.5")
+    if b == c:
         a /= a
-        if a == 1:
+        if a == Math("1.0"):
             return True
     return False
 
@@ -58,6 +59,39 @@ def compareTest():
             if a != b and a > b and b < a:
                 return True
     return False
+
+def powTest():
+    a = Math("3")
+    b = Math("2")
+    c = Math("9")
+    res = a ** b
+    return c == res
+
+def floorModTest():
+    a = Math("7")
+    b = Math("2")
+    c = Math("3")
+    res = a // b
+    return res == c
+
+def remainderModTest():
+    a = Math("7")
+    b = Math("2")
+    c = Math("1")
+    res = a % b
+    return res == c
+
+def modTest():
+    a = Math("5")
+    b = Math("3")
+    res = divmod(a, b)
+    return res[0] == Math("1") and res[1] == Math("2")
+def floatTest():
+    a = Math("5")
+    b = Math("2")
+    c = a / b
+    res = 5.2
+    return float(c) == res
 
 def run_unit_test():
     s_false = "| [FALSE] |"
@@ -103,9 +137,9 @@ def run_unit_test():
     except:
         ret = False
     if ret is True:
-        logIt.notice("| Integer division       " + s_ok)
+        logIt.notice("| Division               " + s_ok)
     else:
-        logIt.notice("| Integer division       " + s_false)
+        logIt.notice("| Division               " + s_false)
         lret = False
     logIt.notice("+------------------------+---------+")
     try:
@@ -117,11 +151,63 @@ def run_unit_test():
     else:
         logIt.notice("| Comparison             " + s_false)
         lret = False
+    logIt.notice("+------------------------+---------+")
+    try:
+        ret = powTest()
+    except:
+        ret = False
+    if ret is True:
+        logIt.notice("| Pow                    " + s_ok)
+    else:
+        logIt.notice("| Pow                    " + s_false)
+        lret = False
+    logIt.notice("+------------------------+---------+")
+    try:
+        ret = floorModTest()
+    except:
+        ret = False
+    if ret is True:
+        logIt.notice("| Floor Mod              " + s_ok)
+    else:
+        logIt.notice("| Floor Mod              " + s_false)
+        lret = False
+    logIt.notice("+------------------------+---------+")
+    try:
+        ret = remainderModTest()
+    except:
+        ret = False
+    if ret is True:
+        logIt.notice("| Remainder Mod          " + s_ok)
+    else:
+        logIt.notice("| Remainder Mod          " + s_false)
+        lret = False
+    logIt.notice("+------------------------+---------+")
+    try:
+        ret = modTest()
+    except:
+        ret = False
+    if ret is True:
+        logIt.notice("| Mod                    " + s_ok)
+    else:
+        logIt.notice("| Mod                    " + s_false)
+        lret = False
+    logIt.notice("+------------------------+---------+")
+    try:
+        ret = floatTest()
+    except:
+        ret = False
+    if ret is True:
+        logIt.notice("| Float                  " + s_ok)
+    else:
+        logIt.notice("| Float                  " + s_false)
+        lret = False
+
     logIt.notice("====================================")
     return lret
 
 def init():
     logIt.notice("Start test Math plugin")
+    modTest()
     # Max value in 256-bit 115792089237316195423570985008687907853269984665640564039457584007913129639935
     test_res = run_unit_test()
     if test_res is True:
