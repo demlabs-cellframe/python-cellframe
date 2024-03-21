@@ -6,9 +6,9 @@
 * Copyright  (c) 2017-2020
 * All rights reserved.
 
-This file is part of DAP (Deus Applications Prototypes) the open source project
+This file is part of DAP (Demlabs Application Protocol) the open source project
 
-   DAP (Deus Applicaions Prototypes) is free software: you can redistribute it and/or modify
+   DAP (Demlabs Application Protocol) is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
    the Free Software Foundation, either version 3 of the License, or
    (at your option) any later version.
@@ -30,7 +30,7 @@ extern "C" {
 #endif
 
 void dap_chain_plugins_command_create(void);
-int dap_chain_plugins_command_handler(int a_argc, char **a_argv, char **a_str_reply);
+int dap_chain_plugins_command_handler(int a_argc, char **a_argv, void **a_str_reply);
 
 #ifdef __cplusplus
 }

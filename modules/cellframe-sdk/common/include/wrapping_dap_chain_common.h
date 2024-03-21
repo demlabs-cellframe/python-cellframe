@@ -7,9 +7,9 @@
  * Copyright  (c) 2017-2022
  * All rights reserved.
 
- This file is part of DAP (Deus Applications Prototypes) the open source project
+ This file is part of DAP (Demlabs Application Protocol) the open source project
 
-    DAP (Deus Applicaions Prototypes) is free software: you can redistribute it and/or modify
+    DAP (Demlabs Application Protocol) is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
@@ -112,10 +112,7 @@ typedef struct PyDapChainNetSrvPriceUnitUID{
 PyObject *PyDapChainNetSrvPriceUnitUID_str(PyObject *self);
 
 PyObject *wrapping_dap_chain_net_srv_price_unit_uid_get_undefined(PyObject *self, PyObject *args);
-PyObject *wrapping_dap_chain_net_srv_price_unit_uid_get_mb(PyObject *self, PyObject *args);
 PyObject *wrapping_dap_chain_net_srv_price_unit_uid_get_sec(PyObject *self, PyObject *args);
-PyObject *wrapping_dap_chain_net_srv_price_unit_uid_get_day(PyObject *self, PyObject *args);
-PyObject *wrapping_dap_chain_net_srv_price_unit_uid_get_kb(PyObject *self, PyObject *args);
 PyObject *wrapping_dap_chain_net_srv_price_unit_uid_get_b(PyObject *self, PyObject *args);
 
 extern PyTypeObject DapChainNetSrvPriceUnitUidObjectType;
