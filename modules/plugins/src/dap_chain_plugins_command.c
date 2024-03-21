@@ -21,10 +21,11 @@ void dap_chain_plugins_command_create(void){
         s_l_restart_plugins = true;
     }
 }
-int dap_chain_plugins_command_handler(int a_argc, char **a_argv, char **a_str_reply){
+int dap_chain_plugins_command_handler(int a_argc, char **a_argv, void **a_str_reply){
     enum {
         CMD_NONE, CMD_LIST, CMD_SHOW_NAME, CMD_RESTART, CMD_RELOAD_NAME
     };
+    char ** l_str_reply = (char **)a_str_reply;
     int l_arg_index = 1;
     int l_cmd_name = CMD_NONE;
     const char *l_name_plugin = NULL;
@@ -46,7 +47,7 @@ int dap_chain_plugins_command_handler(int a_argc, char **a_argv, char **a_str_re
                               l_str, "|\t",l_element->name, "\t|\t", l_element->version, "\t|\t", l_element->author, "\t|\n", NULL);
 
         }
-        dap_cli_server_cmd_set_reply_text(a_str_reply, "%s", l_str);
+        dap_cli_server_cmd_set_reply_text(l_str_reply, "%s", l_str);
         break;
     case CMD_SHOW_NAME:
         dap_cli_server_cmd_find_option_val(a_argv, l_arg_index, a_argc, "--name", &l_name_plugin);
@@ -54,18 +55,18 @@ int dap_chain_plugins_command_handler(int a_argc, char **a_argv, char **a_str_re
         if (l_element != NULL){
             char *l_dep = dap_chain_plugins_manifests_get_list_dependencyes(l_element);
             if (l_dep != NULL){
-                dap_cli_server_cmd_set_reply_text(a_str_reply, " Name: %s\n Version: %s\n Author: %s\n"
+                dap_cli_server_cmd_set_reply_text(l_str_reply, " Name: %s\n Version: %s\n Author: %s\n"
                                                                " Description: %s\n Dependencies: %s \n\n",
                                                   l_element->name, l_element->version, l_element->author,
                                                   l_element->description, l_dep);
                 DAP_FREE(l_dep);
             } else {
-                dap_cli_server_cmd_set_reply_text(a_str_reply, " Name: %s\n Version: %s\n Author: %s\n"
+                dap_cli_server_cmd_set_reply_text(l_str_reply, " Name: %s\n Version: %s\n Author: %s\n"
                                                                " Description: %s\n\n",
                                                   l_element->name, l_element->version, l_element->author, l_element->description);
             }
         } else {
-            dap_cli_server_cmd_set_reply_text(a_str_reply, "Can't find a plugin named %s", l_name_plugin);
+            dap_cli_server_cmd_set_reply_text(l_str_reply, "Can't find a plugin named %s", l_name_plugin);
         }
         break;
     case CMD_RESTART:
@@ -73,33 +74,33 @@ int dap_chain_plugins_command_handler(int a_argc, char **a_argv, char **a_str_re
         dap_chain_plugins_deinit();
         dap_chain_plugins_init(g_config);
         log_it(L_NOTICE, "Restart is completed");
-        dap_cli_server_cmd_set_reply_text(a_str_reply, "Restart is completed.");
+        dap_cli_server_cmd_set_reply_text(l_str_reply, "Restart is completed.");
         break;
     case CMD_RELOAD_NAME:
         dap_cli_server_cmd_find_option_val(a_argv, l_arg_index, a_argc, "--name", &l_name_plugin);
         int l_result = dap_chain_plugins_reload_plugin(l_name_plugin);
         switch (l_result) {
         case 0:
-            dap_cli_server_cmd_set_reply_text(a_str_reply, "Restart \"%s\" plugin is completed successfully.", l_name_plugin);
+            dap_cli_server_cmd_set_reply_text(l_str_reply, "Restart \"%s\" plugin is completed successfully.", l_name_plugin);
             break;
         case -2:
-            dap_cli_server_cmd_set_reply_text(a_str_reply,
+            dap_cli_server_cmd_set_reply_text(l_str_reply,
                                               "\"%s\" plugin has unresolved dependencies. Restart all plugins.",
                                               l_name_plugin);
             break;
         case -3:
-            dap_cli_server_cmd_set_reply_text(a_str_reply, "Registration manifest for \"%s\" plugin is failed.", l_name_plugin);
+            dap_cli_server_cmd_set_reply_text(l_str_reply, "Registration manifest for \"%s\" plugin is failed.", l_name_plugin);
             break;
         case -4:
-            dap_cli_server_cmd_set_reply_text(a_str_reply, "A plugin named \"%s\" was not found.", l_name_plugin);
+            dap_cli_server_cmd_set_reply_text(l_str_reply, "A plugin named \"%s\" was not found.", l_name_plugin);
             break;
         default:
-            dap_cli_server_cmd_set_reply_text(a_str_reply, "An unforeseen error has occurred.");
+            dap_cli_server_cmd_set_reply_text(l_str_reply, "An unforeseen error has occurred.");
             break;
         }
         break;
     default:
-        dap_cli_server_cmd_set_reply_text(a_str_reply, "Arguments are incorrect.");
+        dap_cli_server_cmd_set_reply_text(l_str_reply, "Arguments are incorrect.");
         break;
 
     }
