@@ -10,8 +10,8 @@ PyObject *TPO_init(PyObject *self, PyObject *args);
 PyObject *TPO_deinit(PyObject *self, PyObject *args);
 
 static PyMethodDef TPOPythonMethods[] = {
-        {"init", TPO_init, METH_VARARGS, "Initialization of the python-cellframe interface DAP (Deus Applicaions Prototypes)"},
-        {"deinit", TPO_deinit, METH_VARARGS, "Deinitialization of the python-cellframe interface DAP (Deus Applicaions Prototypes)"},
+        {"init", TPO_init, METH_VARARGS, "Initialization of the python-cellframe interface DAP (Demlabs Application Protocol)"},
+        {"deinit", TPO_deinit, METH_VARARGS, "Deinitialization of the python-cellframe interface DAP (Demlabs Application Protocol)"},
         {"setLogLevel", (PyCFunction)dap_set_log_level, METH_VARARGS, "Setting the logging level"},
         {"logIt", (PyCFunction)dap_log_it, METH_VARARGS, "The wrapper of the log_it function for the libdap library"},
         {"logItDebug", (PyCFunction)dap_log_it_debug, METH_VARARGS, "The log_it wrapper for the libdap library displays information with the logging level DEBUG"},
@@ -25,7 +25,7 @@ static PyMethodDef TPOPythonMethods[] = {
         {"logItCritical", (PyCFunction)dap_log_it_critical, METH_VARARGS, "The log_it wrapper for the libdap library displays information with the logging level CRITICAL"},
         {"configGetItem", (PyCFunction)py_m_dap_config_get_item, METH_VARARGS, ""},
         {"configGetItemDefault", (PyCFunction)py_m_dap_config_get_item_default, METH_VARARGS, ""},
-        //{"deinit", dap_io_deinit, METH_NOARGS, "Deinitialization of the DAP (Deus Applicaions Prototypes) server core library"},
+        //{"deinit", dap_io_deinit, METH_NOARGS, "Deinitialization of the DAP (Demlabs Application Protocol) server core library"},
         //{"loop", dap_io_loop, METH_VARARGS, ""},
         //{"listen", dap_io_listen, METH_VARARGS, ""},
         {NULL, NULL, 0, NULL}
