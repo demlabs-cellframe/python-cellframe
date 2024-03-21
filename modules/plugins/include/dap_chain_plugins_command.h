@@ -30,7 +30,7 @@ extern "C" {
 #endif
 
 void dap_chain_plugins_command_create(void);
-int dap_chain_plugins_command_handler(int a_argc, char **a_argv, char **a_str_reply);
+int dap_chain_plugins_command_handler(int a_argc, char **a_argv, void **a_str_reply);
 
 #ifdef __cplusplus
 }
