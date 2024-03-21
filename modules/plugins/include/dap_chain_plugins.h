@@ -37,7 +37,7 @@ int dap_chain_plugins_init(dap_config_t *a_config);
 void dap_chain_plugins_deinit();
 void* dap_chain_plugins_load_plugin_importing(const char *a_dir_path, const char *a_name);
 int dap_chain_plugins_reload_plugin(const char * a_name_plugin);
-void dap_chain_plugins_save_thread();
+void dap_chain_plugins_save_thread(dap_config_t *a_config);
 
 #ifdef __cplusplus
 }
