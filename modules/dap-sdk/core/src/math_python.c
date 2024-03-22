@@ -19,7 +19,7 @@ static PyGetSetDef DapMathGetsSets[] = {
 };
 
 static PyMethodDef DapMathMethods[] = {
-        {"balanceToCoins", wrapping_dap_chain_balance_to_coins,
+        {"balance_to_coins", wrapping_dap_chain_balance_to_coins,
          METH_VARARGS | METH_STATIC, "The function calculates the number of coins from the number of datoshi."},
         {"percent", math_python_calc_percent,
          METH_VARARGS, "The function calculates the specified percentage of a number."},
