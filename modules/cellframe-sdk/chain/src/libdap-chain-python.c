@@ -116,7 +116,7 @@ PyObject *dap_chain_python_create_atom_iter(PyObject *self, PyObject *args){
     ((PyChainAtomIterObject*)obj_atom_iter)->atom_iter =
             ((PyDapChainObject*)self)->chain_t->callback_atom_iter_create(
                     ((PyDapChainObject*)self)->chain_t,
-                    ((PyDapChainObject*)self)->chain_t->cells->id, with_treshold);
+                    ((PyDapChainObject*)self)->chain_t->cells->id, NULL);
     return obj_atom_iter;
 }
 
@@ -133,8 +133,8 @@ PyObject *dap_chain_python_atom_iter_get_first(PyObject *self, PyObject *args){
     PyObject *obj_atom_ptr = _PyObject_New(&DapChainAtomPtrObjectType);
     obj_atom_ptr = PyObject_Init(obj_atom_ptr, &DapChainAtomPtrObjectType);
     size_t l_atom_size = 0;
-    ((PyChainAtomObject*)obj_atom_ptr)->atom = ((PyDapChainObject*)self)->chain_t->callback_atom_iter_get_first(
-            ((PyChainAtomIterObject*)obj_iter)->atom_iter, &l_atom_size
+    ((PyChainAtomObject*)obj_atom_ptr)->atom = ((PyDapChainObject*)self)->chain_t->callback_atom_iter_get(
+            ((PyChainAtomIterObject*)obj_iter)->atom_iter, DAP_CHAIN_ITER_OP_FIRST, &l_atom_size
             );
     if (((PyChainAtomObject*)obj_atom_ptr)->atom == NULL){
         Py_RETURN_NONE;
@@ -188,8 +188,9 @@ PyObject *dap_chain_python_atom_iter_get_next(PyObject *self, PyObject *args){
     }
     PyObject *obj_atom_ptr = _PyObject_New(&DapChainAtomPtrObjectType);
     obj_atom_ptr = PyObject_Init(obj_atom_ptr, &DapChainAtomPtrObjectType);
-    ((PyChainAtomObject*)obj_atom_ptr)->atom = ((PyDapChainObject*)self)->chain_t->callback_atom_iter_get_next(
+    ((PyChainAtomObject*)obj_atom_ptr)->atom = ((PyDapChainObject*)self)->chain_t->callback_atom_iter_get(
             ((PyChainAtomIterObject*)atom_iter)->atom_iter,
+            DAP_CHAIN_ITER_OP_NEXT,
             &atom_size);
     if (((PyChainAtomObject*)obj_atom_ptr)->atom == NULL){
         return Py_BuildValue("On", Py_None, 0);
