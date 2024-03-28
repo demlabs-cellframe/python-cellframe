@@ -64,7 +64,7 @@ PyObject *dap_chain_node_client_send_ch_pkt_py(PyObject *self, PyObject *args){
         return NULL;
     buf = PyBytes_AsString(obj_buf);
     buf_size = (size_t)PyBytes_Size(buf);
-    int res = dap_chain_node_client_send_ch_pkt(((PyDapChainNodeClientObject*)self)->node_client, ch_id, type, buf, buf_size);
+    int res = dap_chain_node_client_write_mt(((PyDapChainNodeClientObject*)self)->node_client, ch_id, type, buf, buf_size);
     return PyLong_FromLong(res);
 }
 PyObject *dap_chain_node_client_wait_py(PyObject *self, PyObject *args){
