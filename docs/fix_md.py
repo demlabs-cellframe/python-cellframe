@@ -11,28 +11,31 @@ def fix_markdown_files(directory):
                 content = file.read()
 
             # Fix Return type: to italic
+
             content = re.sub(r"\* \*\*Return type:\*\*\s+(.+?)\n(?=\n####|\n##|\n###)",
                              r"* **Return type:** *\1*\n",
                              content, flags=re.DOTALL)
 
             # Fix Returns: to italic
+
             content = re.sub(r"\* \*\*Returns:\*\*\s+(.*?)\n(?=\n\*)",
                              r"* **Returns:** \1",
                              content, flags=re.DOTALL)
 
-
             # Fix Type: to italic
+
             content = re.sub(r"\* \*\*Type:\*\*\s+(.*?)(?=\s*##+|$)",
                              r"* **Type:** *\1*\n\n",
                              content, flags=re.DOTALL)
 
             # Add <#### Attributes:
+
             content = re.sub(r"(### \*class\*.+?\n\n)(.+?)\n(#### .+?)(\n\n#### |$)",
                              r"\1\2\n\n#### Attributes:\n\n\3\n\n",
                              content, flags=re.DOTALL)
 
-
             # Delete  <Bases: `object`>
+
             pattern_bases = r'^Bases: `object`$'
             content = re.sub(pattern_bases, r'', content, flags=re.MULTILINE)
 
@@ -46,7 +49,7 @@ def fix_markdown_files(directory):
                     if line.startswith("#### \_\_init_\_"):
                         lines_to_modify.append(i)
 
-                for i in reversed(lines_to_modify):  # Проходим в обратном порядке, чтобы не изменять позиции а то Methods улетает в небеса
+                for i in reversed(lines_to_modify):
                     content_lines.insert(i, "")
                     content_lines.insert(i, "#### Methods:")
 
@@ -90,7 +93,6 @@ def fix_markdown_files(directory):
                 return content
 
             content = replace_headers_methods(content)
-
 
             # Delete reapeted empty strings
 
