@@ -99,6 +99,7 @@ def fix_markdown_files(directory):
             content = re.sub(r"(\n\s*\n){2,}", r"\n\n", content)
 
             # Rewrite
+
             with open(filepath, "w") as file:
                 file.write(content)
 
@@ -107,5 +108,5 @@ if __name__ == "__main__":
     if len(sys.argv) > 1:
         directory = sys.argv[1]
     # directory = "../pycfhelpers_doc/_build/markdown"
-
+        print(directory)
     fix_markdown_files(directory)
