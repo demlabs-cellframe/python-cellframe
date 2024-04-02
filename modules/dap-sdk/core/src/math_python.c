@@ -393,7 +393,7 @@ PyObject *math_python_calc_percent(PyObject *self, PyObject *argv){
     uint256_t l_o2 = uint256_0;
     uint256_t l_result = uint256_0;
     uint256_t l_base = dap_chain_balance_scan("100");
-    PyObject *obj_o2;
+    PyObject *obj_o2 = NULL;
     if (!PyArg_ParseTuple(argv, "O", obj_o2)){
         return NULL;
     }
