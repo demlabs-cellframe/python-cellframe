@@ -6,8 +6,6 @@ static PyMethodDef DapChainNetMethods[] = {
         {"start", dap_chain_net_start_py, METH_VARARGS, ""},
         {"stop", dap_chain_net_stop_py, METH_VARARGS, ""},
         {"linksEstablish", dap_chain_net_links_establish_py, METH_VARARGS, ""},
-        {"syncChains", dap_chain_net_sync_all_py, METH_VARARGS, ""},
-        {"syncGdb", dap_chain_net_sync_gdb_py, METH_VARARGS, ""},
         {"syncAll", dap_chain_net_sync_all_py, METH_VARARGS, ""},
         {"procDatapool", dap_chain_net_proc_datapool_py, METH_VARARGS, ""},
         {"byName", dap_chain_net_by_name_py, METH_VARARGS | METH_STATIC, ""},
@@ -84,16 +82,8 @@ PyObject *dap_chain_net_links_establish_py(PyObject *self, PyObject *args){
     int res = dap_chain_net_links_establish(((PyDapChainNetObject*)self)->chain_net);
     return PyLong_FromLong(res);
 }
-PyObject *dap_chain_net_sync_chains_py(PyObject *self, PyObject *args){
-    int res = dap_chain_net_sync_chains(((PyDapChainNetObject*)self)->chain_net);
-    return PyLong_FromLong(res);
-}
-PyObject *dap_chain_net_sync_gdb_py(PyObject *self, PyObject *args){
-    int res = dap_chain_net_sync_gdb(((PyDapChainNetObject*)self)->chain_net);
-    return PyLong_FromLong(res);
-}
 PyObject *dap_chain_net_sync_all_py(PyObject *self, PyObject *args){
-    int res = dap_chain_net_sync_all(((PyDapChainNetObject*)self)->chain_net);
+    int res = dap_chain_net_sync(((PyDapChainNetObject*)self)->chain_net);
     return PyLong_FromLong(res);
 }
 
