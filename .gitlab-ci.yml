@@ -7,7 +7,7 @@ documentation-job:       # This job runs in the build stage, which runs first.
     - docker
   image: python:3.10-bookworm
   script:
-    - ./build.sh
+    - bash ./build.sh
   artifacts:
     paths:
       - "release/"
