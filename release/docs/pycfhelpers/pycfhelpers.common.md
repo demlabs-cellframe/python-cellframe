@@ -12,7 +12,6 @@ Bases: `str`, `Enum`
 
 Enumeration of chain types.
 
-
 #### Attributes:
 
 ##### esbocs
@@ -21,11 +20,13 @@ esbocs chain type.
 
 * **Type:** *str*
 
-dag_poa
+##### dag_poa
 
 dag_poa chain type.
 
 * **Type:** *str*
+
+#### Methods:
 
 ##### \_generate_next_value_(start, count, last_values)
 
@@ -46,7 +47,6 @@ Bases: `str`, `Enum`
 
 Enumeration of datum types.
 
-
 #### Attributes:
 
 ##### DATUM_TX
@@ -55,7 +55,7 @@ Datum transaction type.
 
 * **Type:** *str*
 
-DATUM_TOKEN_DECL
+##### DATUM_TOKEN_DECL
 
 Datum token declaration type.
 
@@ -97,6 +97,8 @@ Datum anchor type.
 
 ##### DATUM_TX *= 'DATUM_TX'*
 
+#### Methods:
+
 ##### \_generate_next_value_(start, count, last_values)
 
 Generate the next value when not given.
@@ -112,12 +114,11 @@ Bases: `str`, `Enum`
 
 Enumeration of item types.
 
-
 #### Attributes:
 
 ##### DAP_CHAIN_TX_OUT_COND_SUBTYPE_SRV_PAY *= 'DAP_CHAIN_TX_OUT_COND_SUBTYPE_SRV_PAY'*
 
-DAP_CHAIN_TX_OUT_COND_SUBTYPE_SRV_STAKE_LOCK *= 'DAP_CHAIN_TX_OUT_COND_SUBTYPE_SRV_STAKE_LOCK'*
+##### DAP_CHAIN_TX_OUT_COND_SUBTYPE_SRV_STAKE_LOCK *= 'DAP_CHAIN_TX_OUT_COND_SUBTYPE_SRV_STAKE_LOCK'*
 
 ##### DAP_CHAIN_TX_OUT_COND_SUBTYPE_SRV_STAKE_POS_DELEGATE *= 'DAP_CHAIN_TX_OUT_COND_SUBTYPE_SRV_STAKE_POS_DELEGATE'*
 
@@ -146,6 +147,8 @@ DAP_CHAIN_TX_OUT_COND_SUBTYPE_SRV_STAKE_LOCK *= 'DAP_CHAIN_TX_OUT_COND_SUBTYPE_S
 ##### TX_ITEM_TYPE_VOTE *= 'TX_ITEM_TYPE_VOTE'*
 
 ##### TX_ITEM_TYPE_VOTING *= 'TX_ITEM_TYPE_VOTING'*
+
+#### Methods:
 
 ##### \_generate_next_value_(start, count, last_values)
 

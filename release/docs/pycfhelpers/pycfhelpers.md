@@ -96,10 +96,11 @@
   * [pycfhelpers.node.crypto module](pycfhelpers.node.md#module-pycfhelpers.node.crypto)
     * [`CFCertificate`](pycfhelpers.node.md#pycfhelpers.node.crypto.CFCertificate)
       * [`CFCertificate.pkey`](pycfhelpers.node.md#pycfhelpers.node.crypto.CFCertificate.pkey)
-      * [`CFCertificate.private_key`](pycfhelpers.node.md#pycfhelpers.node.crypto.CFCertificate.private_key)
+      * [`CFCertificate.key`](pycfhelpers.node.md#pycfhelpers.node.crypto.CFCertificate.key)
+      * [`CFCertificate._origin_certificate`](pycfhelpers.node.md#pycfhelpers.node.crypto.CFCertificate._origin_certificate)
       * [`CFCertificate.__init__()`](pycfhelpers.node.md#pycfhelpers.node.crypto.CFCertificate.__init__)
       * [`CFCertificate.delete()`](pycfhelpers.node.md#pycfhelpers.node.crypto.CFCertificate.delete)
-      * [`CFCertificate.private_key`](pycfhelpers.node.md#id0)
+      * [`CFCertificate.private_key`](pycfhelpers.node.md#pycfhelpers.node.crypto.CFCertificate.private_key)
       * [`CFCertificate.public_key`](pycfhelpers.node.md#pycfhelpers.node.crypto.CFCertificate.public_key)
     * [`CFKey`](pycfhelpers.node.md#pycfhelpers.node.crypto.CFKey)
       * [`CFKey.__init__()`](pycfhelpers.node.md#pycfhelpers.node.crypto.CFKey.__init__)
@@ -229,6 +230,9 @@
       * [`CFTxOutCond.__init__()`](pycfhelpers.node.md#pycfhelpers.node.items.CFTxOutCond.__init__)
     * [`CFTxOutCondSubtypeSrvPay`](pycfhelpers.node.md#pycfhelpers.node.items.CFTxOutCondSubtypeSrvPay)
     * [`CFTxOutCondSubtypeSrvStakeLock`](pycfhelpers.node.md#pycfhelpers.node.items.CFTxOutCondSubtypeSrvStakeLock)
+      * [`CFTxOutCondSubtypeSrvStakeLock.unlock`](pycfhelpers.node.md#pycfhelpers.node.items.CFTxOutCondSubtypeSrvStakeLock.unlock)
+      * [`CFTxOutCondSubtypeSrvStakeLock.value`](pycfhelpers.node.md#pycfhelpers.node.items.CFTxOutCondSubtypeSrvStakeLock.value)
+      * [`CFTxOutCondSubtypeSrvStakeLock.reinvest_percent`](pycfhelpers.node.md#pycfhelpers.node.items.CFTxOutCondSubtypeSrvStakeLock.reinvest_percent)
       * [`CFTxOutCondSubtypeSrvStakeLock.__init__()`](pycfhelpers.node.md#pycfhelpers.node.items.CFTxOutCondSubtypeSrvStakeLock.__init__)
     * [`CFTxOutCondSubtypeSrvStakePosDelegate`](pycfhelpers.node.md#pycfhelpers.node.items.CFTxOutCondSubtypeSrvStakePosDelegate)
     * [`CFTxOutCondSubtypeSrvXchange`](pycfhelpers.node.md#pycfhelpers.node.items.CFTxOutCondSubtypeSrvXchange)
@@ -276,7 +280,6 @@
   * [pycfhelpers.node.net module](pycfhelpers.node.md#module-pycfhelpers.node.net)
     * [`CFChain`](pycfhelpers.node.md#pycfhelpers.node.net.CFChain)
       * [`CFChain.net`](pycfhelpers.node.md#pycfhelpers.node.net.CFChain.net)
-      * [`CFChain._origin_chain`](pycfhelpers.node.md#pycfhelpers.node.net.CFChain._origin_chain)
       * [`CFChain.type`](pycfhelpers.node.md#pycfhelpers.node.net.CFChain.type)
       * [`CFChain.name`](pycfhelpers.node.md#pycfhelpers.node.net.CFChain.name)
       * [`CFChain.__init__()`](pycfhelpers.node.md#pycfhelpers.node.net.CFChain.__init__)
@@ -381,44 +384,44 @@
       * [`CFLedgerCacheResponse.DAP_LEDGER_TX_CHECK_SUM_INS_NOT_EQUAL_SUM_OUTS`](pycfhelpers.node.md#pycfhelpers.node.types.CFLedgerCacheResponse.DAP_LEDGER_TX_CHECK_SUM_INS_NOT_EQUAL_SUM_OUTS)
       * [`CFLedgerCacheResponse.DAP_LEDGER_TX_CHECK_REWARD_ITEM_ALREADY_USED`](pycfhelpers.node.md#pycfhelpers.node.types.CFLedgerCacheResponse.DAP_LEDGER_TX_CHECK_REWARD_ITEM_ALREADY_USED)
       * [`CFLedgerCacheResponse.DAP_LEDGER_TX_CHECK_REWARD_ITEM_ILLEGAL`](pycfhelpers.node.md#pycfhelpers.node.types.CFLedgerCacheResponse.DAP_LEDGER_TX_CHECK_REWARD_ITEM_ILLEGAL)
-      * [`CFLedgerCacheResponse.DAP_LEDGER_PERMISSION_CHECK_FAILED`](pycfhelpers.node.md#id1)
-      * [`CFLedgerCacheResponse.DAP_LEDGER_TX_ALREADY_CACHED`](pycfhelpers.node.md#id2)
-      * [`CFLedgerCacheResponse.DAP_LEDGER_TX_CHECK_EMISSION_NOT_FOUND`](pycfhelpers.node.md#id3)
-      * [`CFLedgerCacheResponse.DAP_LEDGER_TX_CHECK_INVALID_TX_SIGN`](pycfhelpers.node.md#id4)
-      * [`CFLedgerCacheResponse.DAP_LEDGER_TX_CHECK_INVALID_TX_SIZE`](pycfhelpers.node.md#id5)
-      * [`CFLedgerCacheResponse.DAP_LEDGER_TX_CHECK_IN_EMS_ALREADY_USED`](pycfhelpers.node.md#id6)
-      * [`CFLedgerCacheResponse.DAP_LEDGER_TX_CHECK_MULT256_OVERFLOW_EMS_LOCKED_X_RATE`](pycfhelpers.node.md#id7)
-      * [`CFLedgerCacheResponse.DAP_LEDGER_TX_CHECK_NO_OUT_EXT_FOR_GIRDLED_IN_EMS`](pycfhelpers.node.md#id8)
-      * [`CFLedgerCacheResponse.DAP_LEDGER_TX_CHECK_NO_OUT_ITEMS_FOR_BASE_TX`](pycfhelpers.node.md#id9)
-      * [`CFLedgerCacheResponse.DAP_LEDGER_TX_CHECK_NO_VERIFICATOR_SET`](pycfhelpers.node.md#id10)
-      * [`CFLedgerCacheResponse.DAP_LEDGER_TX_CHECK_NULL_TX`](pycfhelpers.node.md#id11)
-      * [`CFLedgerCacheResponse.DAP_LEDGER_TX_CHECK_OK`](pycfhelpers.node.md#id12)
-      * [`CFLedgerCacheResponse.DAP_LEDGER_TX_CHECK_OUT_ITEM_ALREADY_USED`](pycfhelpers.node.md#id13)
-      * [`CFLedgerCacheResponse.DAP_LEDGER_TX_CHECK_PKEY_HASHES_DONT_MATCH`](pycfhelpers.node.md#id14)
-      * [`CFLedgerCacheResponse.DAP_LEDGER_TX_CHECK_PREV_OUT_ALREADY_USED_IN_CURRENT_TX`](pycfhelpers.node.md#id15)
-      * [`CFLedgerCacheResponse.DAP_LEDGER_TX_CHECK_PREV_OUT_ITEM_NOT_FOUND`](pycfhelpers.node.md#id16)
-      * [`CFLedgerCacheResponse.DAP_LEDGER_TX_CHECK_PREV_TICKER_NOT_FOUND`](pycfhelpers.node.md#id17)
-      * [`CFLedgerCacheResponse.DAP_LEDGER_TX_CHECK_PREV_TOKEN_NOT_FOUND`](pycfhelpers.node.md#id18)
-      * [`CFLedgerCacheResponse.DAP_LEDGER_TX_CHECK_PREV_TX_NOT_FOUND`](pycfhelpers.node.md#id19)
-      * [`CFLedgerCacheResponse.DAP_LEDGER_TX_CHECK_REWARD_ITEM_ALREADY_USED`](pycfhelpers.node.md#id20)
-      * [`CFLedgerCacheResponse.DAP_LEDGER_TX_CHECK_REWARD_ITEM_ILLEGAL`](pycfhelpers.node.md#id21)
-      * [`CFLedgerCacheResponse.DAP_LEDGER_TX_CHECK_STAKE_LOCK_INVALID_TOKEN`](pycfhelpers.node.md#id22)
-      * [`CFLedgerCacheResponse.DAP_LEDGER_TX_CHECK_STAKE_LOCK_IN_EMS_ALREADY_USED`](pycfhelpers.node.md#id23)
-      * [`CFLedgerCacheResponse.DAP_LEDGER_TX_CHECK_STAKE_LOCK_NO_OUT_COND_FOR_IN_EMS`](pycfhelpers.node.md#id24)
-      * [`CFLedgerCacheResponse.DAP_LEDGER_TX_CHECK_STAKE_LOCK_OTHER_TICKER_EXPECTED`](pycfhelpers.node.md#id25)
-      * [`CFLedgerCacheResponse.DAP_LEDGER_TX_CHECK_STAKE_LOCK_TICKER_NOT_FOUND`](pycfhelpers.node.md#id26)
-      * [`CFLedgerCacheResponse.DAP_LEDGER_TX_CHECK_STAKE_LOCK_UNEXPECTED_VALUE`](pycfhelpers.node.md#id27)
-      * [`CFLedgerCacheResponse.DAP_LEDGER_TX_CHECK_SUM_INS_NOT_EQUAL_SUM_OUTS`](pycfhelpers.node.md#id28)
-      * [`CFLedgerCacheResponse.DAP_LEDGER_TX_CHECK_TICKER_NOT_FOUND`](pycfhelpers.node.md#id29)
-      * [`CFLedgerCacheResponse.DAP_LEDGER_TX_CHECK_TOKEN_EMS_VALUE_EXEEDS_CUR_SUPPLY`](pycfhelpers.node.md#id30)
-      * [`CFLedgerCacheResponse.DAP_LEDGER_TX_CHECK_TX_NO_VALID_INPUTS`](pycfhelpers.node.md#id31)
-      * [`CFLedgerCacheResponse.DAP_LEDGER_TX_CHECK_VERIFICATOR_CHECK_FAILURE`](pycfhelpers.node.md#id32)
+      * [`CFLedgerCacheResponse.DAP_LEDGER_PERMISSION_CHECK_FAILED`](pycfhelpers.node.md#id0)
+      * [`CFLedgerCacheResponse.DAP_LEDGER_TX_ALREADY_CACHED`](pycfhelpers.node.md#id1)
+      * [`CFLedgerCacheResponse.DAP_LEDGER_TX_CHECK_EMISSION_NOT_FOUND`](pycfhelpers.node.md#id2)
+      * [`CFLedgerCacheResponse.DAP_LEDGER_TX_CHECK_INVALID_TX_SIGN`](pycfhelpers.node.md#id3)
+      * [`CFLedgerCacheResponse.DAP_LEDGER_TX_CHECK_INVALID_TX_SIZE`](pycfhelpers.node.md#id4)
+      * [`CFLedgerCacheResponse.DAP_LEDGER_TX_CHECK_IN_EMS_ALREADY_USED`](pycfhelpers.node.md#id5)
+      * [`CFLedgerCacheResponse.DAP_LEDGER_TX_CHECK_MULT256_OVERFLOW_EMS_LOCKED_X_RATE`](pycfhelpers.node.md#id6)
+      * [`CFLedgerCacheResponse.DAP_LEDGER_TX_CHECK_NO_OUT_EXT_FOR_GIRDLED_IN_EMS`](pycfhelpers.node.md#id7)
+      * [`CFLedgerCacheResponse.DAP_LEDGER_TX_CHECK_NO_OUT_ITEMS_FOR_BASE_TX`](pycfhelpers.node.md#id8)
+      * [`CFLedgerCacheResponse.DAP_LEDGER_TX_CHECK_NO_VERIFICATOR_SET`](pycfhelpers.node.md#id9)
+      * [`CFLedgerCacheResponse.DAP_LEDGER_TX_CHECK_NULL_TX`](pycfhelpers.node.md#id10)
+      * [`CFLedgerCacheResponse.DAP_LEDGER_TX_CHECK_OK`](pycfhelpers.node.md#id11)
+      * [`CFLedgerCacheResponse.DAP_LEDGER_TX_CHECK_OUT_ITEM_ALREADY_USED`](pycfhelpers.node.md#id12)
+      * [`CFLedgerCacheResponse.DAP_LEDGER_TX_CHECK_PKEY_HASHES_DONT_MATCH`](pycfhelpers.node.md#id13)
+      * [`CFLedgerCacheResponse.DAP_LEDGER_TX_CHECK_PREV_OUT_ALREADY_USED_IN_CURRENT_TX`](pycfhelpers.node.md#id14)
+      * [`CFLedgerCacheResponse.DAP_LEDGER_TX_CHECK_PREV_OUT_ITEM_NOT_FOUND`](pycfhelpers.node.md#id15)
+      * [`CFLedgerCacheResponse.DAP_LEDGER_TX_CHECK_PREV_TICKER_NOT_FOUND`](pycfhelpers.node.md#id16)
+      * [`CFLedgerCacheResponse.DAP_LEDGER_TX_CHECK_PREV_TOKEN_NOT_FOUND`](pycfhelpers.node.md#id17)
+      * [`CFLedgerCacheResponse.DAP_LEDGER_TX_CHECK_PREV_TX_NOT_FOUND`](pycfhelpers.node.md#id18)
+      * [`CFLedgerCacheResponse.DAP_LEDGER_TX_CHECK_REWARD_ITEM_ALREADY_USED`](pycfhelpers.node.md#id19)
+      * [`CFLedgerCacheResponse.DAP_LEDGER_TX_CHECK_REWARD_ITEM_ILLEGAL`](pycfhelpers.node.md#id20)
+      * [`CFLedgerCacheResponse.DAP_LEDGER_TX_CHECK_STAKE_LOCK_INVALID_TOKEN`](pycfhelpers.node.md#id21)
+      * [`CFLedgerCacheResponse.DAP_LEDGER_TX_CHECK_STAKE_LOCK_IN_EMS_ALREADY_USED`](pycfhelpers.node.md#id22)
+      * [`CFLedgerCacheResponse.DAP_LEDGER_TX_CHECK_STAKE_LOCK_NO_OUT_COND_FOR_IN_EMS`](pycfhelpers.node.md#id23)
+      * [`CFLedgerCacheResponse.DAP_LEDGER_TX_CHECK_STAKE_LOCK_OTHER_TICKER_EXPECTED`](pycfhelpers.node.md#id24)
+      * [`CFLedgerCacheResponse.DAP_LEDGER_TX_CHECK_STAKE_LOCK_TICKER_NOT_FOUND`](pycfhelpers.node.md#id25)
+      * [`CFLedgerCacheResponse.DAP_LEDGER_TX_CHECK_STAKE_LOCK_UNEXPECTED_VALUE`](pycfhelpers.node.md#id26)
+      * [`CFLedgerCacheResponse.DAP_LEDGER_TX_CHECK_SUM_INS_NOT_EQUAL_SUM_OUTS`](pycfhelpers.node.md#id27)
+      * [`CFLedgerCacheResponse.DAP_LEDGER_TX_CHECK_TICKER_NOT_FOUND`](pycfhelpers.node.md#id28)
+      * [`CFLedgerCacheResponse.DAP_LEDGER_TX_CHECK_TOKEN_EMS_VALUE_EXEEDS_CUR_SUPPLY`](pycfhelpers.node.md#id29)
+      * [`CFLedgerCacheResponse.DAP_LEDGER_TX_CHECK_TX_NO_VALID_INPUTS`](pycfhelpers.node.md#id30)
+      * [`CFLedgerCacheResponse.DAP_LEDGER_TX_CHECK_VERIFICATOR_CHECK_FAILURE`](pycfhelpers.node.md#id31)
       * [`CFLedgerCacheResponse._generate_next_value_()`](pycfhelpers.node.md#pycfhelpers.node.types.CFLedgerCacheResponse._generate_next_value_)
     * [`CFNetState`](pycfhelpers.node.md#pycfhelpers.node.types.CFNetState)
       * [`CFNetState.NET_STATE_OFFLINE`](pycfhelpers.node.md#pycfhelpers.node.types.CFNetState.NET_STATE_OFFLINE)
       * [`CFNetState.NET_STATE_ONLINE`](pycfhelpers.node.md#pycfhelpers.node.types.CFNetState.NET_STATE_ONLINE)
-      * [`CFNetState.NET_STATE_OFFLINE`](pycfhelpers.node.md#id33)
-      * [`CFNetState.NET_STATE_ONLINE`](pycfhelpers.node.md#id34)
+      * [`CFNetState.NET_STATE_OFFLINE`](pycfhelpers.node.md#id32)
+      * [`CFNetState.NET_STATE_ONLINE`](pycfhelpers.node.md#id33)
       * [`CFNetState._generate_next_value_()`](pycfhelpers.node.md#pycfhelpers.node.types.CFNetState._generate_next_value_)
     * [`TSD`](pycfhelpers.node.md#pycfhelpers.node.types.TSD)
       * [`TSD.TYPE_UNKNOWN`](pycfhelpers.node.md#pycfhelpers.node.types.TSD.TYPE_UNKNOWN)
@@ -440,25 +443,25 @@
       * [`TSD.TYPE_BASE_TX_HASH`](pycfhelpers.node.md#pycfhelpers.node.types.TSD.TYPE_BASE_TX_HASH)
       * [`TSD.TYPE_EMISSION_CENTER_UID`](pycfhelpers.node.md#pycfhelpers.node.types.TSD.TYPE_EMISSION_CENTER_UID)
       * [`TSD.TYPE_EMISSION_CENTER_VER`](pycfhelpers.node.md#pycfhelpers.node.types.TSD.TYPE_EMISSION_CENTER_VER)
-      * [`TSD.TYPE_ADDRESS`](pycfhelpers.node.md#id35)
-      * [`TSD.TYPE_BASE_TX_HASH`](pycfhelpers.node.md#id36)
-      * [`TSD.TYPE_BLOCK_NUM`](pycfhelpers.node.md#id37)
-      * [`TSD.TYPE_CONTRACT`](pycfhelpers.node.md#id38)
-      * [`TSD.TYPE_DATA`](pycfhelpers.node.md#id39)
-      * [`TSD.TYPE_EMISSION_CENTER_UID`](pycfhelpers.node.md#id40)
-      * [`TSD.TYPE_EMISSION_CENTER_VER`](pycfhelpers.node.md#id41)
-      * [`TSD.TYPE_NET_ID`](pycfhelpers.node.md#id42)
-      * [`TSD.TYPE_OUTER_TX_HASH`](pycfhelpers.node.md#id43)
-      * [`TSD.TYPE_SENDER`](pycfhelpers.node.md#id44)
-      * [`TSD.TYPE_SIGNATURS`](pycfhelpers.node.md#id45)
-      * [`TSD.TYPE_SOURCE`](pycfhelpers.node.md#id46)
-      * [`TSD.TYPE_SOURCE_SUBTYPE`](pycfhelpers.node.md#id47)
-      * [`TSD.TYPE_TIMESTAMP`](pycfhelpers.node.md#id48)
-      * [`TSD.TYPE_TOKEN_ADDRESS`](pycfhelpers.node.md#id49)
-      * [`TSD.TYPE_TOKEN_SYM`](pycfhelpers.node.md#id50)
-      * [`TSD.TYPE_UNIQUE_ID`](pycfhelpers.node.md#id51)
-      * [`TSD.TYPE_UNKNOWN`](pycfhelpers.node.md#id52)
-      * [`TSD.TYPE_VALUE`](pycfhelpers.node.md#id53)
+      * [`TSD.TYPE_ADDRESS`](pycfhelpers.node.md#id34)
+      * [`TSD.TYPE_BASE_TX_HASH`](pycfhelpers.node.md#id35)
+      * [`TSD.TYPE_BLOCK_NUM`](pycfhelpers.node.md#id36)
+      * [`TSD.TYPE_CONTRACT`](pycfhelpers.node.md#id37)
+      * [`TSD.TYPE_DATA`](pycfhelpers.node.md#id38)
+      * [`TSD.TYPE_EMISSION_CENTER_UID`](pycfhelpers.node.md#id39)
+      * [`TSD.TYPE_EMISSION_CENTER_VER`](pycfhelpers.node.md#id40)
+      * [`TSD.TYPE_NET_ID`](pycfhelpers.node.md#id41)
+      * [`TSD.TYPE_OUTER_TX_HASH`](pycfhelpers.node.md#id42)
+      * [`TSD.TYPE_SENDER`](pycfhelpers.node.md#id43)
+      * [`TSD.TYPE_SIGNATURS`](pycfhelpers.node.md#id44)
+      * [`TSD.TYPE_SOURCE`](pycfhelpers.node.md#id45)
+      * [`TSD.TYPE_SOURCE_SUBTYPE`](pycfhelpers.node.md#id46)
+      * [`TSD.TYPE_TIMESTAMP`](pycfhelpers.node.md#id47)
+      * [`TSD.TYPE_TOKEN_ADDRESS`](pycfhelpers.node.md#id48)
+      * [`TSD.TYPE_TOKEN_SYM`](pycfhelpers.node.md#id49)
+      * [`TSD.TYPE_UNIQUE_ID`](pycfhelpers.node.md#id50)
+      * [`TSD.TYPE_UNKNOWN`](pycfhelpers.node.md#id51)
+      * [`TSD.TYPE_VALUE`](pycfhelpers.node.md#id52)
   * [Module contents](pycfhelpers.node.md#module-pycfhelpers.node)
 
 ## Submodules
@@ -469,7 +472,6 @@
 
 The Cellframe base transaction datum.
 
-
 #### Attributes:
 
 ##### datum
@@ -478,7 +480,7 @@ The base transaction datum.
 
 * **Type:** *DatumEmission*
 
-block
+##### block
 
 The block associated with the datum.
 
@@ -535,7 +537,7 @@ Initialize a CellframeBaseTransactionDatum instance.
   * **block** (*Any* *|* *None* *,* *optional*) – The block associated with the
     datum. Defaults to None.
 * **Raises:**
-  **RuntimeError** – If datum not base of transaction.
+	* **RuntimeError** – If datum not base of transaction.
 
 ##### emission()
 
@@ -576,7 +578,6 @@ Retrieve the token associated with the base transaction datum.
 
 Represents a Cellframe emission.
 
-
 #### Attributes:
 
 ##### datum
@@ -584,7 +585,7 @@ Represents a Cellframe emission.
 The emission datum.
 * **Type:** *DatumEmission*
 
-event
+##### event
 
 The DAG event associated with
 the emission. Defaults to None.
@@ -618,7 +619,7 @@ Initialize a CellframeEmission instance.
 Get the TSD value for a given type.
 
 * **Parameters:**
-  **type** (*int*) – The type of TSD to retrieve.
+	* **type** (*int*) – The type of TSD to retrieve.
 * **Returns:** The TSD value if found decoded in
   : the format utf-8, otherwise None.
 * **Return type:** *(str | None, optional)*
@@ -634,7 +635,6 @@ Set the TSD value for a given type.
 
 The Cellframe network.
 
-
 #### Attributes:
 
 ##### main
@@ -643,7 +643,7 @@ The main chain of the network.
 
 * **Type:** *Chain*
 
-zerochain
+##### zerochain
 
 The zerochain of the network.
 
@@ -683,7 +683,7 @@ Initializes a CellframeNetwork instance.
   * **commision_wallet** (*Any* *|* *None* *,* *optional*) – The commission wallet
     associated with the network. Defaults to None.
 * **Raises:**
-  **RuntimeError** – If network with specified name does not exist.
+	* **RuntimeError** – If network with specified name does not exist.
 
 ##### all_tx_from_blocks()
 
@@ -774,7 +774,7 @@ Example:
 Retrieve the emission by the given TSD dictionary.
 
 * **Parameters:**
-  **tsd_dict** (*Dict* *[**str* *,* *Any* *]*) – The TSD dictionary.
+	* **tsd_dict** (*Dict* *[**str* *,* *Any* *]*) – The TSD dictionary.
 * **Returns:** The retrieved emissions.
 * **Return type:** *Dict[str, [CellframeEmission](#pycfhelpers.cellframenet.CellframeEmission)]*
 
@@ -782,7 +782,7 @@ Retrieve the emission by the given TSD dictionary.
 
 Retrieve the emission from the mempool by the given TSD dictionary.
 * **Parameters:**
-  **tsd_dict** (*Dict* *[**str* *,* *Any* *]*) – The TSD dictionary.
+	* **tsd_dict** (*Dict* *[**str* *,* *Any* *]*) – The TSD dictionary.
 * **Returns:** The retrieved emissions.
 * **Return type:** *Dict[str, [CellframeEmission](#pycfhelpers.cellframenet.CellframeEmission)]*
 
@@ -790,7 +790,7 @@ Retrieve the emission from the mempool by the given TSD dictionary.
 
 Retrieve transactions to the given wallet address from the blocks.
 * **Parameters:**
-  **address** (*str*) – The wallet address.
+	* **address** (*str*) – The wallet address.
 * **Returns:** The list of transactions
   : to the wallet address.
 * **Return type:** *List[[CellframeBaseTransactionDatum](#pycfhelpers.cellframenet.CellframeBaseTransactionDatum)]*
@@ -805,7 +805,7 @@ Retrieve the group alias of the network.
 
 Retrieve the ledger transaction by its hash.
 * **Parameters:**
-  **txh** (*str*) – The transaction hash.
+	* **txh** (*str*) – The transaction hash.
 * **Returns:** The ledger transaction.
 * **Return type:** *tx (str)*
 
@@ -813,7 +813,7 @@ Retrieve the ledger transaction by its hash.
 
 Load the certificate with the given name.
 * **Parameters:**
-  **certname** (*str*) – The name of the certificate.
+	* **certname** (*str*) – The name of the certificate.
 * **Returns:** The loaded certificate.
 * **Return type:** *Any*
 
@@ -823,7 +823,7 @@ Load the certificate with the given name.
 
 Retrieve the emission from the mempool by the given key.
 * **Parameters:**
-  **key** (*Any*) – The key.
+	* **key** (*Any*) – The key.
 * **Returns:** The retrieved emission.
 * **Return type:** *(CellframeEmission ???)*
 
@@ -831,7 +831,7 @@ Retrieve the emission from the mempool by the given key.
 
 List the mempool of the given chain.
 * **Parameters:**
-  **chain** (*Chain*) – The chain.
+	* **chain** (*Chain*) – The chain.
 * **Returns:** The mempool.
 * **Return type:** *List[???]*
 
@@ -853,7 +853,7 @@ Retrieve the net ID of the network.
 
 Retrieve the net ID from the given wallet address.
 * **Parameters:**
-  **wallet** (*str*) – The wallet address.
+	* **wallet** (*str*) – The wallet address.
 * **Returns:** The net ID.
 * **Return type:** *int*
 
@@ -894,21 +894,21 @@ Set the atom notification callback for the given chain.
 Set the Global data base synchronization notification callback.
 
 * **Parameters:**
-  **callback** (*Callable*) – The callback function.
+	* **callback** (*Callable*) – The callback function.
 
 ##### set_ledger_bridge_tx_notification_callback(callback)
 
 Set the ledger bridge transaction notification callback.
 
 * **Parameters:**
-  **callback** (*Callable*) – The callback function.
+	* **callback** (*Callable*) – The callback function.
 
 ##### set_ledger_tx_notification_callback(callback)
 
 Set the ledger transaction notification callback.
 
 * **Parameters:**
-  **callback** (*Callable*) – The callback function.
+	* **callback** (*Callable*) – The callback function.
 
 ##### set_mempool_notification_callback(chain, callback)
 
@@ -923,7 +923,7 @@ Set the mempool notification callback for the given chain.
 Retrieve the sender wallet address from the given transaction.
 
 * **Parameters:**
-  **tx** (*Any*) – The transaction.
+	* **tx** (*Any*) – The transaction.
 * **Returns:** The sender wallet address,
   : if found, otherwise None.
 * **Return type:** *(Sign | None, optional)*
@@ -932,7 +932,7 @@ Retrieve the sender wallet address from the given transaction.
 
 Retrieve the wallet address from the given signature bytes.
 * **Parameters:**
-  **sigbytes** (*bytes*) – The signature bytes.
+	* **sigbytes** (*bytes*) – The signature bytes.
 * **Returns:** The wallet address.
 * **Return type:** *str*
 
@@ -942,14 +942,13 @@ Retrieve the wallet address from the given signature bytes.
 
 Types of Typed section data.
 
-
 #### Attributes:
 
 ##### TYPE_UNKNOWN
 
 Unknown type.
 
-TYPE_TIMESTAMP
+##### TYPE_TIMESTAMP
 
 Timestamp type.
 
@@ -1071,7 +1070,6 @@ The table in the global database.
 
 Provides methods to interact with a specific table in the global database.
 
-
 #### Attributes:
 
 ##### table
@@ -1079,19 +1077,21 @@ Provides methods to interact with a specific table in the global database.
 The name of the table.
 * **Type:** *str*
 
-\_\_init_\_(table)
+#### Methods:
+
+##### \_\_init_\_(table)
 
 Initialize a GDBTable object with the given table name.
 
 * **Parameters:**
-  **table** (*str*) – The name of the table.
+	* **table** (*str*) – The name of the table.
 
 ##### delete(key)
 
 Delete the key-value pair associated with the given key from the table.
 
 * **Parameters:**
-  **key** (*str*) – The key to delete.
+	* **key** (*str*) – The key to delete.
 
 ##### get(key, default)
 
@@ -1135,7 +1135,6 @@ A cache implementation using a list.
 
 This class provides a caching mechanism using a list with a specified capacity.
 
-
 #### Attributes:
 
 ##### capacity
@@ -1144,7 +1143,7 @@ The maximum capacity of the cache.
 
 * **Type:** *int*
 
-data
+##### data
 
 The list to store cached items.
 
@@ -1157,14 +1156,14 @@ The list to store cached items.
 Initialize a ListCache object with the given capacity.
 
 * **Parameters:**
-  **capacity** (*int*) – The maximum capacity of the cache.
+	* **capacity** (*int*) – The maximum capacity of the cache.
 
 ##### add(data)
 
 Add data to the cache.
 
 * **Parameters:**
-  **data** – The data to add to the cache.
+	* **data** – The data to add to the cache.
 
 ##### data()
 
@@ -1216,7 +1215,7 @@ Get a list of transaction outputs of the specified type from a transaction.
 
 Serialize Python object to a JSON formatted string.
 * **Parameters:**
-  **data** – The Python object to be serialized.
+	* **data** – The Python object to be serialized.
 * **Returns:** The JSON formatted string representing the serialized object.
 * **Return type:** *str*
 
@@ -1224,7 +1223,7 @@ Serialize Python object to a JSON formatted string.
 
 Deserialize JSON formatted string to a Python object.
 * **Parameters:**
-  **data** (*str*) – The JSON formatted string to be deserialized.
+	* **data** (*str*) – The JSON formatted string to be deserialized.
 * **Returns:** The Python object deserialized from the JSON string, or None if deserialization fails.
 * **Return type:** *Any*
 
@@ -1249,6 +1248,6 @@ Initialize Tornado HTTP server.
   * **handler** (*callable*) – Function to handle incoming requests.
   * **port** (*int*) – Port number to listen on.
 * **Raises:**
-  **BaseException** – If Tornado is not installed, external http-server will be unavailable.
+	* **BaseException** – If Tornado is not installed, external http-server will be unavailable.
 
 ## Module contents
