@@ -1,0 +1,16 @@
+stages:          # List of stages for jobs, and their order of execution
+  - documentation
+
+documentation-job:       # This job runs in the build stage, which runs first.
+  stage: documentation
+  tags:
+    - docker
+  image: python:3.10-bookworm
+  script:
+    - bash ./build.sh
+  artifacts:
+    paths:
+      - "release/"
+    untracked: false
+    when: on_success
+    expire_in: 30 days

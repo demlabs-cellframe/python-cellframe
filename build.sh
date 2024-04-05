@@ -40,28 +40,24 @@ sed -i '/napoleon_include_special_with_doc = True/a napoleon_include_init_with_d
 
 sphinx-build -b markdown . _build/pycfhelpers/markdown
 
-pwd
-
 # pycftools documentation
-cd ../
 
-pwd
+cd ../
 
 rm -rf pycftools_docs
 mkdir -p pycftools_docs
 cd pycftools_docs
 
-pwd
-
 { echo "n"; echo "Python documentation"; echo "Demlabs"; echo "1";  echo "en"; } | sphinx-quickstart
 
-sphinx-apidoc -f -o . ../../../dists/python-modules/pycftools/
+sphinx-apidoc -f -o . ../../../dists/python-modules/pycftools/database/
+sphinx-apidoc -o . ../../../dists/python-modules/pycftools/schemas/
 
 sed -i '1s/^/import os\n/' conf.py
 
 sed -i '2s/^/import sys\n/' conf.py
 
-sed -i '3s|^|sys.path.insert(0, os.path.abspath("../../../dists/python-modules"))\n|' conf.py
+sed -i '3s|^|sys.path.insert(0, os.path.abspath("../../../dists/python-modules/pycftools"))\n|' conf.py
 
 sed -i 's#extensions = \[\]#extensions = \["sphinx.ext.autodoc", "sphinx.ext.napoleon", "sphinx_markdown_builder"\]#' conf.py
 
