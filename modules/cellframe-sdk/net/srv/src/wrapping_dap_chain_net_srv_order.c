@@ -1,5 +1,6 @@
 #include "wrapping_dap_chain_net_srv_order.h"
 #include "python-cellframe_common.h"
+#include "wrapping_cert.h"
 
 #define WRAPPING_DAP_CHAIN_NET_SRV_ORDER(a) ((PyDapChainNetSrvOrderObject*)a)
 
@@ -301,7 +302,8 @@ PyObject *wrapping_dap_chain_net_srv_order_delete(PyObject *self, PyObject *args
     (void)self;
     PyDapChainNetObject *obj_net;
     PyDapHashFastObject *obj_order_hash;
-    if (!PyArg_ParseTuple(args, "OO", &obj_net, &obj_order_hash)){
+    PyCryptoCertObject  *obj_cert;
+    if (!PyArg_ParseTuple(args, "OO", &obj_net, &obj_order_hash, &obj_cert)){
         PyErr_SetString(PyExc_ValueError, "Function takes exactly two arguments");
         return NULL;
     }
@@ -309,15 +311,19 @@ PyObject *wrapping_dap_chain_net_srv_order_delete(PyObject *self, PyObject *args
         PyErr_SetString(PyExc_ValueError, "The first argument must be ChainNet object");
         return NULL;
     }
+    if(PyDapCryptoCertObject_Check(obj_cert)){
+        PyErr_SetString(PyExc_ValueError, "The third argument must be ChainNet object");
+        return NULL;
+    }
     int res = -1;
     if (PyUnicode_Check(obj_order_hash)){
         const char *l_str = PyUnicode_AsUTF8((PyObject *)obj_order_hash);
-        res = dap_chain_net_srv_order_delete_by_hash_str_sync(obj_net->chain_net, l_str);
+        res = dap_chain_net_srv_order_delete_by_hash_str_sync(obj_net->chain_net, l_str, obj_cert->cert->enc_key);
         return Py_BuildValue("i", res);
     }
     if (PyDapHashFast_Check(obj_order_hash)) {
         res =dap_chain_net_srv_order_delete_by_hash(obj_net->chain_net,
-                                               ((PyDapHashFastObject*)obj_order_hash)->hash_fast);
+                                               ((PyDapHashFastObject*)obj_order_hash)->hash_fast, obj_cert->cert->enc_key);
         return Py_BuildValue("i", res);
     }
     PyErr_SetString(PyExc_ValueError, "The second argument must be a string or HashFast object");
