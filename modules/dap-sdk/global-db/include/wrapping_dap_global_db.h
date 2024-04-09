@@ -5,9 +5,9 @@
 #include "wrapping_dap_global_db_obj.h"
 #include "dap_strfuncs.h"
 
-typedef struct PyDapChainGlobalDB{
+typedef struct PyDapGlobalDB{
     PyObject_HEAD
-}PyDapChainGlobalDBObject;
+}PyDapGlobalDBObject;
 
 PyObject *wrapping_dap_global_db_gr_get(PyObject *self, PyObject *args);
 PyObject *wrapping_dap_global_db_gr_set(PyObject *self, PyObject *args);
@@ -18,4 +18,4 @@ PyObject *wrapping_dap_global_db_gr_unpin(PyObject *self, PyObject *args);
 PyObject *wrapping_dap_global_db_gr_load(PyObject *self, PyObject *args);
 PyObject *wrapping_dap_global_db_add_sync_extra_group(PyObject *self, PyObject *args);
 
-extern PyTypeObject DapChainGlobalDBObjectType;
+extern PyTypeObject DapGlobalDBObjectType;

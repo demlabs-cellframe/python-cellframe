@@ -4,7 +4,7 @@
 #include "dap_events.h"
 #include "dap_proc_thread.h"
 
-static PyMethodDef DapChainGlobalDBMethods[] = {
+static PyMethodDef DapGlobalDBMethods[] = {
         {"get", (PyCFunction)wrapping_dap_global_db_gr_get, METH_VARARGS | METH_STATIC, ""},
         {"set", (PyCFunction)wrapping_dap_global_db_gr_set, METH_VARARGS | METH_STATIC, ""},
         {"set_sync", (PyCFunction)wrapping_dap_global_db_gr_set_sync, METH_VARARGS | METH_STATIC, ""},
@@ -16,10 +16,10 @@ static PyMethodDef DapChainGlobalDBMethods[] = {
         {NULL, NULL, 0, NULL}
 };
 
-PyTypeObject DapChainGlobalDBObjectType = DAP_PY_TYPE_OBJECT(
-        "CellFrame.ChainGlobalDB", sizeof(PyDapChainGlobalDBObject),
-        "Chain GlobalDB object",
-        .tp_methods = DapChainGlobalDBMethods);
+PyTypeObject DapGlobalDBObjectType = DAP_PY_TYPE_OBJECT(
+        "DAP.GlobalDB.DB", sizeof(PyDapGlobalDBObject),
+        "GlobalDB.DB object",
+        .tp_methods = DapGlobalDBMethods);
 
 PyObject *wrapping_dap_global_db_gr_get(PyObject *self, PyObject *args){
     (void)self;
@@ -162,8 +162,8 @@ PyObject *wrapping_dap_global_db_gr_load(PyObject *self, PyObject *args){
     }
     PyObject* l_list = PyList_New(l_data_out);
     for (size_t i = 0; i < l_data_out; i++){
-        PyDapChainGlobalDBContainerObject *l_obj = PyObject_New(PyDapChainGlobalDBContainerObject ,
-                                                                &DapChainGlobalDBContainerObjectType);
+        PyDapGlobalDBContainerObject *l_obj = PyObject_New(PyDapGlobalDBContainerObject ,
+                                                                &DapGlobalDBContainerObjectType);
         l_obj->obj = l_db_obj[i];
         PyList_SetItem(l_list, i, (PyObject*)l_obj);
     }
