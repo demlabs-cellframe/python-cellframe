@@ -479,7 +479,10 @@ PyMODINIT_FUNC PyInit_libDAP()
         PyType_Ready( &DapJsonRpcResponseobjectType ) < 0 ||
         // === Network ==
         PyType_Ready( &DapGlobalDBObjectType ) < 0 ||
-        PyType_Ready( &DapGlobalDBContainerObjectType) < 0
+        PyType_Ready( &DapGlobalDBContainerObjectType ) < 0 ||
+        PyType_Ready( &DapGlobalDBInstanceObjectType ) < 0 ||
+        PyType_Ready( &DapGlobalDBRoleObjectType ) < 0 ||
+        PyType_Ready( &DapGlobalDBRolesObjectType ) < 0
         ) {
         log_it(L_CRITICAL,"Not all python type objects are initialized for DAP module");
         return NULL;
@@ -521,6 +524,10 @@ PyMODINIT_FUNC PyInit_libDAP()
     PyObject *globalDBModule = PyModule_Create(&DapGlobalDBPythonModule);
     PyModule_AddObject(globalDBModule, "DB", (PyObject*)&DapGlobalDBObjectType);
     PyModule_AddObject(globalDBModule, "Container", (PyObject*)&DapGlobalDBContainerObjectType);
+    PyModule_AddObject(globalDBModule, "Instance", (PyObject*)&DapGlobalDBInstanceObjectType);
+    //Object with role for member global DB cluster
+    PyObject *globalDBClusterRoles = PyObject_New(PyObject, &DapGlobalDBRolesObjectType);
+    PyModule_AddObject(globalDBModule, "MemberRoles", globalDBClusterRoles);
 
     PyObject *dapModule = PyModule_Create(&DapPythonModule);
     PyModule_AddStringConstant(dapModule, "__author__", "Alexey Stratulat <alexey.stratulat@demlabs.net>");

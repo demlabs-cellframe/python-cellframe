@@ -7,6 +7,11 @@
 #include "wrapping_dap_crypto_key_types.h"
 #include "libdap_crypto_data_type.h"
 #include "wrapping_dap_sign.h"
+// === GlobalDB ==
+#include "wrapping_dap_global_db.h"
+#include "wrapping_dap_global_db_obj.h"
+#include "wrapping_dap_global_db_instance.h"
+#include "wrapping_dap_global_db_role.h"
 // === CHAIN ==
 #include "libdap-chain-python.h"
 #include "libdap_chain_type_python.h"
@@ -35,8 +40,6 @@
 #include "wrapping_dap_chain_tx_out_ext.h"
 #include "wrapping_dap_chain_tx_tsd.h"
 #include "wrapping_dap_chain_datum_tx_voting.h"
-#include "wrapping_dap_global_db.h"
-#include "wrapping_dap_global_db_obj.h"
 // ============
 // === Chain net ===
 #include "libdap_chain_net_python.h"
