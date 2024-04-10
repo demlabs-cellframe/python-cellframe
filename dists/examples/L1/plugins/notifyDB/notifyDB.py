@@ -14,4 +14,3 @@ def init():
     net = Net.byName("kelvin-testnet")
     net.addNotify(notify_net_db, "This is notificator work with net db in network "+str(net))
     return 0
-

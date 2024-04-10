@@ -100,7 +100,7 @@ Represents a simple HTTP server.
 
 ##### \_\_init_\_()
 
-Initializate a CFSimpleHTTPServer object.
+Initializate a CFSimpleHTTPServer instanse.
 
 ##### *static* handler(uri: str, methods: list[str] = ('GET',), \*\*kwargs)
 

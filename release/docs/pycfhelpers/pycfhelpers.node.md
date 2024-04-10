@@ -1431,63 +1431,63 @@ Initialize a new CFLog instance.
 
 ##### att(message: str)
 
-Log an attention message.
+Log a message with the ATTENTION level.
 
 * **Parameters:**
 	* **message** (*str*) – The attention message.
 
 ##### critical(message: str)
 
-Log a critical error message.
+Log a message with the CRITICAL level
 
 * **Parameters:**
 	* **message** (*str*) – The critical error message.
 
 ##### dap(message: str)
 
-Log a message specific to the DAP framework.
+Log a message with the DAP level
 
 * **Parameters:**
 	* **message** (*str*) – The DAP-specific message.
 
 ##### debug(message: str)
 
-Log a debug message.
+Log a message with the DEBUG level.
 
 * **Parameters:**
 	* **message** (*str*) – The debug message.
 
 ##### error(message: str)
 
-Log an error message.
+Log a message with the ERROR level.
 
 * **Parameters:**
 	* **message** (*str*) – The error message.
 
 ##### info(message: str)
 
-Log an informational message.
+Log a message with the INFO level
 
 * **Parameters:**
 	* **message** (*str*) – The informational message.
 
 ##### message(message: str)
 
-Log a generic message.
+Log a message with the MESSAGE level
 
 * **Parameters:**
 	* **message** (*str*) – The generic message.
 
 ##### notice(message: str)
 
-Log a notice message.
+Log a message with the NOTICE level.
 
 * **Parameters:**
 	* **message** (*str*) – The notice message.
 
 ##### warning(message: str)
 
-Log a warning message.
+Log a message with the WARNING level.
 
 * **Parameters:**
 	* **message** (*str*) – The warning message.

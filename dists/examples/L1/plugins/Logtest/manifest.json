@@ -1,0 +1,8 @@
+{ 
+    "name": "Logtest",
+    "version": "1.0",
+    "author": "DEMLABS (C) 2024",
+    "dependencies": [],
+    "type": "python",
+    "description": "This plugin provides a log messages"
+}
