@@ -10,10 +10,17 @@ from urllib.request import Request, urlopen
 # The http.simple module provides classes for implementing a
 # simple HTTP server and handling HTTP requests.
 
+# So that the CellFrame-node can accept requests,
+# You need to set up a config file.
+
+# Go to the server part and set enabled=true.
+# To send requests you will also need
+# listen_port_tcp and listen_address (from [notify_server]) values.
+
 URI_1 = "/example"
 URI_2 = "/another"
-LISTEN_PORT_TCP = "8079"  # default value from opt\cellframe-node\etc\cellframe-node.cfg
-LISTEN_ADDRESS = "127.0.0.1"  # default value from opt\cellframe-node\etc\cellframe-node.cfg
+LISTEN_PORT_TCP = "8079"  # default value from config file.
+LISTEN_ADDRESS = "127.0.0.1"  # default value from config file.
 
 
 # Create function to send request with
