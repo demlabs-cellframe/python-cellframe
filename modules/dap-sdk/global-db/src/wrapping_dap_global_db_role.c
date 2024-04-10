@@ -3,13 +3,6 @@
 
 #define PVT(a) ((PyGlobalDBRoleObject*)a)->role
 
-static PyGetSetDef DapGlobalDBGetsSets[] = {
-    {}
-};
-static PyMethodDef DapGlobalDBRole[] = {
-    {NULL, NULL, 0, NULL}
-};
-
 PyObject *DapGlobalDBRoleObject_compare(PyObject *self, PyObject *other, int op) {
     if (!PyObject_TypeCheck(other, &DapGlobalDBRolesObjectType)) {
         return Py_NotImplemented;
@@ -37,12 +30,12 @@ PyTypeObject DapGlobalDBRoleObjectType = DAP_PY_TYPE_OBJECT("DAP.GlobalDB.Cluste
                                                             .tp_richcompare = DapGlobalDBRoleObject_compare);
 
 static PyGetSetDef DapGlobalDBRolesGetsSets[] = {
-    {"NOBODY", (getter)ROLE_NOBODY, NULL, NULL, ""},
-    {"GUEST", (getter)ROLE_GUEST, NULL, NULL, ""},
-    {"USER", (getter)ROLE_USER, NULL, NULL, ""},
-    {"ROOT", (getter)ROLE_ROOT, NULL, NULL, ""},
-    {"DEFAULT", (getter)ROLE_DEFAULT, NULL, NULL, ""},
-    {"INVALID", (getter)ROLE_INVALID, NULL, NULL, ""},
+    {"NOBODY", (getter)ROLE_NOBODY, NULL, "", NULL},
+    {"GUEST", (getter)ROLE_GUEST, NULL, "", NULL},
+    {"USER", (getter)ROLE_USER, NULL, "", NULL},
+    {"ROOT", (getter)ROLE_ROOT, NULL, "", NULL},
+    {"DEFAULT", (getter)ROLE_DEFAULT, NULL, "", NULL},
+    {"INVALID", (getter)ROLE_INVALID, NULL, "", NULL},
     {}
 };
 

@@ -20,4 +20,3 @@ PyObject *ROLE_DEFAULT(PyObject *self, void *closure);
 PyObject *ROLE_INVALID(PyObject *self, void *closure);
 
 extern PyTypeObject DapGlobalDBRolesObjectType;
-// PyMethod
