@@ -220,6 +220,8 @@ void pvt_wrapping_dap_global_db_add_sync_extra_group_func_callback(dap_global_db
 
 PyObject *wrapping_dap_global_db_add_sync_extra_group(PyObject *self, PyObject *args){
     (void)self;
+    PyErr_SetString(PyExc_Exception, "The function is no longer supported, use DAP.GlobalDB.Cluster.Add() instead of this function.");
+    return NULL;
     char *net_name;
     char *group_mask;
     PyObject *call_func;

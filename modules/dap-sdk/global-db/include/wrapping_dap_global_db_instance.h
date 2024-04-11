@@ -1,3 +1,4 @@
+#pragma once
 #include <Python.h>
 #include "dap_global_db.h"
 
