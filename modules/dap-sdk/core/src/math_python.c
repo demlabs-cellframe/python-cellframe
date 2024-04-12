@@ -4,7 +4,12 @@ PyNumberMethods DapMathNumberMethods = {
         .nb_add = wrapping_math_python_add,
         .nb_subtract = wrapping_math_python_subtract,
         .nb_multiply = wrapping_math_python_multiply,
-        .nb_true_divide = wrapping_math_python_true_divide
+        .nb_true_divide = wrapping_math_python_true_divide,
+        .nb_floor_divide = wrapping_math_python_floor_divmode,
+        .nb_remainder = wrapping_math_python_remainder,
+        .nb_divmod = wrapping_math_python_divmode,
+        .nb_power = wrapping_math_python_power,
+        .nb_float = wrapping_math_python_float
 };
 
 static PyGetSetDef DapMathGetsSets[] = {
@@ -14,8 +19,10 @@ static PyGetSetDef DapMathGetsSets[] = {
 };
 
 static PyMethodDef DapMathMethods[] = {
-        {"balanceToCoins", wrapping_dap_chain_balance_to_coins,
+        {"balance_to_coins", wrapping_dap_chain_balance_to_coins,
          METH_VARARGS | METH_STATIC, "The function calculates the number of coins from the number of datoshi."},
+        {"percent", math_python_calc_percent,
+         METH_VARARGS, "The function calculates the specified percentage of a number."},
         {NULL, NULL, 0, NULL}
 };
 
@@ -42,7 +49,14 @@ int math_python_create(PyObject *self, PyObject *argv, PyObject *kwds){
     char *l_number_str;
     if (!PyArg_ParseTupleAndKeywords(argv, kwds, "s", (char**)kwlist, &l_number_str))
         return -1;
-    ((DapMathObject*)self)->value = dap_chain_balance_scan(l_number_str);
+    bool l_is_decimal = false;
+    for (size_t i = 0; i < dap_strlen(l_number_str); i++){
+        if (l_number_str[i] == '.') {
+            l_is_decimal = true;
+            break;
+        }
+    }
+    ((DapMathObject*)self)->value = l_is_decimal ? dap_chain_coins_to_balance(l_number_str) : dap_chain_balance_scan(l_number_str);
     return 0;
 }
 
@@ -185,7 +199,7 @@ PyObject *wrapping_math_python_true_divide(PyObject *o1, PyObject *o2){
     int res = pvt_parse_object(o1, o2, &l_numbers);
     if (res == 0){
         uint256_t l_result = {0};
-        DIV_256(l_numbers.n1, l_numbers.n2, &l_result);
+        DIV_256_COIN(l_numbers.n1, l_numbers.n2, &l_result);
         DapMathObject *obj_result = PyObject_New(DapMathObject, &DapMathObjectType);
         obj_result->value = l_result;
         return (PyObject*)obj_result;
@@ -203,6 +217,110 @@ PyObject *wrapping_math_python_true_divide(PyObject *o1, PyObject *o2){
         PyErr_SetString(PyExc_AttributeError, "An error has occurred, the cause cannot be determined");
         return NULL;
     }
+}
+
+PyObject *wrapping_math_python_power(PyObject *o1, PyObject *o2, PyObject *o3){
+    uint256_t a = uint256_0, b = uint256_0, res = uint256_0;
+    if (o3 != Py_None) {
+        PyErr_SetString(PyExc_AttributeError, "The 256-bit math in SDK does not support operations "
+                                              "on complex numbers and floating point numbers.");
+        return NULL;
+    }
+    if (!PyObject_TypeCheck(o1, &DapMathObjectType)) {
+        PyErr_SetString(PyExc_AttributeError, "The 256-bit math in SDK does not support operations "
+                                              "on complex numbers and floating point numbers.");
+        return NULL;
+    }
+    a = ((DapMathObject*)o1)->value;
+    if (!PyObject_TypeCheck(o2, &DapMathObjectType)) {
+        PyErr_SetString(PyExc_AttributeError, "The 256-bit math in SDK does not support operations "
+                                              "on complex numbers and floating point numbers.");
+        return NULL;
+    }
+    b = ((DapMathObject*)o2)->value;
+    res = a;
+    for (uint256_t i = uint256_1; compare256(i, b) == -1; SUM_256_256(i, uint256_1, &i)){
+        MULT_256_256(res, a, &res);
+    }
+    DapMathObject *obj_math = PyObject_New(DapMathObject, &DapMathObjectType);
+    obj_math->value = res;
+    return (PyObject*)obj_math;
+}
+
+PyObject *wrapping_math_python_remainder(PyObject *o1, PyObject *o2){
+    pvt_struct_parse_numbers_t l_numbers = {0};
+    int res = pvt_parse_object(o1, o2, &l_numbers);
+    if (res == 0){
+        uint256_t l_result = {0};
+        uint256_t l_ret = uint256_0;
+        uint256_t l_remainder = uint256_0;
+        divmod_impl_256(l_numbers.n1, l_numbers.n2, &l_ret, &l_remainder);
+        DapMathObject *obj_result = PyObject_New(DapMathObject, &DapMathObjectType);
+        obj_result->value = l_remainder;
+        return (PyObject*)obj_result;
+    }
+    else if (res == -1){
+        PyErr_SetString(PyExc_AttributeError, "The 256-bit math in SDK does not support operations "
+                                              "on complex numbers and floating point numbers.");
+        return NULL;
+    } else {
+        PyErr_SetString(PyExc_AttributeError, "Looks like one of the operands is not a number.");
+        return NULL;
+    }
+}
+
+PyObject *wrapping_math_python_floor_divmode(PyObject *o1, PyObject *o2){
+    pvt_struct_parse_numbers_t  l_numbers = {0};
+    int res = pvt_parse_object(o1, o2, &l_numbers);
+    if (res == 0){
+        uint256_t l_result = {0};
+        uint256_t l_ret = uint256_0;
+        uint256_t l_remainder = uint256_0;
+        divmod_impl_256(l_numbers.n1, l_numbers.n2, &l_ret, &l_remainder);
+        DapMathObject *obj_result = PyObject_New(DapMathObject, &DapMathObjectType);
+        obj_result->value = l_ret;
+        return (PyObject*)obj_result;
+    }
+    else if (res == -1){
+        PyErr_SetString(PyExc_AttributeError, "The 256-bit math in SDK does not support operations "
+                                              "on complex numbers and floating point numbers.");
+        return NULL;
+    } else {
+        PyErr_SetString(PyExc_AttributeError, "Looks like one of the operands is not a number.");
+        return NULL;
+    }
+}
+
+
+PyObject *wrapping_math_python_divmode(PyObject *o1, PyObject *o2){
+    pvt_struct_parse_numbers_t l_numbers = {0};
+    int res = pvt_parse_object(o1, o2, &l_numbers);
+    if (res == 0){
+        uint256_t l_result = {0};
+        uint256_t l_ret = uint256_0;
+        uint256_t l_remainder = uint256_0;
+        divmod_impl_256(l_numbers.n1, l_numbers.n2, &l_ret, &l_remainder);
+        DapMathObject *obj_v1 = PyObject_New(DapMathObject, &DapMathObjectType);
+        obj_v1->value = l_ret;
+        DapMathObject *obj_v2 = PyObject_New(DapMathObject, &DapMathObjectType);
+        obj_v2->value = l_remainder;
+        return Py_BuildValue("OO", (PyObject*)obj_v1, (PyObject*)obj_v2);
+    }
+    else if (res == -1){
+        PyErr_SetString(PyExc_AttributeError, "The 256-bit math in SDK does not support operations "
+                                              "on complex numbers and floating point numbers.");
+        return NULL;
+    } else {
+        PyErr_SetString(PyExc_AttributeError, "Looks like one of the operands is not a number.");
+        return NULL;
+    }
+}
+
+PyObject *wrapping_math_python_float(PyObject *o1){
+    uint256_t in = ((DapMathObject*)o1)->value;
+    double out = dap_uint256_decimal_to_double(in);
+    PyObject *obj_ret = PyFloat_FromDouble(out);
+    return obj_ret;
 }
 
 PyObject *math_python_richcompare(PyObject *O1, PyObject *O2, int opid){
@@ -268,4 +386,22 @@ PyObject *wrapping_dap_chain_balance_to_coins(PyObject *self, PyObject *args){
     PyObject *l_obj_balance = Py_BuildValue("s", l_balance);
     DAP_DELETE(l_balance);
     return l_obj_balance;
+}
+
+PyObject *math_python_calc_percent(PyObject *self, PyObject *argv){
+    uint256_t l_o1 = ((DapMathObject*)self)->value;
+    uint256_t l_o2 = uint256_0;
+    uint256_t l_result = uint256_0;
+    uint256_t l_base = dap_chain_balance_scan("100");
+    PyObject *obj_o2 = NULL;
+    if (!PyArg_ParseTuple(argv, "O", obj_o2)){
+        return NULL;
+    }
+    l_o2 = ((DapMathObject*)obj_o2)->value;
+    uint256_t t1 = uint256_0;
+    DIV_256_COIN(l_o2, l_base, &t1);
+    MULT_256_256(l_o1, t1, &l_result);
+    DapMathObject *l_obj_result = PyObject_New(DapMathObject, &DapMathObjectType);
+    l_obj_result->value = l_result;
+    return (PyObject*)l_obj_result;
 }
