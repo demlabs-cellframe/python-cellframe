@@ -9,6 +9,8 @@
 static PyMethodDef DapGlobalDBClusterMethods[] = {
     {"byGroup", (PyCFunction)wrapping_dap_global_db_cluster_by_group, METH_VARARGS | METH_STATIC, ""},
     {"memberAdd", (PyCFunction)wrapping_dap_global_db_cluster_member_add, METH_VARARGS, ""},
+    {"memberDelete", (PyCFunction)wrapping_dap_global_db_cluster_member_delete, METH_VARARGS, ""},
+    {"notifyAdd", (PyCFunction)wrapping_dap_global_db_cluster_notify_add, METH_VARARGS, ""},
     {NULL, NULL, 0, NULL}
 };
 
@@ -99,7 +101,90 @@ PyObject *wrapping_dap_global_db_cluster_member_add(PyObject *self, PyObject *ar
     return (PyObject*)obj_member;
 }
 
-PyTypeObject PyDaoGlobalDBClusterObjectType = DAP_PY_TYPE_OBJECT(
+PyObject *wrapping_dap_global_db_cluster_member_delete(PyObject *self, PyObject *argv) {
+    PyObject *obj_node_addr = NULL;
+    if (!PyArg_ParseTuple(argv, "O", &obj_node_addr)) {
+        return NULL;
+    }
+    if (!PyObject_TypeCheck(obj_node_addr, &DapStreamNodeAddrObject)){
+        PyErr_SetString(PyExc_Exception, "The first argument must be an instance of the DAP.Network.StreamNodeAddr object");
+        return NULL;
+    }
+    int res = dap_global_db_cluster_member_delete(((PyGlobalDBClusterObject*)self)->cluster, &((PyDapStreamNodeAddrObject*)obj_node_addr)->addr);
+    if (res == 0) {
+        Py_RETURN_TRUE;
+    } else {
+        Py_RETURN_FALSE;
+    }
+}
+
+typedef struct _wrapping_dap_global_db_cluster_notify_callback{
+    PyObject *func;
+    PyObject *arg;
+    dap_store_obj_t *store_obj;
+}_wrapping_dap_global_db_cluster_notify_callback_t;
+
+bool _wrapping_dap_global_db_cluster_callback_call_func_python(void *a_arg) {
+    if (!a_arg)
+        return false;
+
+    _wrapping_dap_global_db_cluster_notify_callback_t *l_callback = (_wrapping_dap_global_db_cluster_notify_callback_t *)a_arg;
+    PyGILState_STATE state = PyGILState_Ensure();
+    char l_op_code[2];
+    l_op_code[0] = l_callback->store_obj->type;
+    l_op_code[1] = '\0';
+    PyObject *l_obj_value = NULL;
+    if (!l_callback->store_obj->value || !l_callback->store_obj->value_len)
+        l_obj_value = Py_None;
+    else
+        l_obj_value = PyBytes_FromStringAndSize((char *)l_callback->store_obj->value, (Py_ssize_t)l_callback->store_obj->value_len);
+    PyObject *argv = Py_BuildValue("sssOO", l_op_code, l_callback->store_obj->group, l_callback->store_obj->key, l_obj_value, l_callback->arg);
+    Py_XINCREF(l_callback->func);
+    Py_XINCREF(l_callback->arg);
+    PyObject_CallObject(l_callback->func, argv);
+    Py_DECREF(argv);
+    Py_XDECREF(l_callback->func);
+    Py_XDECREF(l_callback->arg);
+    PyGILState_Release(state);
+    dap_store_obj_free_one(l_callback->store_obj);
+    return false;
+}
+
+void _wrapping_dap_global_db_cluster_func_callback(dap_store_obj_t *a_obj, void *a_arg)
+{
+    if (!a_arg || !a_obj)
+        return;
+    
+    _wrapping_dap_global_db_cluster_notify_callback_t *l_obj = DAP_NEW(_wrapping_dap_global_db_cluster_notify_callback_t);
+    if (!l_obj) 
+        return;
+    l_obj->store_obj = dap_store_obj_copy(a_obj, 1);
+    l_obj->func = ((_wrapping_dap_global_db_cluster_notify_callback_t*)a_arg)->func;
+    l_obj->arg = ((_wrapping_dap_global_db_cluster_notify_callback_t*)a_arg)->arg;
+    dap_proc_thread_callback_add(NULL, _wrapping_dap_global_db_cluster_callback_call_func_python, l_obj);
+}
+
+PyObject *wrapping_dap_global_db_cluster_notify_add(PyObject *self, PyObject *argv){
+    PyObject *l_func_callback = NULL;
+    PyObject *l_args_callback = NULL;
+    if (!PyArg_ParseTuple(argv, "OO", &l_func_callback, &l_args_callback)) {
+        return NULL;
+    }
+    if (!PyCallable_Check(l_func_callback)) {
+        PyErr_SetString(PyExc_AttributeError, "Argument must be callable");
+        return NULL;
+    }
+    _wrapping_dap_global_db_cluster_notify_callback_t *l_callback = DAP_NEW(_wrapping_dap_global_db_cluster_notify_callback_t);
+    l_callback->func = l_func_callback;
+    l_callback->arg = l_args_callback;
+    Py_INCREF(l_func_callback);
+    Py_INCREF(l_args_callback);
+    dap_global_db_cluster_add_notify_callback(((PyGlobalDBClusterObject*)self)->cluster, 
+                                              _wrapping_dap_global_db_cluster_func_callback, l_callback);
+    Py_RETURN_NONE;
+}
+
+PyTypeObject DapGlobalDBClusterObjectType = DAP_PY_TYPE_OBJECT(
         "DAP.GlobalDB.Cluster", sizeof(PyGlobalDBClusterObject),
         "GlobalDB.Cluster object",
         .tp_methods = DapGlobalDBClusterMethods,
