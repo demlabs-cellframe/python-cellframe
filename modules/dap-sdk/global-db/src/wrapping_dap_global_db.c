@@ -12,7 +12,6 @@ static PyMethodDef DapGlobalDBMethods[] = {
         {"pin", (PyCFunction)wrapping_dap_global_db_gr_pin, METH_VARARGS | METH_STATIC, ""},
         {"unpin", (PyCFunction)wrapping_dap_global_db_gr_unpin, METH_VARARGS | METH_STATIC, ""},
         {"grLoad", (PyCFunction)wrapping_dap_global_db_gr_load, METH_VARARGS | METH_STATIC, ""},
-        {"addSyncExtraGroup", (PyCFunction)wrapping_dap_global_db_add_sync_extra_group, METH_VARARGS | METH_STATIC, ""},
         {NULL, NULL, 0, NULL}
 };
 
@@ -171,74 +170,4 @@ PyObject *wrapping_dap_global_db_gr_load(PyObject *self, PyObject *args){
     DAP_DELETE(l_db_obj); 
     
     return l_list;
-}
-
-typedef struct _wrapping_dap_global_db_add_sync_extra_group_callback{
-    PyObject *func;
-    PyObject *arg;
-    dap_store_obj_t *store_obj;
-}_wrapping_dap_global_db_add_sync_extra_group_callback_t;
-
-bool dap_py_chain_net_extra_group_notifier(void *a_arg) {
-    if (!a_arg)
-        return false;
-
-    _wrapping_dap_global_db_add_sync_extra_group_callback_t *l_callback = (_wrapping_dap_global_db_add_sync_extra_group_callback_t *)a_arg;
-    PyGILState_STATE state = PyGILState_Ensure();
-    char l_op_code[2];
-    l_op_code[0] = l_callback->store_obj->type;
-    l_op_code[1] = '\0';
-    PyObject *l_obj_value = NULL;
-    if (!l_callback->store_obj->value || !l_callback->store_obj->value_len)
-        l_obj_value = Py_None;
-    else
-        l_obj_value = PyBytes_FromStringAndSize((char *)l_callback->store_obj->value, (Py_ssize_t)l_callback->store_obj->value_len);
-    PyObject *argv = Py_BuildValue("sssOO", l_op_code, l_callback->store_obj->group, l_callback->store_obj->key, l_obj_value, l_callback->arg);
-    Py_XINCREF(l_callback->func);
-    Py_XINCREF(l_callback->arg);
-    PyObject_CallObject(l_callback->func, argv);
-    Py_DECREF(argv);
-    Py_XDECREF(l_callback->func);
-    Py_XDECREF(l_callback->arg);
-    PyGILState_Release(state);
-    dap_store_obj_free_one(l_callback->store_obj);
-    return false;
-}
-
-void pvt_wrapping_dap_global_db_add_sync_extra_group_func_callback(dap_global_db_instance_t *a_dbi, dap_store_obj_t *a_obj, void *a_arg)
-{
-    if (!a_arg)
-        return;
-    _wrapping_dap_global_db_add_sync_extra_group_callback_t *l_obj = DAP_NEW(_wrapping_dap_global_db_add_sync_extra_group_callback_t);
-    if (!l_obj) 
-        return;
-    l_obj->store_obj = dap_store_obj_copy(a_obj, 1);
-    l_obj->func = ((_wrapping_dap_global_db_add_sync_extra_group_callback_t*)a_arg)->func;
-    l_obj->arg = ((_wrapping_dap_global_db_add_sync_extra_group_callback_t*)a_arg)->arg;
-    dap_proc_thread_callback_add(NULL, dap_py_chain_net_extra_group_notifier, l_obj);
-}
-
-PyObject *wrapping_dap_global_db_add_sync_extra_group(PyObject *self, PyObject *args){
-    (void)self;
-    PyErr_SetString(PyExc_Exception, "The function is no longer supported, use DAP.GlobalDB.Cluster.Add() instead of this function.");
-    return NULL;
-    char *net_name;
-    char *group_mask;
-    PyObject *call_func;
-    PyObject *args_func;
-    if(!PyArg_ParseTuple(args, "ssOO", &net_name, &group_mask, &call_func, &args_func)){
-        return NULL;
-    }
-    if (!PyCallable_Check(call_func)){
-        PyErr_SetString(PyExc_AttributeError, "Argument must be callable");
-        return NULL;
-    }
-    _wrapping_dap_global_db_add_sync_extra_group_callback_t *l_callback = DAP_NEW(_wrapping_dap_global_db_add_sync_extra_group_callback_t);
-    l_callback->func = call_func;
-    l_callback->arg = args_func;
-    Py_INCREF(call_func);
-    Py_INCREF(args_func);
-    // TODO implement GlobalDB cluster wrapping
-    //dap_global_db_add_sync_extra_group(net_name, group_mask, pvt_wrapping_dap_global_db_add_sync_extra_group_func_callback, l_callback);
-    Py_RETURN_NONE;
 }
