@@ -73,7 +73,10 @@ PyObject *wrapping_dap_global_db_cluster_by_group(PyObject *self, PyObject *argv
     if (!PyArg_ParseTuple(argv, "Os", &obj_instance, &group))
         return NULL;
     dap_global_db_instance_t *l_instance = ((PyDapGlobalDBInstanceObject*)self)->instance;
-    return NULL;
+    dap_global_db_cluster_t *l_cluster = dap_global_db_cluster_by_group(l_instance, group);
+    PyGlobalDBClusterObject *obj_cluster = PyObject_New(PyGlobalDBClusterObject, &DapGlobalDBClusterObjectType);
+    obj_cluster->cluster = l_cluster;
+    return (PyObject*)obj_cluster;
 }
 
 PyObject *wrapping_dap_global_db_cluster_member_add(PyObject *self, PyObject *argv) {
