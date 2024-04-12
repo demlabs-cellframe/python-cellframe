@@ -2,21 +2,28 @@
 #include "libdap-python.h"
 
 int PyCryptoGUUID_init(PyCryptoGUUIDObject *self, PyObject *argv, PyObject *kwds){
-    PyObject *in = NULL;
+    PyObject *in_str_or_net_id = NULL;
+    uint64_t service_id;
     char **kwords[] = {NULL};
-    if (!PyArg_ParseTupleAndKeywords(argv, kwds, "|O", kwords, &in))
+    if (!PyArg_ParseTupleAndKeywords(argv, kwds, "|OK", kwords, &in_str_or_net_id, &service_id))
         return -1;
-    if (!in) {
+    if (!in_str_or_net_id) {
         self->guuid = dap_guuid_new();
         return 0;
     }
-    if (!PyUnicode_Check(in)) {
-        PyErr_SetString(PyExc_Exception, "The argument is set incorrectly. The constructor must be called either without arguments or with a string containing the GUUID in hex format.");
-        return -1;
+    if (PyUnicode_Check(in_str_or_net_id)) {
+        const char *l_hex = PyUnicode_AsUTF8(in_str_or_net_id);
+        self->guuid = dap_guuid_from_hex_str(l_hex);
+        return 0;
+    } else if (PyLong_Check(in_str_or_net_id)) {
+        uint64_t l_net_id = PyLong_AsUnsignedLongLong(in_str_or_net_id);
+        self->guuid = dap_guuid_compose(l_net_id, service_id);;
+        return 0;
     }
-    const char *l_hex = PyUnicode_AsUTF8(in);
-    self->guuid = dap_guuid_from_hex_str(l_hex);
-    return 0;
+    PyErr_SetString(PyExc_Exception, "The argument is set incorrectly. The constructor must be called either without arguments or with a string containing the GUUID"
+                                     "in hex formatThe argument is set incorrectly. The constructor must be called either without arguments or with a string "
+                                     "containing the GUUID in hex format or must accept two numbers with a network ID and a service ID.");
+    return -1;
 }
 
 PyObject *PyCryptoGUUID_toStr(PyCryptoGUUIDObject *self){
