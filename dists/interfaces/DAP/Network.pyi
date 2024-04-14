@@ -121,7 +121,28 @@ class JSONRPCRequest(Protocol):
 class JSONRPCResponse(Protocol):
     pass
 
+class StreamNodeAddr(Protocol):
+    def __str__(self) -> str: ...
+    pass
 
+class Member(Protocol):
+    pass
+
+class ClusterRole(Protocol):
+    pass
+
+class ClusterRoles(Protocol):
+    @property
+    def INVALID(self) -> ClusterRole: ...
+    @property
+    def EMBEDDED(self) -> ClusterRole: ...
+    @property
+    def AUTONOMIC(self) -> ClusterRole: ...
+    @property
+    def ISOLATED(self) -> ClusterRole: ...
+    @property
+    def VIRTUAL(self) -> ClusterRole: ...
+    pass
 
 
 
