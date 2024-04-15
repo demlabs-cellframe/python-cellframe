@@ -9,7 +9,10 @@ static PyMethodDef PyCryptoGUUID_Methods[] = {
 
 int PyCryptoGUUID_init(PyCryptoGUUIDObject *self, PyObject *argv, PyObject *kwds){
     const char *in_str_hex;
-    char **kwords[] = {NULL};
+    char **kwords[] = {
+        "hex",
+        NULL
+    };
     if (!PyArg_ParseTupleAndKeywords(argv, kwds, "s", kwords, &in_str_hex))
         return -1;
     self->guuid = dap_guuid_from_hex_str(in_str_hex);
@@ -40,24 +43,31 @@ PyObject *PyCryptoGUUID_toStr(PyCryptoGUUIDObject *self){
     return Py_BuildValue("s", l_str);
 }
 
-// PyObject *PyCryptoGUUID_compare(PyCryptoGUUIDObject *self, PyObject *other, int op) {
-//     if (!PyObject_TypeCheck(other, &PyCryptoGUUIDObjectType)){
-//         return Py_NotImplemented;
-//     }
-//     switch (op)
-//     {
-//     case Py_EQ:
+PyObject *PyCryptoGUUID_compare(PyCryptoGUUIDObject *self, PyObject *other, int op) {
+    if (!PyObject_TypeCheck(other, &PyCryptoGUUIDObjectType)){
+        return Py_NotImplemented;
+    }
+    switch (op)
+    {
+    case Py_EQ:
+        if (self->guuid.raw == ((PyCryptoGUUIDObject*)other)->guuid.raw)
+            Py_RETURN_TRUE;
+        else 
+            Py_RETURN_FALSE;
         
-//         /* code */
-//         break;
-//     case Py_NE:
-//         break;
-//     default:
-//         return Py_NotImplemented;
-//     }
-// }
+    case Py_NE:
+        if (self->guuid.raw != ((PyCryptoGUUIDObject*)other)->guuid.raw)
+            Py_RETURN_TRUE;
+        else 
+            Py_RETURN_FALSE;
+    default:
+        return Py_NotImplemented;
+    }
+}
 
 PyTypeObject PyCryptoGUUIDObjectType = DAP_PY_TYPE_OBJECT("DAP.Crypto.GUUID", sizeof(PyCryptoGUUIDObject),
                                                           "GUUID for using dap-sdk and cellframe-sdk",
                                                           .tp_str = (reprfunc)PyCryptoGUUID_toStr,
+                                                          .tp_methods = PyCryptoGUUID_Methods,
+                                                          .tp_richcompare = (richcmpfunc)PyCryptoGUUID_compare,
                                                           .tp_init = (initproc)PyCryptoGUUID_init);
