@@ -1,29 +1,38 @@
 #include "wrapping_guuid.h"
 #include "libdap-python.h"
 
+static PyMethodDef PyCryptoGUUID_Methods[] = {
+    {"generate", wrapping_guuid_generate, METH_NOARGS | METH_STATIC, ""},
+    {"compose", wrapping_guuid_compose, METH_VARARGS | METH_STATIC, ""},
+    {NULL, NULL, 0, NULL}
+};
+
 int PyCryptoGUUID_init(PyCryptoGUUIDObject *self, PyObject *argv, PyObject *kwds){
-    PyObject *in_str_or_net_id = NULL;
-    uint64_t service_id;
+    const char *in_str_hex;
     char **kwords[] = {NULL};
-    if (!PyArg_ParseTupleAndKeywords(argv, kwds, "|OK", kwords, &in_str_or_net_id, &service_id))
+    if (!PyArg_ParseTupleAndKeywords(argv, kwds, "s", kwords, &in_str_hex))
         return -1;
-    if (!in_str_or_net_id) {
-        self->guuid = dap_guuid_new();
-        return 0;
+    self->guuid = dap_guuid_from_hex_str(in_str_hex);
+    return 0;
+}
+
+PyObject *wrapping_guuid_compose(PyObject *self, PyObject *argv){
+    (void)self;
+    uint64_t net_id = 0;
+    uint64_t service_id = 0;
+    if (!PyArg_ParseTuple(argv, "KK", &net_id, &service_id)) {
+        return NULL;
     }
-    if (PyUnicode_Check(in_str_or_net_id)) {
-        const char *l_hex = PyUnicode_AsUTF8(in_str_or_net_id);
-        self->guuid = dap_guuid_from_hex_str(l_hex);
-        return 0;
-    } else if (PyLong_Check(in_str_or_net_id)) {
-        uint64_t l_net_id = PyLong_AsUnsignedLongLong(in_str_or_net_id);
-        self->guuid = dap_guuid_compose(l_net_id, service_id);;
-        return 0;
-    }
-    PyErr_SetString(PyExc_Exception, "The argument is set incorrectly. The constructor must be called either without arguments or with a string containing the GUUID"
-                                     "in hex formatThe argument is set incorrectly. The constructor must be called either without arguments or with a string "
-                                     "containing the GUUID in hex format or must accept two numbers with a network ID and a service ID.");
-    return -1;
+    PyCryptoGUUIDObject *obj_guuid = PyObject_New(PyCryptoGUUIDObject, &PyCryptoGUUIDObjectType);
+    obj_guuid->guuid = dap_guuid_compose(net_id, service_id);
+    return (PyObject*)obj_guuid;
+}
+
+PyObject *wrapping_guuid_generate(PyObject *self, PyObject *argv){
+    (void)self;
+    PyCryptoGUUIDObject *obj = PyObject_New(PyCryptoGUUIDObject, &PyCryptoGUUIDObjectType);
+    obj->guuid = dap_guuid_new();
+    return (PyObject*)obj;
 }
 
 PyObject *PyCryptoGUUID_toStr(PyCryptoGUUIDObject *self){

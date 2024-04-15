@@ -7,4 +7,7 @@ typedef struct PyCryptoGUUID{
     dap_guuid_t guuid;
 } PyCryptoGUUIDObject;
 
+PyObject *wrapping_guuid_compose(PyObject *self, PyObject *argv);
+PyObject *wrapping_guuid_generate(PyObject *self, PyObject *argv);
+
 extern PyTypeObject PyCryptoGUUIDObjectType;
