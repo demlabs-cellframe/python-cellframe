@@ -1,4 +1,5 @@
 #include "wrapping_dap_chain_net_srv_order.h"
+#include "node_address.h"
 
 #define WRAPPING_DAP_CHAIN_NET_SRV_ORDER(a) ((PyDapChainNetSrvOrderObject*)a)
 
@@ -107,7 +108,7 @@ int PyDapChainNetSrvOrder_init(PyDapChainNetSrvOrderObject *self, PyObject *args
             ((PyDapChainNetObject *) obj_net)->chain_net,
             ((PyDapChainNetSrvOrderDirectionObject *) obj_direction)->direction,
             ((PyDapChainNetSrvUIDObject *) obj_srv_uid)->net_srv_uid,
-            ((PyDapChainNodeAddrObject *) obj_node_addr)->node_addr,
+            ((PyDapNodeAddrObject *) obj_node_addr)->addr,
             l_hf,
             &l_price,
             ((PyDapChainNetSrvPriceUnitUIDObject *) obj_price_unit)->price_unit_uid,
@@ -159,8 +160,8 @@ PyObject *wrapping_dap_chain_net_srv_order_get_srv_node_addr(PyObject *self, voi
     if(WRAPPING_DAP_CHAIN_NET_SRV_ORDER(self)->order == NULL){
         Py_RETURN_NONE;
     }else{
-        PyDapChainNodeAddrObject *l_obj_node_addr = PyObject_New(PyDapChainNodeAddrObject, &DapChainNodeAddrObjectType);
-        l_obj_node_addr->node_addr = WRAPPING_DAP_CHAIN_NET_SRV_ORDER(self)->order->node_addr;
+        PyDapNodeAddrObject *l_obj_node_addr = PyObject_New(PyDapNodeAddrObject, &DapNodeAddrObjectType);
+        l_obj_node_addr->addr = WRAPPING_DAP_CHAIN_NET_SRV_ORDER(self)->order->node_addr;
         return (PyObject*)l_obj_node_addr;
     }
 }

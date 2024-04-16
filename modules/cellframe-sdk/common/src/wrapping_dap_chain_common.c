@@ -247,19 +247,6 @@ PyObject *wrapping_dap_chain_net_srv_price_unit_uid_get_b(PyObject *self, PyObje
     return (PyObject*)obj_srv_price_uid;
 }
 
-/*  wrapping dap_chain_node_addr_t */
-PyTypeObject DapChainNodeAddrObjectType = DAP_PY_TYPE_OBJECT(
-        "CellFrame.ChainNodeAddr", sizeof(PyDapChainCellIDObject),
-        "Chain node addr object",
-        .tp_str = PyDapChainNodeAddrObject_str);
-
-PyObject* PyDapChainNodeAddrObject_str(PyObject* self){
-    char *ret = dap_strdup_printf(NODE_ADDR_FP_STR, NODE_ADDR_FP_ARGS_S(((PyDapChainNodeAddrObject *) self)->node_addr));
-    PyObject *l_obj = Py_BuildValue("s", ret);
-    DAP_FREE(ret);
-    return l_obj;
-}
-
 /* wrapping dap_chain_net_srv_uid_t */
 PyObject* PyDapChainNetSrvUIDObject_str(PyObject *self){
     char *res = dap_strdup_printf("0x%016"DAP_UINT64_FORMAT_X, ((PyDapChainNetSrvUIDObject*)self)->net_srv_uid.uint64);

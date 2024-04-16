@@ -479,7 +479,6 @@ PyMODINIT_FUNC PyInit_libDAP()
         PyType_Ready( &DapStreamCtlObjectType ) < 0 ||
         PyType_Ready( &DapClusterRoleObjectType) < 0 ||
         PyType_Ready( &DapClusterRolesObjectType ) < 0 ||
-        PyType_Ready( &DapStreamNodeAddrObject ) < 0 ||
         PyType_Ready( &DapClusterMemberObjectType ) < 0 ||
         PyType_Ready( &DapJsonRpcRequestObjectType ) < 0 ||
         PyType_Ready( &DapJsonRpcResponseobjectType ) < 0 ||
@@ -529,7 +528,6 @@ PyMODINIT_FUNC PyInit_libDAP()
     PyModule_AddObject(netModule, "StreamCtl", (PyObject*)&DapStreamCtlObjectType);
     PyModule_AddObject(netModule, "JSONRPCRequest", (PyObject*)&DapJsonRpcRequestObjectType);
     PyModule_AddObject(netModule, "JSONRPCResponse", (PyObject*)&DapJsonRpcResponseobjectType);
-    PyModule_AddObject(netModule, "StreamNodeAddr", (PyObject*)&DapStreamNodeAddrObject);
     PyModule_AddObject(netModule, "Member", (PyObject*)&DapClusterMemberObjectType);
     //Object with roles for network cluster
     PyObject *obj_cluster_roles = PyObject_New(PyObject, &DapClusterRolesObjectType);
@@ -581,7 +579,6 @@ PyMODINIT_FUNC PyInit_libCellFrame(void)
         PyType_Ready( &DapChainCellObjectType ) < 0 ||
         PyType_Ready( &DapChainMempoolObjectType ) < 0 ||
         PyType_Ready( &DapChainCellIdObjectType ) < 0 ||
-        PyType_Ready( &DapChainNodeAddrObjectType ) < 0 ||
         PyType_Ready( &DapChainHashSlowKindObjectType ) < 0 ||
         PyType_Ready( &DapChainHashSlowObjectType ) < 0 ||
         PyType_Ready( &DapChainAddrObjectType ) < 0 ||
@@ -704,7 +701,6 @@ PyMODINIT_FUNC PyInit_libCellFrame(void)
     PyModule_AddObject(netModule, "Node", (PyObject*)&DapChainNodeObjectType);
     PyModule_AddObject(netModule, "NodeInfo", (PyObject*)&DapChainNodeInfoObjectType);
     PyModule_AddObject(netModule, "NodeClient", (PyObject*)&DapChainNodeClientObjectType);
-    PyModule_AddObject(netModule, "NodeAddr", (PyObject*)&DapChainNodeAddrObjectType);
     // === Chain net ===
     PyModule_AddObject(netModule, "Net", (PyObject*)&DapChainNetObjectType);
     PyModule_AddObject(netModule, "NetID", (PyObject*)&DapChainNetIdObjectType);

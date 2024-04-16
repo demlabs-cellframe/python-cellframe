@@ -1,4 +1,4 @@
-#include "node-address.h"
+#include "node_address.h"
 #include "libdap-python.h"
 
 PyObject* PyDapNodeAddrObject_str(PyObject* self) {
@@ -8,6 +8,6 @@ PyObject* PyDapNodeAddrObject_str(PyObject* self) {
     return l_obj;
 }
 
-PyTypeObject DapNodeAddrObjectType = DAP_PY_TYPE_OBJECT("DAP.Core.NodeAddr", sizeof(DapNodeAddrObject),
+PyTypeObject DapNodeAddrObjectType = DAP_PY_TYPE_OBJECT("DAP.Core.NodeAddr", sizeof(PyDapNodeAddrObject),
                                                           "Stream node addr object", 
                                                           .tp_str = PyDapNodeAddrObject_str);
