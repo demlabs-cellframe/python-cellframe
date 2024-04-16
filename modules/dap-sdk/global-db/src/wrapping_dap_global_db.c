@@ -156,9 +156,6 @@ PyObject *wrapping_dap_global_db_gr_load(PyObject *self, PyObject *args){
     }
     size_t l_data_out = 0;
     dap_global_db_obj_t *l_db_obj = dap_global_db_get_all_sync(l_group, &l_data_out);
-    if (l_data_out == 0){
-        Py_RETURN_NONE;
-    }
     PyObject* l_list = PyList_New(l_data_out);
     for (size_t i = 0; i < l_data_out; i++){
         PyDapGlobalDBContainerObject *l_obj = PyObject_New(PyDapGlobalDBContainerObject ,
