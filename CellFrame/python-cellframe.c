@@ -451,6 +451,7 @@ PyMODINIT_FUNC PyInit_libDAP()
         PyType_Ready( &DapLogitObjectType ) < 0 ||
         PyType_Ready( &DapCommonObjectType ) < 0 ||
         PyType_Ready(&DapMathObjectType) < 0 ||
+        PyType_Ready( &DapNodeAddrObjectType ) < 0 ||
 #ifdef DAP_SUPPORT_PYTHON_PLUGINS
         PyType_Ready( &DapAppContextObjectType) < 0 ||
 #endif
@@ -497,6 +498,7 @@ PyMODINIT_FUNC PyInit_libDAP()
     PyModule_AddObject(coreModule, "logIt", (PyObject *)&DapLogitObjectType);
     PyModule_AddObject(coreModule, "Common", (PyObject*)&DapCommonObjectType);
     PyModule_AddObject(coreModule, "Math", (PyObject *)&DapMathObjectType);
+    PyModule_AddObject(coreModule, "NodeAddr", (PyObject*)&DapNodeAddrObjectType);
 #ifdef DAP_SUPPORT_PYTHON_PLUGINS
     PyModule_AddObject(coreModule, "AppContext", (PyObject*)&DapAppContextObjectType);
 #endif
@@ -531,7 +533,7 @@ PyMODINIT_FUNC PyInit_libDAP()
     PyModule_AddObject(netModule, "Member", (PyObject*)&DapClusterMemberObjectType);
     //Object with roles for network cluster
     PyObject *obj_cluster_roles = PyObject_New(PyObject, &DapClusterRolesObjectType);
-    PyModule_AddObject(netModule, "StreamClusterRoles", obj_cluster_roles);
+    PyModule_AddObject(netModule, "ClusterRoles", obj_cluster_roles);
 
 
     PyObject *globalDBModule = PyModule_Create(&DapGlobalDBPythonModule);
@@ -557,8 +559,8 @@ PyMODINIT_FUNC PyInit_libDAP()
     Py_INCREF(netModule);
     PyModule_AddObject(dapModule, "Network", netModule);
     PyDict_SetItemString(moduleDict, "DAP.Network", netModule);
-    PyModule_AddObject(dapModule, "DAP.GlobalDB", globalDBModule);
-    PyDict_SetItemString(moduleDict, "GlobalDB", globalDBModule);
+    PyModule_AddObject(dapModule, "GlobalDB", globalDBModule);
+    PyDict_SetItemString(moduleDict, "DAP.GlobalDB", globalDBModule);
     Py_INCREF(globalDBModule);
     return dapModule;
 }

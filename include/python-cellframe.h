@@ -2,6 +2,7 @@
 #include "Python.h"
 #include "libdap-python.h"
 #include "math_python.h"
+#include "node_address.h"
 #include "libdap-crypto-python.h"
 #include "wrapping_dap_enc_key_type.h"
 #include "wrapping_dap_crypto_key_types.h"
@@ -76,7 +77,6 @@
 #include "dap_chain_wallet_python.h"
 #include "wrapping_dap_stream_cluster_role.h"
 #include "wrapping_dap_cluster_member.h"
-#include "wrapping_dap_stream_node_addr.h"
 
 //#include "dap_http_client_simple.h"
 //#include "dap_chain_wallet.h"
