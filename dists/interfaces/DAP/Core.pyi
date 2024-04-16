@@ -108,3 +108,7 @@ class AppContext(Protocol):
     @staticmethod
     def getHttp(server, /):
         pass
+
+class NodeAddr(Protocol):
+    def __str__(self) -> str: ...
+    pass

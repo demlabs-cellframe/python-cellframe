@@ -121,10 +121,6 @@ class JSONRPCRequest(Protocol):
 class JSONRPCResponse(Protocol):
     pass
 
-class StreamNodeAddr(Protocol):
-    def __str__(self) -> str: ...
-    pass
-
 class Member(Protocol):
     pass
 
