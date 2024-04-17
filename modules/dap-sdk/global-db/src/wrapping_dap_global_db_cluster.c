@@ -12,6 +12,7 @@ static PyMethodDef DapGlobalDBClusterMethods[] = {
     {"memberAdd", (PyCFunction)wrapping_dap_global_db_cluster_member_add, METH_VARARGS, ""},
     {"memberDelete", (PyCFunction)wrapping_dap_global_db_cluster_member_delete, METH_VARARGS, ""},
     {"notifyAdd", (PyCFunction)wrapping_dap_global_db_cluster_notify_add, METH_VARARGS, ""},
+    {"AddNetAssociate", (PyCFunction)wrapping_dap_global_db_cluster_add_net_associate, METH_VARARGS, ""},
     {NULL, NULL, 0, NULL}
 };
 
@@ -177,6 +178,19 @@ PyObject *wrapping_dap_global_db_cluster_notify_add(PyObject *self, PyObject *ar
     dap_global_db_cluster_add_notify_callback(((PyGlobalDBClusterObject*)self)->cluster, 
                                               _wrapping_dap_global_db_cluster_func_callback, l_callback);
     Py_RETURN_NONE;
+}
+
+PyObject *wrapping_dap_global_db_cluster_add_net_associate(PyObject *self, PyObject *argv){
+    dap_global_db_cluster_t *l_cluster = ((PyGlobalDBClusterObject*)self)->cluster;
+    uint64_t net_link;
+    if (!PyArg_ParseTuple(argv, "k", &net_link)){
+        return NULL;
+    }
+    if (!dap_link_manager_add_net_associate(net_link, l_cluster)) {
+        Py_RETURN_TRUE;
+    } else {
+        Py_RETURN_FALSE;
+    }
 }
 
 PyTypeObject DapGlobalDBClusterObjectType = DAP_PY_TYPE_OBJECT(

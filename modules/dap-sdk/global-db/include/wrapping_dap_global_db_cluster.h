@@ -18,5 +18,6 @@ PyObject *wrapping_dap_global_db_cluster_member_delete(PyObject *self, PyObject 
 PyObject *wrapping_dap_global_db_cluster_member_add(PyObject *self, PyObject *argv);
 //cluster_notyfy
 PyObject *wrapping_dap_global_db_cluster_notify_add(PyObject *self, PyObject *argv);
+PyObject *wrapping_dap_global_db_cluster_add_net_associate(PyObject *self, PyObject *argv);
 
 extern PyTypeObject DapGlobalDBClusterObjectType;
