@@ -181,7 +181,7 @@ PyObject *wrapping_dap_global_db_cluster_notify_add(PyObject *self, PyObject *ar
 }
 
 PyObject *wrapping_dap_global_db_cluster_add_net_associate(PyObject *self, PyObject *argv){
-    dap_global_db_cluster_t *l_cluster = ((PyGlobalDBClusterObject*)self)->cluster;
+    dap_global_db_cluster_t *l_cluster = ((PyGlobalDBClusterObject*)self)->cluster->links_cluster;
     uint64_t net_link;
     if (!PyArg_ParseTuple(argv, "k", &net_link)){
         return NULL;
