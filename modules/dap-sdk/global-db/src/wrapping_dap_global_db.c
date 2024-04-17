@@ -46,7 +46,7 @@ PyObject *wrapping_dap_global_db_gr_set(PyObject *self, PyObject *args){
     (void)self;
     char *l_key;
     char *l_group;
-    bool l_is_pinned = true;
+    bool l_is_pinned = false;
     PyObject *obj_byte;
     if (!PyArg_ParseTuple(args, "ssO|p", &l_key, &l_group, &obj_byte, &l_is_pinned)){
         return NULL;
@@ -76,7 +76,7 @@ PyObject *wrapping_dap_global_db_gr_set_sync(PyObject *self, PyObject *args){
     (void)self;
     char *l_key;
     char *l_group;
-    bool l_is_pinned = true;
+    bool l_is_pinned = false;
     PyObject *obj_byte;
     if (!PyArg_ParseTuple(args, "ssO|p", &l_key, &l_group, &obj_byte, &l_is_pinned)){
         return NULL;
