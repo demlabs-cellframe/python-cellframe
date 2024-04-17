@@ -1,5 +1,6 @@
 #include "libdap-python.h"
 #include "wrapping_guuid.h"
+#include "node_address.h"
 #include "wrapping_dap_global_db_cluster.h"
 #include "wrapping_dap_global_db_instance.h"
 #include "wrapping_dap_global_db_role.h"
@@ -14,16 +15,12 @@ static PyMethodDef DapGlobalDBClusterMethods[] = {
     {NULL, NULL, 0, NULL}
 };
 
-static PyGetSetDef DapGlobalDBCluseterGetSets[] = {
-    {}
-};
-
 int DapGlobalDBCluster_init(PyGlobalDBClusterObject *self, PyObject *argv, PyObject *kwds){
-    const char **kwlist = {
+    const char *kwlist[] = {
         "dbi",
         "goup_name_or_mnemonium",
         "GUID",
-        "group_mask"
+        "group_mask",
         "TTL",
         "owner_root_access",
         "defaultRole",
@@ -31,14 +28,14 @@ int DapGlobalDBCluster_init(PyGlobalDBClusterObject *self, PyObject *argv, PyObj
         NULL
     };
     PyObject *dbi;
-    const char *gn_or_mnemonuim;
-    PyObject *guid = NULL;
+    const char *mnemonuim;
+    PyObject *guid;
     const char *group_mask;
     uint32_t ttl;
     bool owner_root_access;
     PyObject *defaultRole;
     PyObject *clusterRole;
-    if (!PyArg_ParseTupleAndKeywords(argv, kwds, "Os|OsIpOO", kwlist, &dbi, &gn_or_mnemonuim, &guid, &group_mask, &ttl, &owner_root_access, &defaultRole, &clusterRole))
+    if (!PyArg_ParseTupleAndKeywords(argv, kwds, "OsOsIpOO", (char **)kwlist, &dbi, &mnemonuim, &guid, &group_mask, &ttl, &owner_root_access, &defaultRole, &clusterRole))
         return -1;
     if (!PyObject_TypeCheck(dbi, &DapGlobalDBInstanceObjectType)){
         PyErr_SetString(PyExc_Exception, "The first argument is incorrect, it should be an instance of the DAP.GlobalDB.Instance class.");
@@ -48,22 +45,17 @@ int DapGlobalDBCluster_init(PyGlobalDBClusterObject *self, PyObject *argv, PyObj
         PyErr_SetString(PyExc_Exception, "The third argument is incorrect, it should be an instance of the DAP.Crypto.GUUID class.");
         return -1;
     }
-    if (getuid == NULL) {
-        self->cluster = dap_global_db_cluster_by_group(((PyDapGlobalDBInstanceObject*)dbi)->instance, gn_or_mnemonuim);
-        return 0;
-    } else {
-        if (!PyObject_TypeCheck(defaultRole, &DapGlobalDBRoleObjectType)) {
-            PyErr_SetString(PyExc_Exception, "The seventh argument is incorrect, it should be an instance of the DAP.GlobalDB.Role class. To get it, use the DAP.GlobalDB.Roles enumeration.");
-            return -1;
-        }
-        if (!PyObject_TypeCheck(clusterRole, &DapClusterRoleObjectType)) {
-            PyErr_SetString(PyExc_Exception, "The eighth argument is incorrect, it should be an instance of the DAP.Network.ClusterRole class. To obtain it, use the DAP.Network.ClusterRoles enumeration.");
-            return -1;
-        }
-        self->cluster = dap_global_db_cluster_add(((PyDapGlobalDBInstanceObject*)dbi)->instance, gn_or_mnemonuim, 
-                                                  ((PyCryptoGUUIDObject*)guid)->guuid, group_mask, ttl, owner_root_access,
-                                                  ((PyGlobalDBRoleObject*)defaultRole)->role, ((PyDapClusterRoleObject*)clusterRole)->role);
+    if (!PyObject_TypeCheck(defaultRole, &DapGlobalDBRoleObjectType)) {
+        PyErr_SetString(PyExc_Exception, "The seventh argument is incorrect, it should be an instance of the DAP.GlobalDB.Role class. To get it, use the DAP.GlobalDB.Roles enumeration.");
+        return -1;
     }
+    if (!PyObject_TypeCheck(clusterRole, &DapClusterRoleObjectType)) {
+        PyErr_SetString(PyExc_Exception, "The eighth argument is incorrect, it should be an instance of the DAP.Network.ClusterRole class. To obtain it, use the DAP.Network.ClusterRoles enumeration.");
+        return -1;
+    }
+    self->cluster = dap_global_db_cluster_add(((PyDapGlobalDBInstanceObject*)dbi)->instance, mnemonuim, 
+                                                ((PyCryptoGUUIDObject*)guid)->guuid, group_mask, ttl, owner_root_access,
+                                                ((PyGlobalDBRoleObject*)defaultRole)->role, ((PyDapClusterRoleObject*)clusterRole)->role);
     return 0;
 }
 
@@ -82,10 +74,10 @@ PyObject *wrapping_dap_global_db_cluster_by_group(PyObject *self, PyObject *argv
 PyObject *wrapping_dap_global_db_cluster_member_add(PyObject *self, PyObject *argv) {
     dap_global_db_cluster_t *l_cluster = ((PyGlobalDBClusterObject*)self)->cluster;
     PyObject *obj_node_addr, *obj_role;
-    if (!PyArg_ParseTuple(argv, "OO", obj_node_addr, obj_role)) {
+    if (!PyArg_ParseTuple(argv, "OO", &obj_node_addr, &obj_role)) {
         return NULL;
     }
-    if (!PyObject_TypeCheck(obj_node_addr, &DapStreamNodeAddrObject)) {
+    if (!PyObject_TypeCheck(obj_node_addr, &DapNodeAddrObjectType)) {
         PyErr_SetString(PyExc_Exception, "The first argument must be an instance of the DAP.Network.StreamNodeAddr object");
         return NULL;
     }
@@ -94,7 +86,7 @@ PyObject *wrapping_dap_global_db_cluster_member_add(PyObject *self, PyObject *ar
         return NULL;
     }
     dap_cluster_member_t *l_member = dap_global_db_cluster_member_add(l_cluster, 
-                                    &((PyDapStreamNodeAddrObject*)obj_node_addr)->addr, 
+                                    &((PyDapNodeAddrObject*)obj_node_addr)->addr, 
                                     ((PyGlobalDBRoleObject*)obj_role)->role);
     if (!l_member) {
         Py_RETURN_NONE;
@@ -109,11 +101,11 @@ PyObject *wrapping_dap_global_db_cluster_member_delete(PyObject *self, PyObject 
     if (!PyArg_ParseTuple(argv, "O", &obj_node_addr)) {
         return NULL;
     }
-    if (!PyObject_TypeCheck(obj_node_addr, &DapStreamNodeAddrObject)){
+    if (!PyObject_TypeCheck(obj_node_addr, &DapNodeAddrObjectType)){
         PyErr_SetString(PyExc_Exception, "The first argument must be an instance of the DAP.Network.StreamNodeAddr object");
         return NULL;
     }
-    int res = dap_global_db_cluster_member_delete(((PyGlobalDBClusterObject*)self)->cluster, &((PyDapStreamNodeAddrObject*)obj_node_addr)->addr);
+    int res = dap_global_db_cluster_member_delete(((PyGlobalDBClusterObject*)self)->cluster, &((PyDapNodeAddrObject*)obj_node_addr)->addr);
     if (res == 0) {
         Py_RETURN_TRUE;
     } else {

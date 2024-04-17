@@ -4,7 +4,6 @@
 #include "wrapping_dap_global_db_instance.h"
 #include "wrapping_dap_global_db_role.h"
 #include "wrapping_dap_stream_cluster_role.h"
-#include "wrapping_dap_stream_node_addr.h"
 
 typedef struct PyGlobalDBCluster{
     PyObject_HEAD
