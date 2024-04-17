@@ -110,5 +110,6 @@ class AppContext(Protocol):
         pass
 
 class NodeAddr(Protocol):
+    def __init__(self, address : str) -> None: ...
     def __str__(self) -> str: ...
     pass
