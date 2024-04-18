@@ -62,7 +62,7 @@ int DapGlobalDBCluster_init(PyGlobalDBClusterObject *self, PyObject *argv, PyObj
 
 PyObject *wrapping_dap_global_db_cluster_by_group(PyObject *self, PyObject *argv){
     PyObject *obj_instance;
-    const char group;
+    const char *group;
     if (!PyArg_ParseTuple(argv, "Os", &obj_instance, &group))
         return NULL;
     dap_global_db_instance_t *l_instance = ((PyDapGlobalDBInstanceObject*)self)->instance;
@@ -181,7 +181,7 @@ PyObject *wrapping_dap_global_db_cluster_notify_add(PyObject *self, PyObject *ar
 }
 
 PyObject *wrapping_dap_global_db_cluster_add_net_associate(PyObject *self, PyObject *argv){
-    dap_global_db_cluster_t *l_cluster = ((PyGlobalDBClusterObject*)self)->cluster->links_cluster;
+    dap_cluster_t *l_cluster = ((PyGlobalDBClusterObject*)self)->cluster->links_cluster;
     uint64_t net_link;
     if (!PyArg_ParseTuple(argv, "k", &net_link)){
         return NULL;
