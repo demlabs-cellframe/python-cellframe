@@ -1,5 +1,5 @@
 #include "wrapping_dap_chain_net_srv_vote.h"
-#include "dap_chain_net_srv_voting.h"
+#include "dap_chain_net_voting.h"
 #include "dap_chain_net.h"
 #include "math_python.h"
 #include "datetime.h"
