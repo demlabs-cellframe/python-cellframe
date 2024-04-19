@@ -98,7 +98,7 @@ The option parser for the command.
 Initialize a CFCliCommand object with the given parametrs.
 
 * **Parameters:**
-  * **command** (*str*) – The CLI command.
+  * **command** (*str*) – The alias for CLI command.
   * **callback** ([*CliCallback*](#pycfhelpers.node.cli.CliCallback)) – The callback function to be executed when the command is invoked.
   * **help_text** (*str* *,* *optional*) – The help text for the command. Defaults to “”.
 
@@ -830,8 +830,8 @@ Initialize a new CFDatumTX instance.
   * **parent_datum** ([*CFDatum*](#pycfhelpers.node.datums.CFDatum) *|* *None*) – The parent datum associated with the sub-datum, or None if there’s no parent datum.
   * **sub_datum** (*DatumTx*) – The transaction sub-datum object.
   * **net** ([*CFNet*](#pycfhelpers.node.net.CFNet) *|* *None* *,* *optional*) – The CFNet instance representing the
-  * **context** (*network*) – 
-  * **None.** (*defaults to*) – 
+  * **context** (*network*)
+  * **None.** (*defaults to*)
 
 ##### get_items(filter_type: Type[T] | None = None)
 
@@ -922,8 +922,8 @@ Initialize a new CFSubDatum instance.
 
 * **Parameters:**
   * **parent_datum** ([*CFDatum*](#pycfhelpers.node.datums.CFDatum) *|* *None*) – The parent datum associated with the sub-datum, or None if there’s no parent datum.
-  * **sub_datum** (*Union* *[**DatumTx* *,* *DatumToken* *,* *DatumEmission* *,* *DatumDecree* *,* *DatumAnchor* *,* *bytes* *]*) – 
-  * **representation.** (*The sub-datum object* *or* *its bytes*) – 
+  * **sub_datum** (*Union* *[**DatumTx* *,* *DatumToken* *,* *DatumEmission* *,* *DatumDecree* *,* *DatumAnchor* *,* *bytes* *]*)
+  * **representation.** (*The sub-datum object* *or* *its bytes*)
   * **net** ([*CFNet*](#pycfhelpers.node.net.CFNet) *|* *None* *,* *optional*) – The CFNet instance representing the network, defaults to None.
 
 ##### *property* net *: [CFNet](#pycfhelpers.node.net.CFNet)*
@@ -965,7 +965,7 @@ Retrieve the value associated with the given key from the group.
   * **key** (*str*) – The key.
   * **net** ([*CFNet*](#pycfhelpers.node.net.CFNet) *|* *None*) – The CFNet instance. Defaults to None.
   * **default** (*D* *|* *None*) – The default value to return if
-  * **None.** (*the key is not found. Defaults to*) – 
+  * **None.** (*the key is not found. Defaults to*)
 * **Returns:** The value associated with the key, or the default value
   if the key is not found.
 * **Return type:** *bytes | D*
@@ -1033,7 +1033,7 @@ Retrieve the value associated with the given key from the group.
   * **key** (*str*) – The key.
   * **net** ([*CFNet*](#pycfhelpers.node.net.CFNet)) – The CFNet instance.
   * **default** (*Any* *|* *None*) – The default value to return if the
-  * **None.** (*key is not found. Defaults to*) – 
+  * **None.** (*key is not found. Defaults to*)
 * **Returns:** The value associated with the key, or the default value    if the key is not found.
 * **Return type:** *Any*
 
@@ -1700,7 +1700,7 @@ Register the ledger transaction notification callback.
 
 ##### token_auth_signs_pkey_hashes(datum: [CFDatum](#pycfhelpers.node.datums.CFDatum))
 
-Return the hashes of public keys for signing ticker emission.
+Return the public keys hashes of token declaration for provided emission.
 
 * **Parameters:**
 	* **datum** ([*CFDatum*](#pycfhelpers.node.datums.CFDatum)) – The CFDatum object.
@@ -1992,7 +1992,7 @@ Initialize NetFee object.
 
 ### *class* pycfhelpers.node.notificators.CFNets(nets: list[[CFNet](#pycfhelpers.node.net.CFNet)])
 
-Represent a collection of CFNet objects.
+Represent a set of CFNet objects.
 
 #### Attributes:
 
@@ -2019,25 +2019,22 @@ Decorator for registering atom notification callbacks.
   * **\*args** – Positional arguments.
   * **chain_name** (*Literal* *[* *"main"* *,*  *"zerochain"* *,*  *"all"* *]*) – The chain name to specify where to register the callback. Defaults to “all”.
   * **\*\*kwargs** – Keyword arguments.
-* **Returns:** The wrapper function for registering the callback.
-* **Return type:** *Callable[[Callable[[], None]], None]*
 
 ### Example
 
 ```pycon
 >>> @CFNets(NETS).atom_notificator("to_args", chain_name="main", key="to_kwargs")
->>> def on_new_atom(atom: CFBlock | CFEvent, size: int, :literal:*args, chain: CFChain, **kwargs):
+>>> def on_new_atom(atom: CFBlock | CFEvent, size: int, *args, chain: CFChain, **kwargs):
 >>>     pass
 ```
 
 #### gdbsync_notificator(\*args, \*\*kwargs)
 
-Decorator for registering gdbsync notification callbacks.
+Decorator for registering global database sync notification callbacks.
+
 * **Parameters:**
   * **\*args** – Positional arguments.
   * **\*\*kwargs** – Keyword arguments.
-* **Returns:** The wrapper function for registering the callback.
-* **Return type:** *Callable[[Callable[[], None]], None]*
 
 ### Example
 
@@ -2050,11 +2047,10 @@ Decorator for registering gdbsync notification callbacks.
 #### ledger_tx_notificator(\*args, \*\*kwargs)
 
 Decorator for registering ledger transaction notification callbacks.
+
 * **Parameters:**
   * **\*args** – Positional arguments.
   * **\*\*kwargs** – Keyword arguments.
-* **Returns:** The wrapper function for registering the callback.
-* **Return type:** *Callable[[Callable[[], None]], None]*
 
 ### Example
 
@@ -2067,13 +2063,11 @@ Decorator for registering ledger transaction notification callbacks.
 #### mempool_notificator(\*args, chain_name: Literal['main', 'zerochain', 'all'] = 'all', \*\*kwargs)
 
 Decorator for registering mempool notification callbacks.
+
 * **Parameters:**
   * **\*args** – Positional arguments.
   * **chain_name** (*Literal* *[* *"main"* *,*  *"zerochain"* *,*  *"all"* *]*) – The chain name to register the callback. Defaults to “all”.
   * **\*\*kwargs** – Keyword arguments.
-* **Returns:**
-  The wrapper function for registering the callback.
-* **Return type:** *Callable[[[MempoolCallback](#pycfhelpers.node.net.MempoolCallback)], None]*
 
 ### Example
 
@@ -2247,14 +2241,9 @@ Transaction reward item is illegal.
 
 #### Methods:
 
-##### \_generate_next_value_(start, count, last_values)
+##### \_\_format_\_(format_spec)
 
-Generate the next value when not given.
-
-name: the name of the member
-start: the initial start value or None
-count: the number of existing members
-last_value: the last value assigned or None
+Returns format using actual value type unless \_\_str_\_ has been overridden.
 
 ### *class* pycfhelpers.node.types.CFNetState(value)
 
@@ -2266,11 +2255,11 @@ Enum representing the state of a CFNet.
 
 ##### NET_STATE_OFFLINE
 
-CFNet is offline.
+Network is offline.
 
 ##### NET_STATE_ONLINE
 
-CFNet is online.
+Network is online.
 
 ##### NET_STATE_OFFLINE *= 'NET_STATE_OFFLINE'*
 
@@ -2278,14 +2267,9 @@ CFNet is online.
 
 #### Methods:
 
-##### \_generate_next_value_(start, count, last_values)
+##### \_\_format_\_(format_spec)
 
-Generate the next value when not given.
-
-name: the name of the member
-start: the initial start value or None
-count: the number of existing members
-last_value: the last value assigned or None
+Returns format using actual value type unless \_\_str_\_ has been overridden.
 
 ### *class* pycfhelpers.node.types.TSD(value)
 

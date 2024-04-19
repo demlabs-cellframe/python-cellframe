@@ -28,14 +28,9 @@ dag_poa chain type.
 
 #### Methods:
 
-##### \_generate_next_value_(start, count, last_values)
+##### \_\_format_\_(format_spec)
 
-Generate the next value when not given.
-
-name: the name of the member
-start: the initial start value or None
-count: the number of existing members
-last_value: the last value assigned or None
+Returns format using actual value type unless \_\_str_\_ has been overridden.
 
 ##### dag_poa *= 'dag_poa'*
 
@@ -99,14 +94,9 @@ Datum anchor type.
 
 #### Methods:
 
-##### \_generate_next_value_(start, count, last_values)
+##### \_\_format_\_(format_spec)
 
-Generate the next value when not given.
-
-name: the name of the member
-start: the initial start value or None
-count: the number of existing members
-last_value: the last value assigned or None
+Returns format using actual value type unless \_\_str_\_ has been overridden.
 
 ### *class* pycfhelpers.common.types.ItemTypes(value)
 
@@ -150,13 +140,8 @@ Enumeration of item types.
 
 #### Methods:
 
-##### \_generate_next_value_(start, count, last_values)
+##### \_\_format_\_(format_spec)
 
-Generate the next value when not given.
-
-name: the name of the member
-start: the initial start value or None
-count: the number of existing members
-last_value: the last value assigned or None
+Returns format using actual value type unless \_\_str_\_ has been overridden.
 
 ## Module contents

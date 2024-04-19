@@ -1,4 +1,4 @@
-from typing import Literal, NewType
+from typing import Literal
 from pycfhelpers.node.notificators import CFNets
 from pycfhelpers.node.net import CFNet, CFChain, CFBlock, CFEvent
 from pycfhelpers.node.logging import CFLog
@@ -47,12 +47,12 @@ def on_mempool_change(op_code: Literal["a", "d"], datum: CFDatum | datum_hash, *
 
     chain_name = chain.name
 
-    if op_code == "a":
-        if isinstance(datum, CFDatum):
-            datum_hash_str = datum.hash
-        else:
-            datum_hash_str = datum_hash
+    if isinstance(datum, CFDatum):
+        datum_hash_str = datum.hash
+    else:
+        datum_hash_str = datum_hash
 
+    if op_code == "a":
         message += f" {op_code}"
         message += f"\nNew datum with hash {datum_hash_str} added to mempool in chain: {chain_name}"
         log.message(f"{message}")
