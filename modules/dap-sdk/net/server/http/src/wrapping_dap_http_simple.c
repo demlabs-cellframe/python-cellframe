@@ -2,6 +2,7 @@
 #include "python-cellframe_common.h"
 #include "wrapping_dap_http_header.h"
 #include "python-cellframe_common.h"
+#include "utlist.h"
 
 #define LOG_TAG "wrapping_dap_http_simple"
 
@@ -24,6 +25,7 @@ static PyGetSetDef PyDapHttpSimpleGetSetDef[] = {
         {"urlPath", (getter)dap_http_simple_url_path_py, NULL, "Return request in view bytes", NULL},
         {"query", (getter)dap_http_simple_query_py, NULL, "Return request in view bytes", NULL},
         {"ipClient", (getter)dap_http_simple_ip_client_py, NULL, "", NULL},
+        {"requestHeader", (getter)dap_http_simple_http_headers_request, NULL, "", NULL},
         {}
 };
 
@@ -219,4 +221,19 @@ PyObject *dap_http_simple_query_py(PyDapHttpSimpleObject *self, void *clouser){
 PyObject *dap_http_simple_ip_client_py(PyDapHttpSimpleObject *self, void *clouser){
     (void)clouser;
     return Py_BuildValue("s", self->sh->esocket->hostaddr);
+}
+
+PyObject *dap_http_simple_http_headers_request(PyDapHttpSimpleObject *self, void *closure){
+    (void)closure;
+    dap_http_header_t *in_headers = self->sh->http_client->in_headers;
+    PyObject *obj_list = PyList_New(DL_LIST(in_headers));
+    dap_http_header_t *header = NULL;
+    size_t i = 0;
+    DL_FOREACH(in_headers, header) {
+        PyDapHttpHeaderObject *obj_el = PyObject_New(PyDapHttpHeaderObject, &DapHttpHeaderObjectType);
+        obj_el->header = header;
+        PyList_SetItem(obj_list, i, (PyObject*)obj_el);
+        i++;
+    }
+    return obj_list;
 }
