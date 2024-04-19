@@ -9,7 +9,7 @@ static PyMethodDef PyCryptoGUUID_Methods[] = {
 
 int PyCryptoGUUID_init(PyCryptoGUUIDObject *self, PyObject *argv, PyObject *kwds){
     const char *in_str_hex;
-    char **kwords[] = {
+    char *kwords[] = {
         "hex",
         NULL
     };
@@ -50,13 +50,13 @@ PyObject *PyCryptoGUUID_compare(PyCryptoGUUIDObject *self, PyObject *other, int 
     switch (op)
     {
     case Py_EQ:
-        if (self->guuid.raw == ((PyCryptoGUUIDObject*)other)->guuid.raw)
+        if (EQUAL_128(self->guuid.raw, ((PyCryptoGUUIDObject*)other)->guuid.raw))
             Py_RETURN_TRUE;
         else 
             Py_RETURN_FALSE;
         
     case Py_NE:
-        if (self->guuid.raw != ((PyCryptoGUUIDObject*)other)->guuid.raw)
+        if (!EQUAL_128(self->guuid.raw, ((PyCryptoGUUIDObject*)other)->guuid.raw))
             Py_RETURN_TRUE;
         else 
             Py_RETURN_FALSE;
