@@ -55,6 +55,9 @@ static PyModuleDef DapCryptoPythonModule =    DAP_PY_MODULE(.m_name = "DAP.Crypt
 static PyModuleDef DapNetPythonModule =       DAP_PY_MODULE(.m_name = "DAP.Network",
                                                             .m_size = -1);
 
+static PyModuleDef DapGlobalDBPythonModule =  DAP_PY_MODULE(.m_name = "DAP.GlobalDB",
+                                                            .m_size = -1);
+
 static PyModuleDef CellframeChainPythonModule =     DAP_PY_MODULE(.m_name = "Cellframe.Chain",
                                                                   .m_size = -1);
 
@@ -448,6 +451,7 @@ PyMODINIT_FUNC PyInit_libDAP()
         PyType_Ready( &DapLogitObjectType ) < 0 ||
         PyType_Ready( &DapCommonObjectType ) < 0 ||
         PyType_Ready(&DapMathObjectType) < 0 ||
+        PyType_Ready( &DapNodeAddrObjectType ) < 0 ||
 #ifdef DAP_SUPPORT_PYTHON_PLUGINS
         PyType_Ready( &DapAppContextObjectType) < 0 ||
 #endif
@@ -461,6 +465,7 @@ PyMODINIT_FUNC PyInit_libDAP()
         PyType_Ready( &DapCryptoSignObjectType ) < 0 ||
         PyType_Ready( &DapChainHashFastObjectType ) < 0 ||
         PyType_Ready( &DapPkeyObject_DapPkeyObjectType ) < 0 ||
+        PyType_Ready( &PyCryptoGUUIDObjectType) < 0 ||
         // === Network ==
         PyType_Ready( &DapServerObjectType ) < 0 ||
         PyType_Ready( &DapEventsObjectType ) < 0 ||
@@ -472,8 +477,18 @@ PyMODINIT_FUNC PyInit_libDAP()
         PyType_Ready( &DapEncServerObjectType ) < 0 ||
         PyType_Ready( &DapStreamObjectType ) < 0 ||
         PyType_Ready( &DapStreamCtlObjectType ) < 0 ||
+        PyType_Ready( &DapClusterRoleObjectType) < 0 ||
+        PyType_Ready( &DapClusterRolesObjectType ) < 0 ||
+        PyType_Ready( &DapClusterMemberObjectType ) < 0 ||
         PyType_Ready( &DapJsonRpcRequestObjectType ) < 0 ||
-        PyType_Ready( &DapJsonRpcResponseobjectType ) < 0
+        PyType_Ready( &DapJsonRpcResponseobjectType ) < 0 ||
+        // === GlobalDB ==
+        PyType_Ready( &DapGlobalDBObjectType ) < 0 ||
+        PyType_Ready( &DapGlobalDBContainerObjectType ) < 0 ||
+        PyType_Ready( &DapGlobalDBInstanceObjectType ) < 0 ||
+        PyType_Ready( &DapGlobalDBRoleObjectType ) < 0 ||
+        PyType_Ready( &DapGlobalDBRolesObjectType ) < 0 ||
+        PyType_Ready( &DapGlobalDBClusterObjectType ) < 0
         ) {
         log_it(L_CRITICAL,"Not all python type objects are initialized for DAP module");
         return NULL;
@@ -482,6 +497,7 @@ PyMODINIT_FUNC PyInit_libDAP()
     PyModule_AddObject(coreModule, "logIt", (PyObject *)&DapLogitObjectType);
     PyModule_AddObject(coreModule, "Common", (PyObject*)&DapCommonObjectType);
     PyModule_AddObject(coreModule, "Math", (PyObject *)&DapMathObjectType);
+    PyModule_AddObject(coreModule, "NodeAddr", (PyObject*)&DapNodeAddrObjectType);
 #ifdef DAP_SUPPORT_PYTHON_PLUGINS
     PyModule_AddObject(coreModule, "AppContext", (PyObject*)&DapAppContextObjectType);
 #endif
@@ -497,6 +513,7 @@ PyMODINIT_FUNC PyInit_libDAP()
     PyModule_AddObject(cryptoModule, "KeyTypes", cryptoKeyTypes);
     PyModule_AddObject(cryptoModule, "CryptoDataType", (PyObject*)&DapCryptoDataTypeObjectType);
     PyModule_AddObject(cryptoModule, "HashFast", (PyObject*)&DapChainHashFastObjectType);
+    PyModule_AddObject(cryptoModule, "GUUID", (PyObject*)&PyCryptoGUUIDObjectType);
 
     PyObject *netModule = PyModule_Create(&DapNetPythonModule);
     PyModule_AddObject(netModule, "Server", (PyObject*)&DapServerObjectType);
@@ -511,6 +528,20 @@ PyMODINIT_FUNC PyInit_libDAP()
     PyModule_AddObject(netModule, "StreamCtl", (PyObject*)&DapStreamCtlObjectType);
     PyModule_AddObject(netModule, "JSONRPCRequest", (PyObject*)&DapJsonRpcRequestObjectType);
     PyModule_AddObject(netModule, "JSONRPCResponse", (PyObject*)&DapJsonRpcResponseobjectType);
+    PyModule_AddObject(netModule, "Member", (PyObject*)&DapClusterMemberObjectType);
+    //Object with roles for network cluster
+    PyObject *obj_cluster_roles = PyObject_New(PyObject, &DapClusterRolesObjectType);
+    PyModule_AddObject(netModule, "ClusterRoles", obj_cluster_roles);
+
+
+    PyObject *globalDBModule = PyModule_Create(&DapGlobalDBPythonModule);
+    PyModule_AddObject(globalDBModule, "DB", (PyObject*)&DapGlobalDBObjectType);
+    PyModule_AddObject(globalDBModule, "Container", (PyObject*)&DapGlobalDBContainerObjectType);
+    PyModule_AddObject(globalDBModule, "Instance", (PyObject*)&DapGlobalDBInstanceObjectType);
+    PyModule_AddObject(globalDBModule, "Cluster", (PyObject*)&DapGlobalDBClusterObjectType);
+    //Object with role for member global DB cluster
+    PyObject *globalDBClusterRoles = PyObject_New(PyObject, &DapGlobalDBRolesObjectType);
+    PyModule_AddObject(globalDBModule, "MemberRoles", globalDBClusterRoles);
 
     PyObject *dapModule = PyModule_Create(&DapPythonModule);
     PyModule_AddStringConstant(dapModule, "__author__", "Alexey Stratulat <alexey.stratulat@demlabs.net>");
@@ -526,6 +557,9 @@ PyMODINIT_FUNC PyInit_libDAP()
     Py_INCREF(netModule);
     PyModule_AddObject(dapModule, "Network", netModule);
     PyDict_SetItemString(moduleDict, "DAP.Network", netModule);
+    PyModule_AddObject(dapModule, "GlobalDB", globalDBModule);
+    PyDict_SetItemString(moduleDict, "DAP.GlobalDB", globalDBModule);
+    Py_INCREF(globalDBModule);
     return dapModule;
 }
 
@@ -545,15 +579,12 @@ PyMODINIT_FUNC PyInit_libCellFrame(void)
         PyType_Ready( &DapChainCellObjectType ) < 0 ||
         PyType_Ready( &DapChainMempoolObjectType ) < 0 ||
         PyType_Ready( &DapChainCellIdObjectType ) < 0 ||
-        PyType_Ready( &DapChainNodeAddrObjectType ) < 0 ||
         PyType_Ready( &DapChainHashSlowKindObjectType ) < 0 ||
         PyType_Ready( &DapChainHashSlowObjectType ) < 0 ||
         PyType_Ready( &DapChainAddrObjectType ) < 0 ||
         PyType_Ready( &DapChainCsObjectType ) < 0 ||
         PyType_Ready( &DapChainLedgerObjectType ) < 0 ||
         PyType_Ready( &DapChainWalletObjectType ) < 0 ||
-        PyType_Ready(&DapChainGlobalDBObjectType) < 0 ||
-        PyType_Ready(&DapChainGlobalDBContainerObjectType) < 0 ||
         // === Chain datum
         /// Common
         PyType_Ready( &DapChainDatumTypeIdObjectType ) < 0 ||
@@ -633,7 +664,6 @@ PyMODINIT_FUNC PyInit_libCellFrame(void)
     PyModule_AddObject(chainModule, "ChainHashSlowKind", (PyObject*)&DapChainHashSlowKindObjectType);
     PyModule_AddObject(chainModule, "ChainAddr", (PyObject*)&DapChainAddrObjectType);
     PyModule_AddObject(chainModule, "ChainCS", (PyObject*)&DapChainCsObjectType);
-    PyModule_AddObject(chainModule, "GlobalDB", (PyObject*)&DapChainGlobalDBObjectType);
     PyModule_AddObject(chainModule, "Wallet", (PyObject*)&DapChainWalletObjectType);
     PyModule_AddObject(chainModule, "Mempool", (PyObject*)&DapChainMempoolObjectType);
     PyModule_AddObject(chainModule, "Ledger", (PyObject*)&DapChainLedgerObjectType);
@@ -671,7 +701,6 @@ PyMODINIT_FUNC PyInit_libCellFrame(void)
     PyModule_AddObject(netModule, "Node", (PyObject*)&DapChainNodeObjectType);
     PyModule_AddObject(netModule, "NodeInfo", (PyObject*)&DapChainNodeInfoObjectType);
     PyModule_AddObject(netModule, "NodeClient", (PyObject*)&DapChainNodeClientObjectType);
-    PyModule_AddObject(netModule, "NodeAddr", (PyObject*)&DapChainNodeAddrObjectType);
     // === Chain net ===
     PyModule_AddObject(netModule, "Net", (PyObject*)&DapChainNetObjectType);
     PyModule_AddObject(netModule, "NetID", (PyObject*)&DapChainNetIdObjectType);
