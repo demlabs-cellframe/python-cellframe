@@ -1,4 +1,5 @@
 #include "wrapping_dap_chain_net_node.h"
+#include "node_address.h"
 
 static PyMethodDef DapChainNetNodeMethods[] = {
         {"aliasFind", dap_chain_node_alias_find_py, METH_VARARGS | METH_STATIC, ""},
@@ -18,10 +19,10 @@ PyObject *dap_chain_node_alias_find_py(PyObject *self, PyObject *args){
     const char *alias;
     if (!PyArg_ParseTuple(args, "O|s", &chain_net, &alias))
         return NULL;
-    PyObject *obj_node_addr = _PyObject_New(&DapChainNodeAddrObjectType);
+    PyObject *obj_node_addr = _PyObject_New(&DapNodeAddrObjectType);
     dap_chain_node_addr_t *l_node_addr = dap_chain_node_alias_find(((PyDapChainNetObject*)chain_net)->chain_net, alias);
     if (l_node_addr) {
-        ((PyDapChainNodeAddrObject*)obj_node_addr)->node_addr = *l_node_addr;
+        ((PyDapNodeAddrObject*)obj_node_addr)->addr = *l_node_addr;
         DAP_DELETE(l_node_addr);
     }
     return Py_BuildValue("O", obj_node_addr);
@@ -33,7 +34,7 @@ PyObject *dap_chain_node_alias_register_py(PyObject *self, PyObject *args){
     if (!PyArg_ParseTuple(args, "O|s|O", &obj_chain_net, &alias, &obj_node_addr))
         return NULL;
     bool ret = dap_chain_node_alias_register(((PyDapChainNetObject*)obj_chain_net)->chain_net, alias,
-                                             &((PyDapChainNodeAddrObject*)obj_node_addr)->node_addr);
+                                             &((PyDapNodeAddrObject*)obj_node_addr)->addr);
     if (ret)
         Py_RETURN_TRUE;
     else
