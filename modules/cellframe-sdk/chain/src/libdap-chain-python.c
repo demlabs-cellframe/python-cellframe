@@ -230,7 +230,7 @@ bool dap_py_mempool_notifier(void *a_arg)
     PyGILState_STATE state = PyGILState_Ensure();
     dap_store_obj_t *l_obj = l_callback->obj;
     char l_op_code[2];
-    l_op_code[0] = (char)l_obj->type;
+    l_op_code[0] = (char)dap_store_obj_get_type(l_obj);
     l_op_code[1] = '\0';
     PyObject *l_args;
 
@@ -242,7 +242,7 @@ bool dap_py_mempool_notifier(void *a_arg)
         obj_key = Py_None;
         Py_INCREF(Py_None);
     }
-    if (l_obj->type == DAP_GLOBAL_DB_OPTYPE_ADD) {
+    if (dap_store_obj_get_type(l_obj) == DAP_GLOBAL_DB_OPTYPE_ADD) {
         obj_value = PyBytes_FromStringAndSize((char *)l_obj->value, (Py_ssize_t)l_obj->value_len);
     } else {
         obj_value = Py_None;

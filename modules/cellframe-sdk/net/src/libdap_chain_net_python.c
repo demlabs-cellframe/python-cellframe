@@ -1,4 +1,5 @@
 #include "libdap_chain_net_python.h"
+#include "node_address.h"
 
 static PyMethodDef DapChainNetMethods[] = {
         {"loadAll", dap_chain_net_load_all_py, METH_NOARGS | METH_STATIC, ""},
@@ -193,12 +194,12 @@ PyObject *dap_chain_net_python_get_chains(PyObject *self, void *closure){
 }
 
 PyObject *dap_chain_net_get_cur_addr_py(PyObject *self, PyObject *args){
-    PyObject *obj_node_addr = _PyObject_New(&DapChainNodeAddrObjectType);
-    ((PyDapChainNodeAddrObject*)obj_node_addr)->node_addr = g_node_addr;
+    PyObject *obj_node_addr = _PyObject_New(&DapNodeAddrObjectType);
+    ((PyDapNodeAddrObject*)obj_node_addr)->addr = g_node_addr;
     return Py_BuildValue("O", obj_node_addr);
 }
 PyObject *dap_chain_net_get_cur_cell_py(PyObject *self, PyObject *args){
-    PyObject *obj_cell_id = _PyObject_New(&DapChainNodeAddrObjectType);
+    PyObject *obj_cell_id = _PyObject_New(&DapNodeAddrObjectType);
     ((PyDapChainCellIDObject*)obj_cell_id)->cell_id = *(dap_chain_net_get_cur_cell(((PyDapChainNetObject*)self)->chain_net));
     return Py_BuildValue("O", obj_cell_id);
 }
@@ -293,7 +294,7 @@ bool dap_py_chain_net_gdb_notifier(void *a_arg) {
     _wrapping_dap_chain_net_notify_callback_t *l_callback = (_wrapping_dap_chain_net_notify_callback_t *)a_arg;
     PyGILState_STATE state = PyGILState_Ensure();
     char l_op_code[2];
-    l_op_code[0] = l_callback->store_obj->type;
+    l_op_code[0] = dap_store_obj_get_type(l_callback->store_obj);
     l_op_code[1] = '\0';
     PyObject *l_obj_value = NULL;
     if (!l_callback->store_obj->value || !l_callback->store_obj->value_len)

@@ -189,37 +189,6 @@ class ChainCS(Protocol):
     def classCreate(self, *args):
         pass
 
-# DapChainGlobalDBObjectType
-class GlobalDB(Protocol):
-    @staticmethod
-    def get(*args):
-        pass
-
-    @staticmethod
-    def set(*args):
-        pass
-
-    @staticmethod
-    def delete(*args):
-        pass
-
-    @staticmethod
-    def pin(*args):
-        pass
-
-    @staticmethod
-    def unpin(*args):
-        pass
-
-    @staticmethod
-    def grLoad(*args):
-        pass
-
-    @staticmethod
-    def addSyncExtraGroup(*args):
-        pass
-
-
 # DapChainWalletObjectType
 class Wallet(Protocol):
     @staticmethod
