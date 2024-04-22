@@ -186,7 +186,7 @@ bool dap_py_chain_net_extra_group_notifier(void *a_arg) {
     _wrapping_dap_global_db_add_sync_extra_group_callback_t *l_callback = (_wrapping_dap_global_db_add_sync_extra_group_callback_t *)a_arg;
     PyGILState_STATE state = PyGILState_Ensure();
     char l_op_code[2];
-    l_op_code[0] = l_callback->store_obj->type;
+    l_op_code[0] = dap_store_obj_get_type(l_callback->store_obj);
     l_op_code[1] = '\0';
     PyObject *l_obj_value = NULL;
     if (!l_callback->store_obj->value || !l_callback->store_obj->value_len)
