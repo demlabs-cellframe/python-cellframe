@@ -7,7 +7,7 @@ def init():
     GlobalDB.set("test", "local.mygroup", "ENX".encode('utf-8'))
 #   Reads the content from the newly created entry.
     term = GlobalDB.get("test", "local.mygroup")
-#   Deletes the created entry. 
+#   Deletes the created entry.
     GlobalDB.delete("test", "local.mygroup")
     logIt.notice("Data reading form group local.mygroup key test:  "+str(term))
     return 0
