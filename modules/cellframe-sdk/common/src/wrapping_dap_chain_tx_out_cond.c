@@ -1,11 +1,13 @@
 #include "libdap-python.h"
 #include "wrapping_dap_chain_tx_out_cond.h"
+#include "libdap-chain-python.h"
 
 static PyGetSetDef PyDapChainTxOutCondGetsSetsDef[] = {
-        {"tsExpires", (getter)wrapping_dap_chain_tx_out_cond_get_ts_expires, NULL, NULL, NULL},
-        {"value", (getter)wrapping_dap_chain_tx_out_cond_get_value, NULL, NULL, NULL},
-        {"typeSubtype", (getter)wrapping_dap_chain_tx_out_cond_get_type_subtype, NULL, NULL, NULL},
-        {"subtype", (getter)wrapping_dap_chain_tx_out_cond_get_subtype, NULL, NULL, NULL},
+        {"tsExpires", (getter)wrapping_dap_chain_tx_out_cond_get_ts_expires, NULL, "", NULL},
+        {"value", (getter)wrapping_dap_chain_tx_out_cond_get_value, NULL, "", NULL},
+        {"typeSubtype", (getter)wrapping_dap_chain_tx_out_cond_get_type_subtype, NULL, "", NULL},
+        {"subtype", (getter)wrapping_dap_chain_tx_out_cond_get_subtype, NULL, "", NULL},
+        {"usedBy", (getter)wrapping_dap_chain_tx_out_cound_used_by, NULL, "", NULL},
         {}
 };
 
@@ -25,6 +27,20 @@ PyObject *wrapping_dap_chain_tx_out_cond_get_value(PyObject *self, void *closure
     DapMathObject *obj_math = PyObject_New(DapMathObject, &DapMathObjectType);
     obj_math->value = ((PyDapChainTxOutCondObject*)self)->out_cond->header.value;
     return (PyObject*)obj_math;
+}
+
+
+PyObject *wrapping_dap_chain_tx_out_cound_used_by(PyObject *self, void *closure){
+    dap_hash_fast_t l_spender_hash = {0};
+    PyDapChainTxOutCondObject *obj =((PyDapChainTxOutCondObject*)self);
+    if (dap_ledger_tx_hash_is_used_out_item(obj->ledger, obj->tx_hash, obj->idx, &l_spender_hash)) {
+        PyDapHashFastObject *l_hf = PyObject_New(PyDapHashFastObject, &DapHashFastObjectType);
+        l_hf->hash_fast = DAP_NEW(dap_hash_fast_t);
+        memcpy(l_hf->hash_fast, &l_spender_hash, sizeof(dap_hash_fast_t));
+        l_hf->origin = true;
+        return (PyObject*)l_hf;
+    }
+    Py_RETURN_NONE;
 }
 
 // DapChaTxOutCondSubtype

@@ -28,6 +28,7 @@
 #include <Python.h>
 #include "wrapping_dap_chain_tx_out_ext.h"
 #include "wrapping_dap_chain_common.h"
+#include "libdap-chain-python.h"
 
 #ifdef __cplusplus
 extern "C"{
@@ -36,11 +37,15 @@ extern "C"{
 typedef struct PyDapChainTXOutExt{
     PyObject_HEAD
     dap_chain_tx_out_ext_t *out_ext;
+    dap_ledger_t *ledger;
+    dap_hash_fast_t *tx_hash;
+    uint64_t idx;
 }PyDapChainTXOutExtObject;
 
 PyObject *wrapping_dap_chain_tx_out_ext_get_addr(PyObject *self, void *closure);
 PyObject *wrapping_dap_chain_tx_out_ext_get_token(PyObject *self, void *closure);
 PyObject *wrapping_dap_chain_tx_out_ext_get_value(PyObject *self, void *closure);
+PyObject *wrapping_dap_chain_tx_out_ext_get_used_by(PyObject *self, void *closure);
 
 extern PyTypeObject DapChainTxOutExtObjectType;
 

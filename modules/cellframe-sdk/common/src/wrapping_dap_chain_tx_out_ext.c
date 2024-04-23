@@ -1,9 +1,10 @@
 #include "wrapping_dap_chain_tx_out_ext.h"
 
 static PyGetSetDef DapChainTxOutExtGetsSetsDef[] = {
-        {"addr", (getter)wrapping_dap_chain_tx_out_ext_get_addr, NULL, NULL, NULL},
-        {"token", (getter)wrapping_dap_chain_tx_out_ext_get_token, NULL, NULL, NULL},
-        {"value", (getter)wrapping_dap_chain_tx_out_ext_get_value, NULL, NULL, NULL},
+        {"addr", (getter)wrapping_dap_chain_tx_out_ext_get_addr, NULL, "", NULL},
+        {"token", (getter)wrapping_dap_chain_tx_out_ext_get_token, NULL, "", NULL},
+        {"value", (getter)wrapping_dap_chain_tx_out_ext_get_value, NULL, "", NULL},
+        {"usedBy", (getter)wrapping_dap_chain_tx_out_ext_get_used_by, NULL, "", NULL},
         {}
 };
 
@@ -28,4 +29,18 @@ PyObject *wrapping_dap_chain_tx_out_ext_get_value(PyObject *self, void *closure)
     DapMathObject *l_math = PyObject_New(DapMathObject, &DapMathObjectType);
     l_math->value = ((PyDapChainTXOutExtObject*)self)->out_ext->header.value;
     return (PyObject*)l_math;
+}
+
+PyObject *wrapping_dap_chain_tx_out_ext_get_used_by(PyObject *self, void *closure){
+    (void)closure;
+    PyDapChainTXOutExtObject *obj_ext = ((PyDapChainTXOutExtObject*)self);
+    dap_hash_fast_t l_spender_hash = {0};
+    if (dap_ledger_tx_hash_is_used_out_item(obj_ext->ledger, obj_ext->tx_hash, obj_ext->idx, &l_spender_hash)) {
+        PyDapHashFastObject *obj_hf = PyObject_New(PyDapHashFastObject, &DapHashFastObjectType);
+        obj_hf->hash_fast = DAP_NEW(dap_hash_fast_t);
+        memcpy(obj_hf->hash_fast, &l_spender_hash, sizeof(dap_hash_fast_t));
+        obj_hf->origin = true;
+        return (PyObject*)obj_hf;
+    }
+    Py_RETURN_NONE;
 }

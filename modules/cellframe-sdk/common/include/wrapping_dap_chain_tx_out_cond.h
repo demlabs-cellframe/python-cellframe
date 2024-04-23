@@ -29,6 +29,7 @@
 #include "dap_chain_datum_tx_out_cond.h"
 #include "datetime.h"
 #include "math_python.h"
+#include "libdap-chain-python.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -37,12 +38,16 @@ extern "C" {
 typedef struct PyDapChainTxOutCond{
     PyObject_HEAD
     dap_chain_tx_out_cond_t *out_cond;
+    dap_ledger_t *ledger;
+    dap_hash_fast_t *tx_hash;
+    uint64_t idx;
 }PyDapChainTxOutCondObject;
 
 PyObject *wrapping_dap_chain_tx_out_cond_get_ts_expires(PyObject *self, void *closure);
 PyObject *wrapping_dap_chain_tx_out_cond_get_value(PyObject *self, void *closure);
 PyObject *wrapping_dap_chain_tx_out_cond_get_type_subtype(PyObject *self, void *closure);
 PyObject *wrapping_dap_chain_tx_out_cond_get_subtype(PyObject *self, void *closure);
+PyObject *wrapping_dap_chain_tx_out_cound_used_by(PyObject *self, void *closure);
 
 extern PyTypeObject DapChainTxOutCondObjectType;
 
