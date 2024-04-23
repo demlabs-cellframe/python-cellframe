@@ -26,16 +26,15 @@ log = CFLog()
 # This class provides serialization and deserialization from json
 # objects to python objects.
 
-class GdbGroupJson(GDBGroup):
+class GDBGroupJson(GDBGroup):
     """Represent a group to use json files.
 
     Attributes:
         group (str): The name of the group.
     """
-
-    def set_json(self, data: str) -> bool:
-        """Deserialize json string to a python dictionary and
-        set the value associated with the key.
+    def set(self, key, value: dict | list):
+        """Serialize a value to a json format and set it to the group
+        associated with the key.
 
         Args:
             data (str): json string.
@@ -43,70 +42,49 @@ class GdbGroupJson(GDBGroup):
         Returns:
             bool: True if successful, False otherwise.
         """
-        # Deserialize json data to python dictionary:
-        # It also can be loaded fron the json file by
-        # using the json.load(data, file_path) function.
-        try:
-            data_json = json.loads(data)
-            # Go through all the key-value pairs and call the
-            # "set()" method of the parent class for each one.
-            for key, value in data_json.items():
-                # Encode values to bytes.
-                super().set(key, value.encode('utf-8'))
-        # Configure the exception output:
-        except json.JSONDecodeError:
-            log.error(f"Error: Invalid JSON format in data {data}.")
+        # Dump a byte-encoded json file to the database
+        # using the parent set(key, value) method.
+        super().set(key, json.dumps(value).encode("utf-8"))
 
-    def get_json(self, key):
-        """Retrieve the value associated with the given key from the group
-        and serialize it to a json string.
+    def get(self, key, default=None):
+        """Retrieve a value associated with the given key from the group
+        and deserialize it from json format.
 
         Args:
-            key (str): The key.
+            key (_type_): The key.
+            default (_type_, optional): The default value to return if the key is not found. Defaults to None.
 
         Returns:
-            json_string (str): Serialized data from the group.
+            value:The value associated with the key.
         """
-        # This function serialize only one key-value pair
-        # from GdbGroupJson to json object by given key.
-        try:
-            data = {}
-            value = super().get(key)
-            # Create a dictionary from the received key and value.
-            # Decode values from bytes.
-            data[key] = value.decode('utf-8')
-            # Serialize dictionary to a json object.
-            # It also can be dumped to a json file by
-            # using the json.dump(data, file_path) method
-            json_string = json.dumps(data)
-            return json_string
-        # Configure the exception output:
-        except Exception as e:
-            log.error(f"Error: {e}")
+        # get a value by specified key using
+        # parent method get(key, default):
+        value = super().get(key, default=default)
+        # Deserialze and return a value:
+        return json.loads(value) if value else default
 
-    def group_json(self):
-        """Retrieve the list of key-value pairs in the group
-        and serialize it to a json string.
+    def group_dict(self):
+        """Retrieve the list of key-value pairs in the group,
+        convert them to a dictioanary and deserialize from a json format.
 
         Returns:
-            json_string (str): Serialized data from the group.
+            dict: The dictionary containing all key-valeu pairs.
         """
-        # This function serialize every key-value pair
-        # that contains in GdbGroupJson to one json object.
-        try:
-            data = {}
-            # Use the parent group_list() method to get a list
-            # of dictionaries of all key-value pair.
-            for item in super().group_list():
-                for key, value in item.items():
-                    # Decode values from bytes.
-                    data[key] = value.decode('utf-8')
-                # Serialize dictionary to a json object.
-                json_string = json.dumps(data)
-            return json_string
-        # Configure the exception output:
-        except Exception as e:
-            log.error(f"Error: {e}")
+        # get a list off all key-value pairs using
+        # the parent group_list() method:
+        group_data = super().group_list()
+        dict = {}
+        # Convert data to a dictionary:
+        for item in group_data:
+            for key, value in item.items():
+                try:
+                    # deserialize values if necessary:
+                    decoded_value = json.loads(value)
+                    dict[key] = decoded_value
+                except json.JSONDecodeError:
+                    # Otherwise, decode it:
+                    dict[key] = value.decode('utf-8')
+        return dict
 
 
 # The data from the mempool can be deserialized
@@ -136,12 +114,12 @@ def init():
 
     # Get the value for the specified key, and decode it back:
     value_from_group = my_group.get(my_key).decode("utf-8")
-    log.message(value_from_group)
+    log.notice(value_from_group)
 
     # It is possible to view all key - value pairs using
     # the method group_list() for the designated group:
     group_list = my_group.group_list()
-    log.message(f"\nGroup {my_group.group} list: {group_list}")
+    log.notice(f"Group {my_group.group} list: {group_list}")
 
     # Get a list of keys and values for
     # kelvpn.chain-main.mempool group.
@@ -151,36 +129,24 @@ def init():
     # deserialized using the CFMempool().get_datum_from_bytes() method:
 
     mempool = CFMempool(KELVPN_NET.main)
-    message = f"\nGroup {kel_main_mem_group.group} list:"
+    log.notice(f"Group {kel_main_mem_group.group} list:")
 
     for item in kel_group_list:
         for key, value in item.items():
             value = mempool.get_datum_from_bytes(value)
-            message += f"\nKey: {key}, Value: {value}"
-    log.message(message)
+            log.notice(f"Key: {key}, Value: {value}")
 
     # Create GdbGroupJson object:
-    json_group = GdbGroupJson("json")
+    json_group = GDBGroupJson("json")
 
-    # Create a test json to string:
-    json_data = """{
-    "key_1": "value_1",
-    "key_2": "value_2"
-    }"""
+    # Process the methods of the created class.
+    # Set in the group diffrent data:
+    json_group.set("key_1", {"data_int": 1, "data_bool": True})
 
-    # Process the methods of the created class:
-    json_group.set_json(json_data)
-
-    get_json = json_group.get_json("key_1")
-    get_message = f"\nType of get_json() output: {type(get_json)}"
-    get_message += f"\nContent: {get_json}"
-
-    log.message(get_message)
-
-    get_group = json_group.group_json()
-    group_message = f"\nType of group_json() output: {type(get_group)}"
-    group_message += f"\nGroup {json_group.group} content: {get_group}"
-    log.message(group_message)
+    json_group.set("key_2", {"data_str": "Hello, world!", "data_list": [1, 2]})
+    # Output result of get() and group_dict() methods:
+    log.notice(f"get() result:{json_group.get('key_1')}")
+    log.notice(f"group_dict() result:{json_group.group_dict()}")
 
     # Since GdbGroupJson inherited from GDBGroup
     # where is the delete() method defined, it also available
