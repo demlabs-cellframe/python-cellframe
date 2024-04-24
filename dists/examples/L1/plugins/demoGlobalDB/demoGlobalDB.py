@@ -1,9 +1,10 @@
 from DAP.Core import logIt
 from CellFrame.Chain import GlobalDB
 
+
 def init():
     logIt.notice("Running plugin client")
-#   Creates an entry in globalDB 
+#   Creates an entry in globalDB
     GlobalDB.set("test", "local.mygroup", "ENX".encode('utf-8'))
 #   Reads the content from the newly created entry.
     term = GlobalDB.get("test", "local.mygroup")

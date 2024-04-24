@@ -34,9 +34,7 @@ def my_callback(arg1, arg2, reply_object: ReplyObject, **kwargs):
         result_message += f"\nThe result of the execution is {result}."
         reply_object.reply(f"{result_message}")
     else:
-        result_message = "Command executed successfully."
-        result_message += f"\n{result}"
-        reply_object.reply(f"{result_message}")
+        reply_object.reply(f"Command executed successfully.\n{result}")
 
 
 # Create a more complex processing function.

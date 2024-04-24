@@ -83,7 +83,7 @@ class GDBGroupJson(GDBGroup):
                     dict[key] = decoded_value
                 except json.JSONDecodeError:
                     # Otherwise, decode it:
-                    dict[key] = value.decode('utf-8')
+                    dict[key] = value.decode("utf-8")
         return dict
 
 

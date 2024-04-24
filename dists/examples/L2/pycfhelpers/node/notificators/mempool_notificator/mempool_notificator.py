@@ -53,16 +53,15 @@ def on_mempool_change(op_code: Literal["a", "d"], datum: CFDatum | datum_hash, *
         datum_hash_str = datum_hash
 
     if op_code == "a":
-        message += f" {op_code}"
-        message += f"\nNew datum with hash {datum_hash_str} added to mempool in chain: {chain_name}"
-        log.message(f"{message}")
+        log.notice(f"Operation code: {op_code}")
+        log.notice(f"New datum with hash {datum_hash_str} added to mempool in chain: {chain_name}")
+
 
     elif op_code == "d":
-        message += f" {op_code}"
-        message += (f"\nDatum with hash {datum_hash_str} deleted from mempool in chain: {chain_name}")
-        log.message(f"{message}")
+        log.notice(f"Operation code: {op_code}")
+        log.notice(f"Datum with hash {datum_hash_str} deleted from mempool in chain: {chain_name}")
     else:
-        log.message("Unknown operation code")
+        log.notice("Unknown operation code")
 
     # This processing order is for demonstration purposes.
     # Before each call to the handler function? a message,
@@ -84,9 +83,8 @@ def on_new_atom(atom: CFBlock | CFEvent, size: int, *args, chain: CFChain, **kwa
         chain (CFChain): The chain object for which the callback is invoked.
     """
 
-    message = f"Atom with hash: {atom.hash} in {chain.name}."
-    message += f"\nsize of atom is {size}"
-    log.message(f"{message}")
+    log.notice(f"Atom with hash: {atom.hash} in {chain.name}.")
+    log.notice(f"\nsize of atom is {size}")
 
     # Unlike the previous example, the logs do not automatically
     # show a message about the passed function parametrs.
@@ -104,9 +102,8 @@ def on_new_table_record(op_code, group, key, value, *args, net: CFNet, **kwargs)
         net (CFNet): ...
     """
 
-    message = "GDB callback with parametrs:"
-    message += f" {op_code=}, {group=}, {key=}, {value=}, {net=}"
-    log.message(f"{message}")
+    log.notice("GDB callback with parametrs:")
+    log.notice(f" {op_code=}, {group=}, {key=}, {value=}, {net=}")
 
 
 @CFNets(NETS).ledger_tx_notificator("to_args", key="to_kwargs")
@@ -119,9 +116,8 @@ def on_new_ledger_transaction(ledger, tx, *args, net: CFNet, **kwargs):
         net (CFNet): ...
     """
 
-    message = "Ledger callback with parametrs:"
-    message += f" {ledger=}, {tx=}, {net=}"
-    log.message(f"{message}")
+    log.notice("Ledger callback with parametrs:")
+    log.notice(f" {ledger=}, {tx=}, {net=}")
 
 
 def init():
