@@ -1,4 +1,11 @@
 from typing import Protocol, Any
+from Network import Net
+from DAP.Crypto import HashFast
+from DAP.Core import Math
+from Chain import ChainAddr
+from Network import ServiceUID
+from Network import NetID
+from datetime import datetime
 
 
 # commonModule
@@ -22,8 +29,7 @@ class Datum(Protocol):
     def isDatumTX(self):
         pass
 
-    def getDatumTX(self):
-        pass
+    def getDatumTX(self, net : Net) -> DatumTx: ...
 
     def isDatumToken(self):
         pass
@@ -153,30 +159,72 @@ class DatumTx(Protocol):
     def verifySign(self, args):
         pass
 
+class ChainTxOutCondSubType(Protocol):
+    def __str__(self) -> str: ...
 
 # DapChainTxOutCondObjectType
 class TxOutCond(Protocol):
-    pass
+    @property
+    def tsExpires(self) -> datetime: ...
+    @property
+    def value(self) -> Math: ...
+    @property
+    def typeSubtype(self) -> ChainTxOutCondSubType: ...
+    @property
+    def usedBy(self) -> HashFast | None: ...
 
 
 # DapChainTxOutCondSubTypeSrvPayObjectType
 class TxOutCondSubtypeSrvPay(Protocol):
-    pass
+    @property
+    def unit(self) -> int: ...
+    @property
+    def uid(self) -> ServiceUID: ...
+    @property
+    def pkeyHash(self) -> HashFast: ...
+    @property
+    def maxPrice(self) -> int: ...
+    @property
+    def usedBy(self) -> HashFast | None: ...
 
 
 # DapChainTxOutCondSubTypeSrvStakeLockObjectType
 class TxOutCondSubtypeSrvStakeLock(Protocol):
-    pass
-
+    @property
+    def timeUnlock(self) -> datetime:...
+    @property
+    def flags(self) -> int: ...
+    @property
+    def reinvestPercent(self) -> int: ...
+    @property
+    def hashTokenDelegate(self) -> None: ...
+    @property
+    def usedBy(self) -> HashFast | None: ...
 
 # DapChainTxOutCondSubTypeSrvStakePosDelegateObjectType
 class TxOutCondSubtypeSrvStakePosDelegate(Protocol):
-    pass
+    @property
+    def uid(self) -> ServiceUID: ...
+    @property
+    def addr(self) -> ChainAddr: ...
+    @property
+    def value(self) -> None: ...
+    @property
+    def usedBy(self) -> HashFast | None: ...
 
 
 # DapChainTxOutCondSubTypeSrvXchangeObjectType
 class TxOutCondSubtypeSrvXchange(Protocol):
-    pass
+    @property
+    def uid(self) -> ServiceUID: ...
+    @property
+    def netId(self) -> NetID: ...
+    @property
+    def token(self) -> str: ...
+    @property
+    def value(self) -> Math: ...
+    @property
+    def usedBy(self) -> HashFast | None: ...
 
 
 # DapChainTxInObjectType
@@ -191,7 +239,12 @@ class TxInCond(Protocol):
 
 # DapChainTxOutObjectType
 class TxOut(Protocol):
-    pass
+    @property
+    def addr(self) -> ChainAddr : ...
+    @property
+    def value(self) -> Math: ...
+    @property
+    def usedBy(self) -> HashFast | None: ...
 
 
 # DapChainTxPkeyObjectType
@@ -216,7 +269,14 @@ class TxReceipt(Protocol):
 
 # DapChainTxOutExtObjectType
 class TxOutExt(Protocol):
-    pass
+    @property
+    def addr(self) -> ChainAddr : ...
+    @property
+    def token(self) -> str : ...
+    @property
+    def value(self) -> Math: ...
+    @property
+    def usedBy(self) -> HashFast | None: ...
 
 
 # DapChainTxTSDObjectType
