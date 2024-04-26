@@ -1,4 +1,5 @@
 #include "wrapping_dap_chain_net_srv_order.h"
+#include "node_address.h"
 
 #define WRAPPING_DAP_CHAIN_NET_SRV_ORDER(a) ((PyDapChainNetSrvOrderObject*)a)
 
@@ -50,12 +51,12 @@ void _wrapping_handler_add_order_notify(dap_store_obj_t *a_obj, void *a_arg)
     _wrapping_order_callable_t *l_callback = (_wrapping_order_callable_t *)a_arg;
     PyGILState_STATE state = PyGILState_Ensure();
     PyDapChainNetSrvOrderObject *l_obj_order = (PyDapChainNetSrvOrderObject *)Py_None;
-    if (a_obj->value_len != 0 && a_obj->type != DAP_GLOBAL_DB_OPTYPE_DEL) {
+    if (a_obj->value_len != 0 && dap_store_obj_get_type(a_obj) != DAP_GLOBAL_DB_OPTYPE_DEL) {
         l_obj_order = PyObject_New(PyDapChainNetSrvOrderObject, &DapChainNetSrvOrderObjectType);
         l_obj_order->order = DAP_DUP_SIZE(a_obj->value, a_obj->value_len);
     }
     char l_op_code[2];
-    l_op_code[0] = a_obj->type;
+    l_op_code[0] = dap_store_obj_get_type(a_obj);
     l_op_code[1] = '\0';
     PyObject *l_args = Py_BuildValue("sssOO", l_op_code, a_obj->group, a_obj->key, l_obj_order, l_callback->arg);
     PyObject_CallObject(l_callback->func, l_args);
@@ -107,7 +108,7 @@ int PyDapChainNetSrvOrder_init(PyDapChainNetSrvOrderObject *self, PyObject *args
             ((PyDapChainNetObject *) obj_net)->chain_net,
             ((PyDapChainNetSrvOrderDirectionObject *) obj_direction)->direction,
             ((PyDapChainNetSrvUIDObject *) obj_srv_uid)->net_srv_uid,
-            ((PyDapChainNodeAddrObject *) obj_node_addr)->node_addr,
+            ((PyDapNodeAddrObject *) obj_node_addr)->addr,
             l_hf,
             &l_price,
             ((PyDapChainNetSrvPriceUnitUIDObject *) obj_price_unit)->price_unit_uid,
@@ -159,8 +160,8 @@ PyObject *wrapping_dap_chain_net_srv_order_get_srv_node_addr(PyObject *self, voi
     if(WRAPPING_DAP_CHAIN_NET_SRV_ORDER(self)->order == NULL){
         Py_RETURN_NONE;
     }else{
-        PyDapChainNodeAddrObject *l_obj_node_addr = PyObject_New(PyDapChainNodeAddrObject, &DapChainNodeAddrObjectType);
-        l_obj_node_addr->node_addr = WRAPPING_DAP_CHAIN_NET_SRV_ORDER(self)->order->node_addr;
+        PyDapNodeAddrObject *l_obj_node_addr = PyObject_New(PyDapNodeAddrObject, &DapNodeAddrObjectType);
+        l_obj_node_addr->addr = WRAPPING_DAP_CHAIN_NET_SRV_ORDER(self)->order->node_addr;
         return (PyObject*)l_obj_node_addr;
     }
 }

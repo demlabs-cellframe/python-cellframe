@@ -2,11 +2,19 @@
 #include "Python.h"
 #include "libdap-python.h"
 #include "math_python.h"
+#include "node_address.h"
 #include "libdap-crypto-python.h"
 #include "wrapping_dap_enc_key_type.h"
 #include "wrapping_dap_crypto_key_types.h"
 #include "libdap_crypto_data_type.h"
 #include "wrapping_dap_sign.h"
+#include "wrapping_guuid.h"
+// === GlobalDB ==
+#include "wrapping_dap_global_db.h"
+#include "wrapping_dap_global_db_obj.h"
+#include "wrapping_dap_global_db_instance.h"
+#include "wrapping_dap_global_db_role.h"
+#include "wrapping_dap_global_db_cluster.h"
 // === CHAIN ==
 #include "libdap-chain-python.h"
 #include "libdap_chain_type_python.h"
@@ -35,8 +43,6 @@
 #include "wrapping_dap_chain_tx_out_ext.h"
 #include "wrapping_dap_chain_tx_tsd.h"
 #include "wrapping_dap_chain_datum_tx_voting.h"
-#include "wrapping_dap_global_db.h"
-#include "wrapping_dap_global_db_obj.h"
 // ============
 // === Chain net ===
 #include "libdap_chain_net_python.h"
@@ -69,6 +75,8 @@
 #include "wrapping_dap_mempool.h"
 #include "wrapping_dap_http_folder.h"
 #include "dap_chain_wallet_python.h"
+#include "wrapping_dap_stream_cluster_role.h"
+#include "wrapping_dap_cluster_member.h"
 
 //#include "dap_http_client_simple.h"
 //#include "dap_chain_wallet.h"

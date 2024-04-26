@@ -142,18 +142,6 @@ extern PyTypeObject DapChainCellIdObjectType;
 
 /*=================*/
 
-/* Chain node addr */
-typedef struct PyDapChainNodeAddr{
-    PyObject_HEAD
-    dap_chain_node_addr_t node_addr;
-}PyDapChainNodeAddrObject;
-
-PyObject* PyDapChainNodeAddrObject_str(PyObject* self);
-
-extern PyTypeObject DapChainNodeAddrObjectType;
-
-/*=================*/
-
 /* Chain hash slow kind */
 typedef struct PyDapChainHashSlowKind{
     PyObject_HEAD

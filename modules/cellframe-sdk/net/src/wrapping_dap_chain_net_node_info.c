@@ -1,4 +1,5 @@
 #include "wrapping_dap_chain_net_node_info.h"
+#include "node_address.h"
 
 static PyMethodDef DapChainNetNodeInfoMethods[] = {
         {"save", dap_chain_node_info_save_py, METH_VARARGS, ""},
@@ -26,6 +27,6 @@ PyObject *dap_chain_node_info_read_py(PyObject *self, PyObject *args){
         return  NULL;
     PyObject *obj_node_info = _PyObject_New(&DapChainNodeInfoObjectType);
     ((PyDapChainNodeInfoObject*)obj_node_info)->node_info = dap_chain_node_info_read(((PyDapChainNetObject*)obj_net)->chain_net,
-                                                                                     &((PyDapChainNodeAddrObject*)obj_node_addr)->node_addr);
+                                                                                     &((PyDapNodeAddrObject*)obj_node_addr)->addr);
     return Py_BuildValue("O", &obj_node_info);
 }
