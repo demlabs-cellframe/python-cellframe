@@ -14,7 +14,7 @@ PyTypeObject DapChainDatumTypeIdObjectType = DAP_PY_TYPE_OBJECT(
 static PyMethodDef DapChainDatumMethods[] = {
         {"getSize", dap_chain_datum_size_py, METH_NOARGS, ""},
         {"isDatumTX", dap_chain_datum_is_type_tx, METH_NOARGS, ""},
-        {"getDatumTX", wrapping_dap_chain_datum_get_datum_tx, METH_NOARGS, ""},
+        {"getDatumTX", wrapping_dap_chain_datum_get_datum_tx, METH_VARARGS, ""},
         {"isDatumToken", dap_chain_datum_is_type_token, METH_NOARGS, ""},
         {"getDatumToken", wrapping_dap_chain_datum_get_datum_token, METH_NOARGS, ""},
         {"isDatumTokenEmission", dap_chain_datum_is_type_emission, METH_NOARGS, ""},
@@ -200,7 +200,7 @@ PyObject *wrapping_dap_chain_datum_get_datum_tx(PyObject *self, PyObject *args){
     if (!PyArg_ParseTuple(args, "O", &obj_net)) {
         return NULL;
     }
-    if (PyDapChainNet_Check((PyDapChainNetObject*)obj_net)) {
+    if (!PyDapChainNet_Check((PyDapChainNetObject*)obj_net)) {
         PyErr_SetString(PyExc_TypeError, "The first parameter was entered incorrectly. This must be an instance of a ChainNet object.");
         return NULL;
     }
