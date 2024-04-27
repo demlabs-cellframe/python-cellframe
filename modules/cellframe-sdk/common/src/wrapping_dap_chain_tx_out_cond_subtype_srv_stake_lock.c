@@ -17,7 +17,7 @@ PyGetSetDef DapChainTxOutCondSubtypeSrvStakeLockGetsSetsDef[]={
 PyTypeObject DapChainTxOutCondSubTypeSrvStakeLockObjectType = {
         .ob_base = PyVarObject_HEAD_INIT(NULL, 0)
         .tp_name = "CellFrame.ChainTxOutCondSubTypeSrvStakeLock",
-        .tp_basicsize = sizeof(PyDapChainTxOutCondSubTypeSrvStakeLock_Object),
+        .tp_basicsize = sizeof(PyDapChainTxOutCondObject),
         .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_TYPE_SUBCLASS,
         "Chain tx cond subtype srv stake lock object",
         .tp_getset = DapChainTxOutCondSubtypeSrvStakeLockGetsSetsDef,

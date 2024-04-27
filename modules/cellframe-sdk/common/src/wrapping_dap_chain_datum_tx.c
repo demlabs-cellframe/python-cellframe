@@ -233,6 +233,7 @@ PyObject *wrapping_dap_chain_datum_tx_get_items(PyObject *self, PyObject *args){
                 ((PyDapChainTXOutObject*)obj_tx_item)->tx_hash = DAP_NEW(dap_hash_fast_t);
                 memcpy(((PyDapChainTXOutObject*)obj_tx_item)->tx_hash, l_tx_hf, sizeof(dap_hash_fast_t));
                 ((PyDapChainTXOutObject*)obj_tx_item)->idx = l_out_idx;
+                ((PyDapChainTXOutObject*)obj_tx_item)->ledger = ((PyDapChainDatumTxObject*)self)->ledger;
                 l_out_idx++;
                 break;
             case TX_ITEM_TYPE_IN_EMS:
@@ -277,9 +278,11 @@ PyObject *wrapping_dap_chain_datum_tx_get_items(PyObject *self, PyObject *args){
                         obj_tx_item = (PyObject*)PyObject_New(PyDapChainTxOutCondObject, &DapChainTxOutCondObjectType);
                         ((PyDapChainTxOutCondObject*)obj_tx_item)->out_cond = ((dap_chain_tx_out_cond_t*)item);
                 }
-                ((PyDapChainTxOutCondObject*)obj_tx_item)->tx_hash = DAP_NEW(dap_hash_fast_t);
-                memcpy(((PyDapChainTxOutCondObject*)obj_tx_item)->tx_hash, l_tx_hf, sizeof(dap_hash_fast_t));
+                dap_hash_fast_t *l_tx_hash_out = DAP_NEW(dap_hash_fast_t);
+                memcpy(l_tx_hash_out, l_tx_hf, sizeof(dap_hash_fast_t));
+                ((PyDapChainTxOutCondObject*)obj_tx_item)->tx_hash = l_tx_hash_out;
                 ((PyDapChainTxOutCondObject*)obj_tx_item)->idx = l_out_idx;
+                ((PyDapChainTxOutCondObject*)obj_tx_item)->ledger = ((PyDapChainDatumTxObject*)self)->ledger;
                 l_out_idx++;
                 break;
             case TX_ITEM_TYPE_OUT_EXT:
@@ -288,6 +291,7 @@ PyObject *wrapping_dap_chain_datum_tx_get_items(PyObject *self, PyObject *args){
                 ((PyDapChainTXOutExtObject*)obj_tx_item)->tx_hash = DAP_NEW(dap_hash_fast_t);
                 memcpy(((PyDapChainTXOutExtObject*)obj_tx_item)->tx_hash, l_tx_hf, sizeof(dap_hash_fast_t));
                 ((PyDapChainTXOutExtObject*)obj_tx_item)->idx = l_out_idx;
+                ((PyDapChainTXOutExtObject*)obj_tx_item)->ledger = ((PyDapChainDatumTxObject*)self)->ledger;
                 l_out_idx++;
                 break;
             case TX_ITEM_TYPE_TSD:
@@ -306,8 +310,8 @@ PyObject *wrapping_dap_chain_datum_tx_get_items(PyObject *self, PyObject *args){
                 obj_tx_item = Py_None;
                 break;
         }
-        PyList_Append(obj_list, obj_tx_item);
-        Py_XDECREF(obj_tx_item);
+        if (!Py_IsNone(obj_tx_item)) 
+            Py_XDECREF(obj_tx_item);
         l_tx_items_count += l_tx_item_size;
     }
     DAP_DELETE(l_tx_hf);
