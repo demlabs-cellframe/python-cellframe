@@ -310,6 +310,7 @@ PyObject *wrapping_dap_chain_datum_tx_get_items(PyObject *self, PyObject *args){
                 obj_tx_item = Py_None;
                 break;
         }
+        PyList_Append(obj_list, obj_tx_item);
         if (!Py_IsNone(obj_tx_item)) 
             Py_XDECREF(obj_tx_item);
         l_tx_items_count += l_tx_item_size;
