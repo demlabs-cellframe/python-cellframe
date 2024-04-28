@@ -226,8 +226,11 @@ PyObject *dap_http_simple_ip_client_py(PyDapHttpSimpleObject *self, void *clouse
 PyObject *dap_http_simple_http_headers_request(PyDapHttpSimpleObject *self, void *closure){
     (void)closure;
     dap_http_header_t *in_headers = self->sh->http_client->in_headers;
-    PyObject *obj_list = PyList_New(DL_LIST(in_headers));
+    size_t in_headers_count = 0;
     dap_http_header_t *header = NULL;
+    DL_COUNT(in_headers, header, in_headers_count);
+    header = NULL;
+    PyObject *obj_list = PyList_New(in_headers_count);
     size_t i = 0;
     DL_FOREACH(in_headers, header) {
         PyDapHttpHeaderObject *obj_el = PyObject_New(PyDapHttpHeaderObject, &DapHttpHeaderObjectType);
