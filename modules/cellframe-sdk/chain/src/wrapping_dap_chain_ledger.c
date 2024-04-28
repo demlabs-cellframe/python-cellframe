@@ -35,7 +35,7 @@ static PyMethodDef DapChainLedgerMethods[] = {
         {"getTransactions", (PyCFunction) dap_chain_ledger_get_txs_py, METH_VARARGS, ""},
         {"txAddNotify", (PyCFunction)dap_chain_ledger_tx_add_notify_py, METH_VARARGS, ""},
         {"bridgedTxNotifyAdd", (PyCFunction)s_bridged_tx_notify_add, METH_VARARGS, ""},
-        {"txHashIsUsedOutItem", dap_chain_ledger_tx_hash_is_used_out_item, METH_VARARGS, ""},
+        {"txHashIsUsedOutItemHash", (PyCFunction)dap_chain_ledger_tx_hash_is_used_out_item_hash_py, METH_VARARGS, ""},
         {}
 };
 
@@ -610,7 +610,7 @@ static PyObject *s_bridged_tx_notify_add(PyObject *self, PyObject *args)
     Py_RETURN_NONE;
 }
 
-PyObject *dap_chain_ledger_tx_hash_is_used_out_item(PyObject *self, PyObject *args){
+PyObject *dap_chain_ledger_tx_hash_is_used_out_item_hash_py(PyObject *self, PyObject *args){
     PyObject *tx_hash;
     uint64_t idx;
     if (!PyArg_ParseTuple(args, "OK", &tx_hash, &idx)) {
@@ -618,7 +618,7 @@ PyObject *dap_chain_ledger_tx_hash_is_used_out_item(PyObject *self, PyObject *ar
     }
     dap_hash_fast_t l_spender_hash = {0};
     if (dap_ledger_tx_hash_is_used_out_item(((PyDapChainLedgerObject*)self)->ledger, ((PyDapHashFastObject*)tx_hash)->hash_fast, idx, &l_spender_hash)){
-        PyDapHashFastObject *obj_hf = PyObject_New(PyDapHashFastObject, &DapHashFastObjectType);
+        PyDapHashFastObject *obj_hf = PyObject_New(PyDapHashFastObject, &DapChainHashFastObjectType);
         obj_hf->hash_fast = DAP_NEW(dap_hash_fast_t);
         memcpy(obj_hf->hash_fast, &l_spender_hash, sizeof(dap_hash_fast_t));
         obj_hf->origin = true;
