@@ -499,6 +499,7 @@ PyObject *dap_chain_python_get_txs(PyObject *self, PyObject *args){
         for (dap_list_t *l_ptr = l_list; l_ptr != NULL; l_ptr = l_ptr->next, ++i) {
             PyDapChainDatumTxObject *l_obj_tx = PyObject_New(PyDapChainDatumTxObject, &DapChainDatumTxObjectType);
             l_obj_tx->datum_tx = l_ptr->data;
+            l_obj_tx->ledger = dap_chain_net_by_id(l_chain->net_id)->pub.ledger;
             l_obj_tx->original = false;
             PyList_SetItem(l_obj_list, i, (PyObject*)l_obj_tx);
         }
