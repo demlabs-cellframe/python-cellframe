@@ -83,6 +83,7 @@ typedef struct PyDapChainDatumTx{
     PyObject_HEAD
     dap_chain_datum_tx_t *datum_tx;
     bool original;
+    dap_ledger_t *ledger;
 }PyDapChainDatumTxObject;
 
 PyObject *PyDapChainDatumTxObject_create(PyTypeObject *type_object, PyObject *args, PyObject *kwds);
