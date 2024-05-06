@@ -235,6 +235,7 @@ PyObject *dap_http_simple_http_headers_request(PyDapHttpSimpleObject *self, void
     DL_FOREACH(in_headers, header) {
         PyDapHttpHeaderObject *obj_el = PyObject_New(PyDapHttpHeaderObject, &DapHttpHeaderObjectType);
         obj_el->header = header;
+        obj_el->root_obj = false;
         PyList_SetItem(obj_list, i, (PyObject*)obj_el);
         i++;
     }

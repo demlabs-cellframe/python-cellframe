@@ -51,12 +51,11 @@ void _wrapping_response_callback_err(int a_err_code, void *a_callback_arg) {
 
 int PyDapClientHttp_create(PyDapClientHttpObject *self, PyObject *argv, PyObject *kwds) {
     const char *kwlist[] = {
-        // "worker",
         "uplink_addr",
         "uplink_port",
         "method",
         "request_content_type",
-        "path"
+        "path",
         "request",
         "cookie",
         "response_callback",
@@ -79,16 +78,12 @@ int PyDapClientHttp_create(PyDapClientHttpObject *self, PyObject *argv, PyObject
     PyObject *callback_args;
     PyObject *custom_headers;
     PyObject *over_ssl;
-    if (!PyArg_ParseTupleAndKeywords(argv, kwds, "sksssOsOOOOO", kwlist, &uplink_addr, &uplink_port, &method,
+    if (!PyArg_ParseTupleAndKeywords(argv, kwds, "sHsssOsOOOOO", (const char**)kwlist, &uplink_addr, &uplink_port, &method,
                                      &request_content_type, &path, &request, &cookie, &response_callback, &error_callback,
                                      &callback_args, &custom_headers, &over_ssl)){
         return -1;
     }
-    //TODO: Check the obj_worker is wapping dap_worker_t
-    if (!PyBytes_Check(request)){
-        PyErr_SetString(PyExc_BaseException, "The sixth argument is not set correctly, it should be an instance of the Bytes object.");
-        return -1;
-    }
+    //TODO: Check the obj_worker is wapping dap_worker_t 
     if (!PyCallable_Check(response_callback)) {
         PyErr_SetString(PyExc_BaseException, "The eighth argument is not set correctly, it should be a callback function that will be called after receiving a response to the request.");
         return -1;
@@ -107,9 +102,17 @@ int PyDapClientHttp_create(PyDapClientHttpObject *self, PyObject *argv, PyObject
     }
     void *l_bytes = NULL;
     size_t l_bytes_size = 0;
-    if (PyBytes_AsStringAndSize(request, &l_bytes, &l_bytes_size) == -1) {
-        return -1;
+    if (request != Py_None) {
+        if (PyBytes_Check(request)){
+            if (PyBytes_AsStringAndSize(request, &l_bytes, &l_bytes_size) == -1) {
+                return -1;
+            }
+        } else {
+            PyErr_SetString(PyExc_BaseException, "The sixth argument is not set correctly, it should be an instance of the Bytes or None object.");
+            return -1;
+        }
     }
+    
     dap_string_t *l_str = dap_string_new(NULL);
     size_t l_custom_headers_size = PyList_GET_SIZE(custom_headers);
     for (size_t i = 0; i < l_custom_headers_size; i++) {
@@ -129,8 +132,9 @@ int PyDapClientHttp_create(PyDapClientHttpObject *self, PyObject *argv, PyObject
     Py_INCREF(l_callback_w_args->obj_callable_error);
     Py_INCREF(l_callback_w_args->obj_argv);
     self->client_http = dap_client_http_request_custom(NULL, uplink_addr, uplink_port, method, request_content_type, path, l_bytes, l_bytes_size, 
-                                   cookie, _wrapping_response_callback_call, _wrapping_response_callback_err, l_callback_w_args,
+                                   dap_strdup(cookie), _wrapping_response_callback_call, _wrapping_response_callback_err, l_callback_w_args,
                                    l_str->str, (over_ssl == Py_True) ? true : false);
+    dap_string_free(l_str, true);
     return 0;
 }
 
