@@ -1,16 +1,10 @@
-from typing import NewType
-from optparse import OptionParser
 from pycfhelpers.node.cli import ReplyObject, CFCliCommand
-from pycfhelpers.node.logging import CFLog
-
-
-ReplyId = NewType("ReplyId", int)
 
 # The node.cli module provides a set of classes
 # for registering CLI commands.
 
 
-# Create a simple proccesing function, which adds
+# Create a simple callback handler, which adds
 # two numbers from the command prompt
 
 def my_callback(arg1, arg2, reply_object: ReplyObject, **kwargs):
@@ -37,7 +31,7 @@ def my_callback(arg1, arg2, reply_object: ReplyObject, **kwargs):
         reply_object.reply(f"Command executed successfully.\n{result}")
 
 
-# Create a more complex processing function.
+# Create a more complex callback handelr.
 # Let the function check for a hash in the dictionary and
 # return its keys dependig on the options provided.
 
@@ -102,12 +96,13 @@ def init():
     # Set up and register the other callback
     # functions in the same way.
 
-    proc_command = CFCliCommand("proc", hash_callback, "proc bridge tx")
+    proc_command = CFCliCommand("fhash", hash_callback, "find hash data")
 
     proc_command.parser.add_option("-n", "--nonce",
                                    action="store_true",
                                    dest="nonce",
                                    default=False)
+                                   
     proc_command.parser.add_option("-g", "--gas",
                                    action="store_true",
                                    dest="gas",
@@ -130,13 +125,13 @@ def init():
 # > Verbose message: Command executed successfully.
 # > The result of the execution is 3.
 
-# cellframe-node-cli proc a1b2c3
+# cellframe-node-cli fhash a1b2c3
 # > Hash a1b2c3 not found in the dictionary.
 
-# cellframe-node-cli proc hash1
+# cellframe-node-cli fhash hash1
 # > Hash hash1 found.
 
-# cellframe-node-cli proc hash1 -g -n
+# cellframe-node-cli fhash hash1 -g -n
 # > Hash hash1 found. Nonce: 123, Gas: 10000
 
 # And so on.

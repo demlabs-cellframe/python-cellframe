@@ -1,12 +1,19 @@
 # schemas package
+---
 
 ## Subpackages
+---
 
 * [schemas.deserializers package](schemas.deserializers.md)
+---
   * [Module contents](schemas.deserializers.md#module-schemas.deserializers)
+---
 * [schemas.serializers package](schemas.serializers.md)
+---
   * [Submodules](schemas.serializers.md#submodules)
+---
   * [schemas.serializers.block module](schemas.serializers.md#module-schemas.serializers.block)
+---
     * [`Block`](schemas.serializers.md#schemas.serializers.block.Block)
       * [`Block.chain`](schemas.serializers.md#schemas.serializers.block.Block.chain)
       * [`Block.hash`](schemas.serializers.md#schemas.serializers.block.Block.hash)
@@ -24,6 +31,7 @@
       * [`Block.signs`](schemas.serializers.md#id5)
       * [`Block.version`](schemas.serializers.md#id6)
   * [schemas.serializers.chain module](schemas.serializers.md#module-schemas.serializers.chain)
+---
     * [`Chain`](schemas.serializers.md#schemas.serializers.chain.Chain)
       * [`Chain.net`](schemas.serializers.md#schemas.serializers.chain.Chain.net)
       * [`Chain.name`](schemas.serializers.md#schemas.serializers.chain.Chain.name)
@@ -32,6 +40,7 @@
       * [`Chain.net`](schemas.serializers.md#id8)
       * [`Chain.type`](schemas.serializers.md#id9)
   * [schemas.serializers.datums module](schemas.serializers.md#module-schemas.serializers.datums)
+---
     * [`Datum`](schemas.serializers.md#schemas.serializers.datums.Datum)
       * [`Datum.created_at`](schemas.serializers.md#schemas.serializers.datums.Datum.created_at)
       * [`Datum.hash`](schemas.serializers.md#schemas.serializers.datums.Datum.hash)
@@ -106,6 +115,7 @@
       * [`TxToken.emission_hash`](schemas.serializers.md#schemas.serializers.datums.TxToken.emission_hash)
       * [`TxToken.ticker`](schemas.serializers.md#schemas.serializers.datums.TxToken.ticker)
   * [schemas.serializers.event module](schemas.serializers.md#module-schemas.serializers.event)
+---
     * [`Event`](schemas.serializers.md#schemas.serializers.event.Event)
       * [`Event.cell_id`](schemas.serializers.md#schemas.serializers.event.Event.cell_id)
       * [`Event.chain`](schemas.serializers.md#schemas.serializers.event.Event.chain)
@@ -116,12 +126,14 @@
       * [`Event.signs`](schemas.serializers.md#schemas.serializers.event.Event.signs)
       * [`Event.version`](schemas.serializers.md#schemas.serializers.event.Event.version)
   * [schemas.serializers.net module](schemas.serializers.md#module-schemas.serializers.net)
+---
     * [`Net`](schemas.serializers.md#schemas.serializers.net.Net)
       * [`Net.address`](schemas.serializers.md#schemas.serializers.net.Net.address)
       * [`Net.group_alias`](schemas.serializers.md#schemas.serializers.net.Net.group_alias)
       * [`Net.id`](schemas.serializers.md#schemas.serializers.net.Net.id)
       * [`Net.name`](schemas.serializers.md#schemas.serializers.net.Net.name)
   * [schemas.serializers.sign module](schemas.serializers.md#module-schemas.serializers.sign)
+---
     * [`Pkey`](schemas.serializers.md#schemas.serializers.sign.Pkey)
       * [`Pkey.size`](schemas.serializers.md#schemas.serializers.sign.Pkey.size)
       * [`Pkey.type`](schemas.serializers.md#schemas.serializers.sign.Pkey.type)
@@ -132,6 +144,7 @@
       * [`Sign.size`](schemas.serializers.md#schemas.serializers.sign.Sign.size)
       * [`Sign.type`](schemas.serializers.md#schemas.serializers.sign.Sign.type)
   * [schemas.serializers.test_schema module](schemas.serializers.md#module-schemas.serializers.test_schema)
+---
     * [`TestSchema`](schemas.serializers.md#schemas.serializers.test_schema.TestSchema)
       * [`TestSchema.id`](schemas.serializers.md#schemas.serializers.test_schema.TestSchema.id)
       * [`TestSchema.name`](schemas.serializers.md#schemas.serializers.test_schema.TestSchema.name)
@@ -139,9 +152,12 @@
     * [`TestValue`](schemas.serializers.md#schemas.serializers.test_schema.TestValue)
       * [`TestValue.value`](schemas.serializers.md#schemas.serializers.test_schema.TestValue.value)
   * [Module contents](schemas.serializers.md#module-schemas.serializers)
+---
 
 ## Submodules
+---
 
 ## schemas.shortcuts module
+---
 
-## Module contents
+

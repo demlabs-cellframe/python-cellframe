@@ -1,5 +1,5 @@
 <!-- Python documentation documentation master file, created by
-sphinx-quickstart on Fri Apr 19 14:58:07 2024.
+sphinx-quickstart on Mon May  6 14:22:52 2024.
 You can adapt this file completely to your liking, but it should at least
 contain the root `toctree` directive. -->
 
@@ -9,4 +9,5 @@ contain the root `toctree` directive. -->
 
 * [Index](genindex.md)
 * [Module Index](py-modindex.md)
+---
 * [Search Page](search.md)

@@ -1,5 +1,5 @@
 from pycfhelpers.node.net import (CFNet, CFChain, CFMempool)
-from pycfhelpers.common.types import ChainTypes
+from pycfhelpers.common.types import ChainTypes, ItemTypes
 from pycfhelpers.node.logging import CFLog
 from pycfhelpers.node.types import CFNetState, datum_hash
 from pycfhelpers.node.consensus import CFEvent, CFBlock
@@ -8,12 +8,7 @@ from pycfhelpers.node.datums import (CFDatumToken, CFDatumEmission,
 from typing import Literal
 import itertools
 
-# This module provides tools for interacting with CellFrame networks chains,
-# ledgers and mempool, including access to network data, fee information,
-#  network  state management, and mempool interaction. It enables handling of
-# data objects such as blocks, transactions, and emissions, along with
-# functionalities for processing them, such as address balance calculation,
-# transaction handling, and notifications for mempool and another changes.
+
 
 # Below is an example of working with the described classes and their methods,
 # as well as the sequence of actions for registering notificators.
@@ -35,12 +30,12 @@ wallet_address = "jrmnGqeeds4Dp67Ace1RavHGPwUUkcqYmLzdDxR6FhwfxTq7uDWP2rQKZpKCoU
 
 def get_net_info(net) -> str:
     log.notice(f"Name: {net.name}")
-    log.notice(f"Address: {net.address}")
+    log.notice(f"My addr: {net.address}")
     # Since net.id represents CFNetID instance,
     # use method "long" to see a value.
     log.notice(f"ID: {net.id.long}")
     log.notice(f"Chains: {[chain.name for chain in net.chains]}")
-    log.notice(f"Group alias: {net.group_alias}")
+    log.notice(f"GDB Group alias: {net.group_alias}")
     log.notice("The network fee data")
     # The fee data can also be output using the command:
     # cellframe-node-cli net -net <name of network> get fee
@@ -173,6 +168,39 @@ def get_last_tx(chain) -> CFDatumTX:
     return transaction
 
 
+    # *** нужно сделать итерацию по айтемам и их вывод***
+
+def get_items_info(datum_tx: CFDatumTX):
+
+    # It is possible to get all items associated with specified
+    # transaction trough the property CFDatumTX.items.
+    # The items are enclosed in a list.
+    all_items_list = datum_tx.items
+
+    if not any(all_items_list):
+        log.notice(f"There are no items in the specified datum")
+        return
+    else:
+        for item in all_items_list:
+            log.notice(f"Item type {item.type}")
+
+
+# To get items of only a certain type,
+# use the CFDatumTX.get_items(type) method:
+
+def get_items_with_type(datum_tx, type):
+
+    items_list = datum_tx.get_items(type)
+    # All item types are available as 
+    # attributes of the ItemTypes class.
+    if not any(items_list):
+        log.notice(f"There are no items with type: {type} in the datum")
+        return
+    else:
+        num = len(items_list)
+        log.notice(f"The number of items with type: {type} - {num}")
+
+
 # The CFLedger object can be obtained from net_object.get_ledger().
 # Initialization CFLedger not supported via Python.
 
@@ -227,40 +255,24 @@ def chech_for_emission(ledger, emission) -> str:
         log.notice("does not exist in the ledger")
 
 
-# Get the datums from the mempool and output
-# the available information.
-
-def get_datums_from_mempool(mempool) -> str:
-    datums = mempool.get_datums()
-    if not datums:
-        log.notice("Mempool is empty")
-    else:
-        log.notice("Datums hashes from mempool")
-        for datum in datums:
-            log.notice(f"{datum}")
-
-
-# If the datum is encoded in bytes, then it can be decoded
-# using get_datum_from_bytes().
-
-def deserialize_datum_from_mempool(mempool, serialized_datum) -> str:
-    deserialized_datum = mempool.get_datum_from_bytes(serialized_datum)
-    log.notice("Deserialized datum with hash:")
-    log.notice(f"{deserialized_datum.hash}")
-
-
 # Create notification functions and register them in the "init" function.
 # For example, output the arguments obtained by this functions.
 
 def gdbsync_notification(_, op_code, group, key, value, *args, net, **kwargs):
-    mempool = CFMempool(net.main)
-    value = mempool.get_datum_from_bytes(value)
+    # For groups related to a mempool, it is 
+    # possible to decode the values using 
+    # CFMempool.get_datum_from_bytes(value) method:
+    try:
+        mempool = CFMempool(net.main)
+        value = mempool.get_datum_from_bytes(value)
+    except AttributeError:
+        value = value
     log.notice(f"GDB synchronization in the {net.name} with parametrs:")
     log.notice(f"{op_code=},{group=},{key=},{value=}")
 
 
 def mempool_notification(op_code: Literal["a", "d"], datum: CFDatum | datum_hash, *args, chain: CFChain, **kwargs):
-    log.notice(f"\nChanges in the mempool {chain.net.name} {chain.name}:")
+    log.notice(f"Changes in the mempool {chain.net.name} {chain.name}:")
     if isinstance(datum, CFDatum):
         hash_str = datum.hash
     else:
@@ -342,6 +354,9 @@ def init():
     if tx is not None:
         tx_info_from_ledger(ledger, tx)
 
+    get_items_info(tx)
+    get_items_with_type(tx, ItemTypes.TX_ITEM_TYPE_IN)
+
     # Get the last datum with type CFDatumToken.
     last_datum = get_last_datum(chain, CFDatumToken)
     if last_datum is not None:
@@ -353,18 +368,5 @@ def init():
     datum_emission = get_last_datum(chain, CFDatumEmission)
     if datum_emission is not None:
         chech_for_emission(ledger, datum_emission)
-
-    # ------------------------------------------------------------------------
-    log.notice(f"{separator}MEMPOOL DATA{separator}")
-
-    # Create CFMempool instance with specified chain
-    mempool = CFMempool(chain)
-    get_datums_from_mempool(mempool)
-
-    # It is possible to extract datum encoded in bytes
-    # in bytes from mempool.
-    if last_datum is not None:
-        serialized_datum = last_datum.serialize()
-        deserialize_datum_from_mempool(mempool, serialized_datum)
 
     return 0

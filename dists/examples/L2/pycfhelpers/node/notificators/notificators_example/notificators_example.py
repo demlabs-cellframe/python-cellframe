@@ -43,14 +43,14 @@ def on_mempool_change(op_code: Literal["a", "d"], datum: CFDatum | datum_hash, *
     """
     # Process the received data.
 
-    message = "Mempool change detected! Operation:"
+    log.notice("Mempool change detected!")
 
     chain_name = chain.name
 
     if isinstance(datum, CFDatum):
         datum_hash_str = datum.hash
     else:
-        datum_hash_str = datum_hash
+        datum_hash_str = datum
 
     if op_code == "a":
         log.notice(f"Operation code: {op_code}")

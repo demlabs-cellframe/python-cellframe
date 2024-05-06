@@ -1,8 +1,8 @@
 {
-    "name": "mempool_notificator",
+    "name": "log_example",
     "version": "1.0",
     "author": "Demlabs 2024",
     "dependencies": [],
     "type": "python",
-    "description": "Example of using the module node.cli"
+    "description": "Example of using the module node.net"
 }

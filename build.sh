@@ -20,7 +20,10 @@ cd pycfhelpers_docs
 
 { echo "n"; echo "Python documentation"; echo "Demlabs"; echo "1";  echo "en"; } | sphinx-quickstart
 
-sphinx-apidoc -f -o . ../../../dists/python-modules/pycfhelpers/
+sphinx-apidoc -f -o . ../../../dists/python-modules/pycfhelpers
+
+sed -i '/Subpackages/,/Submodules/d' pycfhelpers.node.rst
+sed -i '/Subpackages/,/Submodules/d' pycfhelpers.rst
 
 sed -i '1s/^/import os\n/' conf.py
 
@@ -30,13 +33,13 @@ sed -i '3s|^|sys.path.insert(0, os.path.abspath("../../../dists/python-modules")
 
 sed -i 's#extensions = \[\]#extensions = \["sphinx.ext.autodoc", "sphinx.ext.napoleon", "sphinx_markdown_builder"\]#' conf.py
 
-sed -i '/extensions = \["sphinx.ext.autodoc", "sphinx.ext.napoleon", "sphinx_markdown_builder"\]/a autodoc_mock_imports = \["DAP", "CellFrame", "pydantic", "datetime", "sqlalchemy", "json"\]' conf.py
+sed -i '/extensions = \["sphinx.ext.autodoc", "sphinx.ext.napoleon", "sphinx_markdown_builder"\]/a autodoc_mock_imports = \["DAP", "CellFrame", "pydantic", "datetime", "sqlalchemy", "json", "base58"\]' conf.py
 
-sed -i '/autodoc_mock_imports = \["DAP", "CellFrame", "pydantic", "datetime", "sqlalchemy", "json"\]/a napoleon_include_private_with_doc = True' conf.py
-
-sed -i '/napoleon_include_private_with_doc = True/a napoleon_include_special_with_doc = True' conf.py
+sed -i '/autodoc_mock_imports = \["DAP", "CellFrame", "pydantic", "datetime", "sqlalchemy", "json", "base58"\]/a napoleon_include_special_with_doc = True' conf.py
 
 sed -i '/napoleon_include_special_with_doc = True/a napoleon_include_init_with_doc = True' conf.py
+
+sed -i '/napoleon_include_init_with_doc = True/a autodoc_member_order = "bysource"' conf.py
 
 sphinx-build -b markdown . _build/pycfhelpers/markdown
 
@@ -71,8 +74,9 @@ sed -i '/napoleon_include_special_with_doc = True/a napoleon_include_init_with_d
 
 sphinx-build -b markdown . _build/pycftools/markdown
 
-# others
+# Others
 
+# Fix markdown files
 cd ../
 
 build_doc_pycfhepers_dir="$PWD/pycfhelpers_docs/_build/pycfhelpers/markdown"

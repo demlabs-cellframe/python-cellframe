@@ -1,12 +1,15 @@
 # schemas.serializers package
+---
 
 ## Submodules
+---
 
 ## schemas.serializers.block module
+---
 
-### *class* schemas.serializers.block.Block(\*args: Any, \*\*kwargs: Any)
+### *class* schemas.serializers.block.Block(\*args: Any, \*\*kwargs: Any) ^Block
 
-Bases: `SerializeModel`
+Bases: SerializeModel
 
 Represents a block.
 
@@ -16,7 +19,7 @@ Represents a block.
 
 The chain to which the block belongs.
 
-* **Type:** *[Chain](#schemas.serializers.chain.Chain)*
+* **Type:** *[[#^Chain|Chain]]*
 
 ##### hash
 
@@ -46,7 +49,7 @@ The ID of the cell associated with the block.
 
 The list of signs associated with the block.
 
-* **Type:** *list[[Sign](#schemas.serializers.sign.Sign)]*
+* **Type:** *list\[[[#^Sign|Sign]]]*
 
 ##### meta
 
@@ -58,7 +61,7 @@ Additional metadata associated with the block.
 
 #### Methods:
 
-##### chain *: [Chain](#schemas.serializers.chain.Chain)*
+##### chain *: [[#^Chain|Chain]]*
 
 ##### created_at *: str*
 
@@ -67,7 +70,7 @@ Additional metadata associated with the block.
 Format the date string.
 
 * **Parameters:**
-	* **date** (*datetime*) – The datetime object to format.
+  **date** (*datetime*) – The datetime object to format.
 * **Returns:** The formatted date string.
 * **Return type:** *str*
 
@@ -75,15 +78,16 @@ Format the date string.
 
 ##### meta *: dict*
 
-##### signs *: list[[Sign](#schemas.serializers.sign.Sign)]*
+##### signs *: list\[[[#^Sign|Sign]]]*
 
 ##### version *: int*
 
 ## schemas.serializers.chain module
+---
 
-### *class* schemas.serializers.chain.Chain(\*args: Any, \*\*kwargs: Any)
+### *class* schemas.serializers.chain.Chain(\*args: Any, \*\*kwargs: Any) ^Chain
 
-Bases: `SerializeModel`
+Bases: SerializeModel
 
 Represents a Chain in a blockchain network.
 
@@ -92,7 +96,7 @@ Represents a Chain in a blockchain network.
 ##### net
 
 The network to which the chain belongs.
-* **Type:** *[Net](#schemas.serializers.net.Net)*
+* **Type:** *[[#^Net|Net]]*
 
 ##### name
 
@@ -110,15 +114,16 @@ The type of the chain.
 
 #### Methods:
 
-##### net *: [Net](#schemas.serializers.net.Net)*
+##### net *: [[#^Net|Net]]*
 
 ##### type *: str*
 
 ## schemas.serializers.datums module
+---
 
-### *class* schemas.serializers.datums.Datum(\*args: Any, \*\*kwargs: Any)
+### *class* schemas.serializers.datums.Datum(\*args: Any, \*\*kwargs: Any) ^Datum
 
-Bases: `SerializeModel`
+Bases: SerializeModel
 
 #### Attributes:
 
@@ -132,15 +137,15 @@ Bases: `SerializeModel`
 
 ##### size *: int*
 
-##### sub_datum *: [DatumTX](#schemas.serializers.datums.DatumTX) | [DatumEmission](#schemas.serializers.datums.DatumEmission) | [SubDatum](#schemas.serializers.datums.SubDatum)*
+##### sub_datum *: [[#^DatumTX|DatumTX]] | [[#^DatumEmission|DatumEmission]] | [[#^SubDatum|SubDatum]]*
 
 ##### type *: str*
 
 ##### version *: str*
 
-### *class* schemas.serializers.datums.DatumAnchor(\*args: Any, \*\*kwargs: Any)
+### *class* schemas.serializers.datums.DatumAnchor(\*args: Any, \*\*kwargs: Any) ^DatumAnchor
 
-Bases: [`SubDatum`](#schemas.serializers.datums.SubDatum)
+Bases: [[#^SubDatum|SubDatum]]
 
 #### Attributes:
 
@@ -150,11 +155,11 @@ Bases: [`SubDatum`](#schemas.serializers.datums.SubDatum)
 
 #### Methods:
 
-##### signs *: list[[Sign](#schemas.serializers.sign.Sign)]*
+##### signs *: list\[[[#^Sign|Sign]]]*
 
-### *class* schemas.serializers.datums.DatumCorrupted(\*args: Any, \*\*kwargs: Any)
+### *class* schemas.serializers.datums.DatumCorrupted(\*args: Any, \*\*kwargs: Any) ^DatumCorrupted
 
-Bases: [`SubDatum`](#schemas.serializers.datums.SubDatum)
+Bases: [[#^SubDatum|SubDatum]]
 
 #### Attributes:
 
@@ -162,17 +167,17 @@ Bases: [`SubDatum`](#schemas.serializers.datums.SubDatum)
 
 ##### type *: str*
 
-### *class* schemas.serializers.datums.DatumCustom(\*args: Any, \*\*kwargs: Any)
+### *class* schemas.serializers.datums.DatumCustom(\*args: Any, \*\*kwargs: Any) ^DatumCustom
 
-Bases: [`SubDatum`](#schemas.serializers.datums.SubDatum)
+Bases: [[#^SubDatum|SubDatum]]
 
 #### Attributes:
 
 ##### data *: str*
 
-### *class* schemas.serializers.datums.DatumDecree(\*args: Any, \*\*kwargs: Any)
+### *class* schemas.serializers.datums.DatumDecree(\*args: Any, \*\*kwargs: Any) ^DatumDecree
 
-Bases: [`SubDatum`](#schemas.serializers.datums.SubDatum)
+Bases: [[#^SubDatum|SubDatum]]
 
 #### Attributes:
 
@@ -182,15 +187,15 @@ Bases: [`SubDatum`](#schemas.serializers.datums.SubDatum)
 
 #### Methods:
 
-##### signs *: list[[Sign](#schemas.serializers.sign.Sign)]*
+##### signs *: list\[[[#^Sign|Sign]]]*
 
 ##### subtype *: str*
 
 ##### type *: str*
 
-### *class* schemas.serializers.datums.DatumEmission(\*args: Any, \*\*kwargs: Any)
+### *class* schemas.serializers.datums.DatumEmission(\*args: Any, \*\*kwargs: Any) ^DatumEmission
 
-Bases: [`SubDatum`](#schemas.serializers.datums.SubDatum)
+Bases: [[#^SubDatum|SubDatum]]
 
 #### Attributes:
 
@@ -198,13 +203,13 @@ Bases: [`SubDatum`](#schemas.serializers.datums.SubDatum)
 
 #### Methods:
 
-##### data *: dict | list[[Sign](#schemas.serializers.sign.Sign)]*
+##### data *: dict | list\[[[#^Sign|Sign]]]*
 
 ##### date_format(date: list[str])
 
 ##### hash *: str*
 
-##### signs *: list[[Sign](#schemas.serializers.sign.Sign)]*
+##### signs *: list\[[[#^Sign|Sign]]]*
 
 ##### ticker *: str*
 
@@ -216,9 +221,9 @@ Bases: [`SubDatum`](#schemas.serializers.datums.SubDatum)
 
 ##### version *: int*
 
-### *class* schemas.serializers.datums.DatumTX(\*args: Any, \*\*kwargs: Any)
+### *class* schemas.serializers.datums.DatumTX(\*args: Any, \*\*kwargs: Any) ^DatumTX
 
-Bases: [`SubDatum`](#schemas.serializers.datums.SubDatum)
+Bases: [[#^SubDatum|SubDatum]]
 
 #### Attributes:
 
@@ -228,15 +233,15 @@ Bases: [`SubDatum`](#schemas.serializers.datums.SubDatum)
 
 #### Methods:
 
-##### items *: list[[TxIn](#schemas.serializers.datums.TxIn) | [TxOutExt](#schemas.serializers.datums.TxOutExt) | [TxOut](#schemas.serializers.datums.TxOut) | [TxOutCond](#schemas.serializers.datums.TxOutCond) | [TxSig](#schemas.serializers.datums.TxSig) | [TxToken](#schemas.serializers.datums.TxToken) | [TxOutCondSubTypeSrvStakeLock](#schemas.serializers.datums.TxOutCondSubTypeSrvStakeLock) | [Item](#schemas.serializers.datums.Item)]*
+##### items *: list[[[#^TxIn|TxIn]] | [[#^TxOutExt|TxOutExt]] | [[#^TxOut|TxOut]] | [[#^TxOutCond|TxOutCond]] | [[#^TxSig|TxSig]] | [[#^TxToken|TxToken]] | [[#^TxOutCondSubTypeSrvStakeLock|TxOutCondSubTypeSrvStakeLock]] | [[#^Item|Item]]]*
 
 ##### *classmethod* model_validate(\*args, \*\*kwargs)
 
 ##### ticker *: str | None*
 
-### *class* schemas.serializers.datums.DatumToken(\*args: Any, \*\*kwargs: Any)
+### *class* schemas.serializers.datums.DatumToken(\*args: Any, \*\*kwargs: Any) ^DatumToken
 
-Bases: [`SubDatum`](#schemas.serializers.datums.SubDatum)
+Bases: [[#^SubDatum|SubDatum]]
 
 #### Attributes:
 
@@ -244,27 +249,27 @@ Bases: [`SubDatum`](#schemas.serializers.datums.SubDatum)
 
 #### Methods:
 
-##### signs *: list[[Sign](#schemas.serializers.sign.Sign)]*
+##### signs *: list\[[[#^Sign|Sign]]]*
 
 ##### ticker *: str*
 
 ##### type *: str*
 
-### *class* schemas.serializers.datums.Item(\*args: Any, \*\*kwargs: Any)
+### *class* schemas.serializers.datums.Item(\*args: Any, \*\*kwargs: Any) ^Item
 
-Bases: `SerializeModel`
+Bases: SerializeModel
 
 #### Attributes:
 
 ##### type *: str*
 
-### *class* schemas.serializers.datums.SubDatum(\*args: Any, \*\*kwargs: Any)
+### *class* schemas.serializers.datums.SubDatum(\*args: Any, \*\*kwargs: Any) ^SubDatum
 
-Bases: `SerializeModel`
+Bases: SerializeModel
 
-### *class* schemas.serializers.datums.TxIn(\*args: Any, \*\*kwargs: Any)
+### *class* schemas.serializers.datums.TxIn(\*args: Any, \*\*kwargs: Any) ^TxIn
 
-Bases: [`Item`](#schemas.serializers.datums.Item)
+Bases: [[#^Item|Item]]
 
 #### Attributes:
 
@@ -272,9 +277,9 @@ Bases: [`Item`](#schemas.serializers.datums.Item)
 
 ##### prev_idx *: int*
 
-### *class* schemas.serializers.datums.TxOut(\*args: Any, \*\*kwargs: Any)
+### *class* schemas.serializers.datums.TxOut(\*args: Any, \*\*kwargs: Any) ^TxOut
 
-Bases: [`Item`](#schemas.serializers.datums.Item)
+Bases: [[#^Item|Item]]
 
 #### Attributes:
 
@@ -282,9 +287,9 @@ Bases: [`Item`](#schemas.serializers.datums.Item)
 
 ##### value *: str*
 
-### *class* schemas.serializers.datums.TxOutCond(\*args: Any, \*\*kwargs: Any)
+### *class* schemas.serializers.datums.TxOutCond(\*args: Any, \*\*kwargs: Any) ^TxOutCond
 
-Bases: [`Item`](#schemas.serializers.datums.Item)
+Bases: [[#^Item|Item]]
 
 #### Attributes:
 
@@ -294,9 +299,9 @@ Bases: [`Item`](#schemas.serializers.datums.Item)
 
 ##### value *: str*
 
-### *class* schemas.serializers.datums.TxOutCondSubTypeSrvStakeLock(\*args: Any, \*\*kwargs: Any)
+### *class* schemas.serializers.datums.TxOutCondSubTypeSrvStakeLock(\*args: Any, \*\*kwargs: Any) ^TxOutCondSubTypeSrvStakeLock
 
-Bases: [`Item`](#schemas.serializers.datums.Item)
+Bases: [[#^Item|Item]]
 
 #### Attributes:
 
@@ -306,9 +311,9 @@ Bases: [`Item`](#schemas.serializers.datums.Item)
 
 ##### value *: str*
 
-### *class* schemas.serializers.datums.TxOutExt(\*args: Any, \*\*kwargs: Any)
+### *class* schemas.serializers.datums.TxOutExt(\*args: Any, \*\*kwargs: Any) ^TxOutExt
 
-Bases: [`Item`](#schemas.serializers.datums.Item)
+Bases: [[#^Item|Item]]
 
 #### Attributes:
 
@@ -318,20 +323,20 @@ Bases: [`Item`](#schemas.serializers.datums.Item)
 
 ##### value *: str*
 
-### *class* schemas.serializers.datums.TxSig(\*args: Any, \*\*kwargs: Any)
+### *class* schemas.serializers.datums.TxSig(\*args: Any, \*\*kwargs: Any) ^TxSig
 
-Bases: [`Item`](#schemas.serializers.datums.Item)
+Bases: [[#^Item|Item]]
 
 
 #### Methods:
 
-##### sign *: [Sign](#schemas.serializers.sign.Sign)*
+##### sign *: [[#^Sign|Sign]]*
 
 ##### size *: int*
 
-### *class* schemas.serializers.datums.TxToken(\*args: Any, \*\*kwargs: Any)
+### *class* schemas.serializers.datums.TxToken(\*args: Any, \*\*kwargs: Any) ^TxToken
 
-Bases: [`Item`](#schemas.serializers.datums.Item)
+Bases: [[#^Item|Item]]
 
 #### Attributes:
 
@@ -342,10 +347,11 @@ Bases: [`Item`](#schemas.serializers.datums.Item)
 ##### ticker *: str*
 
 ## schemas.serializers.event module
+---
 
-### *class* schemas.serializers.event.Event(\*args: Any, \*\*kwargs: Any)
+### *class* schemas.serializers.event.Event(\*args: Any, \*\*kwargs: Any) ^Event
 
-Bases: `SerializeModel`
+Bases: SerializeModel
 
 #### Attributes:
 
@@ -353,7 +359,7 @@ Bases: `SerializeModel`
 
 #### Methods:
 
-##### chain *: [Chain](#schemas.serializers.chain.Chain)*
+##### chain *: [[#^Chain|Chain]]*
 
 ##### created_at *: str*
 
@@ -363,15 +369,16 @@ Bases: `SerializeModel`
 
 ##### hashes *: list[str]*
 
-##### signs *: list[[Sign](#schemas.serializers.sign.Sign)]*
+##### signs *: list\[[[#^Sign|Sign]]]*
 
 ##### version *: int*
 
 ## schemas.serializers.net module
+---
 
-### *class* schemas.serializers.net.Net(\*args: Any, \*\*kwargs: Any)
+### *class* schemas.serializers.net.Net(\*args: Any, \*\*kwargs: Any) ^Net
 
-Bases: `SerializeModel`
+Bases: SerializeModel
 
 #### Attributes:
 
@@ -384,10 +391,11 @@ Bases: `SerializeModel`
 ##### name *: str*
 
 ## schemas.serializers.sign module
+---
 
-### *class* schemas.serializers.sign.Pkey(\*args: Any, \*\*kwargs: Any)
+### *class* schemas.serializers.sign.Pkey(\*args: Any, \*\*kwargs: Any) ^Pkey
 
-Bases: `SerializeModel`
+Bases: SerializeModel
 
 #### Attributes:
 
@@ -395,9 +403,9 @@ Bases: `SerializeModel`
 
 ##### type *: str*
 
-### *class* schemas.serializers.sign.Sign(\*args: Any, \*\*kwargs: Any)
+### *class* schemas.serializers.sign.Sign(\*args: Any, \*\*kwargs: Any) ^Sign
 
-Bases: `SerializeModel`
+Bases: SerializeModel
 
 #### Attributes:
 
@@ -405,7 +413,7 @@ Bases: `SerializeModel`
 
 #### Methods:
 
-##### pkey *: [Pkey](#schemas.serializers.sign.Pkey)*
+##### pkey *: [[#^Pkey|Pkey]]*
 
 ##### pkey_hash *: str*
 
@@ -414,10 +422,11 @@ Bases: `SerializeModel`
 ##### type *: str*
 
 ## schemas.serializers.test_schema module
+---
 
-### *class* schemas.serializers.test_schema.TestSchema(\*args: Any, \*\*kwargs: Any)
+### *class* schemas.serializers.test_schema.TestSchema(\*args: Any, \*\*kwargs: Any) ^TestSchema
 
-Bases: `SerializeModel`
+Bases: SerializeModel
 
 #### Attributes:
 
@@ -427,14 +436,14 @@ Bases: `SerializeModel`
 
 #### Methods:
 
-##### values *: list[[TestValue](#schemas.serializers.test_schema.TestValue)]*
+##### values *: list\[[[#^TestValue|TestValue]]]*
 
-### *class* schemas.serializers.test_schema.TestValue(\*args: Any, \*\*kwargs: Any)
+### *class* schemas.serializers.test_schema.TestValue(\*args: Any, \*\*kwargs: Any) ^TestValue
 
-Bases: `SerializeModel`
+Bases: SerializeModel
 
 #### Attributes:
 
 ##### value *: int*
 
-## Module contents
+
