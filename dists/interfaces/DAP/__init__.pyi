@@ -7,6 +7,8 @@ def configGetItem(section_path: str, item_name: str) -> str:
     """Get an item from a configuration"""
     pass
 
+def configGetItems(section_parh : str, item_name : str) -> list: ...
+
 
 def configGetItemDefault(section_path: str, item_name: str, default_value: str) -> str:
     """Get an item from a configuration with a default value"""
