@@ -39,11 +39,7 @@ PyObject* dap_log_it_att(PyObject* self, PyObject* args);
 PyObject* dap_log_it_error(PyObject* self, PyObject* args);
 PyObject* dap_log_it_critical(PyObject* self, PyObject* args);
 
-PyObject* py_m_dap_config_get_items(PyObject *self, PyObject *args);
-
 PyObject* py_m_dap_config_get_item(PyObject *self, PyObject *args);
-
-PyObject* py_m_dap_config_get_item_default(PyObject *self, PyObject *args);
 
 PyObject *dapListToPyList(dap_list_t *list);
 
