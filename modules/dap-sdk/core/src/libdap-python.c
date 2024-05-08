@@ -199,6 +199,22 @@ PyObject* dap_log_it_critical(PyObject* self, PyObject* args){
     return PyLong_FromLong(0);
 }
 
+PyObject* py_m_dap_config_get_items(PyObject *self, PyObject *args) {
+    const char *section_path;
+    const char *item_name;
+    if (!PyArg_ParseTuple(args, "ss", &section_path, &item_name))
+        return NULL;
+    uint16_t l_values_count = 0;
+    char **l_values = dap_config_get_array_str(g_config, section_path, item_name, &l_values_count);
+    PyObject *obj_list = PyList_New(l_values_count);
+    for (uint16_t i = 0; i < l_values_count; i++) {
+        const char *l_value = l_values[i];
+        PyObject *obj_unicode = PyUnicode_FromString(l_value);
+        PyList_SetItem(obj_list, i, obj_unicode);
+    }
+    return obj_list;
+}
+
 PyObject* py_m_dap_config_get_item(PyObject *self, PyObject *args){
     const char *section_path;
     const char *item_name;
