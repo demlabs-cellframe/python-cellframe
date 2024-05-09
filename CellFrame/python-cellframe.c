@@ -30,7 +30,6 @@ static PyMethodDef DapPythonMethods[] = {
     {"deinit", python_dap_deinit, METH_VARARGS, "Deinitialization of the Python Cellframe library."},
     {"setLogLevel", (PyCFunction)dap_set_log_level, METH_VARARGS, "Setting the logging level."},
     {"configGetItem", (PyCFunction)py_m_dap_config_get_item, METH_VARARGS, "Get an item from a configuration."},
-    {"configGetItemDefault", (PyCFunction)py_m_dap_config_get_item_default, METH_VARARGS, "Get an item from a configuration with a default value."},
     {}
 };
 
