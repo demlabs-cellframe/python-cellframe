@@ -27,6 +27,7 @@ PyObject *dap_http_simple_reply_py(PyObject *self, PyObject *args);
 PyObject *dap_http_simple_set_flag_generate_default_header_py(PyObject *self, PyObject *args);
 PyObject *dap_http_simple_get_response_headers(PyObject *self, PyObject *args);
 PyObject *dap_http_simple_set_response_headers(PyObject *self, PyObject *args);
+PyObject *dap_http_simple_http_headers_request(PyDapHttpSimpleObject *self, void *closure);
 
 /* Attributes */
 PyObject *dap_http_simple_method_py(PyDapHttpSimpleObject *self, void *clouser);
