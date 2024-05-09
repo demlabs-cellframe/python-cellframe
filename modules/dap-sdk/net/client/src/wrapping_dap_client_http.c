@@ -4,7 +4,7 @@
 
 static PyMethodDef DapClientHttp_Methods[] = {
     {"getTimeout", (PyCFunction)wrapping_dap_client_http_get_connect_timeout_ms, METH_NOARGS | METH_STATIC, ""},
-    {NULL, 0, NULL, NULL}
+    {NULL, NULL, 0, NULL}
 };
 
 void PyDapClientHttp_deinit(PyDapClientHttpObject *self) {}
@@ -49,7 +49,8 @@ void _wrapping_response_callback_err(int a_err_code, void *a_callback_arg) {
     Py_XDECREF(lcb->obj_callable_error);
 }
 
-int PyDapClientHttp_create(PyDapClientHttpObject *self, PyObject *argv, PyObject *kwds) {
+int PyDapClientHttp_create(PyObject *self, PyObject *argv, PyObject *kwds)
+{
     const char *kwlist[] = {
         "uplink_addr",
         "uplink_port",
@@ -78,7 +79,7 @@ int PyDapClientHttp_create(PyDapClientHttpObject *self, PyObject *argv, PyObject
     PyObject *callback_args;
     PyObject *custom_headers;
     PyObject *over_ssl;
-    if (!PyArg_ParseTupleAndKeywords(argv, kwds, "sHsssOsOOOOO", (const char**)kwlist, &uplink_addr, &uplink_port, &method,
+    if (!PyArg_ParseTupleAndKeywords(argv, kwds, "sHsssOsOOOOO", (char **)kwlist, &uplink_addr, &uplink_port, &method,
                                      &request_content_type, &path, &request, &cookie, &response_callback, &error_callback,
                                      &callback_args, &custom_headers, &over_ssl)){
         return -1;
@@ -100,8 +101,8 @@ int PyDapClientHttp_create(PyDapClientHttpObject *self, PyObject *argv, PyObject
         PyErr_SetString(PyExc_BaseException, "The twelfth argument is not set correctly, it should be an instance of a bool object.");
         return -1;
     }
-    void *l_bytes = NULL;
-    size_t l_bytes_size = 0;
+    char *l_bytes = NULL;
+    Py_ssize_t l_bytes_size = 0;
     if (request != Py_None) {
         if (PyBytes_Check(request)){
             if (PyBytes_AsStringAndSize(request, &l_bytes, &l_bytes_size) == -1) {
@@ -131,9 +132,10 @@ int PyDapClientHttp_create(PyDapClientHttpObject *self, PyObject *argv, PyObject
     Py_INCREF(l_callback_w_args->obj_callable_response);
     Py_INCREF(l_callback_w_args->obj_callable_error);
     Py_INCREF(l_callback_w_args->obj_argv);
-    self->client_http = dap_client_http_request_custom(NULL, uplink_addr, uplink_port, method, request_content_type, path, l_bytes, l_bytes_size, 
-                                   dap_strdup(cookie), _wrapping_response_callback_call, _wrapping_response_callback_err, l_callback_w_args,
-                                   l_str->str, (over_ssl == Py_True) ? true : false);
+    ((PyDapClientHttpObject *)self)->client_http = dap_client_http_request_custom(
+                NULL, uplink_addr, uplink_port, method, request_content_type, path, l_bytes, l_bytes_size,
+                dap_strdup(cookie), _wrapping_response_callback_call, _wrapping_response_callback_err, l_callback_w_args,
+                l_str->str, (over_ssl == Py_True) ? true : false);
     dap_string_free(l_str, true);
     return 0;
 }

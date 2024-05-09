@@ -202,7 +202,7 @@ PyObject* dap_log_it_critical(PyObject* self, PyObject* args){
 PyObject* py_m_dap_config_get_item(PyObject *self, PyObject *args){
     const char *section_path;
     const char *item_name;
-    const PyObject *obj_def = NULL;
+    PyObject *obj_def = NULL;
     if (!PyArg_ParseTuple(args, "ss|O", &section_path, &item_name, &obj_def))
         return NULL;
     dap_config_item_type_t l_type_item = dap_config_get_item_type(g_config, section_path, item_name);
@@ -239,7 +239,9 @@ PyObject* py_m_dap_config_get_item(PyObject *self, PyObject *args){
             const char *res = dap_config_get_item_str(g_config, section_path, item_name);
             return Py_BuildValue("s", res);
         }
+        default:;
     }
+    Py_RETURN_NONE;
 }
 
 PyObject *dapListToPyList(dap_list_t *list) {

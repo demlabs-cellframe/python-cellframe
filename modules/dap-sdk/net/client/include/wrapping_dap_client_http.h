@@ -10,7 +10,7 @@ typedef struct PyDapClientHttp
 }PyDapClientHttpObject;
 
 void PyDapClientHttp_deinit(PyDapClientHttpObject *self);
-int PyDapClientHttp_create(PyDapClientHttpObject *self, PyObject *argv, PyObject *kwds);
+int PyDapClientHttp_create(PyObject *self, PyObject *argv, PyObject *kwds);
 
 PyObject *wrapping_dap_client_http_get_connect_timeout_ms(PyObject *self, PyObject *argv);
 
