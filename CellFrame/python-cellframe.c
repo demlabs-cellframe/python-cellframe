@@ -30,7 +30,6 @@ static PyMethodDef DapPythonMethods[] = {
     {"deinit", python_dap_deinit, METH_VARARGS, "Deinitialization of the Python Cellframe library."},
     {"setLogLevel", (PyCFunction)dap_set_log_level, METH_VARARGS, "Setting the logging level."},
     {"configGetItem", (PyCFunction)py_m_dap_config_get_item, METH_VARARGS, "Get an item from a configuration."},
-    {"configGetItemDefault", (PyCFunction)py_m_dap_config_get_item_default, METH_VARARGS, "Get an item from a configuration with a default value."},
     {}
 };
 
@@ -473,6 +472,7 @@ PyMODINIT_FUNC PyInit_libDAP()
         PyType_Ready( &DapHttpCodeObjectType ) < 0 ||
         PyType_Ready( &DapHttpObjectType ) < 0 ||
         PyType_Ready( &DapHttpSimpleObjectType ) < 0 ||
+        PyType_Ready( &DapClientHttpObjectType ) < 0 ||
         PyType_Ready( &DapHttpHeaderObjectType ) < 0 ||
         PyType_Ready( &DapEncServerObjectType ) < 0 ||
         PyType_Ready( &DapStreamObjectType ) < 0 ||
@@ -523,6 +523,7 @@ PyMODINIT_FUNC PyInit_libDAP()
     PyModule_AddObject(netModule, "HttpCode", (PyObject*)&DapHttpCodeObjectType);
     PyModule_AddObject(netModule, "HttpSimple", (PyObject*)&DapHttpSimpleObjectType);
     PyModule_AddObject(netModule, "HttpHeader", (PyObject*)&DapHttpHeaderObjectType);
+    PyModule_AddObject(netModule, "ClientHTTP", (PyObject*)&DapClientHttpObjectType);
     PyModule_AddObject(netModule, "EncHttp", (PyObject*)&DapEncServerObjectType);
     PyModule_AddObject(netModule, "Stream", (PyObject*)&DapStreamObjectType);
     PyModule_AddObject(netModule, "StreamCtl", (PyObject*)&DapStreamCtlObjectType);

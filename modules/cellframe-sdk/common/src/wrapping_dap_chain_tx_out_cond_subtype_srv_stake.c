@@ -1,9 +1,10 @@
 #include "wrapping_dap_chain_tx_out_cond_subtype_srv_stake.h"
 
 static PyGetSetDef DapChainTxOutCondSubtypeSrvStakePosDelegateGetsSetsDef[]={
-        {"uid", (getter)wrapping_dap_chain_tx_out_cond_subtype_srv_stake_get_uid,NULL,NULL,NULL},
-        {"addr", (getter)wrapping_dap_chain_tx_out_cond_subtype_srv_stake_get_addr,NULL,NULL,NULL},
-        {"value", (getter)wrapping_dap_chain_tx_out_cond_subtype_srv_stake_get_value, NULL, NULL,NULL},
+        {"uid", (getter)wrapping_dap_chain_tx_out_cond_subtype_srv_stake_get_uid,NULL, "", NULL},
+        {"addr", (getter)wrapping_dap_chain_tx_out_cond_subtype_srv_stake_get_addr,NULL, "", NULL},
+        {"value", (getter)wrapping_dap_chain_tx_out_cond_subtype_srv_stake_get_value, NULL, "", NULL},
+        {"usedBy", (getter)wrapping_dap_chain_tx_out_cound_used_by, NULL, "", NULL},
         {NULL}
 };
 
