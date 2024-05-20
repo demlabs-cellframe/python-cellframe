@@ -4,7 +4,7 @@
 
 typedef struct PyDapClusterRole {
     PyObject_HEAD
-    dap_cluster_role_t role;
+    dap_cluster_type_t type;
 } PyDapClusterRoleObject;
 
 extern PyTypeObject DapClusterRoleObjectType;
