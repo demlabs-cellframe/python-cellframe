@@ -8,7 +8,7 @@ def init():
     log.debug("Debug message")
     log.info("Info message")
     log.notice("Notice message")
-    log.message("Message message")
+    log.message("Simple message")
     log.dap("DAP message")
     log.warning("Warning message")
     log.error("Error message")

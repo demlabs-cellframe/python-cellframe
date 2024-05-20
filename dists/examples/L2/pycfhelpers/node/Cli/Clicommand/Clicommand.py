@@ -1,4 +1,6 @@
-from pycfhelpers.node.cli import ReplyObject, CFCliCommand
+from optparse import OptionParser
+from pycfhelpers.node.cli import ReplyObject, CFCliCommand, ReplyId
+from pycfhelpers.node.logging import CFLog
 
 # The node.cli module provides a set of classes
 # for registering CLI commands.
@@ -8,7 +10,7 @@ from pycfhelpers.node.cli import ReplyObject, CFCliCommand
 # two numbers from the command prompt
 
 def my_callback(arg1, arg2, reply_object: ReplyObject, **kwargs):
-    """Simple proccesing function.
+    """Simple processing function.
 
     Args:
         arg1 (str): the first argument from the command line.
@@ -21,7 +23,7 @@ def my_callback(arg1, arg2, reply_object: ReplyObject, **kwargs):
     # Process the logic in the case when the command
     # is called with and without option.
     # The returned response is determined by reply_object.reply("result")
-    # function, where "result" - the message being returned.
+    # function, where "result" is the message being returned.
 
     if option_verbose:
         result_message = "Verbose message: Command executed successfully."
@@ -31,9 +33,9 @@ def my_callback(arg1, arg2, reply_object: ReplyObject, **kwargs):
         reply_object.reply(f"Command executed successfully.\n{result}")
 
 
-# Create a more complex callback handelr.
+# Create a more complex callback handler.
 # Let the function check for a hash in the dictionary and
-# return its keys dependig on the options provided.
+# return its keys depending on the options provided.
 
 hsh_dict = {
     "hash1": {"nonce": 123, "gas": 10000},
@@ -47,8 +49,8 @@ def hash_callback(hsh, reply_object: ReplyObject, nonce, gas):
     Args:
         hsh (str): hash from the command line.
         reply_object (ReplyObject): ReplyObject to provide a message about the result.
-        nonce : nonce option.
-        gas : gas option.
+        nonce: nonce option.
+        gas: gas option.
     """
 
     # Process the logic in the case when the command
@@ -102,7 +104,7 @@ def init():
                                    action="store_true",
                                    dest="nonce",
                                    default=False)
-                                   
+
     proc_command.parser.add_option("-g", "--gas",
                                    action="store_true",
                                    dest="gas",
@@ -115,7 +117,7 @@ def init():
 # Enter commands in the command prompt with the addition of
 # the prefix "cellframe-node-cli".
 
-# To check this examples, enter:
+# To check these examples, enter:
 
 # cellframe-node-cli my_command 1 2
 # > Command executed successfully.
@@ -126,12 +128,4 @@ def init():
 # > The result of the execution is 3.
 
 # cellframe-node-cli fhash a1b2c3
-# > Hash a1b2c3 not found in the dictionary.
-
-# cellframe-node-cli fhash hash1
-# > Hash hash1 found.
-
-# cellframe-node-cli fhash hash1 -g -n
-# > Hash hash1 found. Nonce: 123, Gas: 10000
-
-# And so on.
+# > Hash a1b2c3

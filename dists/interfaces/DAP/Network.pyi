@@ -70,6 +70,10 @@ class HttpSimple(Protocol):
     def request(self) -> Any:
         pass
 
+    @property
+    def requestHeader(self) -> str:
+        pass
+
     def init(self):
         pass
 

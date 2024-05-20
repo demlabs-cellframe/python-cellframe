@@ -1,5 +1,5 @@
 from pycfhelpers.node.net import (CFNet, CFChain, CFMempool)
-from pycfhelpers.common.types import ChainTypes, ItemTypes
+from pycfhelpers.common.types import ChainTypes
 from pycfhelpers.node.logging import CFLog
 from pycfhelpers.node.types import CFNetState, datum_hash
 from pycfhelpers.node.consensus import CFEvent, CFBlock
@@ -7,8 +7,6 @@ from pycfhelpers.node.datums import (CFDatumToken, CFDatumEmission,
                                      CFDatum, CFDatumTX)
 from typing import Literal
 import itertools
-
-
 
 # Below is an example of working with the described classes and their methods,
 # as well as the sequence of actions for registering notificators.
@@ -21,10 +19,10 @@ NUM_OF_DATUMS_ATOMS = 5
 KELVPN_NET = CFNet("KelVPN")
 wallet_address = "jrmnGqeeds4Dp67Ace1RavHGPwUUkcqYmLzdDxR6FhwfxTq7uDWP2rQKZpKCoUaTCQnRcACyUwgfCtPsZfZiRNmvq1YWmiyRFZ1meVD7"
 
+
 # Next, write the functions corresponding to your scenarios.
 # In this example, basic information about all the features of the
 # module will be displayed
-
 
 # Get all available information for the specified network.
 
@@ -48,11 +46,11 @@ def get_net_info(net) -> str:
     log.notice(f"The minimum validator fee: {net.fee_data.validator_min_fee}")
     log.notice(f"The native ticker: {net.fee_data.native_ticker}")
 
-# The chain object (CFChain instance) can be obtained as attribute of
+
+# The chain object (CFChain instance) can be obtained as an attribute of
 # CFNet object. Each network has two chains: net.main and net.zerochain.
 # CFChain instance can also be initialized via the network and the name
 # of the chain. for example: chain = CFChain(KELVPN_NET, "main").
-
 
 # Get information about spesified chain.
 
@@ -67,8 +65,7 @@ def get_atoms_info(chain) -> str:
 
     # Since chain.get_atoms() returns iterator,
     # it is convinient to access it using the module itertools.
-
-    # If the network is offline, then there is no access to it's
+    # If the network is offline, then there is no access to its
     # elements and all generators do not return anything.
 
     iterator = chain.get_atoms()
@@ -99,9 +96,9 @@ def get_atoms_info(chain) -> str:
 
 def get_datums_info(chain, type) -> str:
 
-    # chain.get_datums() also returns iterator, refer to it's elements through
+    # chain.get_datums() also returns iterator, refer to its elements through
     # a loop or use the module itertools. Filter datums by specified type,
-    # that should be an instance of CFSubDatum. If the the type is not
+    # that should be an instance of CFSubDatum. If the type is not
     # specified, the generator returns all datums in all atoms in the chain.
     if not any(chain.get_datums(type)):
         log.notice(f"There are no datums in chain with type: {type}")
@@ -130,7 +127,7 @@ def get_last_datum(chain, type) -> CFDatum:
     return datum
 
 
-# Retrieve information about the trasactions from the chain.
+# Retrieve information about the transactions from the chain.
 
 def get_transaction_info(chain) -> str:
 
@@ -166,39 +163,6 @@ def get_last_tx(chain) -> CFDatumTX:
 
     transaction = list(itertools.islice(iterator, 1))[0]
     return transaction
-
-
-    # *** нужно сделать итерацию по айтемам и их вывод***
-
-def get_items_info(datum_tx: CFDatumTX):
-
-    # It is possible to get all items associated with specified
-    # transaction trough the property CFDatumTX.items.
-    # The items are enclosed in a list.
-    all_items_list = datum_tx.items
-
-    if not any(all_items_list):
-        log.notice(f"There are no items in the specified datum")
-        return
-    else:
-        for item in all_items_list:
-            log.notice(f"Item type {item.type}")
-
-
-# To get items of only a certain type,
-# use the CFDatumTX.get_items(type) method:
-
-def get_items_with_type(datum_tx, type):
-
-    items_list = datum_tx.get_items(type)
-    # All item types are available as 
-    # attributes of the ItemTypes class.
-    if not any(items_list):
-        log.notice(f"There are no items with type: {type} in the datum")
-        return
-    else:
-        num = len(items_list)
-        log.notice(f"The number of items with type: {type} - {num}")
 
 
 # The CFLedger object can be obtained from net_object.get_ledger().
@@ -259,14 +223,8 @@ def chech_for_emission(ledger, emission) -> str:
 # For example, output the arguments obtained by this functions.
 
 def gdbsync_notification(_, op_code, group, key, value, *args, net, **kwargs):
-    # For groups related to a mempool, it is 
-    # possible to decode the values using 
-    # CFMempool.get_datum_from_bytes(value) method:
-    try:
-        mempool = CFMempool(net.main)
-        value = mempool.get_datum_from_bytes(value)
-    except AttributeError:
-        value = value
+    mempool = CFMempool(net.main)
+    value = mempool.get_datum_from_bytes(value)
     log.notice(f"GDB synchronization in the {net.name} with parametrs:")
     log.notice(f"{op_code=},{group=},{key=},{value=}")
 
@@ -353,9 +311,6 @@ def init():
     tx = get_last_tx(chain)
     if tx is not None:
         tx_info_from_ledger(ledger, tx)
-
-    get_items_info(tx)
-    get_items_with_type(tx, ItemTypes.TX_ITEM_TYPE_IN)
 
     # Get the last datum with type CFDatumToken.
     last_datum = get_last_datum(chain, CFDatumToken)

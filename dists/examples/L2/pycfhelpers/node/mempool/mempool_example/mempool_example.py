@@ -2,7 +2,7 @@ from pycfhelpers.node.net import (CFNet, CFChain, CFMempool)
 from pycfhelpers.node.logging import CFLog
 from pycfhelpers.node.gdb import GDBGroup
 from pycfhelpers.node.types import CFNetState, datum_hash
-from pycfhelpers.node.datums import (CFDatumToken, CFDatum)
+from pycfhelpers.node.datums import CFDatumToken, CFDatum
 from typing import Literal
 import itertools
 
@@ -11,12 +11,9 @@ log = CFLog()
 # Configure example according to your needs.
 KELVPN_NET = CFNet("KelVPN")
 
-
-# Get the datums from the mempool and output
-# the available information:
+# Retrieve datums from the mempool and log their hashes:
 
 def get_datums_from_mempool(mempool) -> str:
-
     # CFMempool.get_datums() returns a list of all datums
     # (CFDatum objects)located in the mempool.
     datums = mempool.get_datums()
@@ -40,13 +37,14 @@ def deserialize_datum_from_mempool(mempool, serialized_datum) -> str:
 
 
 # CFChain.get_datums() is an
-# inerator over all datums tha are there.
+# iterator over all datums tha are there.
 # For convenient handling, use the module itertools.
 
-# If the network is offline, then there is no access to it's
+# If the network is offline, then there is no access to its
 # elements and all generators do not return anything.
 
-def get_last_datum(chain, type) -> CFDatum:
+def get_last_datum(chain, type):
+    # Retrieve the last datum of a specified type from the chain
 
     if not any(chain.get_datums()):
         log.notice(f"There are no datums in chain with type: {type}")
@@ -66,6 +64,7 @@ def get_last_datum(chain, type) -> CFDatum:
 # is described. Register it in the "init" function.
 
 def mempool_notification(op_code: Literal["a", "d"], datum: CFDatum | datum_hash, *args, chain: CFChain, **kwargs):
+    # Handle notifications for changes in the mempool
     log.notice(f"Changes in the mempool {chain.net.name} {chain.name}:")
     if isinstance(datum, CFDatum):
         hash_str = datum.hash

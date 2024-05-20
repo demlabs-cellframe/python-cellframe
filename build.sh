@@ -43,6 +43,18 @@ sed -i '/napoleon_include_init_with_doc = True/a autodoc_member_order = "bysourc
 
 sphinx-build -b markdown . _build/pycfhelpers/markdown
 
+# Create a single doc file
+
+cd _build/pycfhelpers/markdown
+
+touch pycfhelpers_documentation.md
+cat pycfhelpers.node.http.md >> pycfhelpers_documentation.md
+echo "" >> pycfhelpers_documentation.md
+cat pycfhelpers.node.md >> pycfhelpers_documentation.md
+echo "" >> pycfhelpers_documentation.md
+cat pycfhelpers.common.md >> pycfhelpers_documentation.md
+
+cd ../../../
 # pycftools documentation
 
 cd ../
@@ -83,7 +95,7 @@ build_doc_pycfhepers_dir="$PWD/pycfhelpers_docs/_build/pycfhelpers/markdown"
 
 build_doc_pycftools_dir="$PWD/pycftools_docs/_build/pycftools/markdown"
 
-python3 ../../tools/fix_md.py "$build_doc_pycfhepers_dir"
+#python3 ../../tools/fix_md.py "$build_doc_pycfhepers_dir"
 
 python3 ../../tools/fix_md.py "$build_doc_pycftools_dir"
 

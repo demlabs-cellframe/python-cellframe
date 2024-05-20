@@ -1,11 +1,8 @@
 # pycfhelpers.common package
----
 
 ## Submodules
----
 
 ## pycfhelpers.common.parsers module
----
 
 ### pycfhelpers.common.parsers.parse_cf_v1_address(address: str)
 
@@ -21,101 +18,89 @@ Parse a CF v1 format address and returns its various components.
     - public_hash (bytes): The public hash.
     - summary_hash (bytes): The summary hash.
     - control_hash (bytes): The control hash.
-* **Return type:** *tuple
+* **Return type:**
+  tuple
 * **Raises:**
-  **ValueError** – If the address is invalid.*
+  **ValueError** – If the address is invalid.
 
 ## pycfhelpers.common.types module
----
 
-### *class* pycfhelpers.common.types.ChainTypes(value) ^ChainTypes
+### *class* pycfhelpers.common.types.ChainTypes(value)
 
-Bases: str, Enum
-
-An enumeration.
-
-#### Attributes:
-
-##### esbocs *= 'esbocs'*
-
-##### dag_poa *= 'dag_poa'*
-
-#### Methods:
-
-##### \_\_format_\_(format_spec)
-
-Returns format using actual value type unless \_\_str_\_ has been overridden.
-
-### *class* pycfhelpers.common.types.DatumTypes(value) ^DatumTypes
-
-Bases: str, Enum
+Bases: `str`, `Enum`
 
 An enumeration.
 
-#### Attributes:
+#### esbocs *= 'esbocs'*
 
-##### DATUM_TX *= 'DATUM_TX'*
+#### dag_poa *= 'dag_poa'*
 
-##### DATUM_TOKEN_DECL *= 'DATUM_TOKEN_DECL'*
-
-##### DATUM_TOKEN_EMISSION *= 'DATUM_TOKEN_EMISSION'*
-
-##### DATUM_CUSTOM *= 'DATUM_CUSTOM'*
-
-##### DATUM_DECREE *= 'DATUM_DECREE'*
-
-##### DATUM_ANCHOR *= 'DATUM_ANCHOR'*
-
-#### Methods:
-
-##### \_\_format_\_(format_spec)
+#### \_\_format_\_(format_spec)
 
 Returns format using actual value type unless \_\_str_\_ has been overridden.
 
-### *class* pycfhelpers.common.types.ItemTypes(value) ^ItemTypes
+### *class* pycfhelpers.common.types.DatumTypes(value)
 
-Bases: str, Enum
+Bases: `str`, `Enum`
 
 An enumeration.
 
-#### Attributes:
+#### DATUM_TX *= 'DATUM_TX'*
 
-##### TX_ITEM_TYPE_IN *= 'TX_ITEM_TYPE_IN'*
+#### DATUM_TOKEN_DECL *= 'DATUM_TOKEN_DECL'*
 
-##### TX_ITEM_TYPE_IN_COND *= 'TX_ITEM_TYPE_IN_COND'*
+#### DATUM_TOKEN_EMISSION *= 'DATUM_TOKEN_EMISSION'*
 
-##### TX_ITEM_TYPE_OUT *= 'TX_ITEM_TYPE_OUT'*
+#### DATUM_CUSTOM *= 'DATUM_CUSTOM'*
 
-##### TX_ITEM_TYPE_OUT_COND *= 'TX_ITEM_TYPE_OUT_COND'*
+#### DATUM_DECREE *= 'DATUM_DECREE'*
 
-##### TX_ITEM_TYPE_PKEY *= 'TX_ITEM_TYPE_PKEY'*
+#### DATUM_ANCHOR *= 'DATUM_ANCHOR'*
 
-##### TX_ITEM_TYPE_SIG *= 'TX_ITEM_TYPE_SIG'*
-
-##### TX_ITEM_TYPE_IN_EMS *= 'TX_ITEM_TYPE_IN_EMS'*
-
-##### TX_ITEM_TYPE_RECEIPT *= 'TX_ITEM_TYPE_RECEIPT'*
-
-##### TX_ITEM_TYPE_OUT_EXT *= 'TX_ITEM_TYPE_OUT_EXT'*
-
-##### TX_ITEM_TYPE_TSD *= 'TX_ITEM_TYPE_TSD'*
-
-##### TX_ITEM_TYPE_VOTING *= 'TX_ITEM_TYPE_VOTING'*
-
-##### TX_ITEM_TYPE_VOTE *= 'TX_ITEM_TYPE_VOTE'*
-
-##### DAP_CHAIN_TX_OUT_COND_SUBTYPE_SRV_PAY *= 'DAP_CHAIN_TX_OUT_COND_SUBTYPE_SRV_PAY'*
-
-##### DAP_CHAIN_TX_OUT_COND_SUBTYPE_SRV_STAKE_LOCK *= 'DAP_CHAIN_TX_OUT_COND_SUBTYPE_SRV_STAKE_LOCK'*
-
-##### DAP_CHAIN_TX_OUT_COND_SUBTYPE_SRV_XCHANGE *= 'DAP_CHAIN_TX_OUT_COND_SUBTYPE_SRV_XCHANGE'*
-
-##### DAP_CHAIN_TX_OUT_COND_SUBTYPE_SRV_STAKE_POS_DELEGATE *= 'DAP_CHAIN_TX_OUT_COND_SUBTYPE_SRV_STAKE_POS_DELEGATE'*
-
-#### Methods:
-
-##### \_\_format_\_(format_spec)
+#### \_\_format_\_(format_spec)
 
 Returns format using actual value type unless \_\_str_\_ has been overridden.
 
+### *class* pycfhelpers.common.types.ItemTypes(value)
 
+Bases: `str`, `Enum`
+
+An enumeration.
+
+#### TX_ITEM_TYPE_IN *= 'TX_ITEM_TYPE_IN'*
+
+#### TX_ITEM_TYPE_IN_COND *= 'TX_ITEM_TYPE_IN_COND'*
+
+#### TX_ITEM_TYPE_OUT *= 'TX_ITEM_TYPE_OUT'*
+
+#### TX_ITEM_TYPE_OUT_COND *= 'TX_ITEM_TYPE_OUT_COND'*
+
+#### TX_ITEM_TYPE_PKEY *= 'TX_ITEM_TYPE_PKEY'*
+
+#### TX_ITEM_TYPE_SIG *= 'TX_ITEM_TYPE_SIG'*
+
+#### TX_ITEM_TYPE_IN_EMS *= 'TX_ITEM_TYPE_IN_EMS'*
+
+#### TX_ITEM_TYPE_RECEIPT *= 'TX_ITEM_TYPE_RECEIPT'*
+
+#### TX_ITEM_TYPE_OUT_EXT *= 'TX_ITEM_TYPE_OUT_EXT'*
+
+#### TX_ITEM_TYPE_TSD *= 'TX_ITEM_TYPE_TSD'*
+
+#### TX_ITEM_TYPE_VOTING *= 'TX_ITEM_TYPE_VOTING'*
+
+#### TX_ITEM_TYPE_VOTE *= 'TX_ITEM_TYPE_VOTE'*
+
+#### DAP_CHAIN_TX_OUT_COND_SUBTYPE_SRV_PAY *= 'DAP_CHAIN_TX_OUT_COND_SUBTYPE_SRV_PAY'*
+
+#### DAP_CHAIN_TX_OUT_COND_SUBTYPE_SRV_STAKE_LOCK *= 'DAP_CHAIN_TX_OUT_COND_SUBTYPE_SRV_STAKE_LOCK'*
+
+#### DAP_CHAIN_TX_OUT_COND_SUBTYPE_SRV_XCHANGE *= 'DAP_CHAIN_TX_OUT_COND_SUBTYPE_SRV_XCHANGE'*
+
+#### DAP_CHAIN_TX_OUT_COND_SUBTYPE_SRV_STAKE_POS_DELEGATE *= 'DAP_CHAIN_TX_OUT_COND_SUBTYPE_SRV_STAKE_POS_DELEGATE'*
+
+#### \_\_format_\_(format_spec)
+
+Returns format using actual value type unless \_\_str_\_ has been overridden.
+
+## Module contents
