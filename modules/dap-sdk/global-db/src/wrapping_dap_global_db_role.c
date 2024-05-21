@@ -5,7 +5,7 @@
 
 PyObject *DapGlobalDBRoleObject_compare(PyObject *self, PyObject *other, int op) {
     if (!PyObject_TypeCheck(other, &DapGlobalDBRolesObjectType)) {
-        return Py_NotImplemented;
+        Py_RETURN_FALSE;
     }
     switch (op) {
         case Py_EQ:
@@ -21,7 +21,7 @@ PyObject *DapGlobalDBRoleObject_compare(PyObject *self, PyObject *other, int op)
                 Py_RETURN_FALSE;
             break;
         default:
-            return Py_NotImplemented;
+            Py_RETURN_FALSE;
     }
 }
 

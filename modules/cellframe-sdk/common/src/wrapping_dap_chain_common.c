@@ -157,7 +157,6 @@ PyObject *dap_chain_addr_check_sum_py(PyObject *self, PyObject *args){
 PyObject *obj_addr_str(PyObject *self){
     char *l_addr = dap_chain_addr_to_str(((PyDapChainAddrObject*)self)->addr);
     PyObject* l_obj_res = Py_BuildValue("s", l_addr);
-    DAP_DELETE(l_addr);
     return l_obj_res;
 }
 
