@@ -116,7 +116,7 @@ PyObject *dap_chain_python_create_atom_iter(PyObject *self, PyObject *args){
     ((PyChainAtomIterObject*)obj_atom_iter)->atom_iter =
             ((PyDapChainObject*)self)->chain_t->callback_atom_iter_create(
                     ((PyDapChainObject*)self)->chain_t,
-                    ((PyDapChainObject*)self)->chain_t->cells->id, NULL);
+                    ((PyDapChainObject*)self)->chain_t->cells->id, NULL, false);
     return obj_atom_iter;
 }
 
