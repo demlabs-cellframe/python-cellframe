@@ -114,7 +114,7 @@ PyObject *dap_chain_ledger_token_emission_load_py(PyObject *self, PyObject *args
 PyObject *dap_chain_ledger_token_emission_find_py(PyObject *self, PyObject *args){
     PyObject *h_fast;
 
-    if (!PyArg_ParseTuple(args, "s", &h_fast))
+    if (!PyArg_ParseTuple(args, "O", &h_fast))
         return NULL;
     
     PyDapChainDatumTokenEmissionObject *token_emission = PyObject_New(PyDapChainDatumTokenEmissionObject,

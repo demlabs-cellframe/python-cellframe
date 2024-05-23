@@ -23,6 +23,7 @@ PyObject *wrapping_guuid_compose(PyObject *self, PyObject *argv){
     (void)self;
     uint64_t net_id = 0;
     uint64_t service_id = 0;
+    
     if (!PyArg_ParseTuple(argv, "KK", &net_id, &service_id)) {
         return NULL;
     }
@@ -45,7 +46,7 @@ PyObject *PyCryptoGUUID_toStr(PyCryptoGUUIDObject *self){
 
 PyObject *PyCryptoGUUID_compare(PyCryptoGUUIDObject *self, PyObject *other, int op) {
     if (!PyObject_TypeCheck(other, &PyCryptoGUUIDObjectType)){
-        return Py_NotImplemented;
+        Py_RETURN_FALSE;
     }
     switch (op)
     {
@@ -61,7 +62,7 @@ PyObject *PyCryptoGUUID_compare(PyCryptoGUUIDObject *self, PyObject *other, int 
         else 
             Py_RETURN_FALSE;
     default:
-        return Py_NotImplemented;
+        Py_RETURN_FALSE;
     }
 }
 
