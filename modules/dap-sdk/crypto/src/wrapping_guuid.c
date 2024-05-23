@@ -15,7 +15,13 @@ int PyCryptoGUUID_init(PyCryptoGUUIDObject *self, PyObject *argv, PyObject *kwds
     };
     if (!PyArg_ParseTupleAndKeywords(argv, kwds, "s", kwords, &in_str_hex))
         return -1;
-    self->guuid = dap_guuid_from_hex_str(in_str_hex);
+    bool success = false;
+    self->guuid = dap_guuid_from_hex_str(in_str_hex, &success);
+    if (!success)
+    {
+        PyErr_SetString(PyExc_SystemError, "Can't parse guuid from string");
+        return NULL;
+    }
     return 0;
 }
 
