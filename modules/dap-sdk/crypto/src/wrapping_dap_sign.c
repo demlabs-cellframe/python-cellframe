@@ -8,7 +8,7 @@ PyTypeObject DapCryproSignTypeObjectType = DAP_PY_TYPE_OBJECT(
         .tp_str = PyDapSignType_to_str);
 
 PyObject *PyDapSignType_to_str(PyObject *self){
-    return Py_BuildValue("s", dap_sign_type_to_str(*((PyDapSignTypeObject*)self)->sign_type));
+    return Py_BuildValue("s", dap_sign_type_to_str(((PyDapSignTypeObject*)self)->sign_type));
 }
 
 /* Sign */
@@ -39,13 +39,14 @@ PyTypeObject DapCryptoSignObjectType = DAP_PY_TYPE_OBJECT(
         .tp_init = wrapping_dap_sign_create);
 
 void PyDapSignObject_free(PyDapSignObject *self) {
+    DAP_DELETE(self->sign);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 PyObject *wrapping_dap_sign_get_type(PyObject *self, void *closure){
     (void)closure;
     PyDapSignTypeObject *obj_type_sign = PyObject_New(PyDapSignTypeObject, &DapCryproSignTypeObjectType);
-    obj_type_sign->sign_type = &((PyDapSignObject*)self)->sign->header.type;
+    obj_type_sign->sign_type = ((PyDapSignObject*)self)->sign->header.type;
     return (PyObject*)obj_type_sign;
 }
 PyObject *wrapping_dap_sign_get_pkey(PyObject *self, void *closure){

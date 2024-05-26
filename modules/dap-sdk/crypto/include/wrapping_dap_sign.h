@@ -38,7 +38,7 @@
 
 typedef struct PyDapSignType{
     PyObject_HEAD
-    dap_sign_type_t *sign_type;
+    dap_sign_type_t sign_type;
 }PyDapSignTypeObject;
 
 PyObject *PyDapSignType_to_str(PyObject *self);
