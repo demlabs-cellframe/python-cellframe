@@ -8,7 +8,7 @@ PyTypeObject DapCryproSignTypeObjectType = DAP_PY_TYPE_OBJECT(
         .tp_str = PyDapSignType_to_str);
 
 PyObject *PyDapSignType_to_str(PyObject *self){
-    return Py_BuildValue("s", dap_sign_type_to_str(*((PyDapSignTypeObject*)self)->sign_type));
+    return Py_BuildValue("s", dap_sign_type_to_str(((PyDapSignTypeObject*)self)->sign_type));
 }
 
 /* Sign */
@@ -39,13 +39,14 @@ PyTypeObject DapCryptoSignObjectType = DAP_PY_TYPE_OBJECT(
         .tp_init = wrapping_dap_sign_create);
 
 void PyDapSignObject_free(PyDapSignObject *self) {
+    DAP_DELETE(self->sign);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 PyObject *wrapping_dap_sign_get_type(PyObject *self, void *closure){
     (void)closure;
     PyDapSignTypeObject *obj_type_sign = PyObject_New(PyDapSignTypeObject, &DapCryproSignTypeObjectType);
-    obj_type_sign->sign_type = &((PyDapSignObject*)self)->sign->header.type;
+    obj_type_sign->sign_type = ((PyDapSignObject*)self)->sign->header.type;
     return (PyObject*)obj_type_sign;
 }
 PyObject *wrapping_dap_sign_get_pkey(PyObject *self, void *closure){
@@ -206,9 +207,7 @@ PyObject *wrapping_dap_sign_from_bytes(PyObject *self, PyObject *args){
     //size_t l_size = PyBytes_Size(obj_data);
     void *l_buff = PyBytes_AsString(obj_data);
     dap_sign_t *l_sign = (dap_sign_t*)l_buff;
-    PyDapSignObject *l_sign_obj = PyObject_New(PyDapSignObject, &DapCryptoSignObjectType);
-    l_sign_obj->sign = l_sign;
-    return (PyObject*)l_sign_obj;
+    return PyDapSignObject_Cretae(l_sign);
 }
 
 PyObject *wrapping_dap_sign_to_b64(PyObject *self, PyObject *args){
@@ -237,4 +236,12 @@ PyObject *wrapping_dap_sign_from_b64(PyObject *self, PyObject *args){
     PyDapSignObject *l_sign_obj = PyObject_New(PyDapSignObject, &DapCryptoSignObjectType);
     l_sign_obj->sign = (dap_sign_t*)l_out;
     return (PyObject*)l_sign_obj;
+}
+
+PyObject *PyDapSignObject_Cretae(dap_sign_t *a_sign){
+    PyDapSignObject *obj_sign = PyObject_New(PyDapSignObject, &DapCryptoSignObjectType);
+    size_t l_sign_size = dap_sign_get_size(a_sign);
+    obj_sign->sign = DAP_NEW_Z_SIZE(dap_sign_t, l_sign_size);
+    memcpy(obj_sign->sign, a_sign, l_sign_size);
+    return (PyObject*)obj_sign;
 }

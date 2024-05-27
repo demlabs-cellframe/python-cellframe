@@ -13,8 +13,7 @@ PyTypeObject DapChainTxSigObjectType = DAP_PY_TYPE_OBJECT(
 
 PyObject *wrapping_dap_chain_tx_sig_get_sign(PyObject *self, void *closure){
     (void)closure;
-    PyDapSignObject *obj_sign = PyObject_New(PyDapSignObject, &DapCryptoSignObjectType);
-    obj_sign->sign = (dap_sign_t*)((PyDapChainTXSigObject*)self)->tx_sig->sig;
+    PyObject *obj_sign = PyDapSignObject_Cretae((dap_sign_t*)((PyDapChainTXSigObject*)self)->tx_sig->sig);
     return (PyObject*)obj_sign;
 }
 
