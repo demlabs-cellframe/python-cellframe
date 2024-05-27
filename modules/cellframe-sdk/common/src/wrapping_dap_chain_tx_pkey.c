@@ -16,7 +16,7 @@ PyTypeObject DapChainTxPkeyObjectType = DAP_PY_TYPE_OBJECT(
 PyObject *wrapping_dap_chain_tx_pkey_sig_type(PyObject *self, void *closure){
     (void)closure;
     PyDapSignTypeObject *obj_sign_type = PyObject_New(PyDapSignTypeObject, &DapCryproSignTypeObjectType);
-    obj_sign_type->sign_type= &((PyDapChainTXPkeyObject*)self)->tx_pkey->header.sig_type;
+    obj_sign_type->sign_type= ((PyDapChainTXPkeyObject*)self)->tx_pkey->header.sig_type;
     return (PyObject*)obj_sign_type;
 }
 PyObject *wrapping_dap_chain_tx_pkey_sig_size(PyObject *self, void *closure){

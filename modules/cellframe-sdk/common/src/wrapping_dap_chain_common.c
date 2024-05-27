@@ -124,14 +124,14 @@ PyObject *dap_chain_addr_fill_py(PyObject *self, PyObject *args){
         obj_addr->addr = DAP_NEW(dap_chain_addr_t);
         dap_chain_addr_fill(
                 obj_addr->addr,
-                *((PyDapSignTypeObject*)obj_sign_type)->sign_type,
+                ((PyDapSignTypeObject*)obj_sign_type)->sign_type,
                 ((PyDapHashFastObject*)obj_pkey_hash)->hash_fast,
                 ((PyDapChainNetIdObject*)obj_chain_net_id)->net_id);
         return (PyObject*)obj_addr;
     }else{
         dap_chain_addr_fill(
                 ((PyDapChainAddrObject*)self)->addr,
-                *((PyDapSignTypeObject*)obj_sign_type)->sign_type,
+                ((PyDapSignTypeObject*)obj_sign_type)->sign_type,
                 ((PyDapHashFastObject*)obj_pkey_hash)->hash_fast,
                 ((PyDapChainNetIdObject*)obj_chain_net_id)->net_id);
         Py_RETURN_NONE;
