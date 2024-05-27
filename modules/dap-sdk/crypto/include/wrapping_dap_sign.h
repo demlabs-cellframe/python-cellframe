@@ -65,6 +65,8 @@ PyObject *wrapping_dap_sign_to_b64(PyObject *self, PyObject *args);
 PyObject *wrapping_dap_sign_from_b64(PyObject *self, PyObject *args);
 PyObject *wrapping_dap_sign_get_addr(PyObject *self, PyObject *args);
 
+PyObject *PyDapSignObject_Cretae(dap_sign_t *a_sign);
+
 extern PyTypeObject DapCryptoSignObjectType;
 
 static bool PyDapSignObject_Check(PyObject *self){

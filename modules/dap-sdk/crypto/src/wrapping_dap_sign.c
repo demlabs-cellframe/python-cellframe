@@ -207,9 +207,7 @@ PyObject *wrapping_dap_sign_from_bytes(PyObject *self, PyObject *args){
     //size_t l_size = PyBytes_Size(obj_data);
     void *l_buff = PyBytes_AsString(obj_data);
     dap_sign_t *l_sign = (dap_sign_t*)l_buff;
-    PyDapSignObject *l_sign_obj = PyObject_New(PyDapSignObject, &DapCryptoSignObjectType);
-    l_sign_obj->sign = l_sign;
-    return (PyObject*)l_sign_obj;
+    return PyDapSignObject_Cretae(l_sign);
 }
 
 PyObject *wrapping_dap_sign_to_b64(PyObject *self, PyObject *args){
@@ -238,4 +236,12 @@ PyObject *wrapping_dap_sign_from_b64(PyObject *self, PyObject *args){
     PyDapSignObject *l_sign_obj = PyObject_New(PyDapSignObject, &DapCryptoSignObjectType);
     l_sign_obj->sign = (dap_sign_t*)l_out;
     return (PyObject*)l_sign_obj;
+}
+
+PyObject *PyDapSignObject_Cretae(dap_sign_t *a_sign){
+    PyDapSignObject *obj_sign = PyObject_New(PyDapSignObject, &DapCryptoSignObjectType);
+    size_t l_sign_size = dap_sign_get_size(a_sign);
+    obj_sign->sign = DAP_NEW_Z_SIZE(dap_sign_t, l_sign_size);
+    memcpy(obj_sign->sign, a_sign, l_sign_size);
+    return (PyObject*)obj_sign;
 }
