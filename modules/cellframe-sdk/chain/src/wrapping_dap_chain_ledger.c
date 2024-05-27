@@ -616,10 +616,10 @@ PyObject *dap_chain_ledger_tx_get_main_ticker_py(PyObject *self, PyObject *args)
         return NULL;
     }
     
-    PyDapChainDatumTxObject *obj_tx = l_obj_tx;
+    PyDapChainDatumTxObject *obj_tx = (PyDapChainDatumTxObject *)l_obj_tx;
 
     int l_ledger_rc = DAP_LEDGER_TX_CHECK_NULL_TX;
-    char * ticker = dap_ledger_tx_get_main_ticker(((PyDapChainLedgerObject*)self)->ledger, obj_tx->datum_tx, &l_ledger_rc );
+    const char * ticker = dap_ledger_tx_get_main_ticker(((PyDapChainLedgerObject*)self)->ledger, obj_tx->datum_tx, &l_ledger_rc );
     return Py_BuildValue("(s,s)", ticker ? ticker : "UNKWNOWN", dap_ledger_tx_check_err_str(l_ledger_rc));
 }
 
