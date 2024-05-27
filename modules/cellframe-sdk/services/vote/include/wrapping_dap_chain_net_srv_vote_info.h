@@ -1,5 +1,5 @@
 #include "Python.h"
-#include "dap_chain_net_voting.h"
+#include "dap_chain_net_srv_voting.h"
 
 typedef struct PyDapChainNetSrvVoteInfo{
     PyObject_HEAD
