@@ -70,6 +70,9 @@ class HttpSimple(Protocol):
     def request(self) -> Any:
         pass
 
+    @property
+    def requestHeader(self) -> list: ...
+
     def init(self):
         pass
 
@@ -120,6 +123,14 @@ class JSONRPCRequest(Protocol):
 # DapJsonRpcResponseobjectType
 class JSONRPCResponse(Protocol):
     pass
+
+class ClientHTTP(Protocol):
+    def __init__(self, uplink_addr : str, uplink_port : int, method : str, rquest_content_type : str,
+                 path : str, request : bytes, cookie : str, respose_callback : Callable[[bytes, Any], None], 
+                 error_callback : Callable[[int, Any], None], callback_args : Any, custom_headers : list, 
+                 over_ssl : bool) -> None: ...
+    @staticmethod
+    def getTimeout() -> int: ...
 
 
 
