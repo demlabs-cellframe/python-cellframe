@@ -74,6 +74,7 @@ PyObject *dap_chain_net_get_chain_by_name_py(PyObject *self, PyObject *args);
 PyObject *dap_chain_net_get_cur_addr_py(PyObject *self, PyObject *args);
 PyObject *dap_chain_net_get_cur_cell_py(PyObject *self, PyObject *args);
 PyObject *dap_chain_net_get_cur_addr_int_py(PyObject *self, PyObject *args);
+PyObject *dap_chain_net_get_config_by_item(PyObject *self, PyObject *args);
 
 PyObject *dap_chain_net_get_gdb_group_mempool_py(PyObject *self, PyObject *args);
 PyObject *dap_chain_net_get_gdb_group_mempool_by_chain_type_py(PyObject *self, PyObject *args);
