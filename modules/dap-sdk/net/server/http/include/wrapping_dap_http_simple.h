@@ -34,6 +34,7 @@ PyObject *dap_http_simple_request_py(PyDapHttpSimpleObject *self, void *clouser)
 PyObject *dap_http_simple_url_path_py(PyDapHttpSimpleObject *self, void *clouser);
 PyObject *dap_http_simple_query_py(PyDapHttpSimpleObject *self, void *clouser);
 PyObject *dap_http_simple_ip_client_py(PyDapHttpSimpleObject *self, void *clouser);
+PyObject *dap_http_simple_http_headers_request(PyDapHttpSimpleObject *self, void *closure);
 
 extern PyTypeObject DapHttpSimpleObjectType;
 
