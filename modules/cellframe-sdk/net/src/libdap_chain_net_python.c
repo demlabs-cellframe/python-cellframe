@@ -1,3 +1,4 @@
+#include "python-cellframe_common.h"
 #include "libdap_chain_net_python.h"
 #include "node_address.h"
 
@@ -38,6 +39,8 @@ static PyGetSetDef DapChainNetGetsSetsDef[] = {
         {"validatorMinFee", (getter)dap_chain_net_get_validator_min_fee_py, NULL, NULL, NULL},
         {"nativeTicker", (getter)dap_chain_net_get_native_ticker_py, NULL, NULL, NULL},
         {"autoproc", (getter)dap_chain_net_get_mempool_autoproc_py, NULL, NULL, NULL},
+        {"gdb_group_alias", (getter)dap_chain_net_get_gdb_alias_py, NULL, NULL, NULL},
+
         {}
 };
 
@@ -132,7 +135,7 @@ PyObject *dap_chain_net_by_id_py(PyObject *self, PyObject *args){
     dap_chain_net_t * net = dap_chain_net_by_id(((PyDapChainNetIdObject*)obj_net_id)->net_id);
     
     if (!net)
-        return Py_None;
+        return Py_BuildNone;
 
     PyDapChainNetObject *obj_net = PyObject_New(PyDapChainNetObject, &DapChainNetObjectType);
     obj_net->chain_net = net;
@@ -407,4 +410,9 @@ PyObject *dap_chain_net_get_mempool_autoproc_py(PyObject *self, void *closure)
     (void)closure;
     bool autoproc =  ((PyDapChainNetObject*)self)->chain_net->pub.mempool_autoproc;    
     return Py_BuildValue("O", autoproc ? Py_True: Py_False);
+}
+
+PyObject *dap_chain_net_get_gdb_alias_py(PyObject *self, void *closure)
+{
+    return Py_BuildValue("s", ((PyDapChainNetObject*)self)->chain_net->pub.gdb_groups_prefix);
 }

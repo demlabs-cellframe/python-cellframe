@@ -1,4 +1,5 @@
 #include "wrapping_dap_chain_datum.h"
+#include "libdap_chain_net_python.h"
 #define LOG_TAG "wrapping_dap_chain_datum"
 //void PyDapChainDatumObject_dealloc(PyDapChainDatumObject* object){
 //}
@@ -13,7 +14,7 @@ PyTypeObject DapChainDatumTypeIdObjectType = DAP_PY_TYPE_OBJECT(
 static PyMethodDef DapChainDatumMethods[] = {
         {"getSize", dap_chain_datum_size_py, METH_NOARGS, ""},
         {"isDatumTX", dap_chain_datum_is_type_tx, METH_NOARGS, ""},
-        {"getDatumTX", wrapping_dap_chain_datum_get_datum_tx, METH_NOARGS, ""},
+        {"getDatumTX", wrapping_dap_chain_datum_get_datum_tx, METH_VARARGS, ""},
         {"isDatumToken", dap_chain_datum_is_type_token, METH_NOARGS, ""},
         {"getDatumToken", wrapping_dap_chain_datum_get_datum_token, METH_NOARGS, ""},
         {"isDatumTokenEmission", dap_chain_datum_is_type_emission, METH_NOARGS, ""},
@@ -195,7 +196,7 @@ PyObject *wrapping_dap_chain_datum_is_type_custom(PyObject *self, PyObject *args
 }
 
 PyObject *wrapping_dap_chain_datum_get_datum_tx(PyObject *self, PyObject *args){
-    (void)args;
+    PyObject *obj_net;
     if(((PyDapChainDatumObject *)self)->datum->header.type_id == DAP_CHAIN_DATUM_TX){
         PyDapChainDatumTxObject *obj_datum_tx = PyObject_New(PyDapChainDatumTxObject, &DapChainDatumTxObjectType);
         obj_datum_tx->datum_tx = (dap_chain_datum_tx_t *)((PyDapChainDatumObject*)self)->datum->data;

@@ -113,6 +113,7 @@ BOOL WINAPI consoleHandler(DWORD);
 #include "wrapping_http_status_code.h"
 #include "wrapping_dap_http_simple.h"
 #include "wrapping_dap_http_header.h"
+#include "wrapping_dap_client_http.h"
 #include "wrapping_dap_chain_net_srv_stake_pos_delegate.h"
 #include "wrapping_dap_chain_net_srv_xchange.h"
 #include "wrapping_dap_chain_net_srv_xchange_price.h"

@@ -1,5 +1,6 @@
 from typing import Protocol, Any
 from .Common import DatumEmission
+from DAP.Crypto import HashFast
 
 
 # chainModule
@@ -362,3 +363,5 @@ class Ledger(Protocol):
 
     def bridgedTxNotifyAdd(self, *args):
         pass
+
+    def txHashIsUsedOutItemHash(self, tx_hash : HashFast, idx : int) -> HashFast | None: ...

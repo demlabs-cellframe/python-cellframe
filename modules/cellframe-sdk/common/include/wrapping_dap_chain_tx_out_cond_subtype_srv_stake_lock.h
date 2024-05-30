@@ -29,11 +29,6 @@ along with any DAP based project.  If not, see <http://www.gnu.org/licenses/>.
 #include "dap_chain_net_srv_stake_lock.h"
 #include "dap_chain_datum_tx_items.h"
 
-typedef struct PyDapChainTxOutCondSubTypeSrvStakeLock{
-    PyObject_HEAD
-    dap_chain_tx_out_cond_t *out_cond;
-}PyDapChainTxOutCondSubTypeSrvStakeLock_Object;
-
 extern PyTypeObject DapChainTxOutCondSubTypeSrvStakeLockObjectType;
 
 PyObject *wrapping_dap_chain_net_srv_stake_lock_get_time_unlock(PyObject *self, void *closure);

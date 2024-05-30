@@ -29,6 +29,7 @@
 #include "dap_chain_datum_tx_out.h"
 #include "wrapping_dap_chain_common.h"
 #include "math_python.h"
+#include "dap_chain_ledger.h"
 
 //#ifdef __cplusplus
 //extern "C"{
@@ -37,10 +38,14 @@
 typedef struct PyDapChainTXOut{
     PyObject_HEAD
     dap_chain_tx_out_t *tx_out;
+    dap_hash_fast_t *tx_hash;
+    dap_ledger_t *ledger;
+    uint64_t idx;
 }PyDapChainTXOutObject;
 
 PyObject *wrapping_dap_chain_tx_out_get_addr(PyObject *self, void *closure);
 PyObject *wrapping_dap_chain_tx_out_get_value(PyObject *self, void *closure);
+PyObject *wrapping_dap_chain_tx_out_get_used_by(PyObject *self, void *closure);
 
 extern PyTypeObject DapChainTxOutObjectType;
 

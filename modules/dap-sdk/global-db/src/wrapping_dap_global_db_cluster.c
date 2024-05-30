@@ -56,7 +56,7 @@ int DapGlobalDBCluster_init(PyGlobalDBClusterObject *self, PyObject *argv, PyObj
     }
     self->cluster = dap_global_db_cluster_add(((PyDapGlobalDBInstanceObject*)dbi)->instance, mnemonuim, 
                                                 ((PyCryptoGUUIDObject*)guid)->guuid, group_mask, ttl, owner_root_access,
-                                                ((PyGlobalDBRoleObject*)defaultRole)->role, ((PyDapClusterRoleObject*)clusterRole)->role);
+                                                ((PyGlobalDBRoleObject*)defaultRole)->role, ((PyDapClusterRoleObject*)clusterRole)->type);
     return 0;
 }
 
