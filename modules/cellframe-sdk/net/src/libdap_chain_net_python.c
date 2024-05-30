@@ -219,7 +219,7 @@ PyObject *dap_chain_net_get_config_by_item(PyObject *self, PyObject *args){
     if (!PyArg_ParseTuple(args, "ss|O", &section_path, &item_name, &obj_def))
         return NULL;
     dap_config_item_type_t l_type_item = dap_config_get_item_type(
-            ((PyDapChainNetObject*)self)->chain_net->conig, section_path, item_name);
+            ((PyDapChainNetObject*)self)->chain_net->pub.config, section_path, item_name);
     switch (l_type_item) {
         case DAP_CONFIG_ITEM_UNKNOWN: {
             if (obj_def != NULL) {
@@ -231,7 +231,7 @@ PyObject *dap_chain_net_get_config_by_item(PyObject *self, PyObject *args){
         case DAP_CONFIG_ITEM_ARRAY: {
             uint16_t l_values_count = 0;
             char **l_values = dap_config_get_array_str(
-                    ((PyDapChainNetObject*)self)->chain_net->conig, section_path, item_name, &l_values_count);
+                    ((PyDapChainNetObject*)self)->chain_net->pub.config, section_path, item_name, &l_values_count);
             PyObject *obj_list = PyList_New(l_values_count);
             for (uint16_t i = 0; i < l_values_count; i++) {
                 const char *l_value = l_values[i];
@@ -242,19 +242,19 @@ PyObject *dap_chain_net_get_config_by_item(PyObject *self, PyObject *args){
         }
         case DAP_CONFIG_ITEM_BOOL: {
             if (dap_config_get_item_bool(
-                    ((PyDapChainNetObject*)self)->chain_net->conig, section_path, item_name))
+                    ((PyDapChainNetObject*)self)->chain_net->pub.config, section_path, item_name))
                 Py_RETURN_TRUE;
             else
                 Py_RETURN_FALSE;
         }
         case DAP_CONFIG_ITEM_DECIMAL: {
             int res = dap_config_get_item_uint32(
-                    ((PyDapChainNetObject*)self)->chain_net->conig, section_path, item_name);
+                    ((PyDapChainNetObject*)self)->chain_net->pub.config, section_path, item_name);
             return Py_BuildValue("i", res);
         }
         case DAP_CONFIG_ITEM_STRING: {
             const char *res = dap_config_get_item_str(
-                    ((PyDapChainNetObject*)self)->chain_net->conig, section_path, item_name);
+                    ((PyDapChainNetObject*)self)->chain_net->pub.config, section_path, item_name);
             return Py_BuildValue("s", res);
         }
         default:;
