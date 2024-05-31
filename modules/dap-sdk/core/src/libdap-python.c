@@ -1,4 +1,5 @@
 #include "libdap-python.h"
+#include "python-cellframe_common.h"
 
 #define LOG_TAG "libdap-python"
 
@@ -205,43 +206,7 @@ PyObject* py_m_dap_config_get_item(PyObject *self, PyObject *args){
     PyObject *obj_def = NULL;
     if (!PyArg_ParseTuple(args, "ss|O", &section_path, &item_name, &obj_def))
         return NULL;
-    dap_config_item_type_t l_type_item = dap_config_get_item_type(g_config, section_path, item_name);
-    switch (l_type_item) {
-        case DAP_CONFIG_ITEM_UNKNOWN: {
-            if (obj_def != NULL) {
-                return obj_def;
-            }
-            PyErr_SetString(PyExc_ValueError, "Value can't be obtained. Either no such section or a key is missing in section");
-            return NULL;
-        }
-        case DAP_CONFIG_ITEM_ARRAY: {
-            uint16_t l_values_count = 0;
-            char **l_values = dap_config_get_array_str(g_config, section_path, item_name, &l_values_count);
-            PyObject *obj_list = PyList_New(l_values_count);
-            for (uint16_t i = 0; i < l_values_count; i++) {
-                const char *l_value = l_values[i];
-                PyObject *obj_unicode = PyUnicode_FromString(l_value);
-                PyList_SetItem(obj_list, i, obj_unicode);
-            }
-            return obj_list;
-        }
-        case DAP_CONFIG_ITEM_BOOL: {
-            if (dap_config_get_item_bool(g_config, section_path, item_name))
-                Py_RETURN_TRUE;
-            else
-                Py_RETURN_FALSE;
-        }
-        case DAP_CONFIG_ITEM_DECIMAL: {
-            int res = dap_config_get_item_uint32(g_config, section_path, item_name);
-            return Py_BuildValue("i", res);
-        }
-        case DAP_CONFIG_ITEM_STRING: {
-            const char *res = dap_config_get_item_str(g_config, section_path, item_name);
-            return Py_BuildValue("s", res);
-        }
-        default:;
-    }
-    Py_RETURN_NONE;
+    return python_get_config_item(g_config, section_path, item_name, obj_def);
 }
 
 PyObject *dapListToPyList(dap_list_t *list) {

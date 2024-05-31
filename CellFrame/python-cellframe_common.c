@@ -57,3 +57,44 @@ void python_error_in_log_it(const char *a_tag){
 
     PyErr_Restore(type, value, trackback);
 }
+
+PyObject *python_get_config_item(dap_config_t* a_config, const char *a_section, const char *a_key, PyObject *obj_default) {
+    dap_config_item_type_t l_type_item = dap_config_get_item_type(
+            a_config, a_section, a_key);
+    switch (l_type_item) {
+        case DAP_CONFIG_ITEM_UNKNOWN: {
+            if (obj_default != NULL) {
+                return obj_default;
+            }
+            PyErr_SetString(PyExc_ValueError, "Value can't be obtained. Either no such section or a key is missing in section");
+            return NULL;
+        }
+        case DAP_CONFIG_ITEM_ARRAY: {
+            uint16_t l_values_count = 0;
+            char **l_values = dap_config_get_array_str(a_config, a_section, a_key, &l_values_count);
+            PyObject *obj_list = PyList_New(l_values_count);
+            for (uint16_t i = 0; i < l_values_count; i++) {
+                const char *l_value = l_values[i];
+                PyObject *obj_unicode = PyUnicode_FromString(l_value);
+                PyList_SetItem(obj_list, i, obj_unicode);
+            }
+            return obj_list;
+        }
+        case DAP_CONFIG_ITEM_BOOL: {
+            if (dap_config_get_item_bool(a_config, a_section, a_key))
+                Py_RETURN_TRUE;
+            else
+                Py_RETURN_FALSE;
+        }
+        case DAP_CONFIG_ITEM_DECIMAL: {
+            int res = dap_config_get_item_uint32(a_config, a_section, a_key);
+            return Py_BuildValue("i", res);
+        }
+        case DAP_CONFIG_ITEM_STRING: {
+            const char *res = dap_config_get_item_str(a_config, a_section, a_key);
+            return Py_BuildValue("s", res);
+        }
+        default:;
+    }
+    Py_RETURN_NONE;
+}
