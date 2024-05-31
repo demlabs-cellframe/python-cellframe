@@ -26,6 +26,7 @@ static PyMethodDef DapChainNetMethods[] = {
         {"getName", dap_chain_net_get_name_py, METH_NOARGS, ""},
         {"getTxByHash", dap_chain_net_get_tx_by_hash_py, METH_VARARGS, ""},
         {"verifyCodeToStr", (PyCFunction)dap_chain_net_convert_verify_code_to_str, METH_VARARGS | METH_STATIC, ""},
+        {"configGetItem", (PyCFunction)dap_chain_net_get_config_by_item, METH_VARARGS, ""},
         {}
 };
 
@@ -209,6 +210,16 @@ PyObject *dap_chain_net_get_cur_cell_py(PyObject *self, PyObject *args){
 PyObject *dap_chain_net_get_cur_addr_int_py(PyObject *self, PyObject *args){
     uint64_t res = dap_chain_net_get_cur_addr_int(((PyDapChainNetObject*)self)->chain_net);
     return PyLong_FromUnsignedLongLong(res);
+}
+
+PyObject *dap_chain_net_get_config_by_item(PyObject *self, PyObject *args){
+    const char *section_path;
+    const char *item_name;
+    PyObject *obj_def = NULL;
+    if (!PyArg_ParseTuple(args, "ss|O", &section_path, &item_name, &obj_def))
+        return NULL;
+    return python_get_config_item(((PyDapChainNetObject *)self)->chain_net->pub.config,
+                                  section_path, item_name, obj_def);
 }
 
 PyObject *dap_chain_net_get_gdb_group_mempool_py(PyObject *self, PyObject *args){
