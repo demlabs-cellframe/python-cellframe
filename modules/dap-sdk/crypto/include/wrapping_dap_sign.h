@@ -38,7 +38,7 @@
 
 typedef struct PyDapSignType{
     PyObject_HEAD
-    dap_sign_type_t *sign_type;
+    dap_sign_type_t sign_type;
 }PyDapSignTypeObject;
 
 PyObject *PyDapSignType_to_str(PyObject *self);
@@ -64,6 +64,8 @@ PyObject *wrapping_dap_sign_from_bytes(PyObject *self, PyObject *args);
 PyObject *wrapping_dap_sign_to_b64(PyObject *self, PyObject *args);
 PyObject *wrapping_dap_sign_from_b64(PyObject *self, PyObject *args);
 PyObject *wrapping_dap_sign_get_addr(PyObject *self, PyObject *args);
+
+PyObject *PyDapSignObject_Cretae(dap_sign_t *a_sign);
 
 extern PyTypeObject DapCryptoSignObjectType;
 

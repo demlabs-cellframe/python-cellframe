@@ -20,7 +20,7 @@ int PyCryptoGUUID_init(PyCryptoGUUIDObject *self, PyObject *argv, PyObject *kwds
     if (!success)
     {
         PyErr_SetString(PyExc_SystemError, "Can't parse guuid from string");
-        return NULL;
+        return -2;
     }
     return 0;
 }

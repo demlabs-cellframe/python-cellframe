@@ -134,9 +134,8 @@ PyObject *wrapping_dap_chain_cs_dag_event_get_signs(PyObject *self, void *closur
 
     for (uint8_t i = 0; i < l_real_signs_count; ++i) {
         dap_sign_t *l_sign = (dap_sign_t*)((uint8_t*)l_event + l_sign_offset);
-        PyDapSignObject *obj_sign = PyObject_New(PyDapSignObject, &DapCryptoSignObjectType);
-        obj_sign->sign = l_sign;
-        PyList_SetItem(obj_list, i, (PyObject*)obj_sign);
+        PyObject *obj_sign = PyDapSignObject_Cretae(l_sign);
+        PyList_SetItem(obj_list, i, obj_sign);
         l_sign_offset += dap_sign_get_size(l_sign);
     }
     return obj_list;
