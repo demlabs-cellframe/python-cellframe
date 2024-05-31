@@ -285,7 +285,7 @@ static void _wrapping_dap_chain_mempool_notify_handler(dap_store_obj_t *a_obj, v
  * @param a_atom
  * @param a_atom_size
  */
-static void _wrapping_dap_chain_atom_notify_handler(void * a_arg, dap_chain_t *a_chain, dap_chain_cell_id_t a_id, void* a_atom, size_t a_atom_size){
+static void _wrapping_dap_chain_atom_notify_handler(void * a_arg, dap_chain_t *a_chain, dap_chain_cell_id_t a_id, dap_hash_fast_t *a_hash, void* a_atom, size_t a_atom_size){
     if (!a_arg){
         return;
     }
