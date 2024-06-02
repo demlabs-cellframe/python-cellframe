@@ -1,4 +1,5 @@
 #include "wrapping_dap_chain_net_srv_client.h"
+#include "python-cellframe_common.h"
 
 #define LOG_TAG "wrapping_dap_chain_net_srv_client"
 

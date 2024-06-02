@@ -37,9 +37,15 @@ static PyGetSetDef DapChainCsBlockMetaDataGetsSetsDef[] = {
         {}
 };
 
-PyObject *wrapping_dap_chain_blockmeta_get_prev_hash(PyObject *self, void *closure){}
-PyObject *wrapping_dap_chain_blockmeta_get_genesis(PyObject *self, void *closure){}
-PyObject *wrapping_dap_chain_blockmeta_get_nonce(PyObject *self, void *closure){}
+PyObject *wrapping_dap_chain_blockmeta_get_prev_hash(PyObject *self, void *closure){
+    Py_RETURN_NONE;
+}
+PyObject *wrapping_dap_chain_blockmeta_get_genesis(PyObject *self, void *closure){
+    Py_RETURN_NONE;
+}
+PyObject *wrapping_dap_chain_blockmeta_get_nonce(PyObject *self, void *closure){
+    Py_RETURN_NONE;
+}
 
 PyObject *wrapping_dap_chain_block_get_version(PyObject *self, void *closure){
     (void)closure;
