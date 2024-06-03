@@ -155,6 +155,7 @@ PyObject *wrapping_dap_chain_net_srv_xchange_price_get_status(PyObject *self, vo
 
         case XCHANGE_ORDER_STATUS_CLOSED:
             return Py_BuildValue("s", "CLOSED");
+
         default:;
     }
     return Py_BuildValue("s", "UNKNOWN");

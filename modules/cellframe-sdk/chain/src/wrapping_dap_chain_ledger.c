@@ -255,7 +255,7 @@ PyObject *dap_chain_ledger_tx_cache_check_py(PyObject *self, PyObject *args){
             ((PyDapChainDatumTxObject*)obj_datum_tx)->datum_tx), &l_tx_hash);
     int res = dap_ledger_tx_cache_check(((PyDapChainLedgerObject*)self)->ledger,
                                               ((PyDapChainDatumTxObject*)obj_datum_tx)->datum_tx,
-                                              &l_tx_hash, false, bound_items, tx_out, NULL, NULL, NULL);
+                                              &l_tx_hash, false, bound_items, tx_out, NULL, NULL, NULL, false);
     return PyLong_FromLong(res);
 }
 PyObject *dap_chain_node_datum_tx_cache_check_py(PyObject *self, PyObject *args){
@@ -490,26 +490,29 @@ typedef struct pvt_ledger_notify{
 }pvt_ledger_notify_t;
 
 static void pvt_wrapping_dap_chain_ledger_tx_add_notify(void *a_arg, dap_ledger_t *a_ledger,
-                                                        dap_chain_datum_tx_t *a_tx){
+                                                        dap_chain_datum_tx_t *a_tx, dap_chan_ledger_notify_opcodes_t a_opcode){
     if (!a_arg)
         return;
-    pvt_ledger_notify_t *notifier = (pvt_ledger_notify_t*)a_arg;
-    PyGILState_STATE state = PyGILState_Ensure();
-    PyDapChainLedgerObject *obj_ledger = PyObject_NEW(PyDapChainLedgerObject, &DapChainLedgerObjectType);
-    PyDapChainDatumTxObject *obj_tx = PyObject_NEW(PyDapChainDatumTxObject, &DapChainDatumTxObjectType);
-    obj_ledger->ledger = a_ledger;
-    obj_tx->datum_tx = a_tx;
-    obj_tx->original = false;
-    PyObject *notify_arg = !notifier->argv ? Py_None : notifier->argv;
-    PyObject *argv = Py_BuildValue("OOO", (PyObject*)obj_ledger, (PyObject*)obj_tx, notify_arg);
-    log_it(L_DEBUG, "Call tx added ledger notifier for net %s", a_ledger->net->pub.name);
-    PyObject* result = PyObject_CallObject(notifier->func, argv);
-    if (!result){
-        python_error_in_log_it(LOG_TAG);
+    if (a_opcode == DAP_LEDGER_NOTIFY_OPCODE_ADDED){
+        pvt_ledger_notify_t *notifier = (pvt_ledger_notify_t*)a_arg;
+        PyGILState_STATE state = PyGILState_Ensure();
+        PyDapChainLedgerObject *obj_ledger = PyObject_NEW(PyDapChainLedgerObject, &DapChainLedgerObjectType);
+        PyDapChainDatumTxObject *obj_tx = PyObject_NEW(PyDapChainDatumTxObject, &DapChainDatumTxObjectType);
+        obj_ledger->ledger = a_ledger;
+        obj_tx->datum_tx = a_tx;
+        PyObject *notify_arg = !notifier->argv ? Py_None : notifier->argv;
+        PyObject *argv = Py_BuildValue("OOO", (PyObject*)obj_ledger, (PyObject*)obj_tx, notify_arg);
+        log_it(L_DEBUG, "Call tx added ledger notifier for net %s", a_ledger->net->pub.name);
+        PyObject* result = PyObject_CallObject(notifier->func, argv);
+        if (!result){
+            python_error_in_log_it(LOG_TAG);
+        }
+        Py_XDECREF(result);
+        Py_XDECREF(argv);
+        PyGILState_Release(state);
+    } else {
+
     }
-    Py_XDECREF(result);
-    Py_XDECREF(argv);
-    PyGILState_Release(state);
 }
 
 PyObject *dap_chain_ledger_tx_add_notify_py(PyObject *self, PyObject *args) {
@@ -572,10 +575,11 @@ static bool s_python_obj_notifier(void *a_arg)
     return false;
 }
 
-static void s_python_proc_notifier(dap_ledger_t *a_ledger, dap_chain_datum_tx_t *a_tx, dap_hash_fast_t *a_tx_hash, void *a_arg)
+static void s_python_proc_notifier(dap_ledger_t *a_ledger, dap_chain_datum_tx_t *a_tx, dap_hash_fast_t *a_tx_hash, void *a_arg, dap_chan_ledger_notify_opcodes_t a_opcode)
 {
     if (!a_arg)
         return;
+    
     struct py_notifier_callback_args *l_args = DAP_NEW_Z(struct py_notifier_callback_args);
     l_args->ledger = a_ledger;
     l_args->tx = DAP_DUP_SIZE(a_tx, dap_chain_datum_tx_get_size(a_tx));
