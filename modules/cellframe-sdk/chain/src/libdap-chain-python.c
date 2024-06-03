@@ -33,6 +33,7 @@ static PyMethodDef DapChainMethods[] = {
         {"getTransactions", (PyCFunction)dap_chain_python_get_txs, METH_VARARGS, ""},
         {"getCSName", (PyCFunction)dap_chain_python_get_cs_name, METH_NOARGS, ""},
         {"getNet", (PyCFunction) dap_chain_python_get_net, METH_NOARGS, ""},
+        {"configGetItem", (PyCFunction)dap_chain_python_get_config_item, METH_VARARGS, ""},
         {}
 };
 
@@ -284,7 +285,7 @@ static void _wrapping_dap_chain_mempool_notify_handler(dap_store_obj_t *a_obj, v
  * @param a_atom
  * @param a_atom_size
  */
-static void _wrapping_dap_chain_atom_notify_handler(void * a_arg, dap_chain_t *a_chain, dap_chain_cell_id_t a_id, void* a_atom, size_t a_atom_size){
+static void _wrapping_dap_chain_atom_notify_handler(void * a_arg, dap_chain_t *a_chain, dap_chain_cell_id_t a_id, dap_hash_fast_t *a_hash, void* a_atom, size_t a_atom_size){
     if (!a_arg){
         return;
     }
@@ -524,4 +525,13 @@ PyObject *dap_chain_python_get_net(PyObject *self, PyObject *args){
     PyDapChainNetObject *obj_net = PyObject_New(PyDapChainNetObject, &DapChainNetObjectType);
     obj_net->chain_net = dap_chain_net_by_id(((PyDapChainObject*)self)->chain_t->net_id);
     return (PyObject*)obj_net;
+}
+
+PyObject *dap_chain_python_get_config_item(PyObject *self, PyObject *args) {
+    const char *section_path;
+    const char *item_name;
+    PyObject *obj_def = NULL;
+    if (!PyArg_ParseTuple(args, "ss|O", &section_path, &item_name, &obj_def))
+        return NULL;
+    return python_get_config_item(((PyDapChainObject*)self)->chain_t->config, section_path, item_name, obj_def);
 }
