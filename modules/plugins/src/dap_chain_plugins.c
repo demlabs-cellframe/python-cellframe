@@ -2,12 +2,9 @@
 #include "dap_plugin.h"
 #include "dap_common.h"
 #include "dap_file_utils.h"
-//#include "dap_chain_plugins_manifest.h"
-//#include "dap_chain_plugins_list.h"
 #include "python-cellframe.h"
-//#include "dap_chain_plugins_command.h"
-
 #include "dap_chain_plugins.h"
+#include "dap_strfuncs.h"
 
 #undef LOG_TAG
 #define LOG_TAG "dap_chain_plugins"
@@ -31,6 +28,10 @@ static int s_dap_chain_plugins_load(dap_plugin_manifest_t * a_manifest, void ** 
 static int s_dap_chain_plugins_unload(dap_plugin_manifest_t * a_manifest, void * a_pvt_data, char ** a_error_str );
 static void s_plugins_load_plugin_initialization(void* a_module);
 static void s_plugins_load_plugin_uninitialization(void* a_module);
+
+const char *site_packages_path = "/opt/cellframe-node/python/lib/python3.10/site-packages";
+const char *plugins_path = "/opt/cellframe-node/var/lib/plugins/";
+char *strings[]={"DAP", "CellFrame", NULL};
 
 wchar_t *s_get_full_path(const char *a_prefix, const char *a_path)
 {
@@ -222,6 +223,7 @@ static int s_dap_chain_plugins_unload(dap_plugin_manifest_t * a_manifest, void *
     return 0;
 }
 
+
 void* dap_chain_plugins_load_plugin_importing(const char *a_dir_path, const char *a_name) {
     log_it(L_NOTICE, "Import \"%s\" module from \"%s\" directory", a_name, a_dir_path);
 
@@ -251,18 +253,22 @@ void* dap_chain_plugins_load_plugin_importing(const char *a_dir_path, const char
         PyObject *modules_keys = PyDict_Keys(modules_dict);
         Py_ssize_t num_modules = PyList_Size(modules_keys);
 
-        const char *site_packages_path = "/opt/cellframe-node/python/lib/python3.10/site-packages";
-        const char *plugins_path = "/opt/cellframe-node/var/lib/plugins/";
-
         // Reload each module except for those in system paths or DAP and CellFrame related ones
         for (Py_ssize_t i = 0; i < num_modules; ++i) {
             PyObject *module_name = PyList_GetItem(modules_keys, i);
             const char *module_name_str = PyUnicode_AsUTF8(module_name);
 
-            // Skip DAP and CellFrame modules
-            if (strstr(module_name_str, "DAP") != NULL || strstr(module_name_str, "CellFrame") != NULL) {
-                continue;
+            // Skip system modules
+            int j = 0;
+            bool sysmodule = false;
+            while (strings[j]) {
+                if (dap_strstr_len(module_name_str, strlen(module_name_str), strings[j]) != NULL) {
+                    sysmodule = true;
+                    break;
+                }
+                j++;
             }
+            if (sysmodule) continue;
 
             // Get the module
             PyObject *module = PyImport_GetModule(module_name);
@@ -279,8 +285,8 @@ void* dap_chain_plugins_load_plugin_importing(const char *a_dir_path, const char
             const char *module_file_path = PyUnicode_AsUTF8(module_file_attr);
 
             // Check if the module is in the site-packages or plugins path
-            if (strstr(module_file_path, site_packages_path) != NULL ||
-                strstr(module_file_path, plugins_path) != NULL) {
+            if (dap_strstr_len(module_file_path, strlen(module_file_path), site_packages_path) != NULL ||
+                dap_strstr_len(module_file_path, strlen(module_file_path), plugins_path) != NULL) {
                 log_it(L_NOTICE, "Reloading module \"%s\" from \"%s\"...", module_name_str, module_file_path);
                 if (PyImport_ReloadModule(module) == NULL) {
                     log_it(L_WARNING, "Failed to reload module \"%s\"", module_name_str);
