@@ -222,18 +222,91 @@ static int s_dap_chain_plugins_unload(dap_plugin_manifest_t * a_manifest, void *
     return 0;
 }
 
-void* dap_chain_plugins_load_plugin_importing(const char *a_dir_path, const char *a_name){
+void* dap_chain_plugins_load_plugin_importing(const char *a_dir_path, const char *a_name) {
     log_it(L_NOTICE, "Import \"%s\" module from \"%s\" directory", a_name, a_dir_path);
 
     PyObject *l_obj_dir_path = PyUnicode_FromString(a_dir_path);
     PyList_Append(s_sys_path, l_obj_dir_path);
     Py_XDECREF(l_obj_dir_path);
-    PyObject *l_module = PyImport_ImportModule(a_name);
-    if (!l_module){
+
+    PyObject *l_module_name = PyUnicode_FromString(a_name);
+
+    // Trying to get an already loaded module
+    PyObject *l_ext_module = PyImport_GetModule(l_module_name);
+    PyObject *l_module = NULL;
+
+    if (l_ext_module) {
+        // The module has already been imported, remove it from sys.modules
+        log_it(L_NOTICE, "Module \"%s\" is already imported, reloading...", a_name);
+        if (PyDict_DelItem(PyImport_GetModuleDict(), l_module_name) < 0) {
+            python_error_in_log_it(LOG_TAG);
+            log_it(L_ERROR, "Failed to remove module \"%s\" from sys.modules", a_name);
+        } else {
+            log_it(L_NOTICE, "Module \"%s\" removed from sys.modules", a_name);
+        }
+        Py_DECREF(l_ext_module);
+
+        // Get the list of keys in sys.modules
+        PyObject *modules_dict = PyImport_GetModuleDict();
+        PyObject *modules_keys = PyDict_Keys(modules_dict);
+        Py_ssize_t num_modules = PyList_Size(modules_keys);
+
+        const char *site_packages_path = "/opt/cellframe-node/python/lib/python3.10/site-packages";
+        const char *plugins_path = "/opt/cellframe-node/var/lib/plugins/";
+
+        // Reload each module except for those in system paths or DAP and CellFrame related ones
+        for (Py_ssize_t i = 0; i < num_modules; ++i) {
+            PyObject *module_name = PyList_GetItem(modules_keys, i);
+            const char *module_name_str = PyUnicode_AsUTF8(module_name);
+
+            // Skip DAP and CellFrame modules
+            if (strstr(module_name_str, "DAP") != NULL || strstr(module_name_str, "CellFrame") != NULL) {
+                continue;
+            }
+
+            // Get the module
+            PyObject *module = PyImport_GetModule(module_name);
+            if (!module) {
+                continue;
+            }
+
+            // Get the file path of the module
+            PyObject *module_file_attr = PyObject_GetAttrString(module, "__file__");
+            if (!module_file_attr) {
+                Py_DECREF(module);
+                continue;
+            }
+            const char *module_file_path = PyUnicode_AsUTF8(module_file_attr);
+
+            // Check if the module is in the site-packages or plugins path
+            if (strstr(module_file_path, site_packages_path) != NULL ||
+                strstr(module_file_path, plugins_path) != NULL) {
+                log_it(L_NOTICE, "Reloading module \"%s\" from \"%s\"...", module_name_str, module_file_path);
+                if (PyImport_ReloadModule(module) == NULL) {
+                    log_it(L_WARNING, "Failed to reload module \"%s\"", module_name_str);
+                    PyErr_Clear();
+                }
+            }
+
+            Py_DECREF(module_file_attr);
+            Py_DECREF(module);
+        }
+        Py_DECREF(modules_keys);
+    }
+
+    // Import the module
+    l_module = PyImport_ImportModule(a_name);
+    if (!l_module) {
         python_error_in_log_it(LOG_TAG);
-        PyErr_Clear();
+        log_it(L_ERROR, "Failed to import module \"%s\"", a_name);
+    }
+
+    Py_DECREF(l_module_name);
+
+    if (!l_module) {
         return NULL;
     }
+
     _dap_chain_plugins_module_t *module = DAP_NEW(_dap_chain_plugins_module_t);
     if (!module) {
         python_error_in_log_it(LOG_TAG);
@@ -245,6 +318,7 @@ void* dap_chain_plugins_load_plugin_importing(const char *a_dir_path, const char
     Py_INCREF(l_module);
     return module;
 }
+
 
 static void s_plugins_load_plugin_initialization(void* a_module){
     if (!a_module)
@@ -308,40 +382,5 @@ static void s_plugins_load_plugin_uninitialization(void* a_module){
         Py_XDECREF(l_void_tuple);
     } else {
         log_it(L_ERROR, "Can't find 'deinit' function of \"%s\" plugin", l_container->name);
-    }
-}
-
-void dap_chain_plugins_load_plugin(const char *a_dir_path, const char *a_name){
-    log_it(L_NOTICE, "Loading \"%s\" plugin directory %s", a_name, a_dir_path);
-    PyErr_Clear();
-
-    PyObject *l_obj_dir_path = PyUnicode_FromString(a_dir_path);
-    PyList_Append(s_sys_path, l_obj_dir_path);
-    Py_XDECREF(l_obj_dir_path);
-    PyObject *l_module = PyImport_ImportModule(a_name);
-    python_error_in_log_it(LOG_TAG);
-    PyObject *l_func_init = PyObject_GetAttrString(l_module, "init");
-    PyObject *l_func_deinit = PyObject_GetAttrString(l_module, "deinit");
-    PyObject *l_res_int = NULL;
-    PyErr_Clear();
-    if (l_func_init != NULL && PyCallable_Check(l_func_init)){
-        PyObject *l_void_tuple = PyTuple_New(0);
-        l_res_int = PyObject_CallObject(l_func_init, l_void_tuple);
-        if (l_res_int && PyLong_Check(l_res_int)){
-            if (_PyLong_AsInt(l_res_int) != 0){
-                python_error_in_log_it(LOG_TAG);
-                log_it(L_ERROR, "Can't initialize \"%s\" plugin. Code error: %i", a_name, _PyLong_AsInt(l_res_int));
-            }
-        } else {
-            python_error_in_log_it(LOG_TAG);
-            log_it(L_ERROR, "The 'init' function of \"%s\" plugin didn't return an integer value", a_name);
-        }
-        Py_XDECREF(l_res_int);
-        Py_XDECREF(l_void_tuple);
-    }else {
-        log_it(L_ERROR, "Can't find 'init' function of \"%s\" plugin", a_name);
-    }
-    if (l_func_deinit == NULL || !PyCallable_Check(l_func_deinit)){
-        log_it(L_WARNING, "Can't find 'deinit' function of \"%s\" plugin", a_name);
     }
 }
