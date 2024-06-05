@@ -4,7 +4,6 @@
 #include "dap_file_utils.h"
 #include "python-cellframe.h"
 #include "dap_chain_plugins.h"
-#include "dap_strfuncs.h"
 
 #undef LOG_TAG
 #define LOG_TAG "dap_chain_plugins"
@@ -258,7 +257,7 @@ void* dap_chain_plugins_load_plugin_importing(const char *a_dir_path, const char
             PyObject *module_name = PyList_GetItem(modules_keys, i);
             const char *module_name_str = PyUnicode_AsUTF8(module_name);
 
-            // Skip system modules
+            // Skip DAP and CellFrame modules
             int j = 0;
             bool sysmodule = false;
             while (strings[j]) {
