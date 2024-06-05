@@ -4,7 +4,6 @@
 #include "dap_file_utils.h"
 #include "python-cellframe.h"
 #include "dap_chain_plugins.h"
-#include "dap_strfuncs.h"
 
 #undef LOG_TAG
 #define LOG_TAG "dap_chain_plugins"
