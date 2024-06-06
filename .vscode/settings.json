@@ -1,0 +1,5 @@
+{
+    "files.associations": {
+        "dap_chain_plugins.h": "c"
+    }
+}
