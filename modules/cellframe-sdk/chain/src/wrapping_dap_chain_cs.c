@@ -1,4 +1,5 @@
 #include "wrapping_dap_chain_cs.h"
+#include "python-cellframe_common.h"
 
 static PyMethodDef DapChainCSMethods[] = {
         {"csAdd", (PyCFunction)dap_chain_cs_add_py, METH_VARARGS, ""},
