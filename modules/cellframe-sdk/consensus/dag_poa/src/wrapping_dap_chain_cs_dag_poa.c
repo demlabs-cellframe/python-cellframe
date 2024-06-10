@@ -1,4 +1,5 @@
 #include "wrapping_dap_chain_cs_dag_poa.h"
+#include "python-cellframe_common.h"
 
 #define LOG_TAG "wrapping_dao_chain_cs_dag_poa"
 

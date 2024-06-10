@@ -33,7 +33,7 @@ void dap_chain_node_cli_delete_py(void){
     dap_chain_node_cli_delete();
 }
 
-size_t elements_str_reply_add(char** str_reply){
+size_t elements_str_reply_add(void** str_reply){
     size_t max_index = 0;
     element_str_reply_t *el;
     LL_FOREACH(l_str_reply_list, el){
@@ -56,7 +56,7 @@ int elements_str_reply_cmp_by_id(element_str_reply_t *e1, element_str_reply_t *e
     else
         return 1;
 }
-char** elements_str_reply_get_by_id(size_t id){
+void** elements_str_reply_get_by_id(size_t id){
     element_str_reply_t *el, *tmp;
     tmp = DAP_NEW(element_str_reply_t);
     if (!tmp) {
@@ -132,7 +132,7 @@ void element_py_func_del_all(){
     }
 }
 
-static int wrapping_cmdfunc(int argc, char **argv, char **str_reply){
+static int wrapping_cmdfunc(int argc, char **argv, void **str_reply){
     PyGILState_STATE l_state = PyGILState_Ensure();
     size_t id_str_replay = elements_str_reply_add(str_reply);
     PyObject *obj_argv = stringToPyList(argc, argv);
@@ -182,7 +182,7 @@ PyObject *dap_chain_node_cli_set_reply_text_py(PyObject *self, PyObject *args){
     if (!PyArg_ParseTuple(args, "sO", &str_reply_text, &obj_id_str_reply))
         return NULL;
     size_t id_str_reply = PyLong_AsSize_t(obj_id_str_reply);
-    dap_cli_server_cmd_set_reply_text(elements_str_reply_get_by_id(id_str_reply), "%s", str_reply_text);
+    dap_cli_server_cmd_set_reply_text((char**)elements_str_reply_get_by_id(id_str_reply), "%s", str_reply_text);
     return PyLong_FromLong(0);
 }
 
@@ -223,7 +223,7 @@ PyObject *dap_chain_node_cli_cmd_exec_str(PyObject *a_self, PyObject *a_args){
         return NULL;
 
     char **l_argv = dap_strsplit(full_cmd, " ", -1);
-    size_t l_argc = dap_str_countv(l_argv);
+    int l_argc = (int)dap_str_countv(l_argv);
     
     char *cmd_name = l_argv[0];
 
@@ -239,7 +239,7 @@ PyObject *dap_chain_node_cli_cmd_exec_str(PyObject *a_self, PyObject *a_args){
         return NULL;
     }
 
-    if(!l_argv) {
+    if(!(*l_argv)) {
         PyErr_SetString(PyExc_TypeError, "Can't make parameters from string!");
         return NULL;
     }
@@ -258,7 +258,9 @@ PyObject *dap_chain_node_cli_cmd_exec_str(PyObject *a_self, PyObject *a_args){
     if (l_cmd->arg_func) {
         l_cmd->func_ex(l_argc, l_argv, l_cmd->arg_func, &str_reply);
     } else {
-        l_cmd->func(l_argc, l_argv, &str_reply);
+        void *l_str_reply_void = NULL;
+        l_cmd->func(l_argc, l_argv, &l_str_reply_void);
+        str_reply = l_str_reply_void;
     }     
     
     dap_strfreev(l_argv);
