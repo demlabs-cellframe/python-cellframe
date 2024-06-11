@@ -89,13 +89,13 @@ static PyMethodDef PyDapChainNetSrvStakePosDelegateMethods[] = {
         {
             "checkValidator",
             wrapping_dap_chain_net_srv_stake_check_validator,
-            METH_VARARGS | METH_STATIC,
+            METH_VARARGS,
             ""
         },
         {
             "checkValidatorFullInfo",
             wrapping_dap_chain_net_srv_stake_check_validator_full_info,
-            METH_VARARGS | METH_STATIC,
+            METH_VARARGS,
             ""
         },
         {}
