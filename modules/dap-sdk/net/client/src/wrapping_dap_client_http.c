@@ -4,7 +4,7 @@
 
 static PyMethodDef DapClientHttp_Methods[] = {
     {"getTimeout", (PyCFunction)wrapping_dap_client_http_get_connect_timeout_ms, METH_NOARGS | METH_STATIC, ""},
-    {NULL, 0, NULL, NULL}
+    {NULL, NULL, 0,  NULL}
 };
 
 void PyDapClientHttp_deinit(PyDapClientHttpObject *self) {}
@@ -78,12 +78,12 @@ int PyDapClientHttp_create(PyDapClientHttpObject *self, PyObject *argv, PyObject
     PyObject *callback_args;
     PyObject *custom_headers;
     PyObject *over_ssl;
-    if (!PyArg_ParseTupleAndKeywords(argv, kwds, "sHsssOsOOOOO", (const char**)kwlist, &uplink_addr, &uplink_port, &method,
+    if (!PyArg_ParseTupleAndKeywords(argv, kwds, "sHsssOsOOOOO", (char**)kwlist, &uplink_addr, &uplink_port, &method,
                                      &request_content_type, &path, &request, &cookie, &response_callback, &error_callback,
                                      &callback_args, &custom_headers, &over_ssl)){
         return -1;
     }
-    //TODO: Check the obj_worker is wapping dap_worker_t 
+    //TODO: Check the obj_worker is wrapping dap_worker_t
     if (!PyCallable_Check(response_callback)) {
         PyErr_SetString(PyExc_BaseException, "The eighth argument is not set correctly, it should be a callback function that will be called after receiving a response to the request.");
         return -1;
@@ -104,9 +104,13 @@ int PyDapClientHttp_create(PyDapClientHttpObject *self, PyObject *argv, PyObject
     size_t l_bytes_size = 0;
     if (request != Py_None) {
         if (PyBytes_Check(request)){
-            if (PyBytes_AsStringAndSize(request, &l_bytes, &l_bytes_size) == -1) {
+            char *l_bytes_str = NULL;
+            Py_ssize_t l_bytes_pysize = 0;
+            if (PyBytes_AsStringAndSize(request, &l_bytes_str, &l_bytes_pysize) == -1) {
                 return -1;
             }
+            l_bytes = (void*)l_bytes_str;
+            l_bytes_size = l_bytes_pysize;
         } else {
             PyErr_SetString(PyExc_BaseException, "The sixth argument is not set correctly, it should be an instance of the Bytes or None object.");
             return -1;
@@ -153,5 +157,5 @@ void PyDapClientHttp_dealloc(PyDapClientHttpObject *self){
 PyTypeObject DapClientHttpObjectType = DAP_PY_TYPE_OBJECT("DAP.Network.ClientHttp",
                                                            sizeof(PyDapClientHttpObject),
                                                            "Client for connect http server",
-                                                           .tp_init = PyDapClientHttp_create,
+                                                           .tp_init = (initproc)PyDapClientHttp_create,
                                                            .tp_dealloc = (destructor)PyDapClientHttp_dealloc);
