@@ -1,6 +1,7 @@
 #include "wrapping_dap_client_http.h"
 #include "python-cellframe_common.h"
 #include "dap_string.h"
+#include "http_status_code.h"
 
 static PyMethodDef DapClientHttp_Methods[] = {
     {"getTimeout", (PyCFunction)wrapping_dap_client_http_get_connect_timeout_ms, METH_NOARGS | METH_STATIC, ""},
@@ -15,12 +16,13 @@ typedef struct _s_callback{
     PyObject *obj_argv;
 }_s_callback_t;
 
-void _wrapping_response_callback_call(void *a_response, size_t a_response_size, void *a_callback_arg) {
+void _wrapping_response_callback_call(void *a_response, size_t a_response_size, void *a_callback_arg,
+                                      http_status_code_t a_http_code) {
     _s_callback_t *lcb = (_s_callback_t*)a_callback_arg;
     PyGILState_STATE gstate;
     gstate = PyGILState_Ensure();
     PyObject *obj_bytes = PyBytes_FromStringAndSize(a_response, a_response_size);
-    PyObject *argv = Py_BuildValue("OO", obj_bytes, lcb->obj_argv);
+    PyObject *argv = Py_BuildValue("OOI", obj_bytes, lcb->obj_argv, a_http_code);
     Py_INCREF(lcb->obj_argv);
     Py_INCREF(lcb->obj_callable_response);
     PyObject *result = PyObject_CallObject(lcb->obj_callable_response, argv);
