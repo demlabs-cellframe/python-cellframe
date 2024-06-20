@@ -232,9 +232,8 @@ PyObject *wrapping_dap_chain_net_srv_order_get_srv_ext_n_sign(PyObject *self, vo
     (void) closure;
     if (WRAPPING_DAP_CHAIN_NET_SRV_ORDER(self)->order != NULL) {
         dap_sign_t *l_sign = (dap_sign_t*)&WRAPPING_DAP_CHAIN_NET_SRV_ORDER(self)->order->ext_n_sign[WRAPPING_DAP_CHAIN_NET_SRV_ORDER(self)->order->ext_size];
-        PyDapSignObject *obj_sign = PyObject_New(PyDapSignObject, &DapCryptoSignObjectType);
-        obj_sign->sign = l_sign;
-        return (PyObject *) obj_sign;
+        PyObject *obj_sign = PyDapSignObject_Cretae(l_sign);
+        return obj_sign;
     }
     Py_RETURN_NONE;
 }

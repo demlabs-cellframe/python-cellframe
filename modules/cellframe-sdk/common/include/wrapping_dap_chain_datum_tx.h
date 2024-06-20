@@ -7,9 +7,9 @@
  * Copyright  (c) 2017-2021
  * All rights reserved.
 
- This file is part of DAP (Demlabs Application Protocol) the open source project
+ This file is part of DAP (Distributed Applications Platform) the open source project
 
-    DAP (Demlabs Application Protocol) is free software: you can redistribute it and/or modify
+    DAP (Distributed Applications Platform) is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
@@ -83,7 +83,6 @@ typedef struct PyDapChainDatumTx{
     PyObject_HEAD
     dap_chain_datum_tx_t *datum_tx;
     bool original;
-    dap_ledger_t *ledger;
 }PyDapChainDatumTxObject;
 
 PyObject *PyDapChainDatumTxObject_create(PyTypeObject *type_object, PyObject *args, PyObject *kwds);

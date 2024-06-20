@@ -15,7 +15,13 @@ int PyCryptoGUUID_init(PyCryptoGUUIDObject *self, PyObject *argv, PyObject *kwds
     };
     if (!PyArg_ParseTupleAndKeywords(argv, kwds, "s", kwords, &in_str_hex))
         return -1;
-    self->guuid = dap_guuid_from_hex_str(in_str_hex);
+    bool success = false;
+    self->guuid = dap_guuid_from_hex_str(in_str_hex, &success);
+    if (!success)
+    {
+        PyErr_SetString(PyExc_SystemError, "Can't parse guuid from string");
+        return -2;
+    }
     return 0;
 }
 
@@ -23,6 +29,7 @@ PyObject *wrapping_guuid_compose(PyObject *self, PyObject *argv){
     (void)self;
     uint64_t net_id = 0;
     uint64_t service_id = 0;
+    
     if (!PyArg_ParseTuple(argv, "KK", &net_id, &service_id)) {
         return NULL;
     }
@@ -45,7 +52,7 @@ PyObject *PyCryptoGUUID_toStr(PyCryptoGUUIDObject *self){
 
 PyObject *PyCryptoGUUID_compare(PyCryptoGUUIDObject *self, PyObject *other, int op) {
     if (!PyObject_TypeCheck(other, &PyCryptoGUUIDObjectType)){
-        return Py_NotImplemented;
+        Py_RETURN_FALSE;
     }
     switch (op)
     {
@@ -61,7 +68,7 @@ PyObject *PyCryptoGUUID_compare(PyCryptoGUUIDObject *self, PyObject *other, int 
         else 
             Py_RETURN_FALSE;
     default:
-        return Py_NotImplemented;
+        Py_RETURN_FALSE;
     }
 }
 

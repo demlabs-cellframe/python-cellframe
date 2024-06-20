@@ -7,9 +7,9 @@
  * Copyright  (c) 2017-2021
  * All rights reserved.
 
- This file is part of DAP (Demlabs Application Protocol) the open source project
+ This file is part of DAP (Distributed Applications Platform) the open source project
 
-    DAP (Demlabs Application Protocol) is free software: you can redistribute it and/or modify
+    DAP (Distributed Applications Platform) is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
@@ -38,7 +38,7 @@
 
 typedef struct PyDapSignType{
     PyObject_HEAD
-    dap_sign_type_t *sign_type;
+    dap_sign_type_t sign_type;
 }PyDapSignTypeObject;
 
 PyObject *PyDapSignType_to_str(PyObject *self);
@@ -64,6 +64,8 @@ PyObject *wrapping_dap_sign_from_bytes(PyObject *self, PyObject *args);
 PyObject *wrapping_dap_sign_to_b64(PyObject *self, PyObject *args);
 PyObject *wrapping_dap_sign_from_b64(PyObject *self, PyObject *args);
 PyObject *wrapping_dap_sign_get_addr(PyObject *self, PyObject *args);
+
+PyObject *PyDapSignObject_Cretae(dap_sign_t *a_sign);
 
 extern PyTypeObject DapCryptoSignObjectType;
 

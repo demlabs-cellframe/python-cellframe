@@ -7,9 +7,9 @@
  * Copyright  (c) 2017-2021
  * All rights reserved.
 
- This file is part of DAP (Demlabs Application Protocol) the open source project
+ This file is part of DAP (Distributed Applications Platform) the open source project
 
-    DAP (Demlabs Application Protocol) is free software: you can redistribute it and/or modify
+    DAP (Distributed Applications Platform) is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
@@ -74,6 +74,7 @@ PyObject *dap_chain_net_get_chain_by_name_py(PyObject *self, PyObject *args);
 PyObject *dap_chain_net_get_cur_addr_py(PyObject *self, PyObject *args);
 PyObject *dap_chain_net_get_cur_cell_py(PyObject *self, PyObject *args);
 PyObject *dap_chain_net_get_cur_addr_int_py(PyObject *self, PyObject *args);
+PyObject *dap_chain_net_get_config_by_item(PyObject *self, PyObject *args);
 
 PyObject *dap_chain_net_get_gdb_group_mempool_py(PyObject *self, PyObject *args);
 PyObject *dap_chain_net_get_gdb_group_mempool_by_chain_type_py(PyObject *self, PyObject *args);
@@ -93,6 +94,8 @@ PyObject *dap_chain_net_get_validator_average_fee_py(PyObject *self, void *closu
 PyObject *dap_chain_net_convert_verify_code_to_str(PyObject *self, PyObject *args);
 PyObject *dap_chain_net_get_native_ticker_py(PyObject *self, void *closure);
 PyObject *dap_chain_net_get_mempool_autoproc_py(PyObject *self, void *closure);
+PyObject *dap_chain_net_get_gdb_alias_py(PyObject *self, void *closure);
+
 
 extern PyTypeObject DapChainNetObjectType;
 

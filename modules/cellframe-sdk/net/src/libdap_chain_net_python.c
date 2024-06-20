@@ -1,3 +1,4 @@
+#include "python-cellframe_common.h"
 #include "libdap_chain_net_python.h"
 #include "node_address.h"
 
@@ -25,6 +26,7 @@ static PyMethodDef DapChainNetMethods[] = {
         {"getName", dap_chain_net_get_name_py, METH_NOARGS, ""},
         {"getTxByHash", dap_chain_net_get_tx_by_hash_py, METH_VARARGS, ""},
         {"verifyCodeToStr", (PyCFunction)dap_chain_net_convert_verify_code_to_str, METH_VARARGS | METH_STATIC, ""},
+        {"configGetItem", (PyCFunction)dap_chain_net_get_config_by_item, METH_VARARGS, ""},
         {}
 };
 
@@ -38,6 +40,8 @@ static PyGetSetDef DapChainNetGetsSetsDef[] = {
         {"validatorMinFee", (getter)dap_chain_net_get_validator_min_fee_py, NULL, NULL, NULL},
         {"nativeTicker", (getter)dap_chain_net_get_native_ticker_py, NULL, NULL, NULL},
         {"autoproc", (getter)dap_chain_net_get_mempool_autoproc_py, NULL, NULL, NULL},
+        {"gdb_group_alias", (getter)dap_chain_net_get_gdb_alias_py, NULL, NULL, NULL},
+
         {}
 };
 
@@ -132,7 +136,7 @@ PyObject *dap_chain_net_by_id_py(PyObject *self, PyObject *args){
     dap_chain_net_t * net = dap_chain_net_by_id(((PyDapChainNetIdObject*)obj_net_id)->net_id);
     
     if (!net)
-        return Py_None;
+        return Py_BuildNone;
 
     PyDapChainNetObject *obj_net = PyObject_New(PyDapChainNetObject, &DapChainNetObjectType);
     obj_net->chain_net = net;
@@ -208,6 +212,16 @@ PyObject *dap_chain_net_get_cur_addr_int_py(PyObject *self, PyObject *args){
     return PyLong_FromUnsignedLongLong(res);
 }
 
+PyObject *dap_chain_net_get_config_by_item(PyObject *self, PyObject *args){
+    const char *section_path;
+    const char *item_name;
+    PyObject *obj_def = NULL;
+    if (!PyArg_ParseTuple(args, "ss|O", &section_path, &item_name, &obj_def))
+        return NULL;
+    return python_get_config_item(((PyDapChainNetObject *)self)->chain_net->pub.config,
+                                  section_path, item_name, obj_def);
+}
+
 PyObject *dap_chain_net_get_gdb_group_mempool_py(PyObject *self, PyObject *args){
     PyObject *obj_chain;
     if (!PyArg_ParseTuple(args, "O", &obj_chain))
@@ -278,7 +292,6 @@ PyObject *dap_chain_net_get_tx_by_hash_py(PyObject *self, PyObject *args){
         Py_RETURN_NONE;
     }
     l_tx->original = false;
-    l_tx->ledger = ((PyDapChainNetObject*)self)->chain_net->pub.ledger;
     return (PyObject*)l_tx;
 }
 
@@ -408,4 +421,9 @@ PyObject *dap_chain_net_get_mempool_autoproc_py(PyObject *self, void *closure)
     (void)closure;
     bool autoproc =  ((PyDapChainNetObject*)self)->chain_net->pub.mempool_autoproc;    
     return Py_BuildValue("O", autoproc ? Py_True: Py_False);
+}
+
+PyObject *dap_chain_net_get_gdb_alias_py(PyObject *self, void *closure)
+{
+    return Py_BuildValue("s", ((PyDapChainNetObject*)self)->chain_net->pub.gdb_groups_prefix);
 }

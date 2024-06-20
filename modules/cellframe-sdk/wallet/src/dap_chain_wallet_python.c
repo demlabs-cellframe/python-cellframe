@@ -59,7 +59,7 @@ PyObject *dap_chain_wallet_create_with_seed_py(PyObject *self, PyObject *argv){
     obj_wallet->wallet = dap_chain_wallet_create_with_seed(
                 wallet_name,
                 path_wallets,
-                *((PyDapSignTypeObject*)obj_sig_type)->sign_type,
+                ((PyDapSignTypeObject*)obj_sig_type)->sign_type,
                 seed,
                 seed_size,
                 NULL);
@@ -75,7 +75,7 @@ PyObject *dap_chain_wallet_create_py(PyTypeObject *type, PyObject *argv, PyObjec
         return NULL;
     self = (PyDapChainWalletObject*)type->tp_alloc(type, 0);
     if (self != NULL){
-        self->wallet = dap_chain_wallet_create(wallet_name, path_wallets, *((PyDapSignTypeObject*)obj_sign_type)->sign_type, NULL);
+        self->wallet = dap_chain_wallet_create(wallet_name, path_wallets, ((PyDapSignTypeObject*)obj_sign_type)->sign_type, NULL);
         if (self->wallet == NULL){
             Py_XDECREF(self);
             return NULL;

@@ -157,10 +157,15 @@ PyObject *wrapping_dap_chain_block_get_signs(PyObject *self, void *closure){
                                                      ((PyDapChainCSBlockObject*)self)->block_size);
     PyObject *obj_list = PyList_New((Py_ssize_t)l_count);
     for (size_t i =0; i < l_count; i++){
-        PyDapSignObject *obj_sign = PyObject_New(PyDapSignObject, &DapCryptoSignObjectType);
-        obj_sign->sign = dap_chain_block_sign_get(((PyDapChainCSBlockObject*)self)->block,
-                                                  ((PyDapChainCSBlockObject*)self)->block_size, i);
-        PyList_SetItem(obj_list, (Py_ssize_t)i, (PyObject*)obj_sign);
+        dap_sign_t *l_sign = dap_chain_block_sign_get(((PyDapChainCSBlockObject*)self)->block,
+                                                     ((PyDapChainCSBlockObject*)self)->block_size, i);
+        if (l_sign) {
+            PyObject *obj_sign = PyDapSignObject_Cretae(l_sign);
+            PyList_SetItem(obj_list, (Py_ssize_t)i, obj_sign);
+        } else {
+            PyList_SetItem(obj_list, (Py_ssize_t)i, Py_None);
+            Py_IncRef(Py_None);
+        }
     }
     return obj_list;
 }

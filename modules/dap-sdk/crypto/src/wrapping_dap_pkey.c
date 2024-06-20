@@ -1,4 +1,5 @@
 #include "wrapping_dap_pkey.h"
+#include "dap_enc.h"
 
 
 static PyGetSetDef PyDapPkeyGetsSetsDef[] = {
