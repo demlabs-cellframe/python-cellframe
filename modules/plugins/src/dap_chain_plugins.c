@@ -28,7 +28,8 @@ static int s_dap_chain_plugins_unload(dap_plugin_manifest_t * a_manifest, void *
 static void s_plugins_load_plugin_initialization(void* a_module);
 static void s_plugins_load_plugin_uninitialization(void* a_module);
 
-const char *site_packages_path = "/opt/cellframe-node/python/lib/python3.10/site-packages";
+const char *pycfhelpers_path = "/opt/cellframe-node/python/lib/python3.10/site-packages/pycfhelpers";
+const char *pycftools_path = "/opt/cellframe-node/python/lib/python3.10/site-packages/pycftools";
 const char *plugins_path = "/opt/cellframe-node/var/lib/plugins/";
 char *strings[]={"DAP", "CellFrame", NULL};
 
@@ -280,7 +281,8 @@ void* dap_chain_plugins_load_plugin_importing(const char *a_dir_path, const char
             const char *module_file_path = PyUnicode_AsUTF8(module_file_attr);
 
             // Check if the module is in the site-packages or plugins path
-            if (dap_strstr_len(module_file_path, strlen(module_file_path), site_packages_path) != NULL ||
+            if (dap_strstr_len(module_file_path, strlen(module_file_path), pycfhelpers_path) != NULL ||
+                dap_strstr_len(module_file_path, strlen(module_file_path), pycftools_path) != NULL ||
                 dap_strstr_len(module_file_path, strlen(module_file_path), plugins_path) != NULL) {
                 log_it(L_NOTICE, "Reloading module \"%s\" from \"%s\"...", module_name_str, module_file_path);
                 if (PyImport_ReloadModule(module) == NULL) {
