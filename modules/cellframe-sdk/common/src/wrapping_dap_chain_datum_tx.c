@@ -147,7 +147,7 @@ PyObject *dap_chain_datum_tx_add_out_item_py(PyObject *self, PyObject *args){
     if (!PyArg_ParseTuple(args, "O|k", &in_addr, &value))
         return NULL;
     int res = dap_chain_datum_tx_add_out_item(&(((PyDapChainDatumTxObject*)self)->datum_tx),
-                                              ((PyDapChainAddrObject*)in_addr)->addr,
+                                              PY_DAP_CHAIN_ADDR(in_addr),
                                               value);
     return PyLong_FromLong(res);
 }

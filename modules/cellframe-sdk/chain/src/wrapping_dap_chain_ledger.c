@@ -206,7 +206,7 @@ PyObject *dap_chain_ledger_addr_get_token_ticker_all_py(PyObject *self, PyObject
                                                   "is optional and must be an object of type ChainAddr.");
             return NULL;
         }
-        l_addr = ((PyDapChainAddrObject*)obj_addr)->addr;
+        l_addr = PY_DAP_CHAIN_ADDR(obj_addr);
     }
     char **l_tickers = NULL;
     size_t l_ticker_count = 0;
@@ -319,7 +319,7 @@ PyObject *dap_chain_ledger_calc_balance_py(PyObject *self, PyObject *args){
         return NULL;
     uint256_t balance = dap_ledger_calc_balance(
             ((PyDapChainLedgerObject*)self)->ledger,
-            ((PyDapChainAddrObject*)addr)->addr,
+            PY_DAP_CHAIN_ADDR(addr),
             token_ticker
     );
     DapMathObject *l_obj_balance = PyObject_New(DapMathObject, &DapMathObjectType);
@@ -334,7 +334,7 @@ PyObject *dap_chain_ledger_calc_balance_full_py(PyObject *self, PyObject *args){
     DapMathObject *l_obj_balance = PyObject_New(DapMathObject, &DapMathObjectType);
     l_obj_balance->value = dap_ledger_calc_balance_full(
         ((PyDapChainLedgerObject*)self)->ledger,
-        ((PyDapChainAddrObject*)addr)->addr, token_ticker);
+        PY_DAP_CHAIN_ADDR(addr), token_ticker);
     return (PyObject*)l_obj_balance;
 }
 PyObject *dap_chain_ledger_tx_find_by_hash_py(PyObject *self, PyObject *args){
@@ -358,7 +358,7 @@ PyObject *dap_chain_ledger_tx_find_by_addr_py(PyObject *self, PyObject *args){
     if (!PyArg_ParseTuple(args, "s|O|O", &token, &addr, &first_hash))
         return NULL;
     PyDapChainDatumTxObject *res = PyObject_New(PyDapChainDatumTxObject, &DapChainDatumTxObjectType);
-    res->datum_tx = dap_ledger_tx_find_by_addr(((PyDapChainLedgerObject*)self)->ledger, token, ((PyDapChainAddrObject*)addr)->addr, ((PyDapHashFastObject*)first_hash)->hash_fast);
+    res->datum_tx = dap_ledger_tx_find_by_addr(((PyDapChainLedgerObject*)self)->ledger, token, PY_DAP_CHAIN_ADDR(addr), ((PyDapHashFastObject*)first_hash)->hash_fast);
     res->original = false;
     
     return (PyObject*)res;
@@ -403,8 +403,8 @@ PyObject *dap_chain_ledger_tx_cache_get_out_cond_value_py(PyObject *self, PyObje
     dap_chain_tx_out_cond_t **out_conds = NULL;
     uint256_t res = dap_ledger_tx_cache_get_out_cond_value(((PyDapChainLedgerObject*)self)->ledger,
                                                                  DAP_CHAIN_TX_OUT_COND_SUBTYPE_SRV_PAY,  //TODO: support other subtypes
-                                                                ((PyDapChainAddrObject*)obj_addr)->addr,
-                                                                out_conds);
+                                                                 PY_DAP_CHAIN_ADDR(obj_addr),
+                                                                 out_conds);
     uint64_t res64 = dap_chain_uint256_to(res);
     PyObject *obj_out_conds = _PyObject_New(&DapChainTxOutCondObjectType);
     ((PyDapChainTxOutCondObject*)obj_out_conds)->out_cond = *out_conds;
