@@ -11,7 +11,24 @@ static PyGetSetDef DapChainTxOutExtGetsSetsDef[] = {
 PyTypeObject DapChainTxOutExtObjectType = DAP_PY_TYPE_OBJECT(
         "CellFrame.ChainTxOutExt", sizeof(PyDapChainTXOutExtObject),
         "Chain tx out ext object",
-        .tp_getset = DapChainTxOutExtGetsSetsDef);
+        .tp_getset = DapChainTxOutExtGetsSetsDef,
+        .tp_init = (initproc)DapChainTxOutExt_init);
+
+int DapChainTxOutExt_init(PyDapChainTXOutExtObject *self, PyObject *args, PyObject *kwds){
+    const char* kwlist[] = {
+            "addr",
+            "token",
+            "value",
+            NULL
+    };
+    PyObject *obj_addr;
+    const char *str_token;
+    PyObject *obj_value;
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "OsO", (char **)kwlist, &obj_addr, &str_token, &obj_value))
+        return -1;
+    self->out_ext = dap_chain_datum_tx_item_out_ext_create(PY_DAP_CHAIN_ADDR(obj_addr), ((DapMathObject*)obj_value)->value, str_token);
+    return 0;
+}
 
 PyObject *wrapping_dap_chain_tx_out_ext_get_addr(PyObject *self, void *closure){
     (void)closure;

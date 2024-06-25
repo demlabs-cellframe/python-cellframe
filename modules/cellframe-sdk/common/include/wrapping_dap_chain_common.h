@@ -52,6 +52,7 @@ typedef struct PyDapChainAddr{
     PyObject_HEAD
     dap_chain_addr_t *addr;
 } PyDapChainAddrObject;
+#define PY_DAP_CHAIN_ADDR(a) ((PyDapChainAddrObject*)a)->addr
 
 PyObject *dap_chain_addr_to_str_py(PyObject *self, PyObject *args);
 PyObject *dap_chain_addr_from_str_py(PyObject *self, PyObject *args);
