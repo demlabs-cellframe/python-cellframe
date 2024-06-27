@@ -36,7 +36,7 @@ PyObject* dap_enc_key_get_enc_size_py(PyObject *self, PyObject *args){
 //    dap_enc_key_t *key = key_list_get_key(keys, key_id);
 //    if (key == NULL)
 //        return NULL;
-    size_t size_buff = dap_enc_key_get_enc_size(((PyCryptoKeyObject*)in_key)->key, buff_in_size);
+    size_t size_buff = dap_enc_key_get_enc_size(((PyCryptoKeyObject*)in_key)->key->type, buff_in_size);
     if (size_buff == 0)
         return NULL;
     return  PyLong_FromSize_t(size_buff);
@@ -51,7 +51,7 @@ PyObject* dap_enc_key_get_dec_size_py(PyObject *self, PyObject *args){
 //    dap_enc_key_t *key = key_list_get_key(keys, key_id);
 //    if (key == NULL)
 //        return NULL;
-    size_t size_buff = dap_enc_key_get_dec_size(((PyCryptoKeyObject*)in_key)->key, buff_in_size);
+    size_t size_buff = dap_enc_key_get_dec_size(((PyCryptoKeyObject*)in_key)->key->type, buff_in_size);
     if (size_buff == 0)
         return NULL;
     return  PyLong_FromSize_t(size_buff);
