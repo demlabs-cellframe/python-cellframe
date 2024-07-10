@@ -34,7 +34,6 @@ PyObject *dap_chain_ledger_token_emission_find_py(PyObject *self, PyObject *args
 PyObject *dap_chain_ledger_tx_get_token_ticker_by_hash_py(PyObject *self, PyObject *args);
 PyObject *dap_chain_ledger_addr_get_token_ticker_all_py(PyObject *self, PyObject *args);
 PyObject *dap_chain_ledger_addr_get_token_ticker_all_fast_py(PyObject *self, PyObject *args);
-PyObject *dap_chain_ledger_tx_cache_check_py(PyObject *self, PyObject *args);
 PyObject *dap_chain_node_datum_tx_cache_check_py(PyObject *self, PyObject *args);
 PyObject *dap_chain_ledger_purge_py(PyObject *self, PyObject *args);
 PyObject *dap_chain_ledger_count_py(PyObject *self, PyObject *args);
