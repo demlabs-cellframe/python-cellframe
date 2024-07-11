@@ -71,7 +71,7 @@ static PyObject *py_server_listen(PyObject *self, PyObject *args)
         l_addrs[i] = dap_strdup_printf("%s:%u", l_current_addr, l_current_port);
     }
     PyObject *obj = _PyObject_New(&DapServerObjectType);
-    ((PyDapServerObject*)obj)->t_server = dap_server_new(l_addrs, l_count, l_type, NULL);
+    //((PyDapServerObject*)obj)->t_server = dap_server_new(l_addrs, l_count, l_type, NULL); // TODO
     for (uint16_t i = 0; i < PyList_Size(addr_list); i++){
         DAP_DELETE(l_addrs[i]);
     }

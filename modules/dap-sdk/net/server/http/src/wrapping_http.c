@@ -18,7 +18,7 @@ PyObject *dap_http_new_py(PyObject *self, PyObject *args){
         return NULL;
     dap_server_t *l_server = ((PyDapServerObject*)obj_server)->t_server;
     if (l_server) {
-        int res = dap_http_new(l_server, name);
+        int res = 0;//dap_http_new(l_server, name); // TODO
         return PyLong_FromLong(res);
     } else {
         PyErr_SetString(PyExc_SystemError, "It is not possible to add a handler to a non-existent server. Check the configuration.");
