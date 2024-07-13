@@ -12,16 +12,6 @@ PyTypeObject DapHttpObjectType = DAP_PY_TYPE_OBJECT(
         .tp_methods = DapHttpMethods);
 
 PyObject *dap_http_new_py(PyObject *self, PyObject *args){
-    PyObject *obj_server;
-    const char * name;
-    if (!PyArg_ParseTuple(args, "O|s", &obj_server, &name))
-        return NULL;
-    dap_server_t *l_server = ((PyDapServerObject*)obj_server)->t_server;
-    if (l_server) {
-        int res = 0;//dap_http_new(l_server, name); // TODO
-        return PyLong_FromLong(res);
-    } else {
-        PyErr_SetString(PyExc_SystemError, "It is not possible to add a handler to a non-existent server. Check the configuration.");
-        return NULL;
-    }
+    PyErr_SetString(PyExc_AttributeError, "python http dap_server not implemented!");
+    return NULL;
 }
