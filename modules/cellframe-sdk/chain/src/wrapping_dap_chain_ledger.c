@@ -141,7 +141,7 @@ PyObject *dap_chain_ledger_token_auth_signs_total_py(PyObject *self, PyObject *a
                                               " token ticker string");
         return NULL;
     }
-    size_t res = dap_ledger_token_auth_signs_total(((PyDapChainLedgerObject*)self)->ledger, token_ticker);
+    size_t res = dap_ledger_token_get_auth_signs_total(((PyDapChainLedgerObject*)self)->ledger, token_ticker);
     if (res == 0)
         Py_RETURN_NONE;
     return Py_BuildValue("i", res);
@@ -154,7 +154,7 @@ PyObject *dap_chain_ledger_token_auth_signs_valid_py(PyObject *self, PyObject *a
                                               " token ticker string");
         return NULL;
     }
-    size_t res = dap_ledger_token_auth_signs_valid(((PyDapChainLedgerObject*)self)->ledger, token_ticker);
+    size_t res = dap_ledger_token_get_auth_signs_valid(((PyDapChainLedgerObject*)self)->ledger, token_ticker);
     if (res == 0)
         Py_RETURN_NONE;
 
@@ -169,7 +169,7 @@ PyObject *dap_chain_ledger_token_auth_pkeys_hashes_py(PyObject *self, PyObject *
                                               " token ticker string");
         return NULL;
     }
-    dap_list_t * l_hashes = dap_ledger_token_auth_pkeys_hashes(((PyDapChainLedgerObject*)self)->ledger, token_ticker);
+    dap_list_t * l_hashes = dap_ledger_token_get_auth_pkeys_hashes(((PyDapChainLedgerObject*)self)->ledger, token_ticker);
     PyObject *obj_list = PyList_New(dap_list_length(l_hashes));
     size_t i = 0;
     for (dap_list_t *l_iter = l_hashes; l_iter != NULL; l_iter = l_iter->next, ++i){
