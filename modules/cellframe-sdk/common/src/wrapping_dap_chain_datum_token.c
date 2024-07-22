@@ -228,7 +228,7 @@ PyObject *wrapping_dap_chain_datum_token_emission_get_type_str(PyObject *self, v
 //#define DAP_CHAIN_DATUM_TOKEN_EMISSION_TYPE_ALGO              0x02
 //#define DAP_CHAIN_DATUM_TOKEN_EMISSION_TYPE_ATOM_OWNER        0x03
 //#define DAP_CHAIN_DATUM_TOKEN_EMISSION_TYPE_SMART_CONTRACT    0x04
-//    const char *str = c_dap_chain_datum_token_emission_type_str(((PyDapChainDatumTokenEmissionObject*)self)->token_emission->hdr.type);
+//    const char *str = dap_chain_datum_emission_type_str(((PyDapChainDatumTokenEmissionObject*)self)->token_emission->hdr.type);
 //    return Py_BuildValue("s", str);
 }
 PyObject *wrapping_dap_chain_datum_token_emission_get_ticker(PyObject *self, void *closure){
