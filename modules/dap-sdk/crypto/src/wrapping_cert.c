@@ -120,7 +120,7 @@ PyObject* dap_cert_pkey_py(PyObject *self, PyObject *args)
     obj_pkey->pkey = DAP_NEW_Z_SIZE(dap_pkey_t, sizeof(dap_pkey_t) + l_bytes_size);
     obj_pkey->pkey->header.size = l_bytes_size;
     if (((PyCryptoCertObject*)self)->cert->enc_key->type == DAP_ENC_KEY_TYPE_SIG_DILITHIUM) {
-        obj_pkey->pkey->header.type.type = PKEY_TYPE_SIGN_DILITHIUM;
+        obj_pkey->pkey->header.type.type = DAP_PKEY_TYPE_SIGN_DILITHIUM;
         memcpy(obj_pkey->pkey->pkey, l_bytes, l_bytes_size);
         obj_pkey->pkey->header.size = l_bytes_size;
     }
