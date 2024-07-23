@@ -120,7 +120,7 @@ PyObject *dap_chain_datum_is_type_tx(PyObject *self, PyObject *args){
 
 PyObject *dap_chain_datum_is_type_token(PyObject *self, PyObject *args){
     (void)args;
-    if (((PyDapChainDatumObject*)self)->datum->header.type_id == DAP_CHAIN_DATUM_TOKEN_DECL ){
+    if (((PyDapChainDatumObject*)self)->datum->header.type_id == DAP_CHAIN_DATUM_TOKEN ){
         Py_RETURN_TRUE;
     } else {
         Py_RETURN_FALSE;
@@ -129,7 +129,7 @@ PyObject *dap_chain_datum_is_type_token(PyObject *self, PyObject *args){
 
 PyObject *wrapping_dap_chain_datum_get_datum_token(PyObject *self, PyObject *args){
     (void)args;
-    if (((PyDapChainDatumObject*)self)->datum->header.type_id == DAP_CHAIN_DATUM_TOKEN_DECL ){
+    if (((PyDapChainDatumObject*)self)->datum->header.type_id == DAP_CHAIN_DATUM_TOKEN ){
         PyDapChainDatumTokenObject *obj_token = PyObject_New(PyDapChainDatumTokenObject,
                                                              &DapChainDatumTokenObjectType);
         size_t l_size_token = ((PyDapChainDatumObject*)self)->datum->header.data_size;
