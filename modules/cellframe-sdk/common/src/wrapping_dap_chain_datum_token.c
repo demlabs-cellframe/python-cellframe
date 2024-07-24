@@ -228,7 +228,7 @@ PyObject *wrapping_dap_chain_datum_token_emission_get_type_str(PyObject *self, v
 //#define DAP_CHAIN_DATUM_TOKEN_EMISSION_TYPE_ALGO              0x02
 //#define DAP_CHAIN_DATUM_TOKEN_EMISSION_TYPE_ATOM_OWNER        0x03
 //#define DAP_CHAIN_DATUM_TOKEN_EMISSION_TYPE_SMART_CONTRACT    0x04
-//    const char *str = c_dap_chain_datum_token_emission_type_str(((PyDapChainDatumTokenEmissionObject*)self)->token_emission->hdr.type);
+//    const char *str = dap_chain_datum_emission_type_str(((PyDapChainDatumTokenEmissionObject*)self)->token_emission->hdr.type);
 //    return Py_BuildValue("s", str);
 }
 PyObject *wrapping_dap_chain_datum_token_emission_get_ticker(PyObject *self, void *closure){
@@ -315,14 +315,14 @@ PyObject *wrapping_dap_chain_datum_token_emission_get_signs(PyObject *self, void
         _PyErr_logIt(L_ERROR, "datum_token_ems", "Emission hdr type not DAP_CHAIN_DATUM_TOKEN_EMISSION_TYPE_AUTH, return empty signs list");
         return PyList_New(0);
     }
-    if (!l_emi->data.type_auth.signs_count || l_emi->data.type_auth.size <= l_emi->data.type_auth.tsd_total_size) {
+    if (!l_emi->data.type_auth.signs_count || l_emi->data.type_auth.tsd_n_signs_size <= l_emi->data.type_auth.tsd_total_size) {
         _PyErr_logIt(L_ERROR, "datum_token_ems", "Emission datum has no signs!");
         return PyList_New(0);
     }
     
     dap_sign_t *l_sign = (dap_sign_t*)(l_emi->tsd_n_signs + l_emi->data.type_auth.tsd_total_size);
     size_t l_count, l_sign_size;
-    size_t l_cert_size = l_emi->data.type_auth.size - l_emi->data.type_auth.tsd_total_size;
+    size_t l_cert_size = l_emi->data.type_auth.tsd_n_signs_size - l_emi->data.type_auth.tsd_total_size;
     
     for (l_count = 0, l_sign_size = 0; l_count < l_emi->data.type_auth.signs_count && (l_sign_size = dap_sign_get_size(l_sign)); ++l_count) {
         
