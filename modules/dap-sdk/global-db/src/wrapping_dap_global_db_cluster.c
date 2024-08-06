@@ -57,6 +57,12 @@ int DapGlobalDBCluster_init(PyGlobalDBClusterObject *self, PyObject *argv, PyObj
     self->cluster = dap_global_db_cluster_add(((PyDapGlobalDBInstanceObject*)dbi)->instance, mnemonuim, 
                                                 ((PyCryptoGUUIDObject*)guid)->guuid, group_mask, ttl, owner_root_access,
                                                 ((PyGlobalDBRoleObject*)defaultRole)->role, ((PyDapClusterRoleObject*)clusterRole)->type);
+    if (!self->cluster) {
+        char *l_err_str = dap_strdup_printf("Failed to create cluster. Specified cluster group mask %s.", group_mask);
+        PyErr_SetString(PyExc_Exception, l_err_str);
+        DAP_DELETE(l_err_str);
+        return -1;
+    }
     return 0;
 }
 
