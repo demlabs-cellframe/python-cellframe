@@ -38,6 +38,8 @@ PyObject *wrapping_dap_chain_tx_out_cond_subtype_srv_xchange_get_net_id(PyObject
 PyObject *wrapping_dap_chain_tx_out_cond_subtype_srv_xchange_get_token(PyObject *self, void *closure);
 PyObject *wrapping_dap_chain_tx_out_cond_subtype_srv_xchange_get_value(PyObject *self, void *closure);
 
+int DapChainTxOutCondSubtypeSrvXchange_new(PyDapChainTxOutCondObject *self, PyObject *args, PyObject *kwds);
+
 extern PyTypeObject DapChainTxOutCondSubTypeSrvXchangeObjectType;
 
 #ifdef __cplusplus
