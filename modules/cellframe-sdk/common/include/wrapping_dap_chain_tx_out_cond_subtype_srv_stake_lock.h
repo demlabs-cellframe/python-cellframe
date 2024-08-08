@@ -26,6 +26,7 @@ along with any DAP based project.  If not, see <http://www.gnu.org/licenses/>.
 #pragma once
 
 #include <Python.h>
+#include "wrapping_dap_chain_tx_out_cond.h"
 #include "dap_chain_net_srv_stake_lock.h"
 #include "dap_chain_datum_tx_items.h"
 
@@ -36,4 +37,4 @@ PyObject *wrapping_dap_chain_net_srv_stake_lock_get_flags(PyObject *self, void *
 PyObject *wrapping_dap_chain_net_srv_stake_lock_get_reinvest_percent(PyObject *self, void *closure);
 PyObject *wrapping_dap_chain_net_srv_stake_lock_get_token_delegated(PyObject *self, void *closure);
 
-
+int DapChainTxOutCondSubtypeSrvStakeLock_new(PyDapChainTxOutCondObject *self, PyObject *args, PyObject *kwds);

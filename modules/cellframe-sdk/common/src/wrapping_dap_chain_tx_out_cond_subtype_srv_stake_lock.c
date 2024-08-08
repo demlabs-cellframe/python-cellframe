@@ -22,6 +22,7 @@ PyTypeObject DapChainTxOutCondSubTypeSrvStakeLockObjectType = {
         "Chain tx cond subtype srv stake lock object",
         .tp_getset = DapChainTxOutCondSubtypeSrvStakeLockGetsSetsDef,
         .tp_base = &DapChainTxOutCondObjectType,
+        .tp_init = (initproc)DapChainTxOutCondSubtypeSrvStakeLock_new,
         .tp_new = PyType_GenericNew
 };
 
@@ -45,4 +46,46 @@ PyObject *wrapping_dap_chain_net_srv_stake_lock_get_reinvest_percent(PyObject *s
 PyObject *wrapping_dap_chain_net_srv_stake_lock_get_token_delegated(PyObject *self, void *closure) {
     UNUSED(closure);
     Py_RETURN_NONE;
+}
+
+int DapChainTxOutCondSubtypeSrvStakeLock_new(PyDapChainTxOutCondObject *self, PyObject *args, PyObject *kwds) {
+    const char *kwlist[] = {
+        "srvUID",
+        "value",
+        "timeStaking",
+        "reinvestParcent",
+        NULL
+    };
+    PyObject *obj_srv_uid;
+    PyObject *obj_value;
+    PyObject *obj_time_staking;
+    PyObject *obj_reinvest_percent;
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "OOOO", (const char**)kwlist, &obj_srv_uid, &obj_value, &obj_time_staking, &obj_reinvest_percent)) {
+        return -1;
+    }
+    if (!PyDapChainNetSrvUid_Check((PyDapChainNetSrvUIDObject*)obj_srv_uid)) {
+        PyErr_SetString(PyExc_Exception,
+                        "The first argument srvUID is set incorrectly it should be an object of type CellFrame.Services.ServiceUID.");
+        return -1;
+    }
+    if (!DapMathObject_Check(obj_value)) {
+        PyErr_SetString(PyExc_Exception,
+                        "The second argument value is set incorrectly, it should be an object of type DAP.Math.");
+        return -1;
+    }
+    if (!PyDateTime_Check(obj_time_staking)) {
+        PyErr_SetString(PyExc_Exception,
+                        "The third argument of timeStaking is set incorrectly, it should be an object of DateTime type.");
+        return -1;
+    }
+    if (!DapMathObject_Check(obj_reinvest_percent)) {
+        PyErr_SetString(PyExc_Exception,
+                        "The fourth argument reinvestPercent is set incorrectly, it should be an object of type DAP.Math.");
+        return -1;
+    }
+    uint64_t l_time_staking = PyDateTime_to_timestamp_uint64(obj_time_staking);
+    self->out_cond = dap_chain_datum_tx_item_out_cond_create_srv_stake_lock(((PyDapChainNetSrvUIDObject *) obj_srv_uid)->net_srv_uid,
+                                                           ((DapMathObject *) obj_value)->value, l_time_staking,
+                                                           ((DapMathObject *) obj_reinvest_percent)->value);
+    return 0;
 }
