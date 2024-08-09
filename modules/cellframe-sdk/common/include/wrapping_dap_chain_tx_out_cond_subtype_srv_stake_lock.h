@@ -36,5 +36,3 @@ PyObject *wrapping_dap_chain_net_srv_stake_lock_get_time_unlock(PyObject *self, 
 PyObject *wrapping_dap_chain_net_srv_stake_lock_get_flags(PyObject *self, void *closure);
 PyObject *wrapping_dap_chain_net_srv_stake_lock_get_reinvest_percent(PyObject *self, void *closure);
 PyObject *wrapping_dap_chain_net_srv_stake_lock_get_token_delegated(PyObject *self, void *closure);
-
-int DapChainTxOutCondSubtypeSrvStakeLock_new(PyDapChainTxOutCondObject *self, PyObject *args, PyObject *kwds);

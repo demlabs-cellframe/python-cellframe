@@ -1,6 +1,7 @@
 #include "wrapping_dap_chain_tx_out_cond_subtype_srv_stake.h"
 #include "node_address.h"
 
+int DapChainTxOutCondSubtypeSrvStakePosDelegate_init(PyDapChainTxOutCondObject *self, PyObject *args, PyObject *kwds);
 static PyGetSetDef DapChainTxOutCondSubtypeSrvStakePosDelegateGetsSetsDef[]={
         {"uid", (getter)wrapping_dap_chain_tx_out_cond_subtype_srv_stake_get_uid,NULL, "", NULL},
         {"addr", (getter)wrapping_dap_chain_tx_out_cond_subtype_srv_stake_get_addr,NULL, "", NULL},
@@ -17,7 +18,8 @@ PyTypeObject DapChainTxOutCondSubTypeSrvStakePosDelegateObjectType = {
         "Chain tx cond subtype srv stake object",
         .tp_getset = DapChainTxOutCondSubtypeSrvStakePosDelegateGetsSetsDef,
         .tp_base = &DapChainTxOutCondObjectType,
-        .tp_new = DapChainTxOutCondSubtypeSrvStakePosDelegate_new//PyType_GenericNew
+        .tp_init = (initproc)DapChainTxOutCondSubtypeSrvStakePosDelegate_init,
+        .tp_new = PyType_GenericNew
 };
 
 PyObject *wrapping_dap_chain_tx_out_cond_subtype_srv_stake_get_uid(PyObject *self, void *closure){
@@ -37,7 +39,7 @@ PyObject *wrapping_dap_chain_tx_out_cond_subtype_srv_stake_get_value(PyObject *s
     Py_RETURN_NONE; // TODO return a string with 256 bit representation of (((PyDapChainTxOutCondObject*)self)->out_cond->subtype.srv_stake.fee_value);
 }
 
-int DapChainTxOutCondSubtypeSrvStakePosDelegate_new(PyTypeObject *sub_types, PyObject *args, PyObject *kwds){
+int DapChainTxOutCondSubtypeSrvStakePosDelegate_init(PyDapChainTxOutCondObject *self, PyObject *args, PyObject *kwds){
     PyObject *obj_srv_uid;
     PyObject *obj_value;
     PyObject *obj_signing_addr;
@@ -96,8 +98,6 @@ int DapChainTxOutCondSubtypeSrvStakePosDelegate_new(PyTypeObject *sub_types, PyO
     dap_chain_tx_out_cond_t *l_out_cond = dap_chain_datum_tx_item_out_cond_create_srv_stake(l_uid, l_value,
                                                                                             l_signing_addr, &l_node_addr,
                                                                                             l_sovereign_addr, l_sovereign_tax);
-    PyDapChainTxOutCondObject *obj_out_cond = PyObject_New(PyDapChainTxOutCondObject,
-                                                           &DapChainTxOutCondSubTypeSrvStakePosDelegateObjectType);
-    obj_out_cond->out_cond = l_out_cond;
+    self->out_cond = l_out_cond;
     return 0;
 }

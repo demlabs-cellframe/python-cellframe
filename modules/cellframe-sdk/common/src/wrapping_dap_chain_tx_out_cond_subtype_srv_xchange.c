@@ -1,6 +1,8 @@
 #include "wrapping_dap_chain_tx_out_cond_subtype_srv_xchange.h"
 #include "math_python.h"
 
+int DapChainTxOutCondSubtypeSrvXchange_init(PyDapChainTxOutCondObject *self, PyObject *args, PyObject *kwds);
+
 static PyGetSetDef DapChainTxOutCondSubtypeSrvXchangeGetsSetsDef[]={
         {"uid", (getter)wrapping_dap_chain_tx_out_cond_subtype_srv_xchange_get_uid,NULL, "", NULL},
         {"netId", (getter)wrapping_dap_chain_tx_out_cond_subtype_srv_xchange_get_net_id,NULL, "", NULL},
@@ -18,7 +20,7 @@ PyTypeObject DapChainTxOutCondSubTypeSrvXchangeObjectType = {
         "Chain tx cond subtype srv xchange object",
         .tp_getset = DapChainTxOutCondSubtypeSrvXchangeGetsSetsDef,
         .tp_base = &DapChainTxOutCondObjectType,
-        .tp_init = DapChainTxOutCondSubtypeSrvXchange_new,
+        .tp_init = (initproc)DapChainTxOutCondSubtypeSrvXchange_init,
         .tp_new = PyType_GenericNew
 };
 
@@ -45,7 +47,7 @@ PyObject *wrapping_dap_chain_tx_out_cond_subtype_srv_xchange_get_value(PyObject 
     return (PyObject*)obj_math;
 }
 
-int DapChainTxOutCondSubtypeSrvXchange_new(PyDapChainTxOutCondObject *self, PyObject *args, PyObject *kwds) {
+int DapChainTxOutCondSubtypeSrvXchange_init(PyDapChainTxOutCondObject *self, PyObject *args, PyObject *kwds) {
     const char *kwlist[] = {
         "UID",
         "sellNetId",

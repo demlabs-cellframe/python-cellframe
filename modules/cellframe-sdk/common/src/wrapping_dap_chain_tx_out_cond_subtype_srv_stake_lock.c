@@ -1,9 +1,12 @@
 #include "wrapping_dap_chain_tx_out_cond_subtype_srv_stake_lock.h"
 #include "wrapping_dap_chain_tx_out_cond.h"
 #include "dap_chain_net_srv_stake_lock.h"
+#include "python-cellframe_common.h"
 #include "wrapping_dap_hash.h"
 
 #define PVT(a) (((PyDapChainTxOutCondObject*)a)->out_cond->subtype.srv_stake_lock)
+
+int DapChainTxOutCondSubtypeSrvStakeLock_new(PyDapChainTxOutCondObject *self, PyObject *args, PyObject *kwds);
 
 PyGetSetDef DapChainTxOutCondSubtypeSrvStakeLockGetsSetsDef[]={
         {"timeUnlock", (getter)wrapping_dap_chain_net_srv_stake_lock_get_time_unlock, NULL, "", NULL},
