@@ -605,6 +605,8 @@ PyMODINIT_FUNC PyInit_libCellFrame(void)
         PyType_Ready( &DapChainTxOutCondSubTypeSrvPayObjectType ) < 0 ||
         PyType_Ready( &DapChainTxOutCondSubTypeSrvStakePosDelegateObjectType ) < 0 ||
         PyType_Ready( &DapChainTxOutCondSubTypeSrvStakeLockObjectType ) < 0 ||
+        PyType_Ready( &DapChainTxOutCondSubTypeSrvStakeLockFlagObjectType ) < 0 ||
+        PyType_Ready( &DapChainTxOutCondSubTypeSrvStakeLockFlagListObjectType ) < 0 ||
         PyType_Ready( &DapChainTxOutCondSubTypeSrvXchangeObjectType ) < 0 ||
         PyType_Ready( &DapChainTxInObjectType ) < 0 ||
         PyType_Ready( &DapChainTxInCondObjectType ) < 0 ||
@@ -683,6 +685,10 @@ PyMODINIT_FUNC PyInit_libCellFrame(void)
     PyModule_AddObject(commonModule, "TxOutCond", (PyObject*)&DapChainTxOutCondObjectType);
     PyModule_AddObject(commonModule, "TxOutCondSubtypeSrvPay", (PyObject*)&DapChainTxOutCondSubTypeSrvPayObjectType);
     PyModule_AddObject(commonModule, "TxOutCondSubtypeSrvStakeLock", (PyObject*)&DapChainTxOutCondSubTypeSrvStakeLockObjectType);
+    //FLAGS TxOutCondSubtypeSrvStakeLock
+    PyObject *obj_tx_out_cond_subtype_srv_stake_lock_flag = PyObject_New(PyObject, &DapChainTxOutCondSubTypeSrvStakeLockFlagListObjectType);
+    PyModule_AddObject(commonModule, "TxOutCondSubtypeSrvStakeLockFlags", obj_tx_out_cond_subtype_srv_stake_lock_flag);
+
     PyModule_AddObject(commonModule, "TxOutCondSubtypeSrvStakePosDelegate", (PyObject*)&DapChainTxOutCondSubTypeSrvStakePosDelegateObjectType);
     PyModule_AddObject(commonModule, "TxOutCondSubtypeSrvXchange", (PyObject*)&DapChainTxOutCondSubTypeSrvXchangeObjectType);
     PyModule_AddObject(commonModule, "TxIn", (PyObject*)&DapChainTxInObjectType);

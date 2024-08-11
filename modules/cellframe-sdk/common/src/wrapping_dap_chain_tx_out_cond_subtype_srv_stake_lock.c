@@ -38,7 +38,10 @@ PyObject *wrapping_dap_chain_net_srv_stake_lock_get_time_unlock(PyObject *self, 
 }
 PyObject *wrapping_dap_chain_net_srv_stake_lock_get_flags(PyObject *self, void *closure) {
     UNUSED(closure);
-    return Py_BuildValue("I", PVT(self).flags);
+    PyDapChainTxOutCondSubTypeSrvStakeLockFlagObject *obj = PyObject_New(
+        PyDapChainTxOutCondSubTypeSrvStakeLockFlagObject, &DapChainTxOutCondSubTypeSrvStakeLockFlagObjectType);
+    obj->flags = PVT(self).flags;
+    return (PyObject*)obj;
 }
 PyObject *wrapping_dap_chain_net_srv_stake_lock_get_reinvest_percent(PyObject *self, void *closure) {
     UNUSED(closure);
@@ -63,7 +66,9 @@ int DapChainTxOutCondSubtypeSrvStakeLock_new(PyDapChainTxOutCondObject *self, Py
     PyObject *obj_value;
     PyObject *obj_time_staking;
     PyObject *obj_reinvest_percent;
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "OOOO", (const char**)kwlist, &obj_srv_uid, &obj_value, &obj_time_staking, &obj_reinvest_percent)) {
+    // PyObject *obj_flags;
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "OOOO", (char **) kwlist, &obj_srv_uid, &obj_value,
+                                     &obj_time_staking, &obj_reinvest_percent)) {
         return -1;
     }
     if (!PyDapChainNetSrvUid_Check((PyDapChainNetSrvUIDObject*)obj_srv_uid)) {
@@ -89,6 +94,82 @@ int DapChainTxOutCondSubtypeSrvStakeLock_new(PyDapChainTxOutCondObject *self, Py
     uint64_t l_time_staking = PyDateTime_to_timestamp_uint64(obj_time_staking);
     self->out_cond = dap_chain_datum_tx_item_out_cond_create_srv_stake_lock(((PyDapChainNetSrvUIDObject *) obj_srv_uid)->net_srv_uid,
                                                            ((DapMathObject *) obj_value)->value, l_time_staking,
-                                                           ((DapMathObject *) obj_reinvest_percent)->value);
+                                                           ((DapMathObject *) obj_reinvest_percent)->value,
+                                                           DAP_CHAIN_NET_SRV_STAKE_LOCK_FLAG_BY_TIME |
+                                                           DAP_CHAIN_NET_SRV_STAKE_LOCK_FLAG_EMIT);
     return 0;
 }
+
+//Work with flags stake
+#define PVT_FLAG(a) ((PyDapChainTxOutCondSubTypeSrvStakeLockFlagObject*)a)->flags
+
+PyObject *_w_check_flag(PyObject *self, PyObject *argv) {
+    PyObject *obj_flgv;
+    if (!PyArg_ParseTuple(argv, "O", &obj_flgv)) {
+        return NULL;
+    }
+    if (PVT_FLAG(self) & PVT_FLAG(obj_flgv)) {
+        Py_RETURN_TRUE;
+    } else {
+        Py_RETURN_FALSE;
+    }
+}
+// PyObject *_w_set_flag(PyObject *self, PyObject *argv);
+// PyObject *_w_unset_flag(PyObject *self, PyObject *argv);
+
+int PyDapChainTxOutCondSubTypeSrvStakeLockFlag_init(PyDapChainTxOutCondSubTypeSrvStakeLockFlagObject *self,
+                                                          PyObject *argv, PyObject *kwds) {
+    self->flags = 0;
+    return 0;
+}
+
+PyMethodDef PyDapChainTxOutCondSubTypeSrvStakeLockFlagMethods[] = {
+    {"checkFlag", _w_check_flag, METH_VARARGS, ""},
+    {NULL, NULL, 0, NULL}
+};
+
+PyTypeObject DapChainTxOutCondSubTypeSrvStakeLockFlagObjectType = DAP_PY_TYPE_OBJECT(
+    "CellFrame.ChainTxOutCondSubTypeSrvStakeLockFlag",
+    sizeof(PyDapChainTxOutCondSubTypeSrvStakeLockFlagObject),
+    "Chain tx cond subtype srv stake lock flag object",
+    .tp_methods = PyDapChainTxOutCondSubTypeSrvStakeLockFlagMethods,
+    .tp_init = (initproc)PyDapChainTxOutCondSubTypeSrvStakeLockFlag_init
+);
+
+//Flag list
+
+PyObject *_w_flag_by_time(PyObject *self, void *closure) {
+    (void)closure;
+    PyDapChainTxOutCondSubTypeSrvStakeLockFlagObject *obj = PyObject_New(
+        PyDapChainTxOutCondSubTypeSrvStakeLockFlagObject, &DapChainTxOutCondSubTypeSrvStakeLockFlagObjectType);
+    obj->flags = DAP_CHAIN_NET_SRV_STAKE_LOCK_FLAG_BY_TIME;
+    return (PyObject*)obj;
+}
+
+PyObject *_w_flag_create_base_tx(PyObject *self, void *closure) {
+    (void)closure;
+    PyDapChainTxOutCondSubTypeSrvStakeLockFlagObject *obj = PyObject_New(
+        PyDapChainTxOutCondSubTypeSrvStakeLockFlagObject, &DapChainTxOutCondSubTypeSrvStakeLockFlagObjectType);
+    obj->flags = DAP_CHAIN_NET_SRV_STAKE_LOCK_FLAG_CREATE_BASE_TX;
+    return (PyObject*)obj;
+}
+
+PyObject *_w_flag_flag_emit(PyObject *self, void *closure) {
+    (void)closure;
+    PyDapChainTxOutCondSubTypeSrvStakeLockFlagObject *obj = PyObject_New(
+        PyDapChainTxOutCondSubTypeSrvStakeLockFlagObject, &DapChainTxOutCondSubTypeSrvStakeLockFlagObjectType);
+    obj->flags = DAP_CHAIN_NET_SRV_STAKE_LOCK_FLAG_EMIT;
+    return (PyObject*)obj;
+}
+
+PyGetSetDef DapChainTxOutCondSubtypeSrvStakeLockFlagListGetsSetsDef[]={
+    {"byTime", (getter)_w_flag_by_time, NULL, "", NULL},
+    {"createBaseTx", (getter)_w_flag_create_base_tx, NULL, "", NULL},
+    {"emit", (getter)_w_flag_flag_emit, NULL, "", NULL},
+};
+
+PyTypeObject DapChainTxOutCondSubTypeSrvStakeLockFlagListObjectType = DAP_PY_TYPE_OBJECT(
+    "CellFrame.ChainTxOutCondSubTypeSrvStakeLockFlagList",
+    sizeof(PyDapChainTxOutCondSubTypeSrvStakeLockFlagObject),
+    "Chain tx cond subtype srv stake lock flag list object",
+    .tp_getset = DapChainTxOutCondSubtypeSrvStakeLockFlagListGetsSetsDef);
