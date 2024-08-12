@@ -117,6 +117,9 @@ PyObject *wrapping_dap_chain_net_srv_price_unit_uid_get_sec(PyObject *self, PyOb
 PyObject *wrapping_dap_chain_net_srv_price_unit_uid_get_b(PyObject *self, PyObject *args);
 
 extern PyTypeObject DapChainNetSrvPriceUnitUidObjectType;
+DAP_STATIC_INLINE bool PyDapChainNetSrvPriceUnitUidObject_Check(PyObject *self) {
+    return PyObject_TypeCheck(self, &DapChainNetSrvPriceUnitUidObjectType);
+}
 /*=================*/
 
 /* Chain cell id */
