@@ -74,7 +74,8 @@ PyObject *dap_chain_node_datum_tx_calc_hash_py(PyObject *self, PyObject *args){
     if (!PyArg_ParseTuple(args, "O", &obj_tx))
         return NULL;
     PyDapHashFastObject *obj_hash_fast = PyObject_New(PyDapHashFastObject, &DapChainHashFastObjectType);
-    obj_hash_fast->hash_fast = dap_chain_node_datum_tx_calc_hash(((PyDapChainDatumTxObject*)obj_tx)->datum_tx);
+    dap_hash_fast_t l_hash = dap_chain_node_datum_tx_calc_hash(((PyDapChainDatumTxObject*)obj_tx)->datum_tx);
+    obj_hash_fast->hash_fast = DAP_DUP(&l_hash);
     obj_hash_fast->origin = true;
     return (PyObject*)obj_hash_fast;
 
@@ -84,7 +85,7 @@ PyObject *dap_chain_ledger_tx_add_py(PyObject *self, PyObject *args){
     if (!PyArg_ParseTuple(args, "O", &obj_datum_tx))
         return NULL;
     dap_hash_fast_t l_tx_hash;
-    dap_hash_fast(obj_datum_tx->datum_tx, dap_chain_datum_item_tx_get_size(obj_datum_tx->datum_tx), &l_tx_hash);
+    dap_hash_fast(obj_datum_tx->datum_tx, dap_chain_datum_tx_get_size(obj_datum_tx->datum_tx), &l_tx_hash);
     int res = dap_ledger_tx_add(((PyDapChainLedgerObject*)self)->ledger, obj_datum_tx->datum_tx, &l_tx_hash, false);
     return PyLong_FromLong(res);
 }
