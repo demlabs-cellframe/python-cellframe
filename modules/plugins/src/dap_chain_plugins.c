@@ -56,7 +56,7 @@ int dap_chain_plugins_init(dap_config_t *a_config)
     s_debug_more = dap_config_get_item_bool_default(a_config, "plugins", "debug_more", s_debug_more);
 
     const char *l_default_path_plugins = dap_strjoin(NULL, g_sys_dir_path, "/var/plugins/", NULL);
-    const char *l_plugins_root_path = dap_config_get_item_str_default(a_config, "plugins", "py_path",
+    const char *l_plugins_root_path = dap_config_get_item_str_path_default(a_config, "plugins", "py_path",
                                                         l_default_path_plugins);
     s_plugins_root_path = dap_strjoin("", l_plugins_root_path, "/", NULL);
     DAP_DELETE(l_default_path_plugins);
