@@ -111,10 +111,35 @@ PyObject *dap_chain_datum_tx_get_size_py(PyObject *self, PyObject *args){
     return PyLong_FromSize_t(size);
 }
 PyObject *dap_chain_datum_tx_add_item_py(PyObject *self, PyObject *args){
-    uint8_t *a_item;
-    if (!PyArg_ParseTuple(args, "b", &a_item))
+    PyObject *obj_item;
+    if (!PyArg_ParseTuple(args, "O", &obj_item))
         return NULL;
-    int res = dap_chain_datum_tx_add_item(&(((PyDapChainDatumTxObject*)self)->datum_tx), a_item);
+    void *l_item = NULL;
+    if (PyObject_TypeCheck(obj_item, &DapChainTxInObjectType)) {
+        l_item = ((PyDapChainTXInObject*)obj_item)->tx_in;
+    } else if (PyObject_TypeCheck(obj_item, &DapChainTxInCondObjectType)) {
+        l_item = ((PyDapChainTXInCondObject*)obj_item)->tx_in_cond;
+    } else if (PyObject_TypeCheck(obj_item, &DapChainTxOutObjectType)) {
+        l_item = ((PyDapChainTXOutObject*)obj_item)->tx_out;
+    } else if (PyObject_TypeCheck(obj_item, &DapChainTxOutCondSubTypeSrvPayObjectType)) {
+        l_item = ((PyDapChainTxOutCondObject*)obj_item)->out_cond;
+    } else if (PyObject_TypeCheck(obj_item, &DapChainTxOutCondSubTypeSrvStakePosDelegateObjectType)) {
+        l_item = ((PyDapChainTxOutCondObject*)obj_item)->out_cond;
+    } else if (PyObject_TypeCheck(obj_item, &DapChainTxOutCondSubTypeSrvStakeLockObjectType)) {
+        l_item = ((PyDapChainTxOutCondObject*)obj_item)->out_cond;
+    } else if (PyObject_TypeCheck(obj_item, &DapChainTxOutCondSubTypeSrvXchangeObjectType)) {
+        l_item = ((PyDapChainTxOutCondObject*)obj_item)->out_cond;
+    } else if (PyObject_TypeCheck(obj_item, &DapChainTxOutExtObjectType)) {
+        l_item = ((PyDapChainTXOutExtObject*)obj_item)->out_ext;
+    } else if (PyObject_TypeCheck(obj_item, &DapChainTxReceiptObjectType)) {
+        l_item = ((PyDapChainTXReceiptObject*)obj_item)->tx_receipt;
+    } else if (PyObject_TypeCheck(obj_item, &DapChainTxTokenObjectType)) {
+        l_item = ((PyDapChainTxTokenObject*)obj_item)->token;
+    } else {
+        PyErr_SetString(PyExc_Exception, "The addItem function is passed an object that is not supported for adding to the transaction.");
+        return NULL;
+    }
+    int res = dap_chain_datum_tx_add_item(&(((PyDapChainDatumTxObject*)self)->datum_tx), l_item);
     return PyLong_FromLong(res);
 }
 PyObject *dap_chain_datum_tx_add_in_item_py(PyObject *self, PyObject *args){
