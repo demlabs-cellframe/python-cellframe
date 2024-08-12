@@ -364,6 +364,7 @@ PyObject *dap_chain_net_get_tx_fee_addr_py(PyObject *self, void *closure){
     dap_chain_addr_t *l_addr = DAP_NEW(dap_chain_addr_t);
     if (dap_chain_net_tx_get_fee(((PyDapChainNetObject*)self)->chain_net->pub.id, &l_fee, l_addr)) {
         PyDapChainAddrObject *obj_addr = PyObject_New(PyDapChainAddrObject, &DapChainAddrObjectType);
+        
         obj_addr->addr = l_addr;
         return (PyObject*)obj_addr;
     } else {

@@ -11,10 +11,20 @@ static PyGetSetDef  PyDapChainDatumTokenGetsSetsDef[]={
         {}
 };
 
+void PyDapChainDatumTokenObject_dealloc(PyDapChainDatumTokenObject *self) {
+    if (self->copy)  DAP_DELETE(self->token);
+    Py_TYPE(self)->tp_free((PyObject*)self);
+}
+
+
 PyTypeObject DapChainDatumTokenObjectType = DAP_PY_TYPE_OBJECT(
         "CellFrame.Chain.DatumTokenObject", sizeof(PyDapChainDatumTokenObject),
         "Chain datum token object",
-        .tp_getset = PyDapChainDatumTokenGetsSetsDef);
+        .tp_getset = PyDapChainDatumTokenGetsSetsDef,
+        .tp_dealloc = PyDapChainDatumTokenObject_dealloc);
+
+
+
 
 PyObject *wrapping_dap_chain_datum_token_get_ticker(PyObject *self, void *closure){
     (void)closure;
@@ -239,7 +249,8 @@ PyObject *wrapping_dap_chain_datum_token_emission_get_ticker(PyObject *self, voi
 PyObject *wrapping_dap_chain_datum_token_emission_get_addr(PyObject *self, void *closure){
     (void)closure;
     PyDapChainAddrObject *obj_addr = PyObject_New(PyDapChainAddrObject, &DapChainAddrObjectType);
-    obj_addr->addr = &((PyDapChainDatumTokenEmissionObject*)self)->token_emission->hdr.address;
+    obj_addr->addr = DAP_NEW(dap_chain_addr_t);
+    dap_mempcpy(obj_addr->addr, &((PyDapChainDatumTokenEmissionObject*)self)->token_emission->hdr.address, sizeof(dap_chain_addr_t));
     return (PyObject*)obj_addr;
 }
 PyObject *wrapping_dap_chain_datum_token_emission_get_value(PyObject *self, void *closure){

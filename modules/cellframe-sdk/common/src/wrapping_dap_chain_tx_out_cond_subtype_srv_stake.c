@@ -28,7 +28,9 @@ PyObject *wrapping_dap_chain_tx_out_cond_subtype_srv_stake_get_uid(PyObject *sel
 PyObject *wrapping_dap_chain_tx_out_cond_subtype_srv_stake_get_addr(PyObject *self, void *closure){
     (void)closure;
     PyDapChainAddrObject *obj_addr = PyObject_New(PyDapChainAddrObject, &DapChainAddrObjectType);
-    obj_addr->addr = &((PyDapChainTxOutCondObject*)self)->out_cond->subtype.srv_stake_pos_delegate.signing_addr;
+    obj_addr->addr = DAP_NEW(dap_chain_addr_t);
+    dap_mempcpy(obj_addr->addr,&((PyDapChainTxOutCondObject*)self)->out_cond->subtype.srv_stake_pos_delegate.signing_addr, sizeof(dap_chain_addr_t));
+
     return (PyObject*)obj_addr;
 }
 PyObject *wrapping_dap_chain_tx_out_cond_subtype_srv_stake_get_value(PyObject *self, void *closure){

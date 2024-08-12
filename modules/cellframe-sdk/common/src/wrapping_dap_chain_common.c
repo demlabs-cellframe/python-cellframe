@@ -27,10 +27,16 @@ static PyMethodDef DapChainAddrMethods[] = {
         {NULL}
 };
 
+void PyDapChainAddrObject_free(PyDapChainAddrObject *self) {
+    DAP_DELETE(self->addr);
+    Py_TYPE(self)->tp_free((PyObject*)self);
+}
+
 PyTypeObject DapChainAddrObjectType = DAP_PY_TYPE_OBJECT(
         "CellFrame.ChainAddr", sizeof(PyDapChainAddrObject),
          "Chain address object",
         .tp_str = obj_addr_str,
+        .tp_dealloc = (destructor)PyDapChainAddrObject_free,
         .tp_methods = DapChainAddrMethods);
 
 /* Chain net id */
