@@ -1,5 +1,7 @@
 from typing import Protocol
 
+from gi.overrides.GObject import Property
+
 
 # DapCryptoAlgoObjectType
 class Algo(Protocol):
@@ -34,6 +36,18 @@ class CryptoDataType(Protocol):
 # DapChainHashFastObjectType
 class HashFast(Protocol):
     pass
+
+class PKey(Protocol):
+    @Property
+    def hash(self) -> HashFast: ...
+    @Property
+    def type(self) -> str: ...
+    @Property
+    def size(self) -> int: ...
+    def toBytes(self) -> bytes: ...
+    @staticmethod
+    def fromBytes(self, data : bytes) -> PKey: ...
+    def encrypt(self, data : bytes) -> bytes: ...
 
 class GUUID(Protocol):
     def __init__(self, hex_GUUID : str) -> None: ...
