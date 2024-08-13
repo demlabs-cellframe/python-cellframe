@@ -69,10 +69,6 @@ static PyGetSetDef PyDaoChainDatumTxObjectGetsSets[] = {
 static PyMethodDef PyDapChainDatumTxObjectMethods[] ={
         {"getSize", (PyCFunction)dap_chain_datum_tx_get_size_py, METH_VARARGS, ""},
         {"addItem", (PyCFunction)dap_chain_datum_tx_add_item_py, METH_VARARGS, ""},
-        {"addInItem", (PyCFunction)dap_chain_datum_tx_add_in_item_py, METH_VARARGS, ""},
-        {"addInCondItem", (PyCFunction)dap_chain_datum_tx_add_in_cond_item_py, METH_VARARGS, ""},
-        {"addOutItem", (PyCFunction)dap_chain_datum_tx_add_out_item_py, METH_VARARGS, ""},
-        {"addOutCond", (PyCFunction)dap_chain_datum_tx_add_out_cond_item_py, METH_VARARGS, ""},
         {"addSignItem", (PyCFunction)dap_chain_datum_tx_add_sign_item_py, METH_VARARGS, ""},
         {"verifySign", (PyCFunction)dap_chain_datum_tx_verify_sign_py, METH_VARARGS, ""},
         {"getItems", (PyCFunction)wrapping_dap_chain_datum_tx_get_items, METH_NOARGS, ""},
@@ -81,7 +77,7 @@ static PyMethodDef PyDapChainDatumTxObjectMethods[] ={
 
 PyTypeObject DapChainDatumTxObjectType = {
         .ob_base = PyVarObject_HEAD_INIT(NULL, 0)
-        .tp_name = "CellFrame.Chain.DatumTx",
+        .tp_name = "CellFrame.Common.DatumTx",
         .tp_basicsize = sizeof(PyDapChainDatumTxObject),
         .tp_doc = "Chain datum tx object",
         .tp_methods = PyDapChainDatumTxObjectMethods,
