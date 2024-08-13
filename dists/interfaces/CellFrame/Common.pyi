@@ -2,9 +2,9 @@ from typing import Protocol, Any
 from xmlrpc.client import DateTime
 
 from Network import Net
-from DAP.Crypto import HashFast, PKey
+from DAP.Crypto import HashFast, PKey, Key
 from DAP.Core import Math, NodeAddr
-from Chain import ChainAddr, ChainID
+from Chain import ChainAddr, ChainID, Wallet
 from Network import ServiceUID, ServicePriceUnitUID
 from Network import NetID
 from datetime import datetime
@@ -142,21 +142,9 @@ class DatumTx(Protocol):
 
     def addItem(self, item : TxIn | TxInCond | TxOut | TxOutExt | TxToken | TxOutCondSubtypeSrvPay |
                              TxOutCondSubtypeSrvStakePosDelegate | TxOutCondSubtypeSrvStakeLock |
-                             TxOutCondSubtypeSrvXchange) -> None:...
+                             TxOutCondSubtypeSrvXchange) -> bool:...
 
-    def addInItem(self, args):
-        pass
-
-    def addInCondItem(self, args):
-        pass
-
-    def addOutItem(self, args):
-        pass
-
-    def addOutCond(self, args):
-        pass
-
-    def addSignItem(self, args):
+    def sign(self, key : Wallet | Key) -> bool:
         pass
 
     def verifySign(self, args):

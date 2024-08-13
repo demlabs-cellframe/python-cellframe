@@ -37,6 +37,9 @@ class CryptoDataType(Protocol):
 class HashFast(Protocol):
     pass
 
+class Key(Protocol):
+    pass
+
 class PKey(Protocol):
     @Property
     def hash(self) -> HashFast: ...
