@@ -96,6 +96,7 @@ bool DapChainDatumTx_Check(PyObject *self){
 PyObject *PyDapChainDatumTxObject_create(PyTypeObject *type_object, PyObject *args, PyObject *kwds){
     PyDapChainDatumTxObject *obj = (PyDapChainDatumTxObject*)PyType_GenericNew(type_object, args, kwds);
     obj->datum_tx = dap_chain_datum_tx_create();
+    obj->original = true;
     return (PyObject *)obj;
 }
 void PyDapChainDatumTxObject_delete(PyDapChainDatumTxObject* datumTx){
@@ -142,60 +143,7 @@ PyObject *dap_chain_datum_tx_add_item_py(PyObject *self, PyObject *args){
     int res = dap_chain_datum_tx_add_item(&(((PyDapChainDatumTxObject*)self)->datum_tx), l_item);
     return PyLong_FromLong(res);
 }
-PyObject *dap_chain_datum_tx_add_in_item_py(PyObject *self, PyObject *args){
-    PyObject *in_obj_hash_fast;
-    uint32_t in_tx_out_pref_idx;
-    if (!PyArg_ParseTuple(args, "O|I", &in_obj_hash_fast, &in_tx_out_pref_idx))
-        return NULL;
-    int res = dap_chain_datum_tx_add_in_item(&(((PyDapChainDatumTxObject*)self)->datum_tx),
-                                             ((PyDapHashFastObject*)in_obj_hash_fast)->hash_fast,
-                                             in_tx_out_pref_idx);
-    return PyLong_FromLong(res);
-}
 
-PyObject *dap_chain_datum_tx_add_in_cond_item_py(PyObject *self, PyObject *args){
-    PyObject *in_chain_hash_fast;
-    unsigned int in_tx_out_prev_idx;
-    unsigned int in_receipt_idx;
-    if (!PyArg_ParseTuple(args, "O|I|I", &in_chain_hash_fast, &in_tx_out_prev_idx, &in_receipt_idx))
-        return NULL;
-    int res = dap_chain_datum_tx_add_in_cond_item(&(((PyDapChainDatumTxObject*)self)->datum_tx),
-                                                  ((PyDapHashFastObject*)in_chain_hash_fast)->hash_fast,
-                                                  in_tx_out_prev_idx,
-                                                  in_receipt_idx);
-    return PyLong_FromLong(res);
-}
-
-PyObject *dap_chain_datum_tx_add_out_item_py(PyObject *self, PyObject *args){
-    PyObject *in_addr;
-    uint256_t value;
-    if (!PyArg_ParseTuple(args, "O|k", &in_addr, &value))
-        return NULL;
-    int res = dap_chain_datum_tx_add_out_item(&(((PyDapChainDatumTxObject*)self)->datum_tx),
-                                              PY_DAP_CHAIN_ADDR(in_addr),
-                                              value);
-    return PyLong_FromLong(res);
-}
-PyObject *dap_chain_datum_tx_add_out_cond_item_py(PyObject *self, PyObject *args){
-    PyObject *obj_key;
-    PyObject *obj_srv_uid;
-    uint256_t value;
-    uint256_t value_max_per_unit;
-    PyObject *obj_srv_price_unit_uid;
-    PyObject *obj_cond_bytes;
-    Py_ssize_t cond_size;
-    if (!PyArg_ParseTuple(args, "O|O|k|k|O|O|n", &obj_key, &obj_srv_uid, &value, &value_max_per_unit,
-                          &obj_srv_price_unit_uid, &obj_cond_bytes, &cond_size))
-        return NULL;
-    void *cond = (void*)PyBytes_AsString(obj_cond_bytes);
-    int res = dap_chain_datum_tx_add_out_cond_item(&(((PyDapChainDatumTxObject*)self)->datum_tx),
-                                                   ((PyDapPkeyObject*)obj_key)->pkey,
-                                                   ((PyDapChainNetSrvUIDObject*)obj_srv_uid)->net_srv_uid,
-                                                   value, value_max_per_unit,
-                                                   ((PyDapChainNetSrvPriceUnitUIDObject*)obj_srv_price_unit_uid)->price_unit_uid,
-                                                   cond, (size_t)cond_size);
-    return PyLong_FromLong(res);
-}
 PyObject *dap_chain_datum_tx_add_sign_item_py(PyObject *self, PyObject *args){
     PyObject *obj_key;
     if (!PyArg_ParseTuple(args, "O", &obj_key))
