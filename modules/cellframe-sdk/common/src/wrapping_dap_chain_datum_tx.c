@@ -139,7 +139,10 @@ PyObject *dap_chain_datum_tx_add_item_py(PyObject *self, PyObject *args){
         return NULL;
     }
     int res = dap_chain_datum_tx_add_item(&(((PyDapChainDatumTxObject*)self)->datum_tx), l_item);
-    return PyLong_FromLong(res);
+    if (res == 1)
+        Py_RETURN_TRUE;
+    else
+        Py_RETURN_FALSE;
 }
 
 PyObject *dap_chain_datum_tx_sign_py(PyObject *self, PyObject *args){
