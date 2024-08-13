@@ -1,5 +1,7 @@
 #include "wrapping_dap_chain_datum_tx.h"
 
+#include "dap_chain_wallet_python.h"
+
 /* DAP chain tx iter type */
 
 static PyMethodDef PyDapChainTxItemTypeObjectMethods[] ={
@@ -69,7 +71,7 @@ static PyGetSetDef PyDaoChainDatumTxObjectGetsSets[] = {
 static PyMethodDef PyDapChainDatumTxObjectMethods[] ={
         {"getSize", (PyCFunction)dap_chain_datum_tx_get_size_py, METH_VARARGS, ""},
         {"addItem", (PyCFunction)dap_chain_datum_tx_add_item_py, METH_VARARGS, ""},
-        {"addSignItem", (PyCFunction)dap_chain_datum_tx_add_sign_item_py, METH_VARARGS, ""},
+        {"sign", (PyCFunction)dap_chain_datum_tx_sign_py, METH_VARARGS, ""},
         {"verifySign", (PyCFunction)dap_chain_datum_tx_verify_sign_py, METH_VARARGS, ""},
         {"getItems", (PyCFunction)wrapping_dap_chain_datum_tx_get_items, METH_NOARGS, ""},
         {}
@@ -140,13 +142,26 @@ PyObject *dap_chain_datum_tx_add_item_py(PyObject *self, PyObject *args){
     return PyLong_FromLong(res);
 }
 
-PyObject *dap_chain_datum_tx_add_sign_item_py(PyObject *self, PyObject *args){
-    PyObject *obj_key;
-    if (!PyArg_ParseTuple(args, "O", &obj_key))
+PyObject *dap_chain_datum_tx_sign_py(PyObject *self, PyObject *args){
+    PyObject *obj;
+    if (!PyArg_ParseTuple(args, "O", &obj))
         return NULL;
-    int res = dap_chain_datum_tx_add_sign_item(&(((PyDapChainDatumTxObject*)self)->datum_tx),
-                                               ((PyCryptoKeyObject*)obj_key)->key);
-    return PyLong_FromLong(res);
+    dap_enc_key_t *l_enc_key = NULL;
+    int res = 0;
+    if (PyCryptoKeyObject_check(obj)) {
+        res = dap_chain_datum_tx_add_sign_item(&((PyDapChainDatumTxObject*)self)->datum_tx, ((PyCryptoKeyObject*)obj)->key);
+    } else if (PyDapChainWalletObject_Check(obj)) {
+        dap_enc_key_t *l_key = dap_chain_wallet_get_key(((PyDapChainWalletObject*)obj)->wallet, 0);
+        res = dap_chain_datum_tx_add_sign_item(&((PyDapChainDatumTxObject*)self)->datum_tx, l_key);
+    } else {
+        PyErr_SetString(PyExc_Exception, "An invalid object type was passed. The sign function accepts an "
+                                         "instance with DAP.Crypto.Key or CellFrame.Chain.Wallet.");
+        return NULL;
+    }
+    if (res == 1)
+        Py_RETURN_TRUE;
+    else
+        Py_RETURN_FALSE;
 }
 
 PyObject *dap_chain_datum_tx_verify_sign_py(PyObject *self, PyObject *args){
