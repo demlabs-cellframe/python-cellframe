@@ -11,9 +11,11 @@ static PyGetSetDef  PyDapChainDatumTokenGetsSetsDef[]={
         {}
 };
 
-void PyDapChainDatumTokenObject_dealloc(PyDapChainDatumTokenObject *self) {
-    if (self->copy)  DAP_DELETE(self->token);
-    Py_TYPE(self)->tp_free((PyObject*)self);
+void PyDapChainDatumTokenObject_dealloc(PyObject *self)
+{
+    PyDapChainDatumTokenObject *obj_token = (PyDapChainDatumTokenObject *)self;
+    if (obj_token->copy)  DAP_DELETE(obj_token->token);
+    Py_TYPE(obj_token)->tp_free(obj_token);
 }
 
 

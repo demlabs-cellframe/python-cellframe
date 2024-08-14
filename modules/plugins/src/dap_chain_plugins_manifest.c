@@ -1,7 +1,7 @@
 #include "dap_common.h"
 #include "dap_strfuncs.h"
 #include "json-c/json_object.h"
-#include "json-c/json_tokener.h"
+#include "json-c/json_util.h"
 #include "utlist.h"
 
 #include "dap_chain_plugins_manifest.h"
