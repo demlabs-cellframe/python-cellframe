@@ -71,7 +71,7 @@ PyObject *python_get_config_item(dap_config_t* a_config, const char *a_section, 
         }
         case DAP_CONFIG_ITEM_ARRAY: {
             uint16_t l_values_count = 0;
-            char **l_values = dap_config_get_array_str(a_config, a_section, a_key, &l_values_count);
+            const char **l_values = dap_config_get_array_str(a_config, a_section, a_key, &l_values_count);
             PyObject *obj_list = PyList_New(l_values_count);
             for (uint16_t i = 0; i < l_values_count; i++) {
                 const char *l_value = l_values[i];

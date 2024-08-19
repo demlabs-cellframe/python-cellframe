@@ -56,7 +56,7 @@ int dap_chain_plugins_init(dap_config_t *a_config)
     s_debug_more = dap_config_get_item_bool_default(a_config, "plugins", "debug_more", s_debug_more);
 
     const char *l_default_path_plugins = dap_strjoin(NULL, g_sys_dir_path, "/var/plugins/", NULL);
-    const char *l_plugins_root_path = dap_config_get_item_str_default(a_config, "plugins", "py_path",
+    const char *l_plugins_root_path = dap_config_get_item_str_path_default(a_config, "plugins", "py_path",
                                                         l_default_path_plugins);
     s_plugins_root_path = dap_strjoin("", l_plugins_root_path, "/", NULL);
     DAP_DELETE(l_default_path_plugins);
@@ -193,7 +193,9 @@ static int s_dap_chain_plugins_load(dap_plugin_manifest_t * a_manifest, void ** 
 
     PyGILState_STATE l_gil_state;
     l_gil_state = PyGILState_Ensure();
-    l_pvt_data = dap_chain_plugins_load_plugin_importing(dap_strjoin("", s_plugins_root_path, l_manifest->name, "/", NULL), l_manifest->name);
+    char * module_path = dap_strjoin("", s_plugins_root_path, l_manifest->name, "/", NULL);
+    l_pvt_data = dap_chain_plugins_load_plugin_importing(module_path, l_manifest->name);
+    DAP_DEL_Z(module_path);
 
     if (!l_pvt_data){
         PyGILState_Release(l_gil_state);

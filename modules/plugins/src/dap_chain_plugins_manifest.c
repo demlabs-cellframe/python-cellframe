@@ -1,7 +1,7 @@
 #include "dap_common.h"
 #include "dap_strfuncs.h"
 #include "json-c/json_object.h"
-#include "json-c/json_tokener.h"
+#include "json-c/json_util.h"
 #include "utlist.h"
 
 #include "dap_chain_plugins_manifest.h"
@@ -68,50 +68,40 @@ int dap_chain_plugins_manifest_name_cmp(dap_chain_plugins_list_manifest_t *man, 
 }
 
 dap_chain_plugins_list_manifest_t* dap_chain_plugins_add_manifest_from_file(const char *file_path){
-    //READ File in char
-    log_it(L_INFO, "Parse JSON file");
-    FILE *file = fopen(file_path, "rt");
-    if (file == NULL){
+    
+    // Open json file_path
+    struct json_object *l_json = json_object_from_file(file_path);
+    if(!l_json) {
         log_it(L_ERROR, "Can't open manifest file on path: %s", file_path);
         return NULL;
     }
-    fseek(file, 0, SEEK_END);
-    size_t size_file = (size_t)ftell(file);
-    char *json = DAP_NEW_Z_SIZE(char, size_file + 1);
-    rewind(file);
-    fread(json, size_file, 1, file);
-    fclose(file);
-    //Parse JSON
-    json_object *j_obj = json_tokener_parse(json);
-    json_object *j_name;
-    json_object *j_version;
-    json_object *j_dependencies;
-    json_object *j_author;
-    json_object *j_description;
-    if (!json_object_object_get_ex(j_obj, "name", &j_name))
+    if(!json_object_is_type(l_json, json_type_object)) {
+        log_it(L_ERROR, "Invalid manifest structure, shoud be a json object: %s", file_path);
+        DAP_DELETE(l_json);
         return NULL;
-    if (!json_object_object_get_ex(j_obj, "version", &j_version))
-        return NULL;
-    if (!json_object_object_get_ex(j_obj, "dependencies", &j_dependencies))
-        return NULL;
-    if (!json_object_object_get_ex(j_obj, "author", &j_author))
-        return NULL;
-    if (!json_object_object_get_ex(j_obj, "description", &j_description))
-        return NULL;
-    const char *name, *version, *author, *description;
+    }
+
+    json_object *j_name = json_object_object_get(l_json, "name");
+    json_object *j_version = json_object_object_get(l_json, "version");;
+    json_object *j_dependencies = json_object_object_get(l_json, "dependencies");
+    json_object *j_author = json_object_object_get(l_json, "author");
+    json_object *j_description = json_object_object_get(l_json, "description");
+
+    const char *name, *version, *author, *description;    
     name = json_object_get_string(j_name);
     version = json_object_get_string(j_version);
     author = json_object_get_string(j_author);
     description = json_object_get_string(j_description);
+    
+    if (!name || !version || !author || !description)
+    {
+        log_it(L_ERROR, "Invalid manifest structure, insuficient fields %s", file_path);
+        return NULL;
+    }
+
     dap_chain_plugins_list_char_t *dep = JSON_array_to_dap_list_char(j_dependencies);
     dap_chain_plugins_list_manifest_t *manifest = dap_chain_plugins_manifest_new(name, version, dep, author, description);
-    json_object_put(j_dependencies);
-    json_object_put(j_description);
-    json_object_put(j_author);
-    json_object_put(j_version);
-    json_object_put(j_name);
-    DAP_FREE(j_obj);
-    DAP_FREE(json);
+    
     return manifest;
 }
 

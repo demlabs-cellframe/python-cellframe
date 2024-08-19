@@ -41,6 +41,7 @@ typedef struct PyDapChainDatumToken{
     PyObject_HEAD
     dap_chain_datum_token_t *token;
     size_t token_size;
+    bool copy;
 }PyDapChainDatumTokenObject;
 
 PyObject *wrapping_dap_chain_datum_token_get_ticker(PyObject *self, void *closure);
