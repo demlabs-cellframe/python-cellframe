@@ -23,12 +23,11 @@ PyObject* dap_app_cli_main_py(PyObject *self, PyObject *args)
 {
     (void) self;
     char *l_app_name    = NULL;
-    char *l_socket_path = NULL;
     int l_argc          = 0;
     char **l_argv       = NULL;
     PyObject *l_argv_py = NULL;
     PyObject *l_value_obj       = NULL;
-    if (!PyArg_ParseTuple(args, "ssO", &l_app_name, &l_socket_path, & l_argv_py))
+    if (!PyArg_ParseTuple(args, "ssO", &l_app_name, &l_argv_py))
         return NULL;
     Py_ssize_t l_argv_size_py = PyList_Size(l_argv_py);
     l_argc = (int)l_argv_size_py;
@@ -39,7 +38,7 @@ PyObject* dap_app_cli_main_py(PyObject *self, PyObject *args)
             l_value_obj = PyList_GetItem(l_argv_py, i);
             l_argv[i] = dap_strdup(PyUnicode_AsUTF8(l_value_obj));
         }
-        int res = dap_app_cli_main(l_app_name, l_socket_path, l_argc, l_argv);
+        int res = dap_app_cli_main(l_app_name, l_argc, (const char **)l_argv);
         for (Py_ssize_t i=0; i < l_argv_size_py; i++){
             DAP_FREE(l_argv[i]);
         }

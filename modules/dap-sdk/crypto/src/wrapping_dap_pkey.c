@@ -16,11 +16,16 @@ static PyMethodDef PyDapPkeyMethodsDef[] = {
         {}
 };
 
+void PyDapPkeyObject_free(PyDapPkeyObject *self) {
+    DAP_DELETE(self->pkey);
+    Py_TYPE(self)->tp_free((PyObject*)self);
+}
 
 PyTypeObject DapPkeyObject_DapPkeyObjectType = DAP_PY_TYPE_OBJECT(
         "CellFrame.Pkey", sizeof(PyDapPkeyObject),
         "Pkey object",
         .tp_methods = PyDapPkeyMethodsDef,
+        .tp_dealloc = (destructor)PyDapPkeyObject_free,
         .tp_getset = PyDapPkeyGetsSetsDef);
 
 PyObject *wrapping_dap_pkey_get_type(PyObject *self, void *closure){
@@ -34,7 +39,7 @@ PyObject *wrapping_dap_pkey_get_hash(PyObject *self, void *closure){
     PyDapHashFastObject *obj_hash = PyObject_New(PyDapHashFastObject, &DapChainHashFastObjectType);
     obj_hash->hash_fast =  DAP_NEW_Z(dap_chain_hash_fast_t);
     dap_pkey_get_hash(((PyDapPkeyObject*)self)->pkey, obj_hash->hash_fast);
-    obj_hash->origin = false;
+    obj_hash->origin = true;
     return (PyObject*)obj_hash;
 }
 PyObject *wrapping_dap_pkey_get_size(PyObject *self, void *closure){

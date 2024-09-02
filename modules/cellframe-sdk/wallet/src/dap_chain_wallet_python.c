@@ -90,7 +90,7 @@ PyObject *dap_chain_wallet_open_file_py(PyObject *self, PyObject *argv){
     if (!PyArg_ParseTuple(argv, "s|s", &file_path, &pass))
         return NULL;
     PyDapChainWalletObject *obj_wallet = PyObject_New(PyDapChainWalletObject, &DapChainWalletObjectType);
-    obj_wallet->wallet = dap_chain_wallet_open_file(file_path, pass);
+    obj_wallet->wallet = dap_chain_wallet_open_file(file_path, pass, NULL);
     return (PyObject*)obj_wallet;
 }
 PyObject *dap_chain_wallet_open_py(PyObject *self, PyObject *argv){
@@ -100,7 +100,7 @@ PyObject *dap_chain_wallet_open_py(PyObject *self, PyObject *argv){
     if (!PyArg_ParseTuple(argv, "ss", &wallet_name, &wallet_path))
         return NULL;
     PyDapChainWalletObject *obj_wallet = PyObject_New(PyDapChainWalletObject, &DapChainWalletObjectType);
-    obj_wallet->wallet = dap_chain_wallet_open(wallet_name, wallet_path);
+    obj_wallet->wallet = dap_chain_wallet_open(wallet_name, wallet_path,NULL);
     return (PyObject*)obj_wallet;
 }
 PyObject *dap_chain_wallet_save_py(PyObject *self, PyObject *argv){

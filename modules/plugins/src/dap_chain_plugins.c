@@ -28,7 +28,8 @@ static int s_dap_chain_plugins_unload(dap_plugin_manifest_t * a_manifest, void *
 static void s_plugins_load_plugin_initialization(void* a_module);
 static void s_plugins_load_plugin_uninitialization(void* a_module);
 
-const char *site_packages_path = "/opt/cellframe-node/python/lib/python3.10/site-packages";
+const char *pycfhelpers_path = "/opt/cellframe-node/python/lib/python3.10/site-packages/pycfhelpers";
+const char *pycftools_path = "/opt/cellframe-node/python/lib/python3.10/site-packages/pycftools";
 const char *plugins_path = "/opt/cellframe-node/var/lib/plugins/";
 char *strings[]={"DAP", "CellFrame", NULL};
 
@@ -55,7 +56,7 @@ int dap_chain_plugins_init(dap_config_t *a_config)
     s_debug_more = dap_config_get_item_bool_default(a_config, "plugins", "debug_more", s_debug_more);
 
     const char *l_default_path_plugins = dap_strjoin(NULL, g_sys_dir_path, "/var/plugins/", NULL);
-    const char *l_plugins_root_path = dap_config_get_item_str_default(a_config, "plugins", "py_path",
+    const char *l_plugins_root_path = dap_config_get_item_str_path_default(a_config, "plugins", "py_path",
                                                         l_default_path_plugins);
     s_plugins_root_path = dap_strjoin("", l_plugins_root_path, "/", NULL);
     DAP_DELETE(l_default_path_plugins);
@@ -192,7 +193,9 @@ static int s_dap_chain_plugins_load(dap_plugin_manifest_t * a_manifest, void ** 
 
     PyGILState_STATE l_gil_state;
     l_gil_state = PyGILState_Ensure();
-    l_pvt_data = dap_chain_plugins_load_plugin_importing(dap_strjoin("", s_plugins_root_path, l_manifest->name, "/", NULL), l_manifest->name);
+    char * module_path = dap_strjoin("", s_plugins_root_path, l_manifest->name, "/", NULL);
+    l_pvt_data = dap_chain_plugins_load_plugin_importing(module_path, l_manifest->name);
+    DAP_DEL_Z(module_path);
 
     if (!l_pvt_data){
         PyGILState_Release(l_gil_state);
@@ -286,7 +289,8 @@ void* dap_chain_plugins_load_plugin_importing(const char *a_dir_path, const char
             const char *module_file_path = PyUnicode_AsUTF8(module_file_attr);
 
             // Check if the module is in the site-packages or plugins path
-            if (dap_strstr_len(module_file_path, strlen(module_file_path), site_packages_path) != NULL ||
+            if (dap_strstr_len(module_file_path, strlen(module_file_path), pycfhelpers_path) != NULL ||
+                dap_strstr_len(module_file_path, strlen(module_file_path), pycftools_path) != NULL ||
                 dap_strstr_len(module_file_path, strlen(module_file_path), plugins_path) != NULL) {
                 log_it(L_NOTICE, "Reloading module \"%s\" from \"%s\"...", module_name_str, module_file_path);
                 if (PyImport_ReloadModule(module) == NULL) {

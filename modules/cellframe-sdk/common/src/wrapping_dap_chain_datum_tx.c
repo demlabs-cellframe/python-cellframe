@@ -217,12 +217,12 @@ PyObject *wrapping_dap_chain_datum_tx_get_items(PyObject *self, PyObject *args){
                   l_tx_hf);
     while(l_tx_items_count < l_tx_items_size){
         uint8_t *item = ((PyDapChainDatumTxObject*)self)->datum_tx->tx_items + l_tx_items_count;
-        size_t l_tx_item_size = dap_chain_datum_item_tx_get_size(item);
+        size_t l_tx_item_size = dap_chain_datum_item_tx_get_size(item, 0);
         if (l_tx_item_size == 0){
             return NULL;
         }
         PyObject *obj_tx_item = NULL;
-        switch (dap_chain_datum_tx_item_get_type(item)) {
+        switch (*item) {
             case TX_ITEM_TYPE_IN:
                 obj_tx_item = (PyObject*)PyObject_New(PyDapChainTXInObject, &DapChainTxInObjectType);
                 ((PyDapChainTXInObject*)obj_tx_item)->tx_in = ((dap_chain_tx_in_t*)item);

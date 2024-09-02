@@ -11,10 +11,22 @@ static PyGetSetDef  PyDapChainDatumTokenGetsSetsDef[]={
         {}
 };
 
+void PyDapChainDatumTokenObject_dealloc(PyObject *self)
+{
+    PyDapChainDatumTokenObject *obj_token = (PyDapChainDatumTokenObject *)self;
+    if (obj_token->copy)  DAP_DELETE(obj_token->token);
+    Py_TYPE(obj_token)->tp_free(obj_token);
+}
+
+
 PyTypeObject DapChainDatumTokenObjectType = DAP_PY_TYPE_OBJECT(
         "CellFrame.Chain.DatumTokenObject", sizeof(PyDapChainDatumTokenObject),
         "Chain datum token object",
-        .tp_getset = PyDapChainDatumTokenGetsSetsDef);
+        .tp_getset = PyDapChainDatumTokenGetsSetsDef,
+        .tp_dealloc = PyDapChainDatumTokenObject_dealloc);
+
+
+
 
 PyObject *wrapping_dap_chain_datum_token_get_ticker(PyObject *self, void *closure){
     (void)closure;
@@ -228,7 +240,7 @@ PyObject *wrapping_dap_chain_datum_token_emission_get_type_str(PyObject *self, v
 //#define DAP_CHAIN_DATUM_TOKEN_EMISSION_TYPE_ALGO              0x02
 //#define DAP_CHAIN_DATUM_TOKEN_EMISSION_TYPE_ATOM_OWNER        0x03
 //#define DAP_CHAIN_DATUM_TOKEN_EMISSION_TYPE_SMART_CONTRACT    0x04
-//    const char *str = c_dap_chain_datum_token_emission_type_str(((PyDapChainDatumTokenEmissionObject*)self)->token_emission->hdr.type);
+//    const char *str = dap_chain_datum_emission_type_str(((PyDapChainDatumTokenEmissionObject*)self)->token_emission->hdr.type);
 //    return Py_BuildValue("s", str);
 }
 PyObject *wrapping_dap_chain_datum_token_emission_get_ticker(PyObject *self, void *closure){
@@ -239,7 +251,8 @@ PyObject *wrapping_dap_chain_datum_token_emission_get_ticker(PyObject *self, voi
 PyObject *wrapping_dap_chain_datum_token_emission_get_addr(PyObject *self, void *closure){
     (void)closure;
     PyDapChainAddrObject *obj_addr = PyObject_New(PyDapChainAddrObject, &DapChainAddrObjectType);
-    obj_addr->addr = &((PyDapChainDatumTokenEmissionObject*)self)->token_emission->hdr.address;
+    obj_addr->addr = DAP_NEW(dap_chain_addr_t);
+    dap_mempcpy(obj_addr->addr, &((PyDapChainDatumTokenEmissionObject*)self)->token_emission->hdr.address, sizeof(dap_chain_addr_t));
     return (PyObject*)obj_addr;
 }
 PyObject *wrapping_dap_chain_datum_token_emission_get_value(PyObject *self, void *closure){
@@ -315,14 +328,14 @@ PyObject *wrapping_dap_chain_datum_token_emission_get_signs(PyObject *self, void
         _PyErr_logIt(L_ERROR, "datum_token_ems", "Emission hdr type not DAP_CHAIN_DATUM_TOKEN_EMISSION_TYPE_AUTH, return empty signs list");
         return PyList_New(0);
     }
-    if (!l_emi->data.type_auth.signs_count || l_emi->data.type_auth.size <= l_emi->data.type_auth.tsd_total_size) {
+    if (!l_emi->data.type_auth.signs_count || l_emi->data.type_auth.tsd_n_signs_size <= l_emi->data.type_auth.tsd_total_size) {
         _PyErr_logIt(L_ERROR, "datum_token_ems", "Emission datum has no signs!");
         return PyList_New(0);
     }
     
     dap_sign_t *l_sign = (dap_sign_t*)(l_emi->tsd_n_signs + l_emi->data.type_auth.tsd_total_size);
     size_t l_count, l_sign_size;
-    size_t l_cert_size = l_emi->data.type_auth.size - l_emi->data.type_auth.tsd_total_size;
+    size_t l_cert_size = l_emi->data.type_auth.tsd_n_signs_size - l_emi->data.type_auth.tsd_total_size;
     
     for (l_count = 0, l_sign_size = 0; l_count < l_emi->data.type_auth.signs_count && (l_sign_size = dap_sign_get_size(l_sign)); ++l_count) {
         
