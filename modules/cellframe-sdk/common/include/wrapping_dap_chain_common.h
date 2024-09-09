@@ -52,6 +52,7 @@ typedef struct PyDapChainAddr{
     PyObject_HEAD
     dap_chain_addr_t *addr;
 } PyDapChainAddrObject;
+#define PY_DAP_CHAIN_ADDR(a) ((PyDapChainAddrObject*)a)->addr
 
 PyObject *dap_chain_addr_to_str_py(PyObject *self, PyObject *args);
 PyObject *dap_chain_addr_from_str_py(PyObject *self, PyObject *args);
@@ -116,6 +117,9 @@ PyObject *wrapping_dap_chain_net_srv_price_unit_uid_get_sec(PyObject *self, PyOb
 PyObject *wrapping_dap_chain_net_srv_price_unit_uid_get_b(PyObject *self, PyObject *args);
 
 extern PyTypeObject DapChainNetSrvPriceUnitUidObjectType;
+DAP_STATIC_INLINE bool PyDapChainNetSrvPriceUnitUidObject_Check(PyObject *self) {
+    return PyObject_TypeCheck(self, &DapChainNetSrvPriceUnitUidObjectType);
+}
 /*=================*/
 
 /* Chain cell id */
