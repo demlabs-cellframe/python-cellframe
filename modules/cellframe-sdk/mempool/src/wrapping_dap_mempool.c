@@ -495,6 +495,10 @@ PyObject *dap_chain_mempool_add_datum_py(PyObject *self, PyObject *args){
         l_datum->header.type_id = DAP_CHAIN_DATUM_ANCHOR;
         memcpy(l_datum->data, ((PyDapChainDatumAnchorObject*)obj_data)->anchor, l_data_size);
     }
+    else if (DapChainDatumTx_Check(obj_data)) {
+        size_t l_tx_size = dap_chain_datum_tx_get_size(((PyDapChainDatumTxObject*)obj_data)->datum_tx);
+        l_datum = dap_chain_datum_create(DAP_CHAIN_DATUM_TX, ((PyDapChainDatumTxObject*)obj_data)->datum_tx, l_tx_size);
+    }
     else if (PyDapChainDatum_Check(obj_data)) {
         l_datum = ((PyDapChainDatumObject*)obj_data)->datum;
         ((PyDapChainDatumObject*)obj_data)->origin = false;
