@@ -15,7 +15,22 @@ PyTypeObject DapChainTxOutObjectType = DAP_PY_TYPE_OBJECT(
         "CellFrame.ChainTxOut", sizeof(PyDapChainTXOutObject),
         "Chain tx out object",
         .tp_methods = PyDapChainTxOutObjectMethods,
-        .tp_getset = DapChainTxOutGetsSetsDef);
+        .tp_getset = DapChainTxOutGetsSetsDef,
+        .tp_init = (initproc)PyDapChainTxOut_init);
+
+int PyDapChainTxOut_init(PyDapChainTXOutObject *self, PyObject *args, PyObject *kwds){
+    const char* kwlist[] = {
+            "addr",
+            "value",
+            NULL
+    };
+    PyObject *obj_addr;
+    PyObject *obj_value;
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "OO", (char **)kwlist, &obj_addr, &obj_value))
+        return -1;
+    self->tx_out = dap_chain_datum_tx_item_out_create(PY_DAP_CHAIN_ADDR(obj_addr), ((DapMathObject*)obj_value)->value);
+    return 0;
+}
 
 PyObject *wrapping_dap_chain_tx_out_get_addr(PyObject *self, void *closure){
     (void)closure;

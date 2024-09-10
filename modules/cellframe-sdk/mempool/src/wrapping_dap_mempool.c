@@ -266,8 +266,8 @@ PyObject *dap_chain_mempool_tx_create_py(PyObject *self, PyObject *args){
     }
     dap_chain_t *l_chain = ((PyDapChainObject*)obj_chain)->chain_t;
     dap_enc_key_t *l_key_from = ((PyCryptoKeyObject*)obj_key_from)->key;
-    dap_chain_addr_t *l_addr_from = ((PyDapChainAddrObject*)obj_addr_from)->addr;
-    dap_chain_addr_t *l_addr_to = ((PyDapChainAddrObject*)obj_addr_to)->addr;
+    dap_chain_addr_t *l_addr_from = PY_DAP_CHAIN_ADDR(obj_addr_from);
+    dap_chain_addr_t *l_addr_to = PY_DAP_CHAIN_ADDR(obj_addr_to);
     uint256_t l_value_256 = dap_chain_balance_scan(l_value);
     uint256_t l_value_fee_256 = dap_chain_balance_scan(l_value_fee);
     char *l_tx_hash_str = dap_chain_mempool_tx_create(l_chain, l_key_from,
@@ -364,7 +364,7 @@ PyObject *dap_chain_mempool_tx_create_cond_input_py(PyObject *self, PyObject *ar
     char *l_tx_hash_str = dap_chain_mempool_tx_create_cond_input(
             obj_net->chain_net,
             obj_tx_prev_hash->hash_fast,
-            ((PyDapChainAddrObject *)obj_addr_to)->addr,
+            PY_DAP_CHAIN_ADDR(obj_addr_to),
             ((PyCryptoKeyObject*)obj_key_tx_sign)->key,
             ((PyDapChainTXReceiptObject*)obj_receipt)->tx_receipt,
             "hex", NULL);
@@ -494,6 +494,10 @@ PyObject *dap_chain_mempool_add_datum_py(PyObject *self, PyObject *args){
         l_datum->header.data_size = l_data_size;
         l_datum->header.type_id = DAP_CHAIN_DATUM_ANCHOR;
         memcpy(l_datum->data, ((PyDapChainDatumAnchorObject*)obj_data)->anchor, l_data_size);
+    }
+    else if (DapChainDatumTx_Check(obj_data)) {
+        size_t l_tx_size = dap_chain_datum_tx_get_size(((PyDapChainDatumTxObject*)obj_data)->datum_tx);
+        l_datum = dap_chain_datum_create(DAP_CHAIN_DATUM_TX, ((PyDapChainDatumTxObject*)obj_data)->datum_tx, l_tx_size);
     }
     else if (PyDapChainDatum_Check(obj_data)) {
         l_datum = ((PyDapChainDatumObject*)obj_data)->datum;
