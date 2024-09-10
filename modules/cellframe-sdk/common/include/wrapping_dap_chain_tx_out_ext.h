@@ -46,6 +46,7 @@ PyObject *wrapping_dap_chain_tx_out_ext_get_addr(PyObject *self, void *closure);
 PyObject *wrapping_dap_chain_tx_out_ext_get_token(PyObject *self, void *closure);
 PyObject *wrapping_dap_chain_tx_out_ext_get_value(PyObject *self, void *closure);
 PyObject *wrapping_dap_chain_tx_out_ext_get_used_by(PyObject *self, void *closure);
+int DapChainTxOutExt_init(PyDapChainTXOutExtObject *self, PyObject *args, PyObject *kwds);
 
 extern PyTypeObject DapChainTxOutExtObjectType;
 

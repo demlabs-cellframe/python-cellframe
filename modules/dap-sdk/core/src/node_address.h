@@ -9,3 +9,7 @@ typedef struct PyDapNodeAddr
 }PyDapNodeAddrObject;
 
 extern PyTypeObject DapNodeAddrObjectType;
+
+DAP_STATIC_INLINE bool PyDapNodeAddrObject_Check(PyObject *self) {
+    return PyObject_TypeCheck(self, &DapNodeAddrObjectType);
+}

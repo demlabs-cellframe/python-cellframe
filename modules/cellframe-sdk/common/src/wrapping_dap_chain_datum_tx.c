@@ -1,5 +1,7 @@
 #include "wrapping_dap_chain_datum_tx.h"
 
+#include "dap_chain_wallet_python.h"
+
 /* DAP chain tx iter type */
 
 static PyMethodDef PyDapChainTxItemTypeObjectMethods[] ={
@@ -69,11 +71,7 @@ static PyGetSetDef PyDaoChainDatumTxObjectGetsSets[] = {
 static PyMethodDef PyDapChainDatumTxObjectMethods[] ={
         {"getSize", (PyCFunction)dap_chain_datum_tx_get_size_py, METH_VARARGS, ""},
         {"addItem", (PyCFunction)dap_chain_datum_tx_add_item_py, METH_VARARGS, ""},
-        {"addInItem", (PyCFunction)dap_chain_datum_tx_add_in_item_py, METH_VARARGS, ""},
-        {"addInCondItem", (PyCFunction)dap_chain_datum_tx_add_in_cond_item_py, METH_VARARGS, ""},
-        {"addOutItem", (PyCFunction)dap_chain_datum_tx_add_out_item_py, METH_VARARGS, ""},
-        {"addOutCond", (PyCFunction)dap_chain_datum_tx_add_out_cond_item_py, METH_VARARGS, ""},
-        {"addSignItem", (PyCFunction)dap_chain_datum_tx_add_sign_item_py, METH_VARARGS, ""},
+        {"sign", (PyCFunction)dap_chain_datum_tx_sign_py, METH_VARARGS, ""},
         {"verifySign", (PyCFunction)dap_chain_datum_tx_verify_sign_py, METH_VARARGS, ""},
         {"getItems", (PyCFunction)wrapping_dap_chain_datum_tx_get_items, METH_NOARGS, ""},
         {}
@@ -81,7 +79,7 @@ static PyMethodDef PyDapChainDatumTxObjectMethods[] ={
 
 PyTypeObject DapChainDatumTxObjectType = {
         .ob_base = PyVarObject_HEAD_INIT(NULL, 0)
-        .tp_name = "CellFrame.Chain.DatumTx",
+        .tp_name = "CellFrame.Common.DatumTx",
         .tp_basicsize = sizeof(PyDapChainDatumTxObject),
         .tp_doc = "Chain datum tx object",
         .tp_methods = PyDapChainDatumTxObjectMethods,
@@ -96,6 +94,7 @@ bool DapChainDatumTx_Check(PyObject *self){
 PyObject *PyDapChainDatumTxObject_create(PyTypeObject *type_object, PyObject *args, PyObject *kwds){
     PyDapChainDatumTxObject *obj = (PyDapChainDatumTxObject*)PyType_GenericNew(type_object, args, kwds);
     obj->datum_tx = dap_chain_datum_tx_create();
+    obj->original = true;
     return (PyObject *)obj;
 }
 void PyDapChainDatumTxObject_delete(PyDapChainDatumTxObject* datumTx){
@@ -111,73 +110,61 @@ PyObject *dap_chain_datum_tx_get_size_py(PyObject *self, PyObject *args){
     return PyLong_FromSize_t(size);
 }
 PyObject *dap_chain_datum_tx_add_item_py(PyObject *self, PyObject *args){
-    uint8_t *a_item;
-    if (!PyArg_ParseTuple(args, "b", &a_item))
+    PyObject *obj_item;
+    if (!PyArg_ParseTuple(args, "O", &obj_item))
         return NULL;
-    int res = dap_chain_datum_tx_add_item(&(((PyDapChainDatumTxObject*)self)->datum_tx), a_item);
-    return PyLong_FromLong(res);
-}
-PyObject *dap_chain_datum_tx_add_in_item_py(PyObject *self, PyObject *args){
-    PyObject *in_obj_hash_fast;
-    uint32_t in_tx_out_pref_idx;
-    if (!PyArg_ParseTuple(args, "O|I", &in_obj_hash_fast, &in_tx_out_pref_idx))
+    void *l_item = NULL;
+    if (PyObject_TypeCheck(obj_item, &DapChainTxInObjectType)) {
+        l_item = ((PyDapChainTXInObject*)obj_item)->tx_in;
+    } else if (PyObject_TypeCheck(obj_item, &DapChainTxInCondObjectType)) {
+        l_item = ((PyDapChainTXInCondObject*)obj_item)->tx_in_cond;
+    } else if (PyObject_TypeCheck(obj_item, &DapChainTxOutObjectType)) {
+        l_item = ((PyDapChainTXOutObject*)obj_item)->tx_out;
+    } else if (PyObject_TypeCheck(obj_item, &DapChainTxOutCondSubTypeSrvPayObjectType)) {
+        l_item = ((PyDapChainTxOutCondObject*)obj_item)->out_cond;
+    } else if (PyObject_TypeCheck(obj_item, &DapChainTxOutCondSubTypeSrvStakePosDelegateObjectType)) {
+        l_item = ((PyDapChainTxOutCondObject*)obj_item)->out_cond;
+    } else if (PyObject_TypeCheck(obj_item, &DapChainTxOutCondSubTypeSrvStakeLockObjectType)) {
+        l_item = ((PyDapChainTxOutCondObject*)obj_item)->out_cond;
+    } else if (PyObject_TypeCheck(obj_item, &DapChainTxOutCondSubTypeSrvXchangeObjectType)) {
+        l_item = ((PyDapChainTxOutCondObject*)obj_item)->out_cond;
+    } else if (PyObject_TypeCheck(obj_item, &DapChainTxOutExtObjectType)) {
+        l_item = ((PyDapChainTXOutExtObject*)obj_item)->out_ext;
+    } else if (PyObject_TypeCheck(obj_item, &DapChainTxReceiptObjectType)) {
+        l_item = ((PyDapChainTXReceiptObject*)obj_item)->tx_receipt;
+    } else if (PyObject_TypeCheck(obj_item, &DapChainTxTokenObjectType)) {
+        l_item = ((PyDapChainTxTokenObject*)obj_item)->token;
+    } else {
+        PyErr_SetString(PyExc_Exception, "The addItem function is passed an object that is not supported for adding to the transaction.");
         return NULL;
-    int res = dap_chain_datum_tx_add_in_item(&(((PyDapChainDatumTxObject*)self)->datum_tx),
-                                             ((PyDapHashFastObject*)in_obj_hash_fast)->hash_fast,
-                                             in_tx_out_pref_idx);
-    return PyLong_FromLong(res);
+    }
+    int res = dap_chain_datum_tx_add_item(&(((PyDapChainDatumTxObject*)self)->datum_tx), l_item);
+    if (res == 1)
+        Py_RETURN_TRUE;
+    else
+        Py_RETURN_FALSE;
 }
 
-PyObject *dap_chain_datum_tx_add_in_cond_item_py(PyObject *self, PyObject *args){
-    PyObject *in_chain_hash_fast;
-    unsigned int in_tx_out_prev_idx;
-    unsigned int in_receipt_idx;
-    if (!PyArg_ParseTuple(args, "O|I|I", &in_chain_hash_fast, &in_tx_out_prev_idx, &in_receipt_idx))
+PyObject *dap_chain_datum_tx_sign_py(PyObject *self, PyObject *args){
+    PyObject *obj;
+    if (!PyArg_ParseTuple(args, "O", &obj))
         return NULL;
-    int res = dap_chain_datum_tx_add_in_cond_item(&(((PyDapChainDatumTxObject*)self)->datum_tx),
-                                                  ((PyDapHashFastObject*)in_chain_hash_fast)->hash_fast,
-                                                  in_tx_out_prev_idx,
-                                                  in_receipt_idx);
-    return PyLong_FromLong(res);
-}
-
-PyObject *dap_chain_datum_tx_add_out_item_py(PyObject *self, PyObject *args){
-    PyObject *in_addr;
-    uint256_t value;
-    if (!PyArg_ParseTuple(args, "O|k", &in_addr, &value))
+    dap_enc_key_t *l_enc_key = NULL;
+    int res = 0;
+    if (PyCryptoKeyObject_check(obj)) {
+        res = dap_chain_datum_tx_add_sign_item(&((PyDapChainDatumTxObject*)self)->datum_tx, ((PyCryptoKeyObject*)obj)->key);
+    } else if (PyDapChainWalletObject_Check(obj)) {
+        dap_enc_key_t *l_key = dap_chain_wallet_get_key(((PyDapChainWalletObject*)obj)->wallet, 0);
+        res = dap_chain_datum_tx_add_sign_item(&((PyDapChainDatumTxObject*)self)->datum_tx, l_key);
+    } else {
+        PyErr_SetString(PyExc_Exception, "An invalid object type was passed. The sign function accepts an "
+                                         "instance with DAP.Crypto.Key or CellFrame.Chain.Wallet.");
         return NULL;
-    int res = dap_chain_datum_tx_add_out_item(&(((PyDapChainDatumTxObject*)self)->datum_tx),
-                                              ((PyDapChainAddrObject*)in_addr)->addr,
-                                              value);
-    return PyLong_FromLong(res);
-}
-PyObject *dap_chain_datum_tx_add_out_cond_item_py(PyObject *self, PyObject *args){
-    PyObject *obj_key;
-    PyObject *obj_srv_uid;
-    uint256_t value;
-    uint256_t value_max_per_unit;
-    PyObject *obj_srv_price_unit_uid;
-    PyObject *obj_cond_bytes;
-    Py_ssize_t cond_size;
-    if (!PyArg_ParseTuple(args, "O|O|k|k|O|O|n", &obj_key, &obj_srv_uid, &value, &value_max_per_unit,
-                          &obj_srv_price_unit_uid, &obj_cond_bytes, &cond_size))
-        return NULL;
-    void *cond = (void*)PyBytes_AsString(obj_cond_bytes);
-    int res = dap_chain_datum_tx_add_out_cond_item(&(((PyDapChainDatumTxObject*)self)->datum_tx),
-                                                   ((PyDapPkeyObject*)obj_key)->pkey,
-                                                   ((PyDapChainNetSrvUIDObject*)obj_srv_uid)->net_srv_uid,
-                                                   value, value_max_per_unit,
-                                                   ((PyDapChainNetSrvPriceUnitUIDObject*)obj_srv_price_unit_uid)->price_unit_uid,
-                                                   cond, (size_t)cond_size);
-    return PyLong_FromLong(res);
-}
-PyObject *dap_chain_datum_tx_add_sign_item_py(PyObject *self, PyObject *args){
-    PyObject *obj_key;
-    if (!PyArg_ParseTuple(args, "O", &obj_key))
-        return NULL;
-    int res = dap_chain_datum_tx_add_sign_item(&(((PyDapChainDatumTxObject*)self)->datum_tx),
-                                               ((PyCryptoKeyObject*)obj_key)->key);
-    return PyLong_FromLong(res);
+    }
+    if (res == 1)
+        Py_RETURN_TRUE;
+    else
+        Py_RETURN_FALSE;
 }
 
 PyObject *dap_chain_datum_tx_verify_sign_py(PyObject *self, PyObject *args){

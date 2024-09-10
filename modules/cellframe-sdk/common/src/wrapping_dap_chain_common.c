@@ -97,7 +97,7 @@ PyObject *dap_chain_addr_to_str_py(PyObject *self, PyObject *args){
     PyObject *obj_chain_addr;
     if (!PyArg_ParseTuple(args, "O", &obj_chain_addr))
         return NULL;
-    const dap_chain_addr_t *addr = ((PyDapChainAddrObject*)obj_chain_addr)->addr;
+    const dap_chain_addr_t *addr = PY_DAP_CHAIN_ADDR(obj_chain_addr);
     const char *res = dap_chain_addr_to_str_static(addr);
     PyObject *l_obj_res =  Py_BuildValue("s", res);
     return l_obj_res;
@@ -156,11 +156,11 @@ PyObject *dap_chain_addr_fill_from_key_py(PyObject *self, PyObject *args){
 }
 
 PyObject *dap_chain_addr_check_sum_py(PyObject *self, PyObject *args){
-    return PyLong_FromLong(dap_chain_addr_check_sum(((PyDapChainAddrObject*)self)->addr));
+    return PyLong_FromLong(dap_chain_addr_check_sum(PY_DAP_CHAIN_ADDR(self)));
 }
 
 PyObject *obj_addr_str(PyObject *self){
-    const char *l_addr = dap_chain_addr_to_str_static(((PyDapChainAddrObject*)self)->addr);
+    const char *l_addr = dap_chain_addr_to_str_static(PY_DAP_CHAIN_ADDR(self));
     PyObject* l_obj_res = Py_BuildValue("s", l_addr);
     return l_obj_res;
 }
@@ -168,7 +168,7 @@ PyObject *obj_addr_str(PyObject *self){
 PyObject* dap_chain_addr_get_net_id_py(PyObject *self, PyObject *args){
     (void)args;
     PyObject *obj_net_id = _PyObject_New(&DapChainNetIdObjectType);
-    ((PyDapChainNetIdObject*)obj_net_id)->net_id = ((PyDapChainAddrObject*)self)->addr->net_id;
+    ((PyDapChainNetIdObject*)obj_net_id)->net_id = PY_DAP_CHAIN_ADDR(self)->net_id;
     return Py_BuildValue("O", obj_net_id);
 }
 
