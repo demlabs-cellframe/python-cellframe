@@ -3,6 +3,8 @@
 
 #define LOG_TAG "wrapping_dap_chain_tx_receipt"
 
+int PyDapChainTxReceipt_init(PyDapChainTXReceiptObject *self, PyObject *argv, PyObject *kwds);
+
 static PyGetSetDef DapChainTxReceiptGetSetDefs[] = {
         {"size", (getter)wrapping_dap_chain_tx_receipt_get_size, NULL, NULL, NULL},
         {"extSize", (getter)wrapping_dap_chain_tx_receipt_get_ext_size, NULL, NULL, NULL},
@@ -24,7 +26,8 @@ PyTypeObject DapChainTxReceiptObjectType = DAP_PY_TYPE_OBJECT(
         "CellFrame.ChainTxReceipt", sizeof(PyDapChainTXReceiptObject),
         "Chain tx item receipt object",
         .tp_methods = DapChainTxReceiptMethods,
-        .tp_getset = DapChainTxReceiptGetSetDefs);
+        .tp_getset = DapChainTxReceiptGetSetDefs,
+        .tp_init = (initproc)PyDapChainTxReceipt_init);
 
 PyObject *wrapping_dap_chain_tx_receipt_get_size(PyObject *self, void *closure){
     (void)closure;
@@ -103,4 +106,53 @@ PyObject *wrapping_dap_chain_tx_receipt_sign(PyObject *self, PyObject *sign) {
     dap_chain_datum_tx_receipt_t *l_receipt = ((PyDapChainTXReceiptObject*)self)->tx_receipt;
     ((PyDapChainTXReceiptObject*)self)->tx_receipt = dap_chain_datum_tx_receipt_sign_add(l_receipt, obj_cert->cert->enc_key);
     return self;
+}
+
+int PyDapChainTxReceipt_init(PyDapChainTXReceiptObject *self, PyObject *argv, PyObject *kwds) {
+    const char *kwlist[] = {
+        "srv_uid",
+        "units_type",
+        "units",
+        "value",
+        "ext",
+        NULL
+    };
+    PyObject *obj_srv_uid;
+    PyObject *obj_units_type;
+    uint64_t l_units;
+    PyObject *obj_value;
+    PyObject *obj_ext = NULL;
+    if (!PyArg_ParseTupleAndKeywords(argv, kwds, "OOKO|O", (char **) kwlist, &obj_srv_uid, &obj_units_type, &l_units,
+                                     &obj_value, &obj_ext))
+        return -1;
+    if (!PyDapChainNetSrvUid_Check((PyDapChainNetSrvUIDObject*)obj_srv_uid)) {
+        PyErr_SetString(PyExc_Exception, "The first argument is passed incorrectly, it should be an object of "
+                                         "type CellFrame.Network.ServiceUID");
+        return -1;
+    }
+    if (!PyDapChainNetSrvPriceUnitUidObject_Check(obj_units_type)) {
+        PyErr_SetString(PyExc_Exception, "The second argument is passed incorrectly, it should be an object of "
+                                         "type CellFrame.Network.ServicePriceUnitUID");
+        return -1;
+    }
+    if (!DapMathObject_Check(obj_value)) {
+        PyErr_SetString(PyExc_Exception, "The fourth argument is passed incorrectly, it should be an object of "
+                                         "type DAP.Core.Math");
+        return -1;
+    }
+    void *l_bytes = NULL;
+    size_t l_bytes_size = 0;
+    if (obj_ext) {
+        if (!PyBytes_Check(obj_ext)) {
+            PyErr_SetString(PyExc_Exception, "The fifth argument is passed incorrectly, it should be an object of "
+                                             "type Bytes.");
+            return -1;
+        }
+        l_bytes = PyBytes_AsString(obj_ext);
+        l_bytes_size = PyBytes_Size(obj_ext);
+    }
+    self->tx_receipt = dap_chain_datum_tx_receipt_create(((PyDapChainNetSrvUIDObject*)obj_srv_uid)->net_srv_uid,
+                                                         ((PyDapChainNetSrvPriceUnitUIDObject*)obj_units_type)->price_unit_uid,
+                                                         l_units, ((DapMathObject*)obj_value)->value, l_bytes, l_bytes_size);
+    return 0;
 }
