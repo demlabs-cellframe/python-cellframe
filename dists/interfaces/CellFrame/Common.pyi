@@ -2,7 +2,7 @@ from typing import Protocol, Any
 from xmlrpc.client import DateTime
 
 from Network import Net
-from DAP.Crypto import HashFast, PKey, Key
+from DAP.Crypto import HashFast, PKey, Key, Cert
 from DAP.Core import Math, NodeAddr
 from Chain import ChainAddr, ChainID, Wallet
 from Network import ServiceUID, ServicePriceUnitUID
@@ -144,7 +144,7 @@ class DatumTx(Protocol):
                              TxOutCondSubtypeSrvStakePosDelegate | TxOutCondSubtypeSrvStakeLock |
                              TxOutCondSubtypeSrvXchange) -> bool:...
 
-    def sign(self, key : Wallet | Key) -> bool:
+    def sign(self, key : Wallet | Key | Cert) -> bool:
         pass
 
     def verifySign(self, args):
