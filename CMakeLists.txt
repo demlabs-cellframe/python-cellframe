@@ -124,7 +124,6 @@ target_compile_options(dap_client PRIVATE "-fpic" )
 #target_compile_options(libdap-server PRIVATE "-fpic" )
 target_compile_options(dap_stream PRIVATE "-fpic" )
 target_compile_options(dap_stream_ch PRIVATE "-fpic" )
-target_compile_options(dap_stream_ch_chain_net PRIVATE "-fpic" )
 #target_compile_options(dap_chain_net_srv PRIVATE "-fpic" )
 if(NOT WIN32)
 #    target_compile_options(dap_chain_net_srv_vpn PRIVATE "-fpic" )
@@ -133,7 +132,6 @@ endif()
 target_compile_options(dap_enc_server PRIVATE "-fpic")
 target_compile_options(dap_http_server PRIVATE "-fpic")
 target_compile_options(dap_session PRIVATE "-fpic")
-target_compile_options(dap_stream_ch_chain_net_srv PRIVATE "-fpic")
 #target_compile_options(dap_chain_cs_dag PRIVATE "-fpic")
 #target_compile_options(dap_chain_cs_dag_poa PRIVATE "-fpic")
 #target_compile_options(dap_chain_cs_dag_pos PRIVATE "-fpic")
@@ -156,7 +154,6 @@ target_compile_options(dap_client PRIVATE "-fpic" )
 #target_compile_options(libdap-server PRIVATE "-fpic" )
 target_compile_options(dap_stream PRIVATE "-fpic" )
 target_compile_options(dap_stream_ch PRIVATE "-fpic" )
-target_compile_options(dap_stream_ch_chain_net PRIVATE "-fpic" )
 #target_compile_options(dap_chain_net_srv PRIVATE "-fpic" )
 if (NOT WIN32)
 #target_compile_options(dap_chain_net_srv_vpn PRIVATE "-fpic" )
@@ -165,7 +162,6 @@ endif()
 target_compile_options(dap_enc_server PRIVATE "-fpic")
 target_compile_options(dap_http_server PRIVATE "-fpic")
 target_compile_options(dap_session PRIVATE "-fpic")
-target_compile_options(dap_stream_ch_chain_net_srv PRIVATE "-fpic")
 #target_compile_options(dap_chain_cs_dag PRIVATE "-fpic")
 #target_compile_options(dap_chain_cs_dag_poa PRIVATE "-fpic")
 #target_compile_options(dap_chain_cs_dag_pos PRIVATE "-fpic")
@@ -196,7 +192,7 @@ target_link_libraries(${PROJECT_NAME} cellframe-sdk dap_python_module
                       dap_chain_net_srv_stake_pos_delegate_python_module
                       wrapping_dap_chain_net_srv_xchange
                       dap_chain_net_srv_vote_python
-                      dap_stream_ch_chain_net_python_module
+                      dap_chain_net_ch_python_module
                       ${PYTHON_LIBRARIES}
                      )
 

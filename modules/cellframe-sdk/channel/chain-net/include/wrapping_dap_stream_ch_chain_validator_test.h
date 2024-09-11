@@ -1,5 +1,5 @@
 #include "Python.h"
-#include "dap_stream_ch_chain_net.h"
+#include "dap_chain_net_ch.h"
 
 typedef struct PyDapStreamChChainValidatorTest{
     PyObject_HEAD
