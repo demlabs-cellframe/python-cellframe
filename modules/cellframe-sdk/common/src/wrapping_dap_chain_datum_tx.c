@@ -156,6 +156,8 @@ PyObject *dap_chain_datum_tx_sign_py(PyObject *self, PyObject *args){
     } else if (PyDapChainWalletObject_Check(obj)) {
         dap_enc_key_t *l_key = dap_chain_wallet_get_key(((PyDapChainWalletObject*)obj)->wallet, 0);
         res = dap_chain_datum_tx_add_sign_item(&((PyDapChainDatumTxObject*)self)->datum_tx, l_key);
+    } else if (PyDapCryptoCertObject_Check(obj)) {
+        res = dap_chain_datum_tx_add_sign_item(&((PyDapChainDatumTxObject*)self)->datum_tx, ((PyCryptoCertObject*)obj)->cert->enc_key);
     } else {
         PyErr_SetString(PyExc_Exception, "An invalid object type was passed. The sign function accepts an "
                                          "instance with DAP.Crypto.Key or CellFrame.Chain.Wallet.");
