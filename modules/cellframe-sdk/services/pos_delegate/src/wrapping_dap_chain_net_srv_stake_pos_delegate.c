@@ -73,7 +73,7 @@ PyObject *wrapping_dap_chain_net_srv_stake_get_count_validator(PyObject *self, v
 PyObject *wrapping_dap_chain_net_srv_stake_get_total_weight(PyObject *self, void *closure) {
     (void)closure;
     uint256_t total_weight = dap_chain_net_srv_stake_get_total_weight(
-            ((PyDapChainNetSrvStakePosDelegateObject *)self)->net->pub.id);
+            ((PyDapChainNetSrvStakePosDelegateObject *)self)->net->pub.id, NULL);
     DapMathObject *obj_weight = PyObject_New(DapMathObject, &DapMathObjectType);
     obj_weight->value = total_weight;
     return (PyObject*)obj_weight;
