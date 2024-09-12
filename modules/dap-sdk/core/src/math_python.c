@@ -1,4 +1,5 @@
 #include "math_python.h"
+#include "dap_chain_common.h"
 
 PyNumberMethods DapMathNumberMethods = {
         .nb_add = wrapping_math_python_add,

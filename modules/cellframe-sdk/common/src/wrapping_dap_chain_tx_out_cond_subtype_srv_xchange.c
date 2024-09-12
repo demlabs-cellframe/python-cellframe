@@ -67,7 +67,7 @@ int DapChainTxOutCondSubtypeSrvXchange_init(PyDapChainTxOutCondObject *self, PyO
     PyObject *obj_value_rate;
     PyObject *obj_seller_addr;
     // PyObject *obj_params;
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "OOOOsOO", (const char**)kwlist, &obj_srv_uid, &obj_sell_net_id,
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "OOOOsOO", (char **)kwlist, &obj_srv_uid, &obj_sell_net_id,
         &obj_value_sell, &obj_buy_net_id, &token, &obj_value_rate, &obj_seller_addr))
         return -1;
     if (!PyDapChainNetSrvUid_Check((PyDapChainNetSrvUIDObject*)obj_srv_uid)) {

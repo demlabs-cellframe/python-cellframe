@@ -41,13 +41,6 @@ if (NOT (${SUBMODULES_NO_BUILD} MATCHES ON))
             "-fpic"  
        )
    endif()
-   if (NOT (TARGET dap_chain_common))
-       add_subdirectory(libdap-chain-common)
-       target_compile_options(
-            dap_chain_common PRIVATE
-            "-fpic"
-       )
-   endif()
    if (NOT (TARGET dap_chain_mempool))
        add_subdirectory(libdap-chain-mempool)
        target_compile_options(
@@ -108,13 +101,6 @@ if (NOT (${SUBMODULES_NO_BUILD} MATCHES ON))
        add_subdirectory(libdap-stream-ch-chain)
        target_compile_options(
             dap_chain_ch PRIVATE
-            "-fpic"   
-       )
-   endif()
-   if (NOT (TARGET dap_chain_net_ch))
-       add_subdirectory(libdap-stream-ch-chain-net)
-       target_compile_options(
-            dap_chain_net_ch PRIVATE
             "-fpic"   
        )
    endif()

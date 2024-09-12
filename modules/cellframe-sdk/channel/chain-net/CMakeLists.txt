@@ -14,6 +14,6 @@ include_directories(${PYTHON_INCLUDE_DIR} include/)
 
 add_library(${PROJECT_NAME} STATIC ${DAP_STREAM_CH_CHAIN_NET_PYTHON_SRCS} ${DAP_STREAM_CH_CHAIN_NET_PYTHON_HEADERS})
 
-target_link_libraries(${PROJECT_NAME} dap_chain_python_module dap_chain_net_ch)
+target_link_libraries(${PROJECT_NAME} dap_chain_python_module dap_chain_net)
 
 target_include_directories(${PROJECT_NAME} PUBLIC include/)
