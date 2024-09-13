@@ -94,7 +94,9 @@ int DapChainTxOutCondSubtypeSrvStakeLock_new(PyDapChainTxOutCondObject *self, Py
     uint64_t l_time_staking = PyDateTime_to_timestamp_uint64(obj_time_staking);
     self->out_cond = dap_chain_datum_tx_item_out_cond_create_srv_stake_lock(((PyDapChainNetSrvUIDObject *) obj_srv_uid)->net_srv_uid,
                                                            ((DapMathObject *) obj_value)->value, l_time_staking,
-                                                           ((DapMathObject *) obj_reinvest_percent)->value);
+                                                           ((DapMathObject *) obj_reinvest_percent)->value,
+                                                           DAP_CHAIN_NET_SRV_STAKE_LOCK_FLAG_BY_TIME |
+                                                           DAP_CHAIN_NET_SRV_STAKE_LOCK_FLAG_EMIT);
     return 0;
 }
 
