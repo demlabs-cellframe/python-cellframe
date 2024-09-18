@@ -456,7 +456,7 @@ typedef struct pvt_ledger_notify{
 }pvt_ledger_notify_t;
 
 static void pvt_wrapping_dap_chain_ledger_tx_add_notify(void *a_arg, dap_ledger_t *a_ledger,
-                                                        dap_chain_datum_tx_t *a_tx, dap_chan_ledger_notify_opcodes_t a_opcode){
+                                                        dap_chain_datum_tx_t *a_tx, dap_ledger_notify_opcodes_t a_opcode){
     if (!a_arg)
         return;
     if (a_opcode == DAP_LEDGER_NOTIFY_OPCODE_ADDED){
@@ -541,7 +541,7 @@ static bool s_python_obj_notifier(void *a_arg)
     return false;
 }
 
-static void s_python_proc_notifier(dap_ledger_t *a_ledger, dap_chain_datum_tx_t *a_tx, dap_hash_fast_t *a_tx_hash, void *a_arg, dap_chan_ledger_notify_opcodes_t a_opcode)
+static void s_python_proc_notifier(dap_ledger_t *a_ledger, dap_chain_datum_tx_t *a_tx, dap_hash_fast_t *a_tx_hash, void *a_arg, dap_ledger_notify_opcodes_t a_opcode)
 {
     if (!a_arg)
         return;
