@@ -76,7 +76,7 @@ PyObject *wrapping_dap_chain_datum_token_get_data(PyObject *self, void *closure)
                     if (dap_chain_datum_token_is_old(l_token->type))
                         obj = Py_BuildValue("k", l_token->total_supply);
                     else
-                        obj = Py_BuildValue("s", dap_chain_balance_print(l_token->total_supply));
+                        obj = Py_BuildValue("s", dap_chain_balance_datoshi_print(l_token->total_supply));
                     PyDict_SetItemString(obj_dict, "total_supply", obj);
                 }break;
 //                case DAP_CHAIN_DATUM_TOKEN_SUBTYPE_PRIVATE: {}break;
@@ -100,7 +100,7 @@ PyObject *wrapping_dap_chain_datum_token_get_data(PyObject *self, void *closure)
                     if (dap_chain_datum_token_is_old(l_token->type))
                         obj = Py_BuildValue("k", l_token->total_supply);
                     else
-                        obj = Py_BuildValue("s", dap_chain_balance_print(l_token->total_supply));
+                        obj = Py_BuildValue("s", dap_chain_balance_datoshi_print(l_token->total_supply));
                     PyDict_SetItemString(obj_dict, "total_supply", obj);
                 }break;
 //                case DAP_CHAIN_DATUM_TOKEN_SUBTYPE_PRIVATE: {}break;
