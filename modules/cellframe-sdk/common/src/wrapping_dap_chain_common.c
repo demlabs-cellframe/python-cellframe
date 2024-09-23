@@ -251,7 +251,7 @@ PyObject *wrapping_dap_chain_net_srv_price_unit_uid_get_b(PyObject *self, PyObje
     return (PyObject*)obj_srv_price_uid;
 }
 
-/* wrapping dap_chain_net_srv_uid_t */
+/* wrapping dap_chain_srv_uid_t */
 PyObject* PyDapChainNetSrvUIDObject_str(PyObject *self){
     char *res = dap_strdup_printf("0x%016"DAP_UINT64_FORMAT_X, ((PyDapChainNetSrvUIDObject*)self)->net_srv_uid.uint64);
     PyObject *l_obj = Py_BuildValue("s", res);

@@ -88,7 +88,7 @@ int DapChainTxOutCondSubtypeSrvXchange_init(PyDapChainTxOutCondObject *self, PyO
     if (!PyDapChainAddrObject_Check((PyDapChainAddrObject*)obj_seller_addr)) {
         return -1;
     }
-    dap_chain_net_srv_uid_t l_srv_uid = ((PyDapChainNetSrvUIDObject*)obj_srv_uid)->net_srv_uid;
+    dap_chain_srv_uid_t l_srv_uid = ((PyDapChainNetSrvUIDObject*)obj_srv_uid)->net_srv_uid;
     self->out_cond = dap_chain_datum_tx_item_out_cond_create_srv_xchange(
         l_srv_uid, ((PyDapChainNetIdObject*)obj_sell_net_id)->net_id, ((DapMathObject*)obj_value_sell)->value,
         ((PyDapChainNetIdObject*)obj_buy_net_id)->net_id, token, ((DapMathObject*)obj_value_rate)->value,
