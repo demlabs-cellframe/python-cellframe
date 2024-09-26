@@ -57,7 +57,7 @@ static void _wrapping_dap_chain_net_srv_client_callback_disconnected(dap_chain_n
 
 
 static void _wrapping_dap_chain_net_srv_client_callback_check(dap_chain_net_srv_client_t *a_srv_client,
-                                                              dap_stream_ch_chain_net_srv_pkt_test_t *a_pkt,
+                                                              dap_chain_net_srv_ch_pkt_test_t *a_pkt,
                                                               void *a_arg) {
     UNUSED(a_pkt);
     PyDapChainNetSrvClientObject *py_client = (PyDapChainNetSrvClientObject *)a_srv_client->_inheritor;
@@ -98,7 +98,7 @@ static dap_chain_datum_tx_receipt_t * _wrapping_dap_chain_net_srv_client_callbac
 }
 
 static void _wrapping_dap_chain_net_srv_client_callback_success(dap_chain_net_srv_client_t *a_srv_client,
-                                                                dap_stream_ch_chain_net_srv_pkt_success_t *a_pkt,
+                                                                dap_chain_net_srv_ch_pkt_success_t *a_pkt,
                                                                 size_t a_pkt_size,
                                                                 void *a_arg) {
     PyDapChainNetSrvClientObject *py_client = (PyDapChainNetSrvClientObject *)a_srv_client->_inheritor;
@@ -107,7 +107,7 @@ static void _wrapping_dap_chain_net_srv_client_callback_success(dap_chain_net_sr
         PyGILState_STATE state = PyGILState_Ensure();
         PyDapHashFastObject *py_cond_hash = PyObject_New(PyDapHashFastObject,
                                                          &DapHashFastObjectType);
-        if (a_pkt_size == sizeof(dap_stream_ch_chain_net_srv_pkt_success_t) + sizeof(dap_chain_hash_fast_t)) {
+        if (a_pkt_size == sizeof(dap_chain_net_srv_ch_pkt_success_t) + sizeof(dap_chain_hash_fast_t)) {
             py_cond_hash->hash_fast = DAP_NEW(dap_chain_hash_fast_t);
             if (!py_cond_hash->hash_fast) {
                 log_it(L_ERROR, "Memory allocaiton error in _wrapping_dap_chain_net_srv_client_callback_success");
@@ -252,10 +252,10 @@ PyObject *wrapping_dap_chain_net_srv_client_check(PyObject *self, PyObject *args
     //Generate packet
     size_t l_bytes_size = PyBytes_Size(obj_bytes);
     void *l_bytes = PyBytes_AsString(obj_bytes);
-    size_t l_request_size = sizeof(dap_stream_ch_chain_net_srv_pkt_test_t) + l_bytes_size;
-    dap_stream_ch_chain_net_srv_pkt_test_t *l_request = DAP_NEW_STACK_SIZE(dap_stream_ch_chain_net_srv_pkt_test_t,
+    size_t l_request_size = sizeof(dap_chain_net_srv_ch_pkt_test_t) + l_bytes_size;
+    dap_chain_net_srv_ch_pkt_test_t *l_request = DAP_NEW_STACK_SIZE(dap_chain_net_srv_ch_pkt_test_t,
                                                                        l_request_size);
-    memset(l_request, 0, sizeof(dap_stream_ch_chain_net_srv_pkt_test_t));
+    memset(l_request, 0, sizeof(dap_chain_net_srv_ch_pkt_test_t));
     l_request->net_id.uint64 = obj_net_id->net_id.uint64;
     l_request->srv_uid.uint64 = obj_srv_uid->net_srv_uid.uint64;
     l_request->data_size_send = l_request->data_size_recv = l_bytes_size;
@@ -284,7 +284,7 @@ PyObject *wrapping_dap_chain_net_srv_client_request(PyObject *self, PyObject *ar
         Py_RETURN_NONE;
     }
     //Generate packet
-    dap_stream_ch_chain_net_srv_pkt_request_hdr_t l_hdr = {};
+    dap_chain_net_srv_ch_pkt_request_hdr_t l_hdr = {};
     l_hdr.net_id = obj_net->chain_net->pub.id;
     l_hdr.srv_uid = obj_srv_uid->net_srv_uid;
     memcpy(&l_hdr.tx_cond, obj_tx_cond_hash->hash_fast, sizeof(dap_chain_hash_fast_t));
@@ -310,8 +310,8 @@ PyObject *wrapping_dap_chain_net_srv_client_write(PyObject *self, PyObject *args
     //Generate packet
     size_t l_bytes_size = PyBytes_Size(obj_bytes);
     void *l_bytes = PyBytes_AsString(obj_bytes);
-    dap_stream_ch_chain_net_srv_pkt_data_t *l_data = DAP_NEW_STACK_SIZE(void,
-                                                        sizeof(dap_stream_ch_chain_net_srv_pkt_data_t) + l_bytes_size);
+    dap_chain_net_srv_ch_pkt_data_t *l_data = DAP_NEW_STACK_SIZE(void,
+                                                        sizeof(dap_chain_net_srv_ch_pkt_data_t) + l_bytes_size);
     l_data->hdr.version = 1;
     l_data->hdr.data_size = (uint16_t)l_bytes_size;
     l_data->hdr.usage_id = 0;

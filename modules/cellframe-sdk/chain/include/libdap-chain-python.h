@@ -36,7 +36,6 @@ PyObject *dap_chain_load_all_py(PyObject *self, PyObject *args);
 PyObject *dap_chain_load_from_cfg_py(PyObject *self, PyObject *args);
 //PyObject *dap_chain_init_net_cfg_name_py(PyObject *self, PyObject *args); //dap_chain_init_net_cfg_name
 //PyObject *dap_chain_close_py(PyObject *self, PyObject *args);
-//PyObject *dap_chain_info_dump_log_py(PyObject *self, PyObject *args); //dap_chain_info_dump_log
 PyObject *dap_chain_python_create_atom_iter(PyObject *self, PyObject *args);
 PyObject *dap_chain_python_atom_iter_get_first(PyObject *self, PyObject *args);
 PyObject *dap_chain_python_atom_get_datums(PyObject *self, PyObject *args);

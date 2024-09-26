@@ -3,6 +3,7 @@
 #include "libdap_chain_net_python.h"
 #include "libdap_crypto_key_python.h"
 #include "dap_chain_wallet_python.h"
+#include "dap_chain_srv.h"
 
 #define PRICE(a) ((PyDapChainNetSrvXchangeOrderObject*)a)->price
 
@@ -98,7 +99,7 @@ PyObject *wrapping_dap_chain_net_srv_xchange_price_get_fee(PyObject *self, void 
     PyDict_SetItemString(res, "order_fee", (PyObject *)order_fee);
     PyDict_SetItemString(res, "network_fee", (PyObject *)network_fee);
     PyDict_SetItemString(res, "address", (PyObject *)obj_addr);
-    PyDict_SetItemString(res, "type", Py_BuildValue("s", dap_chain_net_srv_fee_type_to_str(comission_type)));
+    PyDict_SetItemString(res, "type", Py_BuildValue("s", dap_chain_srv_fee_type_to_str(comission_type)));
 
     const char *l_native_ticker = PRICE(self)->net->pub.native_ticker;
     const char *l_service_ticker = (comission_type == SERVICE_FEE_OWN_FIXED || comission_type == SERVICE_FEE_OWN_PERCENT) ?

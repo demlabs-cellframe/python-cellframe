@@ -11,7 +11,7 @@ extern "C" {
 
 typedef struct PyDapChainCs{
     PyObject_HEAD
-    dap_chain_cs_t *cs;
+    char *cs_name;
     dap_chain_callback_new_cfg_t callback_new_cfg;
 }PyDapChainCsObject;
 static PyObject *binded_object_callback_new_cfg = NULL;

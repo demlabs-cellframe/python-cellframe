@@ -90,7 +90,7 @@ extern PyTypeObject DapChainNetIdObjectType;
 
 typedef struct PyDapChainNetSrvUID{
     PyObject_HEAD
-    dap_chain_net_srv_uid_t net_srv_uid;
+    dap_chain_srv_uid_t net_srv_uid;
 }PyDapChainNetSrvUIDObject;
 
 int PyDapChainNetSrvUIDObject_init(PyObject *self, PyObject *args, PyObject *kwds);

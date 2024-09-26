@@ -92,7 +92,7 @@ PyObject *wrapping_dap_chain_tx_out_cond_subtype_srv_pay_new(PyTypeObject *type_
                                              "should be of type UnitUID.");
         return NULL;
     }
-    dap_chain_net_srv_uid_t l_uid = ((PyDapChainNetSrvUIDObject*)obj_srv_uid)->net_srv_uid;
+    dap_chain_srv_uid_t l_uid = ((PyDapChainNetSrvUIDObject*)obj_srv_uid)->net_srv_uid;
     dap_chain_net_srv_price_unit_uid_t l_unit_uid = ((PyDapChainNetSrvPriceUnitUIDObject*)obj_unit)->price_unit_uid;
     void *l_bytes = NULL;
     size_t l_bytes_size = 0;
