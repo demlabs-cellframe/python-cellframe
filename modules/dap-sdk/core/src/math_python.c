@@ -57,12 +57,12 @@ int math_python_create(PyObject *self, PyObject *argv, PyObject *kwds){
             break;
         }
     }
-    ((DapMathObject*)self)->value = l_is_decimal ? dap_chain_coins_to_balance(l_number_str) : dap_chain_balance_scan(l_number_str);
+    ((DapMathObject*)self)->value = l_is_decimal ? dap_chain_balance_coins_scan(l_number_str) : dap_chain_balance_datoshi_scan(l_number_str);
     return 0;
 }
 
 PyObject *math_python_str(PyObject *self){
-    char *l_balance = dap_chain_balance_print(((DapMathObject*)self)->value);
+    char *l_balance = dap_chain_balance_datoshi_print(((DapMathObject*)self)->value);
     PyObject *l_obj_balance = Py_BuildValue("s", l_balance);
     DAP_DELETE(l_balance);
     return l_obj_balance;
@@ -361,7 +361,7 @@ PyObject *math_python_richcompare(PyObject *O1, PyObject *O2, int opid){
 
 PyObject *wrapping_dap_math_get_coins(PyObject *self, void *closure){
     (void)closure;
-    char *l_coins = dap_chain_balance_to_coins(((DapMathObject*)self)->value);
+    char *l_coins = dap_chain_balance_coins_print(((DapMathObject*)self)->value);
     PyObject *l_obj_coins = Py_BuildValue("s", l_coins);
     DAP_DELETE(l_coins);
     return l_obj_coins;
@@ -369,7 +369,7 @@ PyObject *wrapping_dap_math_get_coins(PyObject *self, void *closure){
 
 PyObject *wrapping_dap_math_get_balance(PyObject *self, void *closure){
     (void)closure;
-    char *l_balance = dap_chain_balance_print(((DapMathObject*)self)->value);
+    char *l_balance = dap_chain_balance_datoshi_print(((DapMathObject*)self)->value);
     PyObject *l_obj_res = Py_BuildValue("s", l_balance);
     DAP_DELETE(l_balance);
     return l_obj_res;
@@ -383,7 +383,7 @@ PyObject *wrapping_dap_chain_balance_to_coins(PyObject *self, PyObject *args){
     }
 //    dap_chain_uint256_to()
     uint256_t l_balance_256 = dap_chain_uint256_from(l_balance);
-    char *l_balance_str = dap_chain_balance_to_coins(l_balance_256);
+    char *l_balance_str = dap_chain_balance_coins_print(l_balance_256);
     PyObject *l_obj_balance = Py_BuildValue("s", l_balance);
     DAP_DELETE(l_balance);
     return l_obj_balance;
