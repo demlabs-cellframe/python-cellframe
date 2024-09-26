@@ -142,12 +142,12 @@ PyObject *python_cellframe_init(PyObject *self, PyObject *args)
                 return NULL;
             }
         } else if (strcmp(c_value, "StreamChChainNet") == 0){
-            if (dap_stream_ch_chain_net_init() != 0 ){
+            if (dap_chain_net_ch_init() != 0 ){
                 PyErr_SetString(CellFrame_error, "Failed to initialize \"StreamChChainNet\" module");
                 return NULL;
             }
         }else if (strcmp(c_value, "StreamChChainNetSrv") == 0){
-            if (dap_stream_ch_chain_net_init() != 0 ){
+            if (dap_chain_net_ch_init() != 0 ){
                 PyErr_SetString(CellFrame_error, "Failed to initialize \"StreamChChainNetSrv\" module");
                 return NULL;
             }

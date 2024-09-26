@@ -91,7 +91,7 @@ int DapChainTxOutCondSubtypeSrvStakePosDelegate_init(PyDapChainTxOutCondObject *
                                               "It must be an instance of DapMath object.");
         return -1;
     }
-    dap_chain_net_srv_uid_t l_uid = ((PyDapChainNetSrvUIDObject*)obj_srv_uid)->net_srv_uid;
+    dap_chain_srv_uid_t l_uid = ((PyDapChainNetSrvUIDObject*)obj_srv_uid)->net_srv_uid;
     uint256_t l_value = ((DapMathObject*)obj_value)->value;
     dap_chain_addr_t *l_signing_addr = ((PyDapChainAddrObject*)obj_signing_addr)->addr;
     dap_stream_node_addr_t l_node_addr = ((PyDapNodeAddrObject*)obj_signer_node_addr)->addr;

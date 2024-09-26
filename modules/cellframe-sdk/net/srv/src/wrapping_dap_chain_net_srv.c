@@ -211,7 +211,7 @@ int PyDapChainNetSrv_init(PyDapChainNetSrvObject* self, PyObject *args, PyObject
                                     &self->callbackReceiptNext,
                                     &self->callbackReadWithOutData)) {
         return -1;
-    }
+    }/* // TODO Implement coirrect start scheme with new service design
     if (PyDapChainNetSrvUid_Check(obj_uid) &&
             PyCallable_Check(self->callbackRequested) &&
             PyCallable_Check(self->callbackSuccess) &&
@@ -224,18 +224,14 @@ int PyDapChainNetSrv_init(PyDapChainNetSrvObject* self, PyObject *args, PyObject
         l_callbacks.response_error = _w_dap_chain_callback_data_t_response_error;
         l_callbacks.receipt_next_success = _w_dap_chain_callback_data_t_receipt_next_success;
         l_callbacks.custom_data = _w_dap_chain_callback_data_t_custom_data;
-        self->srv = dap_chain_net_srv_add(
-                obj_uid->net_srv_uid,
-                l_section,
-                &l_callbacks
-                );
+        self->srv = dap_chain_net_srv_create(obj_uid->net_srv_uid, l_section, &l_callbacks);
         if (self->srv == NULL){
             return -3;
         }
         self->srv->_inheritor = self;
         Py_INCREF(self);
         return 0;
-    }
+    }*/
     return -2;
 }
 

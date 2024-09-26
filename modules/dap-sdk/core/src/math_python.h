@@ -25,7 +25,8 @@
 #pragma once
 
 #include <Python.h>
-#include "dap_chain_common.h"
+#include "dap_common.h"
+#include "dap_math_ops.h"
 
 typedef struct DapMath{
     PyObject_HEAD

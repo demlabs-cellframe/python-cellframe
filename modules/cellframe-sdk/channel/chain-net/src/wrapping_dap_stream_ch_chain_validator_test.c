@@ -2,7 +2,7 @@
 #include "wrapping_dap_sign.h"
 //#include "wrapping_cry"
 #include "dap_common.h"
-#define LOG_TAG "wrapping_dap_stream_ch_chain_net"
+#define LOG_TAG "wrapping_dap_chain_net_ch"
 
 #define PVT(a) ((dap_chain_ch_validator_test_t*)((PyDapStreamChChainValidatorTestObject*)a)->rnd)
 
