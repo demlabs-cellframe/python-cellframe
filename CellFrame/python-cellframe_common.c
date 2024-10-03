@@ -87,8 +87,8 @@ PyObject *python_get_config_item(dap_config_t* a_config, const char *a_section, 
                 Py_RETURN_FALSE;
         }
         case DAP_CONFIG_ITEM_DECIMAL: {
-            int res = dap_config_get_item_uint32(a_config, a_section, a_key);
-            return Py_BuildValue("i", res);
+            int64_t res = dap_config_get_item_int64(a_config, a_section, a_key);
+            return Py_BuildValue("L", res);
         }
         case DAP_CONFIG_ITEM_STRING: {
             const char *res = dap_config_get_item_str(a_config, a_section, a_key);
