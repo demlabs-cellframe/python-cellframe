@@ -75,16 +75,16 @@ PyObject *wrapping_json_rpc_response_get_result(PyObject *self, void *closure){
 }
 PyObject *wrapping_json_rpc_response_get_error(PyObject *self, void *closure){
     UNUSED(closure);
-    dap_json_rpc_response_t* l_resp = ((PyDapJSONRPCResponseObject*)self)->response;
-    if (l_resp->json_arr_errors) {
-        for (size_t i = 0; i < json_object_array_length(l_resp->json_arr_errors); i++) {
-            json_object * a_jobj = json_object_array_get_idx(l_resp->json_arr_errors, i);
-            json_object *l_jobj_code_eror = json_object_object_get(a_jobj, "code");
-            json_object *l_jobj_msg = json_object_object_get(a_jobj, "message");
-            //TODO make a touple return
-            return Py_BuildValue("is", json_object_get_string(l_jobj_code_eror), json_object_get_string(l_jobj_msg));
-        }
-    }
+    // dap_json_rpc_response_t* l_resp = ((PyDapJSONRPCResponseObject*)self)->response;
+    // if (l_resp->json_arr_errors) {
+    //     for (size_t i = 0; i < json_object_array_length(l_resp->json_arr_errors); i++) {
+    //         json_object * a_jobj = json_object_array_get_idx(l_resp->json_arr_errors, i);
+    //         json_object *l_jobj_code_eror = json_object_object_get(a_jobj, "code");
+    //         json_object *l_jobj_msg = json_object_object_get(a_jobj, "message");
+    //         //TODO make a touple return
+    //         return Py_BuildValue("is", json_object_get_string(l_jobj_code_eror), json_object_get_string(l_jobj_msg));
+    //     }
+    // }
     return PyTuple_New(2);
 }
 
