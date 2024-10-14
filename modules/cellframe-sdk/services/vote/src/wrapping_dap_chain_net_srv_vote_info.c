@@ -59,8 +59,9 @@ PyObject *wrapping_dap_chain_net_srv_vote_get_options(PyObject *self, void *clos
 PyObject *wrapping_dap_chain_net_srv_vote_get_expire_datetime(PyObject *self, void *closure) {
     (void)closure;
     PyDateTime_IMPORT;
-    uint64_t l_ts_create = ((PyDapChainDatumObject*)self)->datum->header.ts_create / 1000000000;
-    PyObject *obj_ts_long =  Py_BuildValue("(k)", l_ts_create);
+    PyDapChainNetSrvVoteInfoObject *l_info = (PyDapChainNetSrvVoteInfoObject*)self;
+    uint64_t l_ts_expire = l_info->info->expired;
+    PyObject *obj_ts_long =  Py_BuildValue("(k)", l_ts_expire);
     PyObject *obj_ts = PyDateTime_FromTimestamp(obj_ts_long);
     return obj_ts;
 }
