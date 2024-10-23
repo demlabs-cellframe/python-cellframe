@@ -8,7 +8,6 @@
 static PyObject *s_bridged_tx_notify_add(PyObject *self, PyObject *args);
 
 static PyMethodDef DapChainLedgerMethods[] = {
-        {"setLocalCellId", (PyCFunction)dap_chain_ledger_set_local_cell_id_py, METH_VARARGS, ""},
         {"nodeDatumTxCalcHash", (PyCFunction)dap_chain_node_datum_tx_calc_hash_py, METH_VARARGS, ""},
         {"txAdd", (PyCFunction)dap_chain_ledger_tx_add_py, METH_VARARGS, ""},
         {"tokenAdd", (PyCFunction)dap_chain_ledger_token_add_py, METH_VARARGS, ""},
@@ -60,14 +59,6 @@ void DapChainLedgerObject_free(PyDapChainLedgerObject* object){
     Py_TYPE(object)->tp_free(object);
 }
 
-PyObject *dap_chain_ledger_set_local_cell_id_py(PyObject *self, PyObject *args){
-    PyObject *obj_local_cell_id;
-    if (!PyArg_ParseTuple(args, "O", &obj_local_cell_id))
-        return NULL;
-    dap_ledger_set_local_cell_id(((PyDapChainLedgerObject*)self)->ledger,
-                                       ((PyDapChainCellIDObject*)obj_local_cell_id)->cell_id);
-    return  PyLong_FromLong(0);
-}
 PyObject *dap_chain_node_datum_tx_calc_hash_py(PyObject *self, PyObject *args){
     (void)self;
     PyObject *obj_tx;

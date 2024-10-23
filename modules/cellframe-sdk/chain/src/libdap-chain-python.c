@@ -375,7 +375,7 @@ PyObject *dap_chain_net_add_atom_notify_callback(PyObject *self, PyObject *args)
     l_callback->arg = obj_arg;
     Py_INCREF(obj_func);
     Py_INCREF(obj_arg);
-    dap_chain_add_callback_notify(l_chain, _wrapping_dap_chain_atom_notify_handler, l_callback);
+    dap_chain_add_callback_notify(l_chain, _wrapping_dap_chain_atom_notify_handler, dap_proc_thread_get_auto(), l_callback);
     Py_RETURN_NONE;
 }
 
