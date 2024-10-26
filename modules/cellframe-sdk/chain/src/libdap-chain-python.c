@@ -82,7 +82,8 @@ PyObject *dap_chain_load_from_cfg_py(PyObject *self, PyObject *args){
     if (!PyArg_ParseTuple(args, "s|O|s", &chain_net_name, &obj_net_id, &cfg_name))
         return NULL;
     PyObject *res_obj = _PyObject_New(&DapChainObjectType);
-    ((PyDapChainObject*)res_obj)->chain_t = dap_chain_load_from_cfg(chain_net_name, ((PyDapChainNetIdObject*)obj_net_id)->net_id, cfg_name);
+    dap_config_t *l_chain_config = dap_config_open(cfg_name);
+    ((PyDapChainObject*)res_obj)->chain_t = dap_chain_load_from_cfg(chain_net_name, ((PyDapChainNetIdObject*)obj_net_id)->net_id, l_chain_config);
     return Py_BuildValue("O", &res_obj);
 }
 
