@@ -34,6 +34,7 @@ static PyMethodDef DapChainMethods[] = {
         {"getCSName", (PyCFunction)dap_chain_python_get_cs_name, METH_NOARGS, ""},
         {"getNet", (PyCFunction) dap_chain_python_get_net, METH_NOARGS, ""},
         {"configGetItem", (PyCFunction)dap_chain_python_get_config_item, METH_VARARGS, ""},
+        {"addAtomConfirmedNotify", (PyCFunction)dap_chain_atom_confirmed_notify_add_py, METH_VARARGS, "Add a callback for confirmed atoms"},
         {}
 };
 
@@ -315,6 +316,43 @@ static void _wrapping_dap_chain_atom_notify_handler(void * a_arg, dap_chain_t *a
     PyGILState_Release(state);
 }
 
+static void _wrapping_dap_chain_atom_confirmed_notify_handler(void *a_arg, dap_chain_t *a_chain, dap_chain_cell_id_t a_id, dap_hash_fast_t *a_hash, void *a_atom, size_t a_atom_size){
+    if (!a_arg) {
+        return;
+    }
+    _wrapping_chain_mempool_notify_callback_t *l_callback = (_wrapping_chain_mempool_notify_callback_t *)a_arg;
+
+    PyGILState_STATE state = PyGILState_Ensure();
+
+    dap_chain_atom_ptr_t l_atom = (dap_chain_atom_ptr_t)a_atom;
+    PyChainAtomObject *l_atom_obj = NULL;
+    if (l_atom) {
+        l_atom_obj = PyObject_New(PyChainAtomObject, &DapChainAtomPtrObjectType);
+        l_atom_obj->atom = l_atom;
+        l_atom_obj->atom_size = a_atom_size;
+        PyObject *l_args = Py_BuildValue("OO", l_atom_obj, l_callback->arg);
+        log_it(L_DEBUG, "Call atom confirmed notifier for chain %s with atom size %zd", a_chain->name, a_atom_size);
+        PyObject *result = PyObject_CallObject(l_callback->func, l_args);
+        if (!result) {
+            python_error_in_log_it(LOG_TAG);
+        }
+        Py_XDECREF(result);
+        Py_DECREF(l_args);
+        Py_DECREF(l_atom_obj);
+    } else {
+        PyObject *l_args = Py_BuildValue("OO", Py_None, l_callback->arg);
+        PyObject *result = PyObject_CallObject(l_callback->func, l_args);
+        if (!result) {
+            python_error_in_log_it(LOG_TAG);
+        }
+        Py_XDECREF(result);
+        Py_DECREF(l_args);
+    }
+
+    PyGILState_Release(state);
+}
+
+
 /**
  * @brief dap_chain_python_add_mempool_notify_callback
  * @param self
@@ -378,6 +416,39 @@ PyObject *dap_chain_net_add_atom_notify_callback(PyObject *self, PyObject *args)
     dap_chain_add_callback_notify(l_chain, _wrapping_dap_chain_atom_notify_handler, NULL, l_callback);
     Py_RETURN_NONE;
 }
+
+/**
+ * @brief dap_chain_atom_confirmed_notify_add_py
+ * @param self
+ * @param args
+ * @return
+ */
+PyObject *dap_chain_atom_confirmed_notify_add_py(PyObject *self, PyObject *args)
+{
+    dap_chain_t *l_chain = ((PyDapChainObject *)self)->chain_t;
+    PyObject *obj_func;
+    PyObject *obj_arg;
+    if (!PyArg_ParseTuple(args, "OO", &obj_func, &obj_arg)) {
+        PyErr_SetString(PyExc_AttributeError, "Arguments must be a callable and an argument");
+        return NULL;
+    }
+    if (!PyCallable_Check(obj_func)) {
+        PyErr_SetString(PyExc_AttributeError, "First argument must be a callable function");
+        return NULL;
+    }
+    _wrapping_chain_mempool_notify_callback_t *l_callback = DAP_NEW_Z(_wrapping_chain_mempool_notify_callback_t);
+    if (!l_callback) {
+        log_it(L_CRITICAL, "Memory allocation error");
+        return NULL;
+    }
+    l_callback->func = obj_func;
+    l_callback->arg = obj_arg;
+    Py_INCREF(obj_func);
+    Py_INCREF(obj_arg);
+    dap_chain_atom_confirmed_notify_add(l_chain, _wrapping_dap_chain_atom_confirmed_notify_handler, l_callback);
+    Py_RETURN_NONE;
+}
+
 
 /**
  * @brief dap_chain_python_atom_find_by_hash
