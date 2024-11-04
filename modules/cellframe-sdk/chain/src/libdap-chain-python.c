@@ -429,7 +429,8 @@ PyObject *dap_chain_atom_confirmed_notify_add_py(PyObject *self, PyObject *args)
     dap_chain_t *l_chain = ((PyDapChainObject *)self)->chain_t;
     PyObject *obj_func;
     PyObject *obj_arg;
-    if (!PyArg_ParseTuple(args, "OO", &obj_func, &obj_arg)) {
+    int conf_cnt = 0;
+    if (!PyArg_ParseTuple(args, "OOi", &obj_func, &obj_arg, &conf_cnt)) {
         PyErr_SetString(PyExc_AttributeError, "Arguments must be a callable and an argument");
         return NULL;
     }
@@ -446,7 +447,9 @@ PyObject *dap_chain_atom_confirmed_notify_add_py(PyObject *self, PyObject *args)
     l_callback->arg = obj_arg;
     Py_INCREF(obj_func);
     Py_INCREF(obj_arg);
-    dap_chain_atom_confirmed_notify_add(l_chain, _wrapping_dap_chain_atom_confirmed_notify_handler, l_callback);
+    log_it(L_DEBUG, "Added confirmed atom notify in %s:%s for %d confirmations", l_chain->net_name, l_chain->name, conf_cnt);
+
+    dap_chain_atom_confirmed_notify_add(l_chain, _wrapping_dap_chain_atom_confirmed_notify_handler, l_callback, conf_cnt);
     Py_RETURN_NONE;
 }
 
