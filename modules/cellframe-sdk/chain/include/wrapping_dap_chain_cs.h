@@ -13,6 +13,7 @@ typedef struct PyDapChainCs{
     PyObject_HEAD
     char *cs_name;
     dap_chain_callback_new_cfg_t callback_new_cfg;
+    dap_chain_callback_t callback_start_cfg;
 }PyDapChainCsObject;
 static PyObject *binded_object_callback_new_cfg = NULL;
 

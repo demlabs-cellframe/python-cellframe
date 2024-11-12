@@ -65,7 +65,7 @@ PyObject *dap_chain_cs_add_py (PyObject *self, PyObject *args){
     Py_XINCREF(obj_callback_init);
     Py_XDECREF(binded_object_callback_new_cfg);
     binded_object_callback_new_cfg = obj_callback_init;
-    //dap_chain_cs_add(cs_str, ((PyDapChainCsObject*)self)->callback_new_cfg);
+    // dap_chain_cs_add(cs_str, ((PyDapChainCsObject*)self)->callback_new_cfg, ((PyDapChainCsObject*)self)->callback_start_cfg);
     return PyLong_FromLong(0);
 }
 PyObject *dap_chain_cs_create_py(PyObject *self, PyObject *args){
@@ -91,7 +91,7 @@ PyObject *dap_chain_class_add_py (PyObject *self, PyObject *args){
     Py_XINCREF(obj_callback_init);
     Py_XDECREF(binded_object_callback_new_cfg);
     binded_object_callback_new_cfg = obj_callback_init;
-    //dap_chain_cs_class_add(cs_str, ((PyDapChainCsObject*)self)->callback_new_cfg);
+    // dap_chain_cs_type_add(cs_str, ((PyDapChainCsObject*)self)->callback_new_cfg, ((PyDapChainCsObject*)self)->callback_start_cfg);
     return PyLong_FromLong(0);
 }
 PyObject *dap_chain_class_create_py(PyObject *self, PyObject *args){
