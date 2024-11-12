@@ -97,7 +97,7 @@ PyObject *wrapping_dap_chain_net_srv_vote_create(PyObject *self, PyObject *args)
     bool l_delegated_key_required = (obj_delegate_key_required == Py_True) ? true : false;
     bool l_vote_changing_allowed = (obj_vote_changing_allowed == Py_True) ? true : false;
     char *l_hash_ret;
-    int res = dap_chain_net_vote_create(question, l_option, obj_expire_option ? l_time_expire_option : 0, max_vote,
+    int res = dap_chain_net_srv_voting_create(question, l_option, obj_expire_option ? l_time_expire_option : 0, max_vote,
                               ((DapMathObject*)fee)->value, l_delegated_key_required, l_vote_changing_allowed,
                               ((PyDapChainWalletObject*)obj_wallet)->wallet, ((PyDapChainNetObject*)obj_net)->chain_net,
                               "hex", &l_hash_ret);
@@ -190,7 +190,7 @@ PyObject *wrapping_dap_chain_net_srv_vote_list(PyObject *self, PyObject *argv) {
         return NULL;
     }
 
-    dap_list_t *l_list = dap_chain_net_vote_list(((PyDapChainNetObject*)obj_net)->chain_net);
+    dap_list_t *l_list = dap_chain_net_voting_list(((PyDapChainNetObject*)obj_net)->chain_net);
     if (!l_list) {
         Py_RETURN_NONE;
     }
@@ -199,7 +199,7 @@ PyObject *wrapping_dap_chain_net_srv_vote_list(PyObject *self, PyObject *argv) {
     PyObject *obj_list = PyList_New((Py_ssize_t)l_list_count);
     for (size_t i = 0; i < l_list_count; i++) {
         PyDapChainNetSrvVoteInfoObject *obj = PyObject_New(PyDapChainNetSrvVoteInfoObject, &DapChainNetSrvVoteInfoObjectType);
-        obj->info = (dap_chain_net_vote_info_t*)l_ptr->data;
+        obj->info = (dap_chain_net_voting_info_t*)l_ptr->data;
         PyList_SetItem(obj_list, (Py_ssize_t)i, (PyObject*)obj);
         l_ptr = l_ptr->next;
     }
@@ -249,8 +249,8 @@ PyObject *wrapping_dap_chain_net_srv_vote(PyObject *self, PyObject *args){
         l_hf = &((PyDapChainNetSrvVoteInfoObject*)obj_vote)->info->hash;
     }
     char *l_hash_ret = NULL;
-    int res = dap_chain_net_vote_voting(l_cert, ((DapMathObject*)obj_fee)->value,
-                                        ((PyDapChainWalletObject*)obj_wallet)->wallet, *l_hf, option_index,
+    int res = dap_chain_net_srv_vote_create(l_cert, ((DapMathObject*)obj_fee)->value,
+                                        ((PyDapChainWalletObject*)obj_wallet)->wallet, l_hf, option_index,
                                         ((PyDapChainNetObject*)obj_net)->chain_net, "hex", &l_hash_ret);
     switch (res) {
         case DAP_CHAIN_NET_VOTE_VOTING_OK: {
