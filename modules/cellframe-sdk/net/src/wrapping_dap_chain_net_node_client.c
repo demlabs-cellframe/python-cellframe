@@ -51,7 +51,7 @@ PyObject *dap_chain_node_client_connect_py(PyObject *self, PyObject *args){
     return Py_BuildValue("O", obj_node_client);
 }
 PyObject *dap_chain_node_client_close_py(PyObject *self, PyObject *args){
-    dap_chain_node_client_close_mt(((PyDapChainNodeClientObject*)self)->node_client);
+    dap_chain_node_client_close(((PyDapChainNodeClientObject*)self)->node_client);
     return PyLong_FromLong(0);
 }
 PyObject *dap_chain_node_client_send_ch_pkt_py(PyObject *self, PyObject *args){
@@ -64,7 +64,7 @@ PyObject *dap_chain_node_client_send_ch_pkt_py(PyObject *self, PyObject *args){
         return NULL;
     buf = PyBytes_AsString(obj_buf);
     buf_size = (size_t)PyBytes_Size(buf);
-    int res = dap_chain_node_client_write_mt(((PyDapChainNodeClientObject*)self)->node_client, ch_id, type, buf, buf_size);
+    int res = dap_chain_node_client_write(((PyDapChainNodeClientObject*)self)->node_client, ch_id, type, buf, buf_size);
     return PyLong_FromLong(res);
 }
 PyObject *dap_chain_node_client_wait_py(PyObject *self, PyObject *args){
