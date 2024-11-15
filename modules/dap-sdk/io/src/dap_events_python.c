@@ -35,7 +35,7 @@ static PyObject *dap_events_socket_remove_and_delete_py(PyDapEventsObject *self,
     if (in_bool == Py_False)
         preserve_inheritor = false;
     UNUSED(preserve_inheritor); // Is it really need for?
-    dap_events_socket_remove_and_delete_mt(((PyDapEventsSocketObject*)in_obj)->t_events_socket->worker,
+    dap_events_socket_remove_and_delete(((PyDapEventsSocketObject*)in_obj)->t_events_socket->worker,
                                            ((PyDapEventsSocketObject*)in_obj)->t_events_socket->uuid);
     return PyLong_FromLong(0);
 }
@@ -45,7 +45,7 @@ static PyObject *dap_events_socket_kill_socket_py(PyDapEventsObject *self, PyObj
     if (!PyArg_ParseTuple(args, "O", &in_obj)){
         return NULL;
     }
-    dap_events_socket_remove_and_delete_mt(((PyDapEventsSocketObject*)in_obj)->t_events_socket->worker,
+    dap_events_socket_remove_and_delete(((PyDapEventsSocketObject*)in_obj)->t_events_socket->worker,
                                            ((PyDapEventsSocketObject*)in_obj)->t_events_socket->uuid);
     return PyLong_FromLong(0);
 }
