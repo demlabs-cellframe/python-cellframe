@@ -290,7 +290,7 @@ PyObject *wrapping_dap_chain_datum_tx_get_items(PyObject *self, PyObject *args){
                 break;
             case TX_ITEM_TYPE_VOTING:
                 obj_tx_item = (PyObject*)PyObject_New(PyDapChainTXVotingObject, &PyDapChainTxVotingObjectType);
-                ((PyDapChainTXVotingObject*)obj_tx_item)->voting = dap_chain_voting_parse_tsd(((PyDapChainDatumTxObject*)self)->datum_tx);
+                ((PyDapChainTXVotingObject*)obj_tx_item)->voting = dap_chain_datum_tx_voting_parse_tsd(((PyDapChainDatumTxObject*)self)->datum_tx);
                 break;
             default:
                 obj_tx_item = Py_None;
