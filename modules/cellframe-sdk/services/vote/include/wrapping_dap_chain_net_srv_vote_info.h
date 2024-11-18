@@ -8,7 +8,7 @@ typedef struct PyDapChainNetSrvVoteInfo{
 
 typedef struct PyDapChainNetSrvVoteInfoOption{
     PyObject_HEAD
-    dap_chain_net_voting_info_option_t *option;
+    dap_chain_net_voting_option_info_t *option;
 }PyDapChainNetSrvVoteInfoOptionObject;
 
 PyObject *wrapping_dap_chain_net_srv_vote_get_hash(PyObject *self, void *closure);

@@ -18,13 +18,14 @@ PyGetSetDef PyDapChainTxVotingGetSetDef[] = {
 
 PyObject *wrapping_dap_chain_tx_voting_get_question(PyObject *self, void *closure){
     (void)closure;
-    return Py_BuildValue("s", PVT_VOTING(self)->voting_question);
+    return Py_BuildValue("s", PVT_VOTING(self)->question);
 }
 PyObject *wrapping_dap_chain_tx_voting_get_answers(PyObject *self, void *closure){
     (void)closure;
-    PyObject *obj_list = PyList_New(PVT_VOTING(self)->answers_count);
-    for (uint64_t i = PVT_VOTING(self)->answers_count; --i;) {
-        char *l_data = dap_list_nth_data(PVT_VOTING(self)->answers_list, i);
+    size_t l_option_count = dap_list_length(PVT_VOTING(self)->options);
+    PyObject *obj_list = PyList_New(l_option_count);
+    for (uint64_t i = l_option_count; --i;) {
+        char *l_data = dap_list_nth_data(PVT_VOTING(self)->options, i);
         PyObject *obj_str = Py_BuildValue("s", l_data);
         PyList_SetItem(obj_list, i, obj_str);
     }
