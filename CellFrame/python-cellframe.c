@@ -647,7 +647,9 @@ PyMODINIT_FUNC PyInit_libCellFrame(void)
         PyType_Ready( &DapChainCsDagPoaObjectType ) < 0 ||
         PyType_Ready(&DapChainCsBlockType) < 0 ||
         PyType_Ready(&DapChainCsDagType) < 0 ||
-        PyType_Ready(&DapChainCsDagEventType) < 0
+        PyType_Ready(&DapChainCsDagEventType) < 0 ||
+        PyType_Ready(&DapChainCsDagRoundType) < 0 ||
+        PyType_Ready(&DapChainCsDagRoundInfoType) < 0
         ) {
         log_it(L_CRITICAL,"Not all python type objects are initialized for CellFrame module");
         return NULL;

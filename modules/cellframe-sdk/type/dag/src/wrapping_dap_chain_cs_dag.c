@@ -1,5 +1,6 @@
 #include "wrapping_dap_chain_cs_dag.h"
 #include "dap_chain_cell.h"
+#include "wrapping_dap_chain_cs_dag_round.h"
 
 static PyMethodDef DapChainCsDagMethods[] = {
         {"findByHash", (PyCFunction)dap_chain_cs_dag_find_event_by_hash_py, METH_VARARGS, ""},
@@ -14,24 +15,15 @@ PyTypeObject DapChainCsDagType = DAP_PY_TYPE_OBJECT(
 
 PyObject *dap_chain_cs_dag_get_current_round_py(PyObject *self, PyObject *args) {
     const char *l_round_event_group = ((PyDapChainCsDagObject*)self)->dag->gdb_group_events_round_new;
-    if (l_round_event_group) {
-        size_t l_objs_count = 0;
-        dap_global_db_obj_t * l_objs = dap_global_db_get_all_sync(l_round_event_group,&l_objs_count);
+    if (!l_round_event_group) Py_RETURN_NONE;
 
-        PyObject *obj_list = PyList_New(l_objs_count);
-        for (size_t i = 0; i < l_objs_count; i++) {
-            dap_chain_cs_dag_event_t *l_event = (dap_chain_cs_dag_event_t *)
-                    ((dap_chain_cs_dag_event_round_item_t *)l_objs[i].value)->event_n_signs;
-            PyDapChainCsDagEventObject *l_obj_event  = PyObject_New(PyDapChainCsDagEventObject, &DapChainCsDagEventType);
-            l_obj_event->event = l_event;
-            l_obj_event->event_size = ((dap_chain_cs_dag_event_round_item_t*)l_objs[i].value)->event_size;
-            PyList_SetItem(obj_list, i, (PyObject*)l_obj_event);
-        }
-        if (l_objs && l_objs_count )
-            dap_global_db_objs_delete(l_objs, l_objs_count);
-        return obj_list;
-    }
-    Py_RETURN_NONE;
+    size_t l_objs_count = 0;
+    dap_global_db_obj_t * l_objs = dap_global_db_get_all_sync(l_round_event_group,&l_objs_count);
+    if (!l_objs && !l_objs_count) Py_RETURN_NONE;
+    PyDapChainCsDagRoundObject *obj_round = WRAPPING_DAP_CHAIN_CS_DAG_ROUND_NEW;
+    obj_round->item = (dap_chain_cs_dag_event_round_item_t*)l_objs[0].value;
+    dap_global_db_objs_delete(l_objs, l_objs_count);
+    return (PyObject*)obj_round;
 }
 
 PyObject *dap_chain_cs_dag_find_event_by_hash_py(PyObject *self, PyObject *args){
