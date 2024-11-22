@@ -44,7 +44,7 @@ PyGetSetDef DapChainCsDagRoundGetSetDef[] = {
 };
 
 PyTypeObject DapChainCsDagRoundType = DAP_PY_TYPE_OBJECT(
-        "CellFrame.ChainCsDagRound",sizeof(PyDapChainCsDagRoundObject),
+        "CellFrame.Consensus.DagRound",sizeof(PyDapChainCsDagRoundObject),
         "Chain cs dag event objects",
         .tp_getset = DapChainCsDagRoundGetSetDef);
 
@@ -77,7 +77,7 @@ PyGetSetDef DapChainCsDagRoundInfoGetSetDef[] = {
 };
 
 PyTypeObject DapChainCsDagRoundInfoType = DAP_PY_TYPE_OBJECT(
-        "CellFrame.ChainCsDagRoundInfo",sizeof(PyDapChainCsDagRoundInfoObject),
+        "CellFrame.Consensus.DagRoundInfo",sizeof(PyDapChainCsDagRoundInfoObject),
         "Chain cs dag round info objects",
         .tp_getset = DapChainCsDagRoundInfoGetSetDef
         );
