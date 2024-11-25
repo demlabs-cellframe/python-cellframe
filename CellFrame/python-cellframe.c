@@ -283,7 +283,7 @@ PyObject *python_dap_init(PyObject *self, PyObject *args)
     config_dir = PyUnicode_AsUTF8(config_dir_PyObject);
     log_level = PyUnicode_AsUTF8(logLevel_PyObject);
 
-    if (dap_common_init(app_name, file_name_log, NULL ) != 0){
+    if (dap_common_init(app_name, file_name_log) != 0){
         PyErr_SetString(CellFrame_error, "Can't initialize CellFrame SDK library");
         return NULL;
     }
@@ -306,17 +306,6 @@ PyObject *python_dap_init(PyObject *self, PyObject *args)
         dap_log_level_set(L_ERROR);
     }else if ( dap_strcmp( log_level, "L_CRITICAL" )==0 || dap_strcmp( log_level, "CRITICAL" )==0  ){
         dap_log_level_set(L_CRITICAL);
-    }
-    //generation config files
-    PyObject *configure = PyDict_GetItemString(result, "Configuration");
-    int res_gen_config_file = gen_config_files(config_dir, app_name, configure);
-    switch (res_gen_config_file) {
-    case -1:
-        PyErr_SetString(CellFrame_error, "Can't generate configuration files. Directory path must contain only ASCII simbols");
-        return NULL;
-    case -3:
-        PyErr_SetString(CellFrame_error, "Can't generate configuration files. Can't open a file stream");
-        return NULL;
     }
     //Init config
     dap_config_init(config_dir);
