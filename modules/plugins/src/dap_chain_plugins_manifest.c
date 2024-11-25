@@ -2,7 +2,7 @@
 #include "dap_strfuncs.h"
 #include "json-c/json_object.h"
 #include "json-c/json_util.h"
-#include "utlist.h"
+#include "dap_list.h"
 
 #include "dap_chain_plugins_manifest.h"
 
@@ -101,7 +101,7 @@ dap_chain_plugins_list_manifest_t* dap_chain_plugins_add_manifest_from_file(cons
 
     dap_chain_plugins_list_char_t *dep = JSON_array_to_dap_list_char(j_dependencies);
     dap_chain_plugins_list_manifest_t *manifest = dap_chain_plugins_manifest_new(name, version, dep, author, description);
-    
+    dap_chain_plugins_list_char_delete_all(dep);
     return manifest;
 }
 
