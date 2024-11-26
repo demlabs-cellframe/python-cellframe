@@ -105,6 +105,7 @@
 #include "dap_server.h"
 #include "wrapping_json_rpc_request.h"
 #include "wrapping_json_rpc_response.h"
+#include "wrapping_dap_chain_cs_dag_round.h"
 #ifdef _WIN32
 #include "Windows.h"
 BOOL WINAPI consoleHandler(DWORD);

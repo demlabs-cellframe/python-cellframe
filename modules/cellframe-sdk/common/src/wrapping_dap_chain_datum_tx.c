@@ -171,7 +171,7 @@ PyObject *dap_chain_datum_tx_sign_py(PyObject *self, PyObject *args){
 
 PyObject *dap_chain_datum_tx_verify_sign_py(PyObject *self, PyObject *args){
     (void)args;
-    int res = dap_chain_datum_tx_verify_sign(((PyDapChainDatumTxObject*)self)->datum_tx);
+    int res = dap_chain_datum_tx_verify_sign(((PyDapChainDatumTxObject*)self)->datum_tx, 0);
     return PyLong_FromLong(res);
 }
 
