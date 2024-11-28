@@ -455,7 +455,7 @@ typedef struct pvt_ledger_notify{
     PyObject *argv;
 }pvt_ledger_notify_t;
 
-static void pvt_wrapping_dap_chain_ledger_tx_add_notify(void *a_arg, dap_ledger_t *a_ledger,
+static void pvt_wrapping_dap_chain_ledger_tx_add_notify(void *a_arg, dap_ledger_t *a_ledger, dap_hash_fast_t *a_tx_hash,
                                                         dap_chain_datum_tx_t *a_tx, dap_chan_ledger_notify_opcodes_t a_opcode){
     if (!a_arg)
         return;
