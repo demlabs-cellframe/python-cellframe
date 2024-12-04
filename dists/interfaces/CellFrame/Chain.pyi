@@ -55,6 +55,10 @@ class Chain(Protocol):
         pass
 
     @staticmethod
+    def addAtomConfirmedNotify(*args):
+        pass
+
+    @staticmethod
     def atomFindByHash(*args):
         pass
 
