@@ -266,14 +266,14 @@ PyObject *dap_chain_mempool_tx_create_py(PyObject *self, PyObject *args){
     }
     dap_chain_t *l_chain = ((PyDapChainObject*)obj_chain)->chain_t;
     dap_enc_key_t *l_key_from = ((PyCryptoKeyObject*)obj_key_from)->key;
-    dap_chain_addr_t *l_addr_from = ((PyDapChainAddrObject*)obj_addr_from)->addr;
-    dap_chain_addr_t *l_addr_to = ((PyDapChainAddrObject*)obj_addr_to)->addr;
+    const dap_chain_addr_t *l_addr_from = ((PyDapChainAddrObject*)obj_addr_from)->addr,
+                           *l_addr_to = ((PyDapChainAddrObject*)obj_addr_to)->addr;
     uint256_t l_value_256 = dap_chain_balance_scan(l_value);
     uint256_t l_value_fee_256 = dap_chain_balance_scan(l_value_fee);
     char *l_tx_hash_str = dap_chain_mempool_tx_create(l_chain, l_key_from,
-                                                    l_addr_from, l_addr_to,
+                                                    l_addr_from, &l_addr_to,
                                                     l_token_ticker,
-                                                    l_value_256, l_value_fee_256, "hex");
+                                                    &l_value_256, l_value_fee_256, "hex", 1);
     if (l_tx_hash_str == NULL)
         Py_RETURN_NONE;
     PyDapHashFastObject *l_obj_hf = PyObject_New(PyDapHashFastObject, &DapChainHashFastObjectType);
