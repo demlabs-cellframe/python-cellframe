@@ -56,7 +56,7 @@ PyObject *wrapping_dap_chain_cs_dag_round_info_get_ts_update(PyObject *self, voi
     (void)closure;
     PyDateTime_IMPORT;
     dap_nanotime_t l_ts_expire = INFO(self).ts_update;
-    PyObject *obj_ts_long =  Py_BuildValue("(k)", l_ts_expire);
+    PyObject *obj_ts_long =  Py_BuildValue("(k)", dap_nanotime_to_sec(l_ts_expire));
     PyObject *obj_ts = PyDateTime_FromTimestamp(obj_ts_long);
     return obj_ts;
 }
