@@ -36,6 +36,11 @@ PyObject *wrapping_dap_chain_cs_dag_round_get_signs(PyObject *self, void *closur
     return list_signs;
 }
 
+void DapChainCsDagRound_free(PyDapChainCsDagRoundObject *self) {
+    DAP_DELETE(self->item);
+    Py_TYPE(self)->tp_free((PyObject*)self);
+}
+
 PyGetSetDef DapChainCsDagRoundGetSetDef[] = {
         {"info", (getter) wrapping_dap_chain_cs_dag_round_get_info, NULL, "", NULL},
         {"event", (getter) wrapping_dap_chain_cs_dag_round_get_event, NULL, "", NULL},
@@ -46,6 +51,7 @@ PyGetSetDef DapChainCsDagRoundGetSetDef[] = {
 PyTypeObject DapChainCsDagRoundType = DAP_PY_TYPE_OBJECT(
         "CellFrame.Consensus.DagRound",sizeof(PyDapChainCsDagRoundObject),
         "Chain cs dag event objects",
+        .tp_dealloc = (destructor)DapChainCsDagRound_free,
         .tp_getset = DapChainCsDagRoundGetSetDef);
 
 PyObject *wrapping_dap_chain_cs_dag_round_info_get_reject_count(PyObject *self, void *closure) {
