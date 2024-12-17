@@ -226,7 +226,7 @@ PyObject *dap_chain_net_get_gdb_group_mempool_py(PyObject *self, PyObject *args)
     PyObject *obj_chain;
     if (!PyArg_ParseTuple(args, "O", &obj_chain))
         return NULL;
-    char *res = dap_chain_net_get_gdb_group_mempool_new(((PyDapChainObject*)obj_chain)->chain_t);
+    char *res = dap_chain_mempool_group_new(((PyDapChainObject*)obj_chain)->chain_t);
     if (!res)
         Py_RETURN_NONE;
     PyObject *l_obj_res = Py_BuildValue("s", res);

@@ -141,7 +141,7 @@ PyObject *dap_chain_mempool_proc_py(PyObject *self, PyObject *args) {
     }
 
     char *l_gdb_group_mempool = NULL;
-    l_gdb_group_mempool = dap_chain_net_get_gdb_group_mempool_new(l_chain);
+    l_gdb_group_mempool = dap_chain_mempool_group_new(l_chain);
 
     size_t l_datum_size = 0;
     dap_chain_datum_t *l_datum = (dap_chain_datum_t*) dap_global_db_get_sync(l_gdb_group_mempool,l_hash_str,
@@ -394,7 +394,7 @@ PyObject *dap_chain_mempool_remove_py(PyObject *self, PyObject *args){
         PyErr_SetString(PyExc_AttributeError, "The passed chain arguments are corrupted.");
         return NULL;
     }
-    char *l_gdb_group_mempool = dap_chain_net_get_gdb_group_mempool_new(obj_chain->chain_t);
+    char *l_gdb_group_mempool = dap_chain_mempool_group_new(obj_chain->chain_t);
     if (!dap_global_db_del(l_gdb_group_mempool, l_str_hash, NULL, NULL)) {
         DAP_DELETE(l_gdb_group_mempool);
         Py_RETURN_TRUE;
@@ -406,7 +406,7 @@ PyObject *dap_chain_mempool_remove_py(PyObject *self, PyObject *args){
 
 PyObject* pvt_dap_chain_mempool_list(dap_chain_t *a_chain){
     PyObject *obj_dict = PyDict_New();
-    char * l_gdb_group_mempool = dap_chain_net_get_gdb_group_mempool_new(a_chain);
+    char * l_gdb_group_mempool = dap_chain_mempool_group_new(a_chain);
     if (l_gdb_group_mempool){
         size_t l_objs_size = 0;
         dap_global_db_obj_t * l_objs = dap_global_db_get_all_sync(l_gdb_group_mempool, &l_objs_size);
