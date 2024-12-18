@@ -12,7 +12,6 @@ PyGetSetDef DapChainNetSrvXchangePriceGetSetDef[] = {
         {"datoshiSell", (getter)wrapping_dap_chain_net_srv_xchange_price_get_datoshi_sell, NULL, NULL, NULL},
         {"net", (getter)wrapping_dap_chain_net_srv_xchange_price_get_net, NULL, NULL, NULL},
         {"tokenBuy", (getter)wrapping_dap_chain_net_srv_xchange_price_get_token_buy, NULL, NULL, NULL},
-        {"datoshiBuy", (getter) wrapping_dap_chain_net_srv_xchange_price_get_datoshi_buy, NULL, NULL, NULL},
         {"rate", (getter)wrapping_dap_chain_net_srv_xchange_price_get_rate, NULL, NULL, NULL},
         {"fee", (getter)wrapping_dap_chain_net_srv_xchange_price_get_fee, NULL, NULL, NULL},
         {"txHash", (getter)wrapping_dap_chain_net_srv_xchange_price_get_tx_hash, NULL, NULL, NULL},
@@ -65,12 +64,6 @@ PyObject *wrapping_dap_chain_net_srv_xchange_price_get_net(PyObject *self, void 
 PyObject *wrapping_dap_chain_net_srv_xchange_price_get_token_buy(PyObject *self, void *closure){
     UNUSED(closure);
     return Py_BuildValue("s", PRICE(self)->token_buy);
-}
-PyObject *wrapping_dap_chain_net_srv_xchange_price_get_datoshi_buy(PyObject *self, void *closure){
-    UNUSED(closure);
-    DapMathObject *obj_math = PyObject_New(DapMathObject, &DapMathObjectType);
-    obj_math->value = PRICE(self)->datoshi_buy;
-    return (PyObject*)obj_math;
 }
 PyObject *wrapping_dap_chain_net_srv_xchange_price_get_rate(PyObject *self, void *closure){
     UNUSED(closure);
