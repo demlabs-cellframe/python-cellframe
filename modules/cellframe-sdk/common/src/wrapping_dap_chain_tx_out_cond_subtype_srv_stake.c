@@ -99,7 +99,7 @@ int DapChainTxOutCondSubtypeSrvStakePosDelegate_init(PyDapChainTxOutCondObject *
     uint256_t l_sovereign_tax = ((DapMathObject*)obj_sovereign_tax)->value;
     dap_chain_tx_out_cond_t *l_out_cond = dap_chain_datum_tx_item_out_cond_create_srv_stake(l_uid, l_value,
                                                                                             l_signing_addr, &l_node_addr,
-                                                                                            l_sovereign_addr, l_sovereign_tax);
+                                                                                            l_sovereign_addr, l_sovereign_tax, NULL);
     self->out_cond = l_out_cond;
     return 0;
 }
