@@ -67,7 +67,7 @@ PyObject *wrapping_dap_chain_block_get_meta_data(PyObject *self, void *closure){
             ((PyDapChainCSBlockObject*)self)->block, ((PyDapChainCSBlockObject*)self)->block_size,
             &l_block_prev_hash, &l_block_anchor_hash,
             &l_merkle, &l_block_links,
-            &l_block_links_count, &l_is_genesis, &l_nonce, &l_nonce2);
+            &l_block_links_count, &l_is_genesis, &l_nonce, &l_nonce2, NULL);
     PyObject *obj_dict = PyDict_New();
     PyDapHashFastObject *l_obj_prev_hash = PyObject_New(PyDapHashFastObject, &DapChainHashFastObjectType);
     l_obj_prev_hash->hash_fast = DAP_NEW(dap_chain_hash_fast_t);
