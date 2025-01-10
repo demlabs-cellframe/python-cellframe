@@ -74,6 +74,7 @@ static PyMethodDef PyDapChainDatumTxObjectMethods[] ={
         {"addOutItem", (PyCFunction)dap_chain_datum_tx_add_out_item_py, METH_VARARGS, ""},
         {"addOutCond", (PyCFunction)dap_chain_datum_tx_add_out_cond_item_py, METH_VARARGS, ""},
         {"addSignItem", (PyCFunction)dap_chain_datum_tx_add_sign_item_py, METH_VARARGS, ""},
+        {"appendSignItem", (PyCFunction)dap_chain_datum_tx_append_sign_item_py, METH_VARARGS, ""},
         {"verifySign", (PyCFunction)dap_chain_datum_tx_verify_sign_py, METH_VARARGS, ""},
         {"getItems", (PyCFunction)wrapping_dap_chain_datum_tx_get_items, METH_NOARGS, ""},
         {}
@@ -171,6 +172,7 @@ PyObject *dap_chain_datum_tx_add_out_cond_item_py(PyObject *self, PyObject *args
                                                    cond, (size_t)cond_size);
     return PyLong_FromLong(res);
 }
+
 PyObject *dap_chain_datum_tx_add_sign_item_py(PyObject *self, PyObject *args){
     PyObject *obj_key;
     if (!PyArg_ParseTuple(args, "O", &obj_key))
@@ -179,6 +181,15 @@ PyObject *dap_chain_datum_tx_add_sign_item_py(PyObject *self, PyObject *args){
                                                ((PyCryptoKeyObject*)obj_key)->key);
     return PyLong_FromLong(res);
 }
+
+PyObject *dap_chain_datum_tx_append_sign_item_py(PyObject *self, PyObject *args){
+    PyDapSignObject *obj_sign;
+    if (!PyArg_ParseTuple(args, "O", &obj_sign))
+        return NULL;
+    
+    Py_RETURN_NONE;
+}
+
 
 PyObject *dap_chain_datum_tx_verify_sign_py(PyObject *self, PyObject *args){
     (void)args;

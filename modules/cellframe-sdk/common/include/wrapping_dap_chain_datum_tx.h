@@ -94,7 +94,9 @@ PyObject *dap_chain_datum_tx_add_in_cond_item_py(PyObject *self, PyObject *args)
 PyObject *dap_chain_datum_tx_add_out_item_py(PyObject *self, PyObject *args);
 PyObject *dap_chain_datum_tx_add_out_cond_item_py(PyObject *self, PyObject *args);
 PyObject *dap_chain_datum_tx_add_sign_item_py(PyObject *self, PyObject *args);
+PyObject *dap_chain_datum_tx_append_sign_item_py(PyObject *self, PyObject *args);
 PyObject *dap_chain_datum_tx_verify_sign_py(PyObject *self, PyObject *args);
+
 
 PyObject *wrapping_dap_chain_datum_tx_get_items(PyObject *self, PyObject *args);
 
