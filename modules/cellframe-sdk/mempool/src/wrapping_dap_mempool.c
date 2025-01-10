@@ -266,8 +266,8 @@ PyObject *dap_chain_mempool_tx_create_py(PyObject *self, PyObject *args){
     }
     dap_chain_t *l_chain = ((PyDapChainObject*)obj_chain)->chain_t;
     dap_enc_key_t *l_key_from = ((PyCryptoKeyObject*)obj_key_from)->key;
-    dap_chain_addr_t *l_addr_from = PY_DAP_CHAIN_ADDR(obj_addr_from);
-    dap_chain_addr_t *l_addr_to = PY_DAP_CHAIN_ADDR(obj_addr_to);
+    const dap_chain_addr_t *l_addr_from = PY_DAP_CHAIN_ADDR(obj_addr_from),
+                           *l_addr_to = PY_DAP_CHAIN_ADDR(obj_addr_to);
     uint256_t l_value_256 = dap_chain_balance_scan(l_value);
     uint256_t l_value_fee_256 = dap_chain_balance_scan(l_value_fee);
     char *l_tx_hash_str = dap_chain_mempool_tx_create(l_chain, l_key_from,
