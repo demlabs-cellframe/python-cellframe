@@ -1,4 +1,5 @@
 #include "wrapping_dap_chain_datum_tx.h"
+#include "dap_chain_datum_tx_sig.h"
 
 /* DAP chain tx iter type */
 
@@ -152,6 +153,8 @@ PyObject *dap_chain_datum_tx_add_out_item_py(PyObject *self, PyObject *args){
                                               value);
     return PyLong_FromLong(res);
 }
+
+
 PyObject *dap_chain_datum_tx_add_out_cond_item_py(PyObject *self, PyObject *args){
     PyObject *obj_key;
     PyObject *obj_srv_uid;
@@ -187,7 +190,13 @@ PyObject *dap_chain_datum_tx_append_sign_item_py(PyObject *self, PyObject *args)
     if (!PyArg_ParseTuple(args, "O", &obj_sign))
         return NULL;
     
-    Py_RETURN_NONE;
+    dap_chain_tx_sig_t *l_sign = dap_chain_datum_tx_item_sign_create_from_sign(obj_sign->sign);
+    if (!l_sign) Py_RETURN_FALSE;
+
+    if(dap_chain_datum_tx_add_item(&((PyDapChainDatumTxObject*)self)->datum_tx, l_sign))
+        Py_RETURN_TRUE;
+    
+    Py_RETURN_FALSE;
 }
 
 
