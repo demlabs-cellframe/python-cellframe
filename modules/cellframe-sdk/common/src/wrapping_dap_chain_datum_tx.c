@@ -1,4 +1,5 @@
 #include "wrapping_dap_chain_datum_tx.h"
+#include "dap_chain_datum_tx_sig.h"
 
 #include "dap_chain_wallet_python.h"
 
@@ -174,6 +175,18 @@ PyObject *dap_chain_datum_tx_sign_py(PyObject *self, PyObject *args){
         Py_RETURN_FALSE;
 }
 
+PyObject *dap_chain_datum_tx_add_out_item_py(PyObject *self, PyObject *args){
+    PyObject *in_addr;
+    uint256_t value;
+    if (!PyArg_ParseTuple(args, "O|k", &in_addr, &value))
+        return NULL;
+    int res = dap_chain_datum_tx_add_out_item(&(((PyDapChainDatumTxObject*)self)->datum_tx),
+                                              ((PyDapChainAddrObject*)in_addr)->addr,
+                                              value);
+    return PyLong_FromLong(res);
+}
+
+
 PyObject *dap_chain_datum_tx_add_out_cond_item_py(PyObject *self, PyObject *args){
     PyObject *obj_key;
     PyObject *obj_srv_uid;
@@ -209,7 +222,13 @@ PyObject *dap_chain_datum_tx_append_sign_item_py(PyObject *self, PyObject *args)
     if (!PyArg_ParseTuple(args, "O", &obj_sign))
         return NULL;
     
-    Py_RETURN_NONE;
+    dap_chain_tx_sig_t *l_sign = dap_chain_datum_tx_item_sign_create_from_sign(obj_sign->sign);
+    if (!l_sign) Py_RETURN_FALSE;
+
+    if(dap_chain_datum_tx_add_item(&((PyDapChainDatumTxObject*)self)->datum_tx, l_sign))
+        Py_RETURN_TRUE;
+    
+    Py_RETURN_FALSE;
 }
 
 

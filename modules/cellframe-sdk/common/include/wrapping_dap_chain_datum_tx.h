@@ -97,6 +97,7 @@ PyObject *dap_chain_datum_tx_add_in_cond_item_py(PyObject *self, PyObject *args)
 PyObject *dap_chain_datum_tx_add_out_item_py(PyObject *self, PyObject *args);
 PyObject *dap_chain_datum_tx_add_out_cond_item_py(PyObject *self, PyObject *args);
 PyObject *dap_chain_datum_tx_add_sign_item_py(PyObject *self, PyObject *args);
+
 PyObject *dap_chain_datum_tx_append_sign_item_py(PyObject *self, PyObject *args);
 >>>>>>> c1e3494 ([+] multisign withdraw api)
 PyObject *dap_chain_datum_tx_verify_sign_py(PyObject *self, PyObject *args);
