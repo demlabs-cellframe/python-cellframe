@@ -351,19 +351,14 @@ PyObject *dap_chain_mempool_tx_create_multisign_withdraw_py(PyObject *self, PyOb
     
     dap_enc_key_t *l_enc_key =obj_key_from->key;
     dap_chain_addr_t *l_addr = obj_addr_to->addr;
-    dap_list_t *tsd_items;
+    dap_list_t *tsd_items = NULL;
 
     PyObject *tsdkey, *tsdvalue;
     Py_ssize_t pos = 0;
     
     while (PyDict_Next(tsd, &pos, &tsdkey, &tsdvalue))
     {
-        int type = PyLong_AsLong(tsdkey);
-        void *l_data = PyBytes_AsString(tsdvalue);
-        size_t l_data_size = PyBytes_Size(tsdvalue);
-        
-        dap_chain_tx_tsd_t *tsd_item = dap_chain_datum_tx_item_tsd_create(l_data, type, l_data_size);
-        
+        dap_chain_tx_tsd_t *tsd_item = dap_chain_datum_tx_item_tsd_create(PyBytes_AsString(tsdvalue), PyLong_AsLong(tsdkey), PyBytes_Size(tsdvalue));
         if (!tsd_item) 
         {
             log_it(L_ERROR, "Can't add tsd");
@@ -373,7 +368,8 @@ PyObject *dap_chain_mempool_tx_create_multisign_withdraw_py(PyObject *self, PyOb
         DAP_LIST_SAPPEND(tsd_items, tsd_item);
     } 
 
-    dap_chain_datum_tx_t *l_tx = dap_chain_net_srv_emit_delegate_taking_tx_create(NULL, obj_net->chain_net, l_enc_key, l_addr, l_value_256, l_value_fee_256, transaction_hash->hash_fast, tsd_items);
+    dap_chain_datum_tx_t *l_tx = dap_chain_net_srv_emit_delegate_taking_tx_create(NULL, obj_net->chain_net, l_enc_key, l_addr, l_value_256,
+                                                                                  l_value_fee_256, transaction_hash->hash_fast, tsd_items);
     
     if (!l_tx) {
         PyErr_SetString(PyExc_AttributeError, "Failed to create tx datum");
