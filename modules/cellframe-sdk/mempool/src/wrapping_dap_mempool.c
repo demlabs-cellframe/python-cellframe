@@ -166,7 +166,7 @@ PyObject *dap_chain_mempool_proc_py(PyObject *self, PyObject *args) {
         return NULL;
     }
 
-    if (dap_chain_node_mempool_process(l_chain, l_datum, l_hash_str)) {
+    if (dap_chain_node_mempool_process(l_chain, l_datum, l_hash_str, NULL)) {
         bool res_del_mempool = dap_global_db_del(l_gdb_group_mempool, l_hash_str, NULL, NULL);
         if (res_del_mempool) {
             char *l_str = dap_strdup_printf("Warning! Can't delete datum with hash: %s from mempool!", l_hash_str);
@@ -266,8 +266,8 @@ PyObject *dap_chain_mempool_tx_create_py(PyObject *self, PyObject *args){
     }
     dap_chain_t *l_chain = ((PyDapChainObject*)obj_chain)->chain_t;
     dap_enc_key_t *l_key_from = ((PyCryptoKeyObject*)obj_key_from)->key;
-    const dap_chain_addr_t *l_addr_from = PY_DAP_CHAIN_ADDR(obj_addr_from),
-                           *l_addr_to = PY_DAP_CHAIN_ADDR(obj_addr_to);
+    const dap_chain_addr_t *l_addr_from = PY_DAP_CHAIN_ADDR(obj_addr_from);
+    dap_chain_addr_t *l_addr_to = PY_DAP_CHAIN_ADDR(obj_addr_to);
     uint256_t l_value_256 = dap_chain_balance_scan(l_value);
     uint256_t l_value_fee_256 = dap_chain_balance_scan(l_value_fee);
     char *l_tx_hash_str = dap_chain_mempool_tx_create(l_chain, l_key_from,
