@@ -1,4 +1,5 @@
 #include "wrapping_dap_chain_datum_tx.h"
+#include "dap_chain_datum_tx_sig.h"
 
 /* DAP chain tx iter type */
 
@@ -74,6 +75,7 @@ static PyMethodDef PyDapChainDatumTxObjectMethods[] ={
         {"addOutItem", (PyCFunction)dap_chain_datum_tx_add_out_item_py, METH_VARARGS, ""},
         {"addOutCond", (PyCFunction)dap_chain_datum_tx_add_out_cond_item_py, METH_VARARGS, ""},
         {"addSignItem", (PyCFunction)dap_chain_datum_tx_add_sign_item_py, METH_VARARGS, ""},
+        {"appendSignItem", (PyCFunction)dap_chain_datum_tx_append_sign_item_py, METH_VARARGS, ""},
         {"verifySign", (PyCFunction)dap_chain_datum_tx_verify_sign_py, METH_VARARGS, ""},
         {"getItems", (PyCFunction)wrapping_dap_chain_datum_tx_get_items, METH_NOARGS, ""},
         {}
@@ -151,6 +153,8 @@ PyObject *dap_chain_datum_tx_add_out_item_py(PyObject *self, PyObject *args){
                                               value);
     return PyLong_FromLong(res);
 }
+
+
 PyObject *dap_chain_datum_tx_add_out_cond_item_py(PyObject *self, PyObject *args){
     PyObject *obj_key;
     PyObject *obj_srv_uid;
@@ -171,6 +175,7 @@ PyObject *dap_chain_datum_tx_add_out_cond_item_py(PyObject *self, PyObject *args
                                                    cond, (size_t)cond_size);
     return PyLong_FromLong(res);
 }
+
 PyObject *dap_chain_datum_tx_add_sign_item_py(PyObject *self, PyObject *args){
     PyObject *obj_key;
     if (!PyArg_ParseTuple(args, "O", &obj_key))
@@ -179,6 +184,21 @@ PyObject *dap_chain_datum_tx_add_sign_item_py(PyObject *self, PyObject *args){
                                                ((PyCryptoKeyObject*)obj_key)->key);
     return PyLong_FromLong(res);
 }
+
+PyObject *dap_chain_datum_tx_append_sign_item_py(PyObject *self, PyObject *args){
+    PyDapSignObject *obj_sign;
+    if (!PyArg_ParseTuple(args, "O", &obj_sign))
+        return NULL;
+    
+    dap_chain_tx_sig_t *l_sign = dap_chain_datum_tx_item_sign_create_from_sign(obj_sign->sign);
+    if (!l_sign) Py_RETURN_FALSE;
+
+    if(dap_chain_datum_tx_add_item(&((PyDapChainDatumTxObject*)self)->datum_tx, l_sign))
+        Py_RETURN_TRUE;
+    
+    Py_RETURN_FALSE;
+}
+
 
 PyObject *dap_chain_datum_tx_verify_sign_py(PyObject *self, PyObject *args){
     (void)args;

@@ -21,6 +21,8 @@ typedef struct PyDapMempool{
 
 
 PyObject *wrapping_dap_mempool_emission_place(PyObject *self, PyObject *args);
+PyObject *wrapping_dap_mempool_transaction_place(PyObject *self, PyObject *args);
+
 PyObject *dap_chain_mempool_emission_get_py(PyObject *self, PyObject * args);
 PyObject *dap_chain_mempool_datum_emission_extract_py(PyObject *self, PyObject * args);
 PyObject *dap_chain_mempool_proc_py(PyObject *self, PyObject *args);
@@ -31,7 +33,7 @@ PyObject *dap_chain_mempool_tx_create_cond_input_py(PyObject *self, PyObject *ar
 PyObject *dap_chain_mempool_remove_py(PyObject *self, PyObject *args);
 PyObject *dap_chain_mempool_list_py(PyObject *self, PyObject *args);
 PyObject *dap_chain_mempool_add_datum_py(PyObject *self, PyObject *args);
-
+PyObject *dap_chain_mempool_tx_create_multisign_withdraw_py(PyObject *self, PyObject *args);
 
 PyObject *dap_chain_mempool_datum_extract_py(PyObject *self, PyObject *args);
 PyObject *dap_chain_mempool_datum_get_py(PyObject *self, PyObject *args);
