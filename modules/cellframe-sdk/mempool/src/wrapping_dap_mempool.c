@@ -84,7 +84,7 @@ PyObject *wrapping_dap_mempool_transaction_place(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    size_t l_tx_size = dap_chain_datum_tx_get_size((uint8_t*)(obj_tx->datum_tx));
+    size_t l_tx_size = dap_chain_datum_tx_get_size(obj_tx->datum_tx);
     dap_chain_datum_t *l_datum = dap_chain_datum_create(
             DAP_CHAIN_DATUM_TX,
             obj_tx->datum_tx, l_tx_size);
