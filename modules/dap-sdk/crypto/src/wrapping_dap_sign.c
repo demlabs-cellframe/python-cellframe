@@ -115,28 +115,28 @@ int wrapping_dap_sign_create(PyObject *self, PyObject* args, PyObject *kwds){
     if (PyBytes_Check(obj_data)){
         void *l_bytes = PyBytes_AsString(obj_data);
         size_t l_bytes_size = PyBytes_Size(obj_data);
-        l_sign = dap_sign_create(((PyCryptoKeyObject*)obj_key)->key, l_bytes, l_bytes_size,0 );
+        l_sign = dap_sign_create(((PyCryptoKeyObject*)obj_key)->key, l_bytes, l_bytes_size);
     }
     if (DapChainDatumToken_Check(obj_data)){
         l_sign = dap_sign_create(((PyCryptoKeyObject*)obj_key)->key,
                                  ((PyDapChainDatumTokenObject*)obj_data)->token,
-                                 ((PyDapChainDatumTokenObject*)obj_data)->token_size, 0);
+                                 ((PyDapChainDatumTokenObject*)obj_data)->token_size);
     }
     if (PyDapChainDatumTokenEmissionObject_check(obj_data)){
         l_sign = dap_sign_create(((PyCryptoKeyObject*)obj_key)->key,
                         ((PyDapChainDatumTokenEmissionObject*)obj_data)->token_emission,
-                        ((PyDapChainDatumTokenEmissionObject*)obj_data)->token_size, 0);
+                        ((PyDapChainDatumTokenEmissionObject*)obj_data)->token_size);
     }
     if (PyDapChainDatum_Check(obj_data)) {
         size_t l_datum_size = dap_chain_datum_size(((PyDapChainDatumObject*)obj_data)->datum);
         l_sign = dap_sign_create(
                 ((PyCryptoKeyObject*)obj_key)->key,
-                ((PyDapChainDatumObject*)obj_data)->datum, l_datum_size, 0);
+                ((PyDapChainDatumObject*)obj_data)->datum, l_datum_size);
     }
     if (DapChainDatumTx_Check(obj_data)){
         size_t l_datum_tx_size = dap_chain_datum_tx_get_size(((PyDapChainDatumTxObject*)obj_data)->datum_tx);
         l_sign = dap_sign_create(((PyCryptoKeyObject*)obj_key)->key,
-                                 ((PyDapChainDatumTxObject*)obj_data)->datum_tx, l_datum_tx_size, 0);
+                                 ((PyDapChainDatumTxObject*)obj_data)->datum_tx, l_datum_tx_size);
     }
     if (!l_sign){
         PyErr_SetString(PyExc_AttributeError, "The signature could not be created, the second argument "
