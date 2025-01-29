@@ -117,7 +117,7 @@ PyObject *wrapping_dap_chain_datum_decree_add_sign(PyObject *self, PyObject *arg
     size_t l_total_signs_size = PVT(self)->decree->header.signs_size;
 
     dap_sign_t *l_sign = dap_cert_sign(((PyCryptoCertObject*)obj_cert)->cert, PVT(self)->decree,
-                                       sizeof(dap_chain_datum_decree_t) + PVT(self)->decree->header.data_size, 0);
+                                       sizeof(dap_chain_datum_decree_t) + PVT(self)->decree->header.data_size);
     if (l_sign) {
         size_t l_sign_size = dap_sign_get_size(l_sign);
         PVT(self)->decree = DAP_REALLOC(PVT(self)->decree, sizeof(dap_chain_datum_decree_t) + l_cur_sign_offset + l_sign_size);
@@ -233,7 +233,7 @@ PyObject *wrapping_dap_chain_datum_decree_create_anchor(PyObject *self, PyObject
 
     DAP_DEL_Z(l_tsd_decree_hash);
     dap_sign_t *l_sign = dap_cert_sign(((PyCryptoCertObject*)obj_cert)->cert, l_anchor,
-                                       sizeof(dap_chain_datum_anchor_t)+l_anchor->header.data_size, 0);
+                                       sizeof(dap_chain_datum_anchor_t)+l_anchor->header.data_size);
     if (l_sign) {
         size_t l_sign_size = dap_sign_get_size(l_sign);
         l_anchor = DAP_REALLOC(l_anchor, sizeof(dap_chain_datum_anchor_t)+l_anchor->header.data_size+l_sign_size);
@@ -468,7 +468,7 @@ PyObject *PyDapChainDatumDecreeObject_new(PyTypeObject *type_object, PyObject *a
     dap_list_free_full(l_tsd_list, NULL);
 
     dap_sign_t * l_sign = dap_cert_sign(((PyCryptoCertObject*)obj_cert)->cert,  l_decree,
-                                        sizeof(dap_chain_datum_decree_t) + l_decree->header.data_size, 0);
+                                        sizeof(dap_chain_datum_decree_t) + l_decree->header.data_size);
 
     if (l_sign) {
         size_t l_sign_size = dap_sign_get_size(l_sign);
