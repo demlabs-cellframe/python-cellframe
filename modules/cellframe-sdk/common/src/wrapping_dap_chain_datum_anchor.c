@@ -185,7 +185,7 @@ PyObject * DapChainDatumAnchorObject_create(PyTypeObject *type_object, PyObject 
     dap_list_free_full(l_tsd_list, NULL);
 
     dap_sign_t *l_sign = dap_cert_sign(((PyCryptoCertObject*)obj_cert)->cert, l_anchor,
-                                       sizeof(dap_chain_datum_anchor_t) + l_anchor->header.data_size, 0);
+                                       sizeof(dap_chain_datum_anchor_t) + l_anchor->header.data_size);
 
     if (l_sign) {
         size_t l_sign_size = dap_sign_get_size(l_sign);
