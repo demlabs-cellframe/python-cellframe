@@ -77,7 +77,7 @@ PyObject *dap_chain_ledger_tx_add_py(PyObject *self, PyObject *args){
         return NULL;
     dap_hash_fast_t l_tx_hash;
     dap_hash_fast(obj_datum_tx->datum_tx, dap_chain_datum_tx_get_size(obj_datum_tx->datum_tx), &l_tx_hash);
-    int res = dap_ledger_tx_add(((PyDapChainLedgerObject*)self)->ledger, obj_datum_tx->datum_tx, &l_tx_hash, false, NULL, false);
+    int res = dap_ledger_tx_add(((PyDapChainLedgerObject*)self)->ledger, obj_datum_tx->datum_tx, &l_tx_hash, false, NULL);
     return PyLong_FromLong(res);
 }
 PyObject *dap_chain_ledger_token_add_py(PyObject *self, PyObject *args)
