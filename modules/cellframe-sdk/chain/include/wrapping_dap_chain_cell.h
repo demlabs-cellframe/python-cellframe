@@ -16,7 +16,7 @@ typedef struct PyDapChainCell{
     dap_chain_cell_t *cell;
 }PyDapChainCellObject;
 
-void DapChainCellObject_delete(PyDapChainCellObject* object);
+/* void DapChainCellObject_delete(PyDapChainCellObject* object);
 PyObject *DapChainCellObject_create(PyTypeObject *type_object, PyObject *args, PyObject *kwds);
 
 PyObject *dap_chain_cell_load_py(PyObject *self, PyObject *args);
@@ -28,7 +28,7 @@ extern PyTypeObject DapChainCellObjectType;
 static bool PyDapChainCell_Check(PyObject *self){
     return PyObject_TypeCheck(self, &DapChainCellObjectType);
 }
-
+*/
 #ifdef __cplusplus
 }
 #endif

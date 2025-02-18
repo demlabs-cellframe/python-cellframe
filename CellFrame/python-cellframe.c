@@ -566,7 +566,7 @@ PyMODINIT_FUNC PyInit_libCellFrame(void)
         PyType_Ready( &DapChainTypeObjectType ) < 0 ||
         PyType_Ready( &DapChainAtomIterObjectType ) < 0 ||
         PyType_Ready( &DapChainAtomPtrObjectType ) < 0 ||
-        PyType_Ready( &DapChainCellObjectType ) < 0 ||
+        //PyType_Ready( &DapChainCellObjectType ) < 0 ||
         PyType_Ready( &DapChainMempoolObjectType ) < 0 ||
         PyType_Ready( &DapChainCellIdObjectType ) < 0 ||
         PyType_Ready( &DapChainHashSlowKindObjectType ) < 0 ||
@@ -651,7 +651,7 @@ PyMODINIT_FUNC PyInit_libCellFrame(void)
     PyModule_AddObject(chainModule, "ChainType", (PyObject*)&DapChainTypeObjectType);
     PyModule_AddObject(chainModule, "ChainAtomIter", (PyObject*)&DapChainAtomIterObjectType);
     PyModule_AddObject(chainModule, "ChainAtomPtr", (PyObject*)&DapChainAtomPtrObjectType);
-    PyModule_AddObject(chainModule, "ChainCell", (PyObject*)&DapChainCellObjectType);
+    //PyModule_AddObject(chainModule, "ChainCell", (PyObject*)&DapChainCellObjectType);
     PyModule_AddObject(chainModule, "ChainID", (PyObject*)&DapChainIdObjectType);
     PyModule_AddObject(chainModule, "ChainCellID", (PyObject*)&DapChainCellIdObjectType);
     PyModule_AddObject(chainModule, "ChainHashSlow", (PyObject*)&DapChainHashSlowObjectType);
