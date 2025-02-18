@@ -88,7 +88,8 @@ PyTypeObject DapChainDatumTxObjectType = {
         .tp_doc = "Chain datum tx object",
         .tp_methods = PyDapChainDatumTxObjectMethods,
         .tp_getset = PyDaoChainDatumTxObjectGetsSets,
-        .tp_new = PyDapChainDatumTxObject_create
+        .tp_new = PyDapChainDatumTxObject_create,
+        .tp_dealloc = (destructor) PyDapChainDatumTxObject_delete
 };
 
 bool DapChainDatumTx_Check(PyObject *self){
