@@ -14,7 +14,13 @@ static PyGetSetDef PyDapChainTxOutCondGetsSetsDef[] = {
 PyTypeObject DapChainTxOutCondObjectType = DAP_PY_TYPE_OBJECT(
         "CellFrame.ChainTxOutCond", sizeof(PyDapChainTxOutCondObject),
         "Chain tx out cond object",
-        .tp_getset = PyDapChainTxOutCondGetsSetsDef);
+        .tp_getset = PyDapChainTxOutCondGetsSetsDef,
+        .tp_dealloc = (destructor) PyDapChainTxOutCondObject_delete);
+
+void PyDapChainTxOutCondObject_delete(PyDapChainTxOutCondObject* datum_tx_out_cond)
+{
+    DAP_FREE(datum_tx_out_cond->tx_hash);
+}
 
 PyObject *wrapping_dap_chain_tx_out_cond_get_ts_expires(PyObject *self, void *closure){
     (void)closure;
