@@ -15,7 +15,13 @@ PyTypeObject DapChainTxOutObjectType = DAP_PY_TYPE_OBJECT(
         "CellFrame.ChainTxOut", sizeof(PyDapChainTXOutObject),
         "Chain tx out object",
         .tp_methods = PyDapChainTxOutObjectMethods,
-        .tp_getset = DapChainTxOutGetsSetsDef);
+        .tp_getset = DapChainTxOutGetsSetsDef,
+        .tp_dealloc=(destructor)PyDapChainTXOutObject_delete);
+
+void PyDapChainTXOutObject_delete(PyDapChainTXOutObject* datum_tx_out)
+{
+    DAP_FREE(datum_tx_out->tx_hash);
+}
 
 PyObject *wrapping_dap_chain_tx_out_get_addr(PyObject *self, void *closure){
     (void)closure;
