@@ -206,7 +206,7 @@ PyObject *wrapping_dap_chain_datum_get_datum_tx(PyObject *self, PyObject *args){
         dap_chain_datum_tx_t *l_datum_tx = (dap_chain_datum_tx_t *)((PyDapChainDatumObject*)self)->datum->data;
         obj_datum_tx->datum_tx = DAP_DUP_SIZE( l_datum_tx, dap_chain_datum_tx_get_size(l_datum_tx));
                                                                                                                                         ;
-        obj_datum_tx->original = true;
+        obj_datum_tx->original = false; //destructor delets this in case of !original for some reason
         return (PyObject*)obj_datum_tx;
     }else{
         PyErr_SetString(PyExc_Exception, "Due to the type of this datum, it is not possible to get the transaction datum.");

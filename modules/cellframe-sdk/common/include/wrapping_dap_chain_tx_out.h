@@ -43,6 +43,7 @@ typedef struct PyDapChainTXOut{
     uint64_t idx;
 }PyDapChainTXOutObject;
 
+void PyDapChainTXOutObject_delete(PyDapChainTXOutObject* datum_tx_out);
 PyObject *wrapping_dap_chain_tx_out_get_addr(PyObject *self, void *closure);
 PyObject *wrapping_dap_chain_tx_out_get_value(PyObject *self, void *closure);
 PyObject *wrapping_dap_chain_tx_out_get_used_by(PyObject *self, void *closure);
