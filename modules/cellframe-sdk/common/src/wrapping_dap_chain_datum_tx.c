@@ -209,6 +209,31 @@ PyObject *dap_chain_datum_tx_add_out_cond_item_py(PyObject *self, PyObject *args
     return PyLong_FromLong(res);
 }
 
+PyObject *dap_chain_datum_tx_add_in_item_py(PyObject *self, PyObject *args){
+    PyObject *in_obj_hash_fast;
+    uint32_t in_tx_out_pref_idx;
+    if (!PyArg_ParseTuple(args, "O|I", &in_obj_hash_fast, &in_tx_out_pref_idx))
+        return NULL;
+    int res = dap_chain_datum_tx_add_in_item(&(((PyDapChainDatumTxObject*)self)->datum_tx),
+                                             ((PyDapHashFastObject*)in_obj_hash_fast)->hash_fast,
+                                             in_tx_out_pref_idx);
+    return PyLong_FromLong(res);
+}
+
+PyObject *dap_chain_datum_tx_add_in_cond_item_py(PyObject *self, PyObject *args){
+    PyObject *in_chain_hash_fast;
+    unsigned int in_tx_out_prev_idx;
+    unsigned int in_receipt_idx;
+    if (!PyArg_ParseTuple(args, "O|I|I", &in_chain_hash_fast, &in_tx_out_prev_idx, &in_receipt_idx))
+        return NULL;
+    int res = dap_chain_datum_tx_add_in_cond_item(&(((PyDapChainDatumTxObject*)self)->datum_tx),
+                                                  ((PyDapHashFastObject*)in_chain_hash_fast)->hash_fast,
+                                                  in_tx_out_prev_idx,
+                                                  in_receipt_idx);
+    return PyLong_FromLong(res);
+}
+
+
 PyObject *dap_chain_datum_tx_add_sign_item_py(PyObject *self, PyObject *args){
     PyObject *obj_key;
     if (!PyArg_ParseTuple(args, "O", &obj_key))
@@ -223,7 +248,7 @@ PyObject *dap_chain_datum_tx_append_sign_item_py(PyObject *self, PyObject *args)
     if (!PyArg_ParseTuple(args, "O", &obj_sign))
         return NULL;
     
-    dap_chain_tx_sig_t *l_sign = dap_chain_datum_tx_item_sign_create_from_sign(obj_sign->sign);
+    dap_chain_tx_sig_t *l_sign = dap_chain_tx_sig_create(obj_sign->sign);
     if (!l_sign) Py_RETURN_FALSE;
 
     if(dap_chain_datum_tx_add_item(&((PyDapChainDatumTxObject*)self)->datum_tx, l_sign))
