@@ -28,8 +28,8 @@ static int s_dap_chain_plugins_unload(dap_plugin_manifest_t * a_manifest, void *
 static void s_plugins_load_plugin_initialization(void* a_module);
 static void s_plugins_load_plugin_uninitialization(void* a_module);
 
-const char *pycfhelpers_path = "/opt/cellframe-node/python/lib/python3.10/site-packages/pycfhelpers";
-const char *pycftools_path = "/opt/cellframe-node/python/lib/python3.10/site-packages/pycftools";
+const char *pycfhelpers_path = "/opt/cellframe-node/python/lib/"PYTHON_VERSION"/site-packages/pycfhelpers";
+const char *pycftools_path = "/opt/cellframe-node/python/lib/"PYTHON_VERSION"/site-packages/pycftools";
 const char *plugins_path = "/opt/cellframe-node/var/lib/plugins/";
 char *strings[]={"DAP", "CellFrame", NULL};
 
@@ -78,17 +78,17 @@ int dap_chain_plugins_init(dap_config_t *a_config)
 
     PyConfig_InitIsolatedConfig(&l_config);
     l_config.module_search_paths_set = 1;
-    wchar_t *l_path = s_get_full_path(g_sys_dir_path, "python/lib/python3.10");
+    wchar_t *l_path = s_get_full_path(g_sys_dir_path, "python/lib/" PYTHON_VERSION);
     l_status = PyWideStringList_Append(&l_config.module_search_paths, l_path);
     DAP_DELETE(l_path);
     if (PyStatus_Exception(l_status))
         goto excpt;
-    l_path = s_get_full_path(g_sys_dir_path, "python/lib/python3.10/lib-dynload");
+    l_path = s_get_full_path(g_sys_dir_path, "python/lib/" PYTHON_VERSION "/lib-dynload");
     l_status = PyWideStringList_Append(&l_config.module_search_paths, l_path);
     DAP_DELETE(l_path);
     if (PyStatus_Exception(l_status))
         goto excpt;
-    l_path = s_get_full_path(g_sys_dir_path, "python/lib/python3.10/site-packages");
+    l_path = s_get_full_path(g_sys_dir_path, "python/lib/" PYTHON_VERSION "/site-packages");
     l_status = PyWideStringList_Append(&l_config.module_search_paths, l_path);
     DAP_DELETE(l_path);
     if (PyStatus_Exception(l_status))
@@ -115,7 +115,7 @@ int dap_chain_plugins_init(dap_config_t *a_config)
     if (PyStatus_Exception(l_status))
         goto excpt;
 
-    l_path = s_get_full_path(g_sys_dir_path, "python/bin/python3.10");
+    l_path = s_get_full_path(g_sys_dir_path, "python/bin/" PYTHON_VERSION);
     l_status = PyConfig_SetString(&l_config, &l_config.executable, l_path);
     DAP_DELETE(l_path);
     if (PyStatus_Exception(l_status))

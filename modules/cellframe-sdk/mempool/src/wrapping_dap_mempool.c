@@ -1,12 +1,17 @@
 #include "wrapping_dap_mempool.h"
 #include "dap_chain_wallet_python.h"
 #include "python-cellframe_common.h"
+#include "dap_chain_net_srv_emit_delegate.h"
+#include "dap_chain_datum_tx_items.h"
+#include "dap_list.h"
 
 #define LOG_TAG "python-mempool"
 
 static PyMethodDef  DapMempoolMethods[] = {
         {"proc", dap_chain_mempool_proc_py, METH_VARARGS | METH_STATIC, ""},
         {"emissionPlace", wrapping_dap_mempool_emission_place, METH_VARARGS | METH_STATIC, ""},
+        {"transactionPlace", wrapping_dap_mempool_transaction_place, METH_VARARGS | METH_STATIC, ""},
+        
         {"emissionGet", dap_chain_mempool_emission_get_py, METH_VARARGS | METH_STATIC, ""},
         {"emissionExtract", dap_chain_mempool_datum_emission_extract_py, METH_VARARGS | METH_STATIC, ""},
         {"datumExtract", dap_chain_mempool_datum_extract_py, METH_VARARGS | METH_STATIC, ""},
@@ -18,6 +23,7 @@ static PyMethodDef  DapMempoolMethods[] = {
         {"remove", dap_chain_mempool_remove_py, METH_VARARGS | METH_STATIC, ""},
         {"list", dap_chain_mempool_list_py, METH_VARARGS | METH_STATIC, ""},
         {"addDatum", dap_chain_mempool_add_datum_py, METH_VARARGS | METH_STATIC, ""},
+        {"txCreateMultisignWithdraw", dap_chain_mempool_tx_create_multisign_withdraw_py, METH_VARARGS | METH_STATIC, ""},
         {NULL,NULL,0,NULL}
 };
 
@@ -56,6 +62,44 @@ PyObject *wrapping_dap_mempool_emission_place(PyObject *self, PyObject *args){
     PyObject *l_str_obj = Py_BuildValue("s", l_str);
     DAP_DELETE(l_str);
     return l_str_obj;
+}
+
+PyObject *wrapping_dap_mempool_transaction_place(PyObject *self, PyObject *args){
+    (void)self;
+    PyDapChainObject *obj_chain;
+    PyDapChainDatumTxObject *obj_tx;
+    if (!PyArg_ParseTuple(args, "OO", &obj_chain, &obj_tx)){
+        return NULL;
+    }
+    if (!PyDapChain_Check(obj_chain)){
+        PyErr_SetString(PyExc_AttributeError, "The first argument was incorrectly passed to this "
+                                              "function, the first argument must be an object of type "
+                                              "CellFrame.Chain.Chain.");
+        return NULL;
+    }
+    if (!DapChainDatumTx_Check((PyObject*)obj_tx)){
+        PyErr_SetString(PyExc_AttributeError, "The second argument was incorrectly passed"
+                                              " to this function, the second argument must be an object of "
+                                              "type ChainDatumTx. ");
+        return NULL;
+    }
+
+    size_t l_tx_size = dap_chain_datum_tx_get_size(obj_tx->datum_tx);
+    dap_chain_datum_t *l_datum = dap_chain_datum_create(
+            DAP_CHAIN_DATUM_TX,
+            obj_tx->datum_tx, l_tx_size);
+
+    char *l_str = dap_chain_mempool_datum_add(l_datum, obj_chain->chain_t, "hex");
+    
+    if (l_str == NULL){
+        Py_RETURN_NONE;
+    }
+    
+    PyObject *l_str_obj = Py_BuildValue("s", l_str);
+    DAP_DELETE(l_str);
+    return l_str_obj;
+    
+    Py_RETURN_NONE;
 }
 
 PyObject *dap_chain_mempool_emission_get_py(PyObject *self, PyObject * args){
@@ -248,6 +292,104 @@ PyObject *dap_chain_mempool_base_tx_create_py(PyObject *self, PyObject *args){
     dap_chain_hash_fast_from_str(l_tx_hash_str, l_obj_hf->hash_fast);
     l_obj_hf->origin = true;
     DAP_DELETE(l_tx_hash_str);
+    return (PyObject*)l_obj_hf;
+}
+
+#define DAP_LIST_SAPPEND(X, Y) X = dap_list_append(X,Y)
+
+PyObject *dap_chain_mempool_tx_create_multisign_withdraw_py(PyObject *self, PyObject *args) {
+
+    PyDapChainNetObject *obj_net;
+    PyDapHashFastObject * transaction_hash;
+    PyDapChainAddrObject *obj_addr_to;
+    char * value;
+    char * fee;
+    PyCryptoKeyObject *obj_key_from;
+    PyObject *tsd;
+    if (!PyArg_ParseTuple(args, "OOOssOO", &obj_net, &transaction_hash, &obj_addr_to, &value, &fee, &obj_key_from, &tsd)){
+        PyErr_SetString(PyExc_AttributeError, "Function takes exactly six arguments.");
+        return NULL;
+    }   
+
+    if (!PyDapChainNet_Check(obj_net)){
+        PyErr_SetString(PyExc_AttributeError, "The first argument was not correctly passed to "
+                                              "this function. The first argument must be an instance of an object of type Net. ");
+        return NULL;
+    }
+
+    if (!PyDapHashFast_Check(transaction_hash)){
+        PyErr_SetString(PyExc_AttributeError, "Invalid second argument passed. The second argument must "
+                                              "be an instance of an object of type DapHash. ");
+        return NULL;
+    }
+
+    if (!PyDapChainAddrObject_Check(obj_addr_to)){
+        PyErr_SetString(PyExc_AttributeError, "Invalid third argument passed. The third argument must "
+                                              "be an instance of an object of type DapChainAddr. ");
+        return NULL;
+    }
+
+    uint256_t l_value_256 = dap_chain_balance_scan(value);
+    uint256_t l_value_fee_256 = dap_chain_balance_scan(fee);
+
+    if (EQUAL_256(l_value_256, uint256_0)) {
+        PyErr_SetString(PyExc_AttributeError, "Invalid fourth argument passed. The fourth argument must "
+                                              "be an string with value > 0. ");
+        return NULL;
+    }
+
+    if (EQUAL_256(l_value_256, uint256_0)) {
+        PyErr_SetString(PyExc_AttributeError, "Invalid fifth argument passed. The fifth argument must "
+                                              "be an string with value > 0. ");
+        return NULL;
+    }
+
+    if (!dap_ledger_tx_find_by_hash(obj_net->chain_net->pub.ledger, transaction_hash->hash_fast)) {
+        PyErr_SetString(PyExc_AttributeError, "Tx with provided hash not found");
+        return NULL;
+    }
+    
+    dap_enc_key_t *l_enc_key =obj_key_from->key;
+    dap_chain_addr_t *l_addr = obj_addr_to->addr;
+    dap_list_t *tsd_items = NULL;
+
+    PyObject *tsdkey, *tsdvalue;
+    Py_ssize_t pos = 0;
+    
+    while (PyDict_Next(tsd, &pos, &tsdkey, &tsdvalue))
+    {
+        dap_chain_tx_tsd_t *tsd_item = dap_chain_datum_tx_item_tsd_create(PyBytes_AsString(tsdvalue), PyLong_AsLong(tsdkey), PyBytes_Size(tsdvalue));
+        if (!tsd_item) 
+        {
+            log_it(L_ERROR, "Can't add tsd");
+            return NULL;
+        }
+        
+        DAP_LIST_SAPPEND(tsd_items, tsd_item);
+    } 
+
+    dap_chain_datum_tx_t *l_tx = dap_chain_net_srv_emit_delegate_taking_tx_create(NULL, obj_net->chain_net, l_enc_key, l_addr, l_value_256,
+                                                                                  l_value_fee_256, transaction_hash->hash_fast, tsd_items);
+    
+    if (!l_tx) {
+        PyErr_SetString(PyExc_AttributeError, "Failed to create tx datum");
+        return NULL;
+    }
+    size_t l_tx_size = dap_chain_datum_tx_get_size(l_tx);
+
+    // Pack transaction into the datum
+    dap_chain_t * l_chain = dap_chain_net_get_chain_by_name(obj_net->chain_net, "main");
+    dap_chain_datum_t * l_datum_tx = dap_chain_datum_create(DAP_CHAIN_DATUM_TX, l_tx, l_tx_size);
+    dap_chain_datum_tx_delete(l_tx);
+
+    char *l_ret = dap_chain_mempool_datum_add(l_datum_tx, l_chain, "hex");;
+    DAP_DELETE(l_datum_tx);
+
+    PyDapHashFastObject *l_obj_hf = PyObject_New(PyDapHashFastObject, &DapChainHashFastObjectType);
+    l_obj_hf->hash_fast = DAP_NEW(dap_hash_fast_t);
+    dap_chain_hash_fast_from_str(l_ret, l_obj_hf->hash_fast);
+    l_obj_hf->origin = true;
+    
     return (PyObject*)l_obj_hf;
 }
 
