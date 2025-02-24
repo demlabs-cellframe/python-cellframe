@@ -1,4 +1,5 @@
 #include "wrapping_dap_chain_datum_tx.h"
+#include "dap_chain_datum_tx_sig.h"
 
 #include "dap_chain_wallet_python.h"
 
@@ -71,7 +72,12 @@ static PyGetSetDef PyDaoChainDatumTxObjectGetsSets[] = {
 static PyMethodDef PyDapChainDatumTxObjectMethods[] ={
         {"getSize", (PyCFunction)dap_chain_datum_tx_get_size_py, METH_VARARGS, ""},
         {"addItem", (PyCFunction)dap_chain_datum_tx_add_item_py, METH_VARARGS, ""},
-        {"sign", (PyCFunction)dap_chain_datum_tx_sign_py, METH_VARARGS, ""},
+        {"addInItem", (PyCFunction)dap_chain_datum_tx_add_in_item_py, METH_VARARGS, ""},
+        {"addInCondItem", (PyCFunction)dap_chain_datum_tx_add_in_cond_item_py, METH_VARARGS, ""},
+        {"addOutItem", (PyCFunction)dap_chain_datum_tx_add_out_item_py, METH_VARARGS, ""},
+        {"addOutCond", (PyCFunction)dap_chain_datum_tx_add_out_cond_item_py, METH_VARARGS, ""},
+        {"addSignItem", (PyCFunction)dap_chain_datum_tx_add_sign_item_py, METH_VARARGS, ""},
+        {"appendSignItem", (PyCFunction)dap_chain_datum_tx_append_sign_item_py, METH_VARARGS, ""},
         {"verifySign", (PyCFunction)dap_chain_datum_tx_verify_sign_py, METH_VARARGS, ""},
         {"getItems", (PyCFunction)wrapping_dap_chain_datum_tx_get_items, METH_NOARGS, ""},
         {}
@@ -84,7 +90,8 @@ PyTypeObject DapChainDatumTxObjectType = {
         .tp_doc = "Chain datum tx object",
         .tp_methods = PyDapChainDatumTxObjectMethods,
         .tp_getset = PyDaoChainDatumTxObjectGetsSets,
-        .tp_new = PyDapChainDatumTxObject_create
+        .tp_new = PyDapChainDatumTxObject_create,
+        .tp_dealloc = (destructor) PyDapChainDatumTxObject_delete
 };
 
 bool DapChainDatumTx_Check(PyObject *self){
@@ -168,6 +175,88 @@ PyObject *dap_chain_datum_tx_sign_py(PyObject *self, PyObject *args){
     else
         Py_RETURN_FALSE;
 }
+
+PyObject *dap_chain_datum_tx_add_out_item_py(PyObject *self, PyObject *args){
+    PyObject *in_addr;
+    uint256_t value;
+    if (!PyArg_ParseTuple(args, "O|k", &in_addr, &value))
+        return NULL;
+    int res = dap_chain_datum_tx_add_out_item(&(((PyDapChainDatumTxObject*)self)->datum_tx),
+                                              ((PyDapChainAddrObject*)in_addr)->addr,
+                                              value);
+    return PyLong_FromLong(res);
+}
+
+
+PyObject *dap_chain_datum_tx_add_out_cond_item_py(PyObject *self, PyObject *args){
+    PyObject *obj_key;
+    PyObject *obj_srv_uid;
+    uint256_t value;
+    uint256_t value_max_per_unit;
+    PyObject *obj_srv_price_unit_uid;
+    PyObject *obj_cond_bytes;
+    Py_ssize_t cond_size;
+    if (!PyArg_ParseTuple(args, "O|O|k|k|O|O|n", &obj_key, &obj_srv_uid, &value, &value_max_per_unit,
+                          &obj_srv_price_unit_uid, &obj_cond_bytes, &cond_size))
+        return NULL;
+    void *cond = (void*)PyBytes_AsString(obj_cond_bytes);
+    int res = dap_chain_datum_tx_add_out_cond_item(&(((PyDapChainDatumTxObject*)self)->datum_tx),
+                                                   ((PyDapPkeyObject*)obj_key)->pkey,
+                                                   ((PyDapChainNetSrvUIDObject*)obj_srv_uid)->net_srv_uid,
+                                                   value, value_max_per_unit,
+                                                   ((PyDapChainNetSrvPriceUnitUIDObject*)obj_srv_price_unit_uid)->price_unit_uid,
+                                                   cond, (size_t)cond_size);
+    return PyLong_FromLong(res);
+}
+
+PyObject *dap_chain_datum_tx_add_in_item_py(PyObject *self, PyObject *args){
+    PyObject *in_obj_hash_fast;
+    uint32_t in_tx_out_pref_idx;
+    if (!PyArg_ParseTuple(args, "O|I", &in_obj_hash_fast, &in_tx_out_pref_idx))
+        return NULL;
+    int res = dap_chain_datum_tx_add_in_item(&(((PyDapChainDatumTxObject*)self)->datum_tx),
+                                             ((PyDapHashFastObject*)in_obj_hash_fast)->hash_fast,
+                                             in_tx_out_pref_idx);
+    return PyLong_FromLong(res);
+}
+
+PyObject *dap_chain_datum_tx_add_in_cond_item_py(PyObject *self, PyObject *args){
+    PyObject *in_chain_hash_fast;
+    unsigned int in_tx_out_prev_idx;
+    unsigned int in_receipt_idx;
+    if (!PyArg_ParseTuple(args, "O|I|I", &in_chain_hash_fast, &in_tx_out_prev_idx, &in_receipt_idx))
+        return NULL;
+    int res = dap_chain_datum_tx_add_in_cond_item(&(((PyDapChainDatumTxObject*)self)->datum_tx),
+                                                  ((PyDapHashFastObject*)in_chain_hash_fast)->hash_fast,
+                                                  in_tx_out_prev_idx,
+                                                  in_receipt_idx);
+    return PyLong_FromLong(res);
+}
+
+
+PyObject *dap_chain_datum_tx_add_sign_item_py(PyObject *self, PyObject *args){
+    PyObject *obj_key;
+    if (!PyArg_ParseTuple(args, "O", &obj_key))
+        return NULL;
+    int res = dap_chain_datum_tx_add_sign_item(&(((PyDapChainDatumTxObject*)self)->datum_tx),
+                                               ((PyCryptoKeyObject*)obj_key)->key);
+    return PyLong_FromLong(res);
+}
+
+PyObject *dap_chain_datum_tx_append_sign_item_py(PyObject *self, PyObject *args){
+    PyDapSignObject *obj_sign;
+    if (!PyArg_ParseTuple(args, "O", &obj_sign))
+        return NULL;
+    
+    dap_chain_tx_sig_t *l_sign = dap_chain_tx_sig_create(obj_sign->sign);
+    if (!l_sign) Py_RETURN_FALSE;
+
+    if(dap_chain_datum_tx_add_item(&((PyDapChainDatumTxObject*)self)->datum_tx, l_sign))
+        Py_RETURN_TRUE;
+    
+    Py_RETURN_FALSE;
+}
+
 
 PyObject *dap_chain_datum_tx_verify_sign_py(PyObject *self, PyObject *args){
     (void)args;
