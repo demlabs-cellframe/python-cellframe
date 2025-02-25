@@ -368,7 +368,7 @@ PyObject *dap_chain_mempool_tx_create_multisign_withdraw_py(PyObject *self, PyOb
         DAP_LIST_SAPPEND(tsd_items, tsd_item);
     } 
 
-    dap_chain_datum_tx_t *l_tx = dap_chain_net_srv_emit_delegate_taking_tx_create(NULL, obj_net->chain_net, l_enc_key, l_addr, l_value_256,
+    dap_chain_datum_tx_t *l_tx = dap_chain_net_srv_emit_delegate_taking_tx_create(NULL, obj_net->chain_net, l_enc_key, &l_addr, &l_value_256, 1,
                                                                                   l_value_fee_256, transaction_hash->hash_fast, tsd_items);
     
     if (!l_tx) {
