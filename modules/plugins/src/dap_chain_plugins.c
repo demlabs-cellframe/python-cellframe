@@ -76,25 +76,30 @@ int dap_chain_plugins_init(dap_config_t *a_config)
     PyPreConfig_InitIsolatedConfig(&l_preconfig);
     l_preconfig.utf8_mode = 1;
 
+    #ifdef DAP_OS_DARWIN
+        char * py_sys_path = "/Applications/CellframeNode.app/Contents/Frameworks";
+    #else
+        char * py_sys_path = g_sys_dir_path;
+    #endif
     PyConfig_InitIsolatedConfig(&l_config);
     l_config.module_search_paths_set = 1;
-    wchar_t *l_path = s_get_full_path(g_sys_dir_path, "python/lib/" PYTHON_VERSION);
+    wchar_t *l_path = s_get_full_path(py_sys_path, "python/lib/" PYTHON_VERSION);
     l_status = PyWideStringList_Append(&l_config.module_search_paths, l_path);
     DAP_DELETE(l_path);
     if (PyStatus_Exception(l_status))
         goto excpt;
-    l_path = s_get_full_path(g_sys_dir_path, "python/lib/" PYTHON_VERSION "/lib-dynload");
+    l_path = s_get_full_path(py_sys_path, "python/lib/" PYTHON_VERSION "/lib-dynload");
     l_status = PyWideStringList_Append(&l_config.module_search_paths, l_path);
     DAP_DELETE(l_path);
     if (PyStatus_Exception(l_status))
         goto excpt;
-    l_path = s_get_full_path(g_sys_dir_path, "python/lib/" PYTHON_VERSION "/site-packages");
+    l_path = s_get_full_path(py_sys_path, "python/lib/" PYTHON_VERSION "/site-packages");
     l_status = PyWideStringList_Append(&l_config.module_search_paths, l_path);
     DAP_DELETE(l_path);
     if (PyStatus_Exception(l_status))
         goto excpt;
 
-    l_path = s_get_full_path(g_sys_dir_path, "python");
+    l_path = s_get_full_path(py_sys_path, "python");
     l_status = PyConfig_SetString(&l_config, &l_config.base_exec_prefix, l_path);
     if (PyStatus_Exception(l_status)) {
         DAP_DELETE(l_path);
@@ -115,7 +120,7 @@ int dap_chain_plugins_init(dap_config_t *a_config)
     if (PyStatus_Exception(l_status))
         goto excpt;
 
-    l_path = s_get_full_path(g_sys_dir_path, "python/bin/" PYTHON_VERSION);
+    l_path = s_get_full_path(py_sys_path, "python/bin/" PYTHON_VERSION);
     l_status = PyConfig_SetString(&l_config, &l_config.executable, l_path);
     DAP_DELETE(l_path);
     if (PyStatus_Exception(l_status))
