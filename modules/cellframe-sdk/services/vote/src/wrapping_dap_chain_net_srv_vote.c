@@ -15,7 +15,7 @@ PyMethodDef DapChainNetSrvVoteMethods[] = {
 };
 
 PyObject *wrapping_dap_chain_net_srv_vote_create(PyObject *self, PyObject *args) {
-    const char *question;
+    const char *question, *token = NULL;
     PyObject *obj_list_option;
     PyObject *obj_expire_option = NULL;
     unsigned long max_vote = 0;
@@ -24,8 +24,8 @@ PyObject *wrapping_dap_chain_net_srv_vote_create(PyObject *self, PyObject *args)
     PyObject *obj_vote_changing_allowed = NULL;
     PyObject *obj_wallet;
     PyObject *obj_net;
-    if (!PyArg_ParseTuple(args, "sOOOO|kOOO", &question, &obj_list_option, &fee, &obj_wallet, &obj_net, &max_vote,
-                          &obj_expire_option, &obj_vote_changing_allowed, &obj_delegate_key_required))
+    if (!PyArg_ParseTuple(args, "sOOOO|kOOOs", &question, &obj_list_option, &fee, &obj_wallet, &obj_net, &max_vote,
+                          &obj_expire_option, &obj_vote_changing_allowed, &obj_delegate_key_required, &token))
         return NULL;
     if (!PyList_Check(obj_list_option)) {
         PyErr_SetString(DapChainNetSrvVoteError, "The second argument is incorrect. There should be a list of options.");
@@ -100,7 +100,7 @@ PyObject *wrapping_dap_chain_net_srv_vote_create(PyObject *self, PyObject *args)
     int res = dap_chain_net_srv_voting_create(question, l_option, obj_expire_option ? l_time_expire_option : 0, max_vote,
                               ((DapMathObject*)fee)->value, l_delegated_key_required, l_vote_changing_allowed,
                               ((PyDapChainWalletObject*)obj_wallet)->wallet, ((PyDapChainNetObject*)obj_net)->chain_net,
-                              "hex", &l_hash_ret);
+                              token, "hex", &l_hash_ret);
     switch (res) {
         case DAP_CHAIN_NET_VOTE_CREATE_OK: {
             PyObject *obj_ret = Py_BuildValue("s", l_hash_ret);
@@ -271,13 +271,6 @@ PyObject *wrapping_dap_chain_net_srv_vote(PyObject *self, PyObject *args){
             return NULL;
         }
         case DAP_CHAIN_NET_VOTE_VOTING_NO_KEY_FOUND_IN_CERT: {
-            const char *l_cert_name = ((PyCryptoCertObject *) obj_cert)->cert->name;
-            char *l_ret_err = dap_strdup_printf("No key found in \"%s\" certificate", l_cert_name);
-            PyErr_SetString(DapChainNetSrvVoteError, l_ret_err);
-            DAP_DELETE(l_ret_err);
-            return NULL;
-        }
-        case DAP_CHAIN_NET_VOTE_VOTING_NO_PUBLIC_KEY_IN_CERT: {
             const char *l_cert_name = ((PyCryptoCertObject *) obj_cert)->cert->name;
             char *l_ret_err = dap_strdup_printf("Can't serialize public key of certificate \"%s\"", l_cert_name);
             PyErr_SetString(DapChainNetSrvVoteError, l_ret_err);
