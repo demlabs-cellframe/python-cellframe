@@ -46,6 +46,8 @@ PyObject *dap_chain_python_atom_iter_get_dag(PyObject *self, PyObject *args);
 PyObject *dap_chain_python_add_mempool_notify_callback(PyObject *self, PyObject *args);
 PyObject *dap_chain_net_add_atom_notify_callback(PyObject *self, PyObject *args);
 PyObject *dap_chain_atom_confirmed_notify_add_py(PyObject *self, PyObject *args);
+PyObject *dap_chain_fork_resolved_notify_add_py(PyObject *self, PyObject *args);
+
 PyObject *dap_chain_python_atom_find_by_hash(PyObject *self, PyObject* args);
 
 PyObject *dap_chain_python_get_atom_count(PyObject *self, PyObject *args);

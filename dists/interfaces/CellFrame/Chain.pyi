@@ -81,6 +81,9 @@ class Chain(Protocol):
     @staticmethod
     def getCSName():
         pass
+    @staticmethod
+    def addForkResolvedNotify(*args):
+        pass
 
 
 # DapChainTypeObjectType
