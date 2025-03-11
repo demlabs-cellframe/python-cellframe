@@ -128,7 +128,7 @@ PyObject *wrapping_dap_chain_net_srv_xchange_price_get_order_creator_address(PyO
 
     PyDapChainAddrObject *obj_addr = PyObject_New(PyDapChainAddrObject, &DapChainAddrObjectType);
     obj_addr->addr = DAP_NEW(dap_chain_addr_t);
-    mempcpy(obj_addr->addr, &PRICE(self)->creator_addr, sizeof(dap_chain_addr_t));
+    dap_mempcpy(obj_addr->addr, &PRICE(self)->creator_addr, sizeof(dap_chain_addr_t));
     return (PyObject *)obj_addr;
 }
 

@@ -61,7 +61,7 @@ int dap_chain_plugins_init(dap_config_t *a_config)
     s_plugins_root_path = dap_strjoin("", l_plugins_root_path, "/", NULL);
     DAP_DELETE(l_default_path_plugins);
 
-    log_it(L_INFO, "Start initialization of python plugins. Path plugins: %s", s_plugins_root_path);
+    log_it(L_INFO, "Start initialization of python (%s) plugins. Path plugins: %s", PYTHON_VERSION, s_plugins_root_path);
     if (!dap_dir_test(s_plugins_root_path)){
         log_it(L_ERROR, "Can't find \"%s\" directory", s_plugins_root_path);
         return -1;
@@ -76,25 +76,31 @@ int dap_chain_plugins_init(dap_config_t *a_config)
     PyPreConfig_InitIsolatedConfig(&l_preconfig);
     l_preconfig.utf8_mode = 1;
 
+    #if DAP_OS_DARWIN
+    char *pypath  = "/Applications/CellframeNode.app/Contents/Frameworks/";
+    #else
+    char *pypath  = g_sys_dir_path;
+    #endif
+
     PyConfig_InitIsolatedConfig(&l_config);
     l_config.module_search_paths_set = 1;
-    wchar_t *l_path = s_get_full_path(g_sys_dir_path, "python/lib/" PYTHON_VERSION);
+    wchar_t *l_path = s_get_full_path(pypath, "python/lib/" PYTHON_VERSION);
     l_status = PyWideStringList_Append(&l_config.module_search_paths, l_path);
     DAP_DELETE(l_path);
     if (PyStatus_Exception(l_status))
         goto excpt;
-    l_path = s_get_full_path(g_sys_dir_path, "python/lib/" PYTHON_VERSION "/lib-dynload");
+    l_path = s_get_full_path(pypath, "python/lib/" PYTHON_VERSION "/lib-dynload");
     l_status = PyWideStringList_Append(&l_config.module_search_paths, l_path);
     DAP_DELETE(l_path);
     if (PyStatus_Exception(l_status))
         goto excpt;
-    l_path = s_get_full_path(g_sys_dir_path, "python/lib/" PYTHON_VERSION "/site-packages");
+    l_path = s_get_full_path(pypath, "python/lib/" PYTHON_VERSION "/site-packages");
     l_status = PyWideStringList_Append(&l_config.module_search_paths, l_path);
     DAP_DELETE(l_path);
     if (PyStatus_Exception(l_status))
         goto excpt;
 
-    l_path = s_get_full_path(g_sys_dir_path, "python");
+    l_path = s_get_full_path(pypath, "python");
     l_status = PyConfig_SetString(&l_config, &l_config.base_exec_prefix, l_path);
     if (PyStatus_Exception(l_status)) {
         DAP_DELETE(l_path);
@@ -115,7 +121,7 @@ int dap_chain_plugins_init(dap_config_t *a_config)
     if (PyStatus_Exception(l_status))
         goto excpt;
 
-    l_path = s_get_full_path(g_sys_dir_path, "python/bin/" PYTHON_VERSION);
+    l_path = s_get_full_path(pypath, "python/bin/" PYTHON_VERSION);
     l_status = PyConfig_SetString(&l_config, &l_config.executable, l_path);
     DAP_DELETE(l_path);
     if (PyStatus_Exception(l_status))
