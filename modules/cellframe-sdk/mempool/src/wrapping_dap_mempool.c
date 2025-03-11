@@ -328,7 +328,6 @@ uint256_t *dap_chain_balance_from_pyobj(PyObject *obj, size_t *o_count) {
             }
             const char *l_str_value = PyUnicode_AsUTF8(item);
             *(res + l_pos_valid++) = dap_chain_balance_scan(l_str_value);
-            log_it(L_NOTICE, "dap_chain_balance_from_pyobj item %d %s", l_pos_valid, dap_chain_balance_print(*(res + l_pos_valid - 1)));
         }
     }
     else {

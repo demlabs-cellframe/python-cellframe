@@ -25,13 +25,11 @@ PyObject *wrapping_dap_chain_net_srv_get_wallet(PyObject *self, void *closure){
 }
 PyObject *wrapping_dap_chain_net_srv_get_net_name(PyObject *self, void *closure){
     (void)closure;
-    return Py_BuildValue("s", WRAPPING_DAP_CHAIN_NET_SRV_PRICE(self)->price.net_name);
+    Py_RETURN_NONE;
 }
 PyObject *wrapping_dap_chain_net_srv_get_net(PyObject *self, void *closure){
     (void)closure;
-    PyDapChainNetObject *l_obj_net = PyObject_New(PyDapChainNetObject, &DapChainNetObjectType);
-    l_obj_net->chain_net = WRAPPING_DAP_CHAIN_NET_SRV_PRICE(self)->price.net;
-    return (PyObject*)l_obj_net;
+    Py_RETURN_NONE;
 }
 PyObject *wrapping_dap_chain_net_srv_get_value_datoshi(PyObject *self, void *closure){
     (void)closure;

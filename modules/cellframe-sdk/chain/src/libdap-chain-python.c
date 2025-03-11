@@ -3,7 +3,7 @@
 #include "libdap_chain_net_python.h"
 
 #define LOG_TAG "libdap-chain-python"
-
+#include "dap_chain_cs_blocks.h"
 
 int init_chain_py(){
     return  dap_chain_init();
