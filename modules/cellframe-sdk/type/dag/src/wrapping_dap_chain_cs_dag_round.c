@@ -25,15 +25,21 @@ PyObject *wrapping_dap_chain_cs_dag_round_get_signs(PyObject *self, void *closur
     PyObject *list_signs = PyList_New(0);
     size_t l_offset = ROUND(self)->event_size;
     while (l_offset < ROUND(self)->data_size) {
-        dap_sign_t *l_sign = (dap_sign_t*)ROUND(self)->event_n_signs+l_offset;
+        dap_sign_t *l_sign = (dap_sign_t*)((byte_t*)ROUND(self)->event_n_signs+l_offset);
         size_t l_sign_size = dap_sign_get_size(l_sign);
         PyDapSignObject *l_obj_sign = PyObject_New(PyDapSignObject, &DapCryptoSignObjectType);
-        l_obj_sign->sign = l_sign;
+        l_obj_sign->sign = DAP_NEW_SIZE(dap_sign_t, l_sign_size);
+        memcpy(l_obj_sign->sign, l_sign, l_sign_size);
         PyList_Append(list_signs, (PyObject*)l_obj_sign);
         Py_XDECREF(l_obj_sign);
         l_offset += l_sign_size;
     }
     return list_signs;
+}
+
+void DapChainCsDagRound_free(PyDapChainCsDagRoundObject *self) {
+    DAP_DELETE(self->item);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 PyGetSetDef DapChainCsDagRoundGetSetDef[] = {
