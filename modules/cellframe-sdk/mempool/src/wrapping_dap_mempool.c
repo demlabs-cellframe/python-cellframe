@@ -328,7 +328,7 @@ uint256_t *dap_chain_balance_from_pyobj(PyObject *obj, size_t *o_count) {
             }
             const char *l_str_value = PyUnicode_AsUTF8(item);
             *(res + l_pos_valid++) = dap_chain_balance_scan(l_str_value);
-            log_it(L_NOTICE, "dap_chain_balance_from_pyobj item %d %s", l_pos_valid, dap_chain_balance_print(*(res + l_pos_valid - 1)));
+            log_it(L_NOTICE, "dap_chain_balance_from_pyobj item %zu %s", l_pos_valid, dap_chain_balance_print(*(res + l_pos_valid - 1)));
         }
     }
     else {
@@ -354,7 +354,6 @@ dap_chain_addr_t *dap_chain_addr_from_pyobj(PyObject *obj, size_t *o_count) {
 
     if (PyList_Check(obj)) {
         Py_ssize_t l_pos = 0;
-        PyObject *l_item;
         *o_count = PyList_Size(obj);
 
         res = DAP_NEW_Z_COUNT(dap_chain_addr_t, *o_count);
@@ -366,18 +365,18 @@ dap_chain_addr_t *dap_chain_addr_from_pyobj(PyObject *obj, size_t *o_count) {
         size_t l_pos_valid = 0;
 
         PyObject *iter;
-        PyObject *item;
+        PyDapChainAddrObject *item;
         if ((iter = PyObject_GetIter(obj)) == NULL) {
             PyErr_SetString(PyExc_TypeError, "List is Empty.");
             return NULL;
         }
-        while ((item = PyIter_Next(iter)) != NULL) {
+        while ((item = (PyDapChainAddrObject *)PyIter_Next(iter)) != NULL) {
             if (!PyDapChainAddrObject_Check(item)) {
                 PyErr_SetString(PyExc_TypeError, "List must contain only DapChainAddr objects");
                 DAP_DELETE(res);
                 return NULL;
             }
-            *(res + l_pos_valid++) = *((PyDapChainAddrObject*)l_item)->addr;
+            *(res + l_pos_valid++) = *(item->addr);
             
         }
 
@@ -388,11 +387,12 @@ dap_chain_addr_t *dap_chain_addr_from_pyobj(PyObject *obj, size_t *o_count) {
         }          
     }
     else {
-        if (!PyDapChainAddrObject_Check(obj)) {
+        PyDapChainAddrObject *l_addr_obj = (PyDapChainAddrObject *)obj;
+        if (!PyDapChainAddrObject_Check(l_addr_obj)) {
             PyErr_SetString(PyExc_TypeError, "Argument should be DapChainAddr type");
             return NULL;
         }
-        *res = *((PyDapChainAddrObject*)obj)->addr;
+        *res = *(l_addr_obj->addr);
         *o_count = 1;
     }
     return res;
@@ -459,7 +459,7 @@ PyObject *dap_chain_mempool_tx_create_multisign_withdraw_py(PyObject *self, PyOb
         DAP_LIST_SAPPEND(tsd_items, tsd_item);
     } 
 
-    dap_chain_datum_tx_t *l_tx = dap_chain_net_srv_emit_delegate_taking_tx_create(NULL, obj_net->chain_net, l_enc_key, &l_addr, l_value_256, l_addr_count,
+    dap_chain_datum_tx_t *l_tx = dap_chain_net_srv_emit_delegate_taking_tx_create(NULL, obj_net->chain_net, l_enc_key, l_addr, l_value_256, l_addr_count,
                                                                                   l_value_fee_256, transaction_hash->hash_fast, tsd_items);
     
     DAP_DELETE(l_addr);
@@ -503,13 +503,14 @@ PyObject *dap_chain_mempool_tx_create_py(PyObject *self, PyObject *args){
     dap_chain_t *l_chain = ((PyDapChainObject*)obj_chain)->chain_t;
     dap_enc_key_t *l_key_from = ((PyCryptoKeyObject*)obj_key_from)->key;
 
-    dap_chain_addr_t *l_addr_from; //can be array
+    size_t addr_from_count = 0;
+    dap_chain_addr_t *l_addr_from = dap_chain_addr_from_pyobj(obj_addr_from, &addr_from_count); //can be array
     
     size_t addr_to_count = 0;
     const dap_chain_addr_t *l_addr_to = dap_chain_addr_from_pyobj(obj_addr_to, &addr_to_count);
     
     size_t l_value_count = 0;
-    const uint256_t *l_value_256 = dap_chain_balance_from_pyobj(l_value, &l_value_count);
+    uint256_t *l_value_256 = dap_chain_balance_from_pyobj(l_value, &l_value_count);
 
     if (!l_addr_to || !l_value_256) {
         return NULL; //error already set
@@ -523,7 +524,7 @@ PyObject *dap_chain_mempool_tx_create_py(PyObject *self, PyObject *args){
     uint256_t l_value_fee_256 = dap_chain_balance_scan(l_value_fee);
     
     char *l_tx_hash_str = dap_chain_mempool_tx_create(l_chain, l_key_from,
-                                                    l_addr_from, l_addr_to,
+                                                    l_addr_from, &l_addr_to,
                                                     l_token_ticker,
                                                     l_value_256, l_value_fee_256, "hex", l_value_count);
     DAP_DELETE(l_addr_to);
