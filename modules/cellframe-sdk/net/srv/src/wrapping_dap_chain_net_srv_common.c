@@ -4,6 +4,9 @@
 #define WRAPPING_DAP_CHAIN_NET_SRV_PRICE(a) ((PyDapChainNetSrvPriceObject*) a)
 
 static PyGetSetDef DapChainNetSrvPrice_GetsSetsDef[] = {
+        {"wallet", (getter)wrapping_dap_chain_net_srv_get_wallet, NULL, NULL, NULL},
+        {"netName", (getter)wrapping_dap_chain_net_srv_get_net_name, NULL, NULL, NULL},
+        {"net", (getter)wrapping_dap_chain_net_srv_get_net, NULL, NULL, NULL},
         {"valueDatoshi", (getter)wrapping_dap_chain_net_srv_get_value_datoshi, NULL, NULL, NULL},
         {"token", (getter)wrapping_dap_chain_net_srv_get_token, NULL, NULL, NULL},
         {"units", (getter)wrapping_dap_chain_net_srv_get_units, NULL, NULL, NULL},
@@ -16,6 +19,18 @@ PyTypeObject DapChainNetSrvPriceObjectType = DAP_PY_TYPE_OBJECT(
         "Chain net srv price object",
         .tp_getset = DapChainNetSrvPrice_GetsSetsDef);
 
+PyObject *wrapping_dap_chain_net_srv_get_wallet(PyObject *self, void *closure){
+    (void)closure;
+    return NULL;
+}
+PyObject *wrapping_dap_chain_net_srv_get_net_name(PyObject *self, void *closure){
+    (void)closure;
+    Py_RETURN_NONE;
+}
+PyObject *wrapping_dap_chain_net_srv_get_net(PyObject *self, void *closure){
+    (void)closure;
+    Py_RETURN_NONE;
+}
 PyObject *wrapping_dap_chain_net_srv_get_value_datoshi(PyObject *self, void *closure){
     (void)closure;
     return Py_BuildValue("k", WRAPPING_DAP_CHAIN_NET_SRV_PRICE(self)->price.value_datoshi);

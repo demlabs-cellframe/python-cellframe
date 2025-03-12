@@ -21,7 +21,9 @@ PyObject *dap_chain_cs_dag_get_current_round_py(PyObject *self, PyObject *args) 
     dap_global_db_obj_t * l_objs = dap_global_db_get_all_sync(l_round_event_group,&l_objs_count);
     if (!l_objs && !l_objs_count) Py_RETURN_NONE;
     PyDapChainCsDagRoundObject *obj_round = WRAPPING_DAP_CHAIN_CS_DAG_ROUND_NEW;
-    obj_round->item = (dap_chain_cs_dag_event_round_item_t*)l_objs[0].value;
+    dap_chain_cs_dag_event_round_item_t *l_item = (dap_chain_cs_dag_event_round_item_t*)l_objs[0].value;
+    obj_round->item = DAP_NEW_SIZE(dap_chain_cs_dag_event_round_item_t, l_objs[0].value_len);
+    memcpy(obj_round->item, l_objs[0].value, l_objs[0].value_len);
     dap_global_db_objs_delete(l_objs, l_objs_count);
     return (PyObject*)obj_round;
 }
