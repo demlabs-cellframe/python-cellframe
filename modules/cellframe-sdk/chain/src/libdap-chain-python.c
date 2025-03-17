@@ -362,8 +362,7 @@ PyDapHashFastObject *py_dap_hash_fast_from_hash_fast(dap_hash_fast_t *a_hash_fas
 {
     
     PyDapHashFastObject *obj_hash = PyObject_New(PyDapHashFastObject, &DapChainHashFastObjectType);
-    obj_hash->hash_fast = DAP_NEW(dap_chain_hash_fast_t);
-    dap_mempcpy(obj_hash->hash_fast, a_hash_fast, sizeof(dap_hash_fast_t));
+    obj_hash->hash_fast = DAP_DUP(a_hash_fast);
     obj_hash->origin = true;
     return obj_hash;
 }
@@ -384,8 +383,10 @@ static void _wrapping_dap_chain_fork_resolved_notify_handler(dap_chain_t *a_chai
     PyDapHashFastObject *obj_hash_fast = py_dap_hash_fast_from_hash_fast(&a_block_before_fork_hash);
 
     PyObject *obj_list = PyList_New(dap_list_length(a_reverted_blocks));
+    size_t i = 0;
     for (dap_list_t *l_iter = a_reverted_blocks; l_iter; l_iter = l_iter->next){
-        PyList_Append(obj_list, (PyObject *)py_dap_hash_fast_from_hash_fast(l_iter->data));
+        PyList_SetItem(obj_list, i, (PyObject*)py_dap_hash_fast_from_hash_fast(l_iter->data));
+        ++i;
     }
 
     PyObject *chain_obj = _PyObject_New(&DapChainObjectType);

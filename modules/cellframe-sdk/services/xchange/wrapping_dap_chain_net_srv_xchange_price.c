@@ -85,8 +85,7 @@ PyObject *wrapping_dap_chain_net_srv_xchange_price_get_fee(PyObject *self, void 
     network_fee->value = current_net_fee_val;
 
     PyDapChainAddrObject *obj_addr = PyObject_New(PyDapChainAddrObject, &DapChainAddrObjectType);
-    obj_addr->addr = DAP_NEW(dap_chain_addr_t);
-    dap_mempcpy(obj_addr->addr, &comission_addr, sizeof(dap_chain_addr_t));
+    obj_addr->addr = DAP_DUP(&comission_addr);
 
     PyObject *res = PyDict_New();
     PyDict_SetItemString(res, "order_fee", (PyObject *)order_fee);
@@ -127,8 +126,7 @@ PyObject *wrapping_dap_chain_net_srv_xchange_price_get_completion_rate(PyObject 
 PyObject *wrapping_dap_chain_net_srv_xchange_price_get_order_creator_address(PyObject *self, void *closure){
 
     PyDapChainAddrObject *obj_addr = PyObject_New(PyDapChainAddrObject, &DapChainAddrObjectType);
-    obj_addr->addr = DAP_NEW(dap_chain_addr_t);
-    dap_mempcpy(obj_addr->addr, &PRICE(self)->creator_addr, sizeof(dap_chain_addr_t));
+    obj_addr->addr = DAP_DUP(&PRICE(self)->creator_addr);
     return (PyObject *)obj_addr;
 }
 
