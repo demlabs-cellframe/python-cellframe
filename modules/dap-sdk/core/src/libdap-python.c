@@ -209,6 +209,11 @@ PyObject* py_m_dap_config_get_item(PyObject *self, PyObject *args){
     return python_get_config_item(g_config, section_path, item_name, obj_def);
 }
 
+PyObject* py_m_dap_config_get_sys_dir(PyObject *self, PyObject *args){
+   
+    return Py_BuildValue("s", g_sys_dir_path);
+}
+
 PyObject *dapListToPyList(dap_list_t *list) {
     ssize_t len = dap_list_length(list), i = 0;
     PyObject *pylist = PyList_New(len);
