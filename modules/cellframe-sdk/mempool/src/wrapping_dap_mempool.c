@@ -297,16 +297,117 @@ PyObject *dap_chain_mempool_base_tx_create_py(PyObject *self, PyObject *args){
 
 #define DAP_LIST_SAPPEND(X, Y) X = dap_list_append(X,Y)
 
+
+uint256_t *dap_chain_balance_from_pyobj(PyObject *obj, size_t *o_count) {
+    log_it(L_NOTICE, "dap_chain_balance_from_pyobj");
+    uint256_t *res = NULL;
+    if (PyList_Check(obj)) {
+        log_it(L_NOTICE, "dap_chain_balance_from_pyobj list");
+        Py_ssize_t l_pos = 0;
+        PyObject *l_item;
+        *o_count = PyList_Size(obj);
+        res = DAP_NEW_Z_COUNT(uint256_t, *o_count);
+        if (!res) {
+            PyErr_SetString(PyExc_MemoryError, "Memory allocation error");
+            return NULL;
+        }
+
+        size_t l_pos_valid = 0;
+        PyObject *iter;
+        PyObject *item;
+        if ((iter = PyObject_GetIter(obj)) == NULL) {
+            PyErr_SetString(PyExc_TypeError, "List is Empty.");
+            return NULL;
+        }
+        while ((item = PyIter_Next(iter)) != NULL) {
+         
+            if (!PyUnicode_Check(item)) {
+                PyErr_SetString(PyExc_TypeError, "List must contain only string values");
+                DAP_DELETE(res);
+                return NULL;        
+            }
+            const char *l_str_value = PyUnicode_AsUTF8(item);
+            *(res + l_pos_valid++) = dap_chain_balance_scan(l_str_value);
+            log_it(L_NOTICE, "dap_chain_balance_from_pyobj item %d %s", l_pos_valid, dap_chain_balance_print(*(res + l_pos_valid - 1)));
+        }
+    }
+    else {
+        if (!PyUnicode_Check(obj)) {
+            PyErr_SetString(PyExc_TypeError, "Argument should be string type");
+            return NULL;
+        }
+        res = DAP_NEW(uint256_t);
+        if (!res) {
+            PyErr_SetString(PyExc_MemoryError, "Memory allocation error");
+            return NULL;
+        }
+        *res = dap_chain_balance_scan(PyBytes_AsString(obj));
+        *o_count = 1;
+    }
+    return res;
+}   
+
+
+dap_chain_addr_t *dap_chain_addr_from_pyobj(PyObject *obj, size_t *o_count) {
+
+    dap_chain_addr_t *res = NULL;
+
+    if (PyList_Check(obj)) {
+        Py_ssize_t l_pos = 0;
+        PyObject *l_item;
+        *o_count = PyList_Size(obj);
+
+        res = DAP_NEW_Z_COUNT(dap_chain_addr_t, *o_count);
+    
+        if (!res) {
+            PyErr_SetString(PyExc_MemoryError, "Memory allocation error");
+            return NULL;
+        }
+        size_t l_pos_valid = 0;
+
+        PyObject *iter;
+        PyObject *item;
+        if ((iter = PyObject_GetIter(obj)) == NULL) {
+            PyErr_SetString(PyExc_TypeError, "List is Empty.");
+            return NULL;
+        }
+        while ((item = PyIter_Next(iter)) != NULL) {
+            if (!PyDapChainAddrObject_Check(item)) {
+                PyErr_SetString(PyExc_TypeError, "List must contain only DapChainAddr objects");
+                DAP_DELETE(res);
+                return NULL;
+            }
+            *(res + l_pos_valid++) = *((PyDapChainAddrObject*)l_item)->addr;
+            
+        }
+
+        if (l_pos_valid != (*o_count)) {
+            PyErr_SetString(PyExc_ValueError, "Not DapChainAddr objects in list");
+            DAP_DELETE(res);
+            return NULL;
+        }          
+    }
+    else {
+        if (!PyDapChainAddrObject_Check(obj)) {
+            PyErr_SetString(PyExc_TypeError, "Argument should be DapChainAddr type");
+            return NULL;
+        }
+        *res = *((PyDapChainAddrObject*)obj)->addr;
+        *o_count = 1;
+    }
+    return res;
+}   
+
 PyObject *dap_chain_mempool_tx_create_multisign_withdraw_py(PyObject *self, PyObject *args) {
 
     PyDapChainNetObject *obj_net;
     PyDapHashFastObject * transaction_hash;
-    PyDapChainAddrObject *obj_addr_to;
-    char * value;
+    PyObject *obj_addr_to;
+    PyObject *value;
     char * fee;
     PyCryptoKeyObject *obj_key_from;
     PyObject *tsd;
-    if (!PyArg_ParseTuple(args, "OOOssOO", &obj_net, &transaction_hash, &obj_addr_to, &value, &fee, &obj_key_from, &tsd)){
+    if (!PyArg_ParseTuple(args, "OOOOsOO", &obj_net, &transaction_hash, &obj_addr_to, &value, &fee, &obj_key_from, &tsd)){
         PyErr_SetString(PyExc_AttributeError, "Function takes exactly six arguments.");
         return NULL;
     }   
@@ -323,35 +424,25 @@ PyObject *dap_chain_mempool_tx_create_multisign_withdraw_py(PyObject *self, PyOb
         return NULL;
     }
 
-    if (!PyDapChainAddrObject_Check(obj_addr_to)){
-        PyErr_SetString(PyExc_AttributeError, "Invalid third argument passed. The third argument must "
-                                              "be an instance of an object of type DapChainAddr. ");
-        return NULL;
-    }
-
-    uint256_t l_value_256 = dap_chain_balance_scan(value);
+    size_t l_value_count = 0;
+    uint256_t *l_value_256 = dap_chain_balance_from_pyobj(value, &l_value_count);
     uint256_t l_value_fee_256 = dap_chain_balance_scan(fee);
 
-    if (EQUAL_256(l_value_256, uint256_0)) {
-        PyErr_SetString(PyExc_AttributeError, "Invalid fourth argument passed. The fourth argument must "
-                                              "be an string with value > 0. ");
-        return NULL;
-    }
-
-    if (EQUAL_256(l_value_256, uint256_0)) {
-        PyErr_SetString(PyExc_AttributeError, "Invalid fifth argument passed. The fifth argument must "
-                                              "be an string with value > 0. ");
-        return NULL;
-    }
-
+   
     if (!dap_ledger_tx_find_by_hash(obj_net->chain_net->pub.ledger, transaction_hash->hash_fast)) {
         PyErr_SetString(PyExc_AttributeError, "Tx with provided hash not found");
         return NULL;
     }
     
+    size_t l_addr_count = 0;
     dap_enc_key_t *l_enc_key =obj_key_from->key;
-    dap_chain_addr_t *l_addr = obj_addr_to->addr;
+    dap_chain_addr_t *l_addr = dap_chain_addr_from_pyobj(obj_addr_to, &l_addr_count);
     dap_list_t *tsd_items = NULL;
+
+    if (l_addr_count != l_value_count) {
+        PyErr_SetString(PyExc_ValueError, "Number of addresses must match number of values");
+        return NULL;
+    }
 
     PyObject *tsdkey, *tsdvalue;
     Py_ssize_t pos = 0;
@@ -368,9 +459,12 @@ PyObject *dap_chain_mempool_tx_create_multisign_withdraw_py(PyObject *self, PyOb
         DAP_LIST_SAPPEND(tsd_items, tsd_item);
     } 
 
-    dap_chain_datum_tx_t *l_tx = dap_chain_net_srv_emit_delegate_taking_tx_create(NULL, obj_net->chain_net, l_enc_key, l_addr, l_value_256,
+    dap_chain_datum_tx_t *l_tx = dap_chain_net_srv_emit_delegate_taking_tx_create(NULL, obj_net->chain_net, l_enc_key, &l_addr, l_value_256, l_addr_count,
                                                                                   l_value_fee_256, transaction_hash->hash_fast, tsd_items);
     
+    DAP_DELETE(l_addr);
+    DAP_DELETE(l_value_256);
+
     if (!l_tx) {
         PyErr_SetString(PyExc_AttributeError, "Failed to create tx datum");
         return NULL;
@@ -400,22 +494,41 @@ PyObject *dap_chain_mempool_tx_create_py(PyObject *self, PyObject *args){
     PyObject *obj_addr_from;
     PyObject *obj_addr_to;
     char *l_token_ticker;
-    char * l_value;
+    PyObject *l_value;
     char * l_value_fee;
-    if (!PyArg_ParseTuple(args, "OOOOsss", &obj_chain, &obj_key_from, &obj_addr_from, &obj_addr_to,
+    if (!PyArg_ParseTuple(args, "OOOOsOs", &obj_chain, &obj_key_from, &obj_addr_from, &obj_addr_to,
                           &l_token_ticker, &l_value, &l_value_fee)){
         return NULL;
     }
     dap_chain_t *l_chain = ((PyDapChainObject*)obj_chain)->chain_t;
     dap_enc_key_t *l_key_from = ((PyCryptoKeyObject*)obj_key_from)->key;
-    const dap_chain_addr_t *l_addr_from = ((PyDapChainAddrObject*)obj_addr_from)->addr,
-                           *l_addr_to = ((PyDapChainAddrObject*)obj_addr_to)->addr;
-    uint256_t l_value_256 = dap_chain_balance_scan(l_value);
+
+    dap_chain_addr_t *l_addr_from; //can be array
+    
+    size_t addr_to_count = 0;
+    const dap_chain_addr_t *l_addr_to = dap_chain_addr_from_pyobj(obj_addr_to, &addr_to_count);
+    
+    size_t l_value_count = 0;
+    const uint256_t *l_value_256 = dap_chain_balance_from_pyobj(l_value, &l_value_count);
+
+    if (!l_addr_to || !l_value_256) {
+        return NULL; //error already set
+    }
+
+    if (l_value_count != addr_to_count) {
+        PyErr_SetString(PyExc_ValueError, "Number of values must match number of addresses");
+        return NULL;
+    }
+
     uint256_t l_value_fee_256 = dap_chain_balance_scan(l_value_fee);
+    
     char *l_tx_hash_str = dap_chain_mempool_tx_create(l_chain, l_key_from,
-                                                    l_addr_from, &l_addr_to,
+                                                    l_addr_from, l_addr_to,
                                                     l_token_ticker,
-                                                    &l_value_256, l_value_fee_256, "hex", 1);
+                                                    l_value_256, l_value_fee_256, "hex", l_value_count);
+    DAP_DELETE(l_addr_to);
+    DAP_DELETE(l_value_256);
+
     if (l_tx_hash_str == NULL)
         Py_RETURN_NONE;
     PyDapHashFastObject *l_obj_hf = PyObject_New(PyDapHashFastObject, &DapChainHashFastObjectType);

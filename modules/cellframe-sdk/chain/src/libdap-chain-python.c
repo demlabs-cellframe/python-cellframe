@@ -1,6 +1,8 @@
 #include "libdap-chain-python.h"
 #include "python-cellframe_common.h"
 #include "libdap_chain_net_python.h"
+#include "dap_chain_cs_blocks.h"
+
 
 #define LOG_TAG "libdap-chain-python"
 
@@ -35,6 +37,8 @@ static PyMethodDef DapChainMethods[] = {
         {"getNet", (PyCFunction) dap_chain_python_get_net, METH_NOARGS, ""},
         {"configGetItem", (PyCFunction)dap_chain_python_get_config_item, METH_VARARGS, ""},
         {"addAtomConfirmedNotify", (PyCFunction)dap_chain_atom_confirmed_notify_add_py, METH_VARARGS, "Add a callback for confirmed atoms"},
+        {"addForkResolvedNotify", (PyCFunction)dap_chain_fork_resolved_notify_add_py, METH_VARARGS|METH_STATIC, "Add a callback for fork resolution (local)"},
+        
         {}
 };
 
@@ -216,6 +220,13 @@ typedef struct _wrapping_chain_mempool_notify_callback {
     dap_store_obj_t *obj;
 } _wrapping_chain_mempool_notify_callback_t;
 
+
+typedef struct _wrapping_chain_fork_resolved_notify_callback {
+    PyObject *func;
+    PyObject *arg;
+} _wrapping_chain_fork_resolved_notify_callback_t;
+
+
 bool dap_py_mempool_notifier(void *a_arg)
 {
     if (!a_arg)
@@ -353,6 +364,50 @@ static void _wrapping_dap_chain_atom_confirmed_notify_handler(void *a_arg, dap_c
     PyGILState_Release(state);
 }
 
+PyDapHashFastObject * py_dap_hash_fast_from_hash_fast(dap_hash_fast_t *a_hash_fast){
+    
+    PyDapHashFastObject *obj_hash = PyObject_New(PyDapHashFastObject, &DapChainHashFastObjectType);
+    obj_hash->hash_fast = DAP_DUP(a_hash_fast);
+    obj_hash->origin = true;
+    return (PyObject*)obj_hash;
+}
+
+static void _wrapping_dap_chain_fork_resolved_notify_handler(dap_chain_t *a_chain, dap_hash_fast_t a_block_before_fork_hash, dap_list_t *a_reverted_blocks, 
+                                                                uint64_t a_reverted_blocks_cnt, uint64_t a_main_blocks_cnt, void * a_arg)
+{
+    log_it(L_DEBUG, "Call fork resolution notifier %s", a_chain->name);
+
+    if (!a_arg) {
+        return;
+    }
+    
+    _wrapping_chain_fork_resolved_notify_callback_t *l_callback = (_wrapping_chain_fork_resolved_notify_callback_t *)a_arg;
+
+    PyGILState_STATE state = PyGILState_Ensure();
+
+    PyDapHashFastObject *obj_hash_fast = py_dap_hash_fast_from_hash_fast(&a_block_before_fork_hash);
+
+    PyListObject *obj_list = PyList_New(dap_list_length(a_reverted_blocks));
+    size_t i = 0;
+    for (dap_list_t *l_iter = a_reverted_blocks; l_iter; l_iter = l_iter->next){
+        PyList_SetItem(obj_list, i, py_dap_hash_fast_from_hash_fast(l_iter->data));
+        i++;
+    }
+
+    PyObject *chain_obj = _PyObject_New(&DapChainObjectType);
+    ((PyDapChainObject*)chain_obj)->chain_t = a_chain;
+
+    PyObject *l_args = Py_BuildValue("OiiOOO", chain_obj, a_reverted_blocks_cnt, a_main_blocks_cnt, obj_hash_fast, obj_list, l_callback->arg);
+    PyObject *result = PyObject_CallObject(l_callback->func, l_args);
+
+    if (!result) {
+        python_error_in_log_it(LOG_TAG);
+    }
+
+    Py_XDECREF(result);
+    Py_DECREF(l_args);
+    PyGILState_Release(state);    
+}
 
 /**
  * @brief dap_chain_python_add_mempool_notify_callback
@@ -453,8 +508,38 @@ PyObject *dap_chain_atom_confirmed_notify_add_py(PyObject *self, PyObject *args)
     Py_RETURN_NONE;
 }
 
+PyObject *dap_chain_fork_resolved_notify_add_py(PyObject *self, PyObject *args) {
 
-/**
+    PyObject *obj_func;
+    PyObject *obj_arg;
+
+    if (!PyArg_ParseTuple(args, "OO", &obj_func, &obj_arg)){
+        PyErr_SetString(PyExc_AttributeError, "Argument must be callable");
+        return NULL;
+    }   
+    
+    if (!PyCallable_Check(obj_func)) {
+        PyErr_SetString(PyExc_AttributeError, "First argument must be a callable function");
+        return NULL;
+    }
+
+    _wrapping_chain_fork_resolved_notify_callback_t *l_callback = DAP_NEW_Z(_wrapping_chain_fork_resolved_notify_callback_t);
+    if (!l_callback) {
+        log_it(L_CRITICAL, "Memory allocation error");
+        return NULL;
+    }
+
+    l_callback->func = obj_func;
+    l_callback->arg = obj_arg;
+
+    Py_INCREF(obj_func);
+    Py_INCREF(obj_arg);
+ 
+    dap_chain_block_add_fork_notificator(_wrapping_dap_chain_fork_resolved_notify_handler, l_callback);
+    
+    Py_RETURN_NONE;
+    }
+    /**
  * @brief dap_chain_python_atom_find_by_hash
  * @param self
  * @param args
