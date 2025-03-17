@@ -462,6 +462,9 @@ PyObject *dap_chain_mempool_tx_create_multisign_withdraw_py(PyObject *self, PyOb
     dap_chain_datum_tx_t *l_tx = dap_chain_net_srv_emit_delegate_taking_tx_create(NULL, obj_net->chain_net, l_enc_key, &l_addr, l_value_256, l_addr_count,
                                                                                   l_value_fee_256, transaction_hash->hash_fast, tsd_items);
     
+    DAP_DELETE(l_addr);
+    DAP_DELETE(l_value_256);
+
     if (!l_tx) {
         PyErr_SetString(PyExc_AttributeError, "Failed to create tx datum");
         return NULL;
@@ -523,6 +526,9 @@ PyObject *dap_chain_mempool_tx_create_py(PyObject *self, PyObject *args){
                                                     l_addr_from, l_addr_to,
                                                     l_token_ticker,
                                                     l_value_256, l_value_fee_256, "hex", l_value_count);
+    DAP_DELETE(l_addr_to);
+    DAP_DELETE(l_value_256);
+
     if (l_tx_hash_str == NULL)
         Py_RETURN_NONE;
     PyDapHashFastObject *l_obj_hf = PyObject_New(PyDapHashFastObject, &DapChainHashFastObjectType);
