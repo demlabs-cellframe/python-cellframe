@@ -58,7 +58,7 @@ PyObject *wrapping_dap_chain_tx_receipt_get_sig_provider(PyObject *self, void *c
     uint64_t l_signs_size = l_receipt->size - l_receipt->exts_size;
     if (l_signs_size) {
         dap_sign_t *l_sign = (dap_sign_t *)&l_receipt->exts_n_signs[l_receipt->exts_size];
-        if (!dap_sign_verify_size(l_sign, l_signs_size))
+        if ( dap_sign_verify_size(l_sign, l_signs_size) )
             Py_RETURN_NONE;
         PyObject  *obj_sign_provider = PyDapSignObject_Cretae(l_sign);
         return (PyObject *)obj_sign_provider;
@@ -72,13 +72,13 @@ PyObject *wrapping_dap_chain_tx_receipt_get_sig_client(PyObject *self, void *clo
     uint64_t l_signs_size = l_receipt->size - l_receipt->exts_size;
     if (l_signs_size) {
         dap_sign_t *l_sign = (dap_sign_t *)&l_receipt->exts_n_signs[l_receipt->exts_size];
-        if (!dap_sign_verify_size(l_sign, l_signs_size))
+        if ( dap_sign_verify_size(l_sign, l_signs_size) )
             Py_RETURN_NONE;
         size_t l_sign_size = dap_sign_get_size(l_sign);
         if (l_receipt->exts_size + l_sign_size >= l_receipt->size)
             Py_RETURN_NONE;
         l_sign = (dap_sign_t *)&l_receipt->exts_n_signs[l_receipt->exts_size + l_sign_size];
-        if (!dap_sign_verify_size(l_sign, l_signs_size - l_sign_size))
+        if ( dap_sign_verify_size(l_sign, l_signs_size - l_sign_size) )
             Py_RETURN_NONE;
         PyObject *obj_sign_client = PyDapSignObject_Cretae(l_sign);
         return obj_sign_client;
