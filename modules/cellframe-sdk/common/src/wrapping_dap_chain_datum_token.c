@@ -276,7 +276,7 @@ PyObject *wrapping_dap_chain_datum_token_emission_get_data(PyObject *self, void 
             l_offset = (byte_t*)l_sign_ptr - (byte_t*)token_emi;
             obj_tmp = PyList_New(token_emi->data.type_auth.signs_count);
             for (size_t i = 0; i < token_emi->data.type_auth.signs_count && l_offset < token_emi_size; ++i){
-                if(dap_sign_verify_size(l_sign_ptr, ((PyDapChainDatumTokenEmissionObject*)self)->token_size - l_offset)) {
+                if ( !dap_sign_verify_size(l_sign_ptr, ((PyDapChainDatumTokenEmissionObject*)self)->token_size - l_offset) ) {
                     size_t l_sign_size = dap_sign_get_size(l_sign_ptr);
                     PyObject *obj_tmp_sign = PyDapSignObject_Cretae(l_sign_ptr);
                     PyList_SetItem(obj_tmp, i, (PyObject*)obj_tmp_sign);
@@ -339,7 +339,7 @@ PyObject *wrapping_dap_chain_datum_token_emission_get_signs(PyObject *self, void
     
     for (l_count = 0, l_sign_size = 0; l_count < l_emi->data.type_auth.signs_count && (l_sign_size = dap_sign_get_size(l_sign)); ++l_count) {
         
-        if (!dap_sign_verify_size(l_sign, l_sign_size)) {
+        if ( dap_sign_verify_size(l_sign, l_sign_size) ) {
             _PyErr_logIt(L_ERROR, "datum_token_ems", "Emission datum sign corrupted!");
             return PyList_New(0);
         }
