@@ -13,7 +13,7 @@ static bool s_l_restart_plugins = false;
 void dap_chain_plugins_command_create(void){
     if (!s_l_restart_plugins){
         dap_cli_server_cmd_add("plugins", dap_chain_plugins_command_handler,
-                                           "Commands for working with plugins.",
+                                           "Commands for working with plugins.", dap_chain_node_cli_cmd_id_from_str("plugins"),
                                            "plugins list \t- show list plugins \n"
                                            "plugins show --name <name_plugin> \t-show information for plugin \n"
                                            "plugins restart \t-Restart all plugins \n"
