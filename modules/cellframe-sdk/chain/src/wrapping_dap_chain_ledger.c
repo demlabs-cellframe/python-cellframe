@@ -312,7 +312,7 @@ PyObject *dap_chain_ledger_tx_find_by_addr_py(PyObject *self, PyObject *args){
     if (!PyArg_ParseTuple(args, "s|O|O", &token, &addr, &first_hash))
         return NULL;
     PyDapChainDatumTxObject *res = PyObject_New(PyDapChainDatumTxObject, &DapChainDatumTxObjectType);
-    res->datum_tx = dap_ledger_tx_find_by_addr(((PyDapChainLedgerObject*)self)->ledger, token, PY_DAP_CHAIN_ADDR(addr), ((PyDapHashFastObject*)first_hash)->hash_fast);
+    res->datum_tx = dap_ledger_tx_find_by_addr(((PyDapChainLedgerObject*)self)->ledger, token, PY_DAP_CHAIN_ADDR(addr), ((PyDapHashFastObject*)first_hash)->hash_fast, false);
     res->original = false;
     
     return (PyObject*)res;
