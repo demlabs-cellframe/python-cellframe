@@ -163,7 +163,8 @@ PyObject *dap_chain_node_cli_cmd_item_create_py(PyObject *a_self, PyObject *a_ar
     (void) a_self;
     const char *name, *doc, *doc_ex;
     PyObject *obj_cmdfunc;
-    if (!PyArg_ParseTuple(a_args, "s|O|s|s", &name, &obj_cmdfunc, &doc, &doc_ex)){
+    int cmd_id;
+    if (!PyArg_ParseTuple(a_args, "s|O|s|s|i", &name, &obj_cmdfunc, &doc, &doc_ex, &cmd_id)){
             return NULL;
     }else {
         if (!PyCallable_Check(obj_cmdfunc)){
@@ -172,7 +173,7 @@ PyObject *dap_chain_node_cli_cmd_item_create_py(PyObject *a_self, PyObject *a_ar
         }
     }
     element_py_func_add(name, obj_cmdfunc);
-    dap_cli_server_cmd_add(name, wrapping_cmdfunc, doc, dap_chain_node_cli_cmd_id_from_str(name), doc_ex);
+    dap_cli_server_cmd_add(name, wrapping_cmdfunc, doc, cmd_id, doc_ex);
     return PyLong_FromLong(0);
 }
 
