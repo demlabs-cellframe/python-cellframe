@@ -53,10 +53,8 @@ void dap_chain_net_deinit_py(void);
 PyObject* PyDapChainNet_str(PyObject *self);
 
 PyObject *dap_chain_net_load_all_py(PyObject *self, PyObject *args);
-PyObject *dap_chain_net_state_go_to_py(PyObject *self, PyObject *args);
 PyObject *dap_chain_net_start_py(PyObject *self, PyObject *args);
 PyObject *dap_chain_net_stop_py(PyObject *self, PyObject *args);
-PyObject *dap_chain_net_links_establish_py(PyObject *self, PyObject *args);
 PyObject *dap_chain_net_sync_chains_py(PyObject *self, PyObject *args);
 PyObject *dap_chain_net_sync_gdb_py(PyObject *self, PyObject *args);
 PyObject *dap_chain_net_sync_all_py(PyObject *self, PyObject *args);
