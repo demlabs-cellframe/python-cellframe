@@ -6,6 +6,7 @@
 #define LOG_TAG "ledger wrapper"
 
 static PyObject *s_bridged_tx_notify_add(PyObject *self, PyObject *args);
+static PyObject *dap_chain_ledger_get_final_chain_tx_hash_py(PyObject *self, PyObject *args);
 
 static PyMethodDef DapChainLedgerMethods[] = {
         {"setLocalCellId", (PyCFunction)dap_chain_ledger_set_local_cell_id_py, METH_VARARGS, ""},
@@ -34,6 +35,7 @@ static PyMethodDef DapChainLedgerMethods[] = {
         {"txAddNotify", (PyCFunction)dap_chain_ledger_tx_add_notify_py, METH_VARARGS, ""},
         {"bridgedTxNotifyAdd", (PyCFunction)s_bridged_tx_notify_add, METH_VARARGS, ""},
         {"txHashIsUsedOutItemHash", (PyCFunction)dap_chain_ledger_tx_hash_is_used_out_item_hash_py, METH_VARARGS, ""},
+        {"getFinalChainTxHash", (PyCFunction)dap_chain_ledger_get_final_chain_tx_hash_py, METH_VARARGS, "base_hash, subtype[, include_refills=False] -> final_hash"},
         {}
 };
 
@@ -542,7 +544,8 @@ PyObject *dap_chain_ledger_tx_get_main_ticker_py(PyObject *self, PyObject *args)
     return Py_BuildValue("(s,i)", ticker ? ticker : "UNKWNOWN", l_ledger_rc);
 }
 
-PyObject *dap_chain_ledger_tx_hash_is_used_out_item_hash_py(PyObject *self, PyObject *args){
+PyObject *dap_chain_ledger_tx_hash_is_used_out_item_hash_py(PyObject *self, PyObject *args)
+{
     PyObject *tx_hash;
     uint64_t idx;
     if (!PyArg_ParseTuple(args, "OK", &tx_hash, &idx)) {
@@ -557,4 +560,41 @@ PyObject *dap_chain_ledger_tx_hash_is_used_out_item_hash_py(PyObject *self, PyOb
         return (PyObject*)obj_hf;
     }
     Py_RETURN_NONE;
+}
+
+static PyObject *dap_chain_ledger_get_final_chain_tx_hash_py(PyObject *self, PyObject *args)
+{
+    PyObject *py_base_hash = NULL;
+    int       subtype      = 0; 
+    int       with_refills = 0; 
+
+    if (!PyArg_ParseTuple(args, "Oi|p", &py_base_hash, &subtype, &with_refills))
+        return NULL;
+
+    if (!PyObject_TypeCheck(py_base_hash, &DapChainHashFastObjectType)) {
+        PyErr_SetString(PyExc_TypeError,
+            "First arg must be CellFrame.HashFast object");
+        return NULL;
+    }
+
+    dap_hash_fast_t *base =
+        ((PyDapHashFastObject *)py_base_hash)->hash_fast;
+
+    dap_hash_fast_t final =
+        dap_ledger_get_final_chain_tx_hash(
+            ((PyDapChainLedgerObject *)self)->ledger,
+            (dap_chain_tx_out_cond_subtype_t)subtype,
+            base,
+            with_refills);
+
+    PyDapHashFastObject *py_final =
+        PyObject_New(PyDapHashFastObject, &DapChainHashFastObjectType);
+    if (!py_final)
+        return PyErr_NoMemory();
+
+    py_final->hash_fast = DAP_NEW(dap_hash_fast_t);
+    memcpy(py_final->hash_fast, &final, sizeof(final));
+    py_final->origin = true;
+
+    return (PyObject *)py_final;
 }

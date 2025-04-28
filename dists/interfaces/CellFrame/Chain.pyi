@@ -371,4 +371,8 @@ class Ledger(Protocol):
     def bridgedTxNotifyAdd(self, *args):
         pass
 
-    def txHashIsUsedOutItemHash(self, tx_hash : HashFast, idx : int) -> HashFast | None: ...
+    def txHashIsUsedOutItemHash(self, tx_hash: HashFast, idx: int) -> HashFast | None:
+        pass
+
+    def getFinalChainTxHash(self, *args):
+        pass
