@@ -68,6 +68,7 @@ PyObject *TX_ITEM_TYPE_IN_EMS_PY(PyObject *self, PyObject *args);
 PyObject *TX_ITEM_TYPE_IN_COND_PY(PyObject *self, PyObject *args);
 PyObject *TX_ITEM_TYPE_OUT_COND_PY(PyObject *self, PyObject *args);
 PyObject *TX_ITEM_TYPE_RECEIPT_PY(PyObject *self, PyObject *args);
+PyObject *TX_ITEM_TYPE_RECEIPT_OLD_PY(PyObject *self, PyObject *args);
 PyObject *TX_ITEM_TYPE_TSD_PY(PyObject *self, PyObject *args);
 
 extern PyTypeObject DapChainTxItemTypeObjectType;
