@@ -296,8 +296,13 @@ PyObject *wrapping_dap_chain_datum_tx_get_items(PyObject *self, PyObject *args){
     while(l_tx_items_count < l_tx_items_size){
         uint8_t *item = ((PyDapChainDatumTxObject*)self)->datum_tx->tx_items + l_tx_items_count;
         size_t l_tx_item_size = dap_chain_datum_item_tx_get_size(item, 0);
-        if (l_tx_item_size == 0){
-            return NULL;
+        if (l_tx_item_size == 0) {
+            Py_DECREF(obj_list);
+        
+            DAP_DELETE(l_tx_hf);
+        
+            PyObject *empty_list = PyList_New(0);
+            return empty_list;
         }
         PyObject *obj_tx_item = NULL;
         switch (*item) {

@@ -8,6 +8,8 @@ static PyGetSetDef PyDapChainTxOutCondGetsSetsDef[] = {
         {"typeSubtype", (getter)wrapping_dap_chain_tx_out_cond_get_type_subtype, NULL, "", NULL},
         {"subtype", (getter)wrapping_dap_chain_tx_out_cond_get_subtype, NULL, "", NULL},
         {"usedBy", (getter)wrapping_dap_chain_tx_out_cound_used_by, NULL, "", NULL},
+        {"tag", (getter)wrapping_dap_chain_tx_out_cond_get_tag, NULL,
+            "Return TSD tag if present, else None", NULL},
         {}
 };
 
@@ -71,4 +73,33 @@ PyObject *PyDapChainTxOutCondSubType_str(PyObject *self){
     return Py_BuildValue("s",
                          dap_chain_tx_out_cond_subtype_to_str(*((PyDapChainTxOutCondSubTypeObject*)self)->out_cond_subtype)
                          );
+}
+
+
+PyObject *wrapping_dap_chain_tx_out_cond_get_tag(PyObject *self, void *closure)
+{
+    (void)closure;
+
+
+    PyDapChainTxOutCondObject *obj_cond = (PyDapChainTxOutCondObject *)self;
+
+    if (!obj_cond->out_cond) {
+        Py_RETURN_NONE;
+    }
+
+    dap_chain_tx_out_cond_t *l_cond = obj_cond->out_cond;
+
+    dap_tsd_t *l_tsd = NULL;
+    size_t l_tsd_size = 0;
+    dap_tsd_iter(l_tsd, l_tsd_size, l_cond->tsd, l_cond->tsd_size) {
+        if (l_tsd->type == DAP_CHAIN_TX_OUT_COND_TSD_STR) {
+            const char *l_str = (const char *)l_tsd->data;
+            if (l_str && *l_str) {
+                return Py_BuildValue("s", l_str);
+            }
+            Py_RETURN_NONE;
+        }
+    }
+
+    Py_RETURN_NONE;
 }

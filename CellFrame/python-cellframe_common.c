@@ -7,10 +7,6 @@
 
 #include "python-cellframe_common.h"
 
-void _PyErr_logIt(const dap_log_level_t a_level, const char *a_tag, const char *a_msg){
-    _log_it("\0", 0, a_tag, a_level, "%s", a_msg);
-}
-
 char* _PyErr_get_stacktrace(PyObject *a_obj){
     if (!a_obj){
         return "No stack trace";
@@ -46,14 +42,9 @@ void python_error_in_log_it(const char *a_tag){
 
     const char *l_str_value = PyBytes_AS_STRING(exect_value_str);
 
-    char *l_str = dap_strdup_printf(
-            "An exception occurred while executing a Python script.\n"
-            "\t%s\n%s", l_str_value ? l_str_value : "(null)",
-            trackback ? _PyErr_get_stacktrace(trackback) : "(null)"
-    );
-
-    _PyErr_logIt(L_ERROR, a_tag, l_str);
-    DAP_DELETE(l_str);
+    _PyErr_logIt(L_ERROR, a_tag, "An exception occurred while executing a Python script.\n"
+                    "\t%s\n%s", l_str_value ? l_str_value : "(null)",
+                    trackback ? _PyErr_get_stacktrace(trackback) : "(null)");
 
     PyErr_Restore(type, value, trackback);
 }
