@@ -526,10 +526,9 @@ PyObject *dap_chain_mempool_tx_create_py(PyObject *self, PyObject *args){
     char *l_tx_hash_str = dap_chain_mempool_tx_create(l_chain, l_key_from,
                                                     l_addr_from, &l_addr_to,
                                                     l_token_ticker,
-                                                    l_value_256, l_value_fee_256, "hex", l_value_count);
+                                                    l_value_256, l_value_fee_256, "hex", l_value_count, 0);
     DAP_DELETE(l_addr_to);
     DAP_DELETE(l_value_256);
-
     if (l_tx_hash_str == NULL)
         Py_RETURN_NONE;
     PyDapHashFastObject *l_obj_hf = PyObject_New(PyDapHashFastObject, &DapChainHashFastObjectType);
