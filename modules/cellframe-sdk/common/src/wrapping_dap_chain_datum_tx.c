@@ -56,7 +56,7 @@ PyObject *TX_ITEM_TYPE_RECEIPT_PY(__attribute__((unused)) PyObject *self, __attr
 }
 PyObject *TX_ITEM_TYPE_RECEIPT_OLD_PY(__attribute__((unused)) PyObject *self, __attribute__((unused)) PyObject *args)
 {
-        return PyLong_FromLong(TX_ITEM_TYPE_RECEIPT_OLD);
+        return PyLong_FromLong(TX_ITEM_TYPE_RECEIPT);
 }
 PyObject *TX_ITEM_TYPE_TSD_PY(__attribute__((unused)) PyObject *self, __attribute__((unused)) PyObject *args)
 {
