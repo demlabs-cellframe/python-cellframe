@@ -94,7 +94,11 @@ static dap_chain_datum_tx_receipt_t * _wrapping_dap_chain_net_srv_client_callbac
     }
     if (!py_ret || (PyObject *)py_ret == Py_None || !py_ret->tx_receipt)
         return NULL;
-    return DAP_DUP_SIZE(py_ret->tx_receipt, py_ret->tx_receipt->size);
+
+    if (py_ret->tx_receipt->receipt_info.version < 2)
+        return DAP_DUP_SIZE(py_ret->tx_receipt, ((dap_chain_datum_tx_receipt_old_t*)py_ret->tx_receipt)->size);
+    else 
+        return DAP_DUP_SIZE(py_ret->tx_receipt, py_ret->tx_receipt->size);
 }
 
 static void _wrapping_dap_chain_net_srv_client_callback_success(dap_chain_net_srv_client_t *a_srv_client,
