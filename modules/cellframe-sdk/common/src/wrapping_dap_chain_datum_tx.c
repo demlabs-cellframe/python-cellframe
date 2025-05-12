@@ -14,6 +14,7 @@ static PyMethodDef PyDapChainTxItemTypeObjectMethods[] ={
         {"TX_ITEM_TYPE_IN_COND", (PyCFunction)TX_ITEM_TYPE_IN_COND_PY, METH_NOARGS | METH_STATIC, ""},
         {"TX_ITEM_TYPE_OUT_COND", (PyCFunction)TX_ITEM_TYPE_OUT_COND_PY, METH_NOARGS | METH_STATIC, ""},
         {"TX_ITEM_TYPE_RECEIPT", (PyCFunction)TX_ITEM_TYPE_RECEIPT_PY, METH_NOARGS | METH_STATIC, ""},
+        {"TX_ITEM_TYPE_RECEIPT_OLD", (PyCFunction)TX_ITEM_TYPE_RECEIPT_OLD_PY, METH_NOARGS | METH_STATIC, ""},
         {"TX_ITEM_TYPE_TSD", (PyCFunction)TX_ITEM_TYPE_TSD_PY, METH_NOARGS | METH_STATIC, ""},
         {}
 };
@@ -54,6 +55,10 @@ PyObject *TX_ITEM_TYPE_OUT_COND_PY(__attribute__((unused)) PyObject *self, __att
 PyObject *TX_ITEM_TYPE_RECEIPT_PY(__attribute__((unused)) PyObject *self, __attribute__((unused)) PyObject *args)
 {
         return PyLong_FromLong(TX_ITEM_TYPE_RECEIPT);
+}
+PyObject *TX_ITEM_TYPE_RECEIPT_OLD_PY(__attribute__((unused)) PyObject *self, __attribute__((unused)) PyObject *args)
+{
+        return PyLong_FromLong(TX_ITEM_TYPE_RECEIPT_OLD);
 }
 PyObject *TX_ITEM_TYPE_TSD_PY(__attribute__((unused)) PyObject *self, __attribute__((unused)) PyObject *args)
 {
@@ -329,6 +334,10 @@ PyObject *wrapping_dap_chain_datum_tx_get_items(PyObject *self, PyObject *args){
             case TX_ITEM_TYPE_RECEIPT:
                 obj_tx_item = (PyObject*)PyObject_New(PyDapChainTXReceiptObject, &DapChainTxReceiptObjectType);
                 ((PyDapChainTXReceiptObject*)obj_tx_item)->tx_receipt = (dap_chain_datum_tx_receipt_t*)item;
+                break;
+            case TX_ITEM_TYPE_RECEIPT_OLD:
+                obj_tx_item = (PyObject*)PyObject_New(PyDapChainTXReceiptOldObject, &DapChainTxReceiptObjectType);
+                ((PyDapChainTXReceiptOldObject*)obj_tx_item)->tx_receipt = (dap_chain_datum_tx_receipt_old_t*)item;
                 break;
             case TX_ITEM_TYPE_PKEY:
                 obj_tx_item = (PyObject*)PyObject_New(PyDapChainTXPkeyObject, &DapChainTxPkeyObjectType);
