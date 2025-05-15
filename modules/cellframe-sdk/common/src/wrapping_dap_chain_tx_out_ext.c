@@ -36,7 +36,7 @@ PyObject *wrapping_dap_chain_tx_out_ext_get_used_by(PyObject *self, void *closur
     (void)closure;
     PyDapChainTXOutExtObject *obj_ext = ((PyDapChainTXOutExtObject*)self);
     dap_hash_fast_t l_spender_hash = {0};
-    if (dap_ledger_tx_hash_is_used_out_item(obj_ext->ledger, obj_ext->tx_hash, obj_ext->idx, &l_spender_hash)) {
+    if (dap_ledger_tx_hash_is_used_out_item(obj_ext->ledger, &obj_ext->tx_hash, obj_ext->idx, &l_spender_hash)) {
         PyDapHashFastObject *obj_hf = PyObject_New(PyDapHashFastObject, &DapChainHashFastObjectType);
         obj_hf->hash_fast = DAP_NEW(dap_hash_fast_t);
         memcpy(obj_hf->hash_fast, &l_spender_hash, sizeof(dap_hash_fast_t));
