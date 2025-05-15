@@ -34,13 +34,13 @@
 extern "C"{
 #endif
 
-typedef struct PyDapChainTXOutExt{
+typedef struct PyDapChainTXOutExt {
     PyObject_HEAD
     dap_chain_tx_out_ext_t *out_ext;
     dap_ledger_t *ledger;
-    dap_hash_fast_t *tx_hash;
+    dap_hash_fast_t tx_hash;
     uint64_t idx;
-}PyDapChainTXOutExtObject;
+} PyDapChainTXOutExtObject;
 
 PyObject *wrapping_dap_chain_tx_out_ext_get_addr(PyObject *self, void *closure);
 PyObject *wrapping_dap_chain_tx_out_ext_get_token(PyObject *self, void *closure);
