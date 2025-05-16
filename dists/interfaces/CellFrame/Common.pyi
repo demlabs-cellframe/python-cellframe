@@ -284,3 +284,24 @@ class TxOutExt(Protocol):
 # DapChainTxTSDObjectType
 class TxTSD(Protocol):
     pass
+
+
+# DapChainTxOutStdObjectType
+class TxOutStd(Protocol):
+    @property
+    def addr(self) -> ChainAddr: ...
+
+    @property
+    def token(self) -> str: ...
+
+    @property
+    def value(self) -> Math: ...
+
+    @property
+    def version(self) -> int: ...
+
+    @property
+    def timeLock(self) -> int: ...
+
+    @property
+    def usedBy(self) -> HashFast | None: ...
