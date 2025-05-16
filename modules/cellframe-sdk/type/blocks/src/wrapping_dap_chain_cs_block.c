@@ -69,67 +69,115 @@ PyObject *wrapping_dap_chain_block_get_meta_data(PyObject *self, void *closure){
             &l_merkle, &l_block_links,
             &l_block_links_count, &l_is_genesis, &l_nonce, &l_nonce2);
     PyObject *obj_dict = PyDict_New();
+    
+    if (!obj_dict) {
+        return NULL;
+    }
+
+    // Create and initialize prev hash object
     PyDapHashFastObject *l_obj_prev_hash = PyObject_New(PyDapHashFastObject, &DapChainHashFastObjectType);
+    if (!l_obj_prev_hash) {
+        Py_DECREF(obj_dict);
+        return NULL;
+    }
     l_obj_prev_hash->hash_fast = DAP_NEW(dap_chain_hash_fast_t);
     if (!l_obj_prev_hash->hash_fast) {
         log_it(L_CRITICAL, "Memory allocation error");
+        Py_DECREF(l_obj_prev_hash);
+        Py_DECREF(obj_dict);
         return NULL;
     }
-
     memcpy(l_obj_prev_hash->hash_fast, &l_block_prev_hash, sizeof(dap_chain_hash_fast_t));
     l_obj_prev_hash->origin = true;
     PyDict_SetItemString(obj_dict, "blockPrevHash", (PyObject*)l_obj_prev_hash);
+    Py_DECREF(l_obj_prev_hash);  // Dict now owns the reference
+
+    // Create and initialize anchor hash object
     PyDapHashFastObject *l_obj_anchor_hash = PyObject_New(PyDapHashFastObject, &DapChainHashFastObjectType);
-    l_obj_anchor_hash->hash_fast = DAP_NEW(dap_chain_hash_fast_t);
-    if (!l_obj_anchor_hash->hash_fast) {
-        log_it(L_CRITICAL, "Memory allocation error");
-        DAP_DEL_Z(l_obj_prev_hash->hash_fast);
+    if (!l_obj_anchor_hash) {
+        Py_DECREF(obj_dict);
         return NULL;
     }
+    l_obj_anchor_hash->hash_fast = DAP_NEW(dap_chain_hash_fast_t);
+    if (!l_obj_anchor_hash->hash_fast) {
+        
+        log_it(L_CRITICAL, "Memory allocation error");
 
+        Py_DECREF(l_obj_anchor_hash);
+        Py_DECREF(obj_dict);
+        return NULL;
+    }
     memcpy(l_obj_anchor_hash->hash_fast, &l_block_anchor_hash, sizeof(dap_chain_hash_fast_t));
     l_obj_anchor_hash->origin = true;
     PyDict_SetItemString(obj_dict, "blockAnchorHash", (PyObject*)l_obj_anchor_hash);
+    Py_DECREF(l_obj_anchor_hash);  // Dict now owns the reference
+
+    // Create and initialize merkle hash object
     PyDapHashFastObject *l_obj_merkle = PyObject_New(PyDapHashFastObject, &DapChainHashFastObjectType);
-    l_obj_merkle->hash_fast = DAP_NEW(dap_chain_hash_fast_t);
-    if (!l_obj_merkle->hash_fast) {
-        log_it(L_CRITICAL, "Memory allocation error");
-        DAP_DEL_Z(l_obj_anchor_hash->hash_fast);
-        DAP_DEL_Z(l_obj_prev_hash->hash_fast);
+    if (!l_obj_merkle) {
+        Py_DECREF(obj_dict);
         return NULL;
     }
-
+    l_obj_merkle->hash_fast = DAP_NEW(dap_chain_hash_fast_t);
+    if (!l_obj_merkle->hash_fast) {
+        Py_DECREF(l_obj_merkle);
+        Py_DECREF(obj_dict);
+        return NULL;
+    }
     memcpy(l_obj_merkle->hash_fast, &l_merkle, sizeof(dap_chain_hash_fast_t));
     l_obj_merkle->origin = true;
     PyDict_SetItemString(obj_dict, "merkle", (PyObject*)l_obj_merkle);
-    // Get List links
+    Py_DECREF(l_obj_merkle);  // Dict now owns the reference
+
+    // Create list for block links
     PyObject *obj_block_links = PyList_New((Py_ssize_t)l_block_links_count);
-    for (size_t i = 0; i < l_block_links_count; i++){
+    if (!obj_block_links) {
+        Py_DECREF(obj_dict);
+        return NULL;
+    }
+
+    // Add block links
+    for (size_t i = 0; i < l_block_links_count; i++) {
         PyDapHashFastObject *obj_hf = PyObject_New(PyDapHashFastObject, &DapChainHashFastObjectType);
-        obj_hf->hash_fast = DAP_NEW(dap_chain_hash_fast_t);
-        if (!obj_hf->hash_fast) {
-            log_it(L_CRITICAL, "Memory allocation error");
-            DAP_DEL_Z(l_obj_merkle->hash_fast);
-            DAP_DEL_Z(l_obj_anchor_hash->hash_fast);
-            DAP_DEL_Z(l_obj_prev_hash->hash_fast);
+        if (!obj_hf) {
+            Py_DECREF(obj_block_links);
+            Py_DECREF(obj_dict);
             return NULL;
         }
-
+        obj_hf->hash_fast = DAP_NEW(dap_chain_hash_fast_t);
+        if (!obj_hf->hash_fast) {
+            Py_DECREF(obj_hf);
+            Py_DECREF(obj_block_links);
+            Py_DECREF(obj_dict);
+            return NULL;
+        }
         memcpy(obj_hf->hash_fast, &l_block_links[i], sizeof(dap_chain_hash_fast_t));
         obj_hf->origin = true;
-        PyList_SetItem(obj_block_links, i, (PyObject*)obj_hf);
-//        obj_hf->hash_fast = &(l_block_links[i]);
+        PyList_SetItem(obj_block_links, i, (PyObject*)obj_hf);  // List steals the reference
     }
     PyDict_SetItemString(obj_dict, "links", obj_block_links);
-    if (l_is_genesis){
-        PyDict_SetItemString(obj_dict, "isGenesis", Py_True);
-    } else {
-        PyDict_SetItemString(obj_dict, "isGenesis", Py_False);
-    }
+    Py_DECREF(obj_block_links);  // Dict now owns the reference
+
+    // Add genesis flag
+    PyDict_SetItemString(obj_dict, "isGenesis", l_is_genesis ? Py_True : Py_False);
+
+    // Add nonce values
     PyObject *obj_nonce = Py_BuildValue("k", l_nonce);
+    if (!obj_nonce) {
+        Py_DECREF(obj_dict);
+        return NULL;
+    }
     PyDict_SetItemString(obj_dict, "nonce", obj_nonce);
+    Py_DECREF(obj_nonce);
+
     PyObject *obj_nonce2 = Py_BuildValue("k", l_nonce2);
+    if (!obj_nonce2) {
+        Py_DECREF(obj_dict);
+        return NULL;
+    }
     PyDict_SetItemString(obj_dict, "nonce2", obj_nonce2);
+    Py_DECREF(obj_nonce2);
+
     return obj_dict;
 }
 PyObject *wrapping_dap_chain_block_get_datums(PyObject *self, void *closure){
