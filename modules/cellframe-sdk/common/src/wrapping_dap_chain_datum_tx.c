@@ -236,232 +236,121 @@ PyObject *wrapping_dap_chain_datum_tx_get_items(PyObject *self, PyObject *args){
     uint32_t l_tx_items_count = 0;
     uint32_t l_tx_items_size = ((PyDapChainDatumTxObject*)self)->datum_tx->header.tx_items_size;
     PyObject *obj_list = PyList_New(0);
-    if (!obj_list) {
-        return NULL;
-    }
-
     uint64_t l_out_idx = 0;
-    dap_hash_fast_t *l_tx_hf = DAP_NEW(dap_hash_fast_t);
-    if (!l_tx_hf) {
-        Py_DECREF(obj_list);
-        return NULL;
-    }
-
+    dap_hash_fast_t l_tx_hf;
     dap_hash_fast(((PyDapChainDatumTxObject*)self)->datum_tx,
                   dap_chain_datum_tx_get_size(((PyDapChainDatumTxObject*)self)->datum_tx),
-                  l_tx_hf);
-
+                  &l_tx_hf);
     while(l_tx_items_count < l_tx_items_size){
         uint8_t *item = ((PyDapChainDatumTxObject*)self)->datum_tx->tx_items + l_tx_items_count;
         size_t l_tx_item_size = dap_chain_datum_item_tx_get_size(item, 0);
         if (l_tx_item_size == 0) {
-            DAP_DELETE(l_tx_hf);
-            Py_DECREF(obj_list);
-            return PyList_New(0);
+            Py_DECREF(obj_list);       
+            PyObject *empty_list = PyList_New(0);
+            return empty_list;
         }
-
         PyObject *obj_tx_item = NULL;
         switch (*item) {
-            case TX_ITEM_TYPE_IN: {
-                PyDapChainTXInObject *tx_in = PyObject_New(PyDapChainTXInObject, &DapChainTxInObjectType);
-                if (!tx_in) {
-                    DAP_DELETE(l_tx_hf);
-                    Py_DECREF(obj_list);
-                    return NULL;
-                }
-                tx_in->tx_in = ((dap_chain_tx_in_t*)item);
-                obj_tx_item = (PyObject*)tx_in;
+            case TX_ITEM_TYPE_IN:
+                obj_tx_item = (PyObject*)PyObject_New(PyDapChainTXInObject, &DapChainTxInObjectType);
+                ((PyDapChainTXInObject*)obj_tx_item)->tx_in = ((dap_chain_tx_in_t*)item);
                 break;
-            }
-            case TX_ITEM_TYPE_OUT: {
-                PyDapChainTXOutObject *tx_out = PyObject_New(PyDapChainTXOutObject, &DapChainTxOutObjectType);
-                if (!tx_out) {
-                    DAP_DELETE(l_tx_hf);
-                    Py_DECREF(obj_list);
-                    return NULL;
-                }
-                tx_out->tx_out = ((dap_chain_tx_out_t*)item);
-                tx_out->tx_hash = DAP_NEW(dap_hash_fast_t);
-                if (!tx_out->tx_hash) {
-                    Py_DECREF(tx_out);
-                    DAP_DELETE(l_tx_hf);
-                    Py_DECREF(obj_list);
-                    return NULL;
-                }
-                memcpy(tx_out->tx_hash, l_tx_hf, sizeof(dap_hash_fast_t));
-                tx_out->idx = l_out_idx;
+            case TX_ITEM_TYPE_OUT:
+                obj_tx_item = (PyObject*)PyObject_New(PyDapChainTXOutObject, &DapChainTxOutObjectType);
+                ((PyDapChainTXOutObject*)obj_tx_item)->tx_out = ((dap_chain_tx_out_t*)item);
+                ((PyDapChainTXOutObject*)obj_tx_item)->tx_hash = DAP_NEW(dap_hash_fast_t);
+                memcpy(((PyDapChainTXOutObject*)obj_tx_item)->tx_hash, &l_tx_hf, sizeof(dap_hash_fast_t));
+                ((PyDapChainTXOutObject*)obj_tx_item)->idx = l_out_idx;
                 l_out_idx++;
-                obj_tx_item = (PyObject*)tx_out;
                 break;
-            }
-            case TX_ITEM_TYPE_IN_EMS: {
-                PyDapChainTxTokenObject *token = PyObject_New(PyDapChainTxTokenObject, &DapChainTxTokenObjectType);
-                if (!token) {
-                    DAP_DELETE(l_tx_hf);
-                    Py_DECREF(obj_list);
-                    return NULL;
-                }
-                token->token = (dap_chain_tx_in_ems_t*)item;
-                obj_tx_item = (PyObject*)token;
+            case TX_ITEM_TYPE_IN_EMS:
+                obj_tx_item = (PyObject*)PyObject_New(PyDapChainTxTokenObject, &DapChainTxTokenObjectType);
+                ((PyDapChainTxTokenObject*)obj_tx_item)->token = (dap_chain_tx_in_ems_t*)item;
                 break;
-            }
-            case TX_ITEM_TYPE_SIG: {
-                PyDapChainTXSigObject *sig = PyObject_New(PyDapChainTXSigObject, &DapChainTxSigObjectType);
-                if (!sig) {
-                    DAP_DELETE(l_tx_hf);
-                    Py_DECREF(obj_list);
-                    return NULL;
-                }
-                sig->tx_sig = (dap_chain_tx_sig_t*)item;
-                obj_tx_item = (PyObject*)sig;
+            case TX_ITEM_TYPE_SIG:
+                obj_tx_item = (PyObject*)PyObject_New(PyDapChainTXSigObject, &DapChainTxSigObjectType);
+                ((PyDapChainTXSigObject*)obj_tx_item)->tx_sig = (dap_chain_tx_sig_t*)item;
                 break;
-            }
-            case TX_ITEM_TYPE_RECEIPT: {
-                PyDapChainTXReceiptObject *receipt = PyObject_New(PyDapChainTXReceiptObject, &DapChainTxReceiptObjectType);
-                if (!receipt) {
-                    DAP_DELETE(l_tx_hf);
-                    Py_DECREF(obj_list);
-                    return NULL;
-                }
-                receipt->tx_receipt = (dap_chain_datum_tx_receipt_t*)item;
-                obj_tx_item = (PyObject*)receipt;
+            case TX_ITEM_TYPE_RECEIPT:
+                obj_tx_item = (PyObject*)PyObject_New(PyDapChainTXReceiptObject, &DapChainTxReceiptObjectType);
+                ((PyDapChainTXReceiptObject*)obj_tx_item)->tx_receipt = (dap_chain_datum_tx_receipt_t*)item;
                 break;
-            }
-            case TX_ITEM_TYPE_PKEY: {
-                PyDapChainTXPkeyObject *pkey = PyObject_New(PyDapChainTXPkeyObject, &DapChainTxPkeyObjectType);
-                if (!pkey) {
-                    DAP_DELETE(l_tx_hf);
-                    Py_DECREF(obj_list);
-                    return NULL;
-                }
-                pkey->tx_pkey = ((dap_chain_tx_pkey_t*)item);
-                obj_tx_item = (PyObject*)pkey;
+            //for future @Daniil Frolov
+            /*case TX_ITEM_TYPE_RECEIPT_OLD:
+                obj_tx_item = (PyObject*)PyObject_New(PyDapChainTXReceiptOldObject, &DapChainTxReceiptObjectType);
+                ((PyDapChainTXReceiptOldObject*)obj_tx_item)->tx_receipt = (dap_chain_datum_tx_receipt_old_t*)item;
+                break; */
+            case TX_ITEM_TYPE_PKEY:
+                obj_tx_item = (PyObject*)PyObject_New(PyDapChainTXPkeyObject, &DapChainTxPkeyObjectType);
+                ((PyDapChainTXPkeyObject*)obj_tx_item)->tx_pkey = ((dap_chain_tx_pkey_t*)item);
                 break;
-            }
-            case TX_ITEM_TYPE_IN_COND: {
-                PyDapChainTXInCondObject *in_cond = PyObject_New(PyDapChainTXInCondObject, &DapChainTxInCondObjectType);
-                if (!in_cond) {
-                    DAP_DELETE(l_tx_hf);
-                    Py_DECREF(obj_list);
-                    return NULL;
-                }
-                in_cond->tx_in_cond = (dap_chain_tx_in_cond_t*)item;
-                obj_tx_item = (PyObject*)in_cond;
+            case TX_ITEM_TYPE_IN_COND:
+                obj_tx_item = (PyObject*)PyObject_New(PyDapChainTXInCondObject, &DapChainTxInCondObjectType);
+                ((PyDapChainTXInCondObject*)obj_tx_item)->tx_in_cond = (dap_chain_tx_in_cond_t*)item;
                 break;
-            }
-            case TX_ITEM_TYPE_OUT_COND: {
-                PyDapChainTxOutCondObject *out_cond = NULL;
+            case TX_ITEM_TYPE_OUT_COND:
                 switch (((dap_chain_tx_out_cond_t*)item)->header.subtype) {
                     case DAP_CHAIN_TX_OUT_COND_SUBTYPE_SRV_PAY:
-                        out_cond = PyObject_New(PyDapChainTxOutCondObject, &DapChainTxOutCondSubTypeSrvPayObjectType);
+                        obj_tx_item = (PyObject*)PyObject_New(PyDapChainTxOutCondObject, &DapChainTxOutCondSubTypeSrvPayObjectType);
+                        ((PyDapChainTxOutCondObject*)obj_tx_item)->out_cond = ((dap_chain_tx_out_cond_t*)item);
                         break;
                     case DAP_CHAIN_TX_OUT_COND_SUBTYPE_SRV_STAKE_LOCK:
-                        out_cond = PyObject_New(PyDapChainTxOutCondObject, &DapChainTxOutCondSubTypeSrvStakeLockObjectType);
+                        obj_tx_item = (PyObject*)PyObject_New(PyDapChainTxOutCondObject, &DapChainTxOutCondSubTypeSrvStakeLockObjectType);
+                        ((PyDapChainTxOutCondObject*)obj_tx_item)->out_cond = ((dap_chain_tx_out_cond_t*)item);
                         break;
                     case DAP_CHAIN_TX_OUT_COND_SUBTYPE_SRV_STAKE_POS_DELEGATE:
-                        out_cond = PyObject_New(PyDapChainTxOutCondObject, &DapChainTxOutCondSubTypeSrvStakePosDelegateObjectType);
+                        obj_tx_item = (PyObject*)PyObject_New(PyDapChainTxOutCondObject, &DapChainTxOutCondSubTypeSrvStakePosDelegateObjectType);
+                        ((PyDapChainTxOutCondObject*)obj_tx_item)->out_cond = ((dap_chain_tx_out_cond_t*)item);
                         break;
                     case DAP_CHAIN_TX_OUT_COND_SUBTYPE_SRV_XCHANGE:
-                        out_cond = PyObject_New(PyDapChainTxOutCondObject, &DapChainTxOutCondSubTypeSrvXchangeObjectType);
+                        obj_tx_item = (PyObject*)PyObject_New(PyDapChainTxOutCondObject, &DapChainTxOutCondSubTypeSrvXchangeObjectType);
+                        ((PyDapChainTxOutCondObject*)obj_tx_item)->out_cond = ((dap_chain_tx_out_cond_t*)item);
                         break;
                     default:
-                        out_cond = PyObject_New(PyDapChainTxOutCondObject, &DapChainTxOutCondObjectType);
+                        obj_tx_item = (PyObject*)PyObject_New(PyDapChainTxOutCondObject, &DapChainTxOutCondObjectType);
+                        ((PyDapChainTxOutCondObject*)obj_tx_item)->out_cond = ((dap_chain_tx_out_cond_t*)item);
                 }
-                if (!out_cond) {
-                    DAP_DELETE(l_tx_hf);
-                    Py_DECREF(obj_list);
-                    return NULL;
-                }
-                out_cond->out_cond = ((dap_chain_tx_out_cond_t*)item);
-                out_cond->tx_hash = DAP_NEW(dap_hash_fast_t);
-                if (!out_cond->tx_hash) {
-                    Py_DECREF(out_cond);
-                    DAP_DELETE(l_tx_hf);
-                    Py_DECREF(obj_list);
-                    return NULL;
-                }
-                memcpy(out_cond->tx_hash, l_tx_hf, sizeof(dap_hash_fast_t));
-                out_cond->idx = l_out_idx;
+                dap_hash_fast_t *l_tx_hash_out = DAP_NEW(dap_hash_fast_t);
+                memcpy(l_tx_hash_out, &l_tx_hf, sizeof(dap_hash_fast_t));
+                ((PyDapChainTxOutCondObject*)obj_tx_item)->tx_hash = l_tx_hash_out;
+                ((PyDapChainTxOutCondObject*)obj_tx_item)->idx = l_out_idx;
                 l_out_idx++;
-                obj_tx_item = (PyObject*)out_cond;
                 break;
-            }
-            case TX_ITEM_TYPE_OUT_EXT: {
-                PyDapChainTXOutExtObject *out_ext = PyObject_New(PyDapChainTXOutExtObject, &DapChainTxOutExtObjectType);
-                if (!out_ext) {
-                    DAP_DELETE(l_tx_hf);
-                    Py_DECREF(obj_list);
-                    return NULL;
-                }
-                out_ext->out_ext = (dap_chain_tx_out_ext_t*)item;
-                out_ext->tx_hash = DAP_NEW(dap_hash_fast_t);
-                if (!out_ext->tx_hash) {
-                    Py_DECREF(out_ext);
-                    DAP_DELETE(l_tx_hf);
-                    Py_DECREF(obj_list);
-                    return NULL;
-                }
-                memcpy(out_ext->tx_hash, l_tx_hf, sizeof(dap_hash_fast_t));
-                out_ext->idx = l_out_idx;
+            case TX_ITEM_TYPE_OUT_EXT:
+                obj_tx_item = (PyObject*)PyObject_New(PyDapChainTXOutExtObject, &DapChainTxOutExtObjectType);
+                ((PyDapChainTXOutExtObject*)obj_tx_item)->out_ext = (dap_chain_tx_out_ext_t*)item;
+                ((PyDapChainTXOutExtObject*)obj_tx_item)->tx_hash = l_tx_hf;
+                ((PyDapChainTXOutExtObject*)obj_tx_item)->idx = l_out_idx;
                 l_out_idx++;
-                obj_tx_item = (PyObject*)out_ext;
                 break;
-            }
-            case TX_ITEM_TYPE_TSD: {
-                PyDapChainTxTSDObject *tsd = PyObject_New(PyDapChainTxTSDObject, &DapChainTxTSDObjectType);
-                if (!tsd) {
-                    DAP_DELETE(l_tx_hf);
-                    Py_DECREF(obj_list);
-                    return NULL;
-                }
-                tsd->tsd = (dap_chain_tx_tsd_t*)item;
-                obj_tx_item = (PyObject*)tsd;
+            case TX_ITEM_TYPE_OUT_STD: {
+                PyDapChainTXOutStdObject *obj_out = PyObject_New(PyDapChainTXOutStdObject, &DapChainTxOutExtObjectType);
+                obj_out->out = (dap_chain_tx_out_std_t *)item;
+                obj_out->tx_hash = l_tx_hf;
+                obj_out->idx = l_out_idx++;
+                obj_tx_item = (PyObject *)obj_out;
+            } break;
+            case TX_ITEM_TYPE_TSD:
+                obj_tx_item = (PyObject*)PyObject_New(PyDapChainTxTSDObject, &DapChainTxTSDObjectType);
+                ((PyDapChainTxTSDObject*)obj_tx_item)->tsd = (dap_chain_tx_tsd_t*)item;
                 break;
-            }
-            case TX_ITEM_TYPE_VOTE: {
-                PyDapChainTXVoteObject *vote = PyObject_New(PyDapChainTXVoteObject, &PyDapChainTXVoteObjectType);
-                if (!vote) {
-                    DAP_DELETE(l_tx_hf);
-                    Py_DECREF(obj_list);
-                    return NULL;
-                }
-                vote->vote = (dap_chain_tx_vote_t*)item;
-                obj_tx_item = (PyObject*)vote;
+            case TX_ITEM_TYPE_VOTE:
+                obj_tx_item = (PyObject*) PyObject_New(PyDapChainTXVoteObject, &PyDapChainTXVoteObjectType);
+                ((PyDapChainTXVoteObject*)obj_tx_item)->vote = (dap_chain_tx_vote_t*)item;
                 break;
-            }
-            case TX_ITEM_TYPE_VOTING: {
-                PyDapChainTXVotingObject *voting = PyObject_New(PyDapChainTXVotingObject, &PyDapChainTxVotingObjectType);
-                if (!voting) {
-                    DAP_DELETE(l_tx_hf);
-                    Py_DECREF(obj_list);
-                    return NULL;
-                }
-                voting->voting = dap_chain_voting_parse_tsd(((PyDapChainDatumTxObject*)self)->datum_tx);
-                obj_tx_item = (PyObject*)voting;
+            case TX_ITEM_TYPE_VOTING:
+                obj_tx_item = (PyObject*)PyObject_New(PyDapChainTXVotingObject, &PyDapChainTxVotingObjectType);
+                ((PyDapChainTXVotingObject*)obj_tx_item)->voting = dap_chain_voting_parse_tsd(((PyDapChainDatumTxObject*)self)->datum_tx);
                 break;
-            }
             default:
                 obj_tx_item = Py_None;
-                Py_INCREF(Py_None);
                 break;
         }
-
-        if (PyList_Append(obj_list, obj_tx_item) < 0) {
-            if (obj_tx_item != Py_None) {
-                Py_DECREF(obj_tx_item);
-            }
-            DAP_DELETE(l_tx_hf);
-            Py_DECREF(obj_list);
-            return NULL;
-        }
-
-        if (obj_tx_item != Py_None) {
-            Py_DECREF(obj_tx_item);
-        }
+        PyList_Append(obj_list, obj_tx_item);
+        if (obj_tx_item != Py_None)
+            Py_XDECREF(obj_tx_item);
         l_tx_items_count += l_tx_item_size;
     }
-
-    DAP_DELETE(l_tx_hf);
     return obj_list;
 }
 
