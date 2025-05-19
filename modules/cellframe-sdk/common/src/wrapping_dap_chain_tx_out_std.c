@@ -23,7 +23,7 @@ along with any CellFrame SDK based project.  If not, see <http://www.gnu.org/lic
 */
 #include "wrapping_dap_chain_tx_out_std.h"
 
-static PyGetSetDef DapChainTxOutExtGetsSetsDef[] = {
+static PyGetSetDef DapChainTxOutStdGetsSetsDef[] = {
         {"addr", (getter)wrapping_dap_chain_tx_out_std_get_addr, NULL, "", NULL},
         {"token", (getter)wrapping_dap_chain_tx_out_std_get_token, NULL, "", NULL},
         {"value", (getter)wrapping_dap_chain_tx_out_std_get_value, NULL, "", NULL},
@@ -33,10 +33,10 @@ static PyGetSetDef DapChainTxOutExtGetsSetsDef[] = {
         {}
 };
 
-PyTypeObject DapChainTxOutExtObjectType = DAP_PY_TYPE_OBJECT(
+PyTypeObject DapChainTxOutStdObjectType = DAP_PY_TYPE_OBJECT(
         "CellFrame.ChainTxOutStd", sizeof(PyDapChainTXOutStdObject),
         "Chain standard tx out object",
-        .tp_getset = DapChainTxOutExtGetsSetsDef);
+        .tp_getset = DapChainTxOutStdGetsSetsDef);
 
 PyObject *wrapping_dap_chain_tx_out_std_get_addr(PyObject *self, void UNUSED_ARG *closure)
 {
@@ -50,7 +50,7 @@ PyObject *wrapping_dap_chain_tx_out_std_get_token(PyObject *self, void UNUSED_AR
     return Py_BuildValue("s", ((PyDapChainTXOutStdObject *)self)->out->token);
 }
 
-PyObject *wrapping_dap_chain_tx_out_ext_get_value(PyObject *self, void UNUSED_ARG *closure)
+PyObject *wrapping_dap_chain_tx_out_std_get_value(PyObject *self, void UNUSED_ARG *closure)
 {
     DapMathObject *l_math = PyObject_New(DapMathObject, &DapMathObjectType);
     l_math->value = ((PyDapChainTXOutStdObject *)self)->out->value;
