@@ -47,7 +47,7 @@ PyObject *wrapping_dap_chain_tx_out_std_get_used_by(PyObject *self, void *closur
 PyObject *wrapping_dap_chain_tx_out_std_get_version(PyObject *self, void *closure);
 PyObject *wrapping_dap_chain_tx_out_std_get_timelock(PyObject *self, void *closure);
 
-extern PyTypeObject DapChainTxOutExtObjectType;
+extern PyTypeObject DapChainTxOutStdObjectType;
 
 #ifdef __cplusplus
 extern "C"{
