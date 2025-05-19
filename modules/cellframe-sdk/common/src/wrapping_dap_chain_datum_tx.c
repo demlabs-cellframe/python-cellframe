@@ -324,7 +324,7 @@ PyObject *wrapping_dap_chain_datum_tx_get_items(PyObject *self, PyObject *args){
                 l_out_idx++;
                 break;
             case TX_ITEM_TYPE_OUT_STD: {
-                PyDapChainTXOutStdObject *obj_out = PyObject_New(PyDapChainTXOutStdObject, &DapChainTxOutExtObjectType);
+                PyDapChainTXOutStdObject *obj_out = PyObject_New(PyDapChainTXOutStdObject, &DapChainTxOutStdObjectType);
                 obj_out->out = (dap_chain_tx_out_std_t *)item;
                 obj_out->tx_hash = l_tx_hf;
                 obj_out->idx = l_out_idx++;
