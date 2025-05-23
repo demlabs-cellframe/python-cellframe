@@ -20,6 +20,7 @@ static PyMethodDef DapChainCsBlockMethods[] = {
         {"fromAtom", dap_chain_cs_block_get_atom, METH_VARARGS | METH_STATIC, ""},
         {"ledgerRetCode", wrapping_dap_chain_block_get_ledger_ret_code, METH_VARARGS | METH_STATIC, ""},
         {"byTxHash", wrapping_dap_chain_block_get_block_from_hash, METH_VARARGS | METH_STATIC, ""},
+        {"getBlockSignersRewards", wrapping_dap_chain_cs_block_get_block_signers_rewards, METH_VARARGS, ""},
         {}
 };
 
@@ -244,4 +245,56 @@ PyObject *wrapping_dap_chain_block_get_block_from_hash(PyObject *self, PyObject 
     obj_block->block = l_blocks;
     obj_block->block_size = l_block_size;
     return (PyObject*)obj_block;
+}
+
+PyObject *wrapping_dap_chain_cs_block_get_block_signers_rewards(PyObject *self, PyObject *args){
+    
+    PyDapChainObject *obj_chain = NULL;
+
+    if (!PyArg_ParseTuple(args, "O", &obj_chain, &obj_chain)){
+        return NULL;
+    }
+    if (!PyDapChain_Check(obj_chain)) {
+        PyErr_SetString(PyExc_Exception, "The first argument must be an instance of the DAP.Chain object");
+        return NULL;
+    }
+
+    dap_hash_fast_t *l_block_hash = NULL;
+    dap_hash_fast(((PyDapChainCSBlockObject*)self)->block,
+                                                 ((PyDapChainCSBlockObject*)self)->block_size, l_block_hash);
+    dap_chain_block_t *l_block = ((PyDapChainCSBlockObject*)self)->block;
+    size_t l_block_size = ((PyDapChainCSBlockObject*)self)->block_size;
+
+    PyObject *obj_rewards_list = PyList_New(0);
+    size_t l_signs_count = dap_chain_block_get_signs_count(l_block, l_block_size);
+    for (size_t i = 0; i < l_signs_count; i++) {
+        dap_sign_t *l_sign = dap_chain_block_sign_get(l_block, l_block_size, i);
+        dap_pkey_t *l_pkey = dap_pkey_get_from_sign(l_sign);
+        if (!l_pkey) {
+            log_it(L_ERROR, "Can't get pkey from sign");
+            continue;
+        }
+        dap_hash_fast_t l_pkey_hash = {};
+        if (dap_sign_get_pkey_hash(l_sign, &l_pkey_hash) == false) {
+            log_it(L_ERROR, "Can't get pkey hash from sign");
+            continue;
+        }
+        uint256_t l_value_reward = obj_chain->chain_t->callback_calc_reward(obj_chain->chain_t, l_block_hash, l_pkey);
+
+        PyDapHashFastObject *obj_pkey_hash = PyObject_New(PyDapHashFastObject, &DapHashFastObjectType);
+        obj_pkey_hash->hash_fast = DAP_NEW(dap_chain_hash_fast_t);
+        memcpy(obj_pkey_hash->hash_fast, &l_pkey_hash, sizeof(dap_chain_hash_fast_t));
+        obj_pkey_hash->origin = true;
+
+        DapMathObject *obj_reward = PyObject_New(DapMathObject, &DapMathObjectType);
+        obj_reward->value = l_value_reward;
+
+        PyObject *l_obj_reward = Py_BuildValue("{00}", obj_pkey_hash, obj_reward);
+
+        PyList_Append(obj_rewards_list, (PyObject*)l_obj_reward);
+        Py_XDECREF(l_obj_reward);
+    }
+
+    return obj_rewards_list;
+
 }
