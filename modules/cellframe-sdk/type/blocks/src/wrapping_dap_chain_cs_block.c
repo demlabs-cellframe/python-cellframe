@@ -251,7 +251,7 @@ PyObject *wrapping_dap_chain_cs_block_get_block_signers_rewards(PyObject *self, 
     
     PyDapChainObject *obj_chain = NULL;
 
-    if (!PyArg_ParseTuple(args, "O", &obj_chain, &obj_chain)){
+    if (!PyArg_ParseTuple(args, "O", &obj_chain)){
         return NULL;
     }
     if (!PyDapChain_Check(obj_chain)) {
@@ -259,9 +259,12 @@ PyObject *wrapping_dap_chain_cs_block_get_block_signers_rewards(PyObject *self, 
         return NULL;
     }
 
-    dap_hash_fast_t *l_block_hash = NULL;
-    dap_hash_fast(((PyDapChainCSBlockObject*)self)->block,
-                                                 ((PyDapChainCSBlockObject*)self)->block_size, l_block_hash);
+    dap_hash_fast_t l_block_hash = {0}; 
+    dap_hash_fast(
+        ((PyDapChainCSBlockObject*)self)->block,
+        ((PyDapChainCSBlockObject*)self)->block_size, 
+        &l_block_hash);
+
     dap_chain_block_t *l_block = ((PyDapChainCSBlockObject*)self)->block;
     size_t l_block_size = ((PyDapChainCSBlockObject*)self)->block_size;
 
@@ -279,9 +282,13 @@ PyObject *wrapping_dap_chain_cs_block_get_block_signers_rewards(PyObject *self, 
             log_it(L_ERROR, "Can't get pkey hash from sign");
             continue;
         }
-        uint256_t l_value_reward = obj_chain->chain_t->callback_calc_reward(obj_chain->chain_t, l_block_hash, l_pkey);
+        uint256_t l_value_reward = obj_chain->chain_t->callback_calc_reward(obj_chain->chain_t, &l_block_hash, l_pkey);
 
-        PyDapHashFastObject *obj_pkey_hash = PyObject_New(PyDapHashFastObject, &DapHashFastObjectType);
+        PyDapHashFastObject *obj_pkey_hash = PyObject_New(PyDapHashFastObject, &DapChainHashFastObjectType);
+        if (!obj_pkey_hash) {
+            Py_DECREF(obj_rewards_list);
+            return NULL;
+        }
         obj_pkey_hash->hash_fast = DAP_NEW(dap_chain_hash_fast_t);
         memcpy(obj_pkey_hash->hash_fast, &l_pkey_hash, sizeof(dap_chain_hash_fast_t));
         obj_pkey_hash->origin = true;
@@ -289,12 +296,35 @@ PyObject *wrapping_dap_chain_cs_block_get_block_signers_rewards(PyObject *self, 
         DapMathObject *obj_reward = PyObject_New(DapMathObject, &DapMathObjectType);
         obj_reward->value = l_value_reward;
 
-        PyObject *l_obj_reward = Py_BuildValue("{00}", obj_pkey_hash, obj_reward);
+        char hex_key[DAP_CHAIN_HASH_FAST_STR_LEN + 1] = {0};
+        dap_chain_hash_fast_to_str(&l_pkey_hash, hex_key, sizeof(hex_key));
 
-        PyList_Append(obj_rewards_list, (PyObject*)l_obj_reward);
-        Py_XDECREF(l_obj_reward);
+        PyObject *py_key = PyUnicode_FromString(hex_key);
+        if (!py_key) {
+            Py_DECREF(obj_reward);
+            Py_DECREF(obj_rewards_list);
+            return NULL;
+        }
+        
+        PyObject *entry = PyDict_New();
+        if (PyDict_SetItem(entry, py_key, (PyObject*)obj_reward) < 0) {
+            Py_DECREF(entry);
+            Py_DECREF(py_key);
+            Py_DECREF(obj_reward);
+            Py_DECREF(obj_rewards_list);
+            return NULL;
+        }
+
+        Py_DECREF(py_key);
+        Py_DECREF(obj_reward);
+
+        if (PyList_Append(obj_rewards_list, entry) < 0) {
+            Py_DECREF(entry);
+            Py_DECREF(obj_rewards_list);
+            return NULL;
+        }
+        Py_DECREF(entry);
     }
 
     return obj_rewards_list;
-
 }
