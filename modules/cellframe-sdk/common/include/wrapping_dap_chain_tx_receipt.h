@@ -37,6 +37,13 @@
 extern "C"{
 #endif
 
+#define dap_chain_datum_tx_receipt_old_t dap_chain_datum_tx_receipt_t
+#define TX_ITEM_TYPE_RECEIPT_OLD TX_ITEM_TYPE_RECEIPT
+typedef struct PyDapChainTXReceiptOld{
+    PyObject_HEAD
+    dap_chain_datum_tx_receipt_old_t *tx_receipt;
+}PyDapChainTXReceiptOldObject;
+
 typedef struct PyDapChainTXReceipt{
     PyObject_HEAD
     dap_chain_datum_tx_receipt_t *tx_receipt;
