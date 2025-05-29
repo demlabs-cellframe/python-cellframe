@@ -1,7 +1,7 @@
 #include "wrapping_dap_mempool.h"
 #include "dap_chain_wallet_python.h"
 #include "python-cellframe_common.h"
-#include "dap_chain_net_srv_emit_delegate.h"
+#include "dap_chain_wallet_shared.h"
 #include "dap_chain_datum_tx_items.h"
 #include "dap_list.h"
 
@@ -458,7 +458,7 @@ PyObject *dap_chain_mempool_tx_create_multisign_withdraw_py(PyObject *self, PyOb
         DAP_LIST_SAPPEND(tsd_items, tsd_item);
     } 
 
-    dap_chain_datum_tx_t *l_tx = dap_chain_net_srv_emit_delegate_taking_tx_create(NULL, obj_net->chain_net, l_enc_key, l_addr, l_value_256, l_addr_count,
+    dap_chain_datum_tx_t *l_tx = dap_chain_wallet_shared_taking_tx_create(NULL, obj_net->chain_net, l_enc_key, l_addr, l_value_256, l_addr_count,
                                                                                   l_value_fee_256, transaction_hash->hash_fast, tsd_items);
     
     if (!l_tx) {

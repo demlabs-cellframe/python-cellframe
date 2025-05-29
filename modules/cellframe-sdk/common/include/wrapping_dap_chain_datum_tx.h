@@ -43,6 +43,7 @@
 #include "wrapping_dap_chain_tx_out_cond_subtype_srv_stake_lock.h"
 #include "wrapping_dap_chain_tx_out_cond_subtype_srv_xchange.h"
 #include "wrapping_dap_chain_tx_out_ext.h"
+#include "wrapping_dap_chain_tx_out_std.h"
 #include "wrapping_dap_chain_tx_pkey.h"
 #include "wrapping_dap_chain_tx_sig.h"
 #include "wrapping_dap_chain_tx_receipt.h"
@@ -68,6 +69,7 @@ PyObject *TX_ITEM_TYPE_IN_EMS_PY(PyObject *self, PyObject *args);
 PyObject *TX_ITEM_TYPE_IN_COND_PY(PyObject *self, PyObject *args);
 PyObject *TX_ITEM_TYPE_OUT_COND_PY(PyObject *self, PyObject *args);
 PyObject *TX_ITEM_TYPE_RECEIPT_PY(PyObject *self, PyObject *args);
+PyObject *TX_ITEM_TYPE_RECEIPT_OLD_PY(PyObject *self, PyObject *args);
 PyObject *TX_ITEM_TYPE_TSD_PY(PyObject *self, PyObject *args);
 
 extern PyTypeObject DapChainTxItemTypeObjectType;

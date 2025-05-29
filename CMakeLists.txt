@@ -56,11 +56,7 @@ endif()
 
 
 if (NOT (SUPPORT_PYTHON_PLUGINS))
-    if (NOT(WIN32))
-        set(CELLFRAME_MODULES "core chains network cs-none srv srv-emit-delegate")
-    else()
-        set(CELLFRAME_MODULES "core chains network cs-none srv srv-emit-delegate")
-    endif()
+    set(CELLFRAME_MODULES "core chains network cs-none srv")
     include(dap-sdk/cmake/OS_Detection.cmake)
     add_subdirectory(dap-sdk)
     add_subdirectory(cellframe-sdk)
