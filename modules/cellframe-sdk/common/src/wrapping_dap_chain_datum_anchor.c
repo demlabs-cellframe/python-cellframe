@@ -3,6 +3,8 @@
 #include "wrapping_cert.h"
 #include "wrapping_dap_sign.h"
 
+#define LOG_TAG "wrapping_datum_anchor"
+
 #define PVT(a)((PyDapChainDatumAnchorObject*)a)
 
 PyObject *wrapping_dap_chain_datum_anchor_get_ts_created(PyObject *self, void *closure){
@@ -29,12 +31,19 @@ PyObject *wrapping_dap_chain_datum_anchor_get_decree_hash(PyObject *self, void *
         if (l_tsd->type == DAP_CHAIN_DATUM_ANCHOR_TSD_TYPE_DECREE_HASH) {
             dap_hash_fast_t *l_hf = _dap_tsd_get_object(l_tsd, dap_hash_fast_t);
             PyDapHashFastObject *l_obj_hf = PyObject_New(PyDapHashFastObject, &DapChainHashFastObjectType);
+            if (!l_obj_hf) {
+                log_it(L_CRITICAL, "Failed to create hash fast object for decree hash");
+                return NULL;
+            }
+            
             l_obj_hf->hash_fast = DAP_NEW(dap_hash_fast_t);
             if (!l_obj_hf->hash_fast) {
+                log_it(L_CRITICAL, "Memory allocation error for decree hash");
                 Py_DECREF(l_obj_hf);
                 return NULL;
             }
             memcpy(l_obj_hf->hash_fast, l_hf, sizeof(dap_hash_fast_t));
+            l_obj_hf->origin = true;
             return (PyObject*)l_obj_hf;
         }
     }
@@ -47,6 +56,10 @@ PyObject *wrapping_dap_chain_datum_anchor_get_tsd(PyObject *self, void *closure)
     if (l_tsd_total_size == 0)
         Py_RETURN_NONE;
     PyObject *obj_list = PyList_New(0);
+    if (!obj_list) {
+        log_it(L_CRITICAL, "Failed to create TSD list");
+        return NULL;
+    }
     for (size_t l_offset = 0; l_offset < l_tsd_total_size;) {
         dap_tsd_t *l_tsd = (dap_tsd_t*)(((byte_t*)PVT(self)->anchor->data_n_sign) + l_offset);
         size_t l_tsd_size = dap_tsd_size(l_tsd);
@@ -70,25 +83,58 @@ PyObject *wrapping_dap_chain_datum_anchor_get_sign(PyObject *self, void *closure
     dap_sign_t *l_signs = (dap_sign_t*)((byte_t*)(PVT(self)->anchor->data_n_sign) + PVT(self)->anchor->header.data_size);
     if (l_signs_size == 0)
         Py_RETURN_NONE;
+    
     PyObject *obj_list = PyList_New(0);
+    if (!obj_list) {
+        log_it(L_CRITICAL, "Failed to create signs list");
+        return NULL;
+    }
+    
     for (size_t l_offset = 0; l_offset < l_signs_size; ) {
         dap_sign_t *l_sign = (dap_sign_t*)((byte_t*)l_signs + l_offset);
         size_t l_sign_size = dap_sign_get_size(l_sign);
+        
         PyObject *obj_sign = PyDapSignObject_Cretae(l_sign);
-        PyList_Append(obj_list, obj_sign);
+        if (!obj_sign) {
+            log_it(L_CRITICAL, "Failed to create sign object");
+            Py_DECREF(obj_list);
+            return NULL;
+        }
+        
+        if (PyList_Append(obj_list, obj_sign) < 0) {
+            log_it(L_CRITICAL, "Failed to append sign to list");
+            Py_DECREF(obj_sign);
+            Py_DECREF(obj_list);
+            return NULL;
+        }
+        
         Py_DECREF(obj_sign);
         l_offset += l_sign_size;
     }
     return obj_list;
 }
 
-PyObject *wrapping_dap_chain_datum_anchor_get_hash(PyObject *self, void *closure){
+PyObject *wrapping_dap_chain_datum_anchor_get_hash(PyObject *self, void *closure) {
     (void)closure;
     dap_chain_datum_anchor_t *l_anchor = ((PyDapChainDatumAnchorObject*)self)->anchor;
+    
     dap_hash_fast_t *l_hf = DAP_NEW(dap_hash_fast_t);
+    if (!l_hf) {
+        log_it(L_CRITICAL, "Memory allocation error for hash fast");
+        return NULL;
+    }
+    
     dap_hash_fast(l_anchor, dap_chain_datum_anchor_get_size(((PyDapChainDatumAnchorObject*)self)->anchor), l_hf);
+    
     PyDapHashFastObject *obj_hf = PyObject_New(PyDapHashFastObject, &DapChainHashFastObjectType);
+    if (!obj_hf) {
+        log_it(L_CRITICAL, "Failed to create hash fast object");
+        DAP_FREE(l_hf);
+        return NULL;
+    }
+    
     obj_hf->hash_fast = l_hf;
+    obj_hf->origin = true;
     return (PyObject*)obj_hf;
 }
 
@@ -205,6 +251,11 @@ PyObject * DapChainDatumAnchorObject_create(PyTypeObject *type_object, PyObject 
     }
 
     PyDapChainDatumAnchorObject *obj_anchor = PyObject_New(PyDapChainDatumAnchorObject, &DapChainDatumAnchorObjectType);
+    if (!obj_anchor) {
+        log_it(L_CRITICAL, "Failed to create anchor object");
+        DAP_DELETE(l_anchor);
+        return NULL;
+    }
     PVT(obj_anchor)->anchor = l_anchor;
 
     return (PyObject*)obj_anchor;
