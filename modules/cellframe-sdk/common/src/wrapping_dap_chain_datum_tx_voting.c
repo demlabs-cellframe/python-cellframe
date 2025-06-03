@@ -59,10 +59,37 @@ PyObject *wrapping_dap_chain_tx_voting_get_is_vote_changing_allowed(PyObject *se
         Py_RETURN_FALSE;
 }
 
+void PyDapChainTxVoting_dealloc(PyDapChainTXVotingObject *self) {
+    PyTypeObject *tp = Py_TYPE(self);
+    if (self->voting) {
+        // Free voting question
+        if (self->voting->voting_question) {
+            DAP_DELETE(self->voting->voting_question);
+        }
+        
+        // Free answers list and answer strings
+        if (self->voting->answers_list) {
+            dap_list_t *l_temp = self->voting->answers_list;
+            while (l_temp) {
+                if (l_temp->data) {
+                    DAP_DELETE(l_temp->data);
+                }
+                l_temp = l_temp->next;
+            }
+            dap_list_free(self->voting->answers_list);
+        }
+        
+        // Free the main voting structure
+        DAP_DELETE(self->voting);
+    }
+    tp->tp_free(self);
+}
+
 PyTypeObject PyDapChainTxVotingObjectType = DAP_PY_TYPE_OBJECT(
         "CellFrame.Common.TxVoting",
         sizeof(PyDapChainTXVotingObject),
         "Wrapping item voting for transaction",
+        .tp_dealloc = (destructor)PyDapChainTxVoting_dealloc,
         .tp_getset = PyDapChainTxVotingGetSetDef);
 
 //Vote
