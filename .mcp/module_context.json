@@ -1,0 +1,39 @@
+{
+  "module_name": "python-cellframe",
+  "structure": {
+    "modules": {
+      "description": "Python modules wrapping C functionality",
+      "components": {
+        "dap-sdk": "Python bindings for DAP SDK",
+        "cellframe-sdk": "Python bindings for Cellframe SDK"
+      }
+    },
+    "dists": {
+      "description": "Distribution packages and examples",
+      "components": {
+        "examples": "Usage examples and demos",
+        "interfaces": "High-level Python interfaces",
+        "plugins": "Sample plugin implementations"
+      }
+    },
+    "unit-tests": {
+      "description": "Python unit tests",
+      "key_files": [
+        "unit-tests/modules/"
+      ]
+    }
+  },
+  "dependencies": {
+    "internal": ["cellframe-sdk", "dap-sdk"],
+    "external": ["python3", "python3-dev"]
+  },
+  "patterns": {
+    "binding_style": "CFFI-based bindings with Python wrappers",
+    "memory_management": "Python GC with C resource cleanup",
+    "error_handling": "Python exceptions from C error codes"
+  },
+  "build": {
+    "system": "Python setuptools with CMake integration",
+    "targets": ["wheel", "sdist", "install"]
+  }
+} 
