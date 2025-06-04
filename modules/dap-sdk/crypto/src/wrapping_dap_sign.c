@@ -1,6 +1,8 @@
 #include "wrapping_dap_sign.h"
 #include "libdap_chain_net_python.h"
 
+#define LOG_TAG "wrapping_sign"
+
 /* Sign type*/
 PyTypeObject DapCryproSignTypeObjectType = DAP_PY_TYPE_OBJECT(
         "DAP.Crypto.SignType", sizeof(PyDapSignTypeObject),
@@ -39,8 +41,11 @@ PyTypeObject DapCryptoSignObjectType = DAP_PY_TYPE_OBJECT(
         .tp_init = wrapping_dap_sign_create);
 
 void PyDapSignObject_free(PyDapSignObject *self) {
-    DAP_DELETE(self->sign);
-    Py_TYPE(self)->tp_free((PyObject*)self);
+    if (self->sign) {
+        DAP_DELETE(self->sign);
+    }
+    PyTypeObject *tp = Py_TYPE(self);
+    tp->tp_free(self);
 }
 
 PyObject *wrapping_dap_sign_get_type(PyObject *self, void *closure){
@@ -52,7 +57,18 @@ PyObject *wrapping_dap_sign_get_type(PyObject *self, void *closure){
 PyObject *wrapping_dap_sign_get_pkey(PyObject *self, void *closure){
     (void)closure;
     PyDapPkeyObject *obj_pkey = PyObject_New(PyDapPkeyObject, &DapPkeyObject_DapPkeyObjectType);
+    if (!obj_pkey) {
+        log_it(L_CRITICAL, "Failed to create PyDapPkeyObject");
+        return NULL;
+    }
+    
     obj_pkey->pkey = dap_pkey_get_from_sign(((PyDapSignObject*)self)->sign);
+    if (!obj_pkey->pkey) {
+        log_it(L_ERROR, "Failed to get pkey from sign");
+        Py_DECREF(obj_pkey);
+        return NULL;
+    }
+    
     return (PyObject*)obj_pkey;
 }
 
@@ -242,9 +258,25 @@ PyObject *wrapping_dap_sign_from_b64(PyObject *self, PyObject *args){
 }
 
 PyObject *PyDapSignObject_Cretae(dap_sign_t *a_sign){
+    if (!a_sign) {
+        log_it(L_ERROR, "Invalid sign parameter");
+        return NULL;
+    }
+    
     PyDapSignObject *obj_sign = PyObject_New(PyDapSignObject, &DapCryptoSignObjectType);
+    if (!obj_sign) {
+        log_it(L_CRITICAL, "Failed to create PyDapSignObject");
+        return NULL;
+    }
+    
     size_t l_sign_size = dap_sign_get_size(a_sign);
     obj_sign->sign = DAP_NEW_Z_SIZE(dap_sign_t, l_sign_size);
+    if (!obj_sign->sign) {
+        log_it(L_CRITICAL, "Memory allocation error for sign data");
+        Py_DECREF(obj_sign);
+        return NULL;
+    }
+    
     memcpy(obj_sign->sign, a_sign, l_sign_size);
     return (PyObject*)obj_sign;
 }
