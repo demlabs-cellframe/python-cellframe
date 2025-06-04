@@ -387,9 +387,13 @@ PyObject *wrapping_dap_chain_cs_block_get_block_signers_rewards(PyObject *self, 
         dap_hash_fast_t l_pkey_hash = {};
         if (dap_sign_get_pkey_hash(l_sign, &l_pkey_hash) == false) {
             log_it(L_ERROR, "Can't get pkey hash from sign");
+            DAP_DELETE(l_pkey);  // Free l_pkey before continuing
             continue;
         }
         uint256_t l_value_reward = obj_chain->chain_t->callback_calc_reward(obj_chain->chain_t, &l_block_hash, l_pkey);
+
+        // Free l_pkey as soon as we're done with it
+        DAP_DELETE(l_pkey);
 
         PyDapHashFastObject *obj_pkey_hash = PyObject_New(PyDapHashFastObject, &DapChainHashFastObjectType);
         if (!obj_pkey_hash) {
