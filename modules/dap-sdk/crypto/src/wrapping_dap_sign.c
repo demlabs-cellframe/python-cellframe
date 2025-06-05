@@ -44,6 +44,9 @@ void PyDapSignObject_free(PyDapSignObject *self) {
     if (self->sign) {
         DAP_DELETE(self->sign);
     }
+    if (self->cached_pkey) {
+        DAP_DELETE(self->cached_pkey);
+    }
     PyTypeObject *tp = Py_TYPE(self);
     tp->tp_free(self);
 }
@@ -56,18 +59,51 @@ PyObject *wrapping_dap_sign_get_type(PyObject *self, void *closure){
 }
 PyObject *wrapping_dap_sign_get_pkey(PyObject *self, void *closure){
     (void)closure;
+    PyDapSignObject *l_sign_obj = (PyDapSignObject*)self;
+    
+    // Check if we already have a cached pkey
+    if (l_sign_obj->cached_pkey) {
+        // Create a new PyDapPkeyObject that references the cached pkey
+        PyDapPkeyObject *obj_pkey = PyObject_New(PyDapPkeyObject, &DapPkeyObject_DapPkeyObjectType);
+        if (!obj_pkey) {
+            log_it(L_CRITICAL, "Failed to create PyDapPkeyObject");
+            return NULL;
+        }
+        
+        // Create a copy of the cached pkey for the Python object
+        size_t l_pkey_size = sizeof(dap_pkey_t) + l_sign_obj->cached_pkey->header.size;
+        obj_pkey->pkey = DAP_NEW_Z_SIZE(dap_pkey_t, l_pkey_size);
+        if (!obj_pkey->pkey) {
+            log_it(L_CRITICAL, "Memory allocation error for pkey copy");
+            Py_DECREF(obj_pkey);
+            return NULL;
+        }
+        memcpy(obj_pkey->pkey, l_sign_obj->cached_pkey, l_pkey_size);
+        return (PyObject*)obj_pkey;
+    }
+    
+    // First access - create and cache the pkey
+    l_sign_obj->cached_pkey = dap_pkey_get_from_sign(l_sign_obj->sign);
+    if (!l_sign_obj->cached_pkey) {
+        log_it(L_ERROR, "Failed to get pkey from sign");
+        return NULL;
+    }
+    
+    // Create PyDapPkeyObject with a copy of the cached pkey
     PyDapPkeyObject *obj_pkey = PyObject_New(PyDapPkeyObject, &DapPkeyObject_DapPkeyObjectType);
     if (!obj_pkey) {
         log_it(L_CRITICAL, "Failed to create PyDapPkeyObject");
         return NULL;
     }
     
-    obj_pkey->pkey = dap_pkey_get_from_sign(((PyDapSignObject*)self)->sign);
+    size_t l_pkey_size = sizeof(dap_pkey_t) + l_sign_obj->cached_pkey->header.size;
+    obj_pkey->pkey = DAP_NEW_Z_SIZE(dap_pkey_t, l_pkey_size);
     if (!obj_pkey->pkey) {
-        log_it(L_ERROR, "Failed to get pkey from sign");
+        log_it(L_CRITICAL, "Memory allocation error for pkey copy");
         Py_DECREF(obj_pkey);
         return NULL;
     }
+    memcpy(obj_pkey->pkey, l_sign_obj->cached_pkey, l_pkey_size);
     
     return (PyObject*)obj_pkey;
 }
@@ -161,6 +197,7 @@ int wrapping_dap_sign_create(PyObject *self, PyObject* args, PyObject *kwds){
         return -1;
     }
     ((PyDapSignObject*)self)->sign = l_sign;
+    ((PyDapSignObject*)self)->cached_pkey = NULL;  // Initialize cached pkey to NULL
     return 0;
 }
 
@@ -226,7 +263,7 @@ PyObject *wrapping_dap_sign_from_bytes(PyObject *self, PyObject *args){
     //size_t l_size = PyBytes_Size(obj_data);
     void *l_buff = PyBytes_AsString(obj_data);
     dap_sign_t *l_sign = (dap_sign_t*)l_buff;
-    return PyDapSignObject_Cretae(l_sign);
+    return PyDapSignObject_Create(l_sign);
 }
 
 PyObject *wrapping_dap_sign_to_b64(PyObject *self, PyObject *args){
@@ -254,29 +291,42 @@ PyObject *wrapping_dap_sign_from_b64(PyObject *self, PyObject *args){
         Py_RETURN_NONE;
     PyDapSignObject *l_sign_obj = PyObject_New(PyDapSignObject, &DapCryptoSignObjectType);
     l_sign_obj->sign = (dap_sign_t*)l_out;
+    l_sign_obj->cached_pkey = NULL;  // Initialize cached pkey to NULL
     return (PyObject*)l_sign_obj;
 }
 
-PyObject *PyDapSignObject_Cretae(dap_sign_t *a_sign){
+/**
+ * @brief Create a new PyDapSignObject from a dap_sign_t
+ * @param a_sign The source sign data to copy
+ * @return PyObject* or NULL on error
+ */
+PyObject *PyDapSignObject_Create(dap_sign_t *a_sign) {
     if (!a_sign) {
         log_it(L_ERROR, "Invalid sign parameter");
         return NULL;
     }
     
-    PyDapSignObject *obj_sign = PyObject_New(PyDapSignObject, &DapCryptoSignObjectType);
-    if (!obj_sign) {
+    PyDapSignObject *l_obj_sign = PyObject_New(PyDapSignObject, &DapCryptoSignObjectType);
+    if (!l_obj_sign) {
         log_it(L_CRITICAL, "Failed to create PyDapSignObject");
         return NULL;
     }
     
     size_t l_sign_size = dap_sign_get_size(a_sign);
-    obj_sign->sign = DAP_NEW_Z_SIZE(dap_sign_t, l_sign_size);
-    if (!obj_sign->sign) {
-        log_it(L_CRITICAL, "Memory allocation error for sign data");
-        Py_DECREF(obj_sign);
+    if (l_sign_size == 0) {
+        log_it(L_ERROR, "Invalid sign size");
+        Py_DECREF(l_obj_sign);
         return NULL;
     }
     
-    memcpy(obj_sign->sign, a_sign, l_sign_size);
-    return (PyObject*)obj_sign;
+    l_obj_sign->sign = DAP_NEW_Z_SIZE(dap_sign_t, l_sign_size);
+    if (!l_obj_sign->sign) {
+        log_it(L_CRITICAL, "Memory allocation error for sign data");
+        Py_DECREF(l_obj_sign);
+        return NULL;
+    }
+    
+    memcpy(l_obj_sign->sign, a_sign, l_sign_size);
+    l_obj_sign->cached_pkey = NULL;  // Initialize cached pkey to NULL
+    return (PyObject*)l_obj_sign;
 }

@@ -247,7 +247,7 @@ PyObject *wrapping_dap_chain_block_get_signs(PyObject *self, void *closure) {
         dap_sign_t *l_sign = dap_chain_block_sign_get(((PyDapChainCSBlockObject*)self)->block,
                                                      ((PyDapChainCSBlockObject*)self)->block_size, i);
         if (l_sign) {
-            PyObject *obj_sign = PyDapSignObject_Cretae(l_sign);
+            PyObject *obj_sign = PyDapSignObject_Create(l_sign);
             if (!obj_sign) {
                 log_it(L_CRITICAL, "Failed to create sign object for index %zu", i);
                 Py_DECREF(obj_list);

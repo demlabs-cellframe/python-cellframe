@@ -94,7 +94,7 @@ PyObject *wrapping_dap_chain_datum_anchor_get_sign(PyObject *self, void *closure
         dap_sign_t *l_sign = (dap_sign_t*)((byte_t*)l_signs + l_offset);
         size_t l_sign_size = dap_sign_get_size(l_sign);
         
-        PyObject *obj_sign = PyDapSignObject_Cretae(l_sign);
+        PyObject *obj_sign = PyDapSignObject_Create(l_sign);
         if (!obj_sign) {
             log_it(L_CRITICAL, "Failed to create sign object");
             Py_DECREF(obj_list);
