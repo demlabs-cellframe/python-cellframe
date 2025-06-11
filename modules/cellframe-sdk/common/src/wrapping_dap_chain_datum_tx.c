@@ -1,6 +1,8 @@
 #include "wrapping_dap_chain_datum_tx.h"
 #include "dap_chain_datum_tx_sig.h"
 
+#define LOG_TAG "wrapping_datum_tx"
+
 /* DAP chain tx iter type */
 
 static PyMethodDef PyDapChainTxItemTypeObjectMethods[] ={
@@ -212,10 +214,21 @@ PyObject *dap_chain_datum_tx_verify_sign_py(PyObject *self, PyObject *args){
     return PyLong_FromLong(res);
 }
 
-PyObject *wrapping_dap_chain_datum_tx_get_hash(PyObject *self, void* closure){
+PyObject *wrapping_dap_chain_datum_tx_get_hash(PyObject *self, void* closure) {
     (void)closure;
     PyDapHashFastObject *obj_hash_fast = PyObject_New(PyDapHashFastObject, &DapChainHashFastObjectType);
+    if (!obj_hash_fast) {
+        log_it(L_CRITICAL, "Failed to create hash fast object");
+        return NULL;
+    }
+    
     obj_hash_fast->hash_fast = DAP_NEW(dap_chain_hash_fast_t);
+    if (!obj_hash_fast->hash_fast) {
+        log_it(L_CRITICAL, "Memory allocation error for hash fast");
+        Py_DECREF(obj_hash_fast);
+        return NULL;
+    }
+    
     dap_hash_fast(((PyDapChainDatumTxObject*)self)->datum_tx,
                   dap_chain_datum_tx_get_size(((PyDapChainDatumTxObject*)self)->datum_tx),
                   obj_hash_fast->hash_fast);
@@ -231,17 +244,23 @@ PyObject *wrapping_dap_chain_datum_tx_get_tsCreated(PyObject *self, void* closur
     return obj_dt;
 }
 
-PyObject *wrapping_dap_chain_datum_tx_get_items(PyObject *self, PyObject *args){
+PyObject *wrapping_dap_chain_datum_tx_get_items(PyObject *self, PyObject *args) {
     (void)args;
     uint32_t l_tx_items_count = 0;
     uint32_t l_tx_items_size = ((PyDapChainDatumTxObject*)self)->datum_tx->header.tx_items_size;
     PyObject *obj_list = PyList_New(0);
+    if (!obj_list) {
+        log_it(L_CRITICAL, "Failed to create items list");
+        return NULL;
+    }
+    
     uint64_t l_out_idx = 0;
     dap_hash_fast_t l_tx_hf;
     dap_hash_fast(((PyDapChainDatumTxObject*)self)->datum_tx,
                   dap_chain_datum_tx_get_size(((PyDapChainDatumTxObject*)self)->datum_tx),
                   &l_tx_hf);
-    while(l_tx_items_count < l_tx_items_size){
+    
+    while(l_tx_items_count < l_tx_items_size) {
         uint8_t *item = ((PyDapChainDatumTxObject*)self)->datum_tx->tx_items + l_tx_items_count;
         size_t l_tx_item_size = dap_chain_datum_item_tx_get_size(item, 0);
         if (l_tx_item_size == 0) {
@@ -253,64 +272,107 @@ PyObject *wrapping_dap_chain_datum_tx_get_items(PyObject *self, PyObject *args){
         switch (*item) {
             case TX_ITEM_TYPE_IN:
                 obj_tx_item = (PyObject*)PyObject_New(PyDapChainTXInObject, &DapChainTxInObjectType);
+                if (!obj_tx_item) {
+                    log_it(L_CRITICAL, "Failed to create TX IN object");
+                    Py_DECREF(obj_list);
+                    return NULL;
+                }
                 ((PyDapChainTXInObject*)obj_tx_item)->tx_in = ((dap_chain_tx_in_t*)item);
                 break;
             case TX_ITEM_TYPE_OUT:
                 obj_tx_item = (PyObject*)PyObject_New(PyDapChainTXOutObject, &DapChainTxOutObjectType);
-                ((PyDapChainTXOutObject*)obj_tx_item)->tx_out = ((dap_chain_tx_out_t*)item);
+                if (!obj_tx_item) {
+                    log_it(L_CRITICAL, "Failed to create TX OUT object");
+                    Py_DECREF(obj_list);
+                    return NULL;
+                }
                 ((PyDapChainTXOutObject*)obj_tx_item)->tx_hash = DAP_NEW(dap_hash_fast_t);
+                if (!((PyDapChainTXOutObject*)obj_tx_item)->tx_hash) {
+                    log_it(L_CRITICAL, "Memory allocation error for TX OUT hash");
+                    Py_DECREF(obj_tx_item);
+                    Py_DECREF(obj_list);
+                    return NULL;
+                }
+                ((PyDapChainTXOutObject*)obj_tx_item)->tx_out = ((dap_chain_tx_out_t*)item);
                 memcpy(((PyDapChainTXOutObject*)obj_tx_item)->tx_hash, &l_tx_hf, sizeof(dap_hash_fast_t));
                 ((PyDapChainTXOutObject*)obj_tx_item)->idx = l_out_idx;
                 l_out_idx++;
                 break;
             case TX_ITEM_TYPE_IN_EMS:
                 obj_tx_item = (PyObject*)PyObject_New(PyDapChainTxTokenObject, &DapChainTxTokenObjectType);
+                if (!obj_tx_item) {
+                    log_it(L_CRITICAL, "Failed to create TX token object");
+                    Py_DECREF(obj_list);
+                    return NULL;
+                }
                 ((PyDapChainTxTokenObject*)obj_tx_item)->token = (dap_chain_tx_in_ems_t*)item;
                 break;
             case TX_ITEM_TYPE_SIG:
                 obj_tx_item = (PyObject*)PyObject_New(PyDapChainTXSigObject, &DapChainTxSigObjectType);
+                if (!obj_tx_item) {
+                    log_it(L_CRITICAL, "Failed to create TX signature object");
+                    Py_DECREF(obj_list);
+                    return NULL;
+                }
                 ((PyDapChainTXSigObject*)obj_tx_item)->tx_sig = (dap_chain_tx_sig_t*)item;
                 break;
             case TX_ITEM_TYPE_RECEIPT:
                 obj_tx_item = (PyObject*)PyObject_New(PyDapChainTXReceiptObject, &DapChainTxReceiptObjectType);
+                if (!obj_tx_item) {
+                    log_it(L_CRITICAL, "Failed to create TX receipt object");
+                    Py_DECREF(obj_list);
+                    return NULL;
+                }
                 ((PyDapChainTXReceiptObject*)obj_tx_item)->tx_receipt = (dap_chain_datum_tx_receipt_t*)item;
                 break;
-            //for future @Daniil Frolov
-            /*case TX_ITEM_TYPE_RECEIPT_OLD:
-                obj_tx_item = (PyObject*)PyObject_New(PyDapChainTXReceiptOldObject, &DapChainTxReceiptObjectType);
-                ((PyDapChainTXReceiptOldObject*)obj_tx_item)->tx_receipt = (dap_chain_datum_tx_receipt_old_t*)item;
-                break; */
             case TX_ITEM_TYPE_PKEY:
                 obj_tx_item = (PyObject*)PyObject_New(PyDapChainTXPkeyObject, &DapChainTxPkeyObjectType);
+                if (!obj_tx_item) {
+                    log_it(L_CRITICAL, "Failed to create TX pkey object");
+                    Py_DECREF(obj_list);
+                    return NULL;
+                }
                 ((PyDapChainTXPkeyObject*)obj_tx_item)->tx_pkey = ((dap_chain_tx_pkey_t*)item);
                 break;
             case TX_ITEM_TYPE_IN_COND:
                 obj_tx_item = (PyObject*)PyObject_New(PyDapChainTXInCondObject, &DapChainTxInCondObjectType);
+                if (!obj_tx_item) {
+                    log_it(L_CRITICAL, "Failed to create TX in cond object");
+                    Py_DECREF(obj_list);
+                    return NULL;
+                }
                 ((PyDapChainTXInCondObject*)obj_tx_item)->tx_in_cond = (dap_chain_tx_in_cond_t*)item;
                 break;
             case TX_ITEM_TYPE_OUT_COND:
                 switch (((dap_chain_tx_out_cond_t*)item)->header.subtype) {
                     case DAP_CHAIN_TX_OUT_COND_SUBTYPE_SRV_PAY:
                         obj_tx_item = (PyObject*)PyObject_New(PyDapChainTxOutCondObject, &DapChainTxOutCondSubTypeSrvPayObjectType);
-                        ((PyDapChainTxOutCondObject*)obj_tx_item)->out_cond = ((dap_chain_tx_out_cond_t*)item);
                         break;
                     case DAP_CHAIN_TX_OUT_COND_SUBTYPE_SRV_STAKE_LOCK:
                         obj_tx_item = (PyObject*)PyObject_New(PyDapChainTxOutCondObject, &DapChainTxOutCondSubTypeSrvStakeLockObjectType);
-                        ((PyDapChainTxOutCondObject*)obj_tx_item)->out_cond = ((dap_chain_tx_out_cond_t*)item);
                         break;
                     case DAP_CHAIN_TX_OUT_COND_SUBTYPE_SRV_STAKE_POS_DELEGATE:
                         obj_tx_item = (PyObject*)PyObject_New(PyDapChainTxOutCondObject, &DapChainTxOutCondSubTypeSrvStakePosDelegateObjectType);
-                        ((PyDapChainTxOutCondObject*)obj_tx_item)->out_cond = ((dap_chain_tx_out_cond_t*)item);
                         break;
                     case DAP_CHAIN_TX_OUT_COND_SUBTYPE_SRV_XCHANGE:
                         obj_tx_item = (PyObject*)PyObject_New(PyDapChainTxOutCondObject, &DapChainTxOutCondSubTypeSrvXchangeObjectType);
-                        ((PyDapChainTxOutCondObject*)obj_tx_item)->out_cond = ((dap_chain_tx_out_cond_t*)item);
                         break;
                     default:
                         obj_tx_item = (PyObject*)PyObject_New(PyDapChainTxOutCondObject, &DapChainTxOutCondObjectType);
-                        ((PyDapChainTxOutCondObject*)obj_tx_item)->out_cond = ((dap_chain_tx_out_cond_t*)item);
+                }
+                if (!obj_tx_item) {
+                    log_it(L_CRITICAL, "Failed to create TX out cond object");
+                    Py_DECREF(obj_list);
+                    return NULL;
                 }
                 dap_hash_fast_t *l_tx_hash_out = DAP_NEW(dap_hash_fast_t);
+                if (!l_tx_hash_out) {
+                    log_it(L_CRITICAL, "Memory allocation error for TX out cond hash");
+                    Py_DECREF(obj_tx_item);
+                    Py_DECREF(obj_list);
+                    return NULL;
+                }
+                ((PyDapChainTxOutCondObject*)obj_tx_item)->out_cond = ((dap_chain_tx_out_cond_t*)item);
                 memcpy(l_tx_hash_out, &l_tx_hf, sizeof(dap_hash_fast_t));
                 ((PyDapChainTxOutCondObject*)obj_tx_item)->tx_hash = l_tx_hash_out;
                 ((PyDapChainTxOutCondObject*)obj_tx_item)->idx = l_out_idx;
@@ -318,6 +380,11 @@ PyObject *wrapping_dap_chain_datum_tx_get_items(PyObject *self, PyObject *args){
                 break;
             case TX_ITEM_TYPE_OUT_EXT:
                 obj_tx_item = (PyObject*)PyObject_New(PyDapChainTXOutExtObject, &DapChainTxOutExtObjectType);
+                if (!obj_tx_item) {
+                    log_it(L_CRITICAL, "Failed to create TX out ext object");
+                    Py_DECREF(obj_list);
+                    return NULL;
+                }
                 ((PyDapChainTXOutExtObject*)obj_tx_item)->out_ext = (dap_chain_tx_out_ext_t*)item;
                 ((PyDapChainTXOutExtObject*)obj_tx_item)->tx_hash = l_tx_hf;
                 ((PyDapChainTXOutExtObject*)obj_tx_item)->idx = l_out_idx;
@@ -325,6 +392,11 @@ PyObject *wrapping_dap_chain_datum_tx_get_items(PyObject *self, PyObject *args){
                 break;
             case TX_ITEM_TYPE_OUT_STD: {
                 PyDapChainTXOutStdObject *obj_out = PyObject_New(PyDapChainTXOutStdObject, &DapChainTxOutStdObjectType);
+                if (!obj_out) {
+                    log_it(L_CRITICAL, "Failed to create TX out std object");
+                    Py_DECREF(obj_list);
+                    return NULL;
+                }
                 obj_out->out = (dap_chain_tx_out_std_t *)item;
                 obj_out->tx_hash = l_tx_hf;
                 obj_out->idx = l_out_idx++;
@@ -332,23 +404,50 @@ PyObject *wrapping_dap_chain_datum_tx_get_items(PyObject *self, PyObject *args){
             } break;
             case TX_ITEM_TYPE_TSD:
                 obj_tx_item = (PyObject*)PyObject_New(PyDapChainTxTSDObject, &DapChainTxTSDObjectType);
+                if (!obj_tx_item) {
+                    log_it(L_CRITICAL, "Failed to create TX TSD object");
+                    Py_DECREF(obj_list);
+                    return NULL;
+                }
                 ((PyDapChainTxTSDObject*)obj_tx_item)->tsd = (dap_chain_tx_tsd_t*)item;
                 break;
             case TX_ITEM_TYPE_VOTE:
                 obj_tx_item = (PyObject*) PyObject_New(PyDapChainTXVoteObject, &PyDapChainTXVoteObjectType);
+                if (!obj_tx_item) {
+                    log_it(L_CRITICAL, "Failed to create TX vote object");
+                    Py_DECREF(obj_list);
+                    return NULL;
+                }
                 ((PyDapChainTXVoteObject*)obj_tx_item)->vote = (dap_chain_tx_vote_t*)item;
                 break;
             case TX_ITEM_TYPE_VOTING:
                 obj_tx_item = (PyObject*)PyObject_New(PyDapChainTXVotingObject, &PyDapChainTxVotingObjectType);
+                if (!obj_tx_item) {
+                    log_it(L_CRITICAL, "Failed to create TX voting object");
+                    Py_DECREF(obj_list);
+                    return NULL;
+                }
                 ((PyDapChainTXVotingObject*)obj_tx_item)->voting = dap_chain_voting_parse_tsd(((PyDapChainDatumTxObject*)self)->datum_tx);
+                if (!((PyDapChainTXVotingObject*)obj_tx_item)->voting) {
+                    log_it(L_CRITICAL, "Failed to parse voting TSD");
+                    Py_DECREF(obj_tx_item);
+                    Py_DECREF(obj_list);
+                    return NULL;
+                }
                 break;
             default:
                 obj_tx_item = Py_None;
                 break;
         }
-        PyList_Append(obj_list, obj_tx_item);
+        if (PyList_Append(obj_list, obj_tx_item) < 0) {
+            log_it(L_CRITICAL, "Failed to append item to list");
+            if (obj_tx_item != Py_None)
+                Py_DECREF(obj_tx_item);
+            Py_DECREF(obj_list);
+            return NULL;
+        }
         if (obj_tx_item != Py_None)
-            Py_XDECREF(obj_tx_item);
+            Py_DECREF(obj_tx_item);
         l_tx_items_count += l_tx_item_size;
     }
     return obj_list;
