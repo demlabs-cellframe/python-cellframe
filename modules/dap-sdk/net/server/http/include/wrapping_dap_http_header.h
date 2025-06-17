@@ -1,5 +1,6 @@
 #include <Python.h>
 #include "dap_http_header.h"
+#include <stdbool.h>
 
 typedef struct PyDapHttpHeader{
     PyObject_HEAD
