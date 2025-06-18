@@ -132,7 +132,7 @@ void element_py_func_del_all(){
     }
 }
 
-static int wrapping_cmdfunc(int argc, char **argv, void **a_str_reply)
+static int wrapping_cmdfunc(int argc, char **argv, void **a_str_reply, int a_version)
 {
     PyGILState_STATE l_state = PyGILState_Ensure();
     size_t id_str_replay = elements_str_reply_add((char **)a_str_reply);
@@ -246,9 +246,9 @@ PyObject *dap_chain_node_cli_cmd_exec_str(PyObject *a_self, PyObject *a_args){
     } 
 
     if (l_cmd->arg_func) {
-        l_cmd->func_ex(l_argc, l_argv, l_cmd->arg_func, (void **)&str_reply);
+        l_cmd->func_ex(l_argc, l_argv, l_cmd->arg_func, (void **)&str_reply, 1);
     } else {
-        l_cmd->func(l_argc, l_argv, (void **)&str_reply);
+        l_cmd->func(l_argc, l_argv, (void **)&str_reply, 1);
     }     
     
     dap_strfreev(l_argv);
