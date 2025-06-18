@@ -144,6 +144,8 @@ PyObject *dap_chain_datum_tx_add_item_py(PyObject *self, PyObject *args){
         l_item = ((PyDapChainTXOutExtObject*)obj_item)->out_ext;
     } else if (PyObject_TypeCheck(obj_item, &DapChainTxReceiptObjectType)) {
         l_item = ((PyDapChainTXReceiptObject*)obj_item)->tx_receipt;
+    } else if (PyObject_TypeCheck(obj_item, &DapChainTxReceiptOldObjectType)) {
+        l_item = ((PyDapChainTXReceiptOldObject*)obj_item)->tx_receipt;
     } else if (PyObject_TypeCheck(obj_item, &DapChainTxTokenObjectType)) {
         l_item = ((PyDapChainTxTokenObject*)obj_item)->token;
     } else {
@@ -332,11 +334,10 @@ PyObject *wrapping_dap_chain_datum_tx_get_items(PyObject *self, PyObject *args){
                 obj_tx_item = (PyObject*)PyObject_New(PyDapChainTXReceiptObject, &DapChainTxReceiptObjectType);
                 ((PyDapChainTXReceiptObject*)obj_tx_item)->tx_receipt = (dap_chain_datum_tx_receipt_t*)item;
                 break;
-            //for future @Daniil Frolov
-            /*case TX_ITEM_TYPE_RECEIPT_OLD:
-                obj_tx_item = (PyObject*)PyObject_New(PyDapChainTXReceiptOldObject, &DapChainTxReceiptObjectType);
+            case TX_ITEM_TYPE_RECEIPT_OLD:
+                obj_tx_item = (PyObject*)PyObject_New(PyDapChainTXReceiptOldObject, &DapChainTxReceiptOldObjectType);
                 ((PyDapChainTXReceiptOldObject*)obj_tx_item)->tx_receipt = (dap_chain_datum_tx_receipt_old_t*)item;
-                break; */
+                break;
             case TX_ITEM_TYPE_PKEY:
                 obj_tx_item = (PyObject*)PyObject_New(PyDapChainTXPkeyObject, &DapChainTxPkeyObjectType);
                 ((PyDapChainTXPkeyObject*)obj_tx_item)->tx_pkey = ((dap_chain_tx_pkey_t*)item);
