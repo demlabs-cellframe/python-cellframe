@@ -121,6 +121,7 @@ PyObject *wrapping_dap_http_header_append(PyObject *self, PyObject *args) {
 PyObject *DapHttpHeaderObject_ToStr(PyObject *self) {
     if (!PVT(self)->header) {
         PyErr_SetString(PyExc_Exception, "Can't convert invalid HTTP header.");
+        return NULL;
     }
     char *l_str = dap_strdup_printf("%s:%s", PVT(self)->header->name, PVT(self)->header->value);
     PyObject *obj_str = PyUnicode_FromString(l_str);

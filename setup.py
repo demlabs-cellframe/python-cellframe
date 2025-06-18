@@ -6,7 +6,7 @@ import sysconfig
 import platform
 import subprocess
 
-from distutils.version import LooseVersion
+from packaging.version import Version
 from setuptools import setup, Extension
 from setuptools.command.build_ext import build_ext
 
@@ -27,9 +27,9 @@ class CMakeBuild(build_ext):
                 ", ".join(e.name for e in self.extensions))
 
         if platform.system() == "Windows":
-            cmake_version = LooseVersion(re.search(r'version\s*([\d.]+)',
+            cmake_version = Version(re.search(r'version\s*([\d.]+)',
                                          out.decode()).group(1))
-            if cmake_version < '3.1.0':
+            if cmake_version < Version('3.1.0'):
                 raise RuntimeError("CMake >= 3.1.0 is required on Windows")
 
         for ext in self.extensions:
@@ -66,7 +66,7 @@ class CMakeBuild(build_ext):
                               cwd=self.build_temp, env=env)
         subprocess.check_call(['cmake', '--build', '.'] + build_args,
                               cwd=self.build_temp)
-        print()  # Add an empty line for cleaner outputimport sys
+        print()  # Add an empty line for cleaner output
 
 setup(
     name="CellFrame",
@@ -75,7 +75,7 @@ setup(
     author='Demlabs (2007-2021)',
     license="GNU GPLv3",
     packages=['CellFrame'],
-    ext_package='CellFrame'
+    ext_package='CellFrame',
     ext_modules=[CMakeExtension('CellFrame/libCellFrame')],
     # add custom build_ext command
     cmdclass={

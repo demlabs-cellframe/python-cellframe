@@ -2,26 +2,26 @@
 
 #define LOG_TAG "python-cellframe"
 
-static bool s_init_crypto = false;
-static bool s_init_chain = false;
-static bool s_init_app_cli = false;
-static bool s_init_stream = false;
-static bool s_init_stream_ctl = false;
-static bool s_init_http_folder = false;
-static bool s_init_http = false;
-static bool s_init_http_enc = false;
-static bool s_io_core = false;
-static bool s_init_mempool = false;
+__thread bool s_init_crypto = false;
+__thread bool s_init_chain = false;
+__thread bool s_init_app_cli = false;
+__thread bool s_init_stream = false;
+__thread bool s_init_stream_ctl = false;
+__thread bool s_init_http_folder = false;
+__thread bool s_init_http = false;
+__thread bool s_init_http_enc = false;
+__thread bool s_io_core = false;
+__thread bool s_init_mempool = false;
 
 //static bool s_init_http_client_simple = false;
-static bool s_init_wallet = false;
-static bool s_init_cs_dag = false;
-static bool s_init_cs_dag_poa = false;
-static bool s_init_cs_dag_pos = false;
-static bool s_init_chain_net_srv = false;
-static bool s_init_ks = false;
+__thread bool s_init_wallet = false;
+__thread bool s_init_cs_dag = false;
+__thread bool s_init_cs_dag_poa = false;
+__thread bool s_init_cs_dag_pos = false;
+__thread bool s_init_chain_net_srv = false;
+__thread bool s_init_ks = false;
 
-static bool submodules_deint;
+__thread bool submodules_deint;
 
 PyObject* CellFrame_error = NULL;
 

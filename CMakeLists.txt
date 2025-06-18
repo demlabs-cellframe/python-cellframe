@@ -44,7 +44,7 @@ else()
     #if (SKBUILD)
     message(STATUS "Make python extension")
     #find_package(PythonExtensions REQUIRED)
-    add_library(CellFrame MODULE ${PYTHON_CELLFRAME_SRCS} ${PYTHON_CELLFRAME_HEADERS})
+    add_library(CellFrame SHARED ${PYTHON_CELLFRAME_SRCS} ${PYTHON_CELLFRAME_HEADERS})
     add_library(python_static STATIC IMPORTED GLOBAL)
     target_include_directories(CellFrame INTERFACE include/)
 

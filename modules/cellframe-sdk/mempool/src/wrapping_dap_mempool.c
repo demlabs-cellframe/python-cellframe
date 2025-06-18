@@ -194,6 +194,7 @@ PyObject *dap_chain_mempool_proc_py(PyObject *self, PyObject *args) {
         char *l_str = dap_strdup_printf("Failed to get data from chain %s on network %s using hash %s",
                                                                 l_chain->name, l_net->pub.name, l_hash_str);
         PyErr_SetString(PyExc_AttributeError, l_str);
+        return NULL;
         log_it(L_ERROR, "%s", l_str);
         DAP_DELETE(l_str);
         DAP_DELETE(l_gdb_group_mempool);
