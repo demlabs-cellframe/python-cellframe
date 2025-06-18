@@ -37,8 +37,6 @@
 extern "C"{
 #endif
 
-#define dap_chain_datum_tx_receipt_old_t dap_chain_datum_tx_receipt_t
-#define TX_ITEM_TYPE_RECEIPT_OLD TX_ITEM_TYPE_RECEIPT
 typedef struct PyDapChainTXReceiptOld{
     PyObject_HEAD
     dap_chain_datum_tx_receipt_old_t *tx_receipt;
@@ -60,6 +58,7 @@ PyObject *wrapping_dap_chain_tx_receipt_get_sig_client(PyObject *self, void *clo
 PyObject *wrapping_dap_chain_tx_receipt_sign(PyObject *self, PyObject *sign);
 
 extern PyTypeObject DapChainTxReceiptObjectType;
+extern PyTypeObject DapChainTxReceiptOldObjectType;
 
 #ifdef __cplusplus
 extern "C"{

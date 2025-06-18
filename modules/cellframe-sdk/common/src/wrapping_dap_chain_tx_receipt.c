@@ -29,30 +29,72 @@ PyTypeObject DapChainTxReceiptObjectType = DAP_PY_TYPE_OBJECT(
         .tp_getset = DapChainTxReceiptGetSetDefs,
         .tp_init = (initproc)PyDapChainTxReceipt_init);
 
+PyTypeObject DapChainTxReceiptOldObjectType = DAP_PY_TYPE_OBJECT(
+        "CellFrame.ChainTxReceiptOld", sizeof(PyDapChainTXReceiptOldObject),
+        "Chain tx item receipt old object",
+        .tp_methods = DapChainTxReceiptMethods,
+        .tp_getset = DapChainTxReceiptGetSetDefs,
+        .tp_init = (initproc)PyDapChainTxReceipt_init);
+
 PyObject *wrapping_dap_chain_tx_receipt_get_size(PyObject *self, void *closure){
     (void)closure;
-    return Py_BuildValue("H", ((PyDapChainTXReceiptObject*)self)->tx_receipt->size);
+    dap_chain_datum_tx_receipt_t *l_receipt = ((PyDapChainTXReceiptObject*)self)->tx_receipt;
+    if (l_receipt->receipt_info.version < 2){
+        dap_chain_datum_tx_receipt_old_t *l_receipt_old = (dap_chain_datum_tx_receipt_old_t*)l_receipt;
+        return Py_BuildValue("H", l_receipt_old->size);
+    } else {
+        return Py_BuildValue("H", l_receipt->size);
+    }
 }
 PyObject *wrapping_dap_chain_tx_receipt_get_ext_size(PyObject *self, void *closure){
     (void)closure;
-    return Py_BuildValue("H", ((PyDapChainTXReceiptObject*)self)->tx_receipt->exts_size);
+    dap_chain_datum_tx_receipt_t *l_receipt = ((PyDapChainTXReceiptObject*)self)->tx_receipt;
+    if (l_receipt->receipt_info.version < 2){
+        dap_chain_datum_tx_receipt_old_t *l_receipt_old = (dap_chain_datum_tx_receipt_old_t*)l_receipt;
+        return Py_BuildValue("H", l_receipt_old->exts_size);
+    } else {
+        return Py_BuildValue("H", l_receipt->exts_size);
+    }
 }
 PyObject *wrapping_dap_chain_tx_receipt_get_units(PyObject *self, void *closure){
     (void)closure;
-    return Py_BuildValue("k", ((PyDapChainTXReceiptObject*)self)->tx_receipt->receipt_info.units);
+    dap_chain_datum_tx_receipt_t *l_receipt = ((PyDapChainTXReceiptObject*)self)->tx_receipt;
+    if (l_receipt->receipt_info.version < 2){
+        dap_chain_datum_tx_receipt_old_t *l_receipt_old = (dap_chain_datum_tx_receipt_old_t*)l_receipt;
+        return Py_BuildValue("k", l_receipt_old->receipt_info.units);
+    } else {
+        return Py_BuildValue("k", l_receipt->receipt_info.units);
+    }
 }
 PyObject *wrapping_dap_chain_tx_receipt_get_uid(PyObject *self, void *closure){
     (void)closure;
-    return Py_BuildValue("k", ((PyDapChainTXReceiptObject*)self)->tx_receipt->receipt_info.srv_uid.uint64);
+    dap_chain_datum_tx_receipt_t *l_receipt = ((PyDapChainTXReceiptObject*)self)->tx_receipt;
+    if (l_receipt->receipt_info.version < 2){
+        dap_chain_datum_tx_receipt_old_t *l_receipt_old = (dap_chain_datum_tx_receipt_old_t*)l_receipt;
+        return Py_BuildValue("k", l_receipt_old->receipt_info.srv_uid.uint64);
+    } else {
+        return Py_BuildValue("k", l_receipt->receipt_info.srv_uid.uint64);
+    }
 }
 PyObject *wrapping_dap_chain_tx_receipt_get_units_type(PyObject *self, void *closure){
     (void)closure;
-    dap_chain_srv_unit_enum_t l_unit = ((PyDapChainTXReceiptObject*)self)->tx_receipt->receipt_info.units_type.enm;
-    return Py_BuildValue("s", dap_chain_srv_unit_enum_to_str(l_unit));
+    dap_chain_datum_tx_receipt_t *l_receipt = ((PyDapChainTXReceiptObject*)self)->tx_receipt;
+    if (l_receipt->receipt_info.version < 2){
+        dap_chain_datum_tx_receipt_old_t *l_receipt_old = (dap_chain_datum_tx_receipt_old_t*)l_receipt;
+        return Py_BuildValue("s", dap_chain_srv_unit_enum_to_str(l_receipt_old->receipt_info.units_type.enm));
+    } else {
+        return Py_BuildValue("s", dap_chain_srv_unit_enum_to_str(l_receipt->receipt_info.units_type.enm));
+    }
 }
 PyObject *wrapping_dap_chain_tx_receipt_get_value(PyObject *self, void *closure){
     (void)closure;
-    return Py_BuildValue("k", ((PyDapChainTXReceiptObject*)self)->tx_receipt->receipt_info.value_datoshi);
+    dap_chain_datum_tx_receipt_t *l_receipt = ((PyDapChainTXReceiptObject*)self)->tx_receipt;
+    if (l_receipt->receipt_info.version < 2){
+        dap_chain_datum_tx_receipt_old_t *l_receipt_old = (dap_chain_datum_tx_receipt_old_t*)l_receipt;
+        return Py_BuildValue("k", l_receipt_old->receipt_info.value_datoshi);
+    } else {
+        return Py_BuildValue("k", l_receipt->receipt_info.value_datoshi);
+    }
 }
 
 PyObject *wrapping_dap_chain_tx_receipt_get_sig_provider(PyObject *self, void *closure){
@@ -69,7 +111,6 @@ PyObject *wrapping_dap_chain_tx_receipt_get_sig_provider(PyObject *self, void *c
             return (PyObject *)obj_sign_provider;
         }
     } else {
-        /*
         uint64_t l_signs_size = l_receipt->size - l_receipt->exts_size;
         if (l_signs_size) {
             dap_sign_t *l_sign = (dap_sign_t *)&l_receipt->exts_n_signs[l_receipt->exts_size];
@@ -78,8 +119,6 @@ PyObject *wrapping_dap_chain_tx_receipt_get_sig_provider(PyObject *self, void *c
             PyObject  *obj_sign_provider = PyDapSignObject_Cretae(l_sign);
             return (PyObject *)obj_sign_provider;
         }
-        */
-       Py_RETURN_NONE;
     }
     Py_RETURN_NONE;
 }
@@ -104,8 +143,6 @@ PyObject *wrapping_dap_chain_tx_receipt_get_sig_client(PyObject *self, void *clo
             return obj_sign_client;
         }
     } else {
-        Py_RETURN_NONE;
-        /*
         uint64_t l_signs_size = l_receipt->size - l_receipt->exts_size;
         if (l_signs_size) {
             dap_sign_t *l_sign = (dap_sign_t *)&l_receipt->exts_n_signs[l_receipt->exts_size];
@@ -120,7 +157,6 @@ PyObject *wrapping_dap_chain_tx_receipt_get_sig_client(PyObject *self, void *clo
             PyObject *obj_sign_client = PyDapSignObject_Cretae(l_sign);
             return obj_sign_client;
         }
-        */
     }
     Py_RETURN_NONE;
 }
@@ -155,6 +191,7 @@ int PyDapChainTxReceipt_init(PyDapChainTXReceiptObject *self, PyObject *argv, Py
         "units",
         "value",
         "ext",
+        "prev_tx_hash",
         NULL
     };
     PyObject *obj_srv_uid;
@@ -162,8 +199,9 @@ int PyDapChainTxReceipt_init(PyDapChainTXReceiptObject *self, PyObject *argv, Py
     uint64_t l_units;
     PyObject *obj_value;
     PyObject *obj_ext = NULL;
-    if (!PyArg_ParseTupleAndKeywords(argv, kwds, "OOKO|O", (char **) kwlist, &obj_srv_uid, &obj_units_type, &l_units,
-                                     &obj_value, &obj_ext))
+    PyObject *obj_prev_tx_hash = NULL;
+    if (!PyArg_ParseTupleAndKeywords(argv, kwds, "OOKO|OO", (char **) kwlist, &obj_srv_uid, &obj_units_type, &l_units,
+                                     &obj_value, &obj_ext, &obj_prev_tx_hash))
         return -1;
     if (!PyDapChainNetSrvUid_Check((PyDapChainNetSrvUIDObject*)obj_srv_uid)) {
         PyErr_SetString(PyExc_Exception, "The first argument is passed incorrectly, it should be an object of "
@@ -180,6 +218,11 @@ int PyDapChainTxReceipt_init(PyDapChainTXReceiptObject *self, PyObject *argv, Py
                                          "type DAP.Core.Math");
         return -1;
     }
+    if (obj_prev_tx_hash) {
+        PyErr_SetString(PyExc_Exception, "The sixth argument is passed incorrectly, it should be an object of "
+                                            "type DAP.Core.HashFast.");
+        return -1;
+    }
     void *l_bytes = NULL;
     size_t l_bytes_size = 0;
     if (obj_ext) {
@@ -193,6 +236,6 @@ int PyDapChainTxReceipt_init(PyDapChainTXReceiptObject *self, PyObject *argv, Py
     }
     self->tx_receipt = dap_chain_datum_tx_receipt_create(((PyDapChainNetSrvUIDObject*)obj_srv_uid)->net_srv_uid,
                                                          ((PyDapChainNetSrvPriceUnitUIDObject*)obj_units_type)->price_unit_uid,
-                                                         l_units, ((DapMathObject*)obj_value)->value, l_bytes, l_bytes_size);
+                                                         l_units, ((DapMathObject*)obj_value)->value, l_bytes, l_bytes_size, ((PyDapHashFastObject*)obj_prev_tx_hash)->hash_fast);
     return 0;
 }
