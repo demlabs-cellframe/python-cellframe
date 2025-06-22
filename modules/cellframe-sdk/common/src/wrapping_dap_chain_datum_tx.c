@@ -85,6 +85,7 @@ static PyMethodDef PyDapChainDatumTxObjectMethods[] ={
         {"appendSignItem", (PyCFunction)dap_chain_datum_tx_append_sign_item_py, METH_VARARGS, ""},
         {"verifySign", (PyCFunction)dap_chain_datum_tx_verify_sign_py, METH_VARARGS, ""},
         {"getItems", (PyCFunction)wrapping_dap_chain_datum_tx_get_items, METH_NOARGS, ""},
+        {"getServiceTags", (PyCFunction)wrapping_dap_chain_datum_tx_get_service_tags, METH_VARARGS, ""},
         {}
 };
 
@@ -451,6 +452,99 @@ PyObject *wrapping_dap_chain_datum_tx_get_items(PyObject *self, PyObject *args) 
         l_tx_items_count += l_tx_item_size;
     }
     return obj_list;
+}
+
+PyObject *wrapping_dap_chain_datum_tx_get_service_tags(PyObject *self, PyObject *args) {
+    PyObject *obj_ledger;
+    if (!PyArg_ParseTuple(args, "O", &obj_ledger))
+        return NULL;
+     
+    if (!self || !DapChainDatumTx_Check(self)) {
+        log_it(L_ERROR, "Invalid transaction object");
+        Py_RETURN_NONE;
+    }
+    
+    if (!obj_ledger) {
+        log_it(L_ERROR, "Ledger parameter is required");
+        Py_RETURN_NONE;
+    }
+    
+    PyDapChainDatumTxObject *l_tx_obj = (PyDapChainDatumTxObject*)self;
+    if (!l_tx_obj->datum_tx) {
+        log_it(L_ERROR, "Transaction object has no datum_tx");
+        Py_RETURN_NONE;
+    }
+    
+    PyDapChainLedgerObject *l_ledger_obj = (PyDapChainLedgerObject*)obj_ledger;
+    if (!l_ledger_obj->ledger) {
+        log_it(L_ERROR, "Ledger object has no ledger");
+        Py_RETURN_NONE;
+    }
+    
+    // Variables to store service tag information
+    char *l_service_name = NULL;
+    dap_chain_net_srv_uid_t l_service_uid = { .uint64 = 0 };
+    dap_chain_tx_tag_action_type_t l_action = DAP_CHAIN_TX_TAG_ACTION_UNKNOWN;
+    
+    // Create Python dictionary to return
+    PyObject *l_result_dict = PyDict_New();
+    if (!l_result_dict) {
+        log_it(L_CRITICAL, "Failed to create result dictionary");
+        return NULL;
+    }
+    
+    // Try to deduce transaction tags from the transaction with the provided ledger
+    bool l_tag_found = dap_ledger_deduct_tx_tag(l_ledger_obj->ledger, l_tx_obj->datum_tx, &l_service_name, &l_service_uid, &l_action);
+    
+    // Convert action to string
+    const char *l_action_str = dap_ledger_tx_action_str(l_action);
+    
+    // Set action in dictionary
+    PyObject *l_action_py = PyUnicode_FromString(l_action_str ? l_action_str : "unknown");
+    if (!l_action_py) {
+        log_it(L_CRITICAL, "Failed to create action string");
+        Py_DECREF(l_result_dict);
+        return NULL;
+    }
+    if (PyDict_SetItemString(l_result_dict, "action", l_action_py) < 0) {
+        log_it(L_CRITICAL, "Failed to set action in dictionary");
+        Py_DECREF(l_action_py);
+        Py_DECREF(l_result_dict);
+        return NULL;
+    }
+    Py_DECREF(l_action_py);
+    
+    // Set service_name in dictionary
+    PyObject *l_service_name_py = PyUnicode_FromString(l_service_name ? l_service_name : "unknown");
+    if (!l_service_name_py) {
+        log_it(L_CRITICAL, "Failed to create service name string");
+        Py_DECREF(l_result_dict);
+        return NULL;
+    }
+    if (PyDict_SetItemString(l_result_dict, "service_name", l_service_name_py) < 0) {
+        log_it(L_CRITICAL, "Failed to set service_name in dictionary");
+        Py_DECREF(l_service_name_py);
+        Py_DECREF(l_result_dict);
+        return NULL;
+    }
+    Py_DECREF(l_service_name_py);
+    
+    // Set service_id in dictionary (as integer)
+    PyObject *l_service_id_py = PyLong_FromUnsignedLongLong(l_service_uid.uint64);
+    if (!l_service_id_py) {
+        log_it(L_CRITICAL, "Failed to create service ID");
+        Py_DECREF(l_result_dict);
+        return NULL;
+    }
+    if (PyDict_SetItemString(l_result_dict, "service_id", l_service_id_py) < 0) {
+        log_it(L_CRITICAL, "Failed to set service_id in dictionary");
+        Py_DECREF(l_service_id_py);
+        Py_DECREF(l_result_dict);
+        return NULL;
+    }
+    Py_DECREF(l_service_id_py);
+    
+    return l_result_dict;
 }
 
 /* -------------------------------------- */
