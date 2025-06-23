@@ -426,6 +426,19 @@ PyObject *wrapping_dap_chain_datum_emission_add_tsd(PyObject*self, PyObject *arg
                                               "function, the second argument must be an object of the Bytes type.");
         return NULL;
     }
+
+    PyDapChainDatumTokenEmissionObject *py_emission =
+        (PyDapChainDatumTokenEmissionObject *)self;
+    dap_chain_datum_token_emission_t *emission = py_emission->token_emission;
+
+    if (emission->hdr.type == DAP_CHAIN_DATUM_TOKEN_EMISSION_TYPE_AUTH &&
+        emission->data.type_auth.signs_count > 0)
+    {
+        PyErr_SetString(PyExc_RuntimeError,
+                        "TSD items cannot be added after signatures");
+        return NULL;
+    }
+
     void *l_data = PyBytes_AsString(obj_data);
     size_t l_data_size = PyBytes_Size(obj_data);
     ((PyDapChainDatumTokenEmissionObject*)self)->token_emission = dap_chain_datum_emission_add_tsd(
