@@ -3,6 +3,7 @@
 #include "dap_proc_thread.h"
 #include "dap_events.h"
 #include "dap_chain_datum_tx_in.h"
+#include "utlist.h"
 
 #define LOG_TAG "ledger wrapper"
 
@@ -37,7 +38,7 @@ static PyMethodDef DapChainLedgerMethods[] = {
         {"bridgedTxNotifyAdd", (PyCFunction)s_bridged_tx_notify_add, METH_VARARGS, ""},
         {"txHashIsUsedOutItemHash", (PyCFunction)dap_chain_ledger_tx_hash_is_used_out_item_hash_py, METH_VARARGS, ""},
         {"getFinalMultiWalletTxHash", (PyCFunction)dap_chain_ledger_get_final_multi_wallet_tx_hash_py, METH_VARARGS, ""},
-        {"listUnspent", (PyCFunction)dap_chain_ledger_list_unspent_py, METH_VARARGS, ""},
+        {"listUnspent", (PyCFunction)dap_chain_ledger_get_unspent_outputs_for_amount_py, METH_VARARGS, ""},
         {}
 };
 
@@ -602,87 +603,91 @@ static PyObject *dap_chain_ledger_get_final_multi_wallet_tx_hash_py(PyObject *se
 }
 
 
-PyObject *dap_chain_ledger_list_unspent_py(PyObject *self, PyObject *args)
-{
-    PyObject   *py_addr = NULL;
-    const char *ticker  = NULL;
-    PyObject   *py_need = NULL;
+PyObject *dap_chain_ledger_get_unspent_outputs_for_amount_py(PyObject *self, PyObject *args) {
+    PyObject   *py_addr            = NULL;
+    const char *token_ticker       = NULL;
+    PyObject   *py_required_amount = NULL;
 
-    if (!PyArg_ParseTuple(args, "Os|O", &py_addr, &ticker, &py_need))
+    if (!PyArg_ParseTuple(args, "Os|O",
+                          &py_addr,
+                          &token_ticker,
+                          &py_required_amount))
         return NULL;
 
-    uint256_t need_val = {0};
-
-    if (py_need && py_need != Py_None) {
-        if (!PyLong_Check(py_need)) {
+    uint256_t required_amount = {0};
+    if (py_required_amount && py_required_amount != Py_None) {
+        if (!PyLong_Check(py_required_amount)) {
             PyErr_SetString(PyExc_TypeError,
-                            "need must be int or None");
+                            "required_amount must be int or None");
             return NULL;
         }
-        PyObject *tmp = PyObject_Str(py_need);
-        if (!tmp)
+        PyObject *py_str = PyObject_Str(py_required_amount);
+        if (!py_str)
             return NULL;
-
-        need_val = dap_chain_balance_scan(PyUnicode_AsUTF8(tmp));
-        Py_DECREF(tmp);
+        required_amount = dap_chain_balance_scan(
+            PyUnicode_AsUTF8(py_str));
+        Py_DECREF(py_str);
     }
 
-    dap_list_t *lst = dap_ledger_get_list_tx_outs_with_val(
-            ((PyDapChainLedgerObject *)self)->ledger,
-            ticker,
-            ((PyDapChainAddrObject  *)py_addr)->addr,
-            need_val,
-            NULL);
+    dap_list_t *used_out_list = dap_ledger_get_list_tx_outs_with_val(
+        ((PyDapChainLedgerObject*)self)->ledger,
+        token_ticker,
+        ((PyDapChainAddrObject*)py_addr)->addr,
+        required_amount,
+        NULL);
 
-    if (!lst)
+    if (!used_out_list)
         return PyList_New(0);
 
-    const size_t len = dap_list_length(lst);
-    PyObject *py_lst = PyList_New(len);
-    if (!py_lst) {
-        dap_list_free_full(lst, free);
+    const size_t list_length = dap_list_length(used_out_list);
+    PyObject *py_result_list = PyList_New(list_length);
+    if (!py_result_list) {
+        dap_list_free_full(used_out_list, free);
         return NULL;
     }
 
-    size_t i = 0;
-    for (dap_list_t *it = lst; it; it = it->next, ++i) {
-        dap_chain_tx_used_out_item_t *out = it->data;
+    size_t            py_index = 0;
+    dap_list_t       *el;
+    LL_FOREACH(used_out_list, el) {
+        dap_chain_tx_used_out_item_t *out_item =
+            (dap_chain_tx_used_out_item_t *)el->data;
 
-        PyDapHashFastObject *py_h =
-            PyObject_New(PyDapHashFastObject, &DapChainHashFastObjectType);
-        if (!py_h) {
-            Py_DECREF(py_lst);
-            dap_list_free_full(lst, free);
+        PyDapHashFastObject *py_hash =
+            PyObject_New(PyDapHashFastObject,
+                         &DapChainHashFastObjectType);
+        if (!py_hash) {
+            Py_DECREF(py_result_list);
+            dap_list_free_full(used_out_list, free);
             return NULL;
         }
-        py_h->hash_fast = DAP_DUP(&out->tx_hash_fast);
-        py_h->origin    = true;
+        py_hash->hash_fast = DAP_DUP(&out_item->tx_hash_fast);
+        py_hash->origin    = true;
 
-        const char *val_str = dap_uint256_to_char(out->value, NULL);
-        PyObject *py_val = PyLong_FromString((char *)val_str, NULL, 10);
-        if (!py_val) {
-            Py_DECREF(py_h);
-            Py_DECREF(py_lst);
-            dap_list_free_full(lst, free);
-            return NULL;
-        }
-
-        PyObject *tuple = Py_BuildValue("OIO",
-                                        py_h,
-                                        out->num_idx_out,
-                                        py_val);
-        Py_DECREF(py_h);
-        Py_DECREF(py_val);
-
-        if (!tuple) {
-            Py_DECREF(py_lst);
-            dap_list_free_full(lst, free);
+        const char *value_str = dap_uint256_to_char(out_item->value, NULL);
+        PyObject   *py_value  = PyLong_FromString((char*)value_str,
+                                                  NULL, 10);
+        if (!py_value) {
+            Py_DECREF(py_hash);
+            Py_DECREF(py_result_list);
+            dap_list_free_full(used_out_list, free);
             return NULL;
         }
 
-        PyList_SET_ITEM(py_lst, i, tuple);
+        PyObject *py_tuple = Py_BuildValue("OIO",
+                                           py_hash,
+                                           out_item->num_idx_out,
+                                           py_value);
+        Py_DECREF(py_hash);
+        Py_DECREF(py_value);
+        if (!py_tuple) {
+            Py_DECREF(py_result_list);
+            dap_list_free_full(used_out_list, free);
+            return NULL;
+        }
+
+        PyList_SET_ITEM(py_result_list, py_index++, py_tuple);
     }
 
-    dap_list_free_full(lst, free);
-    return py_lst;
+    dap_list_free_full(used_out_list, free);
+    return py_result_list;
 }
