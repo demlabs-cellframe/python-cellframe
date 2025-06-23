@@ -53,6 +53,7 @@ PyObject *dap_chain_ledger_token_auth_signs_valid_py(PyObject *self, PyObject *a
 PyObject *dap_chain_ledger_token_auth_pkeys_hashes_py(PyObject *self, PyObject *args);
 PyObject *dap_chain_ledger_tx_hash_is_used_out_item_hash_py(PyObject *self, PyObject *args);
 PyObject *dap_chain_ledger_tx_get_main_ticker_py(PyObject *self, PyObject *args);
+PyObject *dap_chain_ledger_list_unspent_py(PyObject *self, PyObject *args);
 
 extern PyTypeObject DapChainLedgerObjectType;
 

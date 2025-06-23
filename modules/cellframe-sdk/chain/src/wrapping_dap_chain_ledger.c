@@ -2,6 +2,7 @@
 #include "python-cellframe_common.h"
 #include "dap_proc_thread.h"
 #include "dap_events.h"
+#include "dap_chain_datum_tx_in.h"
 
 #define LOG_TAG "ledger wrapper"
 
@@ -36,6 +37,7 @@ static PyMethodDef DapChainLedgerMethods[] = {
         {"bridgedTxNotifyAdd", (PyCFunction)s_bridged_tx_notify_add, METH_VARARGS, ""},
         {"txHashIsUsedOutItemHash", (PyCFunction)dap_chain_ledger_tx_hash_is_used_out_item_hash_py, METH_VARARGS, ""},
         {"getFinalMultiWalletTxHash", (PyCFunction)dap_chain_ledger_get_final_multi_wallet_tx_hash_py, METH_VARARGS, ""},
+        {"listUnspent", (PyCFunction)dap_chain_ledger_list_unspent_py, METH_VARARGS, ""},
         {}
 };
 
@@ -597,4 +599,90 @@ static PyObject *dap_chain_ledger_get_final_multi_wallet_tx_hash_py(PyObject *se
     py_final->origin = true;
 
     return (PyObject *)py_final;
+}
+
+
+PyObject *dap_chain_ledger_list_unspent_py(PyObject *self, PyObject *args)
+{
+    PyObject   *py_addr = NULL;
+    const char *ticker  = NULL;
+    PyObject   *py_need = NULL;
+
+    if (!PyArg_ParseTuple(args, "Os|O", &py_addr, &ticker, &py_need))
+        return NULL;
+
+    uint256_t need_val = {0};
+
+    if (py_need && py_need != Py_None) {
+        if (!PyLong_Check(py_need)) {
+            PyErr_SetString(PyExc_TypeError,
+                            "need must be int or None");
+            return NULL;
+        }
+        PyObject *tmp = PyObject_Str(py_need);
+        if (!tmp)
+            return NULL;
+
+        need_val = dap_chain_balance_scan(PyUnicode_AsUTF8(tmp));
+        Py_DECREF(tmp);
+    }
+
+    dap_list_t *lst = dap_ledger_get_list_tx_outs_with_val(
+            ((PyDapChainLedgerObject *)self)->ledger,
+            ticker,
+            ((PyDapChainAddrObject  *)py_addr)->addr,
+            need_val,
+            NULL);
+
+    if (!lst)
+        return PyList_New(0);
+
+    const size_t len = dap_list_length(lst);
+    PyObject *py_lst = PyList_New(len);
+    if (!py_lst) {
+        dap_list_free_full(lst, free);
+        return NULL;
+    }
+
+    size_t i = 0;
+    for (dap_list_t *it = lst; it; it = it->next, ++i) {
+        dap_chain_tx_used_out_item_t *out = it->data;
+
+        PyDapHashFastObject *py_h =
+            PyObject_New(PyDapHashFastObject, &DapChainHashFastObjectType);
+        if (!py_h) {
+            Py_DECREF(py_lst);
+            dap_list_free_full(lst, free);
+            return NULL;
+        }
+        py_h->hash_fast = DAP_DUP(&out->tx_hash_fast);
+        py_h->origin    = true;
+
+        const char *val_str = dap_uint256_to_char(out->value, NULL);
+        PyObject *py_val = PyLong_FromString((char *)val_str, NULL, 10);
+        if (!py_val) {
+            Py_DECREF(py_h);
+            Py_DECREF(py_lst);
+            dap_list_free_full(lst, free);
+            return NULL;
+        }
+
+        PyObject *tuple = Py_BuildValue("OIO",
+                                        py_h,
+                                        out->num_idx_out,
+                                        py_val);
+        Py_DECREF(py_h);
+        Py_DECREF(py_val);
+
+        if (!tuple) {
+            Py_DECREF(py_lst);
+            dap_list_free_full(lst, free);
+            return NULL;
+        }
+
+        PyList_SET_ITEM(py_lst, i, tuple);
+    }
+
+    dap_list_free_full(lst, free);
+    return py_lst;
 }
