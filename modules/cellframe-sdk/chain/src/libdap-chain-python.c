@@ -315,9 +315,9 @@ static void _wrapping_dap_chain_atom_notify_handler(void * a_arg, dap_chain_t *a
         l_atom_obj= PyObject_New(PyChainAtomObject, &DapChainAtomPtrObjectType);
         l_atom_obj->atom = l_atom;
         l_atom_obj->atom_size = a_atom_size;
-        l_args = Py_BuildValue("OO", l_atom_obj, l_callback->arg);
+        l_args = Py_BuildValue("OkO", l_atom_obj, (unsigned long)a_atom_size, l_callback->arg);
     }else{
-        l_args = Py_BuildValue("OO", Py_None, l_callback->arg);
+        l_args = Py_BuildValue("OkO", Py_None, (unsigned long)0, l_callback->arg);
     }
 
     log_it(L_DEBUG, "Call atom notifier for chain %s with atom size %zd", a_chain->name, a_atom_size );
@@ -346,7 +346,7 @@ static void _wrapping_dap_chain_atom_confirmed_notify_handler(void *a_arg, dap_c
         l_atom_obj = PyObject_New(PyChainAtomObject, &DapChainAtomPtrObjectType);
         l_atom_obj->atom = l_atom;
         l_atom_obj->atom_size = a_atom_size;
-        PyObject *l_args = Py_BuildValue("OO", l_atom_obj, l_callback->arg);
+        PyObject *l_args = Py_BuildValue("OkO", l_atom_obj, (unsigned long)a_atom_size, l_callback->arg);
         log_it(L_DEBUG, "Call atom confirmed notifier for chain %s with atom size %zd", a_chain->name, a_atom_size);
         PyObject *result = PyObject_CallObject(l_callback->func, l_args);
         if (!result) {
@@ -356,7 +356,7 @@ static void _wrapping_dap_chain_atom_confirmed_notify_handler(void *a_arg, dap_c
         Py_DECREF(l_args);
         Py_DECREF(l_atom_obj);
     } else {
-        PyObject *l_args = Py_BuildValue("OO", Py_None, l_callback->arg);
+        PyObject *l_args = Py_BuildValue("OkO", Py_None, (unsigned long)0, l_callback->arg);
         PyObject *result = PyObject_CallObject(l_callback->func, l_args);
         if (!result) {
             python_error_in_log_it(LOG_TAG);
