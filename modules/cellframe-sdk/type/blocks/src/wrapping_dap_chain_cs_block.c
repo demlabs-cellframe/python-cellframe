@@ -73,7 +73,7 @@ PyObject *wrapping_dap_chain_block_get_number(PyObject *self, PyObject *args){
         log_it(L_WARNING, "Blocks not found");
         Py_RETURN_NONE;
     }
-    //return Py_BuildValue("i", 0);
+    return Py_BuildValue("i", 0);
     char l_block_hash_str[DAP_CHAIN_HASH_FAST_STR_LEN + 1] = {0};
     dap_chain_hash_fast_to_str(&l_block_hash, l_block_hash_str, sizeof(l_block_hash_str));
     log_it(L_INFO, "block_hash: %s ", l_block_hash_str);
