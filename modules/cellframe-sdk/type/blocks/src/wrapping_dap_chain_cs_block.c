@@ -34,27 +34,25 @@ PyTypeObject DapChainCsBlockType = DAP_PY_TYPE_OBJECT(
 
 PyObject *wrapping_dap_chain_block_get_number(PyObject *self, PyObject *args){
     PyDapChainNetObject *obj_net;
-    
-    if (!PyArg_ParseTuple(args, "O", &obj_net)) {
+    PyDapChainObject *obj_chain;
+    if (!PyArg_ParseTuple(args, "OO", &obj_net, &obj_chain)) {
         log_it(L_ERROR, "Invalid input parameters");
         return NULL;
     }
-    
     if (!self) {
         log_it(L_ERROR, "Invalid input parameters");
         return NULL;
     }
-    
+    if (!PyDapChain_Check(obj_chain)) {
+        PyErr_SetString(PyExc_AttributeError, "Second argument must be a DapChainObject");
+        return NULL;
+    }
     if (!PyDapChainNet_Check(obj_net)) {
         PyErr_SetString(PyExc_AttributeError, "First argument must be a DapChainNet object");
         return NULL;
     }
     
-    // Get chain using network ID and chain ID from block header
-    dap_chain_t *l_chain = dap_chain_find_by_id(
-        obj_net->chain_net->pub.id, 
-        ((PyDapChainCSBlockObject*)self)->block->hdr.chain_id
-    );
+    dap_chain_t *l_chain = ((PyDapChainObject*)obj_chain)->chain_t;
     
     if (!l_chain) {
         log_it(L_WARNING, "Chain not found in network");
@@ -73,7 +71,7 @@ PyObject *wrapping_dap_chain_block_get_number(PyObject *self, PyObject *args){
         log_it(L_WARNING, "Blocks not found");
         Py_RETURN_NONE;
     }
-    return Py_BuildValue("i", 0);
+    
     char l_block_hash_str[DAP_CHAIN_HASH_FAST_STR_LEN + 1] = {0};
     dap_chain_hash_fast_to_str(&l_block_hash, l_block_hash_str, sizeof(l_block_hash_str));
     log_it(L_INFO, "block_hash: %s ", l_block_hash_str);
