@@ -282,7 +282,7 @@ static void _wrapping_dap_chain_mempool_notify_handler(dap_store_obj_t *a_obj, v
     // Notify python context from proc thread to avoid deadlock in GDB context with GIL accuire trying
     _wrapping_chain_mempool_notify_callback_t *l_obj = DAP_NEW(_wrapping_chain_mempool_notify_callback_t);
     if (!l_obj) {
-        log_it(L_CRITICAL, "Memory allocation error");
+        log_it(L_CRITICAL, "%s", c_error_memory_alloc);
         return;
     }
     l_obj->obj = dap_store_obj_copy(a_obj, 1);
@@ -435,7 +435,7 @@ PyObject *dap_chain_python_add_mempool_notify_callback(PyObject *self, PyObject 
     }
     _wrapping_chain_mempool_notify_callback_t *l_callback = DAP_NEW_Z(_wrapping_chain_mempool_notify_callback_t);
     if (!l_callback) {
-        log_it(L_CRITICAL, "Memory allocation error");
+        log_it(L_CRITICAL, "%s", c_error_memory_alloc);
         return NULL;
     }
     l_callback->func = obj_func;
@@ -467,7 +467,7 @@ PyObject *dap_chain_net_add_atom_notify_callback(PyObject *self, PyObject *args)
     }
     _wrapping_chain_mempool_notify_callback_t *l_callback = DAP_NEW_Z(_wrapping_chain_mempool_notify_callback_t);
     if (!l_callback) {
-        log_it(L_CRITICAL, "Memory allocation error");
+        log_it(L_CRITICAL, "%s", c_error_memory_alloc);
         return NULL;
     }
     l_callback->func = obj_func;
@@ -500,7 +500,7 @@ PyObject *dap_chain_atom_confirmed_notify_add_py(PyObject *self, PyObject *args)
     }
     _wrapping_chain_mempool_notify_callback_t *l_callback = DAP_NEW_Z(_wrapping_chain_mempool_notify_callback_t);
     if (!l_callback) {
-        log_it(L_CRITICAL, "Memory allocation error");
+        log_it(L_CRITICAL, "%s", c_error_memory_alloc);
         return NULL;
     }
     l_callback->func = obj_func;
@@ -530,7 +530,7 @@ PyObject *dap_chain_fork_resolved_notify_add_py(PyObject *self, PyObject *args) 
 
     _wrapping_chain_fork_resolved_notify_callback_t *l_callback = DAP_NEW_Z(_wrapping_chain_fork_resolved_notify_callback_t);
     if (!l_callback) {
-        log_it(L_CRITICAL, "Memory allocation error");
+        log_it(L_CRITICAL, "%s", c_error_memory_alloc);
         return NULL;
     }
 

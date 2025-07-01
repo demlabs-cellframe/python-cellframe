@@ -377,7 +377,7 @@ PyObject *wrapping_dap_chain_net_srv_order_add_notify_callback(PyObject *self, P
     }
     _wrapping_order_callable_t *l_callback = DAP_NEW(_wrapping_order_callable_t);
     if (!l_callback) {
-        log_it(L_CRITICAL, "Memory allocation error");
+        log_it(L_CRITICAL, "%s", c_error_memory_alloc);
         return NULL;
     }
     l_callback->func = func_call;

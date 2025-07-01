@@ -333,7 +333,7 @@ static char*** ListStringToArrayStringFormatChar(PyObject *list){
     Py_ssize_t size = PyList_Size(list);
     char ***data = calloc(sizeof(char**), (size_t)size);
     if(!data) {
-        log_it(L_CRITICAL, "Memory allocation error");
+        log_it(L_CRITICAL, "%s", c_error_memory_alloc);
         return NULL;
     }
     for (Py_ssize_t i = 0; i < size; i++){
@@ -341,7 +341,7 @@ static char*** ListStringToArrayStringFormatChar(PyObject *list){
         Py_ssize_t size_seentenses = PyList_Size(obj_two);
         char **sentences = calloc(sizeof(char**), (size_t)size_seentenses);
         if(!sentences) {
-        log_it(L_CRITICAL, "Memory allocation error");
+        log_it(L_CRITICAL, "%s", c_error_memory_alloc);
             DAP_DELETE(data);
             return NULL;
         }
@@ -359,7 +359,7 @@ static size_t *ListIntToSizeT(PyObject *list){
     Py_ssize_t size = PyList_Size(list);
     size_t *res_size_t = calloc(sizeof(size_t), (size_t)size);
     if(!res_size_t) {
-        log_it(L_CRITICAL, "Memory allocation error");
+        log_it(L_CRITICAL, "%s", c_error_memory_alloc);
         return NULL;
     }
     for (Py_ssize_t i=0; i<size;i++){
@@ -444,7 +444,7 @@ PyObject *dap_chain_ledger_tx_add_notify_py(PyObject *self, PyObject *args) {
     }
     pvt_ledger_notify_t *notifier = DAP_NEW(pvt_ledger_notify_t);
     if(!notifier) {
-        log_it(L_CRITICAL, "Memory allocation error");
+        log_it(L_CRITICAL, "%s", c_error_memory_alloc);
         return NULL;
     }
     notifier->func = obj_func;
@@ -518,7 +518,7 @@ static PyObject *s_bridged_tx_notify_add(PyObject *self, PyObject *args)
     }
     pvt_ledger_notify_t *l_notifier = DAP_NEW(pvt_ledger_notify_t);
     if (!l_notifier) {
-        log_it(L_CRITICAL, "Memory allocation error");
+        log_it(L_CRITICAL, "%s", c_error_memory_alloc);
         return NULL;
     }
     l_notifier->func = obj_func;

@@ -308,7 +308,7 @@ uint256_t *dap_chain_balance_from_pyobj(PyObject *obj, size_t *o_count) {
         *o_count = PyList_Size(obj);
         res = DAP_NEW_Z_COUNT(uint256_t, *o_count);
         if (!res) {
-            PyErr_SetString(PyExc_MemoryError, "Memory allocation error");
+            PyErr_SetString(PyExc_MemoryError, c_error_memory_alloc);
             return NULL;
         }
 
@@ -338,7 +338,7 @@ uint256_t *dap_chain_balance_from_pyobj(PyObject *obj, size_t *o_count) {
         }
         res = DAP_NEW(uint256_t);
         if (!res) {
-            PyErr_SetString(PyExc_MemoryError, "Memory allocation error");
+            PyErr_SetString(PyExc_MemoryError, c_error_memory_alloc);
             return NULL;
         }
         *res = dap_chain_balance_scan(PyBytes_AsString(obj));
@@ -359,7 +359,7 @@ dap_chain_addr_t *dap_chain_addr_from_pyobj(PyObject *obj, size_t *o_count) {
         res = DAP_NEW_Z_COUNT(dap_chain_addr_t, *o_count);
     
         if (!res) {
-            PyErr_SetString(PyExc_MemoryError, "Memory allocation error");
+            PyErr_SetString(PyExc_MemoryError, c_error_memory_alloc);
             return NULL;
         }
         size_t l_pos_valid = 0;

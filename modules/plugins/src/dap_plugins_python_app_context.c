@@ -20,7 +20,7 @@ PyTypeObject DapAppContextObjectType = DAP_PY_TYPE_OBJECT(
 int dap_plugins_python_app_content_init(dap_server_t *a_server){
     s_app_context = DAP_NEW(dap_plugins_python_app_context_t);
     if (!s_app_context) {
-        log_it(L_CRITICAL, "Memory allocation error");
+        log_it(L_CRITICAL, "%s", c_error_memory_alloc);
         return -1;
     }
     s_app_context->server = a_server;
