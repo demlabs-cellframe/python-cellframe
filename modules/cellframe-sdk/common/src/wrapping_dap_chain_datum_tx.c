@@ -81,9 +81,12 @@ static PyMethodDef PyDapChainDatumTxObjectMethods[] ={
         {"addInCondItem", (PyCFunction)dap_chain_datum_tx_add_in_cond_item_py, METH_VARARGS, ""},
         {"addOutItem", (PyCFunction)dap_chain_datum_tx_add_out_item_py, METH_VARARGS, ""},
         {"addOutCond", (PyCFunction)dap_chain_datum_tx_add_out_cond_item_py, METH_VARARGS, ""},
+        {"addOutStdItem", (PyCFunction)dap_chain_datum_tx_add_out_std_item_py, METH_VARARGS, ""},
         {"addSignItem", (PyCFunction)dap_chain_datum_tx_add_sign_item_py, METH_VARARGS, ""},
+        {"addFeeItem", (PyCFunction)dap_chain_datum_tx_add_fee_item_py, METH_VARARGS, ""},
         {"appendSignItem", (PyCFunction)dap_chain_datum_tx_append_sign_item_py, METH_VARARGS, ""},
         {"verifySign", (PyCFunction)dap_chain_datum_tx_verify_sign_py, METH_VARARGS, ""},
+        {"addTSDItem", (PyCFunction)dap_chain_datum_tx_add_tsd_item_py, METH_VARARGS, ""},
         {"getItems", (PyCFunction)wrapping_dap_chain_datum_tx_get_items, METH_NOARGS, ""},
         {"getServiceTags", (PyCFunction)wrapping_dap_chain_datum_tx_get_service_tags, METH_VARARGS, ""},
         {}
@@ -546,5 +549,126 @@ PyObject *wrapping_dap_chain_datum_tx_get_service_tags(PyObject *self, PyObject 
     
     return l_result_dict;
 }
+
+PyObject *dap_chain_datum_tx_add_tsd_item_py(PyObject *self, PyObject *args)
+{
+    int tsd_type;
+    Py_buffer tsd_value;
+
+    if (!PyArg_ParseTuple(args, "iy*", &tsd_type, &tsd_value))
+        return NULL;
+
+    dap_chain_datum_tx_t *tx =
+        ((PyDapChainDatumTxObject *)self)->datum_tx;
+
+    uint32_t offset = 0;
+    uint32_t total  = tx->header.tx_items_size;
+
+    while (offset < total) {
+        uint8_t *item = tx->tx_items + offset;
+
+        if (*item == TX_ITEM_TYPE_SIG) {
+            PyBuffer_Release(&tsd_value);
+            PyErr_SetString(PyExc_RuntimeError,
+                            "TSD items cannot be added after signatures");
+            return NULL;
+        }
+        size_t item_sz = dap_chain_datum_item_tx_get_size(item, 0);
+        if (item_sz == 0) {
+            PyBuffer_Release(&tsd_value);
+            PyErr_SetString(PyExc_RuntimeError,
+                            "corrupted transaction items");
+            return NULL;
+        }
+        offset += item_sz;
+    }
+
+    dap_chain_tx_tsd_t *item =
+        dap_chain_datum_tx_item_tsd_create(tsd_value.buf,
+                                           tsd_type,
+                                           tsd_value.len);
+    if (!item) {
+        PyBuffer_Release(&tsd_value);
+        return PyErr_Format(PyExc_RuntimeError,
+                            "dap_chain_datum_tx_item_tsd_create() failed");
+    }
+
+    int rc = dap_chain_datum_tx_add_item(
+                 &(((PyDapChainDatumTxObject *)self)->datum_tx),
+                 (uint8_t *)item);
+
+    if (rc != 1)
+        DAP_DELETE(item);
+
+    PyBuffer_Release(&tsd_value);
+    return PyLong_FromLong(rc);
+}
+
+
+
+PyObject *dap_chain_datum_tx_add_out_std_item_py(PyObject *self, PyObject *args)
+{
+    PyObject   *py_addr  = NULL;
+    PyObject   *py_value = NULL;
+    const char *token    = NULL;
+
+    if (!PyArg_ParseTuple(args, "OO|s", &py_addr, &py_value, &token))
+        return NULL;
+
+    uint256_t value = {0};
+
+    if (PyLong_Check(py_value)) {
+        PyObject *s = PyObject_Str(py_value);
+        if (!s) return NULL;
+        value = dap_chain_balance_scan(PyUnicode_AsUTF8(s));
+        Py_DECREF(s);
+    } else if (PyUnicode_Check(py_value))
+        value = dap_chain_balance_scan(PyUnicode_AsUTF8(py_value));
+    else if (PyBytes_Check(py_value))
+        value = dap_chain_balance_scan(PyBytes_AsString(py_value));
+    else {
+        PyErr_SetString(PyExc_TypeError,
+                        "value must be int, str or bytes with decimal number");
+        return NULL;
+    }
+
+    int rc = dap_chain_datum_tx_add_out_std_item(
+                 &(((PyDapChainDatumTxObject *)self)->datum_tx),
+                 ((PyDapChainAddrObject *)py_addr)->addr,
+                 value, token, 0);
+
+    return PyLong_FromLong(rc);
+}
+
+
+PyObject *dap_chain_datum_tx_add_fee_item_py(PyObject *self, PyObject *args)
+{
+    PyObject *py_val = NULL;
+    if (!PyArg_ParseTuple(args, "O", &py_val))
+        return NULL;
+
+    uint256_t val = {0};
+
+    if (PyLong_Check(py_val)) {
+        char buf[64];
+        sprintf(buf, "%llu",
+                (unsigned long long)PyLong_AsUnsignedLongLong(py_val));
+        val = dap_chain_balance_scan(buf);
+    } else if (PyUnicode_Check(py_val))
+        val = dap_chain_balance_scan(PyUnicode_AsUTF8(py_val));
+    else if (PyBytes_Check(py_val))
+        val = dap_chain_balance_scan(PyBytes_AsString(py_val));
+    else {
+        PyErr_SetString(PyExc_TypeError,
+                        "fee must be int, str or bytes with decimal number");
+        return NULL;
+    }
+
+    int rc = dap_chain_datum_tx_add_fee_item(
+                 &(((PyDapChainDatumTxObject *)self)->datum_tx), val);
+
+    return PyLong_FromLong(rc);
+}
+
 
 /* -------------------------------------- */
