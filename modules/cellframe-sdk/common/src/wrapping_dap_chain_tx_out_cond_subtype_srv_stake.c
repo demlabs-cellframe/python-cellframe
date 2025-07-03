@@ -15,7 +15,7 @@ PyTypeObject DapChainTxOutCondSubTypeSrvStakePosDelegateObjectType = {
         .tp_name = "CellFrame.ChainTxOutCondSubTypeSrvStake",
         .tp_basicsize = sizeof(PyDapChainTxOutCondObject),
         .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASE_EXC_SUBCLASS,
-        "Chain tx cond subtype srv stake object",
+        .tp_doc = "Chain tx cond subtype srv stake object",
         .tp_getset = DapChainTxOutCondSubtypeSrvStakePosDelegateGetsSetsDef,
         .tp_base = &DapChainTxOutCondObjectType,
         .tp_init = (initproc)DapChainTxOutCondSubtypeSrvStakePosDelegate_init,

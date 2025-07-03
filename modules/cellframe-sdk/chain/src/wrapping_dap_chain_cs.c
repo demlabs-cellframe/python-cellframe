@@ -13,7 +13,7 @@ PyTypeObject DapChainCsObjectType = {
         .tp_name = "CellFrame.ChainCS",
         .tp_basicsize = sizeof(PyDapChainCsObject),
         .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
-        "Chain cs object",
+        .tp_doc = "Chain cs object",
         .tp_methods = DapChainCSMethods,
         .tp_new = DapChainCSObject_new
 };

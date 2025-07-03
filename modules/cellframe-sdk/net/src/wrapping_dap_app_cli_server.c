@@ -14,7 +14,7 @@ PyTypeObject DapChainNodeCliObjectType = {
         .tp_name = "CellFrame.AppCliServer",
         .tp_basicsize = sizeof(PyDapAppCliServerObject),
         .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
-        "Chain net node cli object",
+        .tp_doc = "Chain net node cli object",
         .tp_methods = DapChainNodeCliMethods,
         .tp_new = DapChainNodeCliObject_new
 };

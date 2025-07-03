@@ -17,7 +17,7 @@ PyTypeObject DapChainTxOutCondSubTypeSrvXchangeObjectType = {
         .tp_name = "CellFrame.ChainTxOutCondSubTypeSrvXchange",
         .tp_basicsize = sizeof(PyDapChainTxOutCondObject),
         .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASE_EXC_SUBCLASS,
-        "Chain tx cond subtype srv xchange object",
+        .tp_doc = "Chain tx cond subtype srv xchange object",
         .tp_getset = DapChainTxOutCondSubtypeSrvXchangeGetsSetsDef,
         .tp_base = &DapChainTxOutCondObjectType,
         .tp_init = (initproc)DapChainTxOutCondSubtypeSrvXchange_init,

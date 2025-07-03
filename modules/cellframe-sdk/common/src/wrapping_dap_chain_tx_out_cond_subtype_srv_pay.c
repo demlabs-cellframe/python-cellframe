@@ -18,7 +18,7 @@ PyTypeObject DapChainTxOutCondSubTypeSrvPayObjectType = {
         .tp_name = "CellFrame.ChainTxOutCondSubTypeSrvPay",
         .tp_basicsize = sizeof(PyDapChainTxOutCondObject),
         .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASE_EXC_SUBCLASS,
-        "Chain tx cond subtype srv pay object",
+        .tp_doc = "Chain tx cond subtype srv pay object",
         .tp_getset = DapChainTxOutCondSubtypeStvPayGetsSetsDef,
         .tp_base = &DapChainTxOutCondObjectType,
         .tp_new = wrapping_dap_chain_tx_out_cond_subtype_srv_pay_new

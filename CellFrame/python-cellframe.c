@@ -2,6 +2,11 @@
 
 #define LOG_TAG "python-cellframe"
 
+// Fallback definition for DAP_VERSION if not defined during compilation
+#ifndef DAP_VERSION
+#define DAP_VERSION "0.9-15"
+#endif
+
 static bool s_init_crypto = false;
 static bool s_init_chain = false;
 static bool s_init_app_cli = false;
@@ -137,7 +142,8 @@ PyObject *python_cellframe_init(PyObject *self, PyObject *args)
             if (dap_chain_cs_dag_pos_init() != 0){
                 PyErr_SetString(CellFrame_error, "Failed to initialize ChainCSDagPos module. ");
                 return NULL;
-            } */
+            }
+        } */
         } else if (strcmp(c_value, "ChainNetSrv") == 0){
             if (dap_chain_net_srv_init() != 0){
                 PyErr_SetString(CellFrame_error, "Failed to initialize \"ChainNetSrv\" module");
@@ -562,6 +568,18 @@ PyMODINIT_FUNC PyInit_libCellFrame(void)
     if (
         // ==== Common ===
         PyType_Ready( &DapAppCliObjectType ) < 0 ||
+        PyType_Ready( &DapMathObjectType ) < 0 ||
+        PyType_Ready( &DapHashFastObjectType ) < 0 ||
+        PyType_Ready( &DapCryptoSignObjectType ) < 0 ||
+        PyType_Ready( &DapCryptoCertObjectType ) < 0 ||
+        PyType_Ready( &DapPkeyObject_DapPkeyObjectType ) < 0 ||
+        PyType_Ready( &PyCryptoKeyObjectType ) < 0 ||
+        // === Tx conds subtypes ===
+        PyType_Ready( &DapChainTxOutCondSubTypeSrvPayObjectType ) < 0 ||
+        PyType_Ready( &DapChainTxOutCondSubTypeSrvStakeLockObjectType ) < 0 ||
+        PyType_Ready( &DapChainTxOutCondSubTypeSrvStakeLockFlagObjectType ) < 0 ||
+        PyType_Ready( &DapChainTxOutCondSubTypeSrvStakeLockFlagListObjectType ) < 0 ||
+        PyType_Ready( &DapChainTxOutCondSubTypeSrvStakePosDelegateObjectType ) < 0 ||
         // === Chain ===
         PyType_Ready( &DapChainObjectType ) < 0 ||
         PyType_Ready( &DapChainIdObjectType ) < 0 ||
@@ -593,11 +611,8 @@ PyMODINIT_FUNC PyInit_libCellFrame(void)
         PyType_Ready( &DapChainTxTokenExtType ) < 0 ||
         PyType_Ready( &DapChainTxOutCondObjectType ) < 0 ||
         PyType_Ready( &DapChainTxOutCondSubTypeObjectType ) < 0 ||
-        PyType_Ready( &DapChainTxOutCondSubTypeSrvPayObjectType ) < 0 ||
         PyType_Ready( &DapChainTxOutCondSubTypeSrvStakePosDelegateObjectType ) < 0 ||
         PyType_Ready( &DapChainTxOutCondSubTypeSrvStakeLockObjectType ) < 0 ||
-        PyType_Ready( &DapChainTxOutCondSubTypeSrvStakeLockFlagObjectType ) < 0 ||
-        PyType_Ready( &DapChainTxOutCondSubTypeSrvStakeLockFlagListObjectType ) < 0 ||
         PyType_Ready( &DapChainTxOutCondSubTypeSrvXchangeObjectType ) < 0 ||
         PyType_Ready( &DapChainTxInObjectType ) < 0 ||
         PyType_Ready( &DapChainTxInCondObjectType ) < 0 ||

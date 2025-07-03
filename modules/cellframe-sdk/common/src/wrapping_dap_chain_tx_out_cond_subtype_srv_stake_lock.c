@@ -22,7 +22,7 @@ PyTypeObject DapChainTxOutCondSubTypeSrvStakeLockObjectType = {
         .tp_name = "CellFrame.ChainTxOutCondSubTypeSrvStakeLock",
         .tp_basicsize = sizeof(PyDapChainTxOutCondObject),
         .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_TYPE_SUBCLASS,
-        "Chain tx cond subtype srv stake lock object",
+        .tp_doc = "Chain tx cond subtype srv stake lock object",
         .tp_getset = DapChainTxOutCondSubtypeSrvStakeLockGetsSetsDef,
         .tp_base = &DapChainTxOutCondObjectType,
         .tp_init = (initproc)DapChainTxOutCondSubtypeSrvStakeLock_new,
@@ -166,10 +166,12 @@ PyGetSetDef DapChainTxOutCondSubtypeSrvStakeLockFlagListGetsSetsDef[]={
     {"byTime", (getter)_w_flag_by_time, NULL, "", NULL},
     {"createBaseTx", (getter)_w_flag_create_base_tx, NULL, "", NULL},
     {"emit", (getter)_w_flag_flag_emit, NULL, "", NULL},
+    {}
 };
 
 PyTypeObject DapChainTxOutCondSubTypeSrvStakeLockFlagListObjectType = DAP_PY_TYPE_OBJECT(
     "CellFrame.ChainTxOutCondSubTypeSrvStakeLockFlagList",
     sizeof(PyDapChainTxOutCondSubTypeSrvStakeLockFlagObject),
     "Chain tx cond subtype srv stake lock flag list object",
-    .tp_getset = DapChainTxOutCondSubtypeSrvStakeLockFlagListGetsSetsDef);
+    .tp_getset = DapChainTxOutCondSubtypeSrvStakeLockFlagListGetsSetsDef
+);

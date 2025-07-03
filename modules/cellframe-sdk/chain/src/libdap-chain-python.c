@@ -47,6 +47,7 @@ PyTypeObject DapChainObjectType = {
         .tp_str = PyDapChain_str,
         .tp_dealloc = (destructor)PyDapChainObject_dealloc,
         .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
+        .tp_doc = "Chain object",
         .tp_methods = DapChainMethods,
         .tp_new = PyDapChainObject_new
 };

@@ -6,6 +6,11 @@ set(CMAKE_VERBOSE_MAKEFILE ON)
 set(CMAKE_COLOR_MAKEFILE   ON)
 set(CMAKE_C_STANDARD 11)
 
+# Add DAP_VERSION definition for all builds to prevent null pointer issues
+if(NOT DEFINED DAP_VERSION)
+    set(DAP_VERSION "6.0-LOCALBUILD1")
+endif()
+add_definitions("-DDAP_VERSION=\"${DAP_VERSION}\"")
 
 #set(Python_ADDITIONAL_VERSIONS 3.9 3.8 3.7 3.6 3.5 3.4)
 #find_package (PythonLibs REQUIRED)
@@ -20,7 +25,7 @@ if (SUPPORT_PYTHON_PLUGINS)
         modules/plugins/include/dap_plugins_python_app_context.h)
 
     add_definitions("-fpic")
-     
+    
     add_definitions("-DDAP_SUPPORT_PYTHON_PLUGINS")
     add_library(${PROJECT_NAME} STATIC ${PYTHON_CELLFRAME_SRCS} ${APP_CONTEXT_HEADER} ${PYTHON_CELLFRAME_HEADERS})
     target_include_directories(${PROJECT_NAME} INTERFACE include/)

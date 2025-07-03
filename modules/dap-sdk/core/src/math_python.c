@@ -14,8 +14,8 @@ PyNumberMethods DapMathNumberMethods = {
 };
 
 static PyGetSetDef DapMathGetsSets[] = {
-        {"coins", (getter)wrapping_dap_math_get_coins, NULL, NULL, NULL},
-        {"balance", (getter)wrapping_dap_math_get_balance, NULL, NULL, NULL},
+        {"coins", (getter)wrapping_dap_math_get_coins, NULL, "Number of coins", NULL},
+        {"balance", (getter)wrapping_dap_math_get_balance, NULL, "Balance value", NULL},
         {NULL, NULL, NULL, NULL, NULL}
 };
 
@@ -35,7 +35,7 @@ PyTypeObject DapMathObjectType = {
         .tp_str = math_python_str,
         .tp_richcompare = math_python_richcompare,
         .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
-        "Dap math methods",
+        .tp_doc = "Dap math methods",
         .tp_getset = DapMathGetsSets,
         .tp_methods = DapMathMethods,
         .tp_init = math_python_create,

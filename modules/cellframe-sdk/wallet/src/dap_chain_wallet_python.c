@@ -29,7 +29,7 @@ PyTypeObject DapChainWalletObjectType = {
         .tp_basicsize = sizeof(PyDapChainWalletObject),
         .tp_dealloc = (destructor)dap_chain_wallet_close_py,
         .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
-        "Chain wallet object",
+        .tp_doc = "Chain wallet object",
         .tp_methods = ChainWalletMethods,
         .tp_new = dap_chain_wallet_create_py
 };

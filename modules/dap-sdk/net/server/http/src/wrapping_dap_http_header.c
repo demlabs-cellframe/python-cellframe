@@ -4,8 +4,8 @@
 #define PVT(a) ((PyDapHttpHeaderObject*)a)
 
 static PyGetSetDef DapHttpHeaderGetSetDef[] = {
-        {"name", (getter)wrapping_dap_http_header_get_name, NULL,  NULL, NULL},
-        {"value", (getter)wrapping_dap_http_header_get_value, NULL, NULL, NULL},
+        {"name", (getter)wrapping_dap_http_header_get_name, NULL,  "Header name", NULL},
+        {"value", (getter)wrapping_dap_http_header_get_value, NULL, "Header value", NULL},
         {}
 };
 
@@ -20,7 +20,7 @@ PyTypeObject  DapHttpHeaderObjectType = {
         .tp_basicsize = sizeof(PyDapHttpHeaderObject),
         .tp_dealloc = (destructor)DapHttpHeaderObject_dealloc,
         .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
-        "This wrapper allows you to work with HTTP headers for HttpSimple.",
+        .tp_doc = "This wrapper allows you to work with HTTP headers for HttpSimple.",
         .tp_getset = DapHttpHeaderGetSetDef,
         .tp_iter = DapHttpHeaderObject_GetIter,
         .tp_iternext = DapHttpHeaderObject_GetNext,

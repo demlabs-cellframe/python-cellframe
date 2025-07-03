@@ -6,6 +6,20 @@ set(CMAKE_COLOR_MAKEFILE   ON)
 set(CMAKE_C_STANDARD 11)
 add_definitions("-fpic")
 add_definitions("-DDAP_LOG_MT")
+
+# Add PYTHON_VERSION definition to match the main CMakeLists.txt
+if(APPLE)
+    add_definitions("-DPYTHON_VERSION=\"python3.10\"")
+elseif(UNIX)
+    add_definitions("-DPYTHON_VERSION=\"python3.10\"")
+endif()
+
+# Add DAP_VERSION definition to prevent null pointer issues
+if(NOT DEFINED DAP_VERSION)
+    set(DAP_VERSION "6.0-LOCALBUILD1")
+endif()
+add_definitions("-DDAP_VERSION=\"${DAP_VERSION}\"")
+
 #add_subdirectory(python-cellframe)
 #target_compile_options(API_CellFrame PRIVATE "-fpic")
 

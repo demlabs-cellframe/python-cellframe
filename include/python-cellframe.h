@@ -8,6 +8,9 @@
 #include "wrapping_dap_crypto_key_types.h"
 #include "libdap_crypto_data_type.h"
 #include "wrapping_dap_sign.h"
+#include "wrapping_cert.h"
+#include "wrapping_dap_pkey.h"
+#include "libdap_crypto_key_python.h"
 #include "wrapping_guuid.h"
 // === GlobalDB ==
 #include "wrapping_dap_global_db.h"
