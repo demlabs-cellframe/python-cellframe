@@ -208,9 +208,16 @@ int dap_chain_plugins_init(dap_config_t *a_config)
     
     // Initialize threading support - CRITICAL for multi-threaded environments
     if (!PyEval_ThreadsInitialized()) {
-        log_it(L_DEBUG, "Initializing Python thread support");  
+        log_it(L_DEBUG, "[GIL-DEBUG] Initializing Python thread support");  
         PyEval_InitThreads();
+        log_it(L_DEBUG, "[GIL-DEBUG] Python thread support initialized");
+    } else {
+        log_it(L_DEBUG, "[GIL-DEBUG] Python thread support already initialized");
     }
+    
+    log_it(L_DEBUG, "[GIL-DEBUG] Init complete thread=%lu py_thread=%lu gil=%s", 
+           (unsigned long)pthread_self(), PyThread_get_thread_ident(), 
+           PyGILState_Check() ? "HELD" : "NOT_HELD");
 
     char py_path[1024];
     wchar_t *py_wpath = Py_GetPythonHome();
@@ -252,7 +259,16 @@ int dap_chain_plugins_init(dap_config_t *a_config)
                                "\tprint(\"sys.%s = %r\" % (attr, getattr(sys, attr)))\n");
     }
 
-    log_it(L_DEBUG, "Python initialization complete, GIL held by main thread");
+    log_it(L_DEBUG, "[GIL-DEBUG] Python initialization complete, GIL held by main thread");
+
+    // CRITICAL FIX: Release GIL after initialization to allow other threads to acquire it
+    PyThreadState *main_thread_state = PyEval_SaveThread();
+    log_it(L_DEBUG, "[GIL-DEBUG] Main thread RELEASED GIL thread=%lu state=%p", 
+           (unsigned long)pthread_self(), main_thread_state);
+    
+    // Store main thread state for later use if needed
+    static PyThreadState *s_main_thread_state = NULL;
+    s_main_thread_state = main_thread_state;
 
     PyConfig_Clear(&l_config);
     return 0;
@@ -270,7 +286,9 @@ void dap_chain_plugins_save_thread(dap_config_t *a_config)
 {
     // Thread state management simplified - main thread keeps GIL throughout execution
     if (s_python_initialized && dap_config_get_item_bool_default(a_config, "plugins", "py_load", false)) {
-        log_it(L_DEBUG, "Python thread state management: main thread holds GIL");
+        log_it(L_DEBUG, "[GIL-DEBUG] save_thread thread=%lu py_thread=%lu gil=%s", 
+               (unsigned long)pthread_self(), PyThread_get_thread_ident(), 
+               PyGILState_Check() ? "HELD" : "NOT_HELD");
     }
 }
 
@@ -423,6 +441,11 @@ static void s_plugins_load_plugin_initialization(void* a_module){
         return;
     }
     
+    // CRITICAL FIX: Acquire GIL before accessing ANY Python objects
+    log_it(L_DEBUG, "[GIL-DEBUG] Plugin init acquire thread=%lu", (unsigned long)pthread_self());
+    PyGILState_STATE gstate = PyGILState_Ensure();
+    log_it(L_DEBUG, "[GIL-DEBUG] Plugin init acquired state=%d thread=%lu", gstate, (unsigned long)pthread_self());
+    
     _dap_chain_plugins_module_t  *l_container = (_dap_chain_plugins_module_t  *)a_module;
     log_it(L_NOTICE, "Initializing plugin: %s", l_container->name ? l_container->name : "UNKNOWN");
     
@@ -432,6 +455,8 @@ static void s_plugins_load_plugin_initialization(void* a_module){
         log_it(L_ERROR, "No 'init' attribute found for plugin %s", l_container->name);
         python_error_in_log_it(LOG_TAG);
         PyErr_Clear();
+        log_it(L_DEBUG, "[GIL-DEBUG] Plugin init release (no init) thread=%lu", (unsigned long)pthread_self());
+        PyGILState_Release(gstate);
         return;
     }
     
@@ -448,11 +473,14 @@ static void s_plugins_load_plugin_initialization(void* a_module){
             python_error_in_log_it(LOG_TAG);
             Py_XDECREF(l_func_init);
             Py_XDECREF(l_func_deinit);
+            log_it(L_DEBUG, "[GIL-DEBUG] Plugin init release (tuple error) thread=%lu", (unsigned long)pthread_self());
+            PyGILState_Release(gstate);
             return;
         }
         
         log_it(L_NOTICE, "CALLING PLUGIN INIT FUNCTION - CRITICAL SECTION");
-        // GIL is already held by caller, no need to acquire again
+        // GIL is already acquired at function start
+        
         l_res_int = PyObject_CallObject(l_func_init, l_void_tuple);
         
         if (l_res_int) {
@@ -491,12 +519,20 @@ static void s_plugins_load_plugin_initialization(void* a_module){
     }
     Py_XDECREF(l_func_deinit);
     
+    log_it(L_DEBUG, "[GIL-DEBUG] Plugin init release (end) thread=%lu", (unsigned long)pthread_self());
+    PyGILState_Release(gstate);
+    
     log_it(L_NOTICE, "=== PLUGIN INITIALIZATION COMPLETED ===");
 }
 
 static void s_plugins_load_plugin_uninitialization(void* a_module){
     if (!a_module)
         return;
+        
+    log_it(L_DEBUG, "[GIL-DEBUG] Plugin deinit acquire thread=%lu", (unsigned long)pthread_self());
+    PyGILState_STATE gstate = PyGILState_Ensure();
+    log_it(L_DEBUG, "[GIL-DEBUG] Plugin deinit acquired state=%d thread=%lu", gstate, (unsigned long)pthread_self());
+    
     _dap_chain_plugins_module_t  *l_container = (_dap_chain_plugins_module_t  *)a_module;
     PyObject *l_func_deinit = PyObject_GetAttrString(l_container->module, "deinit");
     PyObject *l_res_int = NULL;
@@ -524,12 +560,18 @@ static void s_plugins_load_plugin_uninitialization(void* a_module){
         log_it(L_ERROR, "Can't find 'deinit' function of \"%s\" plugin", l_container->name);
     }
     Py_XDECREF(l_func_deinit);
+    
+    log_it(L_DEBUG, "[GIL-DEBUG] Plugin deinit release thread=%lu", (unsigned long)pthread_self());
+    PyGILState_Release(gstate);
 }
 
 void dap_chain_plugins_load_plugin(const char *a_dir_path, const char *a_name){
     log_it(L_NOTICE, "Loading \"%s\" plugin directory %s", a_name, a_dir_path);
     
-    // Main thread already holds the GIL, no need for PyGILState_Ensure/Release
+    log_it(L_DEBUG, "[GIL-DEBUG] Plugin load acquire thread=%lu", (unsigned long)pthread_self());
+    PyGILState_STATE gstate = PyGILState_Ensure();
+    log_it(L_DEBUG, "[GIL-DEBUG] Plugin load acquired state=%d thread=%lu", gstate, (unsigned long)pthread_self());
+    
     PyErr_Clear();
 
     PyObject *l_obj_dir_path = PyUnicode_FromString(a_dir_path);
@@ -579,6 +621,9 @@ void dap_chain_plugins_load_plugin(const char *a_dir_path, const char *a_name){
     Py_XDECREF(l_func_init);
     Py_XDECREF(l_func_deinit);
     Py_DECREF(l_module);
+    
+    log_it(L_DEBUG, "[GIL-DEBUG] Plugin load release thread=%lu", (unsigned long)pthread_self());
+    PyGILState_Release(gstate);
 }
 
 /**

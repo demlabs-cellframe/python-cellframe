@@ -16,7 +16,9 @@ struct _w_json_rpc_handler *handlers = NULL;
 
 void _w_dap_json_rpc_request_handler(dap_json_rpc_params_t *a_params, dap_json_rpc_response_t *a_response, const char *a_method){
     int count_params = a_params->length;
+    log_it(L_DEBUG, "[GIL-DEBUG] JSON-RPC handler acquire thread=%lu method=%s", (unsigned long)pthread_self(), a_method);
     PyGILState_STATE GILState = PyGILState_Ensure();
+    log_it(L_DEBUG, "[GIL-DEBUG] JSON-RPC handler acquired state=%d thread=%lu", GILState, (unsigned long)pthread_self());
     PyDapJSONRPCResponseObject *obj_response = PyObject_NEW(PyDapJSONRPCResponseObject, &DapJsonRpcResponseobjectType);
     obj_response->response = a_response;
     PyObject *obj_params = PyList_New(count_params);
@@ -57,6 +59,7 @@ void _w_dap_json_rpc_request_handler(dap_json_rpc_params_t *a_params, dap_json_r
         //Called python func
         PyObject *obj_result = PyObject_CallObject(func->call_func, args);
         python_error_in_log_it(LOG_TAG);
+        log_it(L_DEBUG, "[GIL-DEBUG] JSON-RPC handler release (success) thread=%lu", (unsigned long)pthread_self());
         PyGILState_Release(GILState);
         if (!obj_result){
             log_it(L_ERROR, "Can't call method: %s", a_method);
@@ -69,6 +72,7 @@ void _w_dap_json_rpc_request_handler(dap_json_rpc_params_t *a_params, dap_json_r
             return;
         }
     } else {
+        log_it(L_DEBUG, "[GIL-DEBUG] JSON-RPC handler release (not found) thread=%lu", (unsigned long)pthread_self());
         PyGILState_Release(GILState);
         log_it(L_WARNING, "Can't call method: %s. It isn't in the python function table", a_method);
         a_response->type = TYPE_RESPONSE_NULL;

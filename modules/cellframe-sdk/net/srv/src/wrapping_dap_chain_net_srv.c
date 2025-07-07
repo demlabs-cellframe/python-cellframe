@@ -50,10 +50,13 @@ int _w_dap_chain_callback_data_t_requested(
         log_it(L_ERROR, "Python function must be a callable");
         return -1;
     }
+    log_it(L_DEBUG, "[GIL-DEBUG] NetSrv requested acquire thread=%lu", (unsigned long)pthread_self());
     PyGILState_STATE state = PyGILState_Ensure();
+    log_it(L_DEBUG, "[GIL-DEBUG] NetSrv requested acquired state=%d thread=%lu", state, (unsigned long)pthread_self());
     PyObject *l_arg = _wrapping_dac_chain_callback_data_t_get_tuple(a_srv, a_usage_id, a_srv_client, a_custom_data,
                                                                     a_custom_data_size);
     PyObject *result = PyObject_CallObject(l_func, l_arg);
+    log_it(L_DEBUG, "[GIL-DEBUG] NetSrv requested release thread=%lu", (unsigned long)pthread_self());
     PyGILState_Release(state);
     if(result == NULL){
         python_error_in_log_it(LOG_TAG);
@@ -77,10 +80,13 @@ int _w_dap_chain_callback_data_t_response_success(
         log_it(L_ERROR, "Python function must be a callable");
         return -1;
     }
+    log_it(L_DEBUG, "[GIL-DEBUG] NetSrv success acquire thread=%lu", (unsigned long)pthread_self());
     PyGILState_STATE state = PyGILState_Ensure();
+    log_it(L_DEBUG, "[GIL-DEBUG] NetSrv success acquired state=%d thread=%lu", state, (unsigned long)pthread_self());
     PyObject *l_arg = _wrapping_dac_chain_callback_data_t_get_tuple(a_srv, a_usage_id, a_srv_client, a_custom_data,
                                                                     a_custom_data_size);
     PyObject *result = PyObject_CallObject(l_func, l_arg);
+    log_it(L_DEBUG, "[GIL-DEBUG] NetSrv success release thread=%lu", (unsigned long)pthread_self());
     PyGILState_Release(state);
     if(result == NULL){
         python_error_in_log_it(LOG_TAG);
@@ -105,10 +111,13 @@ int _w_dap_chain_callback_data_t_response_error(
         log_it(L_ERROR, "Python function must be a callable");
         return -1;
     }
+    log_it(L_DEBUG, "[GIL-DEBUG] NetSrv error acquire thread=%lu", (unsigned long)pthread_self());
     PyGILState_STATE state = PyGILState_Ensure();
+    log_it(L_DEBUG, "[GIL-DEBUG] NetSrv error acquired state=%d thread=%lu", state, (unsigned long)pthread_self());
     PyObject *l_arg = _wrapping_dac_chain_callback_data_t_get_tuple(a_srv, a_usage_id, a_srv_client, a_custom_data,
                                                                     a_custom_data_size);
     PyObject *result = PyObject_CallObject(l_func, l_arg);
+    log_it(L_DEBUG, "[GIL-DEBUG] NetSrv error release thread=%lu", (unsigned long)pthread_self());
     PyGILState_Release(state);
     if(result == NULL){
         python_error_in_log_it(LOG_TAG);
@@ -133,10 +142,13 @@ int _w_dap_chain_callback_data_t_receipt_next_success(
         log_it(L_ERROR, "Python function must be a callable");
         return -1;
     }
+    log_it(L_DEBUG, "[GIL-DEBUG] NetSrv receipt acquire thread=%lu", (unsigned long)pthread_self());
     PyGILState_STATE state = PyGILState_Ensure();
+    log_it(L_DEBUG, "[GIL-DEBUG] NetSrv receipt acquired state=%d thread=%lu", state, (unsigned long)pthread_self());
     PyObject *l_arg = _wrapping_dac_chain_callback_data_t_get_tuple(a_srv, a_usage_id, a_srv_client, a_custom_data,
                                                                     a_custom_data_size);
     PyObject *result = PyObject_CallObject(l_func, l_arg);
+    log_it(L_DEBUG, "[GIL-DEBUG] NetSrv receipt release thread=%lu", (unsigned long)pthread_self());
     PyGILState_Release(state);
     if(result == NULL){
         python_error_in_log_it(LOG_TAG);
@@ -161,11 +173,14 @@ void *_w_dap_chain_callback_data_t_custom_data(dap_chain_net_srv_t *a_srv,
         log_it(L_ERROR, "Python function must be a callable");
         return NULL;
     }
+    log_it(L_DEBUG, "[GIL-DEBUG] NetSrv custom_data acquire thread=%lu", (unsigned long)pthread_self());
     PyGILState_STATE state = PyGILState_Ensure();
+    log_it(L_DEBUG, "[GIL-DEBUG] NetSrv custom_data acquired state=%d thread=%lu", state, (unsigned long)pthread_self());
     PyObject *l_arg = _wrapping_dac_chain_callback_data_t_get_tuple(a_srv, a_usage ? a_usage->id : 0,
                                                                     a_usage ? a_usage->client : NULL,
                                                                     a_custom_data, a_custom_data_size);
     PyObject *result = PyObject_CallObject(l_func, l_arg);
+    log_it(L_DEBUG, "[GIL-DEBUG] NetSrv custom_data release thread=%lu", (unsigned long)pthread_self());
     PyGILState_Release(state);
     if(result == NULL){
         python_error_in_log_it(LOG_TAG);

@@ -59,8 +59,10 @@ PyObject *_w_simple_proc_find(const char *url){
 
 void wrapping_dap_http_simple_callback(dap_http_simple_t *sh, void *obj){
     log_it(L_DEBUG, "Handling C module request ...");
+    log_it(L_DEBUG, "[GIL-DEBUG] HTTP callback acquire thread=%lu", (unsigned long)pthread_self());
     PyGILState_STATE gstate;
     gstate = PyGILState_Ensure();
+    log_it(L_DEBUG, "[GIL-DEBUG] HTTP callback acquired state=%d thread=%lu", gstate, (unsigned long)pthread_self());
     PyObject *obj_func = _w_simple_proc_find(sh->http_client->proc->url);
     PyDapHttpSimpleObject *obj_http_simple = PyObject_NEW(PyDapHttpSimpleObject, &DapHttpSimpleObjectType);
     PyObject *obj_http_status_code = _PyObject_New(&DapHttpCodeObjectType);
@@ -87,6 +89,7 @@ void wrapping_dap_http_simple_callback(dap_http_simple_t *sh, void *obj){
     Py_XDECREF(obj_argv);
     Py_XDECREF(obj_http_status_code);
     Py_XDECREF(obj_http_simple);
+    log_it(L_DEBUG, "[GIL-DEBUG] HTTP callback release thread=%lu", (unsigned long)pthread_self());
     PyGILState_Release(gstate);
 }
 

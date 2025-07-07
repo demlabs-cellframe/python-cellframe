@@ -6,6 +6,7 @@
 #include "wrapping_dap_global_db_role.h"
 #include "wrapping_dap_cluster_member.h"
 
+#define LOG_TAG "wrapping_dap_global_db_cluster"
 
 static PyMethodDef DapGlobalDBClusterMethods[] = {
     {"byGroup", (PyCFunction)wrapping_dap_global_db_cluster_by_group, METH_VARARGS | METH_STATIC, ""},
@@ -131,7 +132,9 @@ bool _wrapping_dap_global_db_cluster_callback_call_func_python(void *a_arg) {
         return false;
 
     _wrapping_dap_global_db_cluster_notify_callback_t *l_callback = (_wrapping_dap_global_db_cluster_notify_callback_t *)a_arg;
+    log_it(L_DEBUG, "[GIL-DEBUG] GlobalDB notify callback acquire thread=%lu", (unsigned long)pthread_self());
     PyGILState_STATE state = PyGILState_Ensure();
+    log_it(L_DEBUG, "[GIL-DEBUG] GlobalDB notify callback acquired state=%d thread=%lu", state, (unsigned long)pthread_self());
     char l_op_code[2];
     l_op_code[0] = dap_store_obj_get_type(l_callback->store_obj);
     l_op_code[1] = '\0';
@@ -147,6 +150,7 @@ bool _wrapping_dap_global_db_cluster_callback_call_func_python(void *a_arg) {
     Py_DECREF(argv);
     Py_XDECREF(l_callback->func);
     Py_XDECREF(l_callback->arg);
+    log_it(L_DEBUG, "[GIL-DEBUG] GlobalDB notify callback release thread=%lu", (unsigned long)pthread_self());
     PyGILState_Release(state);
     dap_store_obj_free_one(l_callback->store_obj);
     return false;

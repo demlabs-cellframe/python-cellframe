@@ -57,7 +57,7 @@ PyObject *wrapping_dap_stream_ch_chain_validator_test_get_signs(PyObject *self, 
             Py_XDECREF(obj_sign_list);
             Py_RETURN_NONE;
         }
-        PyObject *obj_sign = PyDapSignObject_Cretae(l_sign);
+        PyObject *obj_sign = PyDapSignObject_Create(l_sign);
         PyList_Append(obj_sign_list, obj_sign);
         Py_XDECREF((PyObject*)obj_sign);
         l_sign_size_max += l_sign_size;
