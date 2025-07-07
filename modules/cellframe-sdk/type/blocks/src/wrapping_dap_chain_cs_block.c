@@ -1,5 +1,6 @@
 #include "wrapping_dap_chain_cs_block.h"
 #include "dap_chain_cs_blocks.h"
+#include "libdap_chain_net_python.h"
 
 #define LOG_TAG "CS blocks wrapper"
 
@@ -21,6 +22,7 @@ static PyMethodDef DapChainCsBlockMethods[] = {
         {"ledgerRetCode", wrapping_dap_chain_block_get_ledger_ret_code, METH_VARARGS | METH_STATIC, ""},
         {"byTxHash", wrapping_dap_chain_block_get_block_from_hash, METH_VARARGS | METH_STATIC, ""},
         {"getBlockSignersRewards", wrapping_dap_chain_cs_block_get_block_signers_rewards, METH_VARARGS, ""},
+        {"getNumber", wrapping_dap_chain_block_get_number, METH_VARARGS, ""},
         {}
 };
 
@@ -29,6 +31,58 @@ PyTypeObject DapChainCsBlockType = DAP_PY_TYPE_OBJECT(
         "Chain cs block objects",
         .tp_methods = DapChainCsBlockMethods,
         .tp_getset = DapChainCsBlockGetsSetsDef);
+
+PyObject *wrapping_dap_chain_block_get_number(PyObject *self, PyObject *args){
+    PyDapChainNetObject *obj_net;
+    PyDapChainObject *obj_chain;
+    if (!PyArg_ParseTuple(args, "OO", &obj_net, &obj_chain)) {
+        log_it(L_ERROR, "Invalid input parameters");
+        return NULL;
+    }
+    if (!self) {
+        log_it(L_ERROR, "Invalid input parameters");
+        return NULL;
+    }
+    if (!PyDapChain_Check(obj_chain)) {
+        PyErr_SetString(PyExc_AttributeError, "Second argument must be a DapChainObject");
+        return NULL;
+    }
+    if (!PyDapChainNet_Check(obj_net)) {
+        PyErr_SetString(PyExc_AttributeError, "First argument must be a DapChainNet object");
+        return NULL;
+    }
+    
+    dap_chain_t *l_chain = ((PyDapChainObject*)obj_chain)->chain_t;
+    
+    if (!l_chain) {
+        log_it(L_WARNING, "Chain not found in network");
+        Py_RETURN_NONE;
+    }
+    
+    // Calculate block hash
+    dap_chain_hash_fast_t l_block_hash = {0};
+    dap_hash_fast(((PyDapChainCSBlockObject*)self)->block,
+                  ((PyDapChainCSBlockObject*)self)->block_size, &l_block_hash);
+    
+    // Get block cache using the calculated hash
+    dap_chain_cs_blocks_t *l_blocks = DAP_CHAIN_CS_BLOCKS(l_chain);
+
+    if (!l_blocks) {
+        log_it(L_WARNING, "Blocks not found");
+        Py_RETURN_NONE;
+    }
+    
+    dap_chain_block_cache_t *l_block_cache = dap_chain_block_cache_get_by_hash(
+        l_blocks, &l_block_hash
+    );
+    
+    if (!l_block_cache) {
+        log_it(L_WARNING, "Block cache not found");
+        Py_RETURN_NONE;
+    }
+    return Py_BuildValue("i", l_block_cache->block_number);
+}
+
 
 PyObject *wrapping_dap_chain_block_get_version(PyObject *self, void *closure){
     (void)closure;

@@ -81,10 +81,14 @@ static PyMethodDef PyDapChainDatumTxObjectMethods[] ={
         {"addInCondItem", (PyCFunction)dap_chain_datum_tx_add_in_cond_item_py, METH_VARARGS, ""},
         {"addOutItem", (PyCFunction)dap_chain_datum_tx_add_out_item_py, METH_VARARGS, ""},
         {"addOutCond", (PyCFunction)dap_chain_datum_tx_add_out_cond_item_py, METH_VARARGS, ""},
+        {"addOutStdItem", (PyCFunction)dap_chain_datum_tx_add_out_std_item_py, METH_VARARGS, ""},
         {"addSignItem", (PyCFunction)dap_chain_datum_tx_add_sign_item_py, METH_VARARGS, ""},
+        {"addFeeItem", (PyCFunction)dap_chain_datum_tx_add_fee_item_py, METH_VARARGS, ""},
         {"appendSignItem", (PyCFunction)dap_chain_datum_tx_append_sign_item_py, METH_VARARGS, ""},
         {"verifySign", (PyCFunction)dap_chain_datum_tx_verify_sign_py, METH_VARARGS, ""},
+        {"addTSDItem", (PyCFunction)dap_chain_datum_tx_add_tsd_item_py, METH_VARARGS, ""},
         {"getItems", (PyCFunction)wrapping_dap_chain_datum_tx_get_items, METH_NOARGS, ""},
+        {"getServiceTags", (PyCFunction)wrapping_dap_chain_datum_tx_get_service_tags, METH_VARARGS, ""},
         {}
 };
 
@@ -452,5 +456,219 @@ PyObject *wrapping_dap_chain_datum_tx_get_items(PyObject *self, PyObject *args) 
     }
     return obj_list;
 }
+
+PyObject *wrapping_dap_chain_datum_tx_get_service_tags(PyObject *self, PyObject *args) {
+    PyObject *obj_ledger;
+    if (!PyArg_ParseTuple(args, "O", &obj_ledger))
+        return NULL;
+     
+    if (!self || !DapChainDatumTx_Check(self)) {
+        log_it(L_ERROR, "Invalid transaction object");
+        Py_RETURN_NONE;
+    }
+    
+    if (!obj_ledger) {
+        log_it(L_ERROR, "Ledger parameter is required");
+        Py_RETURN_NONE;
+    }
+    
+    PyDapChainDatumTxObject *l_tx_obj = (PyDapChainDatumTxObject*)self;
+    if (!l_tx_obj->datum_tx) {
+        log_it(L_ERROR, "Transaction object has no datum_tx");
+        Py_RETURN_NONE;
+    }
+    
+    PyDapChainLedgerObject *l_ledger_obj = (PyDapChainLedgerObject*)obj_ledger;
+    if (!l_ledger_obj->ledger) {
+        log_it(L_ERROR, "Ledger object has no ledger");
+        Py_RETURN_NONE;
+    }
+    
+    // Variables to store service tag information
+    char *l_service_name = NULL;
+    dap_chain_net_srv_uid_t l_service_uid = { .uint64 = 0 };
+    dap_chain_tx_tag_action_type_t l_action = DAP_CHAIN_TX_TAG_ACTION_UNKNOWN;
+    
+    // Create Python dictionary to return
+    PyObject *l_result_dict = PyDict_New();
+    if (!l_result_dict) {
+        log_it(L_CRITICAL, "Failed to create result dictionary");
+        return NULL;
+    }
+    
+    // Try to deduce transaction tags from the transaction with the provided ledger
+    bool l_tag_found = dap_ledger_deduct_tx_tag(l_ledger_obj->ledger, l_tx_obj->datum_tx, &l_service_name, &l_service_uid, &l_action);
+    
+    // Convert action to string
+    const char *l_action_str = dap_ledger_tx_action_str(l_action);
+    
+    // Set action in dictionary
+    PyObject *l_action_py = PyUnicode_FromString(l_action_str ? l_action_str : "unknown");
+    if (!l_action_py) {
+        log_it(L_CRITICAL, "Failed to create action string");
+        Py_DECREF(l_result_dict);
+        return NULL;
+    }
+    if (PyDict_SetItemString(l_result_dict, "action", l_action_py) < 0) {
+        log_it(L_CRITICAL, "Failed to set action in dictionary");
+        Py_DECREF(l_action_py);
+        Py_DECREF(l_result_dict);
+        return NULL;
+    }
+    Py_DECREF(l_action_py);
+    
+    // Set service_name in dictionary
+    PyObject *l_service_name_py = PyUnicode_FromString(l_service_name ? l_service_name : "unknown");
+    if (!l_service_name_py) {
+        log_it(L_CRITICAL, "Failed to create service name string");
+        Py_DECREF(l_result_dict);
+        return NULL;
+    }
+    if (PyDict_SetItemString(l_result_dict, "service_name", l_service_name_py) < 0) {
+        log_it(L_CRITICAL, "Failed to set service_name in dictionary");
+        Py_DECREF(l_service_name_py);
+        Py_DECREF(l_result_dict);
+        return NULL;
+    }
+    Py_DECREF(l_service_name_py);
+    
+    // Set service_id in dictionary (as integer)
+    PyObject *l_service_id_py = PyLong_FromUnsignedLongLong(l_service_uid.uint64);
+    if (!l_service_id_py) {
+        log_it(L_CRITICAL, "Failed to create service ID");
+        Py_DECREF(l_result_dict);
+        return NULL;
+    }
+    if (PyDict_SetItemString(l_result_dict, "service_id", l_service_id_py) < 0) {
+        log_it(L_CRITICAL, "Failed to set service_id in dictionary");
+        Py_DECREF(l_service_id_py);
+        Py_DECREF(l_result_dict);
+        return NULL;
+    }
+    Py_DECREF(l_service_id_py);
+    
+    return l_result_dict;
+}
+
+PyObject *dap_chain_datum_tx_add_tsd_item_py(PyObject *self, PyObject *args)
+{
+    int tsd_type;
+    Py_buffer tsd_value;
+
+    if (!PyArg_ParseTuple(args, "iy*", &tsd_type, &tsd_value))
+        return NULL;
+
+    dap_chain_datum_tx_t *tx =
+        ((PyDapChainDatumTxObject *)self)->datum_tx;
+
+    uint32_t offset = 0;
+    uint32_t total  = tx->header.tx_items_size;
+
+    while (offset < total) {
+        uint8_t *item = tx->tx_items + offset;
+
+        if (*item == TX_ITEM_TYPE_SIG) {
+            PyBuffer_Release(&tsd_value);
+            PyErr_SetString(PyExc_RuntimeError,
+                            "TSD items cannot be added after signatures");
+            return NULL;
+        }
+        size_t item_sz = dap_chain_datum_item_tx_get_size(item, 0);
+        if (item_sz == 0) {
+            PyBuffer_Release(&tsd_value);
+            PyErr_SetString(PyExc_RuntimeError,
+                            "corrupted transaction items");
+            return NULL;
+        }
+        offset += item_sz;
+    }
+
+    dap_chain_tx_tsd_t *item =
+        dap_chain_datum_tx_item_tsd_create(tsd_value.buf,
+                                           tsd_type,
+                                           tsd_value.len);
+    if (!item) {
+        PyBuffer_Release(&tsd_value);
+        return PyErr_Format(PyExc_RuntimeError,
+                            "dap_chain_datum_tx_item_tsd_create() failed");
+    }
+
+    int rc = dap_chain_datum_tx_add_item(
+                 &(((PyDapChainDatumTxObject *)self)->datum_tx),
+                 (uint8_t *)item);
+
+    if (rc != 1)
+        DAP_DELETE(item);
+
+    PyBuffer_Release(&tsd_value);
+    return PyLong_FromLong(rc);
+}
+
+
+
+PyObject *dap_chain_datum_tx_add_out_std_item_py(PyObject *self, PyObject *args)
+{
+    PyObject   *py_addr  = NULL;
+    PyObject   *py_value = NULL;
+    const char *token    = NULL;
+
+    if (!PyArg_ParseTuple(args, "OO|s", &py_addr, &py_value, &token))
+        return NULL;
+
+    uint256_t value = {0};
+
+    if (PyLong_Check(py_value)) {
+        PyObject *s = PyObject_Str(py_value);
+        if (!s) return NULL;
+        value = dap_chain_balance_scan(PyUnicode_AsUTF8(s));
+        Py_DECREF(s);
+    } else if (PyUnicode_Check(py_value))
+        value = dap_chain_balance_scan(PyUnicode_AsUTF8(py_value));
+    else if (PyBytes_Check(py_value))
+        value = dap_chain_balance_scan(PyBytes_AsString(py_value));
+    else {
+        PyErr_SetString(PyExc_TypeError,
+                        "value must be int, str or bytes with decimal number");
+        return NULL;
+    }
+
+    int rc = dap_chain_datum_tx_add_out_std_item(
+                 &(((PyDapChainDatumTxObject *)self)->datum_tx),
+                 ((PyDapChainAddrObject *)py_addr)->addr,
+                 value, token, 0);
+
+    return PyLong_FromLong(rc);
+}
+
+
+PyObject *dap_chain_datum_tx_add_fee_item_py(PyObject *self, PyObject *args)
+{
+    PyObject *py_val = NULL;
+    if (!PyArg_ParseTuple(args, "O", &py_val))
+        return NULL;
+
+    uint256_t val = {0};
+
+    if (PyLong_Check(py_val)) {
+        char buf[64];
+        sprintf(buf, "%llu",
+                (unsigned long long)PyLong_AsUnsignedLongLong(py_val));
+        val = dap_chain_balance_scan(buf);
+    } else if (PyUnicode_Check(py_val))
+        val = dap_chain_balance_scan(PyUnicode_AsUTF8(py_val));
+    else if (PyBytes_Check(py_val))
+        val = dap_chain_balance_scan(PyBytes_AsString(py_val));
+    else {
+        PyErr_SetString(PyExc_TypeError,
+                        "fee must be int, str or bytes with decimal number");
+        return NULL;
+    }
+
+    int rc = dap_chain_datum_tx_add_fee_item(
+                 &(((PyDapChainDatumTxObject *)self)->datum_tx), val);
+
+    return PyLong_FromLong(rc);
+}
+
 
 /* -------------------------------------- */
