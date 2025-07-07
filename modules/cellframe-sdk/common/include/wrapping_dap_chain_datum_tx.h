@@ -102,9 +102,13 @@ PyObject *dap_chain_datum_tx_verify_sign_py(PyObject *self, PyObject *args);
 
 
 PyObject *wrapping_dap_chain_datum_tx_get_items(PyObject *self, PyObject *args);
-
+PyObject *wrapping_dap_chain_datum_tx_get_service_tags(PyObject *self, PyObject *args);
 PyObject *wrapping_dap_chain_datum_tx_get_hash(PyObject *self, void* closure);
 PyObject *wrapping_dap_chain_datum_tx_get_tsCreated(PyObject *self, void* closure);
+
+PyObject *dap_chain_datum_tx_add_tsd_item_py(PyObject *self, PyObject *args);
+PyObject *dap_chain_datum_tx_add_out_std_item_py(PyObject *self, PyObject *args);
+PyObject *dap_chain_datum_tx_add_fee_item_py(PyObject *self, PyObject *args);
 
 bool DapChainDatumTx_Check(PyObject *self);
 

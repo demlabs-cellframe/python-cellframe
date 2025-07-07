@@ -134,21 +134,48 @@ void element_py_func_del_all(){
 
 static int wrapping_cmdfunc(int argc, char **argv, void **a_str_reply, int a_version)
 {
+    log_it(L_DEBUG, "Wrapping command: %s", argv[0]);
+    
+    // GIL Debug: CLI command execution
+    log_it(L_DEBUG, "[GIL-DEBUG] CLI cmd '%s' thread=%lu py_thread=%lu gil_before=%s", 
+           argv[0], (unsigned long)pthread_self(), PyThread_get_thread_ident(), 
+           PyGILState_Check() ? "HELD" : "NOT_HELD");
+    
     PyGILState_STATE l_state = PyGILState_Ensure();
+    log_it(L_DEBUG, "[GIL-DEBUG] CLI cmd '%s' GIL acquired state=%d thread=%lu", 
+           argv[0], l_state, (unsigned long)pthread_self());
+    
     size_t id_str_replay = elements_str_reply_add((char **)a_str_reply);
     PyObject *obj_argv = stringToPyList(argc, argv);
     PyObject *obj_id_str_replay = PyLong_FromSize_t(id_str_replay);
     PyObject *arglist = Py_BuildValue("OO", obj_argv, obj_id_str_replay);
     Py_XINCREF(arglist);
+    
     PyObject *binden_obj_cmdfunc = element_py_func_get(argv[0]);
+    if (!binden_obj_cmdfunc) {
+        log_it(L_ERROR, "Python function not found: %s", argv[0]);
+        Py_XDECREF(arglist);
+        Py_XDECREF(obj_argv);
+        log_it(L_DEBUG, "[GIL-DEBUG] CLI cmd '%s' GIL release (func not found) thread=%lu", 
+               argv[0], (unsigned long)pthread_self());
+        PyGILState_Release(l_state);
+        elements_str_reply_delete(id_str_replay);
+        return -1;
+    }
+    
     PyObject *result = PyObject_CallObject(binden_obj_cmdfunc, arglist);
     if (!result){
         log_it(L_DEBUG, "Function can't be called");
         python_error_in_log_it(LOG_TAG);
     }
+    
     Py_XDECREF(arglist);
     Py_XDECREF(obj_argv);
+    
+    log_it(L_DEBUG, "[GIL-DEBUG] CLI cmd '%s' GIL release thread=%lu", 
+           argv[0], (unsigned long)pthread_self());
     PyGILState_Release(l_state);
+    
     elements_str_reply_delete(id_str_replay);
     return 0;
 }
@@ -171,8 +198,14 @@ PyObject *dap_chain_node_cli_cmd_item_create_py(PyObject *a_self, PyObject *a_ar
             return NULL;
         }
     }
+    log_it(L_DEBUG, "Adding command: %s", name);
+    log_it(L_DEBUG, "[GIL-DEBUG] CMD registration '%s' thread=%lu gil=%s", 
+           name, (unsigned long)pthread_self(), PyGILState_Check() ? "HELD" : "NOT_HELD");
+    
     element_py_func_add(name, obj_cmdfunc);
+    log_it(L_DEBUG, "Added py command: %s", name);
     dap_cli_server_cmd_add(name, wrapping_cmdfunc, doc, dap_chain_node_cli_cmd_id_from_str(name), doc_ex);
+    log_it(L_DEBUG, "Added node command: %s", name);
     return PyLong_FromLong(0);
 }
 

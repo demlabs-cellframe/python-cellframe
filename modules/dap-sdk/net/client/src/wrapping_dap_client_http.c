@@ -3,6 +3,8 @@
 #include "dap_string.h"
 #include "http_status_code.h"
 
+#define LOG_TAG "wrapping_dap_client_http"
+
 static PyMethodDef DapClientHttp_Methods[] = {
     {"getTimeout", (PyCFunction)wrapping_dap_client_http_get_connect_timeout_ms, METH_NOARGS | METH_STATIC, ""},
     {NULL, NULL, 0, NULL}
@@ -19,8 +21,10 @@ typedef struct _s_callback{
 void _wrapping_response_callback_call(void *a_response, size_t a_response_size, void *a_callback_arg,
                                       http_status_code_t a_http_code) {
     _s_callback_t *lcb = (_s_callback_t*)a_callback_arg;
+    log_it(L_DEBUG, "[GIL-DEBUG] HTTP client callback acquire thread=%lu", (unsigned long)pthread_self());
     PyGILState_STATE gstate;
     gstate = PyGILState_Ensure();
+    log_it(L_DEBUG, "[GIL-DEBUG] HTTP client callback acquired state=%d thread=%lu", gstate, (unsigned long)pthread_self());
     PyObject *obj_bytes = PyBytes_FromStringAndSize(a_response, a_response_size);
     PyObject *argv = Py_BuildValue("OOI", obj_bytes, lcb->obj_argv, a_http_code);
     Py_INCREF(lcb->obj_argv);
@@ -34,6 +38,7 @@ void _wrapping_response_callback_call(void *a_response, size_t a_response_size, 
     Py_XDECREF(argv);
     Py_XDECREF(result);
     Py_XDECREF(obj_bytes);
+    log_it(L_DEBUG, "[GIL-DEBUG] HTTP client callback release thread=%lu", (unsigned long)pthread_self());
     PyGILState_Release(gstate);
 }
 void _wrapping_response_callback_err(int a_err_code, void *a_callback_arg) {

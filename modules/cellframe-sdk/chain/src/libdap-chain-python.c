@@ -236,7 +236,9 @@ bool dap_py_mempool_notifier(void *a_arg)
         log_it(L_WARNING, "Called mempool notify in python with None group");
         return false;
     }
+    log_it(L_DEBUG, "[GIL-DEBUG] Mempool notifier acquire thread=%lu", (unsigned long)pthread_self());
     PyGILState_STATE state = PyGILState_Ensure();
+    log_it(L_DEBUG, "[GIL-DEBUG] Mempool notifier acquired state=%d thread=%lu", state, (unsigned long)pthread_self());
     dap_store_obj_t *l_obj = l_callback->obj;
     char l_op_code[2];
     l_op_code[0] = (char)dap_store_obj_get_type(l_obj);
@@ -268,6 +270,7 @@ bool dap_py_mempool_notifier(void *a_arg)
     Py_XDECREF(obj_key);
     Py_XDECREF(obj_value);
     dap_store_obj_free_one(l_callback->obj);
+    log_it(L_DEBUG, "[GIL-DEBUG] Mempool notifier release thread=%lu", (unsigned long)pthread_self());
     PyGILState_Release(state);
     return false;
 }
@@ -285,6 +288,57 @@ static void _wrapping_dap_chain_mempool_notify_handler(dap_store_obj_t *a_obj, v
     l_obj->arg = ((_wrapping_chain_mempool_notify_callback_t *)a_arg)->arg;
     dap_proc_thread_callback_add(NULL, dap_py_mempool_notifier, l_obj);
 }
+// Thread-safe callback data for atom notifications
+typedef struct _wrapping_chain_atom_notify_data {
+    PyObject *func;
+    PyObject *arg;
+    dap_chain_t *chain;
+    void *atom;
+    size_t atom_size;
+} _wrapping_chain_atom_notify_data_t;
+
+static bool dap_py_atom_notifier(void *a_arg)
+{
+    if (!a_arg) {
+        return false;
+    }
+    
+    _wrapping_chain_atom_notify_data_t *l_data = (_wrapping_chain_atom_notify_data_t *)a_arg;
+    
+    log_it(L_DEBUG, "[GIL-DEBUG] Atom notifier acquire thread=%lu", (unsigned long)pthread_self());
+    PyGILState_STATE state = PyGILState_Ensure();
+    log_it(L_DEBUG, "[GIL-DEBUG] Atom notifier acquired state=%d thread=%lu", state, (unsigned long)pthread_self());
+
+    dap_chain_atom_ptr_t l_atom = (dap_chain_atom_ptr_t)l_data->atom;
+    PyChainAtomObject *l_atom_obj = NULL;
+    PyObject *l_args;
+    if (l_atom) {
+        l_atom_obj = PyObject_New(PyChainAtomObject, &DapChainAtomPtrObjectType);
+        l_atom_obj->atom = l_atom;
+        l_atom_obj->atom_size = l_data->atom_size;
+        l_args = Py_BuildValue("OO", l_atom_obj, l_data->arg);
+    } else {
+        l_args = Py_BuildValue("OO", Py_None, l_data->arg);
+    }
+
+    log_it(L_DEBUG, "Call atom notifier for chain %s with atom size %zd", l_data->chain->name, l_data->atom_size);
+    PyObject *result = PyObject_CallObject(l_data->func, l_args);
+    if (!result) {
+        python_error_in_log_it(LOG_TAG);
+    }
+    Py_XDECREF(result);
+    Py_DECREF(l_args);
+    
+    // Clean up copied data
+    Py_XDECREF(l_data->func);
+    Py_XDECREF(l_data->arg);
+    DAP_FREE(l_data);
+
+    log_it(L_DEBUG, "[GIL-DEBUG] Atom notifier release thread=%lu", (unsigned long)pthread_self());
+    PyGILState_Release(state);
+    return false;
+}
+
 /**
  * @brief _wrapping_dap_chain_atom_notify_handler
  * @param a_arg
@@ -299,30 +353,83 @@ static void _wrapping_dap_chain_atom_notify_handler(void * a_arg, dap_chain_t *a
     if (!a_arg){
         return;
     }
-    _wrapping_chain_mempool_notify_callback_t  *l_callback = (_wrapping_chain_mempool_notify_callback_t *)a_arg;
+    _wrapping_chain_mempool_notify_callback_t *l_callback = (_wrapping_chain_mempool_notify_callback_t *)a_arg;
 
-    PyObject *l_args;
+    // Copy callback data to avoid race conditions between threads
+    _wrapping_chain_atom_notify_data_t *l_data = DAP_NEW(_wrapping_chain_atom_notify_data_t);
+    if (!l_data) {
+        log_it(L_CRITICAL, "Memory allocation error");
+        return;
+    }
+    
+    l_data->func = l_callback->func;
+    l_data->arg = l_callback->arg;
+    l_data->chain = a_chain;
+    l_data->atom = a_atom;
+    l_data->atom_size = a_atom_size;
+    
+    // Increment reference counts for thread safety
+    Py_XINCREF(l_data->func);
+    Py_XINCREF(l_data->arg);
+    
+    // Execute in proc thread to avoid deadlock and race conditions
+    dap_proc_thread_callback_add(NULL, dap_py_atom_notifier, l_data);
+}
+
+// Thread-safe callback data for atom confirmed notifications
+typedef struct _wrapping_chain_atom_confirmed_notify_data {
+    PyObject *func;
+    PyObject *arg;
+    dap_chain_t *chain;
+    void *atom;
+    size_t atom_size;
+} _wrapping_chain_atom_confirmed_notify_data_t;
+
+static bool dap_py_atom_confirmed_notifier(void *a_arg)
+{
+    if (!a_arg) {
+        return false;
+    }
+    
+    _wrapping_chain_atom_confirmed_notify_data_t *l_data = (_wrapping_chain_atom_confirmed_notify_data_t *)a_arg;
+    
+    log_it(L_DEBUG, "[GIL-DEBUG] Atom confirmed notifier acquire thread=%lu", (unsigned long)pthread_self());
     PyGILState_STATE state = PyGILState_Ensure();
+    log_it(L_DEBUG, "[GIL-DEBUG] Atom confirmed notifier acquired state=%d thread=%lu", state, (unsigned long)pthread_self());
 
-    dap_chain_atom_ptr_t l_atom = (dap_chain_atom_ptr_t) a_atom;
+    dap_chain_atom_ptr_t l_atom = (dap_chain_atom_ptr_t)l_data->atom;
     PyChainAtomObject *l_atom_obj = NULL;
-    if(l_atom){
-        l_atom_obj= PyObject_New(PyChainAtomObject, &DapChainAtomPtrObjectType);
+    if (l_atom) {
+        l_atom_obj = PyObject_New(PyChainAtomObject, &DapChainAtomPtrObjectType);
         l_atom_obj->atom = l_atom;
-        l_atom_obj->atom_size = a_atom_size;
-        l_args = Py_BuildValue("OO", l_atom_obj, l_callback->arg);
-    }else{
-        l_args = Py_BuildValue("OO", Py_None, l_callback->arg);
+        l_atom_obj->atom_size = l_data->atom_size;
+        PyObject *l_args = Py_BuildValue("OO", l_atom_obj, l_data->arg);
+        log_it(L_DEBUG, "Call atom confirmed notifier for chain %s with atom size %zd", l_data->chain->name, l_data->atom_size);
+        PyObject *result = PyObject_CallObject(l_data->func, l_args);
+        if (!result) {
+            python_error_in_log_it(LOG_TAG);
+        }
+        Py_XDECREF(result);
+        Py_DECREF(l_args);
+        Py_DECREF(l_atom_obj);
+    } else {
+        PyObject *l_args = Py_BuildValue("OO", Py_None, l_data->arg);
+        PyObject *result = PyObject_CallObject(l_data->func, l_args);
+        if (!result) {
+            python_error_in_log_it(LOG_TAG);
+        }
+        Py_XDECREF(result);
+        Py_DECREF(l_args);
     }
 
-    log_it(L_DEBUG, "Call atom notifier for chain %s with atom size %zd", a_chain->name, a_atom_size );
-    PyObject *result = PyObject_CallObject(l_callback->func, l_args);
-    if (!result) {
-        python_error_in_log_it(LOG_TAG);
-    }
-    Py_XDECREF(result);
-    Py_DECREF(l_args);
+    // Clean up copied data
+    Py_XDECREF(l_data->func);
+    Py_XDECREF(l_data->arg);
+    DAP_FREE(l_data);
+
+    log_it(L_DEBUG, "[GIL-DEBUG] Atom confirmed notifier release thread=%lu", (unsigned long)pthread_self());
     PyGILState_Release(state);
+    return false;
 }
 
 static void _wrapping_dap_chain_atom_confirmed_notify_handler(void *a_arg, dap_chain_t *a_chain, dap_chain_cell_id_t a_id,
@@ -333,34 +440,25 @@ static void _wrapping_dap_chain_atom_confirmed_notify_handler(void *a_arg, dap_c
     }
     _wrapping_chain_mempool_notify_callback_t *l_callback = (_wrapping_chain_mempool_notify_callback_t *)a_arg;
 
-    PyGILState_STATE state = PyGILState_Ensure();
-
-    dap_chain_atom_ptr_t l_atom = (dap_chain_atom_ptr_t)a_atom;
-    PyChainAtomObject *l_atom_obj = NULL;
-    if (l_atom) {
-        l_atom_obj = PyObject_New(PyChainAtomObject, &DapChainAtomPtrObjectType);
-        l_atom_obj->atom = l_atom;
-        l_atom_obj->atom_size = a_atom_size;
-        PyObject *l_args = Py_BuildValue("OO", l_atom_obj, l_callback->arg);
-        log_it(L_DEBUG, "Call atom confirmed notifier for chain %s with atom size %zd", a_chain->name, a_atom_size);
-        PyObject *result = PyObject_CallObject(l_callback->func, l_args);
-        if (!result) {
-            python_error_in_log_it(LOG_TAG);
-        }
-        Py_XDECREF(result);
-        Py_DECREF(l_args);
-        Py_DECREF(l_atom_obj);
-    } else {
-        PyObject *l_args = Py_BuildValue("OO", Py_None, l_callback->arg);
-        PyObject *result = PyObject_CallObject(l_callback->func, l_args);
-        if (!result) {
-            python_error_in_log_it(LOG_TAG);
-        }
-        Py_XDECREF(result);
-        Py_DECREF(l_args);
+    // Copy callback data to avoid race conditions between threads
+    _wrapping_chain_atom_confirmed_notify_data_t *l_data = DAP_NEW(_wrapping_chain_atom_confirmed_notify_data_t);
+    if (!l_data) {
+        log_it(L_CRITICAL, "Memory allocation error");
+        return;
     }
-
-    PyGILState_Release(state);
+    
+    l_data->func = l_callback->func;
+    l_data->arg = l_callback->arg;
+    l_data->chain = a_chain;
+    l_data->atom = a_atom;
+    l_data->atom_size = a_atom_size;
+    
+    // Increment reference counts for thread safety
+    Py_XINCREF(l_data->func);
+    Py_XINCREF(l_data->arg);
+    
+    // Execute in proc thread to avoid deadlock and race conditions
+    dap_proc_thread_callback_add(NULL, dap_py_atom_confirmed_notifier, l_data);
 }
 
 PyDapHashFastObject *py_dap_hash_fast_from_hash_fast(dap_hash_fast_t *a_hash_fast)
@@ -383,7 +481,9 @@ static void _wrapping_dap_chain_fork_resolved_notify_handler(dap_chain_t *a_chai
     
     _wrapping_chain_fork_resolved_notify_callback_t *l_callback = (_wrapping_chain_fork_resolved_notify_callback_t *)a_arg;
 
+    log_it(L_DEBUG, "[GIL-DEBUG] Fork resolved notifier acquire thread=%lu", (unsigned long)pthread_self());
     PyGILState_STATE state = PyGILState_Ensure();
+    log_it(L_DEBUG, "[GIL-DEBUG] Fork resolved notifier acquired state=%d thread=%lu", state, (unsigned long)pthread_self());
 
     PyDapHashFastObject *obj_hash_fast = py_dap_hash_fast_from_hash_fast(&a_block_before_fork_hash);
 
@@ -406,6 +506,7 @@ static void _wrapping_dap_chain_fork_resolved_notify_handler(dap_chain_t *a_chai
 
     Py_XDECREF(result);
     Py_DECREF(l_args);
+    log_it(L_DEBUG, "[GIL-DEBUG] Fork resolved notifier release thread=%lu", (unsigned long)pthread_self());
     PyGILState_Release(state);    
 }
 

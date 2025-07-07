@@ -6,6 +6,7 @@
 #define LOG_TAG "ledger wrapper"
 
 static PyObject *s_bridged_tx_notify_add(PyObject *self, PyObject *args);
+static PyObject *dap_chain_ledger_get_final_multi_wallet_tx_hash_py(PyObject *self, PyObject *args);
 
 static PyMethodDef DapChainLedgerMethods[] = {
         {"nodeDatumTxCalcHash", (PyCFunction)dap_chain_node_datum_tx_calc_hash_py, METH_VARARGS, ""},
@@ -33,6 +34,7 @@ static PyMethodDef DapChainLedgerMethods[] = {
         {"txAddNotify", (PyCFunction)dap_chain_ledger_tx_add_notify_py, METH_VARARGS, ""},
         {"bridgedTxNotifyAdd", (PyCFunction)s_bridged_tx_notify_add, METH_VARARGS, ""},
         {"txHashIsUsedOutItemHash", (PyCFunction)dap_chain_ledger_tx_hash_is_used_out_item_hash_py, METH_VARARGS, ""},
+        {"getFinalMultiWalletTxHash", (PyCFunction)dap_chain_ledger_get_final_multi_wallet_tx_hash_py, METH_VARARGS, ""},
         {}
 };
 
@@ -395,29 +397,152 @@ typedef struct pvt_ledger_notify{
     PyObject *argv;
 }pvt_ledger_notify_t;
 
+typedef struct {
+    pvt_ledger_notify_t callback_data;
+    dap_ledger_t *ledger;
+    dap_chain_datum_tx_t *datum_tx;
+    size_t datum_tx_size;
+    dap_ledger_notify_opcodes_t opcode;
+} pvt_ledger_notify_thread_args_t;
+
+static bool pvt_ledger_notify_proc_callback(void *a_arg) {
+    pvt_ledger_notify_thread_args_t *l_args = (pvt_ledger_notify_thread_args_t*)a_arg;
+    
+    if (!l_args) {
+        log_it(L_ERROR, "Null args passed to ledger notifier callback");
+        return false;
+    }
+    
+    log_it(L_DEBUG, "[GIL-DEBUG] Ledger notifier proc acquire thread=%lu args=%p datum_tx=%p", 
+           (unsigned long)pthread_self(), l_args, l_args->datum_tx);
+    PyGILState_STATE state = PyGILState_Ensure();
+    log_it(L_DEBUG, "[GIL-DEBUG] Ledger notifier proc acquired state=%d thread=%lu", state, (unsigned long)pthread_self());
+    
+    PyDapChainLedgerObject *obj_ledger = NULL;
+    PyDapChainDatumTxObject *obj_tx = NULL;
+    PyObject *notify_arg = NULL;
+    PyObject *argv = NULL;
+    PyObject *result = NULL;
+    
+    // Validate callback data before proceeding
+    if (!l_args->callback_data.func || !PyCallable_Check(l_args->callback_data.func)) {
+        log_it(L_ERROR, "Invalid callback function in ledger notifier");
+        goto cleanup;
+    }
+    
+    obj_ledger = PyObject_NEW(PyDapChainLedgerObject, &DapChainLedgerObjectType);
+    if (!obj_ledger) {
+        log_it(L_ERROR, "Failed to create ledger object in notifier");
+        goto cleanup;
+    }
+    // Initialize the object properly
+    obj_ledger->ledger = l_args->ledger;
+    
+    obj_tx = PyObject_NEW(PyDapChainDatumTxObject, &DapChainDatumTxObjectType);
+    if (!obj_tx) {
+        log_it(L_ERROR, "Failed to create datum tx object in notifier");
+        goto cleanup;
+    }
+    // Initialize the object properly
+    obj_tx->datum_tx = l_args->datum_tx;
+    obj_tx->original = true;  // Set to true to prevent destructor from freeing datum_tx
+    
+    // Handle notify_arg more carefully
+    if (l_args->callback_data.argv && l_args->callback_data.argv != Py_None) {
+        notify_arg = l_args->callback_data.argv;
+        Py_INCREF(notify_arg);
+    } else {
+        notify_arg = Py_None;
+        Py_INCREF(notify_arg);
+    }
+    
+    argv = Py_BuildValue("OOO", (PyObject*)obj_ledger, (PyObject*)obj_tx, notify_arg);
+    if (!argv) {
+        log_it(L_ERROR, "Failed to build arguments for notifier callback");
+        goto cleanup;
+    }
+    
+    log_it(L_DEBUG, "Call tx added ledger notifier for net %s", l_args->ledger->net->pub.name);
+    
+    // Make sure the function is still valid before calling it
+    if (PyCallable_Check(l_args->callback_data.func)) {
+        result = PyObject_CallObject(l_args->callback_data.func, argv);
+        if (!result) {
+            log_it(L_ERROR, "Python callback failed in ledger notifier");
+            python_error_in_log_it(LOG_TAG);
+        }
+    } else {
+        log_it(L_ERROR, "Callback function became invalid during execution");
+    }
+    
+cleanup:
+    // Proper cleanup of all references
+    Py_XDECREF(result);
+    Py_XDECREF(argv);
+    Py_XDECREF(obj_tx);      // Clean up created tx object
+    Py_XDECREF(obj_ledger);  // Clean up created ledger object
+    Py_XDECREF(notify_arg);  // Clean up notify arg (Py_None or callback arg)
+    Py_XDECREF(l_args->callback_data.func);
+    Py_XDECREF(l_args->callback_data.argv);
+    
+    log_it(L_DEBUG, "[GIL-DEBUG] Ledger notifier proc release thread=%lu", (unsigned long)pthread_self());
+    PyGILState_Release(state);
+    
+    // Clean up allocated memory - only once with safety checks
+    log_it(L_DEBUG, "Freeing datum_tx=%p and args=%p", l_args->datum_tx, l_args);
+    if (l_args->datum_tx) {
+        DAP_DELETE(l_args->datum_tx);
+        l_args->datum_tx = NULL;  // Prevent double free
+    }
+    if (l_args) {
+        DAP_DELETE(l_args);
+        l_args = NULL;  // Prevent double free (though not accessible after)
+    }
+    return false;
+}
+
 static void pvt_wrapping_dap_chain_ledger_tx_add_notify(void *a_arg, dap_ledger_t *a_ledger,
                                                         dap_chain_datum_tx_t *a_tx, dap_ledger_notify_opcodes_t a_opcode){
     if (!a_arg)
         return;
     if (a_opcode == DAP_LEDGER_NOTIFY_OPCODE_ADDED){
         pvt_ledger_notify_t *notifier = (pvt_ledger_notify_t*)a_arg;
-        PyGILState_STATE state = PyGILState_Ensure();
-        PyDapChainLedgerObject *obj_ledger = PyObject_NEW(PyDapChainLedgerObject, &DapChainLedgerObjectType);
-        PyDapChainDatumTxObject *obj_tx = PyObject_NEW(PyDapChainDatumTxObject, &DapChainDatumTxObjectType);
-        obj_ledger->ledger = a_ledger;
-        obj_tx->datum_tx = a_tx;
-        PyObject *notify_arg = !notifier->argv ? Py_None : notifier->argv;
-        PyObject *argv = Py_BuildValue("OOO", (PyObject*)obj_ledger, (PyObject*)obj_tx, notify_arg);
-        log_it(L_DEBUG, "Call tx added ledger notifier for net %s", a_ledger->net->pub.name);
-        PyObject* result = PyObject_CallObject(notifier->func, argv);
-        if (!result){
-            python_error_in_log_it(LOG_TAG);
+        
+        // Validate notifier data first
+        if (!notifier->func || !PyCallable_Check(notifier->func)) {
+            log_it(L_ERROR, "Invalid notifier function");
+            return;
         }
-        Py_XDECREF(result);
-        Py_XDECREF(argv);
-        PyGILState_Release(state);
-    } else {
-
+        
+        // Create thread-safe copy of arguments
+        pvt_ledger_notify_thread_args_t *l_args = DAP_NEW_Z(pvt_ledger_notify_thread_args_t);
+        if (!l_args) {
+            log_it(L_ERROR, "Memory allocation failed for ledger notifier args");
+            return;
+        }
+        
+        size_t l_tx_size = dap_chain_datum_tx_get_size(a_tx);
+        l_args->ledger = a_ledger;
+        l_args->datum_tx = DAP_DUP_SIZE(a_tx, l_tx_size);
+        if (!l_args->datum_tx) {
+            log_it(L_ERROR, "Failed to duplicate transaction data");
+            DAP_DELETE(l_args);
+            return;
+        }
+        l_args->datum_tx_size = l_tx_size;
+        l_args->opcode = a_opcode;
+        
+        // Copy callback data with proper reference counting - ensure we have a copy
+        l_args->callback_data.func = notifier->func;
+        l_args->callback_data.argv = notifier->argv;
+        Py_XINCREF(l_args->callback_data.func);
+        Py_XINCREF(l_args->callback_data.argv);
+        
+        log_it(L_DEBUG, "Creating ledger notifier args=%p datum_tx=%p size=%zu for net %s", 
+               l_args, l_args->datum_tx, l_tx_size, a_ledger->net->pub.name);
+        
+        // Schedule callback in proc thread
+        dap_proc_thread_callback_add(NULL, pvt_ledger_notify_proc_callback, l_args);
     }
 }
 
@@ -459,7 +584,7 @@ static bool s_python_obj_notifier(void *a_arg)
     obj_ledger->ledger = l_args->ledger;
     PyDapChainDatumTxObject *obj_tx = PyObject_NEW(PyDapChainDatumTxObject, &DapChainDatumTxObjectType);
     obj_tx->datum_tx = l_args->tx;
-    obj_tx->original = false;
+    obj_tx->original = true;
     PyObject *l_notify_arg = !l_notifier->argv ? Py_None : l_notifier->argv;
     Py_INCREF(l_notify_arg);
     log_it(L_DEBUG, "Call bridged tx ledger notifier for net %s", l_args->ledger->net->pub.name);
@@ -548,4 +673,42 @@ PyObject *dap_chain_ledger_tx_hash_is_used_out_item_hash_py(PyObject *self, PyOb
         return (PyObject*)obj_hf;
     }
     Py_RETURN_NONE;
+}
+
+
+static PyObject *dap_chain_ledger_get_final_multi_wallet_tx_hash_py(PyObject *self, PyObject *args)
+{
+    PyObject *py_base_hash = NULL;
+    int       subtype      = 0; 
+    int       with_refills = 0; 
+
+    if (!PyArg_ParseTuple(args, "Oi|p", &py_base_hash, &subtype, &with_refills))
+        return NULL;
+
+    if (!PyObject_TypeCheck(py_base_hash, &DapChainHashFastObjectType)) {
+        PyErr_SetString(PyExc_TypeError,
+            "First arg must be CellFrame.HashFast object");
+        return NULL;
+    }
+
+    dap_hash_fast_t *base =
+        ((PyDapHashFastObject *)py_base_hash)->hash_fast;
+
+    dap_hash_fast_t final =
+        dap_ledger_get_final_chain_tx_hash(
+            ((PyDapChainLedgerObject *)self)->ledger,
+            (dap_chain_tx_out_cond_subtype_t)subtype,
+            base,
+            with_refills);
+
+    PyDapHashFastObject *py_final =
+        PyObject_New(PyDapHashFastObject, &DapChainHashFastObjectType);
+    if (!py_final)
+        return PyErr_NoMemory();
+
+    py_final->hash_fast = DAP_NEW(dap_hash_fast_t);
+    memcpy(py_final->hash_fast, &final, sizeof(final));
+    py_final->origin = true;
+
+    return (PyObject *)py_final;
 }

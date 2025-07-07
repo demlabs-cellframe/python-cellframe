@@ -73,7 +73,7 @@ PyObject* wrapping_dap_chain_datum_decree_get_signs(PyObject *self, void* closur
     for (size_t l_offset = 0; l_offset < l_signs_size; ) {
         dap_sign_t *l_sign = (dap_sign_t*)((byte_t*)l_signs + l_offset);
         size_t l_sign_size = dap_sign_get_size(l_sign );
-        PyObject *obj_sign = PyDapSignObject_Cretae(l_sign);
+        PyObject *obj_sign = PyDapSignObject_Create(l_sign);
         PyList_Append(obj_list, obj_sign);
         Py_DECREF(obj_sign);
         l_offset += l_sign_size;

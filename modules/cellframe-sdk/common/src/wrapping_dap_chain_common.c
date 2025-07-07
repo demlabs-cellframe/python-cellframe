@@ -1,4 +1,7 @@
 #include "wrapping_dap_chain_common.h"
+#include "python-cellframe_common.h"
+
+#define LOG_TAG "wrapping_chain_common"
 
 /* Chain hash slow  */
 static PyMethodDef DapChainHashSlowMethod[] = {
@@ -112,6 +115,11 @@ PyObject *dap_chain_addr_from_str_py(PyObject *self, PyObject *args){
         Py_RETURN_NONE;
     }
     PyDapChainAddrObject *obj = PyObject_New(PyDapChainAddrObject, &DapChainAddrObjectType);
+    if (!obj) {
+        log_it(L_CRITICAL, "Failed to create PyDapChainAddrObject");
+        DAP_DELETE(l_addr);
+        return NULL;
+    }
     obj->addr = l_addr;
     return (PyObject*)obj;
 }
