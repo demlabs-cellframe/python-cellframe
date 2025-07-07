@@ -621,6 +621,7 @@ PyMODINIT_FUNC PyInit_libCellFrame(void)
         PyType_Ready( &DapChainTxTokenObjectType ) < 0 ||
         PyType_Ready( &DapChainTxPkeyObjectType ) < 0 ||
         PyType_Ready( &DapChainTxReceiptObjectType ) < 0 ||
+        PyType_Ready( &DapChainTxReceiptOldObjectType ) < 0 ||
         PyType_Ready( &DapChainTxOutExtObjectType ) < 0 ||
         PyType_Ready( &DapChainTxTSDObjectType ) < 0 ||
         PyType_Ready( &PyDapChainTXVoteObjectType) < 0 ||
@@ -707,6 +708,7 @@ PyMODINIT_FUNC PyInit_libCellFrame(void)
     PyModule_AddObject(commonModule, "TxSig", (PyObject*)&DapChainTxSigObjectType);
     PyModule_AddObject(commonModule, "TxToken", (PyObject*)&DapChainTxTokenObjectType);
     PyModule_AddObject(commonModule, "TxReceipt", (PyObject*)&DapChainTxReceiptObjectType);
+    PyModule_AddObject(commonModule, "TxReceiptOld", (PyObject*)&DapChainTxReceiptOldObjectType);
     PyModule_AddObject(commonModule, "TxOutExt", (PyObject*)&DapChainTxOutExtObjectType);
     PyModule_AddObject(commonModule, "TxTSD", (PyObject*)&DapChainTxTSDObjectType);
     PyModule_AddObject(commonModule, "TxVote", (PyObject*)&PyDapChainTXVoteObjectType);
