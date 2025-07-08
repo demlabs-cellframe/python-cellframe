@@ -46,28 +46,29 @@ cellframe_structure_tests:
   stage: test
   script:
     - echo "🏗️ Testing Python CellFrame Module Structure"
-    - python3 -c "
-import os
-import sys
-required_modules = [
-    'cellframe/__init__.py',
-    'cellframe/types.py', 
-    'cellframe/core/__init__.py',
-    'cellframe/crypto/__init__.py',
-    'cellframe/network/__init__.py',
-    'cellframe/chain/__init__.py',
-    'cellframe/wallet/__init__.py',
-    'cellframe/services/__init__.py'
-]
-missing = []
-for module in required_modules:
-    if not os.path.exists(module):
-        missing.append(module)
-if missing:
-    print(f'Missing modules: {missing}')
-    sys.exit(1)
-print('✅ All required modules present')
-"
+    - |
+      python3 -c "
+      import os
+      import sys
+      required_modules = [
+          'cellframe/__init__.py',
+          'cellframe/types.py', 
+          'cellframe/core/__init__.py',
+          'cellframe/crypto/__init__.py',
+          'cellframe/network/__init__.py',
+          'cellframe/chain/__init__.py',
+          'cellframe/wallet/__init__.py',
+          'cellframe/services/__init__.py'
+      ]
+      missing = []
+      for module in required_modules:
+          if not os.path.exists(module):
+              missing.append(module)
+      if missing:
+          print(f'Missing modules: {missing}')
+          sys.exit(1)
+      print('✅ All required modules present')
+      "
     - echo "✅ Python CellFrame Structure Tests completed"
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
@@ -101,39 +102,40 @@ cellframe_api_tests:
   stage: test
   script:
     - echo "🔗 Testing Python CellFrame API Structure"
-    - python3 -c "
-import os
-import ast
-
-def check_api_structure(module_path):
-    '''Check if module has proper API structure'''
-    if not os.path.exists(module_path):
-        return False
-    
-    with open(module_path, 'r') as f:
-        try:
-            tree = ast.parse(f.read())
-            return True
-        except SyntaxError:
-            return False
-
-api_modules = [
-    'cellframe/core/base.py',
-    'cellframe/core/config.py', 
-    'cellframe/core/events.py',
-    'cellframe/crypto/__init__.py',
-    'cellframe/network/__init__.py'
-]
-
-valid_modules = []
-for module in api_modules:
-    if check_api_structure(module):
-        valid_modules.append(module)
-    else:
-        print(f'⚠️  Module {module} has issues or missing')
-
-print(f'✅ {len(valid_modules)} modules validated')
-"
+    - |
+      python3 -c "
+      import os
+      import ast
+      
+      def check_api_structure(module_path):
+          '''Check if module has proper API structure'''
+          if not os.path.exists(module_path):
+              return False
+          
+          with open(module_path, 'r') as f:
+              try:
+                  tree = ast.parse(f.read())
+                  return True
+              except SyntaxError:
+                  return False
+      
+      api_modules = [
+          'cellframe/core/base.py',
+          'cellframe/core/config.py', 
+          'cellframe/core/events.py',
+          'cellframe/crypto/__init__.py',
+          'cellframe/network/__init__.py'
+      ]
+      
+      valid_modules = []
+      for module in api_modules:
+          if check_api_structure(module):
+              valid_modules.append(module)
+          else:
+              print(f'⚠️  Module {module} has issues or missing')
+      
+      print(f'✅ {len(valid_modules)} modules validated')
+      "
     - echo "✅ Python CellFrame API Tests completed"
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
@@ -222,21 +224,22 @@ cellframe_coverage_report:
     - echo "📊 Generating Python CellFrame Coverage Report"
     - cd tests/
     - python3 -m pytest --cov=../cellframe --cov-report=html:coverage_html --cov-report=xml:coverage.xml || echo "Coverage report generated"
-    - python3 -c "
-import xml.etree.ElementTree as ET
-import sys
-try:
-    tree = ET.parse('coverage.xml')
-    root = tree.getroot()
-    coverage = float(root.attrib['line-rate']) * 100
-    print(f'Coverage: {coverage:.1f}%')
-    if coverage < $COVERAGE_THRESHOLD:
-        print(f'WARNING: Coverage {coverage:.1f}% below threshold $COVERAGE_THRESHOLD%')
-    else:
-        print('✅ Coverage meets threshold')
-except:
-    print('Coverage report not available')
-"
+    - |
+      python3 -c "
+      import xml.etree.ElementTree as ET
+      import sys
+      try:
+          tree = ET.parse('coverage.xml')
+          root = tree.getroot()
+          coverage = float(root.attrib['line-rate']) * 100
+          print(f'Coverage: {coverage:.1f}%')
+          if coverage < $COVERAGE_THRESHOLD:
+              print(f'WARNING: Coverage {coverage:.1f}% below threshold $COVERAGE_THRESHOLD%')
+          else:
+              print('✅ Coverage meets threshold')
+      except:
+          print('Coverage report not available')
+      "
     - echo "✅ Coverage report completed"
   coverage: '/Coverage: (\d+\.\d+)%/'
   artifacts:
@@ -257,17 +260,18 @@ cellframe_documentation_check:
   stage: package
   script:
     - echo "📚 Checking Python CellFrame Documentation"
-    - python3 -c "
-import os
-docs = [
-    'README.md',
-    'cellframe/__init__.py',
-    'docs/' if os.path.exists('docs/') else None
-]
-existing = [d for d in docs if d and os.path.exists(d)]
-print(f'Documentation files: {existing}')
-print('✅ Documentation check completed')
-"
+    - |
+      python3 -c "
+      import os
+      docs = [
+          'README.md',
+          'cellframe/__init__.py',
+          'docs/' if os.path.exists('docs/') else None
+      ]
+      existing = [d for d in docs if d and os.path.exists(d)]
+      print(f'Documentation files: {existing}')
+      print('✅ Documentation check completed')
+      "
     - echo "✅ Documentation check completed"
   rules:
     - when: manual
@@ -301,37 +305,38 @@ cellframe_release_summary:
     - cellframe_coverage_report
   script:
     - echo "📋 Generating Python CellFrame Release Summary"
-    - python3 -c "
-import json
-from pathlib import Path
-import datetime
-
-summary = {
-    'timestamp': datetime.datetime.now().isoformat(),
-    'pipeline_id': '$CI_PIPELINE_ID',
-    'commit_sha': '$CI_COMMIT_SHA',
-    'branch': '$CI_COMMIT_BRANCH',
-    'module': 'python-cellframe',
-    'test_results': {
-        'structure_tests': 'PASSED',
-        'api_tests': 'PASSED',
-        'build_tests': 'PASSED',
-        'integration_tests': 'PASSED'
-    },
-    'artifacts': {
-        'wheel_package': 'AVAILABLE',
-        'source_package': 'AVAILABLE',
-        'documentation': 'CHECKED'
-    },
-    'compatibility': {
-        'python_versions': ['3.8', '3.9', '3.10'],
-        'platforms': ['amd64', 'arm64']
-    }
-}
-
-Path('cellframe_release_summary.json').write_text(json.dumps(summary, indent=2))
-print('✅ Python CellFrame Release Summary generated')
-"
+    - |
+      python3 -c "
+      import json
+      from pathlib import Path
+      import datetime
+      
+      summary = {
+          'timestamp': datetime.datetime.now().isoformat(),
+          'pipeline_id': '$CI_PIPELINE_ID',
+          'commit_sha': '$CI_COMMIT_SHA',
+          'branch': '$CI_COMMIT_BRANCH',
+          'module': 'python-cellframe',
+          'test_results': {
+              'structure_tests': 'PASSED',
+              'api_tests': 'PASSED',
+              'build_tests': 'PASSED',
+              'integration_tests': 'PASSED'
+          },
+          'artifacts': {
+              'wheel_package': 'AVAILABLE',
+              'source_package': 'AVAILABLE',
+              'documentation': 'CHECKED'
+          },
+          'compatibility': {
+              'python_versions': ['3.8', '3.9', '3.10'],
+              'platforms': ['amd64', 'arm64']
+          }
+      }
+      
+      Path('cellframe_release_summary.json').write_text(json.dumps(summary, indent=2))
+      print('✅ Python CellFrame Release Summary generated')
+      "
     - echo "✅ Release summary completed"
   artifacts:
     paths:
