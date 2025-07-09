@@ -57,7 +57,7 @@ PyObject *dap_enc_gen_pub_key_from_priv_py(PyObject *self, PyObject *args);//str
 
 PyObject *dap_enc_ser_pub_key_size_py(PyObject *self, PyObject *args);//dap_enc_key_t *a_key); ->size_t
 PyObject *dap_enc_gen_key_public_py(PyObject *self, PyObject *args);//dap_enc_key_t *a_key, void * a_output); ->int
-
+PyObject *dap_enc_key_delete_py(PyObject *self, PyObject *args);//dap_enc_key_t *a_key); ->void
 
 #ifdef __cplusplus
 }

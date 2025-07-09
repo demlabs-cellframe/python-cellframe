@@ -49,7 +49,7 @@ PyObject *dap_chain_wallet_create_with_seed_py(PyObject *self, PyObject *argv){
     PyObject *obj_seed;
     if (!PyArg_ParseTuple(argv, "ssOO", &wallet_name, &path_wallets, &obj_sig_type, &obj_seed))
         return NULL;
-    if (PyBytes_Check(obj_seed)){
+    if (!PyBytes_Check(obj_seed)){
         PyErr_SetString(PyExc_TypeError, "The fourth argument must be bytes");
         return NULL;
     }

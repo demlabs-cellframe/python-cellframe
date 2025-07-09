@@ -1,5 +1,7 @@
 #include "wrapping_dap_chain_datum_tx.h"
 #include "dap_chain_datum_tx_sig.h"
+#include "dap_chain_net_tx.h"
+#include "libdap_crypto_key_python.h"
 
 #define LOG_TAG "wrapping_datum_tx"
 
@@ -89,6 +91,9 @@ static PyMethodDef PyDapChainDatumTxObjectMethods[] ={
         {"addTSDItem", (PyCFunction)dap_chain_datum_tx_add_tsd_item_py, METH_VARARGS, ""},
         {"getItems", (PyCFunction)wrapping_dap_chain_datum_tx_get_items, METH_NOARGS, ""},
         {"getServiceTags", (PyCFunction)wrapping_dap_chain_datum_tx_get_service_tags, METH_VARARGS, ""},
+        {"fromJSON", (PyCFunction)wrapping_dap_chain_datum_tx_from_json_py, METH_VARARGS | METH_STATIC, ""},
+        {"toJSON", (PyCFunction)wrapping_dap_chain_datum_tx_to_json_py, METH_VARARGS, ""},
+        {"delete", (PyCFunction)wrapping_dap_chain_datum_tx_delete_py, METH_VARARGS, ""},
         {}
 };
 
@@ -192,6 +197,12 @@ PyObject *dap_chain_datum_tx_add_sign_item_py(PyObject *self, PyObject *args){
     PyObject *obj_key;
     if (!PyArg_ParseTuple(args, "O", &obj_key))
         return NULL;
+    
+    if (!PyCryptoKeyObject_check(obj_key)) {
+        PyErr_SetString(PyExc_TypeError, "Expected DAP.Crypto.Key object");
+        return NULL;
+    }
+    
     int res = dap_chain_datum_tx_add_sign_item(&(((PyDapChainDatumTxObject*)self)->datum_tx),
                                                ((PyCryptoKeyObject*)obj_key)->key);
     return PyLong_FromLong(res);
@@ -213,8 +224,10 @@ PyObject *dap_chain_datum_tx_append_sign_item_py(PyObject *self, PyObject *args)
 
 
 PyObject *dap_chain_datum_tx_verify_sign_py(PyObject *self, PyObject *args){
-    (void)args;
-    int res = dap_chain_datum_tx_verify_sign(((PyDapChainDatumTxObject*)self)->datum_tx, 0);
+    int l_sig_num = 0;
+    if (!PyArg_ParseTuple(args, "I", &l_sig_num))
+        return NULL;
+    int res = dap_chain_datum_tx_verify_sign(((PyDapChainDatumTxObject*)self)->datum_tx, l_sig_num);
     return PyLong_FromLong(res);
 }
 
@@ -670,5 +683,78 @@ PyObject *dap_chain_datum_tx_add_fee_item_py(PyObject *self, PyObject *args)
     return PyLong_FromLong(rc);
 }
 
+PyObject *wrapping_dap_chain_datum_tx_delete_py(PyObject *self, PyObject *args) {
+    
+    dap_chain_datum_tx_delete(((PyDapChainDatumTxObject *)self)->datum_tx);
+    ((PyDapChainDatumTxObject *)self)->datum_tx = NULL;
+
+    Py_RETURN_NONE;
+}
+
+// Python wrapper for dap_chain_net_tx_create_by_json - similar to Java JNI fromJSON
+PyObject *wrapping_dap_chain_datum_tx_from_json_py(PyObject *self, PyObject *args) {
+    (void)self;
+    
+    const char *json_str;
+    
+    if (!PyArg_ParseTuple(args, "s", &json_str)) {
+        PyErr_SetString(PyExc_TypeError, "Invalid arguments. Expected JSON string.");
+        return NULL;
+    }
+    
+    if (!json_str) {
+        PyErr_SetString(PyExc_ValueError, "Can't get JSON string");
+        return NULL;
+    }
+    
+    struct json_object *json_obj = json_tokener_parse(json_str);
+    if (!json_obj) {
+        PyErr_SetString(PyExc_ValueError, "Can't parse JSON");
+        return NULL;
+    }
+    
+    dap_chain_datum_tx_t *datum_tx = NULL;
+    json_object *jobj_errors = json_object_new_array();
+    
+    if (dap_chain_net_tx_create_by_json(json_obj, NULL, jobj_errors, &datum_tx, NULL, NULL)) {
+        // Error - return error message
+        const char *error_buf = json_object_to_json_string(jobj_errors);
+        PyErr_SetString(PyExc_RuntimeError, error_buf);
+        json_object_put(jobj_errors);
+        json_object_put(json_obj);
+        return NULL;
+    }
+
+    // Success - create Python object
+    PyDapChainDatumTxObject *obj_datum_tx = PyObject_New(PyDapChainDatumTxObject, &DapChainDatumTxObjectType);
+    if (!obj_datum_tx) {
+        dap_chain_datum_tx_delete(datum_tx);
+        json_object_put(jobj_errors);
+        json_object_put(json_obj);
+        PyErr_SetString(PyExc_MemoryError, "Failed to create DatumTx object.");
+        return NULL;
+    }
+    
+    obj_datum_tx->datum_tx = datum_tx;
+    json_object_put(jobj_errors);
+    json_object_put(json_obj);
+    return (PyObject*)obj_datum_tx;
+}
+
+PyObject *wrapping_dap_chain_datum_tx_to_json_py(PyObject *self, PyObject *args) {
+    (void)self;
+    
+    json_object *out_json = json_object_new_object();
+
+    if (dap_chain_net_tx_to_json(((PyDapChainDatumTxObject *)self)->datum_tx, out_json)) {
+        json_object_put(out_json);
+        PyErr_SetString(PyExc_RuntimeError, "Error converting datum to JSON");
+        return NULL;
+    }
+    const char *out_buf = json_object_to_json_string(out_json);
+    PyObject *result = PyUnicode_FromString(out_buf);
+    json_object_put(out_json);
+    return result;
+}
 
 /* -------------------------------------- */
