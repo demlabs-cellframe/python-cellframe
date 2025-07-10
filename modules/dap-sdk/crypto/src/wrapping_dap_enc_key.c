@@ -172,3 +172,11 @@ PyObject *dap_enc_gen_key_public_py(PyObject *self, PyObject *args){
     int size = dap_enc_gen_key_public(((PyCryptoKeyObject*)in_key)->key, obj);
     return PyLong_FromLong(size);
 }
+
+PyObject *dap_enc_key_delete_py(PyObject *self, PyObject *args) {
+    dap_enc_key_t *enc_key = ((PyCryptoKeyObject*)self)->key;
+    dap_enc_key_delete(enc_key);
+    ((PyCryptoKeyObject*)self)->key = NULL;
+    
+    Py_RETURN_NONE;
+}
