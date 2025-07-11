@@ -91,7 +91,7 @@ static PyMethodDef PyDapChainDatumTxObjectMethods[] ={
         {"addTSDItem", (PyCFunction)dap_chain_datum_tx_add_tsd_item_py, METH_VARARGS, ""},
         {"getItems", (PyCFunction)wrapping_dap_chain_datum_tx_get_items, METH_NOARGS, ""},
         {"getServiceTags", (PyCFunction)wrapping_dap_chain_datum_tx_get_service_tags, METH_VARARGS, ""},
-        {"fromJSON", (PyCFunction)wrapping_dap_chain_datum_tx_from_json_py, METH_VARARGS, ""},
+        {"fromJSON", (PyCFunction)wrapping_dap_chain_datum_tx_from_json_py, METH_VARARGS | METH_STATIC, ""},
         {"toJSON", (PyCFunction)wrapping_dap_chain_datum_tx_to_json_py, METH_VARARGS, ""},
         {"delete", (PyCFunction)wrapping_dap_chain_datum_tx_delete_py, METH_VARARGS, ""},
         {}
