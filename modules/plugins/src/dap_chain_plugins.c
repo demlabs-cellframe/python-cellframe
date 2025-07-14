@@ -6,15 +6,23 @@
 
 #include "dap_config.h"
 #include "dap_plugin.h"
+#include "dap_plugin_manifest.h"
 #include "dap_common.h"
 #include "dap_file_utils.h"
 #include "python-cellframe.h"
 #include "dap_chain_plugins.h"
 #include <dlfcn.h>
 #include <pthread.h>
+#include <patchlevel.h>
+#include "uthash.h"
 
 #undef LOG_TAG
 #define LOG_TAG "dap_chain_plugins"
+
+// Fallback definition for linter - CMake will override this
+#ifndef PYTHON_VERSION
+#define PYTHON_VERSION "python3.10"
+#endif
 
 static bool s_debug_more = false;
 
@@ -24,9 +32,21 @@ const char *s_plugins_root_path = NULL;
 PyThreadState *s_thread_state = NULL;
 static bool s_python_initialized = false;
 
+// Two-phase initialization state
+typedef enum {
+    PHASE_NONE,
+    PHASE_EARLY,
+    PHASE_LATE
+} dap_chain_plugins_phase_t;
+
+static dap_chain_plugins_phase_t s_current_phase = PHASE_NONE;
+static bool s_early_init_done = false;
+
 typedef struct _dap_chain_plugins_module{
     PyObject *module;
     char *name;
+    bool preload_called;
+    bool init_called;
     struct _dap_chain_plugins_module *next;
 }_dap_chain_plugins_module_t;
 
@@ -35,7 +55,10 @@ _dap_chain_plugins_module_t *_s_modules = NULL;
 static int s_dap_chain_plugins_load(dap_plugin_manifest_t * a_manifest, void ** a_pvt_data, char ** a_error_str );
 static int s_dap_chain_plugins_unload(dap_plugin_manifest_t * a_manifest, void * a_pvt_data, char ** a_error_str );
 static void s_plugins_load_plugin_initialization(void* a_module);
+static void s_plugins_load_plugin_preload(void* a_module);
 static void s_plugins_load_plugin_uninitialization(void* a_module);
+static int s_python_interpreter_init(dap_config_t *a_config);
+static void s_load_all_python_plugins();
 
 const char *pycfhelpers_path = "/opt/cellframe-node/python/lib/"PYTHON_VERSION"/site-packages/pycfhelpers";
 const char *pycftools_path = "/opt/cellframe-node/python/lib/"PYTHON_VERSION"/site-packages/pycftools";
@@ -52,13 +75,90 @@ wchar_t *s_get_full_path(const char *a_prefix, const char *a_path)
     return l_ret;
 }
 
-int dap_chain_plugins_init(dap_config_t *a_config)
+/**
+ * @brief Early phase Python plugin initialization
+ * @details Initializes Python interpreter and loads plugins, calling preload() method
+ * @param a_config Configuration object
+ * @return 0 on success, negative on error
+ */
+int dap_chain_plugins_early_init(dap_config_t *a_config)
 {
-    log_it(L_NOTICE, "=== PYTHON PLUGINS INIT START ===");
+    log_it(L_NOTICE, "=== PYTHON PLUGINS EARLY INIT START ===");
     
     if (!dap_config_get_item_bool_default(a_config, "plugins", "py_load", false)) {
-        log_it(L_NOTICE, "Python plugins disabled in config - exiting cleanly");
-        return -1;
+        log_it(L_NOTICE, "Python plugins disabled in config - skipping early init");
+        return 0; // Not an error, just disabled
+    }
+
+    if (s_early_init_done) {
+        log_it(L_WARNING, "Python plugins early init already done");
+        return 0;
+    }
+
+    s_current_phase = PHASE_EARLY;
+    
+    // Initialize Python interpreter
+    int l_ret = s_python_interpreter_init(a_config);
+    if (l_ret != 0) {
+        log_it(L_ERROR, "Failed to initialize Python interpreter in early phase");
+        return l_ret;
+    }
+
+    // Load all Python plugins and call preload() method
+    s_load_all_python_plugins();
+
+    s_early_init_done = true;
+    log_it(L_NOTICE, "=== PYTHON PLUGINS EARLY INIT COMPLETED ===");
+    return 0;
+}
+
+/**
+ * @brief Late phase Python plugin initialization  
+ * @details Calls init() method on already loaded plugins and handles app context
+ * @param a_config Configuration object
+ * @return 0 on success, negative on error
+ */
+int dap_chain_plugins_late_init(dap_config_t *a_config)
+{
+    log_it(L_NOTICE, "=== PYTHON PLUGINS LATE INIT START ===");
+    
+    if (!dap_config_get_item_bool_default(a_config, "plugins", "py_load", false)) {
+        log_it(L_NOTICE, "Python plugins disabled in config - skipping late init");
+        return 0;
+    }
+
+    if (!s_early_init_done) {
+        log_it(L_WARNING, "Python plugins early init not done, calling late init will do full init");
+        return dap_chain_plugins_init(a_config);
+    }
+
+    s_current_phase = PHASE_LATE;
+    
+    // Call init() method on all loaded modules
+    _dap_chain_plugins_module_t *l_module = _s_modules;
+    while (l_module) {
+        if (l_module->preload_called && !l_module->init_called) {
+            log_it(L_NOTICE, "Calling init() for plugin: %s", l_module->name);
+            s_plugins_load_plugin_initialization(l_module);
+            l_module->init_called = true;
+        }
+        l_module = l_module->next;
+    }
+
+    log_it(L_NOTICE, "=== PYTHON PLUGINS LATE INIT COMPLETED ===");
+    return 0;
+}
+
+/**
+ * @brief Extract Python interpreter initialization logic
+ * @param a_config Configuration object
+ * @return 0 on success, negative on error
+ */
+static int s_python_interpreter_init(dap_config_t *a_config)
+{
+    if (s_python_initialized) {
+        log_it(L_DEBUG, "Python interpreter already initialized");
+        return 0;
     }
 
     log_it(L_NOTICE, "Python plugins enabled, proceeding with initialization...");
@@ -344,7 +444,22 @@ static int s_dap_chain_plugins_load(dap_plugin_manifest_t * a_manifest, void ** 
     
     log_it(L_NOTICE, "Plugin importing successful, initializing plugin: %s", l_manifest->name);
     *a_pvt_data = l_pvt_data;
-    s_plugins_load_plugin_initialization(l_pvt_data);
+    
+    // Handle two-phase initialization
+    _dap_chain_plugins_module_t *l_container = (_dap_chain_plugins_module_t *)l_pvt_data;
+    if (s_current_phase == PHASE_EARLY) {
+        // During early phase, call preload() method
+        s_plugins_load_plugin_preload(l_pvt_data);
+        l_container->preload_called = true;
+        l_container->init_called = false;
+    } else if (s_current_phase == PHASE_LATE || !s_early_init_done) {
+        // During late phase or legacy mode, call init() method
+        if (!l_container->init_called) {
+            s_plugins_load_plugin_initialization(l_pvt_data);
+            l_container->init_called = true;
+        }
+    }
+    
     log_it(L_NOTICE, "=== PLUGIN LOADED SUCCESSFULLY: %s ===", l_manifest->name);
     return 0;
 }
@@ -418,7 +533,7 @@ void* dap_chain_plugins_load_plugin_importing(const char *a_dir_path, const char
     // ... existing code ...
 
     log_it(L_NOTICE, "Creating module container...");
-    _dap_chain_plugins_module_t *module = DAP_NEW(_dap_chain_plugins_module_t);
+    _dap_chain_plugins_module_t *module = DAP_NEW_Z(_dap_chain_plugins_module_t);
     if (!module) {
         log_it(L_ERROR, "Failed to allocate memory for module container");
         python_error_in_log_it(LOG_TAG);
@@ -427,6 +542,10 @@ void* dap_chain_plugins_load_plugin_importing(const char *a_dir_path, const char
     }
     module->module = l_obj_module;
     module->name = dap_strdup(a_name);
+    module->preload_called = false;
+    module->init_called = false;
+    module->next = _s_modules;
+    _s_modules = module;
     Py_INCREF(l_obj_module);
     log_it(L_NOTICE, "Module container created successfully");
     log_it(L_NOTICE, "=== PLUGIN MODULE IMPORT COMPLETED ===");
@@ -648,4 +767,147 @@ void dap_chain_plugins_deinit(void)
     
     s_python_initialized = false;
     log_it(L_DEBUG, "Python interpreter shutdown complete");
+}
+
+/**
+ * @brief Load all Python plugins from already-loaded manifests and call preload() method
+ */
+static void s_load_all_python_plugins()
+{
+    log_it(L_NOTICE, "Loading Python plugins from manifest system");
+    
+    // Use the existing manifest system that already parsed all plugins
+    dap_plugin_manifest_t *l_manifest, *l_tmp;
+    int l_total_plugins = 0;
+    int l_python_plugins = 0;
+    
+    HASH_ITER(hh, dap_plugin_manifest_all(), l_manifest, l_tmp) {
+        l_total_plugins++;
+        log_it(L_DEBUG, "Found plugin: %s (type: %s) at path: %s", 
+               l_manifest->name, l_manifest->type ? l_manifest->type : "NULL", l_manifest->path);
+        
+        // Check if it's a Python plugin
+        if (l_manifest->type && strcmp(l_manifest->type, "python") == 0) {
+            l_python_plugins++;
+            log_it(L_NOTICE, "Loading Python plugin: %s (module: %s) from path: %s", 
+                   l_manifest->name, l_manifest->name, l_manifest->path);
+            
+            PyGILState_STATE gstate = PyGILState_Ensure();
+            // Use manifest name (the actual Python module name) and manifest path
+            void *l_module = dap_chain_plugins_load_plugin_importing(l_manifest->path, l_manifest->name);
+            if (l_module) {
+                // Call preload() method during early phase
+                s_plugins_load_plugin_preload(l_module);
+                
+                // Add to our module list
+                _dap_chain_plugins_module_t *l_container = (_dap_chain_plugins_module_t *)l_module;
+                l_container->preload_called = true;
+                l_container->init_called = false;
+            } else {
+                log_it(L_ERROR, "Failed to load Python plugin: %s", l_manifest->name);
+            }
+            PyGILState_Release(gstate);
+        }
+    }
+    
+    log_it(L_NOTICE, "Plugin discovery complete: found %d total plugins, %d Python plugins", 
+           l_total_plugins, l_python_plugins);
+}
+
+/**
+ * @brief Call preload() method on Python plugin module
+ * @param a_module Plugin module container
+ */
+static void s_plugins_load_plugin_preload(void* a_module)
+{
+    log_it(L_NOTICE, "=== PLUGIN PRELOAD START ===");
+    
+    if (!a_module) {
+        log_it(L_ERROR, "Module pointer is NULL, cannot preload");
+        return;
+    }
+    
+    _dap_chain_plugins_module_t *l_container = (_dap_chain_plugins_module_t *)a_module;
+    log_it(L_NOTICE, "Preloading plugin: %s", l_container->name ? l_container->name : "UNKNOWN");
+    
+    PyObject *l_func_preload = PyObject_GetAttrString(l_container->module, "preload");
+    if (!l_func_preload) {
+        log_it(L_INFO, "No 'preload' method found for plugin %s, skipping", l_container->name);
+        PyErr_Clear();
+        return;
+    }
+    
+    if (PyCallable_Check(l_func_preload)) {
+        log_it(L_NOTICE, "Found callable 'preload' function, calling...");
+        PyObject *l_void_tuple = PyTuple_New(0);
+        if (!l_void_tuple) {
+            log_it(L_ERROR, "Failed to create empty tuple for preload call");
+            python_error_in_log_it(LOG_TAG);
+            Py_XDECREF(l_func_preload);
+            return;
+        }
+        
+        PyObject *l_res_int = PyObject_CallObject(l_func_preload, l_void_tuple);
+        
+        if (l_res_int) {
+            log_it(L_NOTICE, "Plugin preload function returned successfully");
+            if (PyLong_Check(l_res_int)) {
+                int result = _PyLong_AsInt(l_res_int);
+                log_it(L_NOTICE, "Preload function returned: %d", result);
+                if (result == 0) {
+                    log_it(L_NOTICE, "Plugin preload successful - services can now be registered");
+                } else {
+                    log_it(L_ERROR, "Plugin preload failed with code: %d", result);
+                    python_error_in_log_it(LOG_TAG);
+                }
+            } else {
+                log_it(L_ERROR, "Preload function returned non-integer value");
+                python_error_in_log_it(LOG_TAG);
+            }
+        } else {
+            log_it(L_ERROR, "Plugin preload function call failed");
+            python_error_in_log_it(LOG_TAG);
+        }
+        
+        Py_XDECREF(l_res_int);
+        Py_XDECREF(l_void_tuple);
+    } else {
+        log_it(L_ERROR, "Found 'preload' attribute but it's not callable for plugin %s", l_container->name);
+    }
+    
+    Py_XDECREF(l_func_preload);
+    log_it(L_NOTICE, "=== PLUGIN PRELOAD COMPLETED ===");
+}
+
+/**
+ * @brief Legacy function - redirects to late initialization
+ * @param a_config Configuration object  
+ * @return 0 on success, negative on error
+ */
+int dap_chain_plugins_init(dap_config_t *a_config)
+{
+    log_it(L_NOTICE, "=== PYTHON PLUGINS INIT (LEGACY) ===");
+    
+    if (!dap_config_get_item_bool_default(a_config, "plugins", "py_load", false)) {
+        log_it(L_NOTICE, "Python plugins disabled in config - exiting cleanly");
+        return -1;
+    }
+
+    // If early init was not done, do full initialization
+    if (!s_early_init_done) {
+        log_it(L_NOTICE, "Early init not done, performing full initialization");
+        
+        s_current_phase = PHASE_LATE;
+        
+        // Initialize Python interpreter
+        int l_ret = s_python_interpreter_init(a_config);
+        if (l_ret != 0) {
+            return l_ret;
+        }
+        
+        return 0; // Let the plugin system handle loading via callbacks
+    } else {
+        // Early init was done, just do late init
+        return dap_chain_plugins_late_init(a_config);
+    }
 }

@@ -64,6 +64,12 @@ PyObject *dap_chain_find_by_id_py(PyObject *self, PyObject *args){
 }
 
 PyObject *dap_chain_has_file_store_py(PyObject *self, PyObject *args){
+    // Check if chain is initialized before accessing it
+    if (!self || !((PyDapChainObject*)self)->chain_t) {
+        log_it(L_WARNING, "Chain not initialized yet, cannot check file store");
+        Py_RETURN_FALSE;
+    }
+    
     bool res = dap_chain_has_file_store(((PyDapChainObject*)self)->chain_t);
     if (res)
         Py_RETURN_TRUE;
@@ -72,6 +78,12 @@ PyObject *dap_chain_has_file_store_py(PyObject *self, PyObject *args){
 }
 
 PyObject *dap_chain_load_all_py(PyObject *self, PyObject *args){
+    // Check if chain is initialized before accessing it
+    if (!self || !((PyDapChainObject*)self)->chain_t) {
+        log_it(L_WARNING, "Chain not initialized yet, cannot load all");
+        return PyLong_FromLong(-1);
+    }
+    
     return  PyLong_FromLong(dap_chain_load_all(((PyDapChainObject*)self)->chain_t));
 }
 
@@ -112,13 +124,28 @@ PyObject *dap_chain_python_create_atom_iter(PyObject *self, PyObject *args){
         return NULL;
     }
     bool with_treshold = (obj_boolean == Py_True) ? 1 : 0;
+    
+    // Check if chain is initialized before accessing it
+    if (!self || !((PyDapChainObject*)self)->chain_t) {
+        log_it(L_WARNING, "Chain not initialized yet, cannot create atom iterator");
+        Py_RETURN_NONE;
+    }
+    
+    dap_chain_t *chain = ((PyDapChainObject*)self)->chain_t;
+    
+    // Check if required callbacks and structures are available
+    if (!chain->callback_atom_iter_create || !chain->cells) {
+        log_it(L_WARNING, "Chain not fully initialized, cannot create atom iterator");
+        Py_RETURN_NONE;
+    }
+    
     PyObject *obj_atom_iter = _PyObject_New(&DapChainAtomIterObjectType);
     PyObject_Init(obj_atom_iter, &DapChainAtomIterObjectType);
 //    ((PyDapChainObject*)self)->chain_t->callback_atom_iter_create()
     ((PyChainAtomIterObject*)obj_atom_iter)->atom_iter =
-            ((PyDapChainObject*)self)->chain_t->callback_atom_iter_create(
-                    ((PyDapChainObject*)self)->chain_t,
-                    ((PyDapChainObject*)self)->chain_t->cells->id, NULL);
+            chain->callback_atom_iter_create(
+                    chain,
+                    chain->cells->id, NULL);
     return obj_atom_iter;
 }
 
@@ -132,10 +159,25 @@ PyObject *dap_chain_python_atom_iter_get_first(PyObject *self, PyObject *args){
         PyErr_SetString(PyExc_ValueError, "Argument must be ChainAtomIter object");
         return NULL;
     }
+    
+    // Check if chain is initialized before accessing it
+    if (!self || !((PyDapChainObject*)self)->chain_t) {
+        log_it(L_WARNING, "Chain not initialized yet, cannot get atom iterator");
+        Py_RETURN_NONE;
+    }
+    
+    dap_chain_t *chain = ((PyDapChainObject*)self)->chain_t;
+    
+    // Check if required callbacks are available
+    if (!chain->callback_atom_iter_get) {
+        log_it(L_WARNING, "Chain not fully initialized, cannot get atom iterator");
+        Py_RETURN_NONE;
+    }
+    
     PyObject *obj_atom_ptr = _PyObject_New(&DapChainAtomPtrObjectType);
     obj_atom_ptr = PyObject_Init(obj_atom_ptr, &DapChainAtomPtrObjectType);
     size_t l_atom_size = 0;
-    ((PyChainAtomObject*)obj_atom_ptr)->atom = ((PyDapChainObject*)self)->chain_t->callback_atom_iter_get(
+    ((PyChainAtomObject*)obj_atom_ptr)->atom = chain->callback_atom_iter_get(
             ((PyChainAtomIterObject*)obj_iter)->atom_iter, DAP_CHAIN_ITER_OP_FIRST, &l_atom_size
             );
     if (((PyChainAtomObject*)obj_atom_ptr)->atom == NULL){
@@ -188,9 +230,24 @@ PyObject *dap_chain_python_atom_iter_get_next(PyObject *self, PyObject *args){
         PyErr_SetString(PyExc_AttributeError, "The first argument must be ChainAtomIter object.");
         return NULL;
     }
+    
+    // Check if chain is initialized before accessing it
+    if (!self || !((PyDapChainObject*)self)->chain_t) {
+        log_it(L_WARNING, "Chain not initialized yet, cannot get next atom");
+        return Py_BuildValue("On", Py_None, 0);
+    }
+    
+    dap_chain_t *chain = ((PyDapChainObject*)self)->chain_t;
+    
+    // Check if required callbacks are available
+    if (!chain->callback_atom_iter_get) {
+        log_it(L_WARNING, "Chain not fully initialized, cannot get next atom");
+        return Py_BuildValue("On", Py_None, 0);
+    }
+    
     PyObject *obj_atom_ptr = _PyObject_New(&DapChainAtomPtrObjectType);
     obj_atom_ptr = PyObject_Init(obj_atom_ptr, &DapChainAtomPtrObjectType);
-    ((PyChainAtomObject*)obj_atom_ptr)->atom = ((PyDapChainObject*)self)->chain_t->callback_atom_iter_get(
+    ((PyChainAtomObject*)obj_atom_ptr)->atom = chain->callback_atom_iter_get(
             ((PyChainAtomIterObject*)atom_iter)->atom_iter,
             DAP_CHAIN_ITER_OP_NEXT,
             &atom_size);
