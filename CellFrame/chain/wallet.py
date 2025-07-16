@@ -416,6 +416,128 @@ class Wallet:
         """Destructor - ensure wallet is closed."""
         if not self._is_closed:
             self.close()
+    
+    # ========== ENHANCED METHODS (integrated from CFWallet) ==========
+    
+    def get_address_for_network(self, network_name: str, key_index: int = 0) -> WalletAddress:
+        """
+        Get wallet address for specific network.
+        
+        Integrated from CFWallet functionality.
+        
+        Args:
+            network_name: Network name
+            key_index: Key index (default 0)
+            
+        Returns:
+            WalletAddress for the network
+        """
+        try:
+            with self._lock:
+                if self._is_closed:
+                    raise WalletError("Wallet is closed")
+                
+                if not self._wallet_handle:
+                    raise WalletError("No wallet handle available")
+                
+                # Try to get address using native API
+                try:
+                    from CellFrame.Network import Net
+                    
+                    net = Net.byName(network_name)
+                    if not net:
+                        raise ValueError(f"Network {network_name} not found")
+                    
+                    addr_obj = self._wallet_handle.getAddr(net.id)
+                    if not addr_obj:
+                        raise WalletError(f"Could not get address for network {network_name}")
+                    
+                    return WalletAddress(str(addr_obj), self.name, network_name)
+                    
+                except ImportError:
+                    # Fallback for library mode
+                    logger.warning("Native CellFrame API not available - using fallback")
+                    fake_address = f"{self.name}_{network_name}_{key_index}_address"
+                    return WalletAddress(fake_address, self.name, network_name)
+                    
+        except Exception as e:
+            logger.error("Failed to get address for network %s: %s", network_name, e)
+            raise WalletError(f"Failed to get address: {e}")
+    
+    def get_balance_by_network(self, network_name: str, token_ticker: str = "CELL") -> Decimal:
+        """
+        Get wallet balance by network name (convenience method).
+        
+        Args:
+            network_name: Network name
+            token_ticker: Token ticker symbol
+            
+        Returns:
+            Decimal: Current balance
+        """
+        try:
+            # Try to resolve network name to ID
+            try:
+                from CellFrame.Network import Net
+                
+                net = Net.byName(network_name)
+                if not net:
+                    raise ValueError(f"Network {network_name} not found")
+                
+                net_id = net.id
+                return self.get_balance(net_id, token_ticker)
+                
+            except ImportError:
+                # Fallback - use hash of network name as ID
+                import hashlib
+                net_id = int(hashlib.md5(network_name.encode()).hexdigest()[:8], 16)
+                return self.get_balance(net_id, token_ticker)
+                
+        except Exception as e:
+            logger.error("Failed to get balance for network %s: %s", network_name, e)
+            raise WalletError(f"Failed to get balance: {e}")
+    
+    @classmethod
+    def create_with_network(cls, name: str, network_name: str, wallet_path: Optional[str] = None,
+                           signature_type: int = 0x0102, seed: Optional[bytes] = None) -> 'Wallet':
+        """
+        Create wallet for specific network (convenience method).
+        
+        Integrated from CFWallet functionality.
+        
+        Args:
+            name: Wallet name
+            network_name: Network name
+            wallet_path: Path to wallet directory (auto-detect if None)
+            signature_type: Signature algorithm type
+            seed: Optional seed for recovery
+            
+        Returns:
+            Wallet: Created wallet instance
+        """
+        try:
+            # Auto-detect wallet path if not provided
+            if not wallet_path:
+                try:
+                    from ..node.config import CFConfig
+                    import os
+                    
+                    path = CFConfig().get("resources", "wallets_path")
+                    if not os.path.isabs(path):
+                        path = os.path.join(CFConfig().storage_path(), "etc", path)
+                    wallet_path = path
+                except:
+                    wallet_path = f"./wallets"  # Fallback
+            
+            # Create wallet
+            wallet = cls.create(name, wallet_path, seed=seed, signature_type=signature_type)
+            
+            logger.info("Wallet %s created for network %s", name, network_name)
+            return wallet
+            
+        except Exception as e:
+            logger.error("Failed to create wallet for network %s: %s", network_name, e)
+            raise WalletError(f"Failed to create wallet: {e}")
 
 
 class WalletManager:

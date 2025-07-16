@@ -14,7 +14,7 @@ from typing import Optional, Dict, Any, List, Tuple, Union
 from pathlib import Path
 
 from ..chain.wallet import WalletAddress
-from ..types import TransactionType
+from ..types import TransactionType, TSD, ChainTypes, DatumTypes
 
 logger = logging.getLogger(__name__)
 

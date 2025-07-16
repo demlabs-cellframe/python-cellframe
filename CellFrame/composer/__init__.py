@@ -86,6 +86,9 @@ from .utils import (
     quick_stake_lock
 )
 
+# Import TSD constants - these belong here since composer creates transactions
+from ..types import TSD, ChainTypes, DatumTypes
+
 __all__ = [
     # Core components
     'Composer',

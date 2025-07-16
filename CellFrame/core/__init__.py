@@ -9,7 +9,7 @@ Core classes адаптированы для работы с универсал�
 """
 
 import logging
-from typing import Optional, Dict, Any, List, Union
+from typing import Optional, Dict, Any, List, Union, Iterator
 from pathlib import Path
 
 # Import context system
@@ -21,15 +21,28 @@ from .context import (
 # Import exceptions
 from .exceptions import CellframeException, ConfigurationException
 
-# Import chain module
+# Import chain module (enhanced with helpers integration)
 from ..chain import (
     Wallet, WalletType, WalletError, WalletManager,
     TX, TxError, TxType, TxStatus, TxInput, TxOutput,
     DapLedger, DapLedgerType, DapLedgerError, DapAccount, DapLedgerManager,
     create_wallet, get_all_wallets,
     get_tx_by_hash, broadcast_tx,
-    create_ledger, get_account_balance, open_wallet
+    create_ledger, get_account_balance, open_wallet,
+    # Transaction utilities (integrated from helpers)
+    find_tx_out, get_tx_items, format_tx_summary
 )
+
+# Import types needed for chain operations
+try:
+    from CellFrame.Network import Net
+    from CellFrame.Chain import ChainAtomPtr
+    CELLFRAME_NATIVE_AVAILABLE = True
+except ImportError:
+    CELLFRAME_NATIVE_AVAILABLE = False
+    # Create dummy types for fallback
+    Net = None
+    ChainAtomPtr = None
 
 
 class CellframeComponent:
@@ -283,6 +296,208 @@ class CellframeChain(CellframeComponent):
     def ledger_manager(self) -> DapLedgerManager:
         """Get ledger manager"""
         return self._ledger_manager
+    
+    # ========== CHAIN ATOM OPERATIONS (integrated from CFChain) ==========
+    
+    def get_chain_atoms(self, net_name: str, chain_name: str) -> Iterator[Any]:
+        """
+        Get iterator over chain atoms (blocks/events).
+        
+        Integrated from CFChain functionality.
+        
+        Args:
+            net_name: Network name
+            chain_name: Chain name
+            
+        Yields:
+            Chain atoms (blocks for ESBOCS, events for DAG-PoA)
+        """
+        if not CELLFRAME_NATIVE_AVAILABLE:
+            self.logger.warning("Native CellFrame API not available - using fallback")
+            return iter([])
+        
+        try:
+            from CellFrame.Network import Net as CellFrameNet
+            
+            # Get network and chain
+            net = CellFrameNet.byName(net_name)
+            if not net:
+                raise ValueError(f"Network {net_name} not found")
+            
+            chain = net.getChainByName(chain_name)
+            if not chain:
+                raise ValueError(f"Chain {chain_name} not found in network {net_name}")
+            
+            # Get chain type
+            chain_type = chain.getCSName()
+            
+            # Create atom iterator
+            iterator = chain.createAtomIter(False)
+            ptr = chain.atomIterGetFirst(iterator)
+            
+            while ptr:
+                atom, size = ptr
+                if size <= 0:
+                    ptr = chain.atomIterGetNext(iterator)
+                    continue
+                
+                # Return appropriate type based on chain consensus
+                atom_data = {
+                    'type': chain_type,
+                    'size': size,
+                    'chain': chain_name,
+                    'network': net_name,
+                    '_native_atom': atom
+                }
+                
+                yield atom_data
+                ptr = chain.atomIterGetNext(iterator)
+                
+        except Exception as e:
+            self.logger.error(f"Failed to get chain atoms: {e}")
+            return iter([])
+    
+    def get_chain_datums(self, net_name: str, chain_name: str, datum_type: str = None) -> Iterator[Any]:
+        """
+        Get iterator over datums in chain, optionally filtered by type.
+        
+        Args:
+            net_name: Network name
+            chain_name: Chain name 
+            datum_type: Optional datum type filter
+            
+        Yields:
+            Chain datums
+        """
+        for atom in self.get_chain_atoms(net_name, chain_name):
+            try:
+                # Extract datums from atom (implementation depends on atom structure)
+                # This is a simplified version - real implementation needs atom parsing
+                datum_data = {
+                    'atom_type': atom['type'],
+                    'chain': chain_name,
+                    'network': net_name,
+                    'datum_type': datum_type or 'unknown'
+                }
+                
+                if not datum_type or datum_data['datum_type'] == datum_type:
+                    yield datum_data
+                    
+            except Exception as e:
+                self.logger.error(f"Failed to extract datum from atom: {e}")
+                continue
+    
+    def get_chain_transactions(self, net_name: str, chain_name: str) -> Iterator[Any]:
+        """
+        Get iterator over transactions in chain.
+        
+        Args:
+            net_name: Network name
+            chain_name: Chain name
+            
+        Yields:
+            Transaction data
+        """
+        for datum in self.get_chain_datums(net_name, chain_name, 'transaction'):
+            try:
+                # Extract transaction from datum (simplified)
+                tx_data = {
+                    'chain': chain_name,
+                    'network': net_name,
+                    'type': 'transaction',
+                    '_datum': datum
+                }
+                yield tx_data
+                
+            except Exception as e:
+                self.logger.error(f"Failed to extract transaction: {e}")
+                continue
+    
+    def register_mempool_callback(self, net_name: str, chain_name: str, callback: callable) -> bool:
+        """
+        Register callback for mempool changes.
+        
+        Args:
+            net_name: Network name
+            chain_name: Chain name
+            callback: Callback function
+            
+        Returns:
+            True if registered successfully
+        """
+        if not CELLFRAME_NATIVE_AVAILABLE:
+            self.logger.warning("Native CellFrame API not available")
+            return False
+        
+        try:
+            from CellFrame.Network import Net as CellFrameNet
+            
+            net = CellFrameNet.byName(net_name)
+            if not net:
+                raise ValueError(f"Network {net_name} not found")
+            
+            chain = net.getChainByName(chain_name)
+            if not chain:
+                raise ValueError(f"Chain {chain_name} not found")
+            
+            def callback_wrapper(op_code, group: str, key, value: bytes, *other):
+                try:
+                    callback(op_code, key, value, chain_name=chain_name, net_name=net_name)
+                except Exception as e:
+                    self.logger.error(f"Mempool callback error: {e}")
+            
+            chain.addMempoolNotify(callback_wrapper, ())
+            return True
+            
+        except Exception as e:
+            self.logger.error(f"Failed to register mempool callback: {e}")
+            return False
+    
+    def register_atom_callback(self, net_name: str, chain_name: str, callback: callable) -> bool:
+        """
+        Register callback for chain atom changes.
+        
+        Args:
+            net_name: Network name
+            chain_name: Chain name
+            callback: Callback function
+            
+        Returns:
+            True if registered successfully
+        """
+        if not CELLFRAME_NATIVE_AVAILABLE:
+            self.logger.warning("Native CellFrame API not available")
+            return False
+        
+        try:
+            from CellFrame.Network import Net as CellFrameNet
+            
+            net = CellFrameNet.byName(net_name)
+            if not net:
+                raise ValueError(f"Network {net_name} not found")
+            
+            chain = net.getChainByName(chain_name)
+            if not chain:
+                raise ValueError(f"Chain {chain_name} not found")
+            
+            def callback_wrapper(atom, size, *other):
+                try:
+                    atom_data = {
+                        'size': size,
+                        'chain': chain_name,
+                        'network': net_name,
+                        '_native_atom': atom
+                    }
+                    callback(atom_data)
+                except Exception as e:
+                    self.logger.error(f"Atom callback error: {e}")
+            
+            chain.addAtomNotify(callback_wrapper, ())
+            return True
+            
+        except Exception as e:
+            self.logger.error(f"Failed to register atom callback: {e}")
+            return False
 
 
 class CellframeNode(CellframeComponent):

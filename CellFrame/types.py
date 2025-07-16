@@ -382,5 +382,108 @@ __all__ = [
     
     # Type aliases
     'EventCallback', 'EventFilter', 'PeerID', 'ConnectionID',
-    'KeyFingerprint', 'Nonce'
+    'KeyFingerprint', 'Nonce',
+    
+    # TSD and additional types (integrated from helpers)
+    'TxType', 'WalletType', 'TSD', 'ChainTypes', 'DatumTypes', 
+    'TSDTypes', 'ChainType', 'DatumType'
 ] 
+
+class TxType(Enum):
+    """Transaction type enumeration."""
+    TRANSFER = "transfer"
+    EMISSION = "emission"
+    STAKE_LOCK = "stake_lock"
+    STAKE_UNLOCK = "stake_unlock"
+    SERVICE = "service"
+    EXCHANGE = "exchange"
+
+
+class WalletType(Enum):
+    """Wallet type enumeration."""
+    SIMPLE = "simple"
+    HIERARCHICAL = "hierarchical"
+    HARDWARE = "hardware"
+    MULTISIG = "multisig"
+
+
+# ========== TSD CONSTANTS (integrated from helpers) ==========
+
+class TSD:
+    """
+    Types of Typed Section Data.
+    
+    Integrated from helpers - critical for transaction processing.
+    
+    Attributes:
+        TYPE_UNKNOWN: Unknown type
+        TYPE_TIMESTAMP: Timestamp type
+        TYPE_ADDRESS: Address type
+        TYPE_VALUE: Value type
+        TYPE_CONTRACT: Contract type
+        TYPE_NET_ID: Network ID type
+        TYPE_BLOCK_NUM: Block number type
+        TYPE_TOKEN_SYM: Token symbol type
+        TYPE_OUTER_TX_HASH: Transaction output hash type
+        TYPE_SOURCE: Source type
+        TYPE_SOURCE_SUBTYPE: Source subtype type
+        TYPE_DATA: Data type
+        TYPE_SENDER: Sender type
+        TYPE_TOKEN_ADDRESS: Token address type
+        TYPE_SIGNATURS: Signatures type
+        TYPE_UNIQUE_ID: Unique ID type
+        TYPE_BASE_TX_HASH: Base transaction hash type
+        TYPE_EMISSION_CENTER_UID: Emission center unique identifier type
+        TYPE_EMISSION_CENTER_VER: Emission center verificator/version type
+    """
+
+    TYPE_UNKNOWN = 0x0000
+    TYPE_TIMESTAMP = 0x0001
+    TYPE_ADDRESS = 0x0002
+    TYPE_VALUE = 0x0003
+    TYPE_CONTRACT = 0x0004
+    TYPE_NET_ID = 0x0005
+    TYPE_BLOCK_NUM = 0x0006
+    TYPE_TOKEN_SYM = 0x0007
+    TYPE_OUTER_TX_HASH = 0x0008
+    TYPE_SOURCE = 0x0009
+    TYPE_SOURCE_SUBTYPE = 0x000A
+    TYPE_DATA = 0x000B
+    TYPE_SENDER = 0x000C
+    TYPE_TOKEN_ADDRESS = 0x000D
+    TYPE_SIGNATURS = 0x000E
+    TYPE_UNIQUE_ID = 0x000F
+    TYPE_BASE_TX_HASH = 0x0010
+    TYPE_EMISSION_CENTER_UID = 0x0011
+    TYPE_EMISSION_CENTER_VER = 0x0012
+
+
+class ChainTypes:
+    """
+    Chain consensus types.
+    
+    Integrated from helpers.
+    """
+    esbocs = "esbocs" 
+    dag_poa = "dag_poa"
+    block_pow = "block_pow"
+
+
+class DatumTypes:
+    """
+    Datum type constants.
+    
+    Integrated from helpers.
+    """
+    UNKNOWN = "unknown"
+    TX = "tx"
+    TOKEN = "token"
+    EMISSION = "emission"
+    ANCHOR = "anchor"
+    DECREE = "decree"
+
+
+# Backward compatibility aliases
+TSDTypes = TSD
+ChainType = ChainTypes
+DatumType = DatumTypes 
