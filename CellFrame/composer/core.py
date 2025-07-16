@@ -13,7 +13,8 @@ from dataclasses import dataclass
 from typing import Optional, Dict, Any, List, Tuple, Union
 from pathlib import Path
 
-from ..chain.wallet import WalletAddress, TransactionType
+from ..chain.wallet import WalletAddress
+from ..types import TransactionType
 
 logger = logging.getLogger(__name__)
 

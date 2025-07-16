@@ -16,7 +16,7 @@ from .voting import VotingProcessor
 from .service_payment import ServicePaymentProcessor
 from .delegation import DelegationProcessor
 from ..exceptions import ConditionalTransactionError
-from ...chain.wallet import TransactionType
+from ...types import TransactionType
 
 logger = logging.getLogger(__name__)
 

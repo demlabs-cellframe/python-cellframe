@@ -23,12 +23,12 @@ from .exceptions import CellframeException, ConfigurationException
 
 # Import chain module
 from ..chain import (
-    DapWallet, DapWalletType, DapWalletError, DapWalletManager,
+    Wallet, WalletType, WalletError, WalletManager,
     TX, TxError, TxType, TxStatus, TxInput, TxOutput,
     DapLedger, DapLedgerType, DapLedgerError, DapAccount, DapLedgerManager,
-    create_wallet, load_wallet, get_all_wallets,
+    create_wallet, get_all_wallets,
     get_tx_by_hash, broadcast_tx,
-    create_ledger, get_ledger, get_account_balance
+    create_ledger, get_account_balance, open_wallet
 )
 
 
@@ -128,7 +128,7 @@ class CellframeChain(CellframeComponent):
         self._chains: Dict[str, Any] = {}
         
         # Initialize managers
-        self._wallet_manager = DapWalletManager()
+        self._wallet_manager = WalletManager()
         self._ledger_manager = DapLedgerManager()
     
     def initialize(self) -> bool:
@@ -155,15 +155,17 @@ class CellframeChain(CellframeComponent):
             return False
     
     # Wallet operations
-    def create_wallet(self, name: str, wallet_type: DapWalletType = DapWalletType.HD) -> DapWallet:
+    def create_wallet(self, name: str, wallet_type: WalletType = WalletType.SIMPLE) -> Wallet:
         """Create new wallet"""
         return create_wallet(name, wallet_type)
     
-    def load_wallet(self, file_path: Union[str, Path]) -> DapWallet:
+    def load_wallet(self, file_path: Union[str, Path]) -> Wallet:
         """Load wallet from file"""
-        return load_wallet(file_path)
+        # Extract name from file path for compatibility
+        name = Path(file_path).stem
+        return open_wallet(name, str(file_path))
     
-    def get_all_wallets(self) -> List[DapWallet]:
+    def get_all_wallets(self) -> List[Wallet]:
         """Get all wallets"""
         return get_all_wallets()
     
@@ -187,7 +189,7 @@ class CellframeChain(CellframeComponent):
         
         return transaction
     
-    def get_transaction_history(self, wallet: DapWallet = None) -> List[Dict[str, Any]]:
+    def get_transaction_history(self, wallet: Wallet = None) -> List[Dict[str, Any]]:
         """Get transaction history"""
         if wallet:
             return wallet.get_transaction_history()
@@ -273,7 +275,7 @@ class CellframeChain(CellframeComponent):
         return list(networks.keys())
     
     @property
-    def wallet_manager(self) -> DapWalletManager:
+    def wallet_manager(self) -> WalletManager:
         """Get wallet manager"""
         return self._wallet_manager
     
@@ -591,8 +593,8 @@ __all__ = [
     'CellframeException', 'ConfigurationException',
     
     # Chain module - Wallet
-    'DapWallet', 'DapWalletType', 'DapWalletError', 'DapWalletManager',
-    'create_wallet', 'load_wallet', 'get_all_wallets',
+    'Wallet', 'WalletType', 'WalletError', 'WalletManager',
+    'create_wallet', 'get_all_wallets',
     
     # Chain module - Transaction
     'TX', 'TxType', 'TxStatus', 'TxError',
@@ -601,5 +603,5 @@ __all__ = [
     
     # Chain module - Ledger
     'DapLedger', 'DapLedgerType', 'DapLedgerError', 'DapAccount', 'DapLedgerManager',
-    'create_ledger', 'get_ledger', 'get_account_balance'
+    'create_ledger', 'get_account_balance'
 ] 

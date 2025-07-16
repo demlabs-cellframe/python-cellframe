@@ -11,9 +11,9 @@ import random
 from decimal import Decimal
 from typing import List, Tuple, Optional, Dict, Any
 
-from .core import FeeStructure, TransactionInput, ComposeConfig
+from .core import ComposeConfig, FeeStructure, TransactionInput
 from .exceptions import FeeCalculationError
-from ..chain.wallet import TransactionType
+from ..types import TransactionType
 
 logger = logging.getLogger(__name__)
 

@@ -159,6 +159,16 @@ class TransactionType(Enum):
     STAKE = "stake"
     UNSTAKE = "unstake"
     GOVERNANCE = "governance"
+    
+    # Service transaction types
+    SRV_PAY = "srv_pay"
+    SRV_XCHANGE = "srv_xchange"
+    SRV_STAKE_LOCK = "srv_stake_lock"
+    SRV_VOTING = "srv_voting"
+    SRV_STAKE_POS_DELEGATE = "srv_stake_pos_delegate"
+    
+    # Additional types for backward compatibility
+    TRANSFER_REGULAR = "transfer_regular"
 
 
 class TransactionStatus(Enum):

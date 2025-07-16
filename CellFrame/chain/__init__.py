@@ -32,10 +32,15 @@ from .wallet import (
 )
 
 from .ledger import (
-    Ledger,
-    LedgerError,
-    BalanceInfo,
-    TransactionInfo
+    DapLedger,
+    DapLedgerType,
+    DapLedgerError,
+    DapTokenInfo,
+    DapAccount,
+    DapLedgerManager,
+    create_ledger,
+    open_ledger,
+    get_account_balance
 )
 
 from .tx import (
@@ -89,10 +94,15 @@ __all__ = [
     'close_all_wallets',
     
     # Ledger operations
-    'Ledger',
-    'LedgerError',
-    'BalanceInfo',
-    'TransactionInfo',
+    'DapLedger',
+    'DapLedgerType',
+    'DapLedgerError',
+    'DapTokenInfo',
+    'DapAccount',
+    'DapLedgerManager',
+    'create_ledger',
+    'open_ledger',
+    'get_account_balance',
     
     # Transaction management
     'TX',

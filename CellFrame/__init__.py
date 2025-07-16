@@ -86,13 +86,13 @@ from .core import (
     create_node, create_plugin_node, create_library_node, auto_create_node,
     
     # Exceptions
-    CellframeException, CellframeConfigurationError
+    CellframeException, ConfigurationException
 )
 
 # Types
 from .types import (
-    Address, TokenAmount, TransactionHash, BlockHash, ChainId,
-    KeyType, HashType, NetworkId, ServiceId
+    Address, TokenAmount, TransactionHash, BlockHash,
+    NetworkID, KeyType
 )
 
 # Import other modules with context awareness
@@ -300,11 +300,11 @@ __all__ = [
     'get_current_context', 'setup_plugin_api',
     
     # Types
-    'Address', 'TokenAmount', 'TransactionHash', 'BlockHash', 'ChainId',
-    'KeyType', 'HashType', 'NetworkId', 'ServiceId',
+    'Address', 'TokenAmount', 'TransactionHash', 'BlockHash',
+    'NetworkID', 'KeyType',
     
     # Exceptions
-    'CellframeException', 'CellframeConfigurationError'
+    'CellframeException', 'ConfigurationException'
 ]
 
 

@@ -75,7 +75,8 @@ from .exceptions import (
     InputSelectionError,
     OutputCreationError,
     ConditionalTransactionError,
-    TemplateError
+    TemplateError,
+    BatchProcessingError
 )
 
 from .utils import (
@@ -114,6 +115,7 @@ __all__ = [
     'OutputCreationError',
     'ConditionalTransactionError',
     'TemplateError',
+    'BatchProcessingError',
     
     # Utilities
     'composer_context',

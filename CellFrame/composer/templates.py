@@ -11,7 +11,7 @@ from typing import Dict, Any, List, Optional
 
 from .core import Composer
 from .exceptions import TemplateError
-from ..chain.wallet import TransactionType
+from ..types import TransactionType
 
 logger = logging.getLogger(__name__)
 
