@@ -316,21 +316,18 @@ PyObject *dap_chain_ledger_tx_find_by_hash_py(PyObject *self, PyObject *args){
     dap_ledger_t *ledger = ((PyDapChainLedgerObject*)self)->ledger;
     dap_hash_fast_t *hash_fast = ((PyDapHashFastObject*)h_fast)->hash_fast;
     
-    // Try to get full datum with atom info
     dap_chain_datum_t *full_datum = NULL;
     dap_chain_hash_fast_t block_hash = {0};
     int ret_code = 0;
     dap_chain_atom_ptr_t atom = NULL;
     size_t atom_size = 0;
     
-    // Get main chain
     dap_chain_t *main_chain = dap_chain_net_get_chain_by_name(ledger->net, "main");
     
     if (ledger->net && main_chain && main_chain->callback_datum_find_by_hash) {
         full_datum = main_chain->callback_datum_find_by_hash(
             main_chain, hash_fast, &block_hash, &ret_code);
         
-        // If we got full datum and block hash, try to find the atom
         if (full_datum && !dap_hash_fast_is_blank(&block_hash)) {
             atom = dap_chain_get_atom_by_hash(main_chain, &block_hash, &atom_size);
         }
@@ -340,17 +337,15 @@ PyObject *dap_chain_ledger_tx_find_by_hash_py(PyObject *self, PyObject *args){
     PyObject *obj_atom = NULL;
     
     if (full_datum) {
-        // Create full datum object with error checking
         PyDapChainDatumObject *obj_datum_full = PyObject_NEW(PyDapChainDatumObject, &DapChainDatumObjectType);
         if (!obj_datum_full) {
             PyErr_SetString(PyExc_MemoryError, "Failed to create datum object");
             return NULL;
         }
         obj_datum_full->datum = full_datum;
-        obj_datum_full->origin = false; // Don't delete the datum, it's from chain
+        obj_datum_full->origin = false;
         obj_datum = (PyObject*)obj_datum_full;
         
-        // Create atom object if found
         if (atom) {
             PyChainAtomObject *obj_atom_ptr = PyObject_NEW(PyChainAtomObject, &DapChainAtomPtrObjectType);
             if (!obj_atom_ptr) {
@@ -363,13 +358,11 @@ PyObject *dap_chain_ledger_tx_find_by_hash_py(PyObject *self, PyObject *args){
             obj_atom = (PyObject*)obj_atom_ptr;
         } else {
             obj_atom = Py_None;
-            Py_INCREF(Py_None); // Important: increment reference count
+            Py_INCREF(Py_None);
         }
         
-        // Return tuple (datum, atom)
         return Py_BuildValue("OO", obj_datum, obj_atom);
     } else {
-        // Fallback to original behavior - return partial tx
         PyDapChainDatumTxObject *res = PyObject_NEW(PyDapChainDatumTxObject, &DapChainDatumTxObjectType);
         if (!res) {
             PyErr_SetString(PyExc_MemoryError, "Failed to create tx object");
@@ -386,9 +379,8 @@ PyObject *dap_chain_ledger_tx_find_by_hash_py(PyObject *self, PyObject *args){
         
         obj_datum = (PyObject*)res;
         obj_atom = Py_None;
-        Py_INCREF(Py_None); // Important: increment reference count
+        Py_INCREF(Py_None);
         
-        // Return tuple (datum, None) for consistency
         return Py_BuildValue("OO", obj_datum, obj_atom);
     }
 }
@@ -490,20 +482,17 @@ static void pvt_wrapping_dap_chain_ledger_tx_add_notify(void *a_arg, dap_ledger_
         pvt_ledger_notify_t *notifier = (pvt_ledger_notify_t*)a_arg;
         PyGILState_STATE state = PyGILState_Ensure();
         
-                // Try to get full datum with atom info
         dap_chain_datum_t *full_datum = NULL;
         dap_chain_hash_fast_t block_hash = {0};
         int ret_code = 0;
         dap_chain_atom_ptr_t atom = NULL;
         size_t atom_size = 0;
         
-        // Get main chain
         dap_chain_t *main_chain = dap_chain_net_get_chain_by_name(a_ledger->net, "main");
         if (a_ledger->net && main_chain && main_chain->callback_datum_find_by_hash) {
             full_datum = main_chain->callback_datum_find_by_hash(
                 main_chain, a_tx_hash, &block_hash, &ret_code);
             
-            // If we got full datum and block hash, try to find the atom
             if (full_datum && !dap_hash_fast_is_blank(&block_hash)) {
                 atom = dap_chain_get_atom_by_hash(main_chain, &block_hash, &atom_size);
             }
@@ -518,10 +507,9 @@ static void pvt_wrapping_dap_chain_ledger_tx_add_notify(void *a_arg, dap_ledger_
         
         PyObject *obj_datum;
         PyObject *obj_atom = Py_None;
-        Py_INCREF(Py_None); // Initialize with proper reference count
+        Py_INCREF(Py_None);
         
         if (full_datum) {
-            // Create full datum object with atom info
             PyDapChainDatumObject *obj_datum_full = PyObject_NEW(PyDapChainDatumObject, &DapChainDatumObjectType);
             if (!obj_datum_full) {
                 Py_DECREF(obj_atom);
@@ -529,12 +517,10 @@ static void pvt_wrapping_dap_chain_ledger_tx_add_notify(void *a_arg, dap_ledger_
                 return;
             }
             obj_datum_full->datum = full_datum;
-            obj_datum_full->origin = false; // Don't delete the datum, it's from chain
+            obj_datum_full->origin = false;
             obj_datum = (PyObject*)obj_datum_full;
             
-            // If we found the atom, create Python atom object
             if (atom) {
-                // Create proper Python atom object
                 PyChainAtomObject *obj_atom_ptr = PyObject_NEW(PyChainAtomObject, &DapChainAtomPtrObjectType);
                 if (!obj_atom_ptr) {
                     Py_DECREF(obj_datum);
@@ -544,11 +530,10 @@ static void pvt_wrapping_dap_chain_ledger_tx_add_notify(void *a_arg, dap_ledger_
                 }
                 obj_atom_ptr->atom = atom;
                 obj_atom_ptr->atom_size = atom_size;
-                Py_DECREF(obj_atom); // Release the old Py_None reference
+                Py_DECREF(obj_atom);
                 obj_atom = (PyObject*)obj_atom_ptr;
             }
         } else {
-            // Fallback to original behavior - create partial datum
             PyDapChainDatumTxObject *obj_tx_partial = PyObject_NEW(PyDapChainDatumTxObject, &DapChainDatumTxObjectType);
             if (!obj_tx_partial) {
                 Py_DECREF(obj_atom);
