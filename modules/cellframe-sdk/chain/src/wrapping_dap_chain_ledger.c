@@ -572,7 +572,7 @@ static void pvt_wrapping_dap_chain_ledger_tx_add_notify(void *a_arg, dap_ledger_
             partial_datum->header.type_id = DAP_CHAIN_DATUM_TX;
             partial_datum->header.data_size = tx_size;
             partial_datum->header.version_id = DAP_CHAIN_DATUM_VERSION;
-            partial_datum->header.ts_created = a_tx ? a_tx->header.ts_created : 0;
+            partial_datum->header.ts_create = a_tx ? a_tx->header.ts_created : 0;
             
             // Copy tx data
             memcpy(partial_datum->data, a_tx, tx_size);
