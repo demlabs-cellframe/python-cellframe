@@ -3,9 +3,11 @@
 #include "dap_chain_net.h"
 #include "math_python.h"
 #include "datetime.h"
-#include "dap_chain_wallet_python.h"
+#include "wrapped_dap_chain_wallet_python.h"
 #include "libdap_chain_net_python.h"
 #include "wrapping_dap_chain_net_srv_vote_info.h"
+
+#define LOG_TAG "wrapping_vote_service"
 
 PyMethodDef DapChainNetSrvVoteMethods[] = {
         {"create", (PyCFunction)wrapping_dap_chain_net_srv_vote_create, METH_VARARGS | METH_STATIC, ""},
@@ -194,15 +196,32 @@ PyObject *wrapping_dap_chain_net_srv_vote_list(PyObject *self, PyObject *argv) {
     if (!l_list) {
         Py_RETURN_NONE;
     }
+    
     size_t l_list_count = dap_list_length(l_list);
-    dap_list_t *l_ptr = l_list;
     PyObject *obj_list = PyList_New((Py_ssize_t)l_list_count);
+    if (!obj_list) {
+        log_it(L_CRITICAL, "Failed to create vote list");
+        dap_list_free(l_list);
+        return NULL;
+    }
+    
+    dap_list_t *l_ptr = l_list;
     for (size_t i = 0; i < l_list_count; i++) {
         PyDapChainNetSrvVoteInfoObject *obj = PyObject_New(PyDapChainNetSrvVoteInfoObject, &DapChainNetSrvVoteInfoObjectType);
+        if (!obj) {
+            log_it(L_CRITICAL, "Failed to create vote info object for index %zu", i);
+            Py_DECREF(obj_list);
+            dap_list_free(l_list);
+            return NULL;
+        }
         obj->info = (dap_chain_net_vote_info_t*)l_ptr->data;
         PyList_SetItem(obj_list, (Py_ssize_t)i, (PyObject*)obj);
         l_ptr = l_ptr->next;
     }
+    
+    // Clean up the list structure (but not the data, as it's now owned by Python objects)
+    dap_list_free(l_list);
+    
     return obj_list;
 }
 
