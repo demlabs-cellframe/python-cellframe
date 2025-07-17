@@ -494,55 +494,51 @@ static void pvt_wrapping_dap_chain_ledger_tx_add_notify(void *a_arg, dap_ledger_
         size_t atom_size = 0;
         
         dap_chain_t *main_chain = dap_chain_net_get_chain_by_name(a_ledger->net, "main");
-        log_it(L_INFO, "Retrieved main chain: %p for net: %s", main_chain, a_ledger->net->pub.name);
+        log_it(L_INFO, "DIAGNOSTIC: Retrieved main chain: %p for net: %s", main_chain, a_ledger->net->pub.name);
         
         // TIMING ANALYSIS: Check if this is a race condition
         uint64_t timing_start = dap_nanotime_now();
         
+        // DIAGNOSTIC: Check why callback might be NULL
+        if (!a_ledger->net) {
+            log_it(L_WARNING, "DIAGNOSTIC: a_ledger->net is NULL for tx %s", tx_hash_str);
+        } else if (!main_chain) {
+            log_it(L_WARNING, "DIAGNOSTIC: main_chain is NULL for net %s, tx %s", a_ledger->net->pub.name, tx_hash_str);
+        } else if (!main_chain->callback_datum_find_by_hash) {
+            log_it(L_WARNING, "DIAGNOSTIC: main_chain->callback_datum_find_by_hash is NULL for chain %s, tx %s", 
+                   main_chain->name, tx_hash_str);
+        }
+        
         if (a_ledger->net && main_chain && main_chain->callback_datum_find_by_hash) {
-            log_it(L_INFO, "Chain callback available, searching for full datum in chain for tx %s", tx_hash_str);
-            
-            // Check chain state and consensus type
-            const char *consensus_name = main_chain->cs ? main_chain->cs->name : "unknown";
-            log_it(L_INFO, "Chain consensus type: %s, chain state: %p for tx %s", 
-                   consensus_name, main_chain, tx_hash_str);
+            log_it(L_INFO, "DIAGNOSTIC: Chain callback available, searching for full datum in chain for tx %s", tx_hash_str);
                    
             full_datum = main_chain->callback_datum_find_by_hash(
                 main_chain, a_tx_hash, &block_hash, &ret_code);
             
             uint64_t timing_after_search = dap_nanotime_now();
-            log_it(L_INFO, "callback_datum_find_by_hash completed in %lu ns: datum=%p, ret_code=%d for tx %s", 
+            log_it(L_INFO, "DIAGNOSTIC: callback_datum_find_by_hash completed in %lu ns: datum=%p, ret_code=%d for tx %s", 
                    timing_after_search - timing_start, full_datum, ret_code, tx_hash_str);
             
             if (full_datum) {
                 char block_hash_str[DAP_CHAIN_HASH_FAST_STR_SIZE];
                 dap_chain_hash_fast_to_str(&block_hash, block_hash_str, sizeof(block_hash_str));
-                log_it(L_INFO, "Found full datum for tx %s, ret_code: %d, block_hash: %s", 
+                log_it(L_INFO, "DIAGNOSTIC: Found full datum for tx %s, ret_code: %d, block_hash: %s", 
                        tx_hash_str, ret_code, block_hash_str);
                 
                 if (!dap_hash_fast_is_blank(&block_hash)) {
                     atom = dap_chain_get_atom_by_hash(main_chain, &block_hash, &atom_size);
-                    log_it(L_INFO, "dap_chain_get_atom_by_hash returned: atom=%p, atom_size=%zu for tx %s", 
+                    log_it(L_INFO, "DIAGNOSTIC: dap_chain_get_atom_by_hash returned: atom=%p, atom_size=%zu for tx %s", 
                            atom, atom_size, tx_hash_str);
                 }
             } else {
-                log_it(L_INFO, "Full datum NOT found for tx %s, using fallback. Possible race condition - notificator called before datum indexing", tx_hash_str);
-                
-                // RACE CONDITION ANALYSIS: Check if we can find it in ledger but not in chain
-                dap_ledger_tx_item_t *ledger_item = dap_ledger_tx_find_by_hash(a_ledger, a_tx_hash);
-                if (ledger_item) {
-                    log_it(L_INFO, "TX %s found in ledger (ts_added: %lu) but not in chain datum index - CONFIRMED RACE CONDITION", 
-                           tx_hash_str, ledger_item->ts_added);
-                } else {
-                    log_it(L_WARNING, "TX %s not found in ledger either - unexpected state", tx_hash_str);
-                }
+                log_it(L_INFO, "DIAGNOSTIC: Full datum NOT found for tx %s, using fallback. Possible race condition - notificator called before datum indexing", tx_hash_str);
                 
                 // Additional timing info
-                log_it(L_INFO, "Time since notificator start: %lu ns for tx %s", 
+                log_it(L_INFO, "DIAGNOSTIC: Time since notificator start: %lu ns for tx %s", 
                        timing_after_search - timing_start, tx_hash_str);
             }
         } else {
-            log_it(L_WARNING, "Main chain callback not available: net=%p, main_chain=%p, callback=%p for tx %s", 
+            log_it(L_WARNING, "DIAGNOSTIC: Main chain callback not available: net=%p, main_chain=%p, callback=%p for tx %s", 
                    a_ledger->net, main_chain, 
                    main_chain ? main_chain->callback_datum_find_by_hash : NULL, tx_hash_str);
         }
