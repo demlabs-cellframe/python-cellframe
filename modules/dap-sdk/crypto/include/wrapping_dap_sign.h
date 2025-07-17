@@ -48,6 +48,7 @@ extern PyTypeObject DapCryproSignTypeObjectType;
 typedef struct PyDapSign{
     PyObject_HEAD
     dap_sign_t *sign;
+    dap_pkey_t *cached_pkey;  // Cached pkey to avoid multiple allocations
 }PyDapSignObject;
 
 void PyDapSignObject_free(PyDapSignObject*);
@@ -65,7 +66,7 @@ PyObject *wrapping_dap_sign_to_b64(PyObject *self, PyObject *args);
 PyObject *wrapping_dap_sign_from_b64(PyObject *self, PyObject *args);
 PyObject *wrapping_dap_sign_get_addr(PyObject *self, PyObject *args);
 
-PyObject *PyDapSignObject_Cretae(dap_sign_t *a_sign);
+PyObject *PyDapSignObject_Create(dap_sign_t *a_sign);
 
 extern PyTypeObject DapCryptoSignObjectType;
 

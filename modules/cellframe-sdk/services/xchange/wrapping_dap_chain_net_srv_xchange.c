@@ -1,7 +1,7 @@
 #include "wrapping_dap_chain_net_srv_xchange.h"
 #include "wrapping_dap_chain_net_srv_xchange_price.h"
 #include "dap_chain_net_srv_xchange.h"
-#include "dap_chain_wallet_python.h"
+#include "wrapped_dap_chain_wallet_python.h"
 #include "libdap_chain_net_python.h"
 #include "libdap-python.h"
 

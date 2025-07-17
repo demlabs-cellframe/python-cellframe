@@ -1,6 +1,8 @@
 #include "wrapping_dap_chain_net_srv_vote_info.h"
 #include "wrapping_dap_hash.h"
 
+#define LOG_TAG "wrapping_vote_info"
+
 #define PVT(a) ((PyDapChainNetSrvVoteInfoObject*)a)->info
 #define PVT_OPTION(a) ((PyDapChainNetSrvVoteInfoOptionObject*)a)->option
 
@@ -24,8 +26,20 @@ void DapChainNetSrvVoteInfo_dealloc(PyDapChainNetSrvVoteInfoObject *self) {
 PyObject *wrapping_dap_chain_net_srv_vote_get_hash(PyObject *self, void *closure) {
     (void)closure;
     PyDapHashFastObject *obj = PyObject_New(PyDapHashFastObject, &DapChainHashFastObjectType);
+    if (!obj) {
+        log_it(L_CRITICAL, "Failed to create hash fast object");
+        return NULL;
+    }
+    
     obj->hash_fast = DAP_NEW(dap_hash_fast_t);
+    if (!obj->hash_fast) {
+        log_it(L_CRITICAL, "Memory allocation error for hash fast");
+        Py_DECREF(obj);
+        return NULL;
+    }
+    
     memcpy(obj->hash_fast, &PVT(self)->hash, sizeof(dap_hash_fast_t));
+    obj->origin = true;
     return (PyObject*)obj;
 }
 PyObject *wrapping_dap_chain_net_srv_vote_get_question(PyObject *self, void *closure) {
@@ -115,15 +129,33 @@ PyObject *wrapping_dap_chain_net_srv_vote_option_get_weights(PyObject *self, voi
     return (PyObject*)obj_weights;
 }
 
-PyObject *wrapping_dap_chain_net_srv_vote_option_txs(PyObject *self, void *closure){
+PyObject *wrapping_dap_chain_net_srv_vote_option_txs(PyObject *self, void *closure) {
     (void)closure;
     dap_chain_net_vote_info_option_t *l_option = PVT_OPTION(self);
     PyObject *obj_list_tx = PyList_New(l_option->votes_count);
+    if (!obj_list_tx) {
+        log_it(L_CRITICAL, "Failed to create transaction list");
+        return NULL;
+    }
+    
     dap_list_t *l_tmp = l_option->hashes_tx_votes;
     for (size_t i = 0; i < l_option->votes_count && l_tmp; i++) {
         dap_hash_fast_t *l_hf_tx = (dap_hash_fast_t*)l_tmp->data;
         PyDapHashFastObject *obj_hf = PyObject_New(PyDapHashFastObject, &DapChainHashFastObjectType);
+        if (!obj_hf) {
+            log_it(L_CRITICAL, "Failed to create hash fast object for index %zu", i);
+            Py_DECREF(obj_list_tx);
+            return NULL;
+        }
+        
         obj_hf->hash_fast = DAP_NEW(dap_chain_hash_fast_t);
+        if (!obj_hf->hash_fast) {
+            log_it(L_CRITICAL, "Memory allocation error for hash fast at index %zu", i);
+            Py_DECREF(obj_hf);
+            Py_DECREF(obj_list_tx);
+            return NULL;
+        }
+        
         memcpy(obj_hf->hash_fast, l_hf_tx, sizeof(dap_hash_fast_t));
         obj_hf->origin = true;
         PyList_SetItem(obj_list_tx, i, (PyObject*)obj_hf);
