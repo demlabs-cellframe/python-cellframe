@@ -39,6 +39,13 @@ typedef struct PyDapPkey{
     dap_pkey_t *pkey;
 }PyDapPkeyObject;
 
+typedef struct PyDapPkeyType{
+    PyObject_HEAD
+    dap_pkey_type_t pkey_type;
+}PyDapPkeyTypeObject;
+
+extern PyTypeObject DapCryproPkeyTypeObjectType;
+
 PyObject *wrapping_dap_pkey_get_type(PyObject *self, void *closure);
 PyObject *wrapping_dap_pkey_get_hash(PyObject *self, void *closure);
 PyObject *wrapping_dap_pkey_get_size(PyObject *self, void *closure);
