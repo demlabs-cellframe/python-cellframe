@@ -6,6 +6,7 @@
 #include "dap_chain_datum_tx_in.h"
 #include "dap_chain_net.h"
 #include "dap_hash.h"
+#include "dap_time.h"
 #include "utlist.h"
 
 #define LOG_TAG "ledger wrapper"
@@ -499,42 +500,49 @@ static void pvt_wrapping_dap_chain_ledger_tx_add_notify(void *a_arg, dap_ledger_
         // TIMING ANALYSIS: Check if this is a race condition
         uint64_t timing_start = dap_nanotime_now();
         
-        // DIAGNOSTIC: Check why callback might be NULL
-        if (!a_ledger->net) {
-            log_it(L_WARNING, "DIAGNOSTIC: a_ledger->net is NULL for tx %s", tx_hash_str);
-        } else if (!main_chain) {
-            log_it(L_WARNING, "DIAGNOSTIC: main_chain is NULL for net %s, tx %s", a_ledger->net->pub.name, tx_hash_str);
-        } else if (!main_chain->callback_datum_find_by_hash) {
-            log_it(L_WARNING, "DIAGNOSTIC: main_chain->callback_datum_find_by_hash is NULL for chain %s, tx %s", 
-                   main_chain->name, tx_hash_str);
-        }
-        
         if (a_ledger->net && main_chain && main_chain->callback_datum_find_by_hash) {
             log_it(L_INFO, "DIAGNOSTIC: Chain callback available, searching for full datum in chain for tx %s", tx_hash_str);
-                   
-            full_datum = main_chain->callback_datum_find_by_hash(
-                main_chain, a_tx_hash, &block_hash, &ret_code);
+            
+            // Try with retries to handle race condition
+            int max_retries = 5;
+            int retry_count = 0;
+            uint64_t retry_delay_ns = 100000; // 0.1ms initial delay
+            
+            while (retry_count < max_retries && !full_datum) {
+                if (retry_count > 0) {
+                    // Small delay to allow indexing to complete
+                    dap_usleep(retry_delay_ns / 1000); // Convert to microseconds
+                    retry_delay_ns *= 2; // Exponential backoff
+                }
+                
+                full_datum = main_chain->callback_datum_find_by_hash(
+                    main_chain, a_tx_hash, &block_hash, &ret_code);
+                
+                retry_count++;
+                
+                if (full_datum) {
+                    char block_hash_str[DAP_CHAIN_HASH_FAST_STR_SIZE];
+                    dap_chain_hash_fast_to_str(&block_hash, block_hash_str, sizeof(block_hash_str));
+                    log_it(L_INFO, "DIAGNOSTIC: Found full datum for tx %s on retry %d, ret_code: %d, block_hash: %s", 
+                           tx_hash_str, retry_count, ret_code, block_hash_str);
+                    
+                    if (!dap_hash_fast_is_blank(&block_hash)) {
+                        atom = dap_chain_get_atom_by_hash(main_chain, &block_hash, &atom_size);
+                        log_it(L_INFO, "DIAGNOSTIC: dap_chain_get_atom_by_hash returned: atom=%p, atom_size=%zu for tx %s", 
+                               atom, atom_size, tx_hash_str);
+                    }
+                    break;
+                } else if (retry_count < max_retries) {
+                    log_it(L_DEBUG, "DIAGNOSTIC: Retry %d/%d - datum not found for tx %s, retrying after delay", 
+                           retry_count, max_retries, tx_hash_str);
+                }
+            }
             
             uint64_t timing_after_search = dap_nanotime_now();
-            log_it(L_INFO, "DIAGNOSTIC: callback_datum_find_by_hash completed in %lu ns: datum=%p, ret_code=%d for tx %s", 
-                   timing_after_search - timing_start, full_datum, ret_code, tx_hash_str);
-            
-            if (full_datum) {
-                char block_hash_str[DAP_CHAIN_HASH_FAST_STR_SIZE];
-                dap_chain_hash_fast_to_str(&block_hash, block_hash_str, sizeof(block_hash_str));
-                log_it(L_INFO, "DIAGNOSTIC: Found full datum for tx %s, ret_code: %d, block_hash: %s", 
-                       tx_hash_str, ret_code, block_hash_str);
-                
-                if (!dap_hash_fast_is_blank(&block_hash)) {
-                    atom = dap_chain_get_atom_by_hash(main_chain, &block_hash, &atom_size);
-                    log_it(L_INFO, "DIAGNOSTIC: dap_chain_get_atom_by_hash returned: atom=%p, atom_size=%zu for tx %s", 
-                           atom, atom_size, tx_hash_str);
-                }
-            } else {
-                log_it(L_INFO, "DIAGNOSTIC: Full datum NOT found for tx %s, using fallback. Possible race condition - notificator called before datum indexing", tx_hash_str);
-                
-                // Additional timing info
-                log_it(L_INFO, "DIAGNOSTIC: Time since notificator start: %lu ns for tx %s", 
+            if (!full_datum) {
+                log_it(L_INFO, "DIAGNOSTIC: Full datum NOT found for tx %s after %d retries, using fallback. Race condition - notificator called before datum indexing", 
+                       tx_hash_str, max_retries);
+                log_it(L_INFO, "DIAGNOSTIC: Total search time: %lu ns for tx %s", 
                        timing_after_search - timing_start, tx_hash_str);
             }
         } else {
@@ -694,8 +702,30 @@ static bool s_python_obj_notifier(void *a_arg)
     // Get main chain
     dap_chain_t *main_chain = dap_chain_net_get_chain_by_name(l_args->ledger->net, "main");
     if (l_args->ledger->net && main_chain && main_chain->callback_datum_find_by_hash) {
-        full_datum = main_chain->callback_datum_find_by_hash(
-            main_chain, &l_args->tx_hash, &block_hash, &ret_code);
+        // Try with retries to handle race condition
+        int max_retries = 5;
+        int retry_count = 0;
+        uint64_t retry_delay_ns = 100000; // 0.1ms initial delay
+        
+        while (retry_count < max_retries && !full_datum) {
+            if (retry_count > 0) {
+                // Small delay to allow indexing to complete
+                dap_usleep(retry_delay_ns / 1000); // Convert to microseconds
+                retry_delay_ns *= 2; // Exponential backoff
+            }
+            
+            full_datum = main_chain->callback_datum_find_by_hash(
+                main_chain, &l_args->tx_hash, &block_hash, &ret_code);
+            
+            retry_count++;
+            
+            if (full_datum) {
+                char tx_hash_str[DAP_CHAIN_HASH_FAST_STR_SIZE];
+                dap_chain_hash_fast_to_str(&l_args->tx_hash, tx_hash_str, sizeof(tx_hash_str));
+                log_it(L_DEBUG, "Bridged notifier: Found full datum for tx %s on retry %d", tx_hash_str, retry_count);
+                break;
+            }
+        }
         
         // If we got full datum and block hash, try to find the atom
         if (full_datum && !dap_hash_fast_is_blank(&block_hash)) {
@@ -715,18 +745,68 @@ static bool s_python_obj_notifier(void *a_arg)
         
         // If we found the atom, create Python atom object
         if (atom) {
-            // TODO: Create proper Python atom object
-            // For now, we'll pass atom pointer and size as tuple
-            obj_atom = Py_BuildValue("(K)", (unsigned long)atom);
+            PyChainAtomObject *obj_atom_ptr = PyObject_NEW(PyChainAtomObject, &DapChainAtomPtrObjectType);
+            if (!obj_atom_ptr) {
+                log_it(L_ERROR, "Failed to create PyChainAtomObject in bridged notifier");
+                obj_atom = Py_None;
+                Py_INCREF(Py_None);
+            } else {
+                obj_atom_ptr->atom = atom;
+                obj_atom_ptr->atom_size = atom_size;
+                obj_atom = (PyObject*)obj_atom_ptr;
+            }
+        } else {
+            obj_atom = Py_None;
+            Py_INCREF(Py_None);
         }
     } else {
-        // Fallback to original behavior - create partial datum
-        PyDapChainDatumTxObject *obj_tx_partial = PyObject_NEW(PyDapChainDatumTxObject, &DapChainDatumTxObjectType);
-        obj_tx_partial->datum_tx = l_args->tx;
-        obj_datum = (PyObject*)obj_tx_partial;
+        // Fallback: create partial datum from tx to maintain consistent object type
+        char tx_hash_str[DAP_CHAIN_HASH_FAST_STR_SIZE];
+        dap_chain_hash_fast_to_str(&l_args->tx_hash, tx_hash_str, sizeof(tx_hash_str));
+        log_it(L_DEBUG, "Bridged notifier: Creating partial PyDapChainDatumObject from tx %s", tx_hash_str);
+        
+        size_t tx_size = dap_chain_datum_tx_get_size(l_args->tx);
+        size_t datum_size = sizeof(dap_chain_datum_t) + tx_size;
+        
+        dap_chain_datum_t *partial_datum = DAP_NEW_SIZE(dap_chain_datum_t, datum_size);
+        if (!partial_datum) {
+            log_it(L_ERROR, "Failed to allocate partial datum for tx %s in bridged notifier", tx_hash_str);
+            // Fallback to old behavior
+            PyDapChainDatumTxObject *obj_tx_partial = PyObject_NEW(PyDapChainDatumTxObject, &DapChainDatumTxObjectType);
+            obj_tx_partial->datum_tx = l_args->tx;
+            obj_tx_partial->original = false;
+            obj_datum = (PyObject*)obj_tx_partial;
+        } else {
+            // Fill datum header
+            partial_datum->header.type_id = DAP_CHAIN_DATUM_TX;
+            partial_datum->header.data_size = tx_size;
+            partial_datum->header.version_id = 1;
+            partial_datum->header.ts_create = time(NULL);
+            
+            // Copy transaction data
+            memcpy(partial_datum->data, l_args->tx, tx_size);
+            
+            // Create consistent PyDapChainDatumObject type
+            PyDapChainDatumObject *obj_datum_partial = PyObject_NEW(PyDapChainDatumObject, &DapChainDatumObjectType);
+            if (!obj_datum_partial) {
+                log_it(L_ERROR, "Failed to create partial PyDapChainDatumObject for tx %s in bridged notifier", tx_hash_str);
+                DAP_DELETE(partial_datum);
+                // Fallback to old behavior
+                PyDapChainDatumTxObject *obj_tx_partial = PyObject_NEW(PyDapChainDatumTxObject, &DapChainDatumTxObjectType);
+                obj_tx_partial->datum_tx = l_args->tx;
+                obj_tx_partial->original = false;
+                obj_datum = (PyObject*)obj_tx_partial;
+            } else {
+                obj_datum_partial->datum = partial_datum;
+                obj_datum_partial->origin = true; // We own this memory
+                obj_datum = (PyObject*)obj_datum_partial;
+                log_it(L_DEBUG, "Created partial PyDapChainDatumObject from tx %s successfully in bridged notifier", tx_hash_str);
+            }
+        }
+        
+        obj_atom = Py_None;
+        Py_INCREF(Py_None);
     }
-    
-            ((PyDapChainDatumObject*)obj_datum)->origin = false;
     PyObject *l_notify_arg = !l_notifier->argv ? Py_None : l_notifier->argv;
     Py_INCREF(l_notify_arg);
     log_it(L_DEBUG, "Call bridged tx ledger notifier for net %s", l_args->ledger->net->pub.name);
