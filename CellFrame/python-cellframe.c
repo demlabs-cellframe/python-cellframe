@@ -661,6 +661,7 @@ PyMODINIT_FUNC PyInit_libCellFrame(void)
     PyModule_AddObject(chainModule, "Wallet", (PyObject*)&DapChainWalletObjectType);
     PyModule_AddObject(chainModule, "Mempool", (PyObject*)&DapChainMempoolObjectType);
     PyModule_AddObject(chainModule, "Ledger", (PyObject*)&DapChainLedgerObjectType);
+    PyModule_AddObject(chainModule, "LedgerEvent", (PyObject*)&DapChainLedgerEventObjectType);
 
     PyObject *commonModule = PyModule_Create(&CellframeCommonPythonModule);
     PyModule_AddObject(commonModule, "DatumTypeID", (PyObject*)&DapChainDatumTypeIdObjectType);

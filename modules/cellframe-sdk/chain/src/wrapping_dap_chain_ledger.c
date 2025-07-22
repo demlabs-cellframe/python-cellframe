@@ -39,6 +39,16 @@ static PyMethodDef DapChainLedgerMethods[] = {
         {"txHashIsUsedOutItemHash", (PyCFunction)dap_chain_ledger_tx_hash_is_used_out_item_hash_py, METH_VARARGS, ""},
         {"getFinalMultiWalletTxHash", (PyCFunction)dap_chain_ledger_get_final_multi_wallet_tx_hash_py, METH_VARARGS, ""},
         {"listUnspent", (PyCFunction)dap_chain_ledger_get_unspent_outputs_for_amount_py, METH_VARARGS, ""},
+        {"eventFind", (PyCFunction)dap_chain_ledger_event_find_py, METH_VARARGS, "Find event by hash"},
+        {"eventGetList", (PyCFunction)dap_chain_ledger_event_get_list_py, METH_VARARGS, "Get list of events by group name"},
+        {"eventPkeyList", (PyCFunction)dap_chain_ledger_event_pkey_list_py, METH_VARARGS, "Get list of allowed public keys for events"},
+        {}
+};
+
+static PyMethodDef DapChainLedgerEventMethods[] = {
+        {"getGroupName", (PyCFunction)dap_chain_ledger_event_get_group_name_py, METH_NOARGS, "Get event group name"},
+        {"getType", (PyCFunction)dap_chain_ledger_event_get_type_py, METH_NOARGS, "Get event type"},
+        {"getEventData", (PyCFunction)dap_chain_ledger_event_get_data_py, METH_NOARGS, "Get event data as bytes"},
         {}
 };
 
@@ -46,6 +56,11 @@ PyTypeObject DapChainLedgerObjectType = DAP_PY_TYPE_OBJECT(
         "CellFrame.ChainLedger", sizeof(PyDapChainLedgerObject),
         "Chain ledger objects",
         .tp_methods = DapChainLedgerMethods);
+
+PyTypeObject DapChainLedgerEventObjectType = DAP_PY_TYPE_OBJECT(
+        "CellFrame.ChainLedgerEvent", sizeof(PyDapChainLedgerEventObject),
+        "Chain ledger event objects",
+        .tp_methods = DapChainLedgerEventMethods);
 
 PyObject *DapChainLedgerObject_create(PyTypeObject *type_object, PyObject *args, PyObject *kwds){
     uint16_t check_flag;
@@ -59,6 +74,21 @@ PyObject *DapChainLedgerObject_create(PyTypeObject *type_object, PyObject *args,
 }
 void DapChainLedgerObject_free(PyDapChainLedgerObject* object){
     dap_ledger_handle_free(object->ledger);
+    Py_TYPE(object)->tp_free(object);
+}
+
+PyObject *DapChainLedgerEventObject_create(PyTypeObject *type_object, PyObject *args, PyObject *kwds){
+    (void)args;
+    (void)kwds;
+    PyDapChainLedgerEventObject *obj = (PyDapChainLedgerEventObject *)PyType_GenericNew(type_object, args, kwds);
+    obj->event = NULL;
+    obj->origin = false;
+    return (PyObject *)obj;
+}
+
+void DapChainLedgerEventObject_free(PyDapChainLedgerEventObject* object){
+    if (object->event && object->origin)
+        dap_chain_datum_tx_event_delete(object->event);
     Py_TYPE(object)->tp_free(object);
 }
 
@@ -690,4 +720,102 @@ PyObject *dap_chain_ledger_get_unspent_outputs_for_amount_py(PyObject *self, PyO
 
     dap_list_free_full(used_out_list, free);
     return py_result_list;
+}
+
+// Event functions
+PyObject *dap_chain_ledger_event_find_py(PyObject *self, PyObject *args){
+    PyObject *obj_hash;
+    if (!PyArg_ParseTuple(args, "O", &obj_hash))
+        return NULL;
+    
+    dap_hash_fast_t *l_hash = ((PyDapHashFastObject *)obj_hash)->hash_fast;
+    dap_chain_tx_event_t *l_event = dap_ledger_event_find(((PyDapChainLedgerObject *)self)->ledger, l_hash);
+    
+    if (!l_event) {
+        Py_RETURN_NONE;
+    }
+    
+    PyDapChainLedgerEventObject *obj_event = PyObject_New(PyDapChainLedgerEventObject, &DapChainLedgerEventObjectType);
+    obj_event->event = l_event;
+    obj_event->origin = true;
+    return (PyObject *)obj_event;
+}
+
+PyObject *dap_chain_ledger_event_get_list_py(PyObject *self, PyObject *args){
+    const char *group_name = NULL;
+    if (!PyArg_ParseTuple(args, "|s", &group_name))
+        return NULL;
+    
+    dap_list_t *l_list = dap_ledger_event_get_list(((PyDapChainLedgerObject *)self)->ledger, group_name);
+    if (!l_list) {
+        PyObject *l_list_empty = PyList_New(0);
+        return l_list_empty;
+    }
+    
+    PyObject *l_list_obj = PyList_New(0);
+    for (dap_list_t *l_iter = l_list; l_iter; l_iter = l_iter->next) {
+        dap_chain_tx_event_t *l_event = (dap_chain_tx_event_t *)l_iter->data;
+        PyDapChainLedgerEventObject *obj_event = PyObject_New(PyDapChainLedgerEventObject, &DapChainLedgerEventObjectType);
+        obj_event->event = l_event;
+        obj_event->origin = false; // The events will be freed by dap_list_free_full
+        PyList_Append(l_list_obj, (PyObject *)obj_event);
+        Py_DECREF(obj_event);
+    }
+    
+    // Free the list but not the events (they will be freed by the Python objects)
+    dap_list_free(l_list);
+    
+    return l_list_obj;
+}
+
+PyObject *dap_chain_ledger_event_pkey_list_py(PyObject *self, PyObject *args){
+    (void)args;
+    dap_list_t *l_list = dap_ledger_event_pkey_list(((PyDapChainLedgerObject *)self)->ledger);
+    if (!l_list) {
+        PyObject *l_list_empty = PyList_New(0);
+        return l_list_empty;
+    }
+    
+    PyObject *l_list_obj = PyList_New(0);
+    for (dap_list_t *l_iter = l_list; l_iter; l_iter = l_iter->next) {
+        dap_hash_fast_t *l_hash = (dap_hash_fast_t *)l_iter->data;
+        PyDapHashFastObject *obj_hash = PyObject_New(PyDapHashFastObject, &DapChainHashFastObjectType);
+        obj_hash->hash_fast = DAP_DUP(l_hash);
+        obj_hash->origin = true;
+        PyList_Append(l_list_obj, (PyObject *)obj_hash);
+        Py_DECREF(obj_hash);
+    }
+    
+    // Free the list and the hashes
+    dap_list_free_full(l_list, free);
+    
+    return l_list_obj;
+}
+
+// Event object methods
+PyObject *dap_chain_ledger_event_get_group_name_py(PyObject *self, void *closure) {
+    (void)closure;
+    PyDapChainLedgerEventObject *obj = (PyDapChainLedgerEventObject *)self;
+    if (!obj->event) {
+        Py_RETURN_NONE;
+    }
+    return PyUnicode_FromString(obj->event->group_name);
+}
+
+PyObject *dap_chain_ledger_event_get_type_py(PyObject *self, void *closure) {
+    (void)closure;
+    PyDapChainLedgerEventObject *obj = (PyDapChainLedgerEventObject *)self;
+    if (!obj->event) {
+        Py_RETURN_NONE;
+    }
+    return PyLong_FromLong(obj->event->event_type);
+}
+
+PyObject *dap_chain_ledger_event_get_data_py(PyObject *self, void *closure) {
+    (void)closure;
+    PyDapChainLedgerEventObject *obj = (PyDapChainLedgerEventObject *)self;
+    if (!obj->event || !obj->event->event_data_size) {
+        Py_RETURN_NONE;
+    }
+    return PyBytes_FromStringAndSize((char *)obj->event->event_data, obj->event->event_data_size);
 }

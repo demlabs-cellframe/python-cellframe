@@ -1,9 +1,11 @@
 #include "wrapping_dap_mempool.h"
 #include "dap_chain_wallet_python.h"
+#include "dap_math_ops.h"
 #include "python-cellframe_common.h"
 #include "dap_chain_wallet_shared.h"
 #include "dap_chain_datum_tx_items.h"
 #include "dap_list.h"
+#include "wrapping_dap_enc_key.h"
 
 #define LOG_TAG "python-mempool"
 
@@ -837,7 +839,7 @@ PyObject *dap_chain_mempool_tx_create_event_py(PyObject *self, PyObject *args)
     const char *group_name;
     unsigned int event_type;
     PyObject *obj_event_data = NULL;  // Может быть None
-    PyObject *obj_fee_value;
+    const char *obj_fee_value;
     const char *hash_out_type;
 
     if (!PyArg_ParseTuple(args, "OOOsIOOs", &obj_chain, &obj_key_from, &obj_service_key,
@@ -851,11 +853,11 @@ PyObject *dap_chain_mempool_tx_create_event_py(PyObject *self, PyObject *args)
         PyErr_SetString(PyExc_AttributeError, "First argument must be CellFrame.Chain object");
         return NULL;
     }
-    if (!DapPkeyObject_Check(obj_key_from)) {
+    if (!DapEncKeyObject_Check(obj_key_from)) {
         PyErr_SetString(PyExc_AttributeError, "Second argument must be key object");
         return NULL;
     }
-    if (!DapPkeyObject_Check(obj_service_key)) {
+    if (!DapEncKeyObject_Check(obj_service_key)) {
         PyErr_SetString(PyExc_AttributeError, "Third argument must be key object");
         return NULL;
     }
@@ -873,8 +875,8 @@ PyObject *dap_chain_mempool_tx_create_event_py(PyObject *self, PyObject *args)
     }
 
     // Получение значения комиссии
-    uint256_t fee_value = {};
-    if (!PyObject_to_uint256(obj_fee_value, &fee_value)) {
+    uint256_t fee_value = dap_chain_balance_scan(obj_fee_value);
+    if (!IS_ZERO_256(fee_value)) {
         PyErr_SetString(PyExc_AttributeError, "Invalid fee value format");
         return NULL;
     }
