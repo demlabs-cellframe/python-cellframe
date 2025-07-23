@@ -40,7 +40,6 @@ static PyMethodDef DapChainMethods[] = {
         {"addAtomConfirmedNotify", (PyCFunction)dap_chain_atom_confirmed_notify_add_py, METH_VARARGS, "Add a callback for confirmed atoms"},
         {"addForkResolvedNotify", (PyCFunction)dap_chain_fork_resolved_notify_add_py, METH_VARARGS|METH_STATIC, "Add a callback for fork resolution (local)"},
         {"addDatumIndexNotify", (PyCFunction)dap_chain_add_datum_index_notify_py, METH_VARARGS, "Add a callback for datum index notifications"},
-        
         {}
 };
 
