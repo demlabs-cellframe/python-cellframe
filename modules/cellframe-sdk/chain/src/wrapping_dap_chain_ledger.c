@@ -480,123 +480,24 @@ static void pvt_wrapping_dap_chain_ledger_tx_add_notify(void *a_arg, dap_ledger_
     if (!a_arg)
         return;
     if (a_opcode == DAP_LEDGER_NOTIFY_OPCODE_ADDED){
-        char tx_hash_str[DAP_CHAIN_HASH_FAST_STR_SIZE];
-        dap_chain_hash_fast_to_str(a_tx_hash, tx_hash_str, sizeof(tx_hash_str));
-        log_it(L_INFO, "TX Notificator called for tx hash: %s, net: %s", 
-               tx_hash_str, a_ledger->net->pub.name);
-        
         pvt_ledger_notify_t *notifier = (pvt_ledger_notify_t*)a_arg;
         PyGILState_STATE state = PyGILState_Ensure();
-        
-        dap_chain_atom_ptr_t atom = NULL;
-        size_t atom_size = 0;
-        
-        dap_chain_t *main_chain = dap_chain_net_get_chain_by_name(a_ledger->net, "main");
-        log_it(L_INFO, "Retrieved main chain: %p for net: %s", main_chain, a_ledger->net->pub.name);
-        
-        PyObject *obj_datum = NULL;
-        PyObject *obj_atom = NULL;
-        
-        log_it(L_INFO, "Using unified ledger-based approach for tx %s", tx_hash_str);
-        
-        dap_chain_datum_tx_t *ledger_tx = dap_ledger_tx_find_by_hash(a_ledger, a_tx_hash);
-        if (!ledger_tx) {
-            log_it(L_ERROR, "Transaction %s not found in ledger", tx_hash_str);
-            PyGILState_Release(state);
-            return;
-        }
-        
-        if (main_chain && main_chain->callback_block_find_by_tx_hash) {
-            atom = main_chain->callback_block_find_by_tx_hash(main_chain, a_tx_hash, &atom_size);
-            if (atom) {
-                log_it(L_INFO, "Found block for tx %s: atom=%p, atom_size=%zu", 
-                       tx_hash_str, atom, atom_size);
-            } else {
-                log_it(L_INFO, "Block not found for tx %s (transaction not yet in block)", tx_hash_str);
-            }
-        }
-        
-        size_t tx_size = dap_chain_datum_tx_get_size(ledger_tx);
-        size_t datum_size = sizeof(dap_chain_datum_t) + tx_size;
-        
-        dap_chain_datum_t *partial_datum = DAP_NEW_SIZE(dap_chain_datum_t, datum_size);
-        if (!partial_datum) {
-            log_it(L_ERROR, "Failed to allocate datum for tx %s", tx_hash_str);
-            PyGILState_Release(state);
-            return;
-        }
-        
-        partial_datum->header.type_id = DAP_CHAIN_DATUM_TX;
-        partial_datum->header.data_size = tx_size;
-        partial_datum->header.version_id = 1;
-        partial_datum->header.ts_create = ledger_tx->header.ts_created;
-        
-        memcpy(partial_datum->data, ledger_tx, tx_size);
-        
-        PyDapChainDatumObject *obj_datum_partial = PyObject_NEW(PyDapChainDatumObject, &DapChainDatumObjectType);
-        if (!obj_datum_partial) {
-            log_it(L_ERROR, "Failed to create PyDapChainDatumObject for tx %s", tx_hash_str);
-            DAP_DELETE(partial_datum);
-            PyGILState_Release(state);
-            return;
-        }
-        obj_datum_partial->datum = partial_datum;
-        obj_datum_partial->origin = true;
-        obj_datum = (PyObject*)obj_datum_partial;
-        
-        log_it(L_INFO, "Created PyDapChainDatumObject from ledger tx %s successfully", tx_hash_str);
-        
-        if (atom) {
-            PyChainAtomObject *obj_atom_ptr = PyObject_NEW(PyChainAtomObject, &DapChainAtomPtrObjectType);
-            if (!obj_atom_ptr) {
-                log_it(L_ERROR, "Failed to create PyChainAtomObject for tx %s", tx_hash_str);
-                obj_atom = Py_None;
-                Py_INCREF(Py_None);
-            } else {
-                obj_atom_ptr->atom = atom;
-                obj_atom_ptr->atom_size = atom_size;
-                obj_atom = (PyObject*)obj_atom_ptr;
-            }
-        } else {
-            obj_atom = Py_None;
-            Py_INCREF(Py_None);
-        }
-        
         PyDapChainLedgerObject *obj_ledger = PyObject_NEW(PyDapChainLedgerObject, &DapChainLedgerObjectType);
-        if (!obj_ledger) {
-            log_it(L_ERROR, "Failed to create ledger object for tx %s", tx_hash_str);
-            Py_XDECREF(obj_datum);
-            Py_XDECREF(obj_atom);
-            PyGILState_Release(state);
-            return;
-        }
+        PyDapChainDatumTxObject *obj_tx = PyObject_NEW(PyDapChainDatumTxObject, &DapChainDatumTxObjectType);
         obj_ledger->ledger = a_ledger;
-        
-        PyObject *l_notify_arg = !notifier->argv ? Py_None : notifier->argv;
-        Py_INCREF(l_notify_arg);
-        
-        PyObject *l_argv = Py_BuildValue("OOOO", 
-                                         obj_ledger, 
-                                         obj_datum ? obj_datum : Py_None,
-                                         obj_atom ? obj_atom : Py_None,
-                                         l_notify_arg);
-        if (!obj_datum) Py_INCREF(Py_None);
-        if (!obj_atom) Py_INCREF(Py_None);
-        
-        PyObject *l_result = PyObject_CallObject(notifier->func, l_argv);
-        
-        log_it(L_INFO, "Notificator complete for tx %s", tx_hash_str);
-        
-        if (!l_result) {
-            log_it(L_ERROR, "Error in tx notificator for datum %s", tx_hash_str);
-            PyErr_Print();
+        obj_tx->datum_tx = a_tx;
+        PyObject *notify_arg = !notifier->argv ? Py_None : notifier->argv;
+        PyObject *argv = Py_BuildValue("OOO", (PyObject*)obj_ledger, (PyObject*)obj_tx, notify_arg);
+        log_it(L_DEBUG, "Call tx added ledger notifier for net %s", a_ledger->net->pub.name);
+        PyObject* result = PyObject_CallObject(notifier->func, argv);
+        if (!result){
+            python_error_in_log_it(LOG_TAG);
         }
-        
-        Py_XDECREF(l_result);
-        Py_XDECREF(l_argv);
-        Py_XDECREF(obj_ledger);
-        Py_XDECREF(l_notify_arg);
+        Py_XDECREF(result);
+        Py_XDECREF(argv);
         PyGILState_Release(state);
+    } else {
+
     }
 }
 
@@ -636,133 +537,20 @@ static bool s_python_obj_notifier(void *a_arg)
     pvt_ledger_notify_t *l_notifier = l_args->arg;
     PyDapChainLedgerObject *obj_ledger = PyObject_NEW(PyDapChainLedgerObject, &DapChainLedgerObjectType);
     obj_ledger->ledger = l_args->ledger;
-    
-        // Try to get full datum with atom info
-    dap_chain_datum_t *full_datum = NULL;
-    dap_chain_hash_fast_t block_hash = {0};
-    int ret_code = 0;
-    dap_chain_atom_ptr_t atom = NULL;
-    size_t atom_size = 0;
-    
-    // Get main chain
-    dap_chain_t *main_chain = dap_chain_net_get_chain_by_name(l_args->ledger->net, "main");
-    if (l_args->ledger->net && main_chain && main_chain->callback_datum_find_by_hash) {
-        // Try with retries to handle race condition
-        int max_retries = 5;
-        int retry_count = 0;
-        uint64_t retry_delay_ns = 100000; // 0.1ms initial delay
-        
-        while (retry_count < max_retries && !full_datum) {
-            if (retry_count > 0) {
-                // Small delay to allow indexing to complete
-                dap_usleep(retry_delay_ns / 1000); // Convert to microseconds
-                retry_delay_ns *= 2; // Exponential backoff
-            }
-            
-            full_datum = main_chain->callback_datum_find_by_hash(
-                main_chain, &l_args->tx_hash, &block_hash, &ret_code);
-            
-            retry_count++;
-            
-            if (full_datum) {
-                char tx_hash_str[DAP_CHAIN_HASH_FAST_STR_SIZE];
-                dap_chain_hash_fast_to_str(&l_args->tx_hash, tx_hash_str, sizeof(tx_hash_str));
-                log_it(L_DEBUG, "Bridged notifier: Found full datum for tx %s on retry %d", tx_hash_str, retry_count);
-                break;
-            }
-        }
-        
-        // If we got full datum and block hash, try to find the atom
-        if (full_datum && !dap_hash_fast_is_blank(&block_hash)) {
-            atom = dap_chain_get_atom_by_hash(main_chain, &block_hash, &atom_size);
-        }
-    }
-    
-    PyObject *obj_datum;
-    PyObject *obj_atom = Py_None;
-    
-    if (full_datum) {
-        // Create full datum object with atom info
-        PyDapChainDatumObject *obj_datum_full = PyObject_NEW(PyDapChainDatumObject, &DapChainDatumObjectType);
-        obj_datum_full->datum = full_datum;
-        obj_datum_full->origin = false; // Don't delete the datum, it's from chain
-        obj_datum = (PyObject*)obj_datum_full;
-        
-        // If we found the atom, create Python atom object
-        if (atom) {
-            PyChainAtomObject *obj_atom_ptr = PyObject_NEW(PyChainAtomObject, &DapChainAtomPtrObjectType);
-            if (!obj_atom_ptr) {
-                log_it(L_ERROR, "Failed to create PyChainAtomObject in bridged notifier");
-                obj_atom = Py_None;
-                Py_INCREF(Py_None);
-            } else {
-                obj_atom_ptr->atom = atom;
-                obj_atom_ptr->atom_size = atom_size;
-                obj_atom = (PyObject*)obj_atom_ptr;
-            }
-        } else {
-            obj_atom = Py_None;
-            Py_INCREF(Py_None);
-        }
-    } else {
-        // Fallback: create partial datum from tx to maintain consistent object type
-        char tx_hash_str[DAP_CHAIN_HASH_FAST_STR_SIZE];
-        dap_chain_hash_fast_to_str(&l_args->tx_hash, tx_hash_str, sizeof(tx_hash_str));
-        log_it(L_DEBUG, "Bridged notifier: Creating partial PyDapChainDatumObject from tx %s", tx_hash_str);
-        
-        size_t tx_size = dap_chain_datum_tx_get_size(l_args->tx);
-        size_t datum_size = sizeof(dap_chain_datum_t) + tx_size;
-        
-        dap_chain_datum_t *partial_datum = DAP_NEW_SIZE(dap_chain_datum_t, datum_size);
-        if (!partial_datum) {
-            log_it(L_ERROR, "Failed to allocate partial datum for tx %s in bridged notifier", tx_hash_str);
-            // Fallback to old behavior
-            PyDapChainDatumTxObject *obj_tx_partial = PyObject_NEW(PyDapChainDatumTxObject, &DapChainDatumTxObjectType);
-            obj_tx_partial->datum_tx = l_args->tx;
-            obj_tx_partial->original = false;
-            obj_datum = (PyObject*)obj_tx_partial;
-        } else {
-            // Fill datum header
-            partial_datum->header.type_id = DAP_CHAIN_DATUM_TX;
-            partial_datum->header.data_size = tx_size;
-            partial_datum->header.version_id = 1;
-            partial_datum->header.ts_create = time(NULL);
-            
-            // Copy transaction data
-            memcpy(partial_datum->data, l_args->tx, tx_size);
-            
-            // Create consistent PyDapChainDatumObject type
-            PyDapChainDatumObject *obj_datum_partial = PyObject_NEW(PyDapChainDatumObject, &DapChainDatumObjectType);
-            if (!obj_datum_partial) {
-                log_it(L_ERROR, "Failed to create partial PyDapChainDatumObject for tx %s in bridged notifier", tx_hash_str);
-                DAP_DELETE(partial_datum);
-                // Fallback to old behavior
-                PyDapChainDatumTxObject *obj_tx_partial = PyObject_NEW(PyDapChainDatumTxObject, &DapChainDatumTxObjectType);
-                obj_tx_partial->datum_tx = l_args->tx;
-                obj_tx_partial->original = false;
-                obj_datum = (PyObject*)obj_tx_partial;
-            } else {
-                obj_datum_partial->datum = partial_datum;
-                obj_datum_partial->origin = true; // We own this memory
-                obj_datum = (PyObject*)obj_datum_partial;
-                log_it(L_DEBUG, "Created partial PyDapChainDatumObject from tx %s successfully in bridged notifier", tx_hash_str);
-            }
-        }
-        
-        obj_atom = Py_None;
-        Py_INCREF(Py_None);
-    }
+    PyDapChainDatumTxObject *obj_tx = PyObject_NEW(PyDapChainDatumTxObject, &DapChainDatumTxObjectType);
+    obj_tx->datum_tx = l_args->tx;
+    obj_tx->original = false;
     PyObject *l_notify_arg = !l_notifier->argv ? Py_None : l_notifier->argv;
     Py_INCREF(l_notify_arg);
     log_it(L_DEBUG, "Call bridged tx ledger notifier for net %s", l_args->ledger->net->pub.name);
     PyGILState_STATE state = PyGILState_Ensure();
-    PyObject *obj_argv = Py_BuildValue("OOOO", obj_ledger, obj_datum, obj_atom, l_notify_arg);
+    PyObject *obj_argv = Py_BuildValue("OOO", obj_ledger, obj_tx, l_notify_arg);
     Py_INCREF(l_notifier->func);
     PyObject *result = PyEval_CallObject(l_notifier->func, obj_argv);
     Py_XDECREF(l_notifier->func);
     Py_DECREF(obj_argv);
     Py_DECREF(obj_ledger);
-    Py_DECREF(obj_datum);
+    Py_DECREF(obj_tx);
     Py_DECREF(l_notify_arg);
     if (!result)
         python_error_in_log_it(LOG_TAG);
@@ -809,6 +597,8 @@ static PyObject *s_bridged_tx_notify_add(PyObject *self, PyObject *args)
     dap_ledger_bridged_tx_notify_add(((PyDapChainLedgerObject*)self)->ledger, s_python_proc_notifier, l_notifier);
     Py_RETURN_NONE;
 }
+
+
 
 PyObject *dap_chain_ledger_tx_get_main_ticker_py(PyObject *self, PyObject *args)
 {

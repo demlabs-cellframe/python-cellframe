@@ -2,6 +2,7 @@
 #include "python-cellframe_common.h"
 #include "libdap_chain_net_python.h"
 #include "dap_chain_cs_blocks.h"
+#include "dap_chain.h"
 
 
 #define LOG_TAG "libdap-chain-python"
@@ -38,6 +39,7 @@ static PyMethodDef DapChainMethods[] = {
         {"configGetItem", (PyCFunction)dap_chain_python_get_config_item, METH_VARARGS, ""},
         {"addAtomConfirmedNotify", (PyCFunction)dap_chain_atom_confirmed_notify_add_py, METH_VARARGS, "Add a callback for confirmed atoms"},
         {"addForkResolvedNotify", (PyCFunction)dap_chain_fork_resolved_notify_add_py, METH_VARARGS|METH_STATIC, "Add a callback for fork resolution (local)"},
+        {"addDatumIndexNotify", (PyCFunction)dap_chain_add_datum_index_notify_py, METH_VARARGS, "Add a callback for datum index notifications"},
         
         {}
 };
@@ -225,6 +227,15 @@ typedef struct _wrapping_chain_fork_resolved_notify_callback {
     PyObject *func;
     PyObject *arg;
 } _wrapping_chain_fork_resolved_notify_callback_t;
+
+// Новая структура для datum index notifier с фильтром типов
+typedef struct _wrapping_chain_datum_index_notify_callback {
+    PyObject *func;
+    PyObject *arg;
+    uint16_t *datum_types_filter;  // NULL = все типы, иначе массив типов для фильтрации
+    size_t filter_count;           // количество типов в фильтре
+    dap_chain_t *chain;            // Ссылка на chain для создания PyDapChainObject
+} _wrapping_chain_datum_index_notify_callback_t;
 
 
 bool dap_py_mempool_notifier(void *a_arg)
@@ -414,6 +425,96 @@ static void _wrapping_dap_chain_fork_resolved_notify_handler(dap_chain_t *a_chai
     PyGILState_Release(state);    
 }
 
+static void _wrapping_dap_chain_datum_index_notify_handler(void *a_arg, 
+                                                          dap_chain_hash_fast_t *a_datum_hash,
+                                                          dap_chain_hash_fast_t *a_atom_hash,
+                                                          void *a_datum,
+                                                          size_t a_datum_size,
+                                                          int a_ret_code,
+                                                          uint32_t a_action,
+                                                          dap_chain_net_srv_uid_t a_uid)
+{
+    if (!a_arg) {
+        return;
+    }
+    
+    _wrapping_chain_datum_index_notify_callback_t *l_callback = (_wrapping_chain_datum_index_notify_callback_t *)a_arg;
+    
+    if (l_callback->datum_types_filter && l_callback->filter_count > 0 && a_datum) {
+        dap_chain_datum_t *l_datum = (dap_chain_datum_t *)a_datum;
+        bool type_matches = false;
+        
+        for (size_t i = 0; i < l_callback->filter_count; i++) {
+            if (l_datum->header.type_id == l_callback->datum_types_filter[i]) {
+                type_matches = true;
+                break;
+            }
+        }
+        
+        if (!type_matches) {
+            return;
+        }
+    }
+
+    PyGILState_STATE state = PyGILState_Ensure();
+    
+    PyDapChainDatumObject *obj_datum = NULL;
+    if (a_datum) {
+        obj_datum = PyObject_New(PyDapChainDatumObject, &DapChainDatumObjectType);
+        if (!obj_datum) {
+            log_it(L_ERROR, "Failed to create PyDapChainDatumObject in datum index notifier");
+            PyGILState_Release(state);
+            return;
+        }
+        obj_datum->datum = (dap_chain_datum_t *)a_datum;
+        obj_datum->origin = false;
+    }
+    
+    PyChainAtomObject *obj_atom = NULL;
+    if (a_atom_hash && l_callback->chain) {
+        size_t atom_size = 0;
+        dap_chain_atom_ptr_t atom_ptr = dap_chain_get_atom_by_hash(l_callback->chain, a_atom_hash, &atom_size);
+        
+        if (atom_ptr && atom_size > 0) {
+            obj_atom = PyObject_New(PyChainAtomObject, &DapChainAtomPtrObjectType);
+            if (!obj_atom) {
+                log_it(L_ERROR, "Failed to create PyChainAtomObject in datum index notifier");
+            } else {
+                obj_atom->atom = atom_ptr;
+                obj_atom->atom_size = atom_size;
+                log_it(L_DEBUG, "Created PyChainAtomObject: atom=%p, size=%zu", atom_ptr, atom_size);
+            }
+        } else {
+            log_it(L_DEBUG, "Atom not found by hash in datum index notifier (may be normal for some datum types)");
+        }
+    }
+    
+    PyObject *l_args = Py_BuildValue("OOO", 
+                                     obj_datum ? (PyObject*)obj_datum : Py_None,
+                                     obj_atom ? (PyObject*)obj_atom : Py_None,
+                                     l_callback->arg);
+    
+    if (!obj_datum) Py_INCREF(Py_None);
+    if (!obj_atom) Py_INCREF(Py_None);
+    
+    log_it(L_DEBUG, "Call datum index notifier: chain=%s, datum=%p, atom=%p", 
+           l_callback->chain->name, obj_datum, obj_atom);
+    
+    PyObject *result = PyObject_CallObject(l_callback->func, l_args);
+    if (!result) {
+        log_it(L_ERROR, "Error in datum index notifier callback");
+        python_error_in_log_it(LOG_TAG);
+    }
+    
+    Py_XDECREF(result);
+    Py_DECREF(l_args);
+    Py_XDECREF(obj_datum);
+    Py_XDECREF(obj_atom);
+    
+    PyGILState_Release(state);
+}
+
+
 /**
  * @brief dap_chain_python_add_mempool_notify_callback
  * @param self
@@ -543,8 +644,93 @@ PyObject *dap_chain_fork_resolved_notify_add_py(PyObject *self, PyObject *args) 
     dap_chain_block_add_fork_notificator(_wrapping_dap_chain_fork_resolved_notify_handler, l_callback);
     
     Py_RETURN_NONE;
+}
+
+
+
+/**
+ * @brief dap_chain_add_datum_index_notify_py
+ * Register a callback for datum index notifications
+ * @param self PyDapChainObject
+ * @param args (callback_func, [user_data], [datum_types_filter])
+ * @return None
+ * 
+ * Callback signature: callback(chain, datum, atom, user_data)
+ * - chain: PyDapChainObject - the chain where datum was indexed
+ * - datum: PyDapChainDatumObject - the indexed datum
+ * - atom: PyChainAtomObject or None - the block containing this datum
+ * - user_data: object - user provided data
+ */
+PyObject *dap_chain_add_datum_index_notify_py(PyObject *self, PyObject *args)
+{
+    dap_chain_t *l_chain = ((PyDapChainObject *)self)->chain_t;
+    PyObject *obj_func;
+    PyObject *obj_arg = NULL;
+    PyObject *obj_datum_types = NULL;
+    
+    if (!PyArg_ParseTuple(args, "O|OO", &obj_func, &obj_arg, &obj_datum_types)) {
+        PyErr_SetString(PyExc_AttributeError, "Arguments: callback_func, [user_arg], [datum_types_list]");
+        return NULL;
     }
-    /**
+    
+    if (!PyCallable_Check(obj_func)) {
+        PyErr_SetString(PyExc_AttributeError, "First argument must be a callable function");
+        return NULL;
+    }
+    
+    _wrapping_chain_datum_index_notify_callback_t *l_callback = DAP_NEW_Z(_wrapping_chain_datum_index_notify_callback_t);
+    if (!l_callback) {
+        log_it(L_CRITICAL, "Memory allocation error");
+        return NULL;
+    }
+    
+    l_callback->func = obj_func;
+    l_callback->arg = obj_arg ? obj_arg : Py_None;
+    l_callback->chain = l_chain;
+    
+    if (obj_datum_types && PyList_Check(obj_datum_types)) {
+        Py_ssize_t filter_count = PyList_Size(obj_datum_types);
+        if (filter_count > 0) {
+            l_callback->datum_types_filter = DAP_NEW_Z_SIZE(uint16_t, filter_count * sizeof(uint16_t));
+            if (!l_callback->datum_types_filter) {
+                log_it(L_CRITICAL, "Memory allocation error for datum types filter");
+                DAP_DELETE(l_callback);
+                return NULL;
+            }
+            
+            l_callback->filter_count = filter_count;
+            
+            for (Py_ssize_t i = 0; i < filter_count; i++) {
+                PyObject *item = PyList_GetItem(obj_datum_types, i);
+                if (PyLong_Check(item)) {
+                    l_callback->datum_types_filter[i] = (uint16_t)PyLong_AsLong(item);
+                    log_it(L_DEBUG, "Added datum type filter[%ld]: 0x%04x", i, l_callback->datum_types_filter[i]);
+                } else {
+                    PyErr_SetString(PyExc_TypeError, "Datum types must be integers (use DatumTypesValues enum)");
+                    DAP_DELETE(l_callback->datum_types_filter);
+                    DAP_DELETE(l_callback);
+                    return NULL;
+                }
+            }
+        }
+    } else {
+        l_callback->datum_types_filter = NULL;
+        l_callback->filter_count = 0;
+    }
+    
+    Py_INCREF(obj_func);
+    Py_XINCREF(l_callback->arg);
+    
+    log_it(L_DEBUG, "Added datum index notify in %s:%s with filter count %zu", 
+           l_chain->net_name, l_chain->name, l_callback->filter_count);
+    
+    dap_proc_thread_t *l_thread = dap_proc_thread_get_auto();
+    dap_chain_add_callback_datum_index_notify(l_chain, _wrapping_dap_chain_datum_index_notify_handler, l_thread, l_callback);
+    
+    Py_RETURN_NONE;
+}
+
+/**
  * @brief dap_chain_python_atom_find_by_hash
  * @param self
  * @param args
