@@ -17,6 +17,7 @@ static PyMethodDef PyDapChainTxEventObjectMethods[] ={
     {"AUCTION_WON", (PyCFunction)TX_EVENT_TYPE_AUCTION_WON_PY, METH_NOARGS | METH_STATIC, ""},
     {"AUCTION_LOST", (PyCFunction)TX_EVENT_TYPE_AUCTION_LOST_PY, METH_NOARGS | METH_STATIC, ""},
     {"AUCTION_CANCELLED", (PyCFunction)TX_EVENT_TYPE_AUCTION_CANCELLED_PY, METH_NOARGS | METH_STATIC, ""},
+    {"AUCTION_BID_WITHDRAWN", (PyCFunction)TX_EVENT_TYPE_AUCTION_BID_WITHDRAWN_PY, METH_NOARGS | METH_STATIC, ""},
     {}
 };
 
@@ -103,3 +104,9 @@ PyObject *TX_EVENT_TYPE_AUCTION_CANCELLED_PY(PyObject *self, PyObject *args) {
     (void)args;
     return PyLong_FromLong(DAP_CHAIN_TX_EVENT_TYPE_AUCTION_CANCELLED);
 } 
+
+PyObject *TX_EVENT_TYPE_AUCTION_BID_WITHDRAWN_PY(PyObject *self, PyObject *args) {
+    (void)self;
+    (void)args;
+    return PyLong_FromLong(DAP_CHAIN_TX_EVENT_TYPE_AUCTION_BID_WITHDRAWN);
+}
