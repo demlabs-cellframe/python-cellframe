@@ -1,8 +1,12 @@
 #include "wrapping_dap_chain_ledger.h"
+#include "wrapping_dap_chain_atom_ptr.h"
 #include "python-cellframe_common.h"
 #include "dap_proc_thread.h"
 #include "dap_events.h"
 #include "dap_chain_datum_tx_in.h"
+#include "dap_chain_net.h"
+#include "dap_hash.h"
+#include "dap_time.h"
 #include "utlist.h"
 
 #define LOG_TAG "ledger wrapper"
@@ -339,15 +343,77 @@ PyObject *dap_chain_ledger_tx_find_by_hash_py(PyObject *self, PyObject *args){
     PyObject *h_fast;
     if (!PyArg_ParseTuple(args, "O", &h_fast))
         return NULL;
-    PyDapChainDatumTxObject *res = PyObject_NEW(PyDapChainDatumTxObject, &DapChainDatumTxObjectType);
-    res->datum_tx = dap_ledger_tx_find_by_hash(((PyDapChainLedgerObject*)self)->ledger, ((PyDapHashFastObject*)h_fast)->hash_fast);
     
-    res->original = false;
-    if (res->datum_tx == NULL) {
-        PyObject_DEL(res);
-        Py_RETURN_NONE;
+    dap_ledger_t *ledger = ((PyDapChainLedgerObject*)self)->ledger;
+    dap_hash_fast_t *hash_fast = ((PyDapHashFastObject*)h_fast)->hash_fast;
+
+    dap_chain_datum_t *full_datum = NULL;
+    dap_chain_hash_fast_t block_hash = {0};
+    int ret_code = 0;
+    dap_chain_atom_ptr_t atom = NULL;
+    size_t atom_size = 0;
+    
+    dap_chain_t *main_chain = dap_chain_net_get_chain_by_name(ledger->net, "main");
+    
+    if (ledger->net && main_chain && main_chain->callback_datum_find_by_hash) {
+        full_datum = main_chain->callback_datum_find_by_hash(
+            main_chain, hash_fast, &block_hash, &ret_code);
+        
+        if (full_datum && !dap_hash_fast_is_blank(&block_hash)) {
+            atom = dap_chain_get_atom_by_hash(main_chain, &block_hash, &atom_size);
+        }
     }
-    return Py_BuildValue("O", res);
+    
+    PyObject *obj_datum = NULL;
+    PyObject *obj_atom = NULL;
+    
+    if (full_datum) {
+        PyDapChainDatumObject *obj_datum_full = PyObject_NEW(PyDapChainDatumObject, &DapChainDatumObjectType);
+        if (!obj_datum_full) {
+            PyErr_SetString(PyExc_MemoryError, "Failed to create datum object");
+            return NULL;
+        }
+        obj_datum_full->datum = full_datum;
+        obj_datum_full->origin = false;
+        obj_datum = (PyObject*)obj_datum_full;
+        
+        if (atom) {
+            PyChainAtomObject *obj_atom_ptr = PyObject_NEW(PyChainAtomObject, &DapChainAtomPtrObjectType);
+            if (!obj_atom_ptr) {
+                Py_DECREF(obj_datum);
+                PyErr_SetString(PyExc_MemoryError, "Failed to create atom object");
+                return NULL;
+            }
+            obj_atom_ptr->atom = atom;
+            obj_atom_ptr->atom_size = atom_size;
+            obj_atom = (PyObject*)obj_atom_ptr;
+        } else {
+            obj_atom = Py_None;
+            Py_INCREF(Py_None);
+        }
+        
+        return Py_BuildValue("OO", obj_datum, obj_atom);
+    } else {
+        PyDapChainDatumTxObject *res = PyObject_NEW(PyDapChainDatumTxObject, &DapChainDatumTxObjectType);
+        if (!res) {
+            PyErr_SetString(PyExc_MemoryError, "Failed to create tx object");
+            return NULL;
+        }
+        
+        res->datum_tx = dap_ledger_tx_find_by_hash(ledger, hash_fast);
+        res->original = false;
+        
+        if (res->datum_tx == NULL) {
+            PyObject_DEL(res);
+            Py_RETURN_NONE;
+        }
+        
+        obj_datum = (PyObject*)res;
+        obj_atom = Py_None;
+        Py_INCREF(Py_None);
+        
+        return Py_BuildValue("OO", obj_datum, obj_atom);
+    }
 }
 PyObject *dap_chain_ledger_tx_find_by_addr_py(PyObject *self, PyObject *args){
     const char *token;
@@ -561,6 +627,8 @@ static PyObject *s_bridged_tx_notify_add(PyObject *self, PyObject *args)
     dap_ledger_bridged_tx_notify_add(((PyDapChainLedgerObject*)self)->ledger, s_python_proc_notifier, l_notifier);
     Py_RETURN_NONE;
 }
+
+
 
 PyObject *dap_chain_ledger_tx_get_main_ticker_py(PyObject *self, PyObject *args)
 {
