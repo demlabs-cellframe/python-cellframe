@@ -227,13 +227,12 @@ typedef struct _wrapping_chain_fork_resolved_notify_callback {
     PyObject *arg;
 } _wrapping_chain_fork_resolved_notify_callback_t;
 
-// Новая структура для datum index notifier с фильтром типов
 typedef struct _wrapping_chain_datum_index_notify_callback {
     PyObject *func;
     PyObject *arg;
-    uint16_t *datum_types_filter;  // NULL = все типы, иначе массив типов для фильтрации
-    size_t filter_count;           // количество типов в фильтре
-    dap_chain_t *chain;            // Ссылка на chain для создания PyDapChainObject
+    uint16_t *datum_types_filter;
+    size_t filter_count;
+    dap_chain_t *chain;
 } _wrapping_chain_datum_index_notify_callback_t;
 
 
