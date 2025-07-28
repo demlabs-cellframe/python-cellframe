@@ -52,8 +52,7 @@ PyObject *wrapping_dap_chain_tx_event_get_timestamp(PyObject *self, void *closur
 // Static methods for event types
 PyObject *TX_EVENT_TYPE_AUCTION_STARTED_PY(PyObject *self, PyObject *args);
 PyObject *TX_EVENT_TYPE_AUCTION_BID_PLACED_PY(PyObject *self, PyObject *args);
-PyObject *TX_EVENT_TYPE_AUCTION_WON_PY(PyObject *self, PyObject *args);
-PyObject *TX_EVENT_TYPE_AUCTION_LOST_PY(PyObject *self, PyObject *args);
+PyObject *TX_EVENT_TYPE_AUCTION_FINISH_PY(PyObject *self, PyObject *args);
 PyObject *TX_EVENT_TYPE_AUCTION_CANCELLED_PY(PyObject *self, PyObject *args);
 
 extern PyTypeObject DapChainTxEventObjectType;
