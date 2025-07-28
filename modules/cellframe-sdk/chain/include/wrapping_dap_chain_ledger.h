@@ -74,6 +74,10 @@ PyObject *dap_chain_ledger_event_pkey_list_py(PyObject *self, PyObject *args);
 PyObject *dap_chain_ledger_event_get_group_name_py(PyObject *self, void *closure);
 PyObject *dap_chain_ledger_event_get_type_py(PyObject *self, void *closure);
 PyObject *dap_chain_ledger_event_get_data_py(PyObject *self, void *closure);
+PyObject *dap_chain_ledger_event_get_timestamp_py(PyObject *self, void *closure);
+
+// Event notification callback
+PyObject *dap_chain_ledger_event_notify_add_py(PyObject *self, PyObject *args);
 
 extern PyTypeObject DapChainLedgerObjectType;
 extern PyTypeObject DapChainLedgerEventObjectType;

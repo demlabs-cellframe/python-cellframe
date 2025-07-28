@@ -8,6 +8,7 @@ static PyGetSetDef DapChainTxEventGetsSetsDef[] = {
     {"group_name", (getter)wrapping_dap_chain_tx_event_get_group_name, NULL, NULL, NULL},
     {"group_size", (getter)wrapping_dap_chain_tx_event_get_group_size, NULL, NULL, NULL},
     {"event_type", (getter)wrapping_dap_chain_tx_event_get_event_type, NULL, NULL, NULL},
+    {"timestamp", (getter)wrapping_dap_chain_tx_event_get_timestamp, NULL, NULL, NULL},
     {}
 };
 
@@ -72,6 +73,11 @@ PyObject *wrapping_dap_chain_tx_event_get_group_size(PyObject *self, void *closu
 PyObject *wrapping_dap_chain_tx_event_get_event_type(PyObject *self, void *closure) {
     (void)closure;
     return Py_BuildValue("H", ((PyDapChainTxEventObject*)self)->tx_event->event_type);
+}
+
+PyObject *wrapping_dap_chain_tx_event_get_timestamp(PyObject *self, void *closure) {
+    (void)closure;
+    return Py_BuildValue("L", ((PyDapChainTxEventObject*)self)->tx_event->timestamp);
 }
 
 PyObject *TX_EVENT_TYPE_AUCTION_STARTED_PY(PyObject *self, PyObject *args) {
