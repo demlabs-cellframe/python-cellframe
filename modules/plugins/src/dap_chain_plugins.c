@@ -367,8 +367,8 @@ static int s_python_interpreter_init(dap_config_t *a_config)
            (unsigned long)pthread_self(), main_thread_state);
     
     // Store main thread state for later use if needed
-    static PyThreadState *s_main_thread_state = NULL;
-    s_main_thread_state = main_thread_state;
+    // static PyThreadState *s_main_thread_state = NULL;
+    // s_main_thread_state = main_thread_state;
 
     PyConfig_Clear(&l_config);
     return 0;

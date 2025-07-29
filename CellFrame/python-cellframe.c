@@ -626,6 +626,7 @@ PyMODINIT_FUNC PyInit_libCellFrame(void)
         PyType_Ready( &DapChainTxTSDObjectType ) < 0 ||
         PyType_Ready( &PyDapChainTXVoteObjectType) < 0 ||
         PyType_Ready( &PyDapChainTxVotingObjectType ) < 0 ||
+        PyType_Ready( &DapChainTxEventObjectType ) < 0 ||
         PyType_Ready( &DapChainTxOutStdObjectType ) < 0 ||
                 // === Chain net ===
         /// Node
@@ -680,6 +681,7 @@ PyMODINIT_FUNC PyInit_libCellFrame(void)
     PyModule_AddObject(chainModule, "Wallet", (PyObject*)&DapChainWalletObjectType);
     PyModule_AddObject(chainModule, "Mempool", (PyObject*)&DapChainMempoolObjectType);
     PyModule_AddObject(chainModule, "Ledger", (PyObject*)&DapChainLedgerObjectType);
+    PyModule_AddObject(chainModule, "LedgerEvent", (PyObject*)&DapChainLedgerEventObjectType);
 
     PyObject *commonModule = PyModule_Create(&CellframeCommonPythonModule);
     PyModule_AddObject(commonModule, "DatumTypeID", (PyObject*)&DapChainDatumTypeIdObjectType);
@@ -713,6 +715,7 @@ PyMODINIT_FUNC PyInit_libCellFrame(void)
     PyModule_AddObject(commonModule, "TxTSD", (PyObject*)&DapChainTxTSDObjectType);
     PyModule_AddObject(commonModule, "TxVote", (PyObject*)&PyDapChainTXVoteObjectType);
     PyModule_AddObject(commonModule, "TxVoting", (PyObject*)&PyDapChainTxVotingObjectType);
+    PyModule_AddObject(commonModule, "TxEvent", (PyObject*)&DapChainTxEventObjectType);
     PyModule_AddObject(commonModule, "TxOutStd", (PyObject*)&DapChainTxOutStdObjectType);
 
     PyObject *netModule = PyModule_Create(&CellframeNetworkPythonModule);
