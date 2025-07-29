@@ -73,6 +73,11 @@ PyObject *wrapping_dap_chain_tx_event_get_event_type(PyObject *self, void *closu
     return Py_BuildValue("H", ((PyDapChainTxEventObject*)self)->tx_event->event_type);
 }
 
+PyObject *wrapping_dap_chain_tx_event_get_timestamp(PyObject *self, void *closure) {
+    (void)closure;
+    return Py_BuildValue("L", ((PyDapChainTxEventObject*)self)->tx_event->timestamp);
+}
+
 PyObject *TX_EVENT_TYPE_AUCTION_STARTED_PY(PyObject *self, PyObject *args) {
     (void)self;
     (void)args;
