@@ -8,12 +8,14 @@ static PyGetSetDef DapChainTxEventGetsSetsDef[] = {
     {"group_name", (getter)wrapping_dap_chain_tx_event_get_group_name, NULL, NULL, NULL},
     {"group_size", (getter)wrapping_dap_chain_tx_event_get_group_size, NULL, NULL, NULL},
     {"event_type", (getter)wrapping_dap_chain_tx_event_get_event_type, NULL, NULL, NULL},
+    {"timestamp", (getter)wrapping_dap_chain_tx_event_get_timestamp, NULL, NULL, NULL},
     {}
 };
 
 static PyMethodDef PyDapChainTxEventObjectMethods[] ={
     {"AUCTION_STARTED", (PyCFunction)TX_EVENT_TYPE_AUCTION_STARTED_PY, METH_NOARGS | METH_STATIC, ""},
     {"AUCTION_CANCELLED", (PyCFunction)TX_EVENT_TYPE_AUCTION_CANCELLED_PY, METH_NOARGS | METH_STATIC, ""},
+    {"AUCTION_ENDED", (PyCFunction)TX_EVENT_TYPE_AUCTION_ENDED_PY, METH_NOARGS | METH_STATIC, ""},
     {}
 };
 
@@ -81,4 +83,10 @@ PyObject *TX_EVENT_TYPE_AUCTION_CANCELLED_PY(PyObject *self, PyObject *args) {
     (void)self;
     (void)args;
     return PyLong_FromLong(DAP_CHAIN_TX_EVENT_TYPE_AUCTION_CANCELLED);
+} 
+
+PyObject *TX_EVENT_TYPE_AUCTION_ENDED_PY(PyObject *self, PyObject *args) {
+    (void)self;
+    (void)args;
+    return PyLong_FromLong(DAP_CHAIN_TX_EVENT_TYPE_AUCTION_ENDED);
 } 
