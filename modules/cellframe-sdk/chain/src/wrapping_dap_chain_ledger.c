@@ -2,6 +2,7 @@
 #include "python-cellframe_common.h"
 #include "dap_proc_thread.h"
 #include "dap_events.h"
+#include "dap_chain_wallet.h"
 
 #define LOG_TAG "ledger wrapper"
 
