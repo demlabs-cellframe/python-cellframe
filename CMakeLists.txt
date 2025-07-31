@@ -41,6 +41,12 @@ if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/dap-sdk/CMakeLists.txt)
     # Force DAP SDK to build as SHARED (default is already SHARED)
     set(BUILD_SHARED ON CACHE BOOL "Build DAP SDK as shared library" FORCE)
     
+    # Set build path for DAP SDK components (used by json-c and other internal modules)
+    set(DAP_SDK_PATH_BUILD ${CMAKE_CURRENT_BINARY_DIR}/dap-sdk-shared CACHE STRING "Build path for DAP SDK")
+    
+    # Pass the build path to dap-sdk for internal use (e.g., json-c include paths)
+    set(DAP_SDK_BUILD_DIR ${CMAKE_CURRENT_BINARY_DIR}/dap-sdk-shared CACHE STRING "DAP SDK binary directory for submodules")
+    
     # Add DAP SDK submodule
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/dap-sdk ${CMAKE_CURRENT_BINARY_DIR}/dap-sdk-shared)
     set(DAP_SDK_TARGET "dap_sdk")
