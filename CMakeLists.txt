@@ -38,6 +38,11 @@ message("[+] Python-Cellframe: Adding DAP SDK as shared library...")
 
 # Check for dap-sdk submodule  
 if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/dap-sdk/CMakeLists.txt)
+    # CRITICAL: Include OS detection first to set proper platform defines (DAP_OS_LINUX, DAP_OS_UNIX, etc.)
+    # This is essential for dap-sdk headers to work correctly across all modules
+    include(${CMAKE_CURRENT_SOURCE_DIR}/dap-sdk/cmake/OS_Detection.cmake)
+    message("[+] Python-Cellframe: OS Detection loaded - platform defines set")
+    
     # Force DAP SDK to build as SHARED (default is already SHARED)
     set(BUILD_SHARED ON CACHE BOOL "Build DAP SDK as shared library" FORCE)
     
