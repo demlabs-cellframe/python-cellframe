@@ -4,3 +4,6 @@
 [submodule "cellframe-sdk"]
 	path = cellframe-sdk
 	url = ../cellframe-sdk
+[submodule "dap-sdk"]
+	path = dap-sdk
+	url = ../../dap/dap-sdk

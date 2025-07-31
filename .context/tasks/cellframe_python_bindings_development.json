@@ -82,7 +82,117 @@
       ]
     },
     "implementation_plan": {
-      "phases": [],
+      "phases": [
+      {
+        "phase": 1,
+        "title": "🔧 DAP SDK → Shared Library Architecture",
+        "description": "Перестроить dap-sdk в python-cellframe как shared library для устранения дублирования",
+        "estimated_time": "1-2 дня",
+        "deliverables": [
+          "dap-sdk собирается как shared library",
+          "Отдельный пакет libdap-sdk",
+          "Обновленный CMakeLists.txt в python-cellframe"
+        ],
+        "status": "READY",
+        "priority": "CRITICAL",
+        "tasks": [
+          "Добавить dap-sdk в корень python-cellframe",
+          "Настроить dap-sdk для сборки как SHARED",
+          "Создать CMake target для dap-sdk package"
+        ]
+      },
+      {
+        "phase": 2,
+        "title": "🐍 Python-DAP → External DAP SDK Support",
+        "description": "Модифицировать python-dap для использования внешнего DAP SDK через переменные CMake",
+        "estimated_time": "1-2 дня",
+        "deliverables": [
+          "python-dap линкуется с shared dap-sdk",
+          "Поддержка внешнего пути к DAP SDK",
+          "Fallback на системные пакеты"
+        ],
+        "status": "READY",
+        "priority": "CRITICAL",
+        "tasks": [
+          "Добавить переменную DAP_SDK_PATH в python-dap",
+          "Обновить линковку с external shared dap-sdk", 
+          "Добавить проверку наличия submodules"
+        ]
+      },
+      {
+        "phase": 3,
+        "title": "📱 Cellframe SDK → Shared Library",
+        "description": "Перестроить cellframe-sdk как shared library для модульности",
+        "estimated_time": "2-3 дня",
+        "deliverables": [
+          "cellframe-sdk собирается как shared library",
+          "Отдельный пакет libcellframe-sdk",
+          "Зависимость от shared dap-sdk"
+        ],
+        "status": "READY",
+        "priority": "HIGH",
+        "tasks": [
+          "Настроить cellframe-sdk для SHARED сборки",
+          "Обеспечить зависимость от shared dap-sdk",
+          "Создать CMake package для cellframe-sdk"
+        ]
+      },
+      {
+        "phase": 4,
+        "title": "🔗 Python-Cellframe → Multi-Dependency Integration",
+        "description": "Интегрировать python-cellframe со всеми shared dependencies",
+        "estimated_time": "2-3 дня", 
+        "deliverables": [
+          "python-cellframe зависит от dap-sdk, python-dap, cellframe-sdk",
+          "Единое состояние логирования между компонентами",
+          "Решение архитектурной проблемы дублирования"
+        ],
+        "status": "READY",
+        "priority": "HIGH",
+        "tasks": [
+          "Настроить зависимости python-cellframe",
+          "Протестировать единство состояния между компонентами",
+          "Убедиться в отсутствии дублирования DAP SDK"
+        ]
+      },
+      {
+        "phase": 5,
+        "title": "🏗️ Fallback → System Packages Support",
+        "description": "Реализовать fallback на системные пакеты при отсутствии submodules",
+        "estimated_time": "1-2 дня",
+        "deliverables": [
+          "Автоматическое определение отсутствия submodules",
+          "Использование системных libdap, python-dap",
+          "CI/CD pipeline поддержка"
+        ],
+        "status": "READY", 
+        "priority": "MEDIUM",
+        "tasks": [
+          "Добавить проверки на наличие CMakeLists.txt в submodules",
+          "Настроить использование system packages",
+          "Обновить build pipeline"
+        ]
+      },
+      {
+        "phase": 6,
+        "title": "🧪 CTest → Full Integration Testing",
+        "description": "Настроить CTest для тестирования всех компонентов с виртуальными окружениями",
+        "estimated_time": "2-3 дня",
+        "deliverables": [
+          "CTest устанавливает все dependencies в venv",
+          "Тесты проверяют интеграцию всех компонентов",
+          "Полный набор cmake → make → cpack → ctest"
+        ],
+        "status": "READY",
+        "priority": "HIGH", 
+        "tasks": [
+          "Настроить установку dap-sdk в test venv",
+          "Настроить установку python-dap в test venv",
+          "Настроить установку cellframe-sdk в test venv",
+          "Добавить интеграционные тесты для всех компонентов"
+        ]
+      }
+    ],
       "milestones": []
     },
     "testing_requirements": {

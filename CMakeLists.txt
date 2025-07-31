@@ -31,6 +31,30 @@ set(PYTHON_CELLFRAME_EMBED_SDK ${PYTHON_CELLFRAME_EMBED_SDK} CACHE BOOL "Whether
 find_package(Python3 REQUIRED COMPONENTS Interpreter Development)
 
 # =========================================
+# DAP SDK SHARED LIBRARY INTEGRATION
+# =========================================
+# Build DAP SDK as shared library (foundation for all components)
+message("[+] Python-Cellframe: Adding DAP SDK as shared library...")
+
+# Check for dap-sdk submodule  
+if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/dap-sdk/CMakeLists.txt)
+    # Force DAP SDK to build as SHARED (default is already SHARED)
+    set(BUILD_SHARED ON CACHE BOOL "Build DAP SDK as shared library" FORCE)
+    
+    # Add DAP SDK submodule
+    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/dap-sdk ${CMAKE_CURRENT_BINARY_DIR}/dap-sdk-shared)
+    set(DAP_SDK_TARGET "dap_sdk")
+    set(DAP_SDK_AVAILABLE ON)
+    
+    message("[+] Python-Cellframe: DAP SDK added as shared library")
+    message("[+] Python-Cellframe: This provides single DAP SDK instance for all components")
+else()
+    message(WARNING "Python-Cellframe: dap-sdk submodule not found, falling back to system packages")
+    set(DAP_SDK_AVAILABLE OFF)
+    set(DAP_SDK_TARGET "")
+endif()
+
+# =========================================
 # CONDITIONAL CELLFRAME SDK INTEGRATION
 # =========================================
 if(PYTHON_CELLFRAME_EMBED_SDK)
@@ -40,9 +64,18 @@ if(PYTHON_CELLFRAME_EMBED_SDK)
     set(BUILD_SHARED OFF CACHE BOOL "Force Cellframe SDK static for embedding" FORCE)
     set(CELLFRAME_FORCED_STATIC ON CACHE BOOL "Force static build" FORCE)
     
+    # Pass shared DAP SDK to Cellframe SDK
+    if(DAP_SDK_AVAILABLE AND DAP_SDK_TARGET)
+        set(DAP_SDK_PATH ${CMAKE_CURRENT_SOURCE_DIR}/dap-sdk CACHE PATH "Path to shared DAP SDK for Cellframe")
+        set(DAP_SDK_TARGET_NAME ${DAP_SDK_TARGET} CACHE STRING "Shared DAP SDK target for Cellframe")
+        message("[+] Python-Cellframe: Configuring Cellframe SDK to use shared DAP SDK")
+    else()
+        message(WARNING "Python-Cellframe: No shared DAP SDK available for Cellframe SDK")
+    endif()
+    
     # Add Cellframe SDK submodule
-    if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/../cellframe-sdk/CMakeLists.txt)
-        add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../cellframe-sdk ${CMAKE_CURRENT_BINARY_DIR}/cellframe-sdk-embedded)
+    if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/cellframe-sdk/CMakeLists.txt)
+        add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/cellframe-sdk ${CMAKE_CURRENT_BINARY_DIR}/cellframe-sdk-embedded)
         set(CELLFRAME_SDK_TARGET "cellframe_sdk")
         message("[+] Python-Cellframe: Cellframe SDK embedded from submodule")
     else()
@@ -74,6 +107,39 @@ set(PYTHON_CELLFRAME_HEADERS
     include/cellframe_network.h
 )
 
+# =========================================
+# PYTHON-DAP DEPENDENCY (ALWAYS REQUIRED TO AVOID DAP SDK DUPLICATION)
+# =========================================
+# Check for python-dap dependency
+set(PYTHON_DAP_DIR "${CMAKE_CURRENT_SOURCE_DIR}/python-dap")
+if(EXISTS "${PYTHON_DAP_DIR}/CMakeLists.txt")
+    message("[+] Python-Cellframe: Adding python-dap as SHARED DEPENDENCY (avoiding DAP SDK duplication)")
+    
+    # Configure python-dap build - SHARED to avoid DAP SDK duplication
+    set(BUILD_SHARED ON CACHE BOOL "Build python-dap as shared to avoid DAP SDK duplication" FORCE)
+    set(PYTHON_DAP_BUILD_TESTS OFF CACHE BOOL "Don't build python-dap tests" FORCE)
+    
+    # Pass shared DAP SDK path to python-dap
+    if(DAP_SDK_AVAILABLE AND DAP_SDK_TARGET)
+        set(DAP_SDK_PATH ${CMAKE_CURRENT_SOURCE_DIR}/dap-sdk CACHE PATH "Path to shared DAP SDK")
+        set(DAP_SDK_TARGET_NAME ${DAP_SDK_TARGET} CACHE STRING "Shared DAP SDK target name")
+        message("[+] Python-Cellframe: Configuring python-dap to use shared DAP SDK")
+    else()
+        message("[+] Python-Cellframe: python-dap will use internal DAP SDK (fallback mode)")
+    endif()
+    
+    # Add python-dap subdirectory - ALWAYS BUILD (not EXCLUDE_FROM_ALL)
+    add_subdirectory(python-dap)
+    set(PYTHON_DAP_AVAILABLE ON)
+    set(PYTHON_DAP_TARGET "python_dap")
+    
+    message("[+] Python-Cellframe: python-dap dependency added as SHARED library")
+    message("[+] Python-Cellframe: This prevents DAP SDK duplication in memory")
+else()
+    message(FATAL_ERROR "Python-Cellframe: python-dap REQUIRED but not found at ${PYTHON_DAP_DIR}")
+    set(PYTHON_DAP_AVAILABLE OFF)
+endif()
+
 # Create main library
 add_library(${PROJECT_NAME} ${PYTHON_CELLFRAME_LIB_TYPE} ${PYTHON_CELLFRAME_SOURCES} ${PYTHON_CELLFRAME_HEADERS})
 
@@ -90,6 +156,13 @@ target_include_directories(${PROJECT_NAME} PUBLIC
 # =========================================
 # Always link with Python
 target_link_libraries(${PROJECT_NAME} PRIVATE ${Python3_LIBRARIES})
+
+# Link with python-dap to avoid DAP SDK duplication
+if(PYTHON_DAP_AVAILABLE AND PYTHON_DAP_TARGET)
+    target_link_libraries(${PROJECT_NAME} PRIVATE ${PYTHON_DAP_TARGET})
+    target_compile_definitions(${PROJECT_NAME} PRIVATE PYTHON_DAP_LINKED)
+    message("[+] Python-Cellframe: Linked with python-dap (shared DAP SDK)")
+endif()
 
 # Conditional Cellframe SDK linking
 if(PYTHON_CELLFRAME_EMBED_SDK AND CELLFRAME_SDK_TARGET)
@@ -175,27 +248,7 @@ if(BUILD_TESTS)
         message("[+] Python-Cellframe: Virtual environment setup target created")
     endif()
     
-    # =========================================
-    # PYTHON-DAP DEPENDENCY FOR TESTS
-    # =========================================
-    # Check for python-dap dependency
-    set(PYTHON_DAP_DIR "${CMAKE_CURRENT_SOURCE_DIR}/python-dap")
-    if(EXISTS "${PYTHON_DAP_DIR}/CMakeLists.txt")
-        message("[+] Python-Cellframe: Adding python-dap dependency for tests")
-        
-        # Configure python-dap build
-        set(BUILD_SHARED ON CACHE BOOL "Build python-dap as shared for testing" FORCE)
-        set(PYTHON_DAP_BUILD_TESTS OFF CACHE BOOL "Don't build python-dap tests" FORCE)
-        
-        # Add python-dap subdirectory
-        add_subdirectory(python-dap EXCLUDE_FROM_ALL)
-        set(PYTHON_DAP_AVAILABLE ON)
-        
-        message("[+] Python-Cellframe: python-dap dependency added")
-    else()
-        message(WARNING "Python-Cellframe: python-dap not found at ${PYTHON_DAP_DIR}")
-        set(PYTHON_DAP_AVAILABLE OFF)
-    endif()
+
     
     # =========================================
     # PYTEST INTEGRATION WITH CTEST
