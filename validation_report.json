@@ -1,0 +1,2325 @@
+{
+  "timestamp": "2025-07-30T18:56:42.078763",
+  "project_root": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe",
+  "validations": {
+    "syntax": {
+      "status": "passed",
+      "files_checked": 87,
+      "syntax_errors": [],
+      "details": {
+        "CellFrame/__init__.py": "valid",
+        "CellFrame/common.py": "valid",
+        "CellFrame/types.py": "valid",
+        "CellFrame/services/staking.py": "valid",
+        "CellFrame/services/__init__.py": "valid",
+        "CellFrame/network/__init__.py": "valid",
+        "CellFrame/legacy/__init__.py": "valid",
+        "CellFrame/composer/templates.py": "valid",
+        "CellFrame/composer/core.py": "valid",
+        "CellFrame/composer/__init__.py": "valid",
+        "CellFrame/composer/conditional.py": "valid",
+        "CellFrame/composer/exceptions.py": "valid",
+        "CellFrame/composer/fee_optimizer.py": "valid",
+        "CellFrame/composer/utils.py": "valid",
+        "CellFrame/composer/batch_processor.py": "valid",
+        "CellFrame/composer/cond/stake_lock.py": "valid",
+        "CellFrame/composer/cond/delegation.py": "valid",
+        "CellFrame/composer/cond/voting.py": "valid",
+        "CellFrame/composer/cond/base.py": "valid",
+        "CellFrame/composer/cond/__init__.py": "valid",
+        "CellFrame/composer/cond/service_payment.py": "valid",
+        "CellFrame/composer/cond/exchange.py": "valid",
+        "CellFrame/composer/cond/unified.py": "valid",
+        "CellFrame/helpers/logger.py": "valid",
+        "CellFrame/helpers/cellframenet.py": "valid",
+        "CellFrame/helpers/contract.py": "valid",
+        "CellFrame/helpers/helpers.py": "valid",
+        "CellFrame/core/__init__.py": "valid",
+        "CellFrame/core/exceptions.py": "valid",
+        "CellFrame/core/context.py": "valid",
+        "CellFrame/tools/_types.py": "valid",
+        "CellFrame/chain/ledger.py": "valid",
+        "CellFrame/chain/tx_utils.py": "valid",
+        "CellFrame/chain/emission.py": "valid",
+        "CellFrame/chain/tx.py": "valid",
+        "CellFrame/chain/__init__.py": "valid",
+        "CellFrame/chain/wallet.py": "valid",
+        "CellFrame/wallet/__init__.py": "valid",
+        "CellFrame/migration/__init__.py": "valid",
+        "CellFrame/migration/config_migration.py": "valid",
+        "CellFrame/migration/__main__.py": "valid",
+        "CellFrame/node/crypto.py": "valid",
+        "CellFrame/node/gdb.py": "valid",
+        "CellFrame/node/cli.py": "valid",
+        "CellFrame/node/items.py": "valid",
+        "CellFrame/node/__init__.py": "valid",
+        "CellFrame/node/mappings.py": "valid",
+        "CellFrame/node/exceptions.py": "valid",
+        "CellFrame/node/datums.py": "valid",
+        "CellFrame/node/net.py": "valid",
+        "CellFrame/node/notificators.py": "valid",
+        "CellFrame/node/types.py": "valid",
+        "CellFrame/node/config.py": "valid",
+        "CellFrame/node/math.py": "valid",
+        "CellFrame/node/logging.py": "valid",
+        "CellFrame/node/consensus.py": "valid",
+        "CellFrame/node/srv/vote.py": "valid",
+        "CellFrame/node/http/__init__.py": "valid",
+        "CellFrame/node/http/tornado.py": "valid",
+        "CellFrame/node/http/simple.py": "valid",
+        "CellFrame/schemas/_common.py": "valid",
+        "CellFrame/schemas/__init__.py": "valid",
+        "CellFrame/schemas/shortcuts.py": "valid",
+        "CellFrame/schemas/deserializers/__init__.py": "valid",
+        "CellFrame/schemas/serializers/block.py": "valid",
+        "CellFrame/schemas/serializers/test_schema.py": "valid",
+        "CellFrame/schemas/serializers/__init__.py": "valid",
+        "CellFrame/schemas/serializers/event.py": "valid",
+        "CellFrame/schemas/serializers/chain.py": "valid",
+        "CellFrame/schemas/serializers/sign.py": "valid",
+        "CellFrame/schemas/serializers/datums.py": "valid",
+        "CellFrame/schemas/serializers/net.py": "valid",
+        "tests/test_runner_examples.py": "valid",
+        "tests/fixtures/mock_factories.py": "valid",
+        "tests/fixtures/conftest.py": "valid",
+        "tests/fixtures/__init__.py": "valid",
+        "tests/fixtures/examples.py": "valid",
+        "tests/e2e/test_wallet_lifecycle.py": "valid",
+        "tests/load/test_performance_stress.py": "valid",
+        "tests/functional/test_business_logic.py": "valid",
+        "tests/integration/test_cellframe_chain_integration.py": "valid",
+        "tests/security/test_security_validation.py": "valid",
+        "tests/regression/test_api_compatibility.py": "valid",
+        "tests/unit/legacy/test_backward_compatibility.py": "valid",
+        "tests/unit/composer/test_conditional_processors.py": "valid",
+        "tests/unit/composer/test_core.py": "valid",
+        "tests/unit/core/test_cellframe_node.py": "valid"
+      }
+    },
+    "imports": {
+      "status": "passed",
+      "files_checked": 87,
+      "import_errors": [],
+      "details": {
+        "CellFrame/__init__.py": "imports_ok",
+        "CellFrame/common.py": "imports_ok",
+        "CellFrame/types.py": "imports_ok",
+        "CellFrame/services/staking.py": "imports_ok",
+        "CellFrame/services/__init__.py": "imports_ok",
+        "CellFrame/network/__init__.py": "imports_ok",
+        "CellFrame/legacy/__init__.py": "imports_ok",
+        "CellFrame/composer/templates.py": "imports_ok",
+        "CellFrame/composer/core.py": "imports_ok",
+        "CellFrame/composer/__init__.py": "imports_ok",
+        "CellFrame/composer/conditional.py": "imports_ok",
+        "CellFrame/composer/exceptions.py": "imports_ok",
+        "CellFrame/composer/fee_optimizer.py": "imports_ok",
+        "CellFrame/composer/utils.py": "imports_ok",
+        "CellFrame/composer/batch_processor.py": "imports_ok",
+        "CellFrame/composer/cond/stake_lock.py": "imports_ok",
+        "CellFrame/composer/cond/delegation.py": "imports_ok",
+        "CellFrame/composer/cond/voting.py": "imports_ok",
+        "CellFrame/composer/cond/base.py": "imports_ok",
+        "CellFrame/composer/cond/__init__.py": "imports_ok",
+        "CellFrame/composer/cond/service_payment.py": "imports_ok",
+        "CellFrame/composer/cond/exchange.py": "imports_ok",
+        "CellFrame/composer/cond/unified.py": "imports_ok",
+        "CellFrame/helpers/logger.py": "imports_ok",
+        "CellFrame/helpers/cellframenet.py": "imports_ok",
+        "CellFrame/helpers/contract.py": "imports_ok",
+        "CellFrame/helpers/helpers.py": "imports_ok",
+        "CellFrame/core/__init__.py": "imports_ok",
+        "CellFrame/core/exceptions.py": "imports_ok",
+        "CellFrame/core/context.py": "imports_ok",
+        "CellFrame/tools/_types.py": "imports_ok",
+        "CellFrame/chain/ledger.py": "imports_ok",
+        "CellFrame/chain/tx_utils.py": "imports_ok",
+        "CellFrame/chain/emission.py": "imports_ok",
+        "CellFrame/chain/tx.py": "imports_ok",
+        "CellFrame/chain/__init__.py": "imports_ok",
+        "CellFrame/chain/wallet.py": "imports_ok",
+        "CellFrame/wallet/__init__.py": "imports_ok",
+        "CellFrame/migration/__init__.py": "imports_ok",
+        "CellFrame/migration/config_migration.py": "imports_ok",
+        "CellFrame/migration/__main__.py": "imports_ok",
+        "CellFrame/node/crypto.py": "imports_ok",
+        "CellFrame/node/gdb.py": "imports_ok",
+        "CellFrame/node/cli.py": "imports_ok",
+        "CellFrame/node/items.py": "imports_ok",
+        "CellFrame/node/__init__.py": "imports_ok",
+        "CellFrame/node/mappings.py": "imports_ok",
+        "CellFrame/node/exceptions.py": "imports_ok",
+        "CellFrame/node/datums.py": "imports_ok",
+        "CellFrame/node/net.py": "imports_ok",
+        "CellFrame/node/notificators.py": "imports_ok",
+        "CellFrame/node/types.py": "imports_ok",
+        "CellFrame/node/config.py": "imports_ok",
+        "CellFrame/node/math.py": "imports_ok",
+        "CellFrame/node/logging.py": "imports_ok",
+        "CellFrame/node/consensus.py": "imports_ok",
+        "CellFrame/node/srv/vote.py": "imports_ok",
+        "CellFrame/node/http/__init__.py": "imports_ok",
+        "CellFrame/node/http/tornado.py": "imports_ok",
+        "CellFrame/node/http/simple.py": "imports_ok",
+        "CellFrame/schemas/_common.py": "imports_ok",
+        "CellFrame/schemas/__init__.py": "imports_ok",
+        "CellFrame/schemas/shortcuts.py": "imports_ok",
+        "CellFrame/schemas/deserializers/__init__.py": "imports_ok",
+        "CellFrame/schemas/serializers/block.py": "imports_ok",
+        "CellFrame/schemas/serializers/test_schema.py": "imports_ok",
+        "CellFrame/schemas/serializers/__init__.py": "imports_ok",
+        "CellFrame/schemas/serializers/event.py": "imports_ok",
+        "CellFrame/schemas/serializers/chain.py": "imports_ok",
+        "CellFrame/schemas/serializers/sign.py": "imports_ok",
+        "CellFrame/schemas/serializers/datums.py": "imports_ok",
+        "CellFrame/schemas/serializers/net.py": "imports_ok",
+        "tests/test_runner_examples.py": "imports_ok",
+        "tests/fixtures/mock_factories.py": "imports_ok",
+        "tests/fixtures/conftest.py": "imports_ok",
+        "tests/fixtures/__init__.py": "imports_ok",
+        "tests/fixtures/examples.py": "imports_ok",
+        "tests/e2e/test_wallet_lifecycle.py": "imports_ok",
+        "tests/load/test_performance_stress.py": "imports_ok",
+        "tests/functional/test_business_logic.py": "imports_ok",
+        "tests/integration/test_cellframe_chain_integration.py": "imports_ok",
+        "tests/security/test_security_validation.py": "imports_ok",
+        "tests/regression/test_api_compatibility.py": "imports_ok",
+        "tests/unit/legacy/test_backward_compatibility.py": "imports_ok",
+        "tests/unit/composer/test_conditional_processors.py": "imports_ok",
+        "tests/unit/composer/test_core.py": "imports_ok",
+        "tests/unit/core/test_cellframe_node.py": "imports_ok"
+      }
+    },
+    "documentation": {
+      "status": "warning",
+      "files_checked": 151,
+      "missing_docstrings": [
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/setup.py",
+          "function": "read_readme",
+          "line": 9
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/setup.py",
+          "function": "read_requirements",
+          "line": 14
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/build/cellframe-sdk-embedded/dap-sdk/crypto/XKCP/xkcp_build_src/Standalone/KangarooTwelve/Python/K12.py",
+          "function": "right_encode",
+          "line": 13
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/build/cellframe-sdk-embedded/dap-sdk/crypto/XKCP/xkcp_build_src/Standalone/KangarooTwelve/Python/K12.py",
+          "function": "KangarooTwelve",
+          "line": 22
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/build/cellframe-sdk-embedded/dap-sdk/crypto/XKCP/xkcp_build_src/Standalone/KangarooTwelve/Python/K12-SIMD-simulation.py",
+          "function": "KeccakP1600timesN_SIMD",
+          "line": 53
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/build/cellframe-sdk-embedded/dap-sdk/crypto/XKCP/xkcp_build_src/Standalone/KangarooTwelve/Python/K12-SIMD-simulation.py",
+          "function": "KeccakP1600timesN_AddLanesAll",
+          "line": 122
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/build/cellframe-sdk-embedded/dap-sdk/crypto/XKCP/xkcp_build_src/Standalone/KangarooTwelve/Python/K12-SIMD-simulation.py",
+          "function": "KT128_ProcessLeaves",
+          "line": 162
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/build/cellframe-sdk-embedded/dap-sdk/crypto/XKCP/xkcp_build_src/Standalone/KangarooTwelve/Python/K12-SIMD-simulation.py",
+          "function": "KT256_ProcessLeaves",
+          "line": 198
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/build/cellframe-sdk-embedded/dap-sdk/crypto/XKCP/xkcp_build_src/Standalone/KangarooTwelve/Python/K12-SIMD-simulation.py",
+          "function": "KT128",
+          "line": 254
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/build/cellframe-sdk-embedded/dap-sdk/crypto/XKCP/xkcp_build_src/Standalone/KangarooTwelve/Python/K12-SIMD-simulation.py",
+          "function": "KT256",
+          "line": 297
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/build/cellframe-sdk-embedded/dap-sdk/crypto/XKCP/xkcp_build_src/Standalone/KangarooTwelve/Python/K12-SIMD-simulation.py",
+          "function": "Test_KeccakP1600timesN_SIMD",
+          "line": 338
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/build/cellframe-sdk-embedded/dap-sdk/crypto/XKCP/xkcp_build_src/Standalone/KangarooTwelve/Python/K12-SIMD-simulation.py",
+          "function": "Test_KT128_ProcessLeaves",
+          "line": 350
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/build/cellframe-sdk-embedded/dap-sdk/crypto/XKCP/xkcp_build_src/Standalone/KangarooTwelve/Python/K12-SIMD-simulation.py",
+          "function": "outputHex",
+          "line": 360
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/build/cellframe-sdk-embedded/dap-sdk/crypto/XKCP/xkcp_build_src/Standalone/KangarooTwelve/Python/K12-SIMD-simulation.py",
+          "function": "ptn",
+          "line": 368
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/build/cellframe-sdk-embedded/dap-sdk/crypto/XKCP/xkcp_build_src/Standalone/KangarooTwelve/Python/K12-SIMD-simulation.py",
+          "function": "printKT128TestVectors",
+          "line": 376
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/build/cellframe-sdk-embedded/dap-sdk/crypto/XKCP/xkcp_build_src/Standalone/KangarooTwelve/Python/K12-SIMD-simulation.py",
+          "function": "printKT256TestVectors",
+          "line": 394
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/build/cellframe-sdk-embedded/dap-sdk/crypto/XKCP/xkcp_build_src/Standalone/KangarooTwelve/Python/TestVectors.py",
+          "function": "outputHex",
+          "line": 14
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/build/cellframe-sdk-embedded/dap-sdk/crypto/XKCP/xkcp_build_src/Standalone/KangarooTwelve/Python/TestVectors.py",
+          "function": "printK12TestVectors",
+          "line": 20
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/build/cellframe-sdk-embedded/dap-sdk/crypto/XKCP/xkcp_build_src/Standalone/KangarooTwelve/Python/TestVectors.py",
+          "function": "printTurboSHAKETestVectors",
+          "line": 38
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/build/cellframe-sdk-embedded/dap-sdk/crypto/XKCP/xkcp_build_src/Standalone/KangarooTwelve/Python/TurboSHAKE.py",
+          "function": "ROL64",
+          "line": 11
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/build/cellframe-sdk-embedded/dap-sdk/crypto/XKCP/xkcp_build_src/Standalone/KangarooTwelve/Python/TurboSHAKE.py",
+          "function": "KeccakP1600onLanes",
+          "line": 14
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/build/cellframe-sdk-embedded/dap-sdk/crypto/XKCP/xkcp_build_src/Standalone/KangarooTwelve/Python/TurboSHAKE.py",
+          "function": "load64",
+          "line": 43
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/build/cellframe-sdk-embedded/dap-sdk/crypto/XKCP/xkcp_build_src/Standalone/KangarooTwelve/Python/TurboSHAKE.py",
+          "function": "store64",
+          "line": 46
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/build/cellframe-sdk-embedded/dap-sdk/crypto/XKCP/xkcp_build_src/Standalone/KangarooTwelve/Python/TurboSHAKE.py",
+          "function": "KeccakP1600",
+          "line": 49
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/build/cellframe-sdk-embedded/dap-sdk/crypto/XKCP/xkcp_build_src/Standalone/KangarooTwelve/Python/TurboSHAKE.py",
+          "function": "TurboSHAKE",
+          "line": 55
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/build/cellframe-sdk-embedded/dap-sdk/crypto/XKCP/xkcp_build_src/Standalone/KangarooTwelve/Python/TurboSHAKE.py",
+          "function": "TurboSHAKE128",
+          "line": 85
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/build/cellframe-sdk-embedded/dap-sdk/crypto/XKCP/xkcp_build_src/Standalone/KangarooTwelve/Python/TurboSHAKE.py",
+          "function": "TurboSHAKE256",
+          "line": 88
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/build/cellframe-sdk-embedded/dap-sdk/crypto/XKCP/xkcp_build_src/Standalone/CompactFIPS202/Python/CompactFIPS202.py",
+          "function": "ROL64",
+          "line": 11
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/build/cellframe-sdk-embedded/dap-sdk/crypto/XKCP/xkcp_build_src/Standalone/CompactFIPS202/Python/CompactFIPS202.py",
+          "function": "KeccakF1600onLanes",
+          "line": 14
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/build/cellframe-sdk-embedded/dap-sdk/crypto/XKCP/xkcp_build_src/Standalone/CompactFIPS202/Python/CompactFIPS202.py",
+          "function": "load64",
+          "line": 39
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/build/cellframe-sdk-embedded/dap-sdk/crypto/XKCP/xkcp_build_src/Standalone/CompactFIPS202/Python/CompactFIPS202.py",
+          "function": "store64",
+          "line": 42
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/build/cellframe-sdk-embedded/dap-sdk/crypto/XKCP/xkcp_build_src/Standalone/CompactFIPS202/Python/CompactFIPS202.py",
+          "function": "KeccakF1600",
+          "line": 45
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/build/cellframe-sdk-embedded/dap-sdk/crypto/XKCP/xkcp_build_src/Standalone/CompactFIPS202/Python/CompactFIPS202.py",
+          "function": "Keccak",
+          "line": 54
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/build/cellframe-sdk-embedded/dap-sdk/crypto/XKCP/xkcp_build_src/Standalone/CompactFIPS202/Python/CompactFIPS202.py",
+          "function": "SHAKE128",
+          "line": 86
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/build/cellframe-sdk-embedded/dap-sdk/crypto/XKCP/xkcp_build_src/Standalone/CompactFIPS202/Python/CompactFIPS202.py",
+          "function": "SHAKE256",
+          "line": 89
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/build/cellframe-sdk-embedded/dap-sdk/crypto/XKCP/xkcp_build_src/Standalone/CompactFIPS202/Python/CompactFIPS202.py",
+          "function": "SHA3_224",
+          "line": 92
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/build/cellframe-sdk-embedded/dap-sdk/crypto/XKCP/xkcp_build_src/Standalone/CompactFIPS202/Python/CompactFIPS202.py",
+          "function": "SHA3_256",
+          "line": 95
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/build/cellframe-sdk-embedded/dap-sdk/crypto/XKCP/xkcp_build_src/Standalone/CompactFIPS202/Python/CompactFIPS202.py",
+          "function": "SHA3_384",
+          "line": 98
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/build/cellframe-sdk-embedded/dap-sdk/crypto/XKCP/xkcp_build_src/Standalone/CompactFIPS202/Python/CompactFIPS202.py",
+          "function": "SHA3_512",
+          "line": 101
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/build/cellframe-sdk-embedded/dap-sdk/crypto/XKCP/xkcp_build_src/Standalone/CompactFIPS202/Python/CompactFIPS202_numpy.py",
+          "function": "KeccakF1600",
+          "line": 55
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/build/cellframe-sdk-embedded/dap-sdk/crypto/XKCP/xkcp_build_src/Standalone/CompactFIPS202/Python/CompactFIPS202_numpy.py",
+          "function": "Keccak",
+          "line": 81
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/build/cellframe-sdk-embedded/dap-sdk/crypto/XKCP/xkcp_build_src/Standalone/CompactFIPS202/Python/CompactFIPS202_numpy.py",
+          "function": "SHAKE128",
+          "line": 113
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/build/cellframe-sdk-embedded/dap-sdk/crypto/XKCP/xkcp_build_src/Standalone/CompactFIPS202/Python/CompactFIPS202_numpy.py",
+          "function": "SHAKE256",
+          "line": 116
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/build/cellframe-sdk-embedded/dap-sdk/crypto/XKCP/xkcp_build_src/Standalone/CompactFIPS202/Python/CompactFIPS202_numpy.py",
+          "function": "SHA3_224",
+          "line": 119
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/build/cellframe-sdk-embedded/dap-sdk/crypto/XKCP/xkcp_build_src/Standalone/CompactFIPS202/Python/CompactFIPS202_numpy.py",
+          "function": "SHA3_256",
+          "line": 122
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/build/cellframe-sdk-embedded/dap-sdk/crypto/XKCP/xkcp_build_src/Standalone/CompactFIPS202/Python/CompactFIPS202_numpy.py",
+          "function": "SHA3_384",
+          "line": 125
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/build/cellframe-sdk-embedded/dap-sdk/crypto/XKCP/xkcp_build_src/Standalone/CompactFIPS202/Python/CompactFIPS202_numpy.py",
+          "function": "SHA3_512",
+          "line": 128
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/cellframe-sdk/3rdparty/monero_crypto/crypto_ops_builder/ref10CommentedCombined/d.py",
+          "function": "expmod",
+          "line": 3
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/cellframe-sdk/3rdparty/monero_crypto/crypto_ops_builder/ref10CommentedCombined/d.py",
+          "function": "inv",
+          "line": 9
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/cellframe-sdk/3rdparty/monero_crypto/crypto_ops_builder/ref10CommentedCombined/d.py",
+          "function": "radix255",
+          "line": 12
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/cellframe-sdk/3rdparty/monero_crypto/crypto_ops_builder/ref10CommentedCombined/base.py",
+          "function": "expmod",
+          "line": 5
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/cellframe-sdk/3rdparty/monero_crypto/crypto_ops_builder/ref10CommentedCombined/base.py",
+          "function": "inv",
+          "line": 11
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/cellframe-sdk/3rdparty/monero_crypto/crypto_ops_builder/ref10CommentedCombined/base.py",
+          "function": "xrecover",
+          "line": 17
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/cellframe-sdk/3rdparty/monero_crypto/crypto_ops_builder/ref10CommentedCombined/base.py",
+          "function": "edwards",
+          "line": 28
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/cellframe-sdk/3rdparty/monero_crypto/crypto_ops_builder/ref10CommentedCombined/base.py",
+          "function": "radix255",
+          "line": 37
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/cellframe-sdk/3rdparty/monero_crypto/crypto_ops_builder/ref10CommentedCombined/d2.py",
+          "function": "expmod",
+          "line": 3
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/cellframe-sdk/3rdparty/monero_crypto/crypto_ops_builder/ref10CommentedCombined/d2.py",
+          "function": "inv",
+          "line": 9
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/cellframe-sdk/3rdparty/monero_crypto/crypto_ops_builder/ref10CommentedCombined/d2.py",
+          "function": "radix255",
+          "line": 12
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/cellframe-sdk/3rdparty/monero_crypto/crypto_ops_builder/ref10CommentedCombined/sqrtm1.py",
+          "function": "expmod",
+          "line": 3
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/cellframe-sdk/3rdparty/monero_crypto/crypto_ops_builder/ref10CommentedCombined/sqrtm1.py",
+          "function": "inv",
+          "line": 9
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/cellframe-sdk/3rdparty/monero_crypto/crypto_ops_builder/ref10CommentedCombined/sqrtm1.py",
+          "function": "radix255",
+          "line": 12
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/cellframe-sdk/3rdparty/monero_crypto/crypto_ops_builder/ref10CommentedCombined/MakeCryptoOps.py",
+          "function": "qhasmToC",
+          "line": 141
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/cellframe-sdk/3rdparty/monero_crypto/crypto_ops_builder/ref10CommentedCombined/base2.py",
+          "function": "expmod",
+          "line": 5
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/cellframe-sdk/3rdparty/monero_crypto/crypto_ops_builder/ref10CommentedCombined/base2.py",
+          "function": "inv",
+          "line": 11
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/cellframe-sdk/3rdparty/monero_crypto/crypto_ops_builder/ref10CommentedCombined/base2.py",
+          "function": "xrecover",
+          "line": 17
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/cellframe-sdk/3rdparty/monero_crypto/crypto_ops_builder/ref10CommentedCombined/base2.py",
+          "function": "edwards",
+          "line": 28
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/cellframe-sdk/3rdparty/monero_crypto/crypto_ops_builder/ref10CommentedCombined/base2.py",
+          "function": "radix255",
+          "line": 37
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/cellframe-sdk/3rdparty/monero_crypto/crypto_ops_builder/ref10/d.py",
+          "function": "expmod",
+          "line": 3
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/cellframe-sdk/3rdparty/monero_crypto/crypto_ops_builder/ref10/d.py",
+          "function": "inv",
+          "line": 9
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/cellframe-sdk/3rdparty/monero_crypto/crypto_ops_builder/ref10/d.py",
+          "function": "radix255",
+          "line": 12
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/cellframe-sdk/3rdparty/monero_crypto/crypto_ops_builder/ref10/base.py",
+          "function": "expmod",
+          "line": 5
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/cellframe-sdk/3rdparty/monero_crypto/crypto_ops_builder/ref10/base.py",
+          "function": "inv",
+          "line": 11
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/cellframe-sdk/3rdparty/monero_crypto/crypto_ops_builder/ref10/base.py",
+          "function": "xrecover",
+          "line": 17
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/cellframe-sdk/3rdparty/monero_crypto/crypto_ops_builder/ref10/base.py",
+          "function": "edwards",
+          "line": 28
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/cellframe-sdk/3rdparty/monero_crypto/crypto_ops_builder/ref10/base.py",
+          "function": "radix255",
+          "line": 37
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/cellframe-sdk/3rdparty/monero_crypto/crypto_ops_builder/ref10/d2.py",
+          "function": "expmod",
+          "line": 3
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/cellframe-sdk/3rdparty/monero_crypto/crypto_ops_builder/ref10/d2.py",
+          "function": "inv",
+          "line": 9
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/cellframe-sdk/3rdparty/monero_crypto/crypto_ops_builder/ref10/d2.py",
+          "function": "radix255",
+          "line": 12
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/cellframe-sdk/3rdparty/monero_crypto/crypto_ops_builder/ref10/sqrtm1.py",
+          "function": "expmod",
+          "line": 3
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/cellframe-sdk/3rdparty/monero_crypto/crypto_ops_builder/ref10/sqrtm1.py",
+          "function": "inv",
+          "line": 9
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/cellframe-sdk/3rdparty/monero_crypto/crypto_ops_builder/ref10/sqrtm1.py",
+          "function": "radix255",
+          "line": 12
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/cellframe-sdk/3rdparty/monero_crypto/crypto_ops_builder/ref10/base2.py",
+          "function": "expmod",
+          "line": 5
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/cellframe-sdk/3rdparty/monero_crypto/crypto_ops_builder/ref10/base2.py",
+          "function": "inv",
+          "line": 11
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/cellframe-sdk/3rdparty/monero_crypto/crypto_ops_builder/ref10/base2.py",
+          "function": "xrecover",
+          "line": 17
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/cellframe-sdk/3rdparty/monero_crypto/crypto_ops_builder/ref10/base2.py",
+          "function": "edwards",
+          "line": 28
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/cellframe-sdk/3rdparty/monero_crypto/crypto_ops_builder/ref10/base2.py",
+          "function": "radix255",
+          "line": 37
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/.context/tools/cli_modules/core/unified_context_engine.py",
+          "function": "main",
+          "line": 560
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/.context/tools/cli_modules/core/performance_optimizer.py",
+          "function": "wrapper",
+          "line": 138
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/.context/tools/cli_modules/core/advanced_template_intelligence.py",
+          "function": "record_template_usage",
+          "line": 209
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/.context/tools/cli_modules/core/advanced_template_intelligence.py",
+          "function": "get_intelligent_recommendations",
+          "line": 316
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/.context/tools/cli_modules/core/advanced_template_intelligence.py",
+          "function": "generate_adaptive_template",
+          "line": 360
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/.context/tools/cli_modules/core/project_generator.py",
+          "function": "create_project",
+          "line": 21
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/.context/tools/cli_modules/commands/help_commands.py",
+          "function": "name",
+          "line": 41
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/.context/tools/cli_modules/commands/help_commands.py",
+          "function": "description",
+          "line": 45
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/.context/tools/cli_modules/commands/help_commands.py",
+          "function": "add_arguments",
+          "line": 48
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/.context/tools/cli_modules/commands/help_commands.py",
+          "function": "name",
+          "line": 462
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/.context/tools/cli_modules/commands/help_commands.py",
+          "function": "description",
+          "line": 466
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/.context/tools/cli_modules/commands/help_commands.py",
+          "function": "add_arguments",
+          "line": 469
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/.context/tools/cli_modules/commands/template_commands.py",
+          "function": "name",
+          "line": 32
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/.context/tools/cli_modules/commands/template_commands.py",
+          "function": "description",
+          "line": 36
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/.context/tools/cli_modules/commands/template_commands.py",
+          "function": "add_arguments",
+          "line": 39
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/.context/tools/cli_modules/commands/template_commands.py",
+          "function": "name",
+          "line": 86
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/.context/tools/cli_modules/commands/template_commands.py",
+          "function": "description",
+          "line": 90
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/.context/tools/cli_modules/commands/template_commands.py",
+          "function": "add_arguments",
+          "line": 93
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/.context/tools/cli_modules/commands/template_commands.py",
+          "function": "name",
+          "line": 143
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/.context/tools/cli_modules/commands/template_commands.py",
+          "function": "description",
+          "line": 147
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/.context/tools/cli_modules/commands/template_commands.py",
+          "function": "add_arguments",
+          "line": 150
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/.context/tools/cli_modules/commands/template_commands.py",
+          "function": "name",
+          "line": 209
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/.context/tools/cli_modules/commands/template_commands.py",
+          "function": "description",
+          "line": 213
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/.context/tools/cli_modules/commands/template_commands.py",
+          "function": "add_arguments",
+          "line": 216
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/.context/tools/cli_modules/commands/context_commands.py",
+          "function": "name",
+          "line": 447
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/.context/tools/cli_modules/commands/context_commands.py",
+          "function": "description",
+          "line": 451
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/.context/tools/cli_modules/commands/context_commands.py",
+          "function": "name",
+          "line": 609
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/.context/tools/cli_modules/commands/context_commands.py",
+          "function": "description",
+          "line": 613
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/.context/tools/cli_modules/commands/self_development_commands.py",
+          "function": "name",
+          "line": 32
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/.context/tools/cli_modules/commands/self_development_commands.py",
+          "function": "description",
+          "line": 36
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/.context/tools/cli_modules/commands/self_development_commands.py",
+          "function": "add_arguments",
+          "line": 39
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/.context/tools/cli_modules/commands/ai_commands.py",
+          "function": "name",
+          "line": 510
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/.context/tools/cli_modules/commands/ai_commands.py",
+          "function": "description",
+          "line": 514
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/.context/tools/cli_modules/commands/task_commands.py",
+          "function": "name",
+          "line": 36
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/.context/tools/cli_modules/commands/task_commands.py",
+          "function": "description",
+          "line": 40
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/.context/tools/cli_modules/commands/task_commands.py",
+          "function": "add_arguments",
+          "line": 43
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/.context/tools/cli_modules/commands/task_commands.py",
+          "function": "name",
+          "line": 554
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/.context/tools/cli_modules/commands/task_commands.py",
+          "function": "description",
+          "line": 558
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/.context/tools/cli_modules/commands/task_commands.py",
+          "function": "add_arguments",
+          "line": 561
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/.context/tools/cli_modules/commands/organization_commands.py",
+          "function": "name",
+          "line": 37
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/.context/tools/cli_modules/commands/organization_commands.py",
+          "function": "description",
+          "line": 41
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/.context/tools/cli_modules/commands/reflection_commands.py",
+          "function": "name",
+          "line": 30
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/.context/tools/cli_modules/commands/reflection_commands.py",
+          "function": "description",
+          "line": 34
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/.context/tools/cli_modules/commands/reflection_commands.py",
+          "function": "add_arguments",
+          "line": 37
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/.context/tools/cli_modules/commands/management_commands.py",
+          "function": "name",
+          "line": 24
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/.context/tools/cli_modules/commands/management_commands.py",
+          "function": "description",
+          "line": 28
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/.context/tools/cli_modules/commands/management_commands.py",
+          "function": "add_arguments",
+          "line": 31
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/.context/tools/cli_modules/commands/management_commands.py",
+          "function": "name",
+          "line": 218
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/.context/tools/cli_modules/commands/management_commands.py",
+          "function": "description",
+          "line": 222
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/.context/tools/cli_modules/commands/management_commands.py",
+          "function": "add_arguments",
+          "line": 225
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/.context/tools/cli_modules/commands/management_commands.py",
+          "function": "name",
+          "line": 463
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/.context/tools/cli_modules/commands/management_commands.py",
+          "function": "description",
+          "line": 467
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/.context/tools/cli_modules/commands/management_commands.py",
+          "function": "add_arguments",
+          "line": 470
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/.context/tools/cli_modules/commands/management_commands.py",
+          "function": "name",
+          "line": 578
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/.context/tools/cli_modules/commands/management_commands.py",
+          "function": "description",
+          "line": 582
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/.context/tools/cli_modules/commands/management_commands.py",
+          "function": "add_arguments",
+          "line": 585
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/.context/tools/cli_modules/commands/management_commands.py",
+          "function": "get_default_context_files",
+          "line": 593
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/.context/tools/cli_modules/commands/template_intelligence_commands.py",
+          "function": "name",
+          "line": 41
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/.context/tools/cli_modules/commands/template_intelligence_commands.py",
+          "function": "description",
+          "line": 45
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/.context/tools/cli_modules/commands/template_intelligence_commands.py",
+          "function": "add_arguments",
+          "line": 48
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/.context/tools/cli_modules/commands/template_intelligence_commands.py",
+          "function": "execute",
+          "line": 60
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/.context/tools/cli_modules/commands/template_intelligence_commands.py",
+          "function": "name",
+          "line": 132
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/.context/tools/cli_modules/commands/template_intelligence_commands.py",
+          "function": "description",
+          "line": 136
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/.context/tools/cli_modules/commands/template_intelligence_commands.py",
+          "function": "add_arguments",
+          "line": 139
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/.context/tools/cli_modules/commands/template_intelligence_commands.py",
+          "function": "execute",
+          "line": 152
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/.context/tools/cli_modules/commands/template_intelligence_commands.py",
+          "function": "name",
+          "line": 220
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/.context/tools/cli_modules/commands/template_intelligence_commands.py",
+          "function": "description",
+          "line": 224
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/.context/tools/cli_modules/commands/template_intelligence_commands.py",
+          "function": "add_arguments",
+          "line": 227
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/.context/tools/cli_modules/commands/template_intelligence_commands.py",
+          "function": "execute",
+          "line": 231
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/.context/tools/cli_modules/commands/template_intelligence_commands.py",
+          "function": "name",
+          "line": 291
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/.context/tools/cli_modules/commands/template_intelligence_commands.py",
+          "function": "description",
+          "line": 295
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/.context/tools/cli_modules/commands/template_intelligence_commands.py",
+          "function": "add_arguments",
+          "line": 298
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/.context/tools/cli_modules/commands/template_intelligence_commands.py",
+          "function": "name",
+          "line": 440
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/.context/tools/cli_modules/commands/template_intelligence_commands.py",
+          "function": "description",
+          "line": 444
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/.context/tools/cli_modules/commands/template_intelligence_commands.py",
+          "function": "add_arguments",
+          "line": 447
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/.context/tools/cli_modules/commands/template_intelligence_commands.py",
+          "function": "execute",
+          "line": 458
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/.context/tools/cli_modules/commands/evolution_commands.py",
+          "function": "name",
+          "line": 42
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/.context/tools/cli_modules/commands/evolution_commands.py",
+          "function": "description",
+          "line": 46
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/.context/tools/cli_modules/commands/evolution_commands.py",
+          "function": "add_arguments",
+          "line": 49
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/.context/tools/cli_modules/commands/evolution_commands.py",
+          "function": "name",
+          "line": 346
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/.context/tools/cli_modules/commands/evolution_commands.py",
+          "function": "description",
+          "line": 350
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/.context/tools/cli_modules/commands/evolution_commands.py",
+          "function": "add_arguments",
+          "line": 353
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/.context/tools/cli_modules/commands/evolution_commands.py",
+          "function": "name",
+          "line": 561
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/.context/tools/cli_modules/commands/evolution_commands.py",
+          "function": "description",
+          "line": 565
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/.context/tools/cli_modules/commands/evolution_commands.py",
+          "function": "add_arguments",
+          "line": 568
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/.context/tools/cli_modules/commands/deployment_commands.py",
+          "function": "name",
+          "line": 37
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/.context/tools/cli_modules/commands/deployment_commands.py",
+          "function": "description",
+          "line": 41
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/.context/tools/cli_modules/commands/deployment_commands.py",
+          "function": "name",
+          "line": 98
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/.context/tools/cli_modules/commands/deployment_commands.py",
+          "function": "description",
+          "line": 102
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/.context/tools/cli_modules/commands/deployment_commands.py",
+          "function": "add_arguments",
+          "line": 105
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/.context/tools/cli_modules/commands/deployment_commands.py",
+          "function": "get_default_context_files",
+          "line": 131
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/.context/tools/cli_modules/common/context_output.py",
+          "function": "create_context_output",
+          "line": 23
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/.context/tools/cli_modules/common/context_output.py",
+          "function": "with_context_output",
+          "line": 95
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/.context/tools/cli_modules/common/context_output.py",
+          "function": "reflection_command",
+          "line": 108
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/.context/tools/cli_modules/common/context_output.py",
+          "function": "decorator",
+          "line": 111
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/.context/tools/cli_modules/common/context_output.py",
+          "function": "wrapper",
+          "line": 112
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/.context/tools/cli_modules/common/base_command.py",
+          "function": "handle_json_context_output",
+          "line": 91
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/.context/tools/scripts/update_navigation_system.py",
+          "function": "main",
+          "line": 262
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/.context/tools/scripts/enforce_architecture_rules.py",
+          "function": "main",
+          "line": 188
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/python-dap/dap-sdk/crypto/XKCP/Standalone/KangarooTwelve/Python/K12.py",
+          "function": "right_encode",
+          "line": 13
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/python-dap/dap-sdk/crypto/XKCP/Standalone/KangarooTwelve/Python/K12.py",
+          "function": "KangarooTwelve",
+          "line": 22
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/python-dap/dap-sdk/crypto/XKCP/Standalone/KangarooTwelve/Python/K12-SIMD-simulation.py",
+          "function": "KeccakP1600timesN_SIMD",
+          "line": 53
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/python-dap/dap-sdk/crypto/XKCP/Standalone/KangarooTwelve/Python/K12-SIMD-simulation.py",
+          "function": "KeccakP1600timesN_AddLanesAll",
+          "line": 122
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/python-dap/dap-sdk/crypto/XKCP/Standalone/KangarooTwelve/Python/K12-SIMD-simulation.py",
+          "function": "KT128_ProcessLeaves",
+          "line": 162
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/python-dap/dap-sdk/crypto/XKCP/Standalone/KangarooTwelve/Python/K12-SIMD-simulation.py",
+          "function": "KT256_ProcessLeaves",
+          "line": 198
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/python-dap/dap-sdk/crypto/XKCP/Standalone/KangarooTwelve/Python/K12-SIMD-simulation.py",
+          "function": "KT128",
+          "line": 254
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/python-dap/dap-sdk/crypto/XKCP/Standalone/KangarooTwelve/Python/K12-SIMD-simulation.py",
+          "function": "KT256",
+          "line": 297
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/python-dap/dap-sdk/crypto/XKCP/Standalone/KangarooTwelve/Python/K12-SIMD-simulation.py",
+          "function": "Test_KeccakP1600timesN_SIMD",
+          "line": 338
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/python-dap/dap-sdk/crypto/XKCP/Standalone/KangarooTwelve/Python/K12-SIMD-simulation.py",
+          "function": "Test_KT128_ProcessLeaves",
+          "line": 350
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/python-dap/dap-sdk/crypto/XKCP/Standalone/KangarooTwelve/Python/K12-SIMD-simulation.py",
+          "function": "outputHex",
+          "line": 360
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/python-dap/dap-sdk/crypto/XKCP/Standalone/KangarooTwelve/Python/K12-SIMD-simulation.py",
+          "function": "ptn",
+          "line": 368
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/python-dap/dap-sdk/crypto/XKCP/Standalone/KangarooTwelve/Python/K12-SIMD-simulation.py",
+          "function": "printKT128TestVectors",
+          "line": 376
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/python-dap/dap-sdk/crypto/XKCP/Standalone/KangarooTwelve/Python/K12-SIMD-simulation.py",
+          "function": "printKT256TestVectors",
+          "line": 394
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/python-dap/dap-sdk/crypto/XKCP/Standalone/KangarooTwelve/Python/TestVectors.py",
+          "function": "outputHex",
+          "line": 14
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/python-dap/dap-sdk/crypto/XKCP/Standalone/KangarooTwelve/Python/TestVectors.py",
+          "function": "printK12TestVectors",
+          "line": 20
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/python-dap/dap-sdk/crypto/XKCP/Standalone/KangarooTwelve/Python/TestVectors.py",
+          "function": "printTurboSHAKETestVectors",
+          "line": 38
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/python-dap/dap-sdk/crypto/XKCP/Standalone/KangarooTwelve/Python/TurboSHAKE.py",
+          "function": "ROL64",
+          "line": 11
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/python-dap/dap-sdk/crypto/XKCP/Standalone/KangarooTwelve/Python/TurboSHAKE.py",
+          "function": "KeccakP1600onLanes",
+          "line": 14
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/python-dap/dap-sdk/crypto/XKCP/Standalone/KangarooTwelve/Python/TurboSHAKE.py",
+          "function": "load64",
+          "line": 43
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/python-dap/dap-sdk/crypto/XKCP/Standalone/KangarooTwelve/Python/TurboSHAKE.py",
+          "function": "store64",
+          "line": 46
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/python-dap/dap-sdk/crypto/XKCP/Standalone/KangarooTwelve/Python/TurboSHAKE.py",
+          "function": "KeccakP1600",
+          "line": 49
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/python-dap/dap-sdk/crypto/XKCP/Standalone/KangarooTwelve/Python/TurboSHAKE.py",
+          "function": "TurboSHAKE",
+          "line": 55
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/python-dap/dap-sdk/crypto/XKCP/Standalone/KangarooTwelve/Python/TurboSHAKE.py",
+          "function": "TurboSHAKE128",
+          "line": 85
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/python-dap/dap-sdk/crypto/XKCP/Standalone/KangarooTwelve/Python/TurboSHAKE.py",
+          "function": "TurboSHAKE256",
+          "line": 88
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/python-dap/dap-sdk/crypto/XKCP/Standalone/CompactFIPS202/Python/CompactFIPS202.py",
+          "function": "ROL64",
+          "line": 11
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/python-dap/dap-sdk/crypto/XKCP/Standalone/CompactFIPS202/Python/CompactFIPS202.py",
+          "function": "KeccakF1600onLanes",
+          "line": 14
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/python-dap/dap-sdk/crypto/XKCP/Standalone/CompactFIPS202/Python/CompactFIPS202.py",
+          "function": "load64",
+          "line": 39
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/python-dap/dap-sdk/crypto/XKCP/Standalone/CompactFIPS202/Python/CompactFIPS202.py",
+          "function": "store64",
+          "line": 42
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/python-dap/dap-sdk/crypto/XKCP/Standalone/CompactFIPS202/Python/CompactFIPS202.py",
+          "function": "KeccakF1600",
+          "line": 45
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/python-dap/dap-sdk/crypto/XKCP/Standalone/CompactFIPS202/Python/CompactFIPS202.py",
+          "function": "Keccak",
+          "line": 54
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/python-dap/dap-sdk/crypto/XKCP/Standalone/CompactFIPS202/Python/CompactFIPS202.py",
+          "function": "SHAKE128",
+          "line": 86
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/python-dap/dap-sdk/crypto/XKCP/Standalone/CompactFIPS202/Python/CompactFIPS202.py",
+          "function": "SHAKE256",
+          "line": 89
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/python-dap/dap-sdk/crypto/XKCP/Standalone/CompactFIPS202/Python/CompactFIPS202.py",
+          "function": "SHA3_224",
+          "line": 92
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/python-dap/dap-sdk/crypto/XKCP/Standalone/CompactFIPS202/Python/CompactFIPS202.py",
+          "function": "SHA3_256",
+          "line": 95
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/python-dap/dap-sdk/crypto/XKCP/Standalone/CompactFIPS202/Python/CompactFIPS202.py",
+          "function": "SHA3_384",
+          "line": 98
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/python-dap/dap-sdk/crypto/XKCP/Standalone/CompactFIPS202/Python/CompactFIPS202.py",
+          "function": "SHA3_512",
+          "line": 101
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/python-dap/dap-sdk/crypto/XKCP/Standalone/CompactFIPS202/Python/CompactFIPS202_numpy.py",
+          "function": "KeccakF1600",
+          "line": 55
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/python-dap/dap-sdk/crypto/XKCP/Standalone/CompactFIPS202/Python/CompactFIPS202_numpy.py",
+          "function": "Keccak",
+          "line": 81
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/python-dap/dap-sdk/crypto/XKCP/Standalone/CompactFIPS202/Python/CompactFIPS202_numpy.py",
+          "function": "SHAKE128",
+          "line": 113
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/python-dap/dap-sdk/crypto/XKCP/Standalone/CompactFIPS202/Python/CompactFIPS202_numpy.py",
+          "function": "SHAKE256",
+          "line": 116
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/python-dap/dap-sdk/crypto/XKCP/Standalone/CompactFIPS202/Python/CompactFIPS202_numpy.py",
+          "function": "SHA3_224",
+          "line": 119
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/python-dap/dap-sdk/crypto/XKCP/Standalone/CompactFIPS202/Python/CompactFIPS202_numpy.py",
+          "function": "SHA3_256",
+          "line": 122
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/python-dap/dap-sdk/crypto/XKCP/Standalone/CompactFIPS202/Python/CompactFIPS202_numpy.py",
+          "function": "SHA3_384",
+          "line": 125
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/python-dap/dap-sdk/crypto/XKCP/Standalone/CompactFIPS202/Python/CompactFIPS202_numpy.py",
+          "function": "SHA3_512",
+          "line": 128
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/python-dap/dap/network/http.py",
+          "function": "request",
+          "line": 371
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/python-dap/dap/network/http.py",
+          "function": "post",
+          "line": 437
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/python-dap/dap/network/http.py",
+          "function": "put",
+          "line": 442
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/python-dap/dap/network/http.py",
+          "function": "quick_post",
+          "line": 578
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/python-dap/dap/network/stream.py",
+          "function": "on_data_received",
+          "line": 238
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/python-dap/dap/network/stream.py",
+          "function": "set_callbacks",
+          "line": 445
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/python-dap/dap/network/net.py",
+          "function": "create_network",
+          "line": 273
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/python-dap/dap/network/server.py",
+          "function": "handle_status",
+          "line": 89
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/python-dap/dap/network/server.py",
+          "function": "set_callbacks",
+          "line": 408
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/python-dap/dap/core/exceptions.py",
+          "function": "create_exception_from_error_code",
+          "line": 275
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/python-dap/dap/common/json_utils.py",
+          "function": "json_save_file",
+          "line": 120
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/python-dap/dap/crypto/enc.py",
+          "function": "quick_encrypt",
+          "line": 170
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/python-dap/dap/crypto/enc.py",
+          "function": "quick_decrypt",
+          "line": 177
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/python-dap/dap/crypto/sign.py",
+          "function": "create_from_key_and_data",
+          "line": 86
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/python-dap/dap/crypto/sign.py",
+          "function": "aggregate_signatures",
+          "line": 274
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/python-dap/dap/crypto/sign.py",
+          "function": "verify_aggregated",
+          "line": 310
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/python-dap/dap/crypto/sign.py",
+          "function": "verify_multi",
+          "line": 382
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/python-dap/dap/crypto/sign.py",
+          "function": "quick_verify",
+          "line": 420
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/python-dap/dap/crypto/hash.py",
+          "function": "dap_hash_fast",
+          "line": 19
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/python-dap/dap/crypto/hash.py",
+          "function": "dap_hash_slow",
+          "line": 20
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/python-dap/dap/crypto/cert.py",
+          "function": "generate",
+          "line": 52
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/python-dap/dap/crypto/cert.py",
+          "function": "create_from_key",
+          "line": 121
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/scripts/validation_runner.py",
+          "function": "run_comprehensive_validation",
+          "line": 407
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/scripts/auto_fixer.py",
+          "function": "apply_auto_fixes",
+          "line": 378
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/scripts/static_analysis.py",
+          "function": "analyze_project",
+          "line": 385
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/services/staking.py",
+          "function": "dap_chain_net_srv_stake_pos_delegate_init",
+          "line": 38
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/services/staking.py",
+          "function": "dap_chain_net_srv_stake_pos_delegate_create",
+          "line": 39
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/services/staking.py",
+          "function": "dap_chain_net_srv_stake_pos_delegate_stake",
+          "line": 40
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/services/staking.py",
+          "function": "dap_chain_net_srv_stake_pos_delegate_unstake",
+          "line": 41
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/services/staking.py",
+          "function": "dap_chain_net_srv_stake_pos_delegate_get_rewards",
+          "line": 42
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/services/staking.py",
+          "function": "dap_chain_net_srv_stake_pos_delegate_get_validators",
+          "line": 43
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/services/staking.py",
+          "function": "dap_chain_net_srv_stake_pos_delegate_get_delegations",
+          "line": 44
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/services/staking.py",
+          "function": "dap_chain_net_srv_stake_pos_delegate_deinit",
+          "line": 45
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/composer/templates.py",
+          "function": "create_batch_from_template",
+          "line": 341
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/composer/core.py",
+          "function": "select_inputs",
+          "line": 267
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/composer/core.py",
+          "function": "create_tx",
+          "line": 322
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/composer/fee_optimizer.py",
+          "function": "optimize_fees",
+          "line": 54
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/composer/fee_optimizer.py",
+          "function": "estimate_fee",
+          "line": 101
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/composer/fee_optimizer.py",
+          "function": "calculate_optimal_input_selection",
+          "line": 211
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/composer/utils.py",
+          "function": "quick_transfer",
+          "line": 44
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/composer/utils.py",
+          "function": "quick_exchange",
+          "line": 76
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/composer/utils.py",
+          "function": "quick_stake_lock",
+          "line": 106
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/composer/utils.py",
+          "function": "quick_batch_transfers",
+          "line": 136
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/composer/utils.py",
+          "function": "estimate_transaction_fee",
+          "line": 173
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/composer/batch_processor.py",
+          "function": "create_batch_transactions",
+          "line": 47
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/composer/cond/stake_lock.py",
+          "function": "create_stake_lock_order",
+          "line": 67
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/composer/cond/stake_lock.py",
+          "function": "get_stake_lock_history",
+          "line": 218
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/composer/cond/delegation.py",
+          "function": "create_delegation",
+          "line": 64
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/composer/cond/delegation.py",
+          "function": "redelegate",
+          "line": 109
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/composer/cond/voting.py",
+          "function": "create_voting_proposal",
+          "line": 98
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/composer/cond/voting.py",
+          "function": "create_vote_transaction",
+          "line": 123
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/composer/cond/voting.py",
+          "function": "create_simple_voting",
+          "line": 145
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/composer/cond/voting.py",
+          "function": "create_multiple_choice_voting",
+          "line": 168
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/composer/cond/service_payment.py",
+          "function": "create_service_payment",
+          "line": 66
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/composer/cond/service_payment.py",
+          "function": "create_storage_payment",
+          "line": 92
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/composer/cond/service_payment.py",
+          "function": "create_compute_payment",
+          "line": 117
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/composer/cond/service_payment.py",
+          "function": "create_bandwidth_payment",
+          "line": 142
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/composer/cond/exchange.py",
+          "function": "create_exchange_order",
+          "line": 66
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/composer/cond/exchange.py",
+          "function": "create_market_order",
+          "line": 92
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/composer/cond/exchange.py",
+          "function": "create_limit_order",
+          "line": 117
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/composer/cond/unified.py",
+          "function": "create_conditional_transaction",
+          "line": 63
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/composer/cond/unified.py",
+          "function": "create_exchange_order",
+          "line": 101
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/composer/cond/unified.py",
+          "function": "create_stake_lock_order",
+          "line": 109
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/composer/cond/unified.py",
+          "function": "create_voting_proposal",
+          "line": 116
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/helpers/logger.py",
+          "function": "debug",
+          "line": 27
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/helpers/logger.py",
+          "function": "info",
+          "line": 30
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/helpers/logger.py",
+          "function": "notice",
+          "line": 33
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/helpers/logger.py",
+          "function": "message",
+          "line": 36
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/helpers/logger.py",
+          "function": "warning",
+          "line": 39
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/helpers/logger.py",
+          "function": "error",
+          "line": 42
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/helpers/logger.py",
+          "function": "critical",
+          "line": 45
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/helpers/cellframenet.py",
+          "function": "callback_wraper",
+          "line": 401
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/helpers/cellframenet.py",
+          "function": "callback_wraper",
+          "line": 422
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/helpers/cellframenet.py",
+          "function": "callback_wraper",
+          "line": 440
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/helpers/cellframenet.py",
+          "function": "callback_wrapper",
+          "line": 454
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/helpers/cellframenet.py",
+          "function": "callback_wrapper",
+          "line": 468
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/helpers/cellframenet.py",
+          "function": "nextBlockDatums",
+          "line": 689
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/helpers/cellframenet.py",
+          "function": "isDatumToAddress",
+          "line": 706
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/helpers/contract.py",
+          "function": "geth_poa_middleware",
+          "line": 10
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/core/exceptions.py",
+          "function": "format_exception_context",
+          "line": 41
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/core/exceptions.py",
+          "function": "create_exception_from_error_code",
+          "line": 332
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/core/context.py",
+          "function": "create_context",
+          "line": 566
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/core/context.py",
+          "function": "initialize_context",
+          "line": 639
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/chain/ledger.py",
+          "function": "to_dict",
+          "line": 86
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/chain/ledger.py",
+          "function": "to_dict",
+          "line": 141
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/chain/ledger.py",
+          "function": "get_balance_full",
+          "line": 253
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/chain/ledger.py",
+          "function": "find_transactions_by_address",
+          "line": 480
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/chain/ledger.py",
+          "function": "get_outputs_with_value",
+          "line": 505
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/chain/ledger.py",
+          "function": "transfer",
+          "line": 530
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/chain/ledger.py",
+          "function": "create_ledger",
+          "line": 727
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/chain/ledger.py",
+          "function": "create_ledger",
+          "line": 773
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/chain/emission.py",
+          "function": "create_emission",
+          "line": 153
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/chain/emission.py",
+          "function": "create_emission",
+          "line": 251
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/chain/emission.py",
+          "function": "create_emission",
+          "line": 280
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/chain/tx.py",
+          "function": "to_dict",
+          "line": 76
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/chain/tx.py",
+          "function": "to_dict",
+          "line": 92
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/chain/wallet.py",
+          "function": "dap_chain_wallet_create",
+          "line": 66
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/chain/wallet.py",
+          "function": "dap_chain_wallet_create_with_seed",
+          "line": 67
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/chain/wallet.py",
+          "function": "dap_chain_wallet_create_with_seed_multi",
+          "line": 68
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/chain/wallet.py",
+          "function": "dap_chain_wallet_open",
+          "line": 69
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/chain/wallet.py",
+          "function": "dap_chain_wallet_open_ext",
+          "line": 70
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/chain/wallet.py",
+          "function": "dap_chain_wallet_close",
+          "line": 71
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/chain/wallet.py",
+          "function": "dap_chain_wallet_save",
+          "line": 72
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/chain/wallet.py",
+          "function": "dap_chain_wallet_get_addr",
+          "line": 73
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/chain/wallet.py",
+          "function": "dap_chain_wallet_get_balance",
+          "line": 74
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/chain/wallet.py",
+          "function": "dap_chain_wallet_get_key",
+          "line": 75
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/chain/wallet.py",
+          "function": "dap_chain_wallet_get_pkey",
+          "line": 76
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/chain/wallet.py",
+          "function": "dap_chain_wallet_activate",
+          "line": 77
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/chain/wallet.py",
+          "function": "dap_chain_wallet_deactivate",
+          "line": 78
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/chain/wallet.py",
+          "function": "create",
+          "line": 161
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/chain/wallet.py",
+          "function": "create_with_network",
+          "line": 501
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/chain/wallet.py",
+          "function": "create_wallet",
+          "line": 555
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/chain/wallet.py",
+          "function": "create_wallet",
+          "line": 669
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/migration/config_migration.py",
+          "function": "generate_config",
+          "line": 287
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/node/gdb.py",
+          "function": "add_net_associate",
+          "line": 127
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/node/items.py",
+          "function": "provider",
+          "line": 165
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/node/items.py",
+          "function": "client",
+          "line": 171
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/node/datums.py",
+          "function": "get_sub_datum",
+          "line": 71
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/node/datums.py",
+          "function": "get_signs",
+          "line": 160
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/node/datums.py",
+          "function": "is_base_tx",
+          "line": 257
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/node/datums.py",
+          "function": "sign",
+          "line": 339
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/node/datums.py",
+          "function": "append_sign",
+          "line": 344
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/node/datums.py",
+          "function": "create",
+          "line": 349
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/node/datums.py",
+          "function": "create",
+          "line": 623
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/node/net.py",
+          "function": "key",
+          "line": 153
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/node/net.py",
+          "function": "create",
+          "line": 173
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/node/net.py",
+          "function": "create_with_seed",
+          "line": 218
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/node/net.py",
+          "function": "callback_wrapper",
+          "line": 401
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/node/net.py",
+          "function": "callback_wrapper",
+          "line": 414
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/node/net.py",
+          "function": "callback_wrapper",
+          "line": 583
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/node/net.py",
+          "function": "callback_wrapper",
+          "line": 608
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/node/net.py",
+          "function": "callback_wrapper",
+          "line": 632
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/node/net.py",
+          "function": "list_unspent",
+          "line": 864
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/node/net.py",
+          "function": "callback_wrapper",
+          "line": 907
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/node/net.py",
+          "function": "callback_wrapper",
+          "line": 920
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/node/net.py",
+          "function": "flt",
+          "line": 950
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/node/net.py",
+          "function": "create_multisign_withdraw_tx",
+          "line": 1030
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/node/net.py",
+          "function": "process_tx",
+          "line": 1118
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/node/net.py",
+          "function": "track",
+          "line": 1154
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/node/net.py",
+          "function": "on_new_tx",
+          "line": 1162
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/node/notificators.py",
+          "function": "wrapper",
+          "line": 38
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/node/notificators.py",
+          "function": "wrapper",
+          "line": 64
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/node/notificators.py",
+          "function": "wrapper",
+          "line": 91
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/node/notificators.py",
+          "function": "wrapper",
+          "line": 118
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/node/notificators.py",
+          "function": "wrapper",
+          "line": 139
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/node/notificators.py",
+          "function": "wrapper",
+          "line": 163
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/node/logging.py",
+          "function": "log_level",
+          "line": 69
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/node/logging.py",
+          "function": "make_caller",
+          "line": 187
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/node/logging.py",
+          "function": "start_record",
+          "line": 197
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/node/logging.py",
+          "function": "stop_record",
+          "line": 201
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/node/logging.py",
+          "function": "cleanup_record",
+          "line": 204
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/node/logging.py",
+          "function": "log_recorded",
+          "line": 212
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/node/http/tornado.py",
+          "function": "query",
+          "line": 36
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/node/http/tornado.py",
+          "function": "body",
+          "line": 42
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/node/http/tornado.py",
+          "function": "replyAdd",
+          "line": 52
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/node/http/tornado.py",
+          "function": "set",
+          "line": 61
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/node/http/tornado.py",
+          "function": "get",
+          "line": 65
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/node/http/tornado.py",
+          "function": "build_main_handler",
+          "line": 69
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/node/http/tornado.py",
+          "function": "on_finish",
+          "line": 138
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/node/http/tornado.py",
+          "function": "init_tornado_http",
+          "line": 144
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/node/http/tornado.py",
+          "function": "run",
+          "line": 180
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/node/http/tornado.py",
+          "function": "shutdown_http_server",
+          "line": 194
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/node/http/simple.py",
+          "function": "wrapper",
+          "line": 221
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/schemas/_common.py",
+          "function": "date_format",
+          "line": 10
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/schemas/shortcuts.py",
+          "function": "dump",
+          "line": 27
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/schemas/serializers/block.py",
+          "function": "date_format",
+          "line": 21
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/schemas/serializers/event.py",
+          "function": "date_format",
+          "line": 18
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/schemas/serializers/datums.py",
+          "function": "model_validate",
+          "line": 63
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/schemas/serializers/datums.py",
+          "function": "date_format",
+          "line": 89
+        },
+        {
+          "file": "/mnt/UltraFastSSD/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/CellFrame/schemas/serializers/datums.py",
+          "function": "model_validate",
+          "line": 127
+        }
+      ],
+      "coverage": 72.71487039563438,
+      "details": {}
+    },
+    "security": {
+      "status": "warning",
+      "files_checked": 87,
+      "security_issues": [
+        {
+          "file": "CellFrame/types.py",
+          "line": 480,
+          "issue": "Potential hardcoded token",
+          "code": "TOKEN = \"token\""
+        },
+        {
+          "file": "CellFrame/composer/__init__.py",
+          "line": 27,
+          "issue": "Potential hardcoded password",
+          "code": "password=\"your_password\""
+        },
+        {
+          "file": "CellFrame/composer/utils.py",
+          "line": 31,
+          "issue": "Potential hardcoded password",
+          "code": "password=\"pass\""
+        },
+        {
+          "file": "CellFrame/composer/utils.py",
+          "line": 63,
+          "issue": "Potential hardcoded password",
+          "code": "password=\"pass\""
+        },
+        {
+          "file": "CellFrame/chain/ledger.py",
+          "line": 62,
+          "issue": "Potential hardcoded token",
+          "code": "TOKEN = \"token\""
+        },
+        {
+          "file": "CellFrame/chain/__init__.py",
+          "line": 12,
+          "issue": "Potential hardcoded password",
+          "code": "password=\"your_password\""
+        },
+        {
+          "file": "CellFrame/chain/wallet.py",
+          "line": 31,
+          "issue": "Potential hardcoded password",
+          "code": "password=\"your_password\""
+        },
+        {
+          "file": "tests/fixtures/conftest.py",
+          "line": 173,
+          "issue": "Potential hardcoded token",
+          "code": "token = \"CELL\""
+        },
+        {
+          "file": "tests/fixtures/examples.py",
+          "line": 178,
+          "issue": "Potential hardcoded token",
+          "code": "token=\"CELL\""
+        },
+        {
+          "file": "tests/security/test_security_validation.py",
+          "line": 297,
+          "issue": "Potential hardcoded secret",
+          "code": "secret = \"secret_api_key_123456\""
+        },
+        {
+          "file": "tests/regression/test_api_compatibility.py",
+          "line": 293,
+          "issue": "Use of exec() function",
+          "code": "exec("
+        },
+        {
+          "file": "tests/unit/legacy/test_backward_compatibility.py",
+          "line": 182,
+          "issue": "Potential hardcoded token",
+          "code": "token=\"CELL\""
+        },
+        {
+          "file": "tests/unit/legacy/test_backward_compatibility.py",
+          "line": 198,
+          "issue": "Potential hardcoded token",
+          "code": "token=\"CELL\""
+        },
+        {
+          "file": "tests/unit/legacy/test_backward_compatibility.py",
+          "line": 161,
+          "issue": "Use of exec() function",
+          "code": "exec("
+        },
+        {
+          "file": "tests/unit/composer/test_core.py",
+          "line": 259,
+          "issue": "Potential hardcoded token",
+          "code": "token=\"CELL\""
+        },
+        {
+          "file": "tests/unit/composer/test_core.py",
+          "line": 269,
+          "issue": "Potential hardcoded token",
+          "code": "token=\"CELL\""
+        },
+        {
+          "file": "tests/unit/composer/test_core.py",
+          "line": 279,
+          "issue": "Potential hardcoded token",
+          "code": "token=\"CELL\""
+        }
+      ],
+      "details": {}
+    }
+  },
+  "overall_status": "warning",
+  "summary": {
+    "total_validations": 4,
+    "passed": 2,
+    "failed": 0,
+    "warnings": 2,
+    "skipped": 0,
+    "status_breakdown": {
+      "syntax": "passed",
+      "imports": "passed",
+      "documentation": "warning",
+      "security": "warning"
+    }
+  }
+}

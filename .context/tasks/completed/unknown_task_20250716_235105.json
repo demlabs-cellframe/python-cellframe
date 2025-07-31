@@ -1,0 +1,31 @@
+{
+  "active_task_reference": {
+    "$ref": ".context/tasks/тестирование_автоматической_подгрузки_пр_20250716_235051.json",
+    "task_type": "custom_task",
+    "priority": "MEDIUM",
+    "status": "ACTIVE",
+    "activated_at": "2025-07-16T23:50:51.393961"
+  },
+  "metadata": {
+    "title": "Тестирование автоматической подгрузки правил биндинга",
+    "task_id": "TASK_20250716_235051",
+    "category": "ai_development",
+    "description": "Новая задача",
+    "estimated_duration": "не указано",
+    "current_focus": "Тестирование автоматической подгрузки правил биндинга"
+  },
+  "execution_status": {
+    "phase": "НАЧАЛЬНАЯ",
+    "current_task": "Настройка и планирование",
+    "progress": "0%",
+    "next_action": "Определить детальный план выполнения задачи",
+    "last_update": "2025-07-16T23:50:51.393961",
+    "completed_steps": [
+      "✅ Создана задача: Тестирование автоматической подгрузки правил биндинга",
+      "✅ Установлен приоритет: MEDIUM",
+      "✅ Категория: ai_development"
+    ]
+  },
+  "completion_date": "2025-07-16T23:51:05.243912",
+  "status": "ARCHIVED"
+}

@@ -1,0 +1,6 @@
+[submodule "python-dap"]
+	path = python-dap
+	url = ../../dap/python-dap
+[submodule "cellframe-sdk"]
+	path = cellframe-sdk
+	url = ../cellframe-sdk

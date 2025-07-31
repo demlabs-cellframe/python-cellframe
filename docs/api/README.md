@@ -137,8 +137,9 @@ async def example():
 
 - [Tutorials](../tutorials/) - пошаговые руководства
 - [Migration Guide](../guides/migration.md) - переход с старого API
-- [Performance Benchmarks](../benchmarks/) - тесты производительности
 - [Examples](../examples/) - примеры кода
+
+*Примечание: Performance Benchmarks перенесены в doc/trash/benchmarks/ как менее критичная документация*
 
 ## 🐛 Поддержка
 

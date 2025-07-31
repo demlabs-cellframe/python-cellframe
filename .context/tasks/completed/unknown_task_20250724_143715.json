@@ -1,0 +1,40 @@
+{
+  "active_task_reference": {
+    "$ref": ".context/tasks/reflection_phase_1753341781.json",
+    "task_type": "reflection_phase",
+    "priority": "HIGH",
+    "status": "ACTIVE",
+    "activated_at": "2025-07-24T14:23:01.661458"
+  },
+  "metadata": {
+    "title": "Рефлексия: cellframe-node.rc-6",
+    "task_id": "reflection_phase_1753341781",
+    "category": "maintenance",
+    "description": "Наведение порядка в проекте и исправление технических долгов",
+    "estimated_duration": "4-8 часов",
+    "current_focus": "Фаза рефлексии и наведение порядка"
+  },
+  "execution_status": {
+    "phase": "РЕФЛЕКСИЯ",
+    "current_task": "Подготовка к выполнению субфаз",
+    "progress": "0%",
+    "subphases_total": 9,
+    "subphases_completed": 0,
+    "current_subphase": 1,
+    "next_action": "Удаление фоллбэков"
+  },
+  "reflection_data": {
+    "project_name": "cellframe-node.rc-6",
+    "total_subphases": 9,
+    "priority_subphases": [
+      "Удаление фоллбэков",
+      "Доделка TODO пунктов",
+      "Исправление ослабленной функциональности",
+      "Подключение отвалившегося функционала",
+      "Обновление прогресса и контекста"
+    ],
+    "estimated_completion": "2025-07-24T14:23:01.661470"
+  },
+  "completion_date": "2025-07-24T14:37:15.176305",
+  "status": "ARCHIVED"
+}

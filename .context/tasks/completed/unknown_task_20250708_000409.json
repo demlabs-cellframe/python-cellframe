@@ -1,0 +1,31 @@
+{
+  "active_task_reference": {
+    "$ref": ".context/tasks/cycle_1_proof-of-concept_-_python_sdk_re_20250707_200118.json",
+    "task_type": "custom_task",
+    "priority": "CRITICAL",
+    "status": "ACTIVE",
+    "activated_at": "2025-07-07T20:01:18.270241"
+  },
+  "metadata": {
+    "title": "Cycle 1: Proof-of-Concept - Python SDK Revival",
+    "task_id": "TASK_20250707_200118",
+    "category": "refactoring",
+    "description": "Реализация первого цикла нового плана рефакторинга Python SDK. Цель: доказать что Python SDK может быть собран и запущен без segfault. BLOCKING приоритет.",
+    "estimated_duration": "1-2 дня",
+    "current_focus": "Cycle 1: Proof-of-Concept - Python SDK Revival"
+  },
+  "execution_status": {
+    "phase": "НАЧАЛЬНАЯ",
+    "current_task": "Настройка и планирование",
+    "progress": "0%",
+    "next_action": "Определить детальный план выполнения задачи",
+    "last_update": "2025-07-07T20:01:18.270241",
+    "completed_steps": [
+      "✅ Создана задача: Cycle 1: Proof-of-Concept - Python SDK Revival",
+      "✅ Установлен приоритет: CRITICAL",
+      "✅ Категория: refactoring"
+    ]
+  },
+  "completion_date": "2025-07-08T00:04:09.106230",
+  "status": "ARCHIVED"
+}

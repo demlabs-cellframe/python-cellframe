@@ -1,0 +1,25 @@
+#!/bin/bash
+# Activate test environment with all necessary paths
+
+source "/home/naeper/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/venv_test/bin/activate"
+
+# Set Python path to include project modules
+export PYTHONPATH="/home/naeper/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe:$PYTHONPATH"
+
+# Set environment for tests
+export CELLFRAME_TEST_MODE=1
+export DAP_SDK_TEST_MODE=1
+
+# Set log level for tests
+export CELLFRAME_LOG_LEVEL=DEBUG
+
+echo "🧪 Test environment activated!"
+echo "PYTHONPATH: $PYTHONPATH"
+echo "Virtual env: /home/naeper/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/venv_test"
+echo ""
+echo "To run tests:"
+echo "  cd /home/naeper/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/tests"
+echo "  pytest"
+echo ""
+echo "To deactivate:"
+echo "  deactivate"

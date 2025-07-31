@@ -1,0 +1,31 @@
+{
+  "active_task_reference": {
+    "$ref": ".context/tasks/python_dap_test_framework_обертки_20250718_161459.json",
+    "task_type": "custom_task",
+    "priority": "MEDIUM",
+    "status": "ACTIVE",
+    "activated_at": "2025-07-18T16:14:59.155475"
+  },
+  "metadata": {
+    "title": "Python DAP Test Framework обертки",
+    "task_id": "TASK_20250718_161459",
+    "category": "testing",
+    "description": "Создание оберток для dap-sdk/test-framework модуля: python_dap_test.c/h с биндингами для unit тестирования, интеграционных тестов и performance тестов DAP SDK",
+    "estimated_duration": "не указано",
+    "current_focus": "Python DAP Test Framework обертки"
+  },
+  "execution_status": {
+    "phase": "НАЧАЛЬНАЯ",
+    "current_task": "Настройка и планирование",
+    "progress": "0%",
+    "next_action": "Определить детальный план выполнения задачи",
+    "last_update": "2025-07-18T16:14:59.155475",
+    "completed_steps": [
+      "✅ Создана задача: Python DAP Test Framework обертки",
+      "✅ Установлен приоритет: MEDIUM",
+      "✅ Категория: testing"
+    ]
+  },
+  "completion_date": "2025-07-18T19:01:22.925096",
+  "status": "ARCHIVED"
+}

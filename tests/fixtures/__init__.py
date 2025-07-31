@@ -1,0 +1,1 @@
+# tests/fixtures/__init__.py - empty file to make it a package

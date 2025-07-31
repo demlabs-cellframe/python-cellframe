@@ -1,0 +1,31 @@
+{
+  "active_task_reference": {
+    "$ref": ".context/tasks/реорганизация_системы_правил_биндинга_и__20250716_234316.json",
+    "task_type": "custom_task",
+    "priority": "MEDIUM",
+    "status": "ACTIVE",
+    "activated_at": "2025-07-16T23:43:16.125502"
+  },
+  "metadata": {
+    "title": "Реорганизация системы правил биндинга и актуализация манифеста СЛК",
+    "task_id": "TASK_20250716_234316",
+    "category": "ai_development",
+    "description": "Новая задача",
+    "estimated_duration": "не указано",
+    "current_focus": "Реорганизация системы правил биндинга и актуализация манифеста СЛК"
+  },
+  "execution_status": {
+    "phase": "НАЧАЛЬНАЯ",
+    "current_task": "Настройка и планирование",
+    "progress": "0%",
+    "next_action": "Определить детальный план выполнения задачи",
+    "last_update": "2025-07-16T23:43:16.125502",
+    "completed_steps": [
+      "✅ Создана задача: Реорганизация системы правил биндинга и актуализация манифеста СЛК",
+      "✅ Установлен приоритет: MEDIUM",
+      "✅ Категория: ai_development"
+    ]
+  },
+  "completion_date": "2025-07-16T23:50:51.368878",
+  "status": "ARCHIVED"
+}

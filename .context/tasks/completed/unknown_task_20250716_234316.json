@@ -1,0 +1,31 @@
+{
+  "active_task_reference": {
+    "$ref": ".context/tasks/интеграция_pycftools_и_pycfhelpers_в_pyt_20250716_211601.json",
+    "task_type": "custom_task",
+    "priority": "HIGH",
+    "status": "ACTIVE",
+    "activated_at": "2025-07-16T21:16:01.342410"
+  },
+  "metadata": {
+    "title": "Интеграция pycftools и pycfhelpers в Python API",
+    "task_id": "TASK_20250716_211601",
+    "category": "ai_development",
+    "description": "Анализ и интеграция функционала из внешних модулей pycftools и pycfhelpers в основное Python API для устранения зависимостей от отдельных репозиториев",
+    "estimated_duration": "не указано",
+    "current_focus": "Интеграция pycftools и pycfhelpers в Python API"
+  },
+  "execution_status": {
+    "phase": "НАЧАЛЬНАЯ",
+    "current_task": "Настройка и планирование",
+    "progress": "0%",
+    "next_action": "Определить детальный план выполнения задачи",
+    "last_update": "2025-07-16T21:16:01.342410",
+    "completed_steps": [
+      "✅ Создана задача: Интеграция pycftools и pycfhelpers в Python API",
+      "✅ Установлен приоритет: HIGH",
+      "✅ Категория: ai_development"
+    ]
+  },
+  "completion_date": "2025-07-16T23:43:16.123835",
+  "status": "ARCHIVED"
+}

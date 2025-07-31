@@ -1,0 +1,47 @@
+{
+  "version": "1.0",
+  "templates": {},
+  "queries": [
+    {
+      "timestamp": "2025-06-23T10:47:13.951403",
+      "query": "ssh timeout removal revisor control",
+      "selected_template": null
+    },
+    {
+      "timestamp": "2025-06-23T19:29:14.544605",
+      "query": "продолжение рефакторинга проекта phase 3",
+      "selected_template": null
+    },
+    {
+      "timestamp": "2025-06-23T19:51:47.492192",
+      "query": "следующий этап рефакторинга после Phase 3",
+      "selected_template": null
+    },
+    {
+      "timestamp": "2025-06-23T21:07:07.082444",
+      "query": "Phase 4 структурная реорганизация проекта",
+      "selected_template": null
+    },
+    {
+      "timestamp": "2025-06-23T21:51:31.156090",
+      "query": "оптимизация производительности слк агента",
+      "selected_template": null
+    },
+    {
+      "timestamp": "2025-06-23T22:53:24.326544",
+      "query": "Phase 5 Performance Optimization завершен",
+      "selected_template": null
+    },
+    {
+      "timestamp": "2025-06-23T23:06:56.302478",
+      "query": "системная очистка архитектуры после рефакторингов",
+      "selected_template": null
+    },
+    {
+      "timestamp": "2025-06-23T23:21:19.760439",
+      "query": "системная очистка завершена продолжить развитие",
+      "selected_template": null
+    }
+  ],
+  "sessions": []
+}

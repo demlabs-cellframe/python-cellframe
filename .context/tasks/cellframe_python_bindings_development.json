@@ -1,0 +1,153 @@
+{
+  "version": "2.0",
+  "template_version": "1.0",
+  "created": "2025-01-28T11:15:00Z",
+  "updated": "2025-01-28T11:15:00Z",
+  "description": "Разработка и улучшение Python биндингов для Cellframe и DAP SDK",
+  "task_data": {
+    "id": "TASK_20250128_111500",
+    "title": "Разработка Python биндингов Cellframe/DAP SDK",
+    "description": "Комплексная задача по разработке, улучшению и поддержке Python биндингов для Cellframe SDK и DAP SDK с соблюдением всех стандартов разработки и архитектурных принципов.",
+    "category": "python_cellframe_bindings",
+    "priority": "HIGH",
+    "status": "ACTIVE",
+    "progress": 0,
+    "metadata": {
+      "created": "2025-01-28T11:15:00.000000",
+      "updated": "2025-01-28T11:15:00.000000",
+      "assigned_to": "AI Agent + Cellframe Team",
+      "estimated_duration": "3-4 недели",
+      "actual_duration": null,
+      "start_date": "2025-01-28",
+      "target_completion": "2025-02-25"
+    },
+    "context": {
+      "context_loading_policy": {
+        "auto_load": [
+          ".context/modules/core/manifest.json",
+          ".context/modules/core/standards.json",
+          ".context/modules/core/development_standards.json",
+          ".context/modules/core/project.json",
+          ".context/modules/projects/dap_sdk_project.json",
+          ".context/modules/projects/dap_sdk.json",
+          ".context/modules/projects/cellframe_sdk.json",
+          ".context/modules/projects/python_cellframe.json",
+          ".context/modules/languages/python/python_development.json",
+          ".context/modules/languages/python/knowledge_base/dap_sdk_binding_standards.json",
+          ".context/modules/projects/dap_sdk/python_bindings_coding_standards.json",
+          ".context/modules/standards/dap_sdk_coding_standards.json"
+        ],
+        "description": "Автоматическая загрузка всех необходимых модулей для работы с Cellframe/DAP SDK Python биндингами"
+      },
+      "related_modules": [
+        "python-dap",
+        "CellFrame",
+        "cellframe-sdk",
+        "cellframe-sdk/dap-sdk"
+      ],
+      "dependencies": [
+        "DAP SDK core modules",
+        "Cellframe SDK blockchain modules",
+        "Python развитие экосистемы",
+        "CMake build system",
+        "Python.h headers"
+      ],
+      "files_involved": [
+        "CellFrame/",
+        "python-dap/",
+        "cellframe-sdk/",
+        "include/",
+        "src/",
+        "CMakeLists.txt",
+        "pyproject.toml"
+      ],
+      "related_tasks": []
+    },
+    "objectives": {
+      "primary_goal": "Создать качественную, стабильную и полнофункциональную Python экосистему для Cellframe и DAP SDK",
+      "success_criteria": [
+        "Все ключевые функции Cellframe SDK доступны через Python API",
+        "DAP SDK полностью интегрирован с Python биндингами",
+        "Соблюдены все стандарты Python разработки",
+        "Качественная документация и примеры использования",
+        "Стабильные автоматизированные тесты",
+        "Производительные и безопасные биндинги"
+      ],
+      "acceptance_criteria": [
+        "Python API покрывает 90%+ функциональности SDK",
+        "Все тесты проходят стабильно",
+        "Производительность не уступает прямым C вызовам более чем на 20%",
+        "Память управляется корректно без утечек",
+        "Документация полная и актуальная"
+      ]
+    },
+    "implementation_plan": {
+      "phases": [],
+      "milestones": []
+    },
+    "testing_requirements": {
+      "unit_tests": "Полное покрытие unit тестами всех Python модулей",
+      "integration_tests": "Тесты взаимодействия между Cellframe и DAP SDK",
+      "performance_tests": "Бенчмарки производительности критических операций",
+      "security_tests": "Проверка безопасности и защиты от уязвимостей",
+      "memory_tests": "Тестирование управления памятью и отсутствия утечек"
+    },
+    "progress_tracking": {
+      "completed_phases": [],
+      "current_phase": null,
+      "blockers": [],
+      "achievements": [
+        "Создана новая задача с автоматической загрузкой контекста",
+        "Настроена комплексная auto_load секция для всех связанных модулей"
+      ],
+      "lessons_learned": []
+    },
+    "performance_metrics": {
+      "baseline": {
+        "api_coverage": "0%",
+        "test_coverage": "0%",
+        "documentation_coverage": "0%",
+        "performance_ratio": "100%"
+      },
+      "targets": {
+        "api_coverage": "90%",
+        "test_coverage": "85%",
+        "documentation_coverage": "95%",
+        "performance_ratio": "80%"
+      },
+      "actual": {
+        "api_coverage": "0%",
+        "test_coverage": "0%",
+        "documentation_coverage": "0%",
+        "performance_ratio": "100%"
+      }
+    },
+    "documentation": {
+      "design_documents": [],
+      "technical_specifications": [
+        ".context/modules/languages/python/knowledge_base/dap_sdk_binding_standards.json",
+        ".context/modules/projects/dap_sdk/python_bindings_coding_standards.json"
+      ],
+      "user_documentation": [],
+      "api_documentation": []
+    }
+  },
+  "navigation_system": {
+    "purpose": "Задача: Разработка Python биндингов Cellframe/DAP SDK",
+    "recovery_path": ".context/manifest.json",
+    "current_file": ".context/tasks/cellframe_python_bindings_development.json",
+    "file_role": "TASK_DEFINITION",
+    "related_files": {
+      ".context/manifest.json": "Главный манифест системы",
+      ".context/modules/projects/dap_sdk_project.json": "DAP SDK проект конфигурация",
+      ".context/modules/projects/cellframe_sdk.json": "Cellframe SDK конфигурация"
+    },
+    "quick_navigation": {
+      "🏠 Главная": ".context/manifest.json - главный навигатор системы",
+      "📋 Задачи": ".context/tasks/ - управление задачами",
+      "🛠️ CLI": ".context/tools/scripts/slc_cli.py - автоматизация"
+    },
+    "usage_hint": "./slc list для просмотра всех задач проекта",
+    "ai_context": "Активная задача СЛК: Разработка Python биндингов Cellframe/DAP SDK"
+  }
+}

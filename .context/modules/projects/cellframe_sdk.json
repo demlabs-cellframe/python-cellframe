@@ -1,0 +1,318 @@
+{
+  "type": "project_module",
+  "domain": "cellframe_sdk",
+  "version": "3.4-0",
+  "created": "2025-01-07T00:00:00Z",
+  "updated": "2025-01-07T00:00:00Z",
+  "template_source": "Cellframe SDK v3.4-0 + DAP SDK analysis",
+  "navigation_system": {
+    "purpose": "Файл СЛК: cellframe_sdk.json",
+    "recovery_path": ".context/manifest.json",
+    "current_file": ".context/modules/projects/cellframe_sdk.json",
+    "file_role": "PROJECT_MODULE",
+    "related_files": [
+      ".context/manifest.json",
+      ".context/modules/standards/dap_sdk_coding_standards.json",
+      ".context/modules/projects/dap_sdk.json",
+      ".context/modules/projects/dap_sdk/python_bindings_coding_standards.json"
+    ],
+    "quick_navigation": {
+      "🏠 Главная": ".context/manifest.json - главный навигатор системы",
+      "🛠️ CLI": ".context/tools/scripts/slc_cli.py - автоматизация",
+      "📋 DAP SDK": ".context/modules/projects/dap_sdk.json - базовый уровень",
+      "🔧 Стандарты": ".context/modules/standards/dap_sdk_coding_standards.json - правила кодирования"
+    },
+    "usage_hint": "Автозагружается при работе с Cellframe SDK файлами",
+    "ai_context": "Файл СЛК системы: cellframe_sdk.json"
+  },
+  "template_info": {
+    "name": "Cellframe SDK Architecture & Development Guide",
+    "description": "Комплексная архитектура и руководство по разработке Cellframe SDK",
+    "version": "3.4-0",
+    "domain": "blockchain_development",
+    "specialization": "modular_blockchain_platform",
+    "applicability": "Все проекты использующие Cellframe SDK",
+    "auto_load_triggers": [
+      "cellframe-sdk",
+      "cellframe-node", 
+      "dap_chain_",
+      "cellframe",
+      "consensus",
+      "srv-stake",
+      "srv-voting",
+      "srv-bridge",
+      "srv-xchange",
+      "cs-dag-poa",
+      "cs-esbocs"
+    ],
+    "depends_on": [
+      ".context/modules/standards/dap_sdk_coding_standards.json",
+      ".context/modules/projects/dap_sdk.json"
+    ]
+  },
+
+  "architecture_overview": {
+    "description": "Cellframe SDK - модульная платформа для разработки блокчейн приложений",
+    "base_foundation": "DAP SDK - все правила кодирования автоматически наследуются",
+    "architecture_layers": {
+      "layer_1": {
+        "name": "DAP SDK Foundation", 
+        "description": "Базовый уровень: криптография, сеть, память, события",
+        "auto_loads": ".context/modules/standards/dap_sdk_coding_standards.json"
+      },
+      "layer_2": {
+        "name": "Cellframe Core",
+        "description": "Ядро: цепи, кошельки, общие компоненты",
+        "modules": ["common", "chain", "wallet"]
+      },
+      "layer_3": {
+        "name": "Consensus Layer", 
+        "description": "Модули консенсуса",
+        "types": ["dag", "blocks"],
+        "algorithms": ["dag-poa", "esbocs", "block-pow", "none"]
+      },
+      "layer_4": {
+        "name": "Network & Services",
+        "description": "Сетевое взаимодействие и сервисы",
+        "components": ["net", "mempool", "mining", "srv-*"]
+      },
+      "layer_5": {
+        "name": "Python Bindings",
+        "description": "Python интерфейс",
+        "auto_loads": ".context/modules/projects/dap_sdk/python_bindings_coding_standards.json"
+      }
+    }
+  },
+
+  "module_structure": {
+    "core_modules": {
+      "common": {
+        "library": "dap_chain_common",
+        "path": "cellframe-sdk/modules/common/",
+        "description": "Общие компоненты блокчейна",
+        "dependencies": ["dap_core", "dap_crypto", "dap_chain_net"],
+        "key_files": {
+          "headers": ["dap_chain_datum.h", "dap_chain_common.h"],
+          "sources": ["dap_chain_*.c"]
+        },
+        "cmake_target": "dap_chain_common"
+      },
+      "chain": {
+        "library": "dap_chain", 
+        "path": "cellframe-sdk/modules/chain/",
+        "description": "Основная логика блокчейн цепей",
+        "dependencies": ["dap_chain_common", "dap_global_db", "dap_notify_srv", "dap_stream"],
+        "key_files": {
+          "main": ["dap_chain.c", "dap_chain_cell.c", "dap_chain_ch.c"],
+          "consensus": ["dap_chain_cs.c"],
+          "policy": ["dap_chain_policy.c"],
+          "transactions": ["dap_chain_tx.c"]
+        },
+        "cmake_target": "dap_chain"
+      },
+      "wallet": {
+        "library": "dap_chain_wallet",
+        "path": "cellframe-sdk/modules/wallet/", 
+        "description": "Управление кошельками и ключами",
+        "dependencies": ["dap_chain_common"],
+        "cmake_target": "dap_chain_wallet"
+      }
+    },
+
+    "network_modules": {
+      "net": {
+        "library": "dap_chain_net",
+        "path": "cellframe-sdk/modules/net/",
+        "description": "Сетевое взаимодействие между узлами",
+        "key_components": {
+          "ledger": "dap_chain_ledger.c - распределенный реестр",
+          "networking": "dap_chain_net.c - сетевой протокол",
+          "node": "dap_chain_node.c - узел сети",
+          "cli": "dap_chain_node_cli.c - интерфейс командной строки"
+        },
+        "cli_support": true
+      },
+      "mempool": {
+        "library": "dap_chain_mempool",
+        "path": "cellframe-sdk/modules/mempool/",
+        "description": "Пул ожидающих транзакций"
+      }
+    },
+
+    "consensus_modules": {
+      "types": {
+        "dag": {
+          "library": "dap_chain_cs_dag",
+          "path": "cellframe-sdk/modules/type/dag/",
+          "description": "DAG топология блокчейна"
+        },
+        "blocks": {
+          "library": "dap_chain_cs_blocks", 
+          "path": "cellframe-sdk/modules/type/blocks/",
+          "description": "Блочная топология блокчейна"
+        },
+        "none": {
+          "path": "cellframe-sdk/modules/type/none/",
+          "description": "Топология без консенсуса"
+        }
+      },
+      "algorithms": {
+        "dag_poa": {
+          "library": "dap_chain_cs_dag_poa",
+          "path": "cellframe-sdk/modules/consensus/dag-poa/",
+          "description": "Proof of Authority для DAG",
+          "enable_flag": "cs-dag-poa"
+        },
+        "esbocs": {
+          "library": "dap_chain_cs_esbocs",
+          "path": "cellframe-sdk/modules/consensus/esbocs/", 
+          "description": "ESBOCS консенсус для блоков",
+          "enable_flag": "cs-esbocs"
+        },
+        "block_pow": {
+          "library": "dap_chain_cs_block_pow",
+          "path": "cellframe-sdk/modules/consensus/block-pow/",
+          "description": "Proof of Work для блоков",
+          "enable_flag": "cs-block-pow"
+        }
+      }
+    },
+
+    "service_modules": {
+      "stake": {
+        "path": "cellframe-sdk/modules/service/stake/",
+        "description": "Стейкинг токенов и PoS делегирование",
+        "enable_flag": "srv-stake",
+        "cmake_define": "DAP_SRV_STAKE_USED"
+      },
+      "voting": {
+        "path": "cellframe-sdk/modules/service/voting/",
+        "description": "Голосования и опросы",
+        "enable_flag": "srv-voting"
+      },
+      "bridge": {
+        "path": "cellframe-sdk/modules/service/bridge/",
+        "description": "Мосты между блокчейнами", 
+        "enable_flag": "srv-bridge"
+      },
+      "xchange": {
+        "path": "cellframe-sdk/modules/service/xchange/",
+        "description": "Децентрализованная биржа",
+        "enable_flag": "srv-xchange"
+      },
+      "vpn": {
+        "path": "cellframe-sdk/modules/service/vpn/",
+        "description": "VPN сервис",
+        "enable_flag": "srv-vpn",
+        "platforms": ["LINUX", "DARWIN"]
+      }
+    }
+  },
+
+  "build_system": {
+    "cmake_configuration": {
+      "minimum_version": "3.10",
+      "project_name": "cellframe-sdk",
+      "language": "C",
+      "c_standard": "11",
+      "version": "3.4-0",
+      "version_define": "CELLFRAME_SDK_VERSION"
+    },
+    "default_modules": "core chains mining network cs-dag-poa cs-esbocs cs-none srv-stake srv-voting srv-bridge srv-xchange",
+    "conditional_modules": {
+      "srv-vpn": ["LINUX", "DARWIN"]
+    },
+    "module_activation_pattern": "CELLFRAME_MODULES MATCHES \"module_name\"",
+    "cmake_structure": {
+      "main_cmakelists": "cellframe-sdk/CMakeLists.txt",
+      "modules_cmakelists": "cellframe-sdk/modules/CMakeLists.txt",
+      "module_cmakelists": "каждый модуль имеет свой CMakeLists.txt"
+    },
+    "library_linking": {
+      "type": "STATIC",
+      "pattern": "target_link_libraries(${PROJECT_NAME} dependencies...)",
+      "installation": {
+        "libraries": "lib/modules/{category}/",
+        "headers": "include/modules/{category}/",
+        "public_headers": "устанавливаются через PUBLIC_HEADER"
+      }
+    }
+  },
+
+  "development_guidelines": {
+    "inherits_dap_rules": true,
+    "auto_loads": ".context/modules/standards/dap_sdk_coding_standards.json",
+    "cellframe_specific": {
+      "module_creation": {
+        "steps": [
+          "Создать директорию в cellframe-sdk/modules/{category}/{module}",
+          "Добавить CMakeLists.txt с правильным именем проекта", 
+          "Создать include/ директорию с заголовочными файлами",
+          "Реализовать исходные файлы с #define LOG_TAG \"module_name\"",
+          "Добавить модуль в cellframe-sdk/modules/CMakeLists.txt",
+          "Обновить CELLFRAME_MODULES в главном CMakeLists.txt"
+        ]
+      },
+      "naming_patterns": {
+        "libraries": "dap_chain_{module_name}",
+        "files": "dap_chain_{component}.c/.h",
+        "cmake_projects": "dap_chain_{module_name}"
+      },
+      "dependencies": {
+        "always_include": ["dap_chain_common"],
+        "common_deps": ["dap_core", "dap_crypto", "dap_global_db"],
+        "network_deps": ["dap_stream", "dap_notify_srv"]
+      }
+    }
+  },
+
+  "python_bindings": {
+    "auto_loads": ".context/modules/projects/dap_sdk/python_bindings_coding_standards.json",
+    "architecture": {
+      "python_dap": {
+        "description": "Низкоуровневые биндинги DAP SDK",
+        "location": "python-dap/",
+        "purpose": "Прямые 1:1 обёртки над DAP SDK C функциями"
+      },
+      "python_cellframe": {
+        "description": "Высокоуровневые биндинги Cellframe SDK", 
+        "location": "cellframe/",
+        "purpose": "Высокоуровневый Cellframe SDK с Python паттернами",
+        "dependencies": ["python-dap"]
+      }
+    },
+    "exception_hierarchy": {
+      "base": "DapException (python-dap)",
+      "cellframe": "CellframeException (python-cellframe)",
+      "rule": "Все исключения наследуются от DAP базовых исключений"
+    }
+  },
+
+  "testing": {
+    "unit_tests": {
+      "option": "BUILD_CELLFRAME_SDK_TESTS",
+      "defines": ["DAP_LEDGER_TEST", "DAP_CHAIN_BLOCKS_TEST"],
+      "location": "каждый модуль имеет tests/ директорию"
+    },
+    "test_organization": {
+      "pattern": "dap_{module}_test.c",
+      "cmake_condition": "if(BUILD_CELLFRAME_SDK_TESTS)"
+    }
+  },
+
+  "code_quality": {
+    "inherits_all_dap_rules": true,
+    "auto_reference": ".context/modules/standards/dap_sdk_coding_standards.json",
+    "additional_checks": {
+      "module_structure": "Проверка соответствия архитектуре модулей",
+      "cmake_consistency": "Соответствие naming patterns в CMake",
+      "dependency_management": "Правильность зависимостей между модулями"
+    }
+  },
+
+  "integration_notes": {
+    "with_dap_sdk": "Полная интеграция, все правила DAP автоматически применяются",
+    "auto_loading": "При работе с Cellframe SDK автоматически загружаются правила DAP SDK",
+    "template_intelligence": "Система понимает иерархию DAP -> Cellframe и применяет соответствующие правила"
+  }
+}

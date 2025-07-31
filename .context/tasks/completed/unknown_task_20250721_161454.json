@@ -1,0 +1,31 @@
+{
+  "active_task_reference": {
+    "$ref": ".context/tasks/исправление_python_dap_биндингов_20250718_215821.json",
+    "task_type": "custom_task",
+    "priority": "MEDIUM",
+    "status": "ACTIVE",
+    "activated_at": "2025-07-18T21:58:21.529718"
+  },
+  "metadata": {
+    "title": "исправление python dap биндингов",
+    "task_id": "TASK_20250718_215821",
+    "category": "python_dap",
+    "description": "Исправление критических проблем с Python DAP биндингами",
+    "estimated_duration": "не указано",
+    "current_focus": "исправление python dap биндингов"
+  },
+  "execution_status": {
+    "phase": "НАЧАЛЬНАЯ",
+    "current_task": "Настройка и планирование",
+    "progress": "0%",
+    "next_action": "Определить детальный план выполнения задачи",
+    "last_update": "2025-07-18T21:58:21.529718",
+    "completed_steps": [
+      "✅ Создана задача: исправление python dap биндингов",
+      "✅ Установлен приоритет: MEDIUM",
+      "✅ Категория: python_dap"
+    ]
+  },
+  "completion_date": "2025-07-21T16:14:54.623548",
+  "status": "ARCHIVED"
+}
