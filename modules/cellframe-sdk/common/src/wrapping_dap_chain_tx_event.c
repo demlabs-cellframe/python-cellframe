@@ -66,7 +66,7 @@ PyObject *wrapping_dap_chain_tx_event_get_group_name(PyObject *self, void *closu
 
 PyObject *wrapping_dap_chain_tx_event_get_group_size(PyObject *self, void *closure) {
     (void)closure;
-    return Py_BuildValue("H", ((PyDapChainTxEventObject*)self)->tx_event->group_size);
+    return Py_BuildValue("H", ((PyDapChainTxEventObject*)self)->tx_event->group_name_size);
 }
 
 PyObject *wrapping_dap_chain_tx_event_get_event_type(PyObject *self, void *closure) {
@@ -94,7 +94,7 @@ PyObject *TX_EVENT_TYPE_AUCTION_BID_PLACED_PY(PyObject *self, PyObject *args) {
 PyObject *TX_EVENT_TYPE_AUCTION_FINISH_PY(PyObject *self, PyObject *args) {
     (void)self;
     (void)args;
-    return PyLong_FromLong(DAP_CHAIN_TX_EVENT_TYPE_AUCTION_FINISH);
+    return PyLong_FromLong(DAP_CHAIN_TX_EVENT_TYPE_AUCTION_ENDED);
 }
 
 PyObject *TX_EVENT_TYPE_AUCTION_CANCELLED_PY(PyObject *self, PyObject *args) {
