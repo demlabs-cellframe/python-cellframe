@@ -66,7 +66,7 @@ PyObject *wrapping_dap_chain_tx_event_get_group_name(PyObject *self, void *closu
 
 PyObject *wrapping_dap_chain_tx_event_get_group_size(PyObject *self, void *closure) {
     (void)closure;
-    return Py_BuildValue("H", ((PyDapChainTxEventObject*)self)->tx_event->group_size);
+    return Py_BuildValue("H", ((PyDapChainTxEventObject*)self)->tx_event->group_name_size);
 }
 
 PyObject *wrapping_dap_chain_tx_event_get_event_type(PyObject *self, void *closure) {
