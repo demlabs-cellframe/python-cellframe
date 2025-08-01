@@ -89,7 +89,7 @@ PyObject *DapChainLedgerEventObject_create(PyTypeObject *type_object, PyObject *
 
 void DapChainLedgerEventObject_free(PyDapChainLedgerEventObject* object){
     if (object->event && object->origin)
-        dap_chain_datum_tx_event_delete(object->event);
+        dap_chain_tx_event_delete(object->event);
     Py_TYPE(object)->tp_free(object);
 }
 
