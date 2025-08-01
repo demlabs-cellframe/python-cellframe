@@ -15,7 +15,7 @@ static PyGetSetDef DapChainTxEventGetsSetsDef[] = {
 static PyMethodDef PyDapChainTxEventObjectMethods[] ={
     {"AUCTION_STARTED", (PyCFunction)TX_EVENT_TYPE_AUCTION_STARTED_PY, METH_NOARGS | METH_STATIC, ""},
     {"AUCTION_BID_PLACED", (PyCFunction)TX_EVENT_TYPE_AUCTION_BID_PLACED_PY, METH_NOARGS | METH_STATIC, ""},
-    {"AUCTION_FINISH", (PyCFunction)TX_EVENT_TYPE_AUCTION_FINISH_PY, METH_NOARGS | METH_STATIC, ""},
+    {"AUCTION_ENDED", (PyCFunction)TX_EVENT_TYPE_AUCTION_ENDED_PY, METH_NOARGS | METH_STATIC, ""},
     {"AUCTION_CANCELLED", (PyCFunction)TX_EVENT_TYPE_AUCTION_CANCELLED_PY, METH_NOARGS | METH_STATIC, ""},
     {}
 };
@@ -91,10 +91,10 @@ PyObject *TX_EVENT_TYPE_AUCTION_BID_PLACED_PY(PyObject *self, PyObject *args) {
     return PyLong_FromLong(DAP_CHAIN_TX_EVENT_TYPE_AUCTION_BID_PLACED);
 }
 
-PyObject *TX_EVENT_TYPE_AUCTION_FINISH_PY(PyObject *self, PyObject *args) {
+PyObject *TX_EVENT_TYPE_AUCTION_ENDED_PY(PyObject *self, PyObject *args) {
     (void)self;
     (void)args;
-    return PyLong_FromLong(DAP_CHAIN_TX_EVENT_TYPE_AUCTION_FINISH);
+    return PyLong_FromLong(DAP_CHAIN_TX_EVENT_TYPE_AUCTION_ENDED);
 }
 
 PyObject *TX_EVENT_TYPE_AUCTION_CANCELLED_PY(PyObject *self, PyObject *args) {
