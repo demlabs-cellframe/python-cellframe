@@ -47,6 +47,7 @@ PyObject *dap_chain_python_add_mempool_notify_callback(PyObject *self, PyObject 
 PyObject *dap_chain_net_add_atom_notify_callback(PyObject *self, PyObject *args);
 PyObject *dap_chain_atom_confirmed_notify_add_py(PyObject *self, PyObject *args);
 PyObject *dap_chain_fork_resolved_notify_add_py(PyObject *self, PyObject *args);
+PyObject *dap_chain_add_datum_index_notify_py(PyObject *self, PyObject *args);
 
 PyObject *dap_chain_python_atom_find_by_hash(PyObject *self, PyObject* args);
 
