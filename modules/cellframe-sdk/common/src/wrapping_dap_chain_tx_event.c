@@ -32,16 +32,17 @@ int PyDapChainTxEvent_init(PyObject *self, PyObject *args, PyObject *kwds) {
     const char *kwlist[] = {
         "group_name",
         "event_type",
+        "timestamp",
         NULL
     };
     char *group_name;
     uint16_t event_type;
-    
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "sH", (char **)kwlist, &group_name, &event_type)) {
+    uint64_t timestamp;
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "sH|L", (char **)kwlist, &group_name, &event_type, &timestamp)) {
         return -1;
     }
     
-    ((PyDapChainTxEventObject*)self)->tx_event = dap_chain_datum_tx_event_create(group_name, event_type);
+    ((PyDapChainTxEventObject*)self)->tx_event = dap_chain_datum_tx_event_create(group_name, event_type, timestamp);
     if (!((PyDapChainTxEventObject*)self)->tx_event) {
         return -1;
     }
