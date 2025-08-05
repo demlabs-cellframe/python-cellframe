@@ -7,6 +7,9 @@ typedef struct PyDapChainNetSrvAuctionsObject{
     dap_chain_net_t *net;
 }PyDapChainNetSrvAuctionsObject;
 
+
+
+
 // Transaction creation functions
 PyObject *wrapping_dap_chain_net_srv_auctions_bid_tx_create(PyObject *self, PyObject *argv);
 PyObject *wrapping_dap_chain_net_srv_auctions_bid_withdraw_tx_create(PyObject *self, PyObject *argv);
