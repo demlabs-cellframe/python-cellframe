@@ -172,7 +172,7 @@ PyObject *dap_chain_node_cli_cmd_item_create_py(PyObject *a_self, PyObject *a_ar
         }
     }
     element_py_func_add(name, obj_cmdfunc);
-    dap_cli_server_cmd_add(name, wrapping_cmdfunc, doc, doc_ex);
+    dap_cli_server_cmd_add(name, wrapping_cmdfunc,NULL, doc, doc_ex);
     return PyLong_FromLong(0);
 }
 
