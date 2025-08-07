@@ -243,7 +243,14 @@ class TestVotingProcessor:
     def voting_processor(self, mock_cellframe_sdk):
         """Create VotingProcessor instance"""
         from CellFrame.composer.cond.voting import VotingProcessor
-        processor = VotingProcessor("testnet", "test_wallet")
+        from unittest.mock import Mock
+        
+        # Create mock composer
+        mock_composer = Mock()
+        mock_composer.net_name = "testnet"
+        mock_composer.wallet_name = "test_wallet"
+        
+        processor = VotingProcessor(mock_composer)
         return processor
 
     @pytest.mark.mock_only
@@ -314,7 +321,14 @@ class TestDelegationProcessor:
     def delegation_processor(self, mock_cellframe_sdk):
         """Create DelegationProcessor instance"""
         from CellFrame.composer.cond.delegation import DelegationProcessor
-        processor = DelegationProcessor("testnet", "test_wallet")
+        from unittest.mock import Mock
+        
+        # Create mock composer
+        mock_composer = Mock()
+        mock_composer.net_name = "testnet"
+        mock_composer.wallet_name = "test_wallet"
+        
+        processor = DelegationProcessor(mock_composer)
         return processor
 
     @pytest.mark.mock_only

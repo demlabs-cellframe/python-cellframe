@@ -1,6 +1,15 @@
 #!/bin/bash
 # 🧪 Test Environment Setup Script for Python Cellframe SDK
 # Создает виртуальное окружение и устанавливает все зависимости
+#
+# Использование:
+#   ./tests/setup_test_env.sh           # Обычный режим
+#   VERBOSE=true ./tests/setup_test_env.sh   # Подробные логи
+#   CI=true ./tests/setup_test_env.sh        # CI режим (автоматически verbose)
+#
+# Переменные окружения:
+#   VERBOSE=true  - показывать подробные логи pip и venv
+#   CI=true       - CI режим (автоматически включает verbose)
 
 set -e  # Exit on any error
 
@@ -48,19 +57,39 @@ fi
 echo -e "\n${BLUE}📦 Creating virtual environment...${NC}"
 if [ -d "$VENV_DIR" ]; then
     print_warning "Virtual environment already exists at $VENV_DIR"
-    read -p "Do you want to recreate it? (y/N): " -n 1 -r
-    echo
-    if [[ $REPLY =~ ^[Yy]$ ]]; then
-        rm -rf "$VENV_DIR"
-        print_status "Removed existing virtual environment"
-    else
-        print_status "Using existing virtual environment"
-    fi
+    # Non-interactive: always recreate for clean environment
+    print_status "Recreating virtual environment for clean test environment"
+    echo -e "${YELLOW}🗑️  Removing existing virtual environment...${NC}"
+    rm -rf "$VENV_DIR"
+    print_status "Removed existing virtual environment"
 fi
 
 if [ ! -d "$VENV_DIR" ]; then
-    python3 -m venv "$VENV_DIR"
-    print_status "Created virtual environment"
+    echo -e "${BLUE}🔨 Creating new virtual environment with Python $(python3 --version | cut -d' ' -f2)...${NC}"
+    echo -e "${YELLOW}⏳ This may take a few moments, please wait...${NC}"
+    
+    # Create venv with verbose output in CI or if explicitly requested
+    if [ "${CI:-false}" = "true" ] || [ "${VERBOSE:-false}" = "true" ]; then
+        echo -e "${BLUE}🔍 Running: python3 -m venv --clear --upgrade-deps \"$VENV_DIR\"${NC}"
+        python3 -m venv --clear --upgrade-deps "$VENV_DIR" 2>&1 | while IFS= read -r line; do
+            echo -e "${YELLOW}   venv: $line${NC}"
+        done
+    else
+        python3 -m venv --clear --upgrade-deps "$VENV_DIR"
+    fi
+    
+    # Verify creation was successful
+    if [ -d "$VENV_DIR" ] && [ -f "$VENV_DIR/bin/activate" ]; then
+        print_status "Virtual environment created successfully"
+        echo -e "${GREEN}   📍 Location: $VENV_DIR${NC}"
+        echo -e "${GREEN}   🐍 Python: $(\"$VENV_DIR/bin/python\" --version)${NC}"
+    else
+        print_error "Failed to create virtual environment"
+        echo -e "${RED}Expected files:${NC}"
+        echo -e "${RED}  - $VENV_DIR/bin/activate${NC}"
+        echo -e "${RED}  - $VENV_DIR/bin/python${NC}"
+        exit 1
+    fi
 fi
 
 # Activate virtual environment
@@ -70,15 +99,36 @@ print_status "Virtual environment activated"
 
 # Upgrade pip
 echo -e "\n${BLUE}📊 Upgrading pip...${NC}"
-pip install --upgrade pip setuptools wheel
-print_status "pip upgraded"
+echo -e "${YELLOW}⏳ Upgrading pip, setuptools, and wheel...${NC}"
+if [ "${CI:-false}" = "true" ] || [ "${VERBOSE:-false}" = "true" ]; then
+    pip install --upgrade --verbose pip setuptools wheel
+else
+    pip install --upgrade --progress-bar on pip setuptools wheel
+fi
+print_status "pip upgraded to version $(pip --version | cut -d' ' -f2)"
 
 # Install test dependencies
 echo -e "\n${BLUE}🧪 Installing test dependencies...${NC}"
-pip install pytest pytest-cov pytest-mock pytest-asyncio pytest-xdist
-pip install hypothesis coverage mypy black isort flake8
-pip install memory-profiler psutil
+echo -e "${YELLOW}📦 Installing testing frameworks...${NC}"
+if [ "${CI:-false}" = "true" ] || [ "${VERBOSE:-false}" = "true" ]; then
+    pip install --verbose pytest pytest-cov pytest-mock pytest-asyncio pytest-xdist
+    echo -e "${YELLOW}📦 Installing code quality tools...${NC}"
+    pip install --verbose hypothesis coverage mypy black isort flake8
+    echo -e "${YELLOW}📦 Installing profiling and build tools...${NC}"
+    pip install --verbose memory-profiler psutil
+    pip install --verbose build wheel setuptools
+else
+    pip install --progress-bar on pytest pytest-cov pytest-mock pytest-asyncio pytest-xdist
+    echo -e "${YELLOW}📦 Installing code quality tools...${NC}"
+    pip install --progress-bar on hypothesis coverage mypy black isort flake8
+    echo -e "${YELLOW}📦 Installing profiling and build tools...${NC}"
+    pip install --progress-bar on memory-profiler psutil
+    pip install --progress-bar on build wheel setuptools
+fi
 print_status "Test dependencies installed"
+echo -e "${GREEN}   🧪 Testing: pytest, coverage, hypothesis${NC}"
+echo -e "${GREEN}   🔍 Quality: mypy, black, isort, flake8${NC}"
+echo -e "${GREEN}   📊 Profiling: memory-profiler, psutil${NC}"
 
 # Install Python DAP SDK if available
 echo -e "\n${BLUE}🔗 Checking for python-dap dependency...${NC}"
@@ -88,28 +138,47 @@ if [ -d "$PYTHON_DAP_DIR" ]; then
     
     # Install python-dap in development mode
     echo -e "${BLUE}📦 Installing python-dap in development mode...${NC}"
-    pip install -e .
+    echo -e "${YELLOW}⏳ Building and installing python-dap package...${NC}"
+    if [ "${CI:-false}" = "true" ] || [ "${VERBOSE:-false}" = "true" ]; then
+        pip install --verbose -e .
+    else
+        pip install --progress-bar on -e .
+    fi
     print_status "python-dap installed in development mode"
+    echo -e "${GREEN}   📍 Installed from: $PYTHON_DAP_DIR${NC}"
     
     cd "$PROJECT_ROOT"
 else
     print_warning "python-dap directory not found. Will try to install from requirements.txt"
+    echo -e "${YELLOW}   Expected location: $PYTHON_DAP_DIR${NC}"
 fi
 
 # Install project dependencies
 echo -e "\n${BLUE}📋 Installing project dependencies...${NC}"
 if [ -f "$PROJECT_ROOT/requirements.txt" ]; then
-    pip install -r "$PROJECT_ROOT/requirements.txt"
+    echo -e "${YELLOW}⏳ Installing from requirements.txt...${NC}"
+    if [ "${CI:-false}" = "true" ] || [ "${VERBOSE:-false}" = "true" ]; then
+        pip install --verbose -r "$PROJECT_ROOT/requirements.txt"
+    else
+        pip install --progress-bar on -r "$PROJECT_ROOT/requirements.txt"
+    fi
     print_status "Requirements installed"
 else
     print_warning "requirements.txt not found"
+    echo -e "${YELLOW}   Expected location: $PROJECT_ROOT/requirements.txt${NC}"
 fi
 
 # Install python-cellframe in development mode  
 echo -e "\n${BLUE}📦 Installing python-cellframe in development mode...${NC}"
 cd "$PROJECT_ROOT"
-pip install -e .
+echo -e "${YELLOW}⏳ Building and installing python-cellframe package...${NC}"
+if [ "${CI:-false}" = "true" ] || [ "${VERBOSE:-false}" = "true" ]; then
+    pip install --verbose -e .
+else
+    pip install --progress-bar on -e .
+fi
 print_status "python-cellframe installed in development mode"
+echo -e "${GREEN}   📍 Installed from: $PROJECT_ROOT${NC}"
 
 # Verify installation
 echo -e "\n${BLUE}🔍 Verifying installation...${NC}"
@@ -154,8 +223,14 @@ export PYTHONPATH="$PROJECT_ROOT:\$PYTHONPATH"
 export CELLFRAME_TEST_MODE=1
 export DAP_SDK_TEST_MODE=1
 
+# Set test directory for DAP SDK initialization (avoids /opt/dap access issues)
+export CELLFRAME_TEST_DIR="$VENV_DIR/tmp/cellframe_tests"
+
 # Set log level for tests
 export CELLFRAME_LOG_LEVEL=DEBUG
+
+# Ensure native libraries are found at runtime
+export LD_LIBRARY_PATH="/usr/local/lib:\$LD_LIBRARY_PATH"
 
 echo "🧪 Test environment activated!"
 echo "PYTHONPATH: \$PYTHONPATH"

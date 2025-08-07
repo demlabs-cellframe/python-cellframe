@@ -4,22 +4,48 @@ Python Cellframe SDK - Modern Pythonic API for Cellframe Network
 
 from setuptools import setup, find_packages
 import os
+import shutil
+import glob
 
 # Читаем README для long_description
 def read_readme():
-    with open("README.md", "r", encoding="utf-8") as fh:
-        return fh.read()
+    try:
+        with open("README.md", "r", encoding="utf-8") as fh:
+            return fh.read()
+    except FileNotFoundError:
+        return "Python bindings for Cellframe SDK - Modular Blockchain Platform"
 
-# Читаем requirements
-def read_requirements():
-    with open("requirements.txt", "r", encoding="utf-8") as fh:
-        return [line.strip() for line in fh if line.strip() and not line.startswith("#")]
+# Find native libraries to include
+def find_native_libraries():
+    libraries = []
+    # Look for built libraries in build directory
+    build_dirs = ['build', './build', '../build']
+    for build_dir in build_dirs:
+        if os.path.exists(build_dir):
+            # Find the actual library file (not symlinks)
+            real_lib = glob.glob(f"{build_dir}/libpython_cellframe.so.*.*.*")
+            if real_lib:
+                # Copy to python_cellframe.so for proper Python module import
+                src = real_lib[0]
+                dst = f"{build_dir}/python_cellframe.so"
+                if not os.path.exists(dst) or os.path.getmtime(src) > os.path.getmtime(dst):
+                    shutil.copy2(src, dst)
+                    print(f"Copied {src} -> {dst} for Python import")
+                # Also copy to package directory for immediate access
+                pkg_dst = "python_cellframe.so"
+                if not os.path.exists(pkg_dst) or os.path.getmtime(src) > os.path.getmtime(pkg_dst):
+                    shutil.copy2(src, pkg_dst)
+                    print(f"Copied {src} -> {pkg_dst} for package")
+                libraries.append(pkg_dst)
+            break
+    
+    return libraries
 
 # Версия SDK
-VERSION = "2.0.0"
+VERSION = "1.0.0"
 
 setup(
-    name="cellframe",
+    name="python-cellframe",
     version=VERSION,
     
     # Metadata
@@ -34,8 +60,18 @@ setup(
     packages=find_packages(),
     include_package_data=True,
     
+    # Package data - include native module
+    package_data={
+        "": ["python_cellframe.so", "*.so", "*.so.*"],  # Include native modules
+        "CellFrame": [
+            "py.typed",  # Type hints support
+            "templates/*.json",
+            "schemas/*.json",
+        ],
+    },
+    
     # Requirements
-    install_requires=read_requirements(),
+    install_requires=["python-dap>=3.0.0"],
     
     # Python version
     python_requires=">=3.8",
@@ -79,14 +115,7 @@ setup(
         ],
     },
     
-    # Package data
-    package_data={
-        "cellframe": [
-            "py.typed",  # Type hints support
-            "templates/*.json",
-            "schemas/*.json",
-        ],
-    },
+
     
     # Extras
     extras_require={

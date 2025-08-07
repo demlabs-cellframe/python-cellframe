@@ -2,7 +2,7 @@ from typing import Protocol, NewType
 
 import traceback
 from CellFrame import AppCliServer
-from pycfhelpers.logger import log
+from CellFrame.legacy.pycfhelpers.logger import log
 from optparse import OptionParser
 
 ReplyId = NewType("ReplyId", int)

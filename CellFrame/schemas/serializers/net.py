@@ -1,4 +1,4 @@
-from schemas._common import SerializeModel
+from .._common import SerializeModel
 
 
 class Net(SerializeModel):

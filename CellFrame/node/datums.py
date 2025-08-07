@@ -6,12 +6,12 @@ import binascii
 from datetime import datetime
 from abc import ABC, abstractmethod
 
-from pycfhelpers.logger import log
+from CellFrame.legacy.pycfhelpers.logger import log
 
 from .crypto import CFCertificate
-from CellFrame.Common import Datum, DatumTx, DatumToken, DatumDecree, DatumAnchor, DatumEmission, TxTSD
-from CellFrame.Chain import ChainAddr
-from DAP.Core import Math
+from CellFrame.common import Datum, DatumTx, DatumToken, DatumDecree, DatumAnchor, DatumEmission, TxTSD
+from CellFrame.chain import ChainAddr
+from CellFrame.legacy.DAP.Core import Math
 
 if TYPE_CHECKING:
     from .net import CFNet, CFChain, CFWalletAddress
@@ -526,7 +526,7 @@ class CFDatumEmission(CFSubDatum):
             sub_datum (DatumEmission): The emission sub-datum object.
             net (CFNet | None): The CFNet instance representing the network context, defaults to None.
         """
-        from pycfhelpers.node.net import CFWalletAddress
+        from CellFrame.legacy.pycfhelpers.node.net import CFWalletAddress
         super().__init__(parent_datum, sub_datum, chain=chain)
         if self.type == "CORRUPTED":
             return

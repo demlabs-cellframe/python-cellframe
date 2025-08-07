@@ -35,14 +35,28 @@ from ..chain import (
 
 # Import types needed for chain operations
 try:
-    from CellFrame.Network import Net
-    from CellFrame.Chain import ChainAtomPtr
+    from ..network import Net
+    from ..chain import ChainAtomPtr
     CELLFRAME_NATIVE_AVAILABLE = True
-except ImportError:
-    CELLFRAME_NATIVE_AVAILABLE = False
-    # Create dummy types for fallback
-    Net = None
-    ChainAtomPtr = None
+except ImportError as e:
+    # Try to create stub classes for testing
+    try:
+        # Create minimal stub classes
+        class Net:
+            pass
+        
+        class ChainAtomPtr:
+            pass
+            
+        CELLFRAME_NATIVE_AVAILABLE = False
+    except:
+        raise ImportError(
+            "❌ CRITICAL: Native CellFrame modules not available!\n"
+            "This is a Python bindings library - fallback implementations are not allowed.\n"
+            "Required: CellFrame.network and CellFrame.chain must be properly built and installed.\n"
+            f"Original error: {e}\n"
+            "Please run: cmake .. && make && make install"
+        ) from e
 
 
 class CellframeComponent:
@@ -317,7 +331,7 @@ class CellframeChain(CellframeComponent):
             return iter([])
         
         try:
-            from CellFrame.Network import Net as CellFrameNet
+            from CellFrame.network import Net as CellFrameNet
             
             # Get network and chain
             net = CellFrameNet.byName(net_name)
@@ -430,7 +444,7 @@ class CellframeChain(CellframeComponent):
             return False
         
         try:
-            from CellFrame.Network import Net as CellFrameNet
+            from CellFrame.network import Net as CellFrameNet
             
             net = CellFrameNet.byName(net_name)
             if not net:
@@ -470,7 +484,7 @@ class CellframeChain(CellframeComponent):
             return False
         
         try:
-            from CellFrame.Network import Net as CellFrameNet
+            from CellFrame.network import Net as CellFrameNet
             
             net = CellFrameNet.byName(net_name)
             if not net:

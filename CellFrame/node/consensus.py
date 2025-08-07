@@ -2,15 +2,15 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 import traceback
 
-from CellFrame.Chain import ChainAtomPtr
-from CellFrame.Consensus import DAG, Block
-from CellFrame.Services import StakePosDelegate
-from DAP.Core import logIt
+from CellFrame.chain import ChainAtomPtr
+from CellFrame.consensus import DAG, Block
+from CellFrame.services import StakePosDelegate
+from CellFrame.legacy.DAP.Core import logIt
 
 if TYPE_CHECKING:
     from .net import CFChain
     from ..net import CFNet
-    from DAP.Core import Math
+    from CellFrame.legacy.DAP.Core import Math
 
 from .datums import CFDatum
 from .crypto import CFSign

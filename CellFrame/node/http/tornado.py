@@ -5,7 +5,7 @@ import time
 import urllib
 import threading
 
-from pycfhelpers.logger import log
+from CellFrame.legacy.pycfhelpers.logger import log
 from typing import Optional, Callable, Tuple
 
 try:

@@ -3,10 +3,10 @@ from dataclasses import dataclass
 from pydantic import BaseModel
 
 try:
-    from pycfhelpers.node.net import CFNet, CFChain
-    from pycfhelpers.node.consensus import CFBlock, CFEvent
-    from pycfhelpers.node.datums import CFDatum
-    from pycfhelpers.node.logging import CFLog
+    from CellFrame.legacy.pycfhelpers.node.net import CFNet, CFChain
+    from CellFrame.legacy.pycfhelpers.node.consensus import CFBlock, CFEvent
+    from CellFrame.legacy.pycfhelpers.node.datums import CFDatum
+    from CellFrame.legacy.pycfhelpers.node.logging import CFLog
 except ImportError:
     import sys
 

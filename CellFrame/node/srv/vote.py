@@ -4,12 +4,12 @@ Module for CellFrame Voting.
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
-from DAP.Core import logIt
+from CellFrame.legacy.DAP.Core import logIt
 from CellFrame.Services import Vote
 import traceback
 if TYPE_CHECKING:
     from ..net import CFNet
-    from DAP.Crypto import HashFast
+    from CellFrame.legacy.DAP.Crypto import HashFast
 
 class CFVotingOption:
     """

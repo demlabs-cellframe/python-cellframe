@@ -1,6 +1,6 @@
-from DAP.Core import AppContext
-from DAP.Network import Server, HttpSimple, HttpCode, HttpHeader
-from pycfhelpers.logger import log
+from CellFrame.legacy.DAP.Core import AppContext
+from CellFrame.legacy.DAP.Network import Server, HttpSimple, HttpCode, HttpHeader
+from CellFrame.legacy.pycfhelpers.logger import log
 
 from typing import Callable, Union
 

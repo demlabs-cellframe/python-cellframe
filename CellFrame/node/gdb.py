@@ -3,11 +3,11 @@ from enum import Enum
 from typing import Any, Callable, Iterator, Optional, List, Tuple, Dict
 
 try:
-    from DAP.GlobalDB import DB, Cluster, Instance, MemberRoles
-    from DAP.Network import ClusterRoles
+    from CellFrame.legacy.DAP.GlobalDB import DB, Cluster, Instance, MemberRoles
+    from CellFrame.legacy.DAP.Network import ClusterRoles
 except:
     print("No DAP.GlobalDB, use stabs")
-    from CellFrame.Chain import GlobalDB as DB
+    from CellFrame.chain import GlobalDB as DB
     class Cluster:
         pass
 
@@ -30,7 +30,7 @@ except:
         pass
 
 
-from pycfhelpers.node.crypto import CFGUUID
+from CellFrame.legacy.pycfhelpers.node.crypto import CFGUUID
 
 from .net import CFNodeAddress, CFNet
 

@@ -5,7 +5,7 @@ from enum import IntEnum
 from dataclasses import dataclass
 
 try:
-    from DAP.Core import logIt
+    from CellFrame.legacy.DAP.Core import logIt
 except ImportError:
     pass
 

@@ -1,7 +1,9 @@
 from typing import NewType
 from enum import Enum
 
-from CellFrame.Common import TxIn, TxInCond, TxOut, TxOutCond, TxPkey, TxSig, TxToken, TxReceipt, TxOutExt, TxTSD, TxOutCondSubtypeSrvStakeLock, TxOutStd
+from CellFrame.common import TxTSD
+# Import transaction types from legacy
+from CellFrame.legacy.pycfhelpers import TxIn, TxInCond, TxOut, TxOutCond, TxPkey, TxSig, TxToken, TxReceipt, TxOutExt, TxOutCondSubtypeSrvStakeLock, TxOutStd
 
 
 OriginItemTypes = TxIn | TxInCond | TxOut | TxOutCond | TxPkey | TxSig | TxToken | TxReceipt | TxOutExt | TxTSD | TxOutCondSubtypeSrvStakeLock | TxOutStd

@@ -5,11 +5,11 @@ import secrets
 import traceback
 import binascii
 
-from pycfhelpers.logger import log
-from DAP.Crypto import HashFast, Cert
-from DAP.Core import Math
-from CellFrame.Network import Net, NetID
-from CellFrame.Chain import ChainAtomPtr, Ledger, ChainAddr, Mempool, Wallet
+from CellFrame.legacy.pycfhelpers import log
+from CellFrame.legacy.DAP.Crypto import HashFast, Cert
+from CellFrame.legacy.DAP.Core import Math
+from CellFrame.network import Net, NetID
+from CellFrame.chain import ChainAtomPtr, Ledger, ChainAddr, Mempool, Wallet
 
 from .consensus import CFEvent, CFBlock
 from .datums import CFDatum, CFSubDatum, CFDatumTX, CFDatumEmission
@@ -22,7 +22,7 @@ from ..common.types import ChainTypes, DatumTypes, ItemTypes, ItemTypesValues
 
 
 try:
-    from DAP.Core import NodeAddr
+    from CellFrame.legacy.DAP.Core import NodeAddr
     HAVE_NODEADDR = True
 except BaseException:
     print("No NodeAddr module, use stab")
@@ -31,7 +31,7 @@ except BaseException:
         pass
 
 if TYPE_CHECKING:
-    from CellFrame.Chain import ticker
+    from CellFrame.chain import ticker
 
 
 class NetFee:

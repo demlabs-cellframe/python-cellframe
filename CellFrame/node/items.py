@@ -7,7 +7,7 @@ if TYPE_CHECKING:
     from ..common.types import ItemTypes
 
 from .crypto import CFSign
-from pycfhelpers.logger import log
+from CellFrame.legacy.pycfhelpers.logger import log
 
 class CFItem:
     """
@@ -70,7 +70,7 @@ class CFTxOut(CFItem):
 
     def __init__(self, *args, **kwargs):
         """Initialize a new CFTxOut instance."""
-        from pycfhelpers.node.net import CFWalletAddress
+        from CellFrame.legacy.pycfhelpers.node.net import CFWalletAddress
 
         super().__init__(*args, **kwargs)
         self.address = CFWalletAddress(str(self._origin_item.addr))
@@ -194,7 +194,7 @@ class CFTxOutExt(CFItem):
 
     def __init__(self, *args, **kwargs):
         try:
-            from pycfhelpers.node.net import CFWalletAddress
+            from CellFrame.legacy.pycfhelpers.node.net import CFWalletAddress
             """Initialize a new CFTxOutExt instance."""
             super().__init__(*args, **kwargs)
             self.address = CFWalletAddress(str(self._origin_item.addr))
@@ -287,7 +287,7 @@ class CFTxOutStd(CFItem):
 
     def __init__(self, *args, **kwargs):
         try:
-            from pycfhelpers.node.net import CFWalletAddress
+            from CellFrame.legacy.pycfhelpers.node.net import CFWalletAddress
 
             super().__init__(*args, **kwargs)
 

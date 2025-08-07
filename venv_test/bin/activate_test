@@ -1,25 +1,41 @@
 #!/bin/bash
-# Activate test environment with all necessary paths
+# Enhanced activation script for Python Cellframe SDK testing
+# This script sets up all necessary environment variables and library paths
 
+# Activate virtual environment
 source "/home/naeper/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/venv_test/bin/activate"
 
-# Set Python path to include project modules
-export PYTHONPATH="/home/naeper/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe:$PYTHONPATH"
+# Set up library paths for native libraries
+export LD_LIBRARY_PATH="/home/naeper/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/build:/home/naeper/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/build/dap-sdk-build:/home/naeper/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/build/cellframe-sdk-embedded:/home/naeper/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/build/python-dap:$LD_LIBRARY_PATH"
 
-# Set environment for tests
+# Set up Python paths
+export PYTHONPATH="/home/naeper/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe:/home/naeper/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/build:$PYTHONPATH"
+
+# Set test mode flags
 export CELLFRAME_TEST_MODE=1
 export DAP_SDK_TEST_MODE=1
 
-# Set log level for tests
-export CELLFRAME_LOG_LEVEL=DEBUG
+# Set DAP SDK to use temp directories for tests
+export DAP_SDK_WORKING_DIR="/home/naeper/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/venv_test/tmp/dap_sdk"
+mkdir -p ""
 
-echo "🧪 Test environment activated!"
-echo "PYTHONPATH: $PYTHONPATH"
-echo "Virtual env: /home/naeper/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/venv_test"
-echo ""
-echo "To run tests:"
-echo "  cd /home/naeper/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/tests"
-echo "  pytest"
-echo ""
-echo "To deactivate:"
-echo "  deactivate"
+# Make CMake build libraries available
+if [ -f "/home/naeper/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/build/libpython_cellframe.so" ]; then
+    export PYTHON_CELLFRAME_LIBRARY_PATH="/home/naeper/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/build"
+fi
+
+if [ -f "/home/naeper/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/build/python-dap/libpython_dap.so" ]; then
+    export PYTHON_DAP_LIBRARY_PATH="/home/naeper/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/build/python-dap"
+fi
+
+# Set DAP SDK to use temp directories for tests
+export DAP_SDK_WORKING_DIR="/home/naeper/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/venv_test/tmp/dap_sdk"
+mkdir -p "$DAP_SDK_WORKING_DIR"
+
+# Print status
+echo "✅ Test environment activated with CMake library paths"
+echo "   📂 Build directory: /home/naeper/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/build"
+echo "   🐍 Python path: $PYTHONPATH"
+echo "   📚 Library path: $LD_LIBRARY_PATH"
+echo "   🧪 Test mode: CELLFRAME_TEST_MODE=1, DAP_SDK_TEST_MODE=1"
+echo "   📁 DAP SDK working dir: $DAP_SDK_WORKING_DIR"

@@ -98,20 +98,18 @@ class TestCellframeNode:
         """Test get_chains with no chains."""
         node = CellframeNode(context=self.mock_context)
         
-        # CellframeNode uses chain component
-        chains = node.chain.get_chains() if hasattr(node.chain, 'get_chains') else []
-        
-        assert isinstance(chains, list)
-        assert len(chains) == 0
+        # CellframeNode stores chains in _chains dict
+        assert node._chains == {}
+        assert len(node._chains) == 0
         
     @pytest.mark.unit
-    def test_get_chain_by_id_not_found(self):
-        """Test get_chain_by_id with non-existent chain."""
+    def test_get_chain_not_found(self):
+        """Test get_chain with non-existent chain."""
         node = CellframeNode(context=self.mock_context)
         
-        # CellframeNode doesn't have get_chain_by_id method
-        # Test that chains dict is empty
-        assert node._chains == {}
+        # Use the actual get_chain method
+        chain = node.get_chain("nonexistent")
+        assert chain is None
             
     @pytest.mark.unit
     def test_context_manager_success(self):

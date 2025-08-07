@@ -45,34 +45,46 @@ from decimal import Decimal
 
 # Import cellframe functions - always required
 try:
-    from python_cellframe_common import (
-        # Real Cellframe wallet functions
-        dap_chain_wallet_create, dap_chain_wallet_create_with_seed,
-        dap_chain_wallet_create_with_seed_multi, dap_chain_wallet_open,
-        dap_chain_wallet_open_ext, dap_chain_wallet_close, dap_chain_wallet_save,
-        dap_chain_wallet_get_addr, dap_chain_wallet_get_balance,
-        dap_chain_wallet_get_key, dap_chain_wallet_get_pkey,
-        dap_chain_wallet_activate, dap_chain_wallet_deactivate,
-        
-        # Constants
-        DAP_CHAIN_TICKER_SIZE_MAX,
-    )
-    _CELLFRAME_AVAILABLE = True
-except ImportError:
-    _CELLFRAME_AVAILABLE = False
-    logging.warning("python_cellframe_common not available - using fallback implementations")
+    # First ensure python_dap is imported (required for python_cellframe)
+    try:
+        import python_dap
+    except ImportError:
+        pass  # python_dap may not be available in stub mode
     
-    # Fallback implementations for development/testing
-    def dap_chain_wallet_create(name, path, *args): return f"mock_wallet_{name}"
-    def dap_chain_wallet_create_with_seed(name, path, seed, *args): return f"mock_wallet_{name}_seed"
-    def dap_chain_wallet_create_with_seed_multi(name, path, seed, *args): return f"mock_wallet_{name}_multi"
-    def dap_chain_wallet_open(name, path, password): return f"mock_wallet_{name}_opened"
-    def dap_chain_wallet_open_ext(name, path, password, *args): return f"mock_wallet_{name}_opened_ext"
-    def dap_chain_wallet_close(wallet): pass
-    def dap_chain_wallet_save(wallet): return True
-    def dap_chain_wallet_get_addr(wallet, net_id): return "mDAP1111111111111111111111111111111111111111"
-    def dap_chain_wallet_get_balance(wallet, net_id, token): return 1000000000000000000  # 1.0 token
-    def dap_chain_wallet_get_key(wallet, key_idx): return "mock_key"
+    # First try the main python_cellframe module
+    import python_cellframe
+    if hasattr(python_cellframe, 'is_sdk_available') and not python_cellframe.is_sdk_available():
+        raise RuntimeError("Native SDK not properly initialized")
+    
+    # Try to import wallet functions - they might be in a submodule
+    try:
+        from python_cellframe import (
+            dap_chain_wallet_create, dap_chain_wallet_create_with_seed,
+            dap_chain_wallet_create_with_seed_multi, dap_chain_wallet_open,
+            dap_chain_wallet_open_ext, dap_chain_wallet_close, dap_chain_wallet_save,
+            dap_chain_wallet_get_addr, dap_chain_wallet_get_balance,
+            dap_chain_wallet_get_key, dap_chain_wallet_get_pkey,
+            dap_chain_wallet_activate, dap_chain_wallet_deactivate,
+            DAP_CHAIN_TICKER_SIZE_MAX,
+        )
+    except ImportError:
+        # Wallet functions not yet implemented in native module
+        raise ImportError(
+            "❌ CRITICAL: Wallet functions not available in python_cellframe!\n"
+            "This is a Python bindings library - fallback implementations are not allowed.\n"
+            "Required: dap_chain_wallet_* functions must be implemented in native C extension.\n"
+            "Please implement wallet bindings in src/cellframe_wallet.c"
+        )
+    
+    _CELLFRAME_AVAILABLE = True
+except ImportError as e:
+    raise ImportError(
+        "❌ CRITICAL: Native python_cellframe module not available!\n"
+        "This is a Python bindings library - fallback implementations are not allowed.\n"
+        "Required: python_cellframe native C extension must be properly built and installed.\n"
+        f"Original error: {e}\n"
+        "Please run: cmake .. && make && make install"
+    ) from e
     def dap_chain_wallet_get_pkey(wallet, key_idx): return "mock_pkey"
     def dap_chain_wallet_activate(wallet): return True
     def dap_chain_wallet_deactivate(wallet): return True
@@ -442,7 +454,7 @@ class Wallet:
                 
                 # Try to get address using native API
                 try:
-                    from CellFrame.Network import Net
+                    from CellFrame.network import Net
                     
                     net = Net.byName(network_name)
                     if not net:
@@ -478,7 +490,7 @@ class Wallet:
         try:
             # Try to resolve network name to ID
             try:
-                from CellFrame.Network import Net
+                from CellFrame.network import Net
                 
                 net = Net.byName(network_name)
                 if not net:

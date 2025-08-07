@@ -11,7 +11,50 @@ from decimal import Decimal
 from datetime import datetime, timedelta
 from typing import Dict, Any, List
 
-# Import types for proper mocking
+# Initialize DAP SDK for testing environment before importing CellFrame modules
+@pytest.fixture(scope="session", autouse=True)
+def setup_dap_sdk_for_tests():
+    """
+    Initialize DAP SDK with test-friendly paths before any CellFrame imports.
+    This prevents /opt/dap access issues and segfaults.
+    """
+    try:
+        import dap
+        from dap.core.dap import Dap
+        
+        # Create test directories in venv_test or /tmp
+        test_base = os.environ.get('CELLFRAME_TEST_DIR', '/tmp/cellframe_tests')
+        
+        dap_config = {
+            'app_name': "cellframe_tests", 
+            'working_dir': test_base,
+            'config_dir': f"{test_base}/etc",
+            'temp_dir': f"{test_base}/tmp", 
+            'log_file': f"{test_base}/var/log/cellframe_tests.log",
+            'debug_mode': False,  # Reduce noise in tests
+            'events_threads': 1   # Minimal for tests
+        }
+        
+        # Create required directories
+        os.makedirs(dap_config['config_dir'], exist_ok=True)
+        os.makedirs(dap_config['temp_dir'], exist_ok=True)
+        os.makedirs(os.path.dirname(dap_config['log_file']), exist_ok=True)
+        
+        # Initialize DAP SDK with test configuration
+        dap_instance = Dap(dap_config=dap_config)
+        dap_instance.init()
+        
+        print(f"✅ DAP SDK initialized for tests in: {test_base}")
+        yield dap_instance
+        
+        # Cleanup is handled by OS
+        
+    except Exception as e:
+        print(f"⚠️  DAP SDK test setup failed: {e}")
+        # Continue without DAP SDK for mock-only tests
+        yield None
+
+# Import types for proper mocking (after DAP SDK is initialized)
 try:
     from CellFrame.core.context import AppContext, LibContext, PluginContext, ExecutionMode
     from CellFrame.chain import Wallet, TX, DapLedger, WalletType, TxType
@@ -471,7 +514,7 @@ async def async_mock_wallet():
 # MARKERS AND PARAMETRIZATION
 # =========================================
 
-@pytest.fixture(params=[WalletType.SIMPLE, WalletType.HD] if CELLFRAME_AVAILABLE else ["simple", "hd"])
+@pytest.fixture(params=[WalletType.SIMPLE, WalletType.HARDWARE] if CELLFRAME_AVAILABLE else ["simple", "hardware"])
 def wallet_type(request):
     """Parametrized wallet type fixture."""
     return request.param

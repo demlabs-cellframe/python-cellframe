@@ -10,39 +10,11 @@ Attributes:
 try:
     from .node.logging import CFLog
     log = CFLog()
-except ImportError:
-    # Fallback logging when CellFrame SDK is not available
-    import logging
-    
-    class FallbackLog:
-        def __init__(self):
-            self.logger = logging.getLogger('pycfhelpers')
-            if not self.logger.handlers:
-                handler = logging.StreamHandler()
-                formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-                handler.setFormatter(formatter)
-                self.logger.addHandler(handler)
-                self.logger.setLevel(logging.INFO)
-        
-        def debug(self, message, **kwargs):
-            self.logger.debug(message)
-        
-        def info(self, message, **kwargs):
-            self.logger.info(message)
-        
-        def notice(self, message, **kwargs):
-            self.logger.info(f"NOTICE: {message}")
-        
-        def message(self, message, **kwargs):
-            self.logger.info(message)
-        
-        def warning(self, message, **kwargs):
-            self.logger.warning(message)
-        
-        def error(self, message, **kwargs):
-            self.logger.error(message)
-        
-        def critical(self, message, **kwargs):
-            self.logger.critical(message)
-    
-    log = FallbackLog()
+except ImportError as e:
+    raise ImportError(
+        "❌ CRITICAL: Native logging module not available!\n"
+        "This is a Python bindings library - fallback implementations are not allowed.\n"
+        "Required: CellFrame.node.logging must be properly built and installed.\n"
+        f"Original error: {e}\n"
+        "Please run: cmake .. && make && make install"
+    ) from e

@@ -1,7 +1,68 @@
 #ifndef PYTHON_CELLFRAME_H
 #define PYTHON_CELLFRAME_H
 
+// =========================================
+// VERSION AND BUILD CONFIGURATION
+// =========================================
+#define PYTHON_CELLFRAME_VERSION "1.0.0"
+#define PYTHON_CELLFRAME_MODULE_NAME "python_cellframe"
+
+// Constants from DAP SDK
+#define DAP_CHAIN_TICKER_SIZE_MAX 32
+
+// Include Python headers first to avoid macro conflicts
 #include <Python.h>
+
+// Save important Python macro definitions before potential conflicts
+#ifdef HAVE_DLFCN_H
+#define PYTHON_HAVE_DLFCN_H HAVE_DLFCN_H
+#endif
+#ifdef HAVE_ENDIAN_H  
+#define PYTHON_HAVE_ENDIAN_H HAVE_ENDIAN_H
+#endif
+#ifdef HAVE_FCNTL_H
+#define PYTHON_HAVE_FCNTL_H HAVE_FCNTL_H
+#endif
+#ifdef HAVE_INTTYPES_H
+#define PYTHON_HAVE_INTTYPES_H HAVE_INTTYPES_H
+#endif
+#ifdef HAVE_STDINT_H
+#define PYTHON_HAVE_STDINT_H HAVE_STDINT_H
+#endif
+#ifdef HAVE_STDLIB_H
+#define PYTHON_HAVE_STDLIB_H HAVE_STDLIB_H
+#endif
+#ifdef HAVE_STRINGS_H
+#define PYTHON_HAVE_STRINGS_H HAVE_STRINGS_H
+#endif
+#ifdef HAVE_STRING_H
+#define PYTHON_HAVE_STRING_H HAVE_STRING_H
+#endif
+#ifdef HAVE_SYS_RANDOM_H
+#define PYTHON_HAVE_SYS_RANDOM_H HAVE_SYS_RANDOM_H
+#endif
+#ifdef HAVE_SYS_RESOURCE_H
+#define PYTHON_HAVE_SYS_RESOURCE_H HAVE_SYS_RESOURCE_H
+#endif
+#ifdef HAVE_SYS_STAT_H
+#define PYTHON_HAVE_SYS_STAT_H HAVE_SYS_STAT_H
+#endif
+#ifdef HAVE_SETLOCALE
+#define PYTHON_HAVE_SETLOCALE HAVE_SETLOCALE
+#endif
+#ifdef HAVE_SNPRINTF
+#define PYTHON_HAVE_SNPRINTF HAVE_SNPRINTF
+#endif
+#ifdef HAVE_GETRANDOM
+#define PYTHON_HAVE_GETRANDOM HAVE_GETRANDOM
+#endif
+#ifdef HAVE_GETRUSAGE
+#define PYTHON_HAVE_GETRUSAGE HAVE_GETRUSAGE
+#endif
+#ifdef STDC_HEADERS
+#define PYTHON_STDC_HEADERS STDC_HEADERS
+#endif
+
 #include <stdint.h>
 #include <stdbool.h>
 
@@ -13,11 +74,14 @@ extern "C" {
 // CONDITIONAL CELLFRAME SDK INTEGRATION
 // =========================================
 #ifdef CELLFRAME_SDK_EMBEDDED
-    // When SDK is embedded, include Cellframe headers
-    #include "cellframe-sdk/modules/common/include/dap_common.h"
-    #include "cellframe-sdk/modules/chain/include/dap_chain.h"
-    #include "cellframe-sdk/modules/net/include/dap_chain_net.h"
-    #include "cellframe-sdk/modules/wallet/include/dap_chain_wallet.h"
+    // When SDK is embedded, include DAP SDK and Cellframe headers
+    // DAP SDK headers (through external include paths)
+    #include "dap_common.h"
+    #include "dap_chain_common.h"
+    // Cellframe SDK module headers  
+    #include "dap_chain.h"
+    #include "dap_chain_net.h"
+    #include "dap_chain_wallet.h"
     #define CELLFRAME_AVAILABLE 1
 #else
     // When SDK not embedded, define stub types
@@ -30,7 +94,9 @@ extern "C" {
 // =========================================
 // MODULE INFORMATION
 // =========================================
+#ifndef PYTHON_CELLFRAME_VERSION
 #define PYTHON_CELLFRAME_VERSION "2.0.0"
+#endif
 #define PYTHON_CELLFRAME_MODULE_NAME "python_cellframe"
 
 // =========================================
@@ -91,7 +157,22 @@ PyObject* PyCellframeWallet_new(PyTypeObject *type, PyObject *args, PyObject *kw
 int PyCellframeWallet_init(PyCellframeWallet *self, PyObject *args, PyObject *kwds);
 void PyCellframeWallet_dealloc(PyCellframeWallet *self);
 PyObject* PyCellframeWallet_create(PyObject *self, PyObject *args);
-PyObject* PyCellframeWallet_get_balance(PyCellframeWallet *self, PyObject *args);
+PyObject* PyCellframeWallet_get_balance_method(PyCellframeWallet *self, PyObject *args);
+
+// Wallet module-level functions (for import)
+PyObject* py_dap_chain_wallet_create(PyObject *self, PyObject *args);
+PyObject* py_dap_chain_wallet_create_with_seed(PyObject *self, PyObject *args);
+PyObject* py_dap_chain_wallet_create_with_seed_multi(PyObject *self, PyObject *args);
+PyObject* py_dap_chain_wallet_open(PyObject *self, PyObject *args);
+PyObject* py_dap_chain_wallet_open_ext(PyObject *self, PyObject *args);
+PyObject* py_dap_chain_wallet_close(PyObject *self, PyObject *args);
+PyObject* py_dap_chain_wallet_save(PyObject *self, PyObject *args);
+PyObject* py_dap_chain_wallet_get_addr(PyObject *self, PyObject *args);
+PyObject* py_dap_chain_wallet_get_balance(PyObject *self, PyObject *args);
+PyObject* py_dap_chain_wallet_get_key(PyObject *self, PyObject *args);
+PyObject* py_dap_chain_wallet_get_pkey(PyObject *self, PyObject *args);
+PyObject* py_dap_chain_wallet_activate(PyObject *self, PyObject *args);
+PyObject* py_dap_chain_wallet_deactivate(PyObject *self, PyObject *args);
 
 // Node functions
 extern PyTypeObject PyCellframeNodeType;
@@ -106,9 +187,10 @@ PyObject* PyCellframeNode_get_status(PyCellframeNode *self, PyObject *args);
 // UTILITY FUNCTIONS
 // =========================================
 bool cellframe_sdk_is_available(void);
-PyObject* cellframe_get_version(PyObject *self, PyObject *args);
-PyObject* cellframe_initialize(PyObject *self, PyObject *args);
-PyObject* cellframe_deinitialize(PyObject *self, PyObject *args);
+PyObject* cellframe_sdk_is_available_wrapper(PyObject *self);
+PyObject* cellframe_get_version(PyObject *self);
+PyObject* cellframe_initialize(PyObject *self, PyObject *args, PyObject *kwds);
+PyObject* cellframe_deinitialize(PyObject *self);
 
 // =========================================
 // ERROR HANDLING

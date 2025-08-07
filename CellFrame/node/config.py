@@ -1,5 +1,5 @@
 from typing import Optional, Union, List
-from DAP import configGetItem, configGetSysDir
+from CellFrame.legacy.DAP import configGetItem, configGetSysDir
 
 ConfigValueType = Union[str, bool, int, List[str]]
 

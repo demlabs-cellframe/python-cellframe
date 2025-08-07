@@ -21,8 +21,14 @@ from enum import Enum
 # Import DAP for core functionality
 try:
     import dap
-except ImportError:
-    dap = None
+except ImportError as e:
+    raise ImportError(
+        "❌ CRITICAL: Native DAP module not available!\n"
+        "This is a Python bindings library - fallback implementations are not allowed.\n"
+        "Required: python-dap must be properly built and installed.\n"
+        f"Original error: {e}\n"
+        "Please run: cd python-dap && cmake .. && make && make install"
+    ) from e
 
 
 class ExecutionMode(Enum):

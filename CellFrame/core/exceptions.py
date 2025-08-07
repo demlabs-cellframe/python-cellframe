@@ -30,16 +30,14 @@ from typing import Any, Dict, List, Optional, Union
 # Import base exceptions from python-dap
 try:
     from dap import DapException, format_exception_context
-except ImportError:
-    # Fallback if python-dap not available
-    class DapException(Exception):
-        def __init__(self, message: str, error_code: str = "DAP_ERROR", **kwargs):
-            super().__init__(message)
-            self.message = message
-            self.error_code = error_code
-    
-    def format_exception_context(exception): 
-        return str(exception)
+except ImportError as e:
+    raise ImportError(
+        "❌ CRITICAL: Native DAP exceptions module not available!\n"
+        "This is a Python bindings library - fallback implementations are not allowed.\n"
+        "Required: python-dap with exception handling must be properly built and installed.\n"
+        f"Original error: {e}\n"
+        "Please run: cd python-dap && cmake .. && make && make install"
+    ) from e
 
 
 class CellframeException(DapException):

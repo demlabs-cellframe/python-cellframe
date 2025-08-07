@@ -9,7 +9,6 @@ Key Services:
 - ExchangeService: Token exchange and trading
 - VotingService: Governance and voting operations  
 - OrderService: Order management and matching
-- BridgeService: Cross-chain bridging operations
 
 Each service follows the universal architecture pattern with:
 - Context-aware initialization
@@ -23,7 +22,11 @@ from .staking import StakingService
 from .exchange import ExchangeService
 from .voting import VotingService
 from .order import OrderService
-from .bridge import BridgeService
+
+# Stub class for StakePosDelegate
+class StakePosDelegate:
+    """Stub class for stake PoS delegate - to be implemented in native module"""
+    pass
 
 # Export all services
 __all__ = [
@@ -31,5 +34,5 @@ __all__ = [
     'ExchangeService', 
     'VotingService',
     'OrderService',
-    'BridgeService'
+    'StakePosDelegate'
 ] 

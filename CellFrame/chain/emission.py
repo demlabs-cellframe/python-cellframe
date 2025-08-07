@@ -17,8 +17,8 @@ from ..types import TSD, DatumTypes
 # Try to import native CellFrame emission components
 try:
     from CellFrame.Common import DatumEmission, TxTSD
-    from CellFrame.Chain import ChainAddr, Mempool
-    from DAP.Core import Math
+    from CellFrame.chain import ChainAddr, Mempool
+    from CellFrame.legacy.DAP.Core import Math
     CELLFRAME_NATIVE_AVAILABLE = True
 except ImportError:
     CELLFRAME_NATIVE_AVAILABLE = False

@@ -14,6 +14,26 @@ Usage:
         tx = composer.create_tx(dest_addr, amount, "CELL", fee)
 """
 
+# Stub classes - will be replaced by native implementation
+class ChainAtomPtr:
+    """Stub class for chain atom pointer - to be implemented in native module"""
+    pass
+
+class Ledger:
+    """Stub class for ledger - to be implemented in native module"""
+    pass
+
+class ChainAddr:
+    """Stub class for chain address - to be implemented in native module"""
+    pass
+
+class Mempool:
+    """Stub class for mempool - to be implemented in native module"""  
+    pass
+
+# Ticker constant
+ticker = "CELL"
+
 from .wallet import (
     Wallet,
     WalletAddress,
@@ -89,6 +109,13 @@ from ..composer import (
 )
 
 __all__ = [
+    # Native types
+    'ChainAtomPtr',
+    'Ledger',
+    'ChainAddr',
+    'Mempool',
+    'ticker',
+    
     # Core wallet functionality
     'Wallet',
     'WalletAddress', 

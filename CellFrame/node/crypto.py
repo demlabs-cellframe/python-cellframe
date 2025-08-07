@@ -1,9 +1,9 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING, Optional
-from DAP.Crypto import Sign, Pkey, Cert
+from CellFrame.legacy.DAP.Crypto import Sign, Pkey, Cert
 
 try:
-    from DAP.Crypto import GUUID
+    from CellFrame.legacy.DAP.Crypto import GUUID
     HAVE_GUUID = True
 except:
     print("Not GUID module!")
@@ -13,7 +13,7 @@ if TYPE_CHECKING:
     from .net import CFNet
 
 # from DAP import Crypto
-from pycfhelpers.logger import log
+from CellFrame.legacy.pycfhelpers.logger import log
 
 # log.message(f"{dir(Crypto)=}")
 
@@ -42,7 +42,7 @@ class CFSign:
             net (Optional[CFNet]): The CFNet object associated with the signature, defaults to None.
         """
 
-        from pycfhelpers.node.net import CFWalletAddress
+        from CellFrame.legacy.pycfhelpers.node.net import CFWalletAddress
         self._origin_sign = sign
         self.net = net
         self.type = str(sign.type)
