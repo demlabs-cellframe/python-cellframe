@@ -1,0 +1,115 @@
+[build-system]
+requires = ["setuptools>=64", "wheel"]
+build-backend = "setuptools.build_meta:__legacy__"
+
+[project]
+name = "python-cellframe"
+version = "1.0.0"
+description = "Python bindings for Cellframe SDK - Modular Blockchain Platform"
+readme = "README.md"
+requires-python = ">=3.7"
+license = {text = "MIT"}
+authors = [
+    {name = "Cellframe Team", email = "support@cellframe.net"}
+]
+keywords = ["cellframe", "blockchain", "crypto", "p2p", "network", "dap", "dag", "pos"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: C",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: System :: Networking",
+    "Topic :: Security :: Cryptography"
+]
+dependencies = ["python-dap>=3.0.0", "pydantic>=2.0.0"]
+
+[project.optional-dependencies]
+test = ["pytest>=6.0", "pytest-cov", "pytest-mock", "pytest-asyncio", "pytest-benchmark", "pytest-xdist", "hypothesis", "psutil"]
+dev = ["pytest>=6.0", "pytest-cov", "pytest-mock", "psutil", "build", "twine", "black", "isort", "mypy", "flake8"]
+docs = ["sphinx>=4.0", "sphinx-rtd-theme", "myst-parser"]
+
+[project.urls]
+Homepage = "https://cellframe.net"
+Documentation = "https://docs.cellframe.net/python-cellframe/"
+Repository = "https://gitlab.demlabs.net/cellframe/python-cellframe"
+"Bug Reports" = "https://gitlab.demlabs.net/cellframe/python-cellframe/-/issues"
+
+[tool.setuptools]
+zip-safe = false
+include-package-data = true
+
+[tool.setuptools.packages.find]
+include = ["CellFrame*"]
+exclude = ["tests*", "docs*", "build*", "dist*"]
+
+[tool.setuptools.package-data]
+"*" = ["*.so", "*.pyd", "*.dll"]
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+addopts = "-ra -q --strict-markers"
+testpaths = ["tests"]
+python_files = ["test_*.py", "*_test.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+markers = [
+    "unit: Unit tests for individual components",
+    "integration: Integration tests with real components",
+    "e2e: End-to-end tests with full system",
+    "mock_only: Tests that only work with mocked components",
+    "legacy: Tests for legacy API compatibility",
+    "composer: Tests for transaction composer functionality",
+    "conditional: Tests for conditional execution system",
+    "performance: Performance and load tests",
+    "slow: Tests that take a long time to run",
+    "security: Security-related tests",
+]
+
+[tool.coverage.run]
+source = ["CellFrame"]
+omit = ["tests/*", "venv*/*", "build/*", "dist/*"]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "if self.debug:",
+    "if settings.DEBUG",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if 0:",
+    "if __name__ == .__main__.:",
+    "class .*\\bProtocol\\):",
+    "@(abc\\.)?abstractmethod",
+]
+
+[tool.black]
+line-length = 100
+target-version = ['py37', 'py38', 'py39', 'py310', 'py311']
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+  # directories
+  \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | build
+  | dist
+)/
+'''
+
+[tool.isort]
+profile = "black"
+line_length = 100

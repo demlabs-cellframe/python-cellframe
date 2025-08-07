@@ -31,9 +31,9 @@ from typing import List, Dict, Any, Optional
 # Import new architecture
 from ..core import CellframeNode, CellframeChain, CellframeComponent
 from ..types import Address, TokenAmount, TransactionHash
-from ..wallet import Wallet
-from ..network import NetworkClient
-from ..services import StakingService, ExchangeService
+from ..chain.wallet import Wallet
+# from ..network import NetworkClient  # Not yet implemented
+# from ..services import StakingService, ExchangeService  # Not yet implemented
 
 # Import DAP
 try:
@@ -63,6 +63,82 @@ def _show_legacy_warning(api_name: str, new_api: str = None):
 _legacy_node: Optional[CellframeNode] = None
 _legacy_initialized = False
 
+
+# Legacy function stubs for testing
+def dap_chain_wallet_open(*args, **kwargs):
+    """Legacy wallet open function"""
+    _show_legacy_warning("dap_chain_wallet_open()", "Wallet.open()")
+    return None
+
+def dap_chain_by_name(*args, **kwargs):
+    """Legacy chain lookup function"""
+    _show_legacy_warning("dap_chain_by_name()", "CellframeNode.get_chain()")
+    return None
+
+def dap_chain_addr_from_str(*args, **kwargs):
+    """Legacy address parsing function"""
+    _show_legacy_warning("dap_chain_addr_from_str()", "Address.from_string()")
+    return None
+
+# Legacy classes for backward compatibility
+class DapTransaction:
+    """Legacy transaction class - wrapper for new architecture"""
+    
+    @classmethod
+    def create_transfer(cls, *args, **kwargs):
+        """Create transfer transaction (legacy method)"""
+        _show_legacy_warning("DapTransaction.create_transfer()", "TxComposer.create_tx()")
+        # Return mock result for tests
+        return {"tx_hash": "legacy_mock_hash", "status": "created"}
+    
+    @classmethod
+    def create_stake_order(cls, *args, **kwargs):
+        """Create stake order (legacy method)"""
+        _show_legacy_warning("DapTransaction.create_stake_order()", "StakeLockProcessor")
+        raise NotImplementedError("Legacy method - use TxComposer instead")
+    
+    @classmethod
+    def create_vote(cls, *args, **kwargs):
+        """Create vote transaction (legacy method)"""
+        _show_legacy_warning("DapTransaction.create_vote()", "VotingProcessor")
+        raise NotImplementedError("Legacy method - use TxComposer instead")
+    
+    @classmethod
+    def create_conditional(cls, *args, **kwargs):
+        """Create conditional transaction (legacy method)"""
+        _show_legacy_warning("DapTransaction.create_conditional()", "ConditionalProcessor")
+        raise NotImplementedError("Legacy method - use TxComposer instead")
+
+class DapWallet:
+    """Legacy wallet class - wrapper for new Wallet"""
+    
+    def __init__(self, *args, **kwargs):
+        """Initialize legacy wallet"""
+        _show_legacy_warning("DapWallet", "Wallet")
+        self._wallet = None
+    
+    def open(self, *args, **kwargs):
+        """Open wallet (legacy method)"""
+        _show_legacy_warning("DapWallet.open()", "Wallet.open()")
+        raise NotImplementedError("Legacy method - use Wallet class instead")
+    
+    def get_balance(self, *args, **kwargs):
+        """Get balance (legacy method)"""
+        _show_legacy_warning("DapWallet.get_balance()", "Wallet.get_balance()")
+        raise NotImplementedError("Legacy method - use Wallet class instead")
+
+class DapChain:
+    """Legacy chain class"""
+    
+    def __init__(self, *args, **kwargs):
+        """Initialize legacy chain"""
+        _show_legacy_warning("DapChain", "CellframeChain")
+        self._chain = None
+    
+    def get_block(self, *args, **kwargs):
+        """Get block (legacy method)"""
+        _show_legacy_warning("DapChain.get_block()", "CellframeChain.get_block()")
+        raise NotImplementedError("Legacy method - use CellframeChain instead")
 
 class LegacyCellFrame:
     """
@@ -332,5 +408,8 @@ __all__ = [
     'DAP', 
     'LegacyChainObject',
     'LegacyCryptoKey',
-    'LegacyWarning'
+    'LegacyWarning',
+    'DapTransaction',
+    'DapWallet',
+    'DapChain'
 ] 

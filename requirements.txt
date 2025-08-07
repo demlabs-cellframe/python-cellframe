@@ -1,5 +1,6 @@
 # Core dependencies
 typing-extensions>=4.0.0  # For Python 3.8 compatibility
+pydantic>=2.0.0  # For data validation and serialization
 
 # Async support
 aiohttp>=3.8.0

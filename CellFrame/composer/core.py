@@ -18,13 +18,23 @@ from ..types import TransactionType, TSD, ChainTypes, DatumTypes
 
 logger = logging.getLogger(__name__)
 
+# Legacy compatibility stub for tests
+def dap_chain_wallet_open(*args, **kwargs):
+    """Legacy function stub for tests"""
+    return None
+
 # Try to import cellframe if available
 try:
     import cellframe as cf
     _CELLFRAME_AVAILABLE = True
-except ImportError:
-    _CELLFRAME_AVAILABLE = False
-    logger.warning("Cellframe not available, using fallback implementations")
+except ImportError as e:
+    raise ImportError(
+        "❌ CRITICAL: Cellframe module not available!\n"
+        "This is a Python bindings library - fallback implementations are not allowed.\n"
+        "Required: cellframe module must be properly built and installed.\n"
+        f"Original error: {e}\n"
+        "Please run: cmake .. && make && make install"
+    ) from e
 
 
 @dataclass

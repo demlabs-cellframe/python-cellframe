@@ -242,9 +242,9 @@ class TestVotingProcessor:
     @pytest.fixture
     def voting_processor(self, mock_cellframe_sdk):
         """Create VotingProcessor instance"""
-        with patch('cellframe.composer.cond.voting.dap_chain_wallet_open'):
-            processor = VotingProcessor("testnet", "test_wallet")
-            return processor
+        from CellFrame.composer.cond.voting import VotingProcessor
+        processor = VotingProcessor("testnet", "test_wallet")
+        return processor
 
     @pytest.mark.mock_only
     def test_create_vote(self, voting_processor, conditional_processor_fixtures):
@@ -313,9 +313,9 @@ class TestDelegationProcessor:
     @pytest.fixture
     def delegation_processor(self, mock_cellframe_sdk):
         """Create DelegationProcessor instance"""
-        with patch('cellframe.composer.cond.delegation.dap_chain_wallet_open'):
-            processor = DelegationProcessor("testnet", "test_wallet")
-            return processor
+        from CellFrame.composer.cond.delegation import DelegationProcessor
+        processor = DelegationProcessor("testnet", "test_wallet")
+        return processor
 
     @pytest.mark.mock_only
     def test_create_delegation(self, delegation_processor, conditional_processor_fixtures):
