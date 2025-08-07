@@ -4,6 +4,7 @@ Unit tests for Transaction Composer Core functionality
 import pytest
 from unittest.mock import Mock, MagicMock, patch
 from typing import Dict, Any
+from decimal import Decimal
 
 import sys
 import os
@@ -105,7 +106,8 @@ class TestTxComposer:
         mock_addr = Mock(spec=WalletAddress)
         
         # Mock the internal methods that actually exist
-        with patch.object(composer, '_compose_transaction', return_value="test_hash"):
+        with patch.object(composer, 'select_inputs', return_value=([], Decimal("1000"))), \
+             patch.object(composer, '_compose_transaction', return_value="test_hash"):
             result = composer.create_tx(
                 to_address=mock_addr,
                 amount=Decimal(sample_transaction_data["amount"]),
@@ -273,7 +275,8 @@ class TestTxComposer:
     @pytest.mark.performance
     def test_composer_performance(self, composer, sample_transaction_data, benchmark):
         """Test composer performance for transaction creation"""
-        with patch.object(composer, '_compose_transaction', return_value="perf_test_hash"):
+        with patch.object(composer, 'select_inputs', return_value=([], Decimal("1000"))), \
+             patch.object(composer, '_compose_transaction', return_value="perf_test_hash"):
             from CellFrame.chain.wallet import WalletAddress
             from decimal import Decimal
             

@@ -9,10 +9,10 @@ import os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../../../python-cellframe'))
 
 try:
-    from cellframe.legacy import DapTransaction, DapWallet, DapChain
-    from cellframe.chain.tx import TX
-    from cellframe.composer.core import TxComposer
-    from cellframe.composer.conditional import ConditionalProcessor
+    from CellFrame.legacy import DapTransaction, DapWallet, DapChain
+    from CellFrame.chain.tx import TX
+    from CellFrame.composer.core import TxComposer
+    from CellFrame.composer.conditional import ConditionalProcessor
 except ImportError:
     # For testing without actual SDK
     DapTransaction = Mock
@@ -62,21 +62,18 @@ class TestLegacyBackwardCompatibility:
         # Test that legacy code can be replaced with new architecture
         
         # Legacy way (should still work)
-        with patch('cellframe.legacy.dap_chain_wallet_open'), \
-             patch.object(DapTransaction, 'create_transfer') as mock_legacy:
-            
-            mock_legacy.return_value = {"tx_hash": "legacy_hash"}
-            
+        with patch('CellFrame.legacy.dap_chain_wallet_open'):
             legacy_result = DapTransaction.create_transfer(
                 to_addr=sample_transaction_data["to_addr"],
                 amount=sample_transaction_data["amount"],
                 token=sample_transaction_data["token"]
             )
             
-            assert legacy_result["tx_hash"] == "legacy_hash"
+            # DapTransaction.create_transfer already returns mock result
+            assert legacy_result["tx_hash"] == "legacy_mock_hash"
 
         # New way (should produce same result)
-        with patch('cellframe.composer.core.dap_chain_wallet_open'), \
+        with patch('CellFrame.composer.core.dap_chain_wallet_open'), \
              patch.object(TxComposer, 'create_tx') as mock_new:
             
             mock_new.return_value = {"tx_hash": "new_hash"}

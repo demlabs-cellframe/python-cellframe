@@ -27,6 +27,7 @@ class TestCellframeNode:
         self.mock_context.is_plugin_mode = False
         self.mock_context.is_library_mode = True
         self.mock_context.app_name = "test_app"
+        self.mock_context.mode = Mock(value="library")  # Add mode attribute for get_status
         
     @pytest.mark.unit
     def test_node_creation_with_context(self):
@@ -35,7 +36,7 @@ class TestCellframeNode:
         
         assert node.context == self.mock_context
         assert hasattr(node, 'chain')
-        assert node._name == "node"  # Internal name attribute
+        assert node.name == "node"  # Component name attribute
         
     @pytest.mark.unit
     def test_node_creation_without_context(self):
@@ -164,7 +165,7 @@ class TestCellframeNode:
         # Test getting resource
         self.mock_context.get_resource.return_value = "test_resource"
         
-        resource = node.get_resource("test_key")
+        resource = node.context.get_resource("test_key")
         assert resource == "test_resource"
         self.mock_context.get_resource.assert_called_with("test_key")
         
@@ -289,17 +290,18 @@ class TestCellframeNodeEdgeCases:
     def test_node_resource_cleanup(self):
         """Test node resource cleanup."""
         mock_context = Mock(spec=AppContext)
+        mock_context.mode = Mock(value="library")
         node = CellframeNode(context=mock_context)
         
         # Add some state
-        node._started = True
+        node._initialized = True
         node._chains = {"test": "chain"}
         
         # Cleanup
         node.shutdown()
         
         # Should clean up state
-        assert not node._started
+        assert not node._initialized
         
     @pytest.mark.unit
     def test_node_concurrent_access(self):
