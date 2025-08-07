@@ -6,7 +6,7 @@ from unittest.mock import Mock, MagicMock, patch
 import sys
 import os
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../../../python-cellframe'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../../..'))
 
 try:
     from CellFrame.legacy import DapTransaction, DapWallet, DapChain

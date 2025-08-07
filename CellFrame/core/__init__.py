@@ -644,7 +644,18 @@ class CellframeNode(CellframeComponent):
     
     def get_chain(self, chain_id: str) -> Optional[Any]:
         """Get existing chain (legacy API)"""
-        return self._chains.get(chain_id) or self.chain.get_by_id(chain_id)
+        # First check local chains
+        if chain_id in self._chains:
+            return self._chains[chain_id]
+            
+        # Then try chain component if initialized
+        if self.chain.is_initialized():
+            try:
+                return self.chain.get_by_id(chain_id)
+            except CellframeException:
+                pass
+                
+        return None
     
     def get_node_stats(self) -> Dict[str, Any]:
         """Get node statistics (legacy API)"""

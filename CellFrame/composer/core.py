@@ -113,7 +113,12 @@ class Composer:
         """
         self.net_name = net_name
         self.wallet = wallet
-        self.wallet_addr = wallet.get_address()  # Get address from wallet
+        try:
+            self.wallet_addr = wallet.get_address()  # Get address from wallet
+        except Exception as e:
+            # Handle invalid network or wallet initialization errors gracefully
+            self.wallet_addr = None
+            logger.warning(f"Failed to get wallet address: {e}")
         self.url_str = url_str
         self.port = port
         self.cert_path = cert_path

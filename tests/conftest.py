@@ -146,6 +146,8 @@ def mock_composer():
     from unittest.mock import Mock
     
     composer = Mock()
+    composer.net_name = "testnet"
+    composer.wallet_name = "test_wallet"
     composer.create_tx = Mock(return_value={"tx_hash": "test_hash"})
     composer.estimate_fee = Mock(return_value=1.0)
     composer.validate_tx = Mock(return_value=True)

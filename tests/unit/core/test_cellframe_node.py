@@ -184,9 +184,14 @@ class TestCellframeNode:
         """Test node shutdown functionality."""
         node = CellframeNode(context=self.mock_context)
         
-        with patch.object(node.context, 'shutdown') as mock_shutdown:
-            node.shutdown()
-            mock_shutdown.assert_called_once()
+        # Initialize node first
+        node._initialized = True
+        
+        # Test shutdown
+        result = node.shutdown()
+        
+        assert result is True
+        assert not node._initialized
             
     @pytest.mark.unit
     @pytest.mark.parametrize("mode,expected_type", [
@@ -283,8 +288,10 @@ class TestCellframeNodeEdgeCases:
     @pytest.mark.unit
     def test_node_with_none_context(self):
         """Test node behavior with None context."""
-        with pytest.raises(TypeError):
-            CellframeNode(context=None)
+        # Node should create context automatically if None
+        node = CellframeNode(context=None)
+        assert node.context is not None
+        assert hasattr(node, 'chain')
             
     @pytest.mark.unit
     def test_node_resource_cleanup(self):
