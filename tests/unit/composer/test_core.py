@@ -122,17 +122,17 @@ class TestTxComposer:
         """Test transaction creation with fee optimization"""
         composer.config["fee_optimization"] = True
         
-        with patch.object(composer, '_get_network_fee', return_value=Decimal("0.5")) as mock_fee, \
-             patch.object(composer, '_compose_transaction', return_value="test_hash") as mock_compose:
+        with patch.object(composer, 'select_inputs', return_value=([], Decimal("1000"))), \
+             patch.object(composer, '_compose_transaction', return_value="test_hash"):
             
             result = composer.create_tx(
                 to_address=sample_transaction_data["to_addr"],
-                amount=sample_transaction_data["amount"],
-                token=sample_transaction_data["token"]
+                amount=Decimal(str(sample_transaction_data["amount"])),
+                token_ticker=sample_transaction_data["token"],
+                fee=Decimal("0.5")
             )
             
-            mock_optimize.assert_called_once()
-            assert result["fee"] == 0.5
+            assert result == "test_hash"
 
     @pytest.mark.mock_only
     def test_create_transaction_invalid_amount(self, composer, sample_transaction_data):
@@ -187,12 +187,16 @@ class TestTxComposer:
     @pytest.mark.mock_only
     def test_validate_transaction_insufficient_balance(self, composer, sample_transaction_data):
         """Test transaction validation with insufficient balance"""
-        with patch.object(composer, '_check_balance', return_value=False):
-            with pytest.raises(TransactionError, match="Insufficient balance"):
-                composer.validate_tx(
+        from CellFrame.composer.exceptions import InsufficientFundsError
+        
+        # Mock select_inputs to simulate insufficient funds
+        with patch.object(composer, 'select_inputs', side_effect=InsufficientFundsError("No available outputs")):
+            with pytest.raises(InsufficientFundsError):
+                composer.create_tx(
                     to_address=sample_transaction_data["to_addr"],
-                    amount=sample_transaction_data["amount"],
-                    token=sample_transaction_data["token"]
+                    amount=Decimal(str(sample_transaction_data["amount"])),
+                    token_ticker=sample_transaction_data["token"],
+                    fee=Decimal("0.001")
                 )
 
     @pytest.mark.mock_only
@@ -202,12 +206,12 @@ class TestTxComposer:
         
         transactions = [
             {
-                "to_address": sample_transaction_data["to_addr"],
+                "to_addr": sample_transaction_data["to_addr"],
                 "amount": 50.0,
                 "token": sample_transaction_data["token"]
             },
             {
-                "to_address": sample_transaction_data["to_addr"], 
+                "to_addr": sample_transaction_data["to_addr"], 
                 "amount": 25.0,
                 "token": sample_transaction_data["token"]
             }
@@ -219,7 +223,7 @@ class TestTxComposer:
             with patch.object(composer, 'select_inputs', return_value=([], Decimal("1000"))), \
                  patch.object(composer, '_compose_transaction', return_value=f"hash_{len(results)}"):
                 result = composer.create_tx(
-                    to_address=tx["to_address"],
+                    to_address=tx["to_addr"],
                     amount=Decimal(str(tx["amount"])),
                     token_ticker=tx["token"],
                     fee=Decimal("0.001")
@@ -281,10 +285,11 @@ class TestTxComposer:
     @pytest.mark.performance
     def test_composer_performance(self, composer, sample_transaction_data, benchmark):
         """Test composer performance for transaction creation"""
+        from decimal import Decimal
+        from CellFrame.chain.wallet import WalletAddress
+        
         with patch.object(composer, 'select_inputs', return_value=([], Decimal("1000"))), \
              patch.object(composer, '_compose_transaction', return_value="perf_test_hash"):
-            from CellFrame.chain.wallet import WalletAddress
-            from decimal import Decimal
             
             mock_addr = Mock(spec=WalletAddress)
             

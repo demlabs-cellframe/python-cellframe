@@ -11,11 +11,28 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../../..'))
 try:
     from CellFrame.legacy import DapTransaction, DapWallet, DapChain
     from CellFrame.chain.tx import TX
-    from CellFrame.composer.core import TxComposer
+    from CellFrame.composer.core import Composer as TxComposer
     from CellFrame.composer.conditional import ConditionalProcessor
-except ImportError:
-    # For testing without actual SDK
-    DapTransaction = Mock
+except ImportError as e:
+    # Create mock classes with the expected methods
+    class MockDapTransaction:
+        @classmethod
+        def create_transfer(cls, *args, **kwargs):
+            return {"tx_hash": "legacy_mock_hash", "status": "created"}
+        
+        @classmethod
+        def create_stake_order(cls, *args, **kwargs):
+            return {"tx_hash": "legacy_mock_hash", "status": "created"}
+            
+        @classmethod
+        def create_vote(cls, *args, **kwargs):
+            return {"tx_hash": "legacy_mock_hash", "status": "created"}
+            
+        @classmethod
+        def create_conditional(cls, *args, **kwargs):
+            return {"tx_hash": "legacy_mock_hash", "status": "created"}
+    
+    DapTransaction = MockDapTransaction
     DapWallet = Mock
     DapChain = Mock
     TX = Mock

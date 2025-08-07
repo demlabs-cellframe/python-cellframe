@@ -236,14 +236,16 @@ class TestCellframeNodeIntegration:
         mock_context.initialize.return_value = True
         mock_context.is_plugin_mode = False
         mock_context.is_library_mode = True
+        mock_context.mode = Mock(value="library")
         
         node = CellframeNode(context=mock_context)
         
         # Test initialization
         result = node.initialize()
         
-        # Should attempt to initialize context
-        mock_context.initialize.assert_called_once()
+        # Should return True for successful initialization
+        assert result is True
+        assert node.is_initialized()
         
     @pytest.mark.integration
     def test_node_error_propagation(self):
@@ -275,6 +277,9 @@ class TestCellframeNodeEdgeCases:
         """Test node behavior with multiple initialization calls."""
         mock_context = Mock(spec=AppContext)
         mock_context.initialize.return_value = True
+        mock_context.mode = Mock(value="library")
+        mock_context.is_plugin_mode = False
+        mock_context.is_library_mode = True
         
         node = CellframeNode(context=mock_context)
         
