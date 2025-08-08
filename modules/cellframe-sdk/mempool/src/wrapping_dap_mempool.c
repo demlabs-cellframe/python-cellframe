@@ -839,11 +839,11 @@ PyObject *dap_chain_mempool_tx_create_event_py(PyObject *self, PyObject *args)
     const char *group_name;
     unsigned int event_type;
     PyObject *obj_event_data = NULL;  // Может быть None
-    const char *obj_fee_value;
+    const char *fee_value_str;
     const char *hash_out_type;
 
-    if (!PyArg_ParseTuple(args, "OOOsIOOs", &obj_chain, &obj_key_from, &obj_service_key,
-                         &group_name, &event_type, &obj_event_data, &obj_fee_value, &hash_out_type)) {
+    if (!PyArg_ParseTuple(args, "OOOsIOss", &obj_chain, &obj_key_from, &obj_service_key,
+                         &group_name, &event_type, &obj_event_data, &fee_value_str, &hash_out_type)) {
         PyErr_SetString(PyExc_AttributeError, "Invalid arguments");
         return NULL;
     }
@@ -875,8 +875,8 @@ PyObject *dap_chain_mempool_tx_create_event_py(PyObject *self, PyObject *args)
     }
 
     // Получение значения комиссии
-    uint256_t fee_value = dap_chain_balance_scan(obj_fee_value);
-    if (!IS_ZERO_256(fee_value)) {
+    uint256_t fee_value = dap_chain_balance_scan(fee_value_str);
+    if (IS_ZERO_256(fee_value)) {
         PyErr_SetString(PyExc_AttributeError, "Invalid fee value format");
         return NULL;
     }
