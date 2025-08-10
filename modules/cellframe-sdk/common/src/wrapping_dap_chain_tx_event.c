@@ -75,6 +75,8 @@ static PyObject *TX_EVENT_DATA_AUCTION_STARTED_CREATE_PY(PyObject *self, PyObjec
 
 static PyMethodDef PyDapChainTxEventObjectMethods[] ={
     {"AUCTION_STARTED", (PyCFunction)TX_EVENT_TYPE_AUCTION_STARTED_PY, METH_NOARGS | METH_STATIC, ""},
+    {"AUCTION_BID_PLACED", (PyCFunction)TX_EVENT_TYPE_AUCTION_BID_PLACED_PY, METH_NOARGS | METH_STATIC, ""},
+    {"AUCTION_ENDED", (PyCFunction)TX_EVENT_TYPE_AUCTION_ENDED_PY, METH_NOARGS | METH_STATIC, ""},
     {"AUCTION_CANCELLED", (PyCFunction)TX_EVENT_TYPE_AUCTION_CANCELLED_PY, METH_NOARGS | METH_STATIC, ""},
     {"AUCTION_ENDED", (PyCFunction)TX_EVENT_TYPE_AUCTION_ENDED_PY, METH_NOARGS | METH_STATIC, ""},
     {"auction_started_create", (PyCFunction)TX_EVENT_DATA_AUCTION_STARTED_CREATE_PY, METH_VARARGS | METH_STATIC, "Create auction_started event data bytes"},
@@ -139,6 +141,18 @@ PyObject *TX_EVENT_TYPE_AUCTION_STARTED_PY(PyObject *self, PyObject *args) {
     (void)self;
     (void)args;
     return PyLong_FromLong(DAP_CHAIN_TX_EVENT_TYPE_AUCTION_STARTED);
+}
+
+PyObject *TX_EVENT_TYPE_AUCTION_BID_PLACED_PY(PyObject *self, PyObject *args) {
+    (void)self;
+    (void)args;
+    return PyLong_FromLong(DAP_CHAIN_TX_EVENT_TYPE_AUCTION_BID_PLACED);
+}
+
+PyObject *TX_EVENT_TYPE_AUCTION_ENDED_PY(PyObject *self, PyObject *args) {
+    (void)self;
+    (void)args;
+    return PyLong_FromLong(DAP_CHAIN_TX_EVENT_TYPE_AUCTION_ENDED);
 }
 
 PyObject *TX_EVENT_TYPE_AUCTION_CANCELLED_PY(PyObject *self, PyObject *args) {

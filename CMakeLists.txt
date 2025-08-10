@@ -184,6 +184,7 @@ target_link_libraries(${PROJECT_NAME} cellframe-sdk dap_python_module
                       dap_server_http_python_module
                       dap_stream_python_module
                       dap_chain_python_module
+                      dap_chain_common_python_module
                       dap_chain_net_python_module
                       dap_chain_net_srv_python_module
                       dap_mempool_python_module
