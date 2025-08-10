@@ -160,9 +160,3 @@ PyObject *TX_EVENT_TYPE_AUCTION_CANCELLED_PY(PyObject *self, PyObject *args) {
     (void)args;
     return PyLong_FromLong(DAP_CHAIN_TX_EVENT_TYPE_AUCTION_CANCELLED);
 } 
-
-PyObject *TX_EVENT_TYPE_AUCTION_ENDED_PY(PyObject *self, PyObject *args) {
-    (void)self;
-    (void)args;
-    return PyLong_FromLong(DAP_CHAIN_TX_EVENT_TYPE_AUCTION_ENDED);
-} 

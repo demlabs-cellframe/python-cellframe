@@ -54,7 +54,6 @@ PyObject *TX_EVENT_TYPE_AUCTION_STARTED_PY(PyObject *self, PyObject *args);
 PyObject *TX_EVENT_TYPE_AUCTION_BID_PLACED_PY(PyObject *self, PyObject *args);
 PyObject *TX_EVENT_TYPE_AUCTION_ENDED_PY(PyObject *self, PyObject *args);
 PyObject *TX_EVENT_TYPE_AUCTION_CANCELLED_PY(PyObject *self, PyObject *args);
-PyObject *TX_EVENT_TYPE_AUCTION_ENDED_PY(PyObject *self, PyObject *args);
 
 extern PyTypeObject DapChainTxEventObjectType;
 
