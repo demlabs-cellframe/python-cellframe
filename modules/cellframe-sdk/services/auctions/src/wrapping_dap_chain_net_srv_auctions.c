@@ -1,12 +1,13 @@
 #include "wrapping_dap_chain_net_srv_auctions.h"
 #include "libdap_chain_net_python.h"
 #include "wrapping_dap_hash.h"
-#include "wrapping_dap_math.h"
+#include "math_python.h"
 #include "dap_chain_net_srv_auctions.h"
 #include "dap_chain_wallet.h"
 #include "dap_enc_key.h"
-#include "dap_chain_hash.h"
-#include "dap_uint256.h"
+#include "dap_hash.h"
+#include "dap_math_ops.h"
+#include "dap_math_convert.h"
 #include "dap_string.h"
 #include "dap_json_rpc.h"
 #include <json-c/json.h>
@@ -26,16 +27,9 @@ int DapChainNetSrvAuctionsObject_init(PyObject *self, PyObject *args, PyObject *
 PyObject *wrapping_dap_chain_net_srv_auctions_bid_tx_create(PyObject *self, PyObject *argv){
     (void)self;
     PyObject *obj_wallet_path, *obj_auction_hash, *obj_amount, *obj_fee;
-    uint8_t range_end;
     uint64_t lock_time;
     
-    if (!PyArg_ParseTuple(argv, "OSsSS", &obj_wallet_path, &obj_auction_hash, &range_end, &obj_amount, &lock_time, &obj_fee)) {
-        return NULL;
-    }
-    
-    // Validate range_end
-    if (range_end < 1 || range_end > 8) {
-        PyErr_SetString(PyExc_ValueError, "range_end must be between 1 and 8");
+    if (!PyArg_ParseTuple(argv, "OSSS", &obj_wallet_path, &obj_auction_hash, &obj_amount, &lock_time, &obj_fee)) {
         return NULL;
     }
     
@@ -54,14 +48,15 @@ PyObject *wrapping_dap_chain_net_srv_auctions_bid_tx_create(PyObject *self, PyOb
     }
     
     // Open wallet
-    dap_chain_wallet_t *wallet = dap_chain_wallet_open(wallet_path);
+    unsigned int wallet_status = 0;
+    dap_chain_wallet_t *wallet = dap_chain_wallet_open(wallet_path, NULL, &wallet_status);
     if (!wallet) {
         PyErr_SetString(PyExc_RuntimeError, "Failed to open wallet");
         return NULL;
     }
     
-    // Get encryption key
-    dap_enc_key_t *enc_key = dap_chain_wallet_get_enc_key(wallet);
+    // Get encryption key  
+    dap_enc_key_t *enc_key = dap_chain_wallet_get_key(wallet, 0);
     if (!enc_key) {
         dap_chain_wallet_close(wallet);
         PyErr_SetString(PyExc_RuntimeError, "Failed to get encryption key from wallet");
@@ -79,9 +74,9 @@ PyObject *wrapping_dap_chain_net_srv_auctions_bid_tx_create(PyObject *self, PyOb
     }
     
     // Parse amount
-    uint256_t amount;
     const char *amount_str = PyUnicode_AsUTF8(obj_amount);
-    if (dap_uint256_from_str(amount_str, &amount) != 0) {
+    uint256_t amount = dap_uint256_scan_uninteger(amount_str);
+    if (IS_ZERO_256(amount)) {
         DAP_DELETE(enc_key);
         dap_chain_wallet_close(wallet);
         PyErr_SetString(PyExc_ValueError, "Invalid amount format");
@@ -89,9 +84,9 @@ PyObject *wrapping_dap_chain_net_srv_auctions_bid_tx_create(PyObject *self, PyOb
     }
     
     // Parse fee
-    uint256_t fee;
     const char *fee_str = PyUnicode_AsUTF8(obj_fee);
-    if (dap_uint256_from_str(fee_str, &fee) != 0) {
+    uint256_t fee = dap_uint256_scan_uninteger(fee_str);
+    if (IS_ZERO_256(fee)) {
         DAP_DELETE(enc_key);
         dap_chain_wallet_close(wallet);
         PyErr_SetString(PyExc_ValueError, "Invalid fee format");
@@ -100,8 +95,8 @@ PyObject *wrapping_dap_chain_net_srv_auctions_bid_tx_create(PyObject *self, PyOb
     
     // Create transaction
     int ret_code = 0;
-    char *tx_hash_str = dap_auction_bid_tx_create(((PyDapChainNetSrvAuctionsObject *)self)->net, enc_key, &auction_hash, 
-                                                  range_end, amount, lock_time_seconds, fee, &ret_code);
+    char *tx_hash_str = dap_auction_bid_tx_create(((PyDapChainNetSrvAuctionsObject *)self)->net, enc_key, &auction_hash,
+                                     amount, lock_time_seconds, 0, fee, &ret_code);
     
     // Cleanup
     DAP_DELETE(enc_key);
@@ -137,14 +132,14 @@ PyObject *wrapping_dap_chain_net_srv_auctions_bid_withdraw_tx_create(PyObject *s
     }
     
     // Open wallet
-    dap_chain_wallet_t *wallet = dap_chain_wallet_open(wallet_path);
+    dap_chain_wallet_t *wallet = dap_chain_wallet_open(wallet_path, NULL, NULL);
     if (!wallet) {
         PyErr_SetString(PyExc_RuntimeError, "Failed to open wallet");
         return NULL;
     }
     
     // Get encryption key
-    dap_enc_key_t *enc_key = dap_chain_wallet_get_enc_key(wallet);
+    dap_enc_key_t *enc_key = dap_chain_wallet_get_key(wallet, 0);
     if (!enc_key) {
         dap_chain_wallet_close(wallet);
         PyErr_SetString(PyExc_RuntimeError, "Failed to get encryption key from wallet");
@@ -164,7 +159,7 @@ PyObject *wrapping_dap_chain_net_srv_auctions_bid_withdraw_tx_create(PyObject *s
     // Parse fee
     uint256_t fee;
     const char *fee_str = PyUnicode_AsUTF8(obj_fee);
-    if (dap_uint256_from_str(fee_str, &fee) != 0) {
+    if (IS_ZERO_256(fee = dap_uint256_scan_uninteger(fee_str))) {
         DAP_DELETE(enc_key);
         dap_chain_wallet_close(wallet);
         PyErr_SetString(PyExc_ValueError, "Invalid fee format");
@@ -249,17 +244,22 @@ PyObject *wrapping_dap_chain_net_srv_auctions_get_info(PyObject *self, PyObject 
         for (uint32_t i = 0; i < auction->projects_count; i++) {
             PyObject *project_obj = PyDict_New();
             
-            char project_hash_str[65];
-            dap_chain_hash_fast_to_str(&auction->projects[i].project_hash, project_hash_str);
-            PyDict_SetItemString(project_obj, "project_hash", PyUnicode_FromString(project_hash_str));
-            
             if (auction->projects[i].project_name) {
                 PyDict_SetItemString(project_obj, "project_name", PyUnicode_FromString(auction->projects[i].project_name));
             }
             
-            char total_amount_str[65];
-            dap_uint256_to_str(auction->projects[i].total_amount, total_amount_str);
+            char *total_amount_str = dap_uint256_uninteger_to_char(auction->projects[i].total_amount);
             PyDict_SetItemString(project_obj, "total_amount", PyUnicode_FromString(total_amount_str));
+            DAP_DELETE(total_amount_str);
+            
+            // Total amount in CELL
+            char *total_amount_coin_str = dap_uint256_decimal_to_char(auction->projects[i].total_amount);
+            if (total_amount_coin_str) {
+                PyDict_SetItemString(project_obj, "total_amount_coin", PyUnicode_FromString(total_amount_coin_str));
+                DAP_DELETE(total_amount_coin_str);
+            } else {
+                PyDict_SetItemString(project_obj, "total_amount_coin", PyUnicode_FromString("0.0"));
+            }
             
             PyDict_SetItemString(project_obj, "bids_count", PyLong_FromUnsignedLong(auction->projects[i].bids_count));
             PyDict_SetItemString(project_obj, "active_bids_count", PyLong_FromUnsignedLong(auction->projects[i].active_bids_count));
@@ -300,8 +300,13 @@ PyObject *wrapping_dap_chain_net_srv_auctions_get_list(PyObject *self, PyObject 
         PyObject *auction_obj = PyDict_New();
         
         char auction_hash_str[65];
-        dap_chain_hash_fast_to_str(&auction->auction_hash, auction_hash_str);
+        dap_chain_hash_fast_to_str(&auction->auction_hash, auction_hash_str, sizeof(auction_hash_str));
         PyDict_SetItemString(auction_obj, "auction_hash", PyUnicode_FromString(auction_hash_str));
+        
+        if (auction->auction_name) {
+            PyDict_SetItemString(auction_obj, "auction_name", PyUnicode_FromString(auction->auction_name));
+        }
+        
         PyDict_SetItemString(auction_obj, "status", PyUnicode_FromString(dap_auction_status_to_str(auction->status)));
         PyDict_SetItemString(auction_obj, "created_time", PyLong_FromUnsignedLongLong(auction->created_time));
         PyDict_SetItemString(auction_obj, "start_time", PyLong_FromUnsignedLongLong(auction->start_time));
@@ -331,17 +336,28 @@ PyObject *wrapping_dap_chain_net_srv_auctions_get_list(PyObject *self, PyObject 
             for (uint32_t i = 0; i < auction->projects_count; i++) {
                 PyObject *project_obj = PyDict_New();
                 
-                char project_hash_str[65];
-                dap_chain_hash_fast_to_str(&auction->projects[i].project_hash, project_hash_str);
-                PyDict_SetItemString(project_obj, "project_hash", PyUnicode_FromString(project_hash_str));
-                
                 if (auction->projects[i].project_name) {
                     PyDict_SetItemString(project_obj, "project_name", PyUnicode_FromString(auction->projects[i].project_name));
+                } else {
+                    PyDict_SetItemString(project_obj, "project_name", PyUnicode_FromString("Unknown"));
                 }
                 
-                char total_amount_str[65];
-                dap_uint256_to_str(auction->projects[i].total_amount, total_amount_str);
-                PyDict_SetItemString(project_obj, "total_amount", PyUnicode_FromString(total_amount_str));
+                char *total_amount_str = dap_uint256_uninteger_to_char(auction->projects[i].total_amount);
+                if (total_amount_str) {
+                    PyDict_SetItemString(project_obj, "total_amount", PyUnicode_FromString(total_amount_str));
+                    DAP_DELETE(total_amount_str);
+                } else {
+                    PyDict_SetItemString(project_obj, "total_amount", PyUnicode_FromString("0"));
+                }
+                
+                // Total amount in CELL
+                char *total_amount_coin_str = dap_uint256_decimal_to_char(auction->projects[i].total_amount);
+                if (total_amount_coin_str) {
+                    PyDict_SetItemString(project_obj, "total_amount_coin", PyUnicode_FromString(total_amount_coin_str));
+                    DAP_DELETE(total_amount_coin_str);
+                } else {
+                    PyDict_SetItemString(project_obj, "total_amount_coin", PyUnicode_FromString("0.0"));
+                }
                 
                 PyDict_SetItemString(project_obj, "bids_count", PyLong_FromUnsignedLong(auction->projects[i].bids_count));
                 PyDict_SetItemString(project_obj, "active_bids_count", PyLong_FromUnsignedLong(auction->projects[i].active_bids_count));
@@ -451,7 +467,6 @@ PyTypeObject PyDapChainNetSrvAuctionsObjectType = {
         .tp_basicsize = sizeof(PyDapChainNetSrvAuctionsObject),
         .tp_itemsize = 0,
         .tp_dealloc = (destructor)PyObject_Del,
-        .tp_print = 0,
         .tp_getattr = 0,
         .tp_setattr = 0,
         .tp_as_async = 0,
