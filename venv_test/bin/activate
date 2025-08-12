@@ -38,7 +38,7 @@ deactivate () {
 # unset irrelevant variables
 deactivate nondestructive
 
-VIRTUAL_ENV=/home/naeper/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/venv_test
+VIRTUAL_ENV=/home/naeper/work/python-cellframe/venv_test
 export VIRTUAL_ENV
 
 _OLD_VIRTUAL_PATH="$PATH"

@@ -1,9 +1,12 @@
 [submodule "python-dap"]
 	path = python-dap
 	url = ../../dap/python-dap
+	branch = feature-18297
 [submodule "cellframe-sdk"]
 	path = cellframe-sdk
 	url = ../cellframe-sdk
+	branch = feature-18297
 [submodule "dap-sdk"]
 	path = dap-sdk
 	url = ../../dap/dap-sdk
+	branch = feature-18297

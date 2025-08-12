@@ -1,4 +1,4 @@
-#!/home/naeper/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/venv_test/bin/python3
+#!/home/naeper/work/python-cellframe/venv_test/bin/python3
 import sys
 from mprof import main
 if __name__ == '__main__':

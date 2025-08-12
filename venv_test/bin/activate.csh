@@ -8,7 +8,7 @@ alias deactivate 'test $?_OLD_VIRTUAL_PATH != 0 && setenv PATH "$_OLD_VIRTUAL_PA
 # Unset irrelevant variables.
 deactivate nondestructive
 
-setenv VIRTUAL_ENV /home/naeper/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/venv_test
+setenv VIRTUAL_ENV /home/naeper/work/python-cellframe/venv_test
 
 set _OLD_VIRTUAL_PATH="$PATH"
 setenv PATH "$VIRTUAL_ENV/"bin":$PATH"

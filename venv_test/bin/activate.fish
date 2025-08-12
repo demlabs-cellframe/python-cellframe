@@ -33,7 +33,7 @@ end
 # Unset irrelevant variables.
 deactivate nondestructive
 
-set -gx VIRTUAL_ENV /home/naeper/work/cellframe/cellframe-node.rc-6/plugins/plugin-python/python-cellframe/venv_test
+set -gx VIRTUAL_ENV /home/naeper/work/python-cellframe/venv_test
 
 set -gx _OLD_VIRTUAL_PATH $PATH
 set -gx PATH "$VIRTUAL_ENV/"bin $PATH
