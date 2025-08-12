@@ -20,6 +20,7 @@ static PyMethodDef ChainWalletMethods[] = {
         {"getCertsNumber", (PyCFunction)dap_chain_wallet_get_certs_number_py, METH_NOARGS, ""},
         {"getPKey", (PyCFunction)dap_chain_wallet_get_pkey_py, METH_VARARGS, ""},
         {"getKey", (PyCFunction)dap_chain_wallet_get_key_py, METH_VARARGS, ""},
+        {}
 };
 
 PyTypeObject DapChainWalletObjectType = {
