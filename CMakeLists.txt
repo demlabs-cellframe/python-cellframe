@@ -402,7 +402,7 @@ if(BUILD_TESTS)
             # Fallback to direct pytest with enhanced PYTHONPATH
             add_test(NAME ${TEST_NAME}
                 COMMAND ${CMAKE_COMMAND} -E env
-                    PYTHONPATH=${CMAKE_CURRENT_SOURCE_DIR}:${CMAKE_CURRENT_BINARY_DIR}:$ENV{PYTHONPATH}
+                    PYTHONPATH=${CMAKE_CURRENT_SOURCE_DIR}/venv_test/lib/python3.11/site-packages:${CMAKE_CURRENT_SOURCE_DIR}:${CMAKE_CURRENT_BINARY_DIR}:$ENV{PYTHONPATH}
                     LD_LIBRARY_PATH=${CMAKE_CURRENT_BINARY_DIR}:${CMAKE_CURRENT_BINARY_DIR}/dap-sdk-build:${CMAKE_CURRENT_BINARY_DIR}/cellframe-sdk-embedded:${CMAKE_CURRENT_BINARY_DIR}/python-dap:$ENV{LD_LIBRARY_PATH}
                     CELLFRAME_TEST_MODE=1
                     DAP_SDK_TEST_MODE=1
@@ -437,7 +437,7 @@ if(BUILD_TESTS)
     if(BUILD_WITH_COVERAGE)
         add_test(NAME test_coverage
             COMMAND ${CMAKE_COMMAND} -E env
-                PYTHONPATH=${CMAKE_CURRENT_SOURCE_DIR}:$ENV{PYTHONPATH}
+                PYTHONPATH=${CMAKE_CURRENT_SOURCE_DIR}:${CMAKE_CURRENT_SOURCE_DIR}/venv_test/lib/python3.11/site-packages:$ENV{PYTHONPATH}
                 CELLFRAME_TEST_MODE=1
                 DAP_SDK_TEST_MODE=1
                 ${CMAKE_CURRENT_SOURCE_DIR}/run_coverage.sh
@@ -454,7 +454,7 @@ if(BUILD_TESTS)
     # Quick functional test
     add_test(NAME test_quick_functionality
         COMMAND ${CMAKE_COMMAND} -E env
-            PYTHONPATH=${CMAKE_CURRENT_SOURCE_DIR}:$ENV{PYTHONPATH}
+            PYTHONPATH=${CMAKE_CURRENT_SOURCE_DIR}:${CMAKE_CURRENT_SOURCE_DIR}/venv_test/lib/python3.11/site-packages:$ENV{PYTHONPATH}
             CELLFRAME_TEST_MODE=1
             ${CMAKE_CURRENT_SOURCE_DIR}/quick_test.sh
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
