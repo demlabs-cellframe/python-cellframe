@@ -75,7 +75,7 @@
 #include "wrapping_dap_stream_ctl.h"
 #include "wrapping_dap_mempool.h"
 #include "wrapping_dap_http_folder.h"
-#include "dap_chain_wallet_python.h"
+#include "wrapped_dap_chain_wallet_python.h"
 #include "wrapping_dap_stream_cluster_role.h"
 #include "wrapping_dap_cluster_member.h"
 
