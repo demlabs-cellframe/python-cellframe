@@ -604,7 +604,8 @@
         "auto_load": [
           ".context/modules/languages/python/python_development.json",
           ".context/modules/core/standards.json",
-          ".context/modules/core/development_standards.json"
+          ".context/modules/core/development_standards.json",
+          ".context/modules/standards/python_cellframe_testing_standards.json"
         ]
       },
       "development_task_related": {

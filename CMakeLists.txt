@@ -49,6 +49,9 @@ if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/dap-sdk/CMakeLists.txt)
     # CRITICAL: Pass XKCP defines to DAP SDK for Keccak-p[1600] support
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DXKCP_has_KeccakP1600" CACHE STRING "Add XKCP defines for DAP SDK" FORCE)
     
+    # Force DAP SDK modules to include app-cli for Cellframe compatibility
+    set(DAPSDK_MODULES "crypto plugin io network-core network-server network-client network-link_manager global-db app-cli" CACHE STRING "DAP SDK modules including app-cli for Cellframe" FORCE)
+    
     # Add DAP SDK submodule - set build path for DAP SDK components
     set(DAP_SDK_PATH_BUILD ${CMAKE_CURRENT_BINARY_DIR}/dap-sdk-build CACHE STRING "DAP SDK build directory path for submodules")
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/dap-sdk ${DAP_SDK_PATH_BUILD})
@@ -79,6 +82,7 @@ if(PYTHON_CELLFRAME_EMBED_SDK)
         set(DAP_SDK_PATH ${CMAKE_CURRENT_SOURCE_DIR}/dap-sdk CACHE PATH "Path to shared DAP SDK for Cellframe")
         set(DAP_SDK_TARGET_NAME ${DAP_SDK_TARGET} CACHE STRING "Shared DAP SDK target for Cellframe")
         set(CELLFRAME_MODULES "core chains ledger node network cs-dag-poa cs-esbocs cs-none srv-stake srv-voting srv-bridge srv-xchange compose" CACHE STRING "Cellframe modules to prevent embedded DAP SDK")
+
         message("[+] Python-Cellframe: Configuring Cellframe SDK to use shared DAP SDK")
         message("[+] Python-Cellframe: This prevents DAP SDK duplication in memory")
     else()

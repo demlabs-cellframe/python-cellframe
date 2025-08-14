@@ -1,5 +1,5 @@
 {
-  "project": {
+  "task_data": {
     "name": "Cellframe Python Bindings Development",
     "type": "software_development",
               "status": "COMPLETED",
@@ -15,19 +15,23 @@
       "branch": "master"
     },
     "description": "Комплексная разработка Python биндингов для Cellframe SDK и DAP SDK с современной архитектурой",
-    "auto_load": [
-      ".context/modules/projects/dap_sdk_project.json",
-      ".context/modules/projects/cellframe_sdk.json",
-      ".context/modules/projects/dap_sdk.json",
-      ".context/modules/projects/python_cellframe.json",
-      ".context/modules/languages/python/python_development.json",
-      ".context/modules/languages/python/knowledge_base/dap_sdk_binding_standards.json",
-      ".context/modules/projects/dap_sdk/python_bindings_coding_standards.json",
-      ".context/modules/standards/dap_sdk_coding_standards.json"
-    ],
+
     "context": {
       "problem_statement": "Необходимо создать полноценные Python биндинги для Cellframe SDK и DAP SDK с современной архитектурой",
       "current_state": "Завершены первые 3 фазы: реальные биндинги DAP SDK, исправление загрузки модулей, создание pythonic архитектуры",
+      "context_loading_policy": {
+        "auto_load": [
+          ".context/modules/projects/dap_sdk_project.json",
+          ".context/modules/projects/cellframe_sdk.json",
+          ".context/modules/projects/dap_sdk.json",
+          ".context/modules/projects/python_cellframe.json",
+          ".context/modules/languages/python/python_development.json",
+          ".context/modules/languages/python/knowledge_base/dap_sdk_binding_standards.json",
+          ".context/modules/projects/dap_sdk/python_bindings_coding_standards.json",
+          ".context/modules/standards/dap_sdk_coding_standards.json",
+          ".context/modules/standards/python_cellframe_testing_standards.json"
+        ]
+      },
       "dependencies": [
         "DAP SDK - криптографический фреймворк",
         "Cellframe SDK blockchain modules",

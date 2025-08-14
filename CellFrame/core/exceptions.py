@@ -29,7 +29,8 @@ from typing import Any, Dict, List, Optional, Union
 
 # Import base exceptions from python-dap
 try:
-    from dap import DapException, format_exception_context
+    from dap.core import DapException
+    from dap.core.exceptions import format_exception_context
 except ImportError as e:
     raise ImportError(
         "❌ CRITICAL: Native DAP exceptions module not available!\n"

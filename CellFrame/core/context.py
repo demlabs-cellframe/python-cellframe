@@ -20,7 +20,7 @@ from enum import Enum
 
 # Import DAP for core functionality
 try:
-    import dap
+    import dap.core as dap
 except ImportError as e:
     raise ImportError(
         "❌ CRITICAL: Native DAP module not available!\n"

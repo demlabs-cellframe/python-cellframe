@@ -548,6 +548,39 @@
       "tests_directory": "tests/",
       "integration_tests": "Тесты интеграции с Cellframe SDK",
       "unit_tests": "Модульные тесты компонентов"
+    },
+    "testing_methodology": {
+      "build_chain": {
+        "description": "ОБЯЗАТЕЛЬНАЯ цепочка: CMake → Make → CPack → CTest",
+        "commands": [
+          "mkdir build && cd build",
+          "cmake .. -DBUILD_TESTS=ON -DCMAKE_BUILD_TYPE=Debug",
+          "make -j$(nproc)",
+          "cpack",
+          "ctest --verbose"
+        ],
+        "requirements": "Сборка только через CMake с включенными тестами в Debug режиме",
+        "no_shortcuts": "НЕ использовать pytest напрямую, только через CTest"
+      },
+      "virtual_environment": {
+        "description": "Автоматическое создание изолированного тестового окружения",
+        "packages_to_install": [
+          "python-dap (из ../python-dap/)",
+          "cellframe-sdk (из ../cellframe-sdk/)",
+          "dap-sdk (из ../dap-sdk/)"
+        ],
+        "automation": "Все пакеты должны автоматически устанавливаться в venv_test/ перед запуском тестов",
+        "reference_implementation": "Аналогично python-dap проекту - автоматическая установка зависимостей"
+      },
+      "test_isolation": {
+        "description": "Python Cellframe тесты изолированы от других тестов",
+        "restrictions": [
+          "НЕ вызывать python-dap тесты",
+          "НЕ вызывать чужие тестовые наборы",
+          "Запускать ТОЛЬКО собственные тесты python-cellframe"
+        ],
+        "scope": "Тестирование только функционала Python Cellframe биндингов"
+      }
     }
   },
 
