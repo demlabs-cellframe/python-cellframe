@@ -4,10 +4,12 @@
 PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 VENV_DIR="$PROJECT_ROOT/venv_test"
 
-source "$VENV_DIR/bin/activate_test"
+if [ -f "$VENV_DIR/bin/activate" ]; then
+    source "$VENV_DIR/bin/activate"
+fi
 
 echo "🔬 Quick functionality test..."
-python -c "
+python3 -c "
 import sys
 sys.path.insert(0, '$PROJECT_ROOT')
 
