@@ -24,25 +24,18 @@ def dap_chain_wallet_open(*args, **kwargs):
     """Legacy function stub for tests"""
     return None
 
-# Try to import cellframe if available
+# FAIL-FAST: Cellframe module is required - no fallbacks allowed
 try:
     import cellframe as cf
     _CELLFRAME_AVAILABLE = True
 except ImportError as e:
-    # Allow running without cellframe module for testing
-    import os
-    if os.environ.get('PYTEST_CURRENT_TEST') or 'pytest' in os.environ.get('_', ''):
-        logger.warning("Running in test mode without cellframe module")
-        cf = None
-        _CELLFRAME_AVAILABLE = False
-    else:
-        raise ImportError(
-            "❌ CRITICAL: Cellframe module not available!\n"
-            "This is a Python bindings library - fallback implementations are not allowed.\n"
-            "Required: cellframe module must be properly built and installed.\n"
-            f"Original error: {e}\n"
-            "Please run: cmake .. && make && make install"
-        ) from e
+    raise ImportError(
+        "❌ CRITICAL: Cellframe module not available!\n"
+        "This is a Python bindings library - fallback implementations are not allowed.\n"
+        "Required: cellframe module must be properly built and installed.\n"
+        f"Original error: {e}\n"
+        "Please run: cmake .. && make && make install"
+    ) from e
 
 
 @dataclass
@@ -167,13 +160,11 @@ class Composer:
     
     def _create_compose_config(self):
         """Create cellframe compose configuration."""
-        # This would use actual cellframe compose_config_t creation
-        # For now, return a placeholder
-        return {
-            'net_name': self.net_name,
-            'wallet_addr': self.wallet_addr,
-            'initialized': True
-        }
+        # FAIL-FAST: Requires native Cellframe SDK
+        raise NotImplementedError(
+            "Native Cellframe SDK compose_config_t creation not implemented.\n"
+            "This requires proper integration with cellframe native module."
+        )
     
     # === Context Manager Support ===
     
@@ -465,7 +456,10 @@ class Composer:
         # This would use actual cellframe transaction composition APIs
         # The wallet would be used here for signing the transaction
         # Example: self.wallet.sign_transaction(transaction_data)
-        return "cellframe_tx_hash_placeholder"
+        raise NotImplementedError(
+            "Transaction finalization requires native Cellframe SDK implementation.\n"
+            "Placeholder values are not allowed in FAIL-FAST architecture."
+        )
     
     def _get_native_ticker(self) -> str:
         """Get native token ticker for network."""

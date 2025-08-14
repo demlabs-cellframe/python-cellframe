@@ -99,6 +99,7 @@ extern "C" {
     // When SDK is embedded, include DAP SDK and Cellframe headers
     // DAP SDK headers (through external include paths)
     #include "dap_common.h"
+    #include "dap_config.h"
     #include "dap_chain_common.h"
     // Cellframe SDK module headers  
     #include "dap_chain.h"

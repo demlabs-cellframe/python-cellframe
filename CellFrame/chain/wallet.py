@@ -45,11 +45,8 @@ from decimal import Decimal
 
 # Import cellframe functions - always required
 try:
-    # First ensure python_dap is imported (required for python_cellframe)
-    try:
-        import python_dap
-    except ImportError:
-        pass  # python_dap may not be available in stub mode
+    # FAIL-FAST: Native modules are required - no fallbacks allowed
+    import python_dap
     
     # First try the main python_cellframe module
     import python_cellframe

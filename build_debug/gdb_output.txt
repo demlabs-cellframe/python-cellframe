@@ -1,0 +1,119 @@
+[Thread debugging using libthread_db enabled]
+Using host libthread_db library "/lib/x86_64-linux-gnu/libthread_db.so.1".
+DEBUG: PyInit_python_dap started
+DEBUG: About to call ensure_dap_sdk_initialized()
+Can't open log file /var/log/dap.log 
+DEBUG: ensure_dap_sdk_initialized() succeeded
+DEBUG: About to call concatenate_methods()
+DEBUG: concatenate_methods started
+DEBUG: crypto_methods returned: 0x7ffff74fdc20
+DEBUG: first crypto method: py_dap_crypto_key_create
+DEBUG: About to call py_dap_plugin_get_methods
+DEBUG: Test environment detected, using: /tmp/dap_test_322953
+DEBUG: Starting DAP SDK initialization with params:
+  App name: dap
+  Working dir: /tmp/dap_test_322953
+  Config dir: /etc
+  Temp dir: /tmp
+  Log file: /var/log/dap.log
+  Events threads: 1
+  Debug mode: false
+DEBUG: Creating directories...
+DEBUG: Calling dap_common_init...
+DEBUG: dap_common_init returned: -1
+WARNING: dap_common_init failed with code -1 (possibly logging issue)
+WARNING: Continuing with reduced functionality for testing...
+DEBUG: Calling dap_config_init with dir: /etc
+DEBUG: dap_config_init returned: 0
+DEBUG: Calling dap_events_init with 1 threads, 10000 timeout...
+DEBUG: dap_events_init returned: 0
+DEBUG: Calling dap_events_start...
+DEBUG: dap_events_start completed
+DEBUG: Calling dap_client_init...
+DEBUG: dap_client_init returned: 0
+DEBUG: DAP SDK initialization completed successfully!
+DEBUG: py_dap_plugin_get_methods called
+DEBUG: plugin_api_methods address = 0x7ffff74fd940
+DEBUG: first method name = dap_sdk_init
+DEBUG: py_dap_plugin_get_methods returned 0x7ffff74fd940
+DEBUG: first plugin method name = 'dap_sdk_init'
+DEBUG: common_methods has 2 methods
+DEBUG: config_methods has 13 methods
+DEBUG: crypto_methods has 30 methods
+DEBUG: system_methods has 10 methods
+DEBUG: logging_methods has 8 methods
+DEBUG: time_methods has 3 methods
+DEBUG: server_methods has 13 methods
+DEBUG: client_methods has 6 methods
+DEBUG: events_methods has 10 methods
+DEBUG: network_methods has 6 methods
+DEBUG: stream_methods has 31 methods
+DEBUG: http_methods has 26 methods
+DEBUG: plugin_methods has 2 methods
+DEBUG: Total methods count: 160
+DEBUG: copying 2 methods from common_methods at index 0
+DEBUG: copying 13 methods from config_methods at index 2
+DEBUG: copying 30 methods from crypto_methods at index 15
+DEBUG: copying 10 methods from system_methods at index 45
+DEBUG: copying 8 methods from logging_methods at index 55
+DEBUG: copying 3 methods from time_methods at index 63
+DEBUG: copying 13 methods from server_methods at index 66
+DEBUG: copying 6 methods from client_methods at index 79
+DEBUG: copying 10 methods from events_methods at index 85
+DEBUG: copying 6 methods from network_methods at index 95
+DEBUG: copying 31 methods from stream_methods at index 101
+DEBUG: copying 26 methods from http_methods at index 132
+DEBUG: copying 2 methods from plugin_methods at index 158
+DEBUG: concatenate_methods completed, returning 0xc231d0 with 160 methods
+DEBUG: concatenate_methods() returned 0xc231d0
+DEBUG: concatenate_methods() succeeded
+DEBUG: About to call PyModule_Create
+DEBUG: PyModule_Create succeeded
+DEBUG: Calling module init functions
+DEBUG: PyInit_python_dap completed successfully
+2025-08-14 15:16:59,298 - cellframe.library - INFO - Library context initialized successfully
+INFO:cellframe.library:Library context initialized successfully
+2025-08-14 15:16:59,299 - cellframe.node - INFO - Initializing component: node
+INFO:cellframe.node:Initializing component: node
+2025-08-14 15:16:59,299 - cellframe.node - INFO - Initializing Cellframe Node in library mode
+INFO:cellframe.node:Initializing Cellframe Node in library mode
+2025-08-14 15:16:59,299 - cellframe.chain - INFO - Initializing component: chain
+INFO:cellframe.chain:Initializing component: chain
+2025-08-14 15:16:59,299 - cellframe.chain - INFO - Using DAP for chain operations
+INFO:cellframe.chain:Using DAP for chain operations
+2025-08-14 15:16:59,299 - cellframe.chain - INFO - Initializing chains in library mode
+INFO:cellframe.chain:Initializing chains in library mode
+2025-08-14 15:16:59,299 - cellframe.node - INFO - Cellframe Node initialized successfully
+INFO:cellframe.node:Cellframe Node initialized successfully
+2025-08-14 15:16:59,299 - cellframe.node - INFO - Shutting down Cellframe Node
+INFO:cellframe.node:Shutting down Cellframe Node
+2025-08-14 15:16:59,299 - cellframe.chain - INFO - Shutting down component: chain
+INFO:cellframe.chain:Shutting down component: chain
+2025-08-14 15:16:59,299 - cellframe.library - INFO - Shutting down library context
+INFO:cellframe.library:Shutting down library context
+2025-08-14 15:16:59,299 - cellframe.library - INFO - Library context shutdown complete
+INFO:cellframe.library:Library context shutdown complete
+2025-08-14 15:16:59,299 - cellframe.node - INFO - Shutting down component: node
+INFO:cellframe.node:Shutting down component: node
+2025-08-14 15:16:59,299 - cellframe.node - INFO - Cellframe Node shutdown complete
+INFO:cellframe.node:Cellframe Node shutdown complete
+Testing DAP SDK deinit segfault...
+✓ CellFrame modules imported successfully
+✓ CellframeNode created
+✓ Node initialized: True
+⚠️  About to call shutdown (this might segfault)...
+✓ Node shutdown: True
+✓ Test completed without segfault
+DEBUG: Starting DAP SDK deinitialization...
+DEBUG: Checking events worker status...
+DEBUG: Stopping DAP events...
+DEBUG: Events stopped
+DEBUG: Safe events cleanup (skipping problematic dap_events_deinit)...
+DEBUG: Events cleanup completed
+DEBUG: Deinitializing configuration...
+DEBUG: Deinitializing common subsystem...
+DEBUG: Common subsystem deinitialized
+DEBUG: DAP SDK deinitialized successfully
+[Inferior 1 (process 322953) exited normally]
+No stack.
+The program has no registers now.

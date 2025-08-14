@@ -230,6 +230,59 @@ def reset_imports():
             del sys.modules[mod]
 
 
+@pytest.fixture(scope="session", autouse=True)
+def setup_test_environment():
+    """
+    Setup proper test environment before all tests.
+    Creates test directories and properly initializes DAP SDK.
+    """
+    # Create test environment directories
+    test_session_dir = "/tmp/pytest_cellframe_test_session"
+    config_dir = f"{test_session_dir}/etc"
+    temp_dir = f"{test_session_dir}/tmp"
+    log_dir = f"{test_session_dir}/var/log"
+    log_file = f"{log_dir}/cellframe_test.log"
+    
+    # Create all required directories
+    os.makedirs(config_dir, exist_ok=True)
+    os.makedirs(temp_dir, exist_ok=True)
+    os.makedirs(log_dir, exist_ok=True)
+    
+    print(f"✅ Test environment created:")
+    print(f"  Working dir: {test_session_dir}")
+    print(f"  Config dir: {config_dir}")
+    print(f"  Temp dir: {temp_dir}")
+    print(f"  Log file: {log_file}")
+    
+    # Initialize DAP SDK with proper test paths
+    try:
+        import python_dap
+        # Properly initialize with test paths instead of auto-detection
+        result = python_dap.dap_sdk_init(
+            app_name="pytest_cellframe",
+            working_dir=test_session_dir,
+            config_dir=config_dir,
+            temp_dir=temp_dir,
+            log_file=log_file,
+            events_threads=2,
+            events_timeout=10000,
+            debug_mode=True
+        )
+        if result == 0:
+            print("✅ DAP SDK initialized with test paths")
+        else:
+            print(f"⚠️ DAP SDK init returned {result} (may be already initialized)")
+    except ImportError:
+        print("⚠️ python_dap not available in test environment")
+    except Exception as e:
+        print(f"⚠️ DAP SDK initialization failed: {e}")
+    
+    # Yield to tests
+    yield
+    
+    # Cleanup handled by OS
+
+
 def pytest_configure(config):
     """Pytest configuration"""
     # Add custom markers
@@ -245,7 +298,7 @@ def pytest_configure(config):
     
     # Setup test environment
     os.environ.setdefault("CELLFRAME_TEST_MODE", "1")
-    os.environ.setdefault("DAP_TEST_MODE", "1")
+    os.environ.setdefault("DAP_SDK_TEST_MODE", "1")
 
 
 def pytest_collection_modifyitems(config, items):

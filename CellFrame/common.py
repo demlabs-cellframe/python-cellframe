@@ -6,12 +6,8 @@ Fallback implementations are NOT ALLOWED in Python bindings.
 
 # Fail-fast approach: Import required native module or raise exception
 try:
-    # First ensure python_dap is imported (required for python_cellframe)
-    try:
-        import python_dap
-    except ImportError:
-        pass  # python_dap may not be available in stub mode
-    
+    # FAIL-FAST: Native modules are required - no fallbacks allowed
+    import python_dap
     import python_cellframe
     if not python_cellframe.is_sdk_available():
         raise RuntimeError("Native SDK not properly initialized")
