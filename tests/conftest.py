@@ -78,17 +78,17 @@ def mock_cellframe_sdk():
         mock_sdk = MagicMock()
         
         # Mock wallet functions from chain module
-        m.setattr("cellframe.chain.wallet.create_wallet", Mock(return_value=mock_sdk))
-        m.setattr("cellframe.chain.wallet.open_wallet", Mock(return_value=mock_sdk))
-        m.setattr("cellframe.chain.wallet.get_all_wallets", Mock(return_value=[]))
+        m.setattr("CellFrame.chain.wallet.create_wallet", Mock(return_value=mock_sdk))
+        m.setattr("CellFrame.chain.wallet.open_wallet", Mock(return_value=mock_sdk))
+        m.setattr("CellFrame.chain.wallet.get_all_wallets", Mock(return_value=[]))
         
         # Mock ledger functions from chain module  
-        m.setattr("cellframe.chain.ledger.create_ledger", Mock(return_value=mock_sdk))
-        m.setattr("cellframe.chain.ledger.open_ledger", Mock(return_value=mock_sdk))
+        m.setattr("CellFrame.chain.ledger.create_ledger", Mock(return_value=mock_sdk))
+        m.setattr("CellFrame.chain.ledger.open_ledger", Mock(return_value=mock_sdk))
         
         # Mock context functions that exist
-        m.setattr("cellframe.core.context.get_context", Mock(return_value=mock_sdk))
-        m.setattr("cellframe.core.context.initialize_context", Mock(return_value=mock_sdk))
+        m.setattr("CellFrame.core.context.get_context", Mock(return_value=mock_sdk))
+        m.setattr("CellFrame.core.context.initialize_context", Mock(return_value=mock_sdk))
         
         yield mock_sdk
 

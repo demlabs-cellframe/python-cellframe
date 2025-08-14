@@ -111,8 +111,12 @@ class TestLegacyBackwardCompatibility:
         stake_data = conditional_processor_fixtures["stake_lock"]
         
         with patch('cellframe.composer.conditional.dap_chain_wallet_open'):
-            # Legacy unified processor should still work
-            legacy_processor = ConditionalProcessor("testnet", "test_wallet")
+            # Create a mock composer for the legacy processor
+            from CellFrame.composer.core import Composer
+            with patch.object(Composer, '__init__', return_value=None):
+                mock_composer = Composer()
+                # Legacy unified processor should still work
+                legacy_processor = ConditionalProcessor(mock_composer)
             
             # Test legacy method signatures
             legacy_methods = [

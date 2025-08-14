@@ -89,6 +89,35 @@ class ConditionalProcessor:
             logger.error("Failed to create conditional transaction: %s", e)
             raise ConditionalTransactionError(f"Failed to create conditional transaction: {e}")
     
+    # Legacy compatibility methods
+    def create_stake_lock(self, amount, lock_time, **kwargs):
+        """Legacy compatibility method for stake lock creation."""
+        from decimal import Decimal
+        return self._processors[TransactionType.SRV_STAKE_LOCK].create_conditional_transaction(
+            Decimal(str(amount)), Decimal("0.01"), lock_time=lock_time, **kwargs
+        )
+    
+    def create_exchange_order(self, token_from, token_to, amount, **kwargs):
+        """Legacy compatibility method for exchange order creation."""
+        from decimal import Decimal
+        return self._processors[TransactionType.SRV_XCHANGE].create_conditional_transaction(
+            Decimal(str(amount)), Decimal("0.01"), token_from=token_from, token_to=token_to, **kwargs
+        )
+    
+    def create_voting_transaction(self, proposal_id, vote, **kwargs):
+        """Legacy compatibility method for voting transaction creation."""
+        from decimal import Decimal
+        return self._processors[TransactionType.SRV_VOTING].create_conditional_transaction(
+            Decimal("0"), Decimal("0.01"), proposal_id=proposal_id, vote=vote, **kwargs
+        )
+    
+    def create_delegation(self, validator_addr, amount, **kwargs):
+        """Legacy compatibility method for delegation creation."""
+        from decimal import Decimal
+        return self._processors[TransactionType.SRV_STAKE_POS_DELEGATE].create_conditional_transaction(
+            Decimal(str(amount)), Decimal("0.01"), validator_addr=validator_addr, **kwargs
+        )
+
     def _get_processor(self, condition_type: TransactionType):
         """Get specialized processor for transaction type."""
         processor = self._processors.get(condition_type)
