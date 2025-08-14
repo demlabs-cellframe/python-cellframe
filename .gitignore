@@ -2,6 +2,10 @@
 __pycache__/
 *.py[cod]
 *$py.class
+.context
+.slc
+slc
+.cursorrules
 
 # Build directories
 build/
