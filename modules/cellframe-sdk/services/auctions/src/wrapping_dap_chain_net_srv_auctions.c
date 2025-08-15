@@ -297,23 +297,65 @@ PyObject *wrapping_dap_chain_net_srv_auctions_get_list(PyObject *self, PyObject 
     for (dap_list_t *item = auctions_list; item; item = dap_list_next(item)) {
         dap_chain_net_srv_auction_t *auction = (dap_chain_net_srv_auction_t *)item->data;
         
-        PyObject *auction_obj = PyDict_New();
-        
-        char auction_hash_str[65];
-        dap_chain_hash_fast_to_str(&auction->auction_hash, auction_hash_str, sizeof(auction_hash_str));
-        PyDict_SetItemString(auction_obj, "auction_hash", PyUnicode_FromString(auction_hash_str));
-        
-        if (auction->group_name) {
-            PyDict_SetItemString(auction_obj, "auction_name", PyUnicode_FromString(auction->group_name));
+        // Safety check: verify auction structure is valid
+        if (!auction) {
+            continue; // Skip NULL auction
         }
         
-        PyDict_SetItemString(auction_obj, "status", PyUnicode_FromString(dap_auction_status_to_str(auction->status)));
+        PyObject *auction_obj = PyDict_New();
+        if (!auction_obj) {
+            continue; // Skip if dict creation failed
+        }
+        
+        // Convert auction hash to string with proper error handling
+        char auction_hash_str[65];
+        memset(auction_hash_str, 0, sizeof(auction_hash_str)); // Initialize to zero
+        
+        int ret = dap_chain_hash_fast_to_str(&auction->auction_hash, auction_hash_str, sizeof(auction_hash_str));
+        if (ret != 0 || auction_hash_str[0] == '\0') {
+            // If hash conversion failed, use a placeholder
+            strncpy(auction_hash_str, "INVALID_HASH", sizeof(auction_hash_str) - 1);
+            auction_hash_str[sizeof(auction_hash_str) - 1] = '\0';
+        }
+        
+        // Create Python unicode object with error checking
+        PyObject *hash_obj = PyUnicode_FromString(auction_hash_str);
+        if (hash_obj) {
+            PyDict_SetItemString(auction_obj, "auction_hash", hash_obj);
+            Py_DECREF(hash_obj);
+        } else {
+            // If string creation failed, set a safe placeholder
+            PyDict_SetItemString(auction_obj, "auction_hash", PyUnicode_FromString("ERROR"));
+        }
+        
+        if (auction->group_name) {
+            PyObject *name_obj = PyUnicode_FromString(auction->group_name);
+            if (name_obj) {
+                PyDict_SetItemString(auction_obj, "auction_name", name_obj);
+                Py_DECREF(name_obj);
+            }
+        }
+        
+        // Safe status conversion with fallback
+        const char *status_str = dap_auction_status_to_str(auction->status);
+        if (!status_str) {
+            status_str = "UNKNOWN";
+        }
+        PyObject *status_obj = PyUnicode_FromString(status_str);
+        if (status_obj) {
+            PyDict_SetItemString(auction_obj, "status", status_obj);
+            Py_DECREF(status_obj);
+        }
         PyDict_SetItemString(auction_obj, "created_time", PyLong_FromUnsignedLongLong(auction->created_time));
         PyDict_SetItemString(auction_obj, "start_time", PyLong_FromUnsignedLongLong(auction->start_time));
         PyDict_SetItemString(auction_obj, "end_time", PyLong_FromUnsignedLongLong(auction->end_time));
         
         if (auction->description) {
-            PyDict_SetItemString(auction_obj, "description", PyUnicode_FromString(auction->description));
+            PyObject *desc_obj = PyUnicode_FromString(auction->description);
+            if (desc_obj) {
+                PyDict_SetItemString(auction_obj, "description", desc_obj);
+                Py_DECREF(desc_obj);
+            }
         }
         
         PyDict_SetItemString(auction_obj, "bids_count", PyLong_FromUnsignedLong(auction->bids_count));
@@ -337,14 +379,26 @@ PyObject *wrapping_dap_chain_net_srv_auctions_get_list(PyObject *self, PyObject 
                 PyObject *project_obj = PyDict_New();
                 
                 if (auction->projects[i].project_name) {
-                    PyDict_SetItemString(project_obj, "project_name", PyUnicode_FromString(auction->projects[i].project_name));
+                    PyObject *project_name_obj = PyUnicode_FromString(auction->projects[i].project_name);
+                    if (project_name_obj) {
+                        PyDict_SetItemString(project_obj, "project_name", project_name_obj);
+                        Py_DECREF(project_name_obj);
+                    } else {
+                        PyDict_SetItemString(project_obj, "project_name", PyUnicode_FromString("INVALID_NAME"));
+                    }
                 } else {
                     PyDict_SetItemString(project_obj, "project_name", PyUnicode_FromString("Unknown"));
                 }
                 
                 char *total_amount_str = dap_uint256_uninteger_to_char(auction->projects[i].total_amount);
                 if (total_amount_str) {
-                    PyDict_SetItemString(project_obj, "total_amount", PyUnicode_FromString(total_amount_str));
+                    PyObject *amount_obj = PyUnicode_FromString(total_amount_str);
+                    if (amount_obj) {
+                        PyDict_SetItemString(project_obj, "total_amount", amount_obj);
+                        Py_DECREF(amount_obj);
+                    } else {
+                        PyDict_SetItemString(project_obj, "total_amount", PyUnicode_FromString("0"));
+                    }
                     DAP_DELETE(total_amount_str);
                 } else {
                     PyDict_SetItemString(project_obj, "total_amount", PyUnicode_FromString("0"));
@@ -353,7 +407,13 @@ PyObject *wrapping_dap_chain_net_srv_auctions_get_list(PyObject *self, PyObject 
                 // Total amount in CELL
                 char *total_amount_coin_str = dap_uint256_decimal_to_char(auction->projects[i].total_amount);
                 if (total_amount_coin_str) {
-                    PyDict_SetItemString(project_obj, "total_amount_coin", PyUnicode_FromString(total_amount_coin_str));
+                    PyObject *amount_coin_obj = PyUnicode_FromString(total_amount_coin_str);
+                    if (amount_coin_obj) {
+                        PyDict_SetItemString(project_obj, "total_amount_coin", amount_coin_obj);
+                        Py_DECREF(amount_coin_obj);
+                    } else {
+                        PyDict_SetItemString(project_obj, "total_amount_coin", PyUnicode_FromString("0.0"));
+                    }
                     DAP_DELETE(total_amount_coin_str);
                 } else {
                     PyDict_SetItemString(project_obj, "total_amount_coin", PyUnicode_FromString("0.0"));
