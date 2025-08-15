@@ -17,10 +17,11 @@ static PyObject *TX_EVENT_DATA_AUCTION_STARTED_CREATE_PY(PyObject *self, PyObjec
 {
     (void)self;
     unsigned int multiplier;
+    unsigned long long duration; // dap_time_t
     unsigned int time_unit; // dap_chain_tx_event_data_time_unit_t
     unsigned int calculation_rule_id;
     PyObject *py_projects = NULL;
-    if (!PyArg_ParseTuple(args, "III|O", &multiplier, &time_unit, &calculation_rule_id, &py_projects))
+    if (!PyArg_ParseTuple(args, "IKII|O", &multiplier, &duration, &time_unit, &calculation_rule_id, &py_projects))
         return NULL;
 
     uint8_t projects_cnt = 0;
@@ -58,8 +59,8 @@ static PyObject *TX_EVENT_DATA_AUCTION_STARTED_CREATE_PY(PyObject *self, PyObjec
 
     size_t data_size = 0;
     byte_t *data = dap_chain_tx_event_data_auction_started_create(
-        &data_size, (uint32_t)multiplier, (dap_chain_tx_event_data_time_unit_t)time_unit,
-        (uint32_t)calculation_rule_id, projects_cnt, project_ids);
+        &data_size, (uint32_t)multiplier, (dap_time_t)duration, (dap_chain_tx_event_data_time_unit_t)time_unit,
+        (uint32_t)calculation_rule_id, projects_cnt, (uint32_t *)project_ids);
 
     if (project_ids)
         DAP_DELETE(project_ids);

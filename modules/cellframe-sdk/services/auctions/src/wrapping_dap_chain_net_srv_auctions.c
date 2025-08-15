@@ -303,8 +303,8 @@ PyObject *wrapping_dap_chain_net_srv_auctions_get_list(PyObject *self, PyObject 
         dap_chain_hash_fast_to_str(&auction->auction_hash, auction_hash_str, sizeof(auction_hash_str));
         PyDict_SetItemString(auction_obj, "auction_hash", PyUnicode_FromString(auction_hash_str));
         
-        if (auction->auction_name) {
-            PyDict_SetItemString(auction_obj, "auction_name", PyUnicode_FromString(auction->auction_name));
+        if (auction->group_name) {
+            PyDict_SetItemString(auction_obj, "auction_name", PyUnicode_FromString(auction->group_name));
         }
         
         PyDict_SetItemString(auction_obj, "status", PyUnicode_FromString(dap_auction_status_to_str(auction->status)));
