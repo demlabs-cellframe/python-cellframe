@@ -235,6 +235,17 @@ typedef struct _wrapping_chain_datum_index_notify_callback {
     dap_chain_t *chain;
 } _wrapping_chain_datum_index_notify_callback_t;
 
+typedef struct _wrapping_chain_atom_notify_callback {
+    PyObject *func;
+    PyObject *arg;
+    dap_chain_t *chain;
+    dap_chain_cell_id_t cell_id;
+    dap_hash_fast_t atom_hash;
+    void *atom_data;
+    size_t atom_size;
+    dap_time_t atom_time;
+} _wrapping_chain_atom_notify_callback_t;
+
 
 bool dap_py_mempool_notifier(void *a_arg)
 {
@@ -286,6 +297,50 @@ bool dap_py_mempool_notifier(void *a_arg)
     return false;
 }
 
+bool dap_py_atom_notifier(void *a_arg)
+{
+    if (!a_arg)
+        return false;
+        
+    _wrapping_chain_atom_notify_callback_t *l_callback = a_arg;
+    
+    PyGILState_STATE state = PyGILState_Ensure();
+    
+    PyChainAtomObject *l_atom_obj = NULL;
+    PyObject *l_args;
+    PyObject *result = NULL;
+    
+    if (l_callback->atom_data) {
+        l_atom_obj = PyObject_New(PyChainAtomObject, &DapChainAtomPtrObjectType);
+        l_atom_obj->atom = l_callback->atom_data;
+        l_atom_obj->atom_size = l_callback->atom_size;
+        l_args = Py_BuildValue("OkO", l_atom_obj, 
+                              (unsigned long)l_callback->atom_size, 
+                              l_callback->arg);
+    } else {
+        l_args = Py_BuildValue("OkO", Py_None, (unsigned long)0, l_callback->arg);
+    }
+    
+    log_it(L_DEBUG, "Call atom notifier for chain %s with atom size %zd", 
+           l_callback->chain->name, l_callback->atom_size);
+           
+    result = PyObject_CallObject(l_callback->func, l_args);
+    if (!result) {
+        python_error_in_log_it(LOG_TAG);
+    }
+    
+    Py_XDECREF(result);
+    Py_DECREF(l_args);
+    Py_XDECREF(l_atom_obj);
+    
+    PyGILState_Release(state);
+    
+    DAP_DELETE(l_callback->atom_data);
+    DAP_DELETE(l_callback);
+    
+    return false;
+}
+
 static void _wrapping_dap_chain_mempool_notify_handler(dap_store_obj_t *a_obj, void *a_arg)
 {
     // Notify python context from proc thread to avoid deadlock in GDB context with GIL accuire trying
@@ -313,30 +368,26 @@ static void _wrapping_dap_chain_atom_notify_handler(void * a_arg, dap_chain_t *a
     if (!a_arg){
         return;
     }
-    _wrapping_chain_mempool_notify_callback_t  *l_callback = (_wrapping_chain_mempool_notify_callback_t *)a_arg;
-
-    PyObject *l_args;
-    PyGILState_STATE state = PyGILState_Ensure();
-
-    dap_chain_atom_ptr_t l_atom = (dap_chain_atom_ptr_t) a_atom;
-    PyChainAtomObject *l_atom_obj = NULL;
-    if(l_atom){
-        l_atom_obj= PyObject_New(PyChainAtomObject, &DapChainAtomPtrObjectType);
-        l_atom_obj->atom = l_atom;
-        l_atom_obj->atom_size = a_atom_size;
-        l_args = Py_BuildValue("OkO", l_atom_obj, (unsigned long)a_atom_size, l_callback->arg);
-    }else{
-        l_args = Py_BuildValue("OkO", Py_None, (unsigned long)0, l_callback->arg);
+    
+    _wrapping_chain_mempool_notify_callback_t *l_orig_callback = 
+        (_wrapping_chain_mempool_notify_callback_t *)a_arg;
+    
+    _wrapping_chain_atom_notify_callback_t *l_obj = 
+        DAP_NEW_Z(_wrapping_chain_atom_notify_callback_t);
+    if (!l_obj) {
+        log_it(L_CRITICAL, "Memory allocation error");
+        return;
     }
-
-    log_it(L_DEBUG, "Call atom notifier for chain %s with atom size %zd", a_chain->name, a_atom_size );
-    PyObject *result = PyObject_CallObject(l_callback->func, l_args);
-    if (!result) {
-        python_error_in_log_it(LOG_TAG);
-    }
-    Py_XDECREF(result);
-    Py_DECREF(l_args);
-    PyGILState_Release(state);
+    
+    l_obj->func = l_orig_callback->func;
+    l_obj->arg = l_orig_callback->arg;
+    l_obj->chain = a_chain;
+    l_obj->cell_id = a_id;
+    l_obj->atom_hash = *a_hash;
+    l_obj->atom_size = a_atom_size;
+    l_obj->atom_time = a_atom_time;
+    l_obj->atom_data = a_atom && a_atom_size > 0 ? DAP_DUP_SIZE_RET_IF_FAIL(a_atom, a_atom_size, l_obj) : NULL;
+    dap_proc_thread_callback_add(NULL, dap_py_atom_notifier, l_obj);
 }
 
 static void _wrapping_dap_chain_atom_confirmed_notify_handler(void *a_arg, dap_chain_t *a_chain, dap_chain_cell_id_t a_id,
@@ -345,36 +396,26 @@ static void _wrapping_dap_chain_atom_confirmed_notify_handler(void *a_arg, dap_c
     if (!a_arg) {
         return;
     }
-    _wrapping_chain_mempool_notify_callback_t *l_callback = (_wrapping_chain_mempool_notify_callback_t *)a_arg;
-
-    PyGILState_STATE state = PyGILState_Ensure();
-
-    dap_chain_atom_ptr_t l_atom = (dap_chain_atom_ptr_t)a_atom;
-    PyChainAtomObject *l_atom_obj = NULL;
-    if (l_atom) {
-        l_atom_obj = PyObject_New(PyChainAtomObject, &DapChainAtomPtrObjectType);
-        l_atom_obj->atom = l_atom;
-        l_atom_obj->atom_size = a_atom_size;
-        PyObject *l_args = Py_BuildValue("OkO", l_atom_obj, (unsigned long)a_atom_size, l_callback->arg);
-        log_it(L_DEBUG, "Call atom confirmed notifier for chain %s with atom size %zd", a_chain->name, a_atom_size);
-        PyObject *result = PyObject_CallObject(l_callback->func, l_args);
-        if (!result) {
-            python_error_in_log_it(LOG_TAG);
-        }
-        Py_XDECREF(result);
-        Py_DECREF(l_args);
-        Py_DECREF(l_atom_obj);
-    } else {
-        PyObject *l_args = Py_BuildValue("OkO", Py_None, (unsigned long)0, l_callback->arg);
-        PyObject *result = PyObject_CallObject(l_callback->func, l_args);
-        if (!result) {
-            python_error_in_log_it(LOG_TAG);
-        }
-        Py_XDECREF(result);
-        Py_DECREF(l_args);
+    
+    _wrapping_chain_mempool_notify_callback_t *l_orig_callback = 
+        (_wrapping_chain_mempool_notify_callback_t *)a_arg;
+    
+    _wrapping_chain_atom_notify_callback_t *l_obj = 
+        DAP_NEW_Z(_wrapping_chain_atom_notify_callback_t);
+    if (!l_obj) {
+        log_it(L_CRITICAL, "Memory allocation error");
+        return;
     }
-
-    PyGILState_Release(state);
+    
+    l_obj->func = l_orig_callback->func;
+    l_obj->arg = l_orig_callback->arg;
+    l_obj->chain = a_chain;
+    l_obj->cell_id = a_id;
+    l_obj->atom_hash = *a_hash;
+    l_obj->atom_size = a_atom_size;
+    l_obj->atom_time = a_atom_time;
+    l_obj->atom_data = a_atom && a_atom_size > 0 ? DAP_DUP_SIZE_RET_IF_FAIL(a_atom, a_atom_size, l_obj) : NULL;
+    dap_proc_thread_callback_add(NULL, dap_py_atom_notifier, l_obj);
 }
 
 PyDapHashFastObject *py_dap_hash_fast_from_hash_fast(dap_hash_fast_t *a_hash_fast)
