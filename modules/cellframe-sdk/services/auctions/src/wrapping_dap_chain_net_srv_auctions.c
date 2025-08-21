@@ -29,7 +29,8 @@ PyObject *wrapping_dap_chain_net_srv_auctions_bid_tx_create(PyObject *self, PyOb
     PyObject *obj_wallet_path, *obj_auction_hash, *obj_amount, *obj_fee;
     uint64_t lock_time;
     
-    if (!PyArg_ParseTuple(argv, "OSSS", &obj_wallet_path, &obj_auction_hash, &obj_amount, &lock_time, &obj_fee)) {
+    if (!PyArg_ParseTuple(argv, "OSSLSO", &obj_wallet_path, &obj_auction_hash, 
+                        &obj_amount, &lock_time, &obj_project_id, &obj_fee)) {
         return NULL;
     }
     
@@ -82,6 +83,16 @@ PyObject *wrapping_dap_chain_net_srv_auctions_bid_tx_create(PyObject *self, PyOb
         PyErr_SetString(PyExc_ValueError, "Invalid amount format");
         return NULL;
     }
+
+    // Parse project id
+    const char *project_id_str = PyUnicode_AsUTF8(obj_project_id);
+    uint32_t project_id = dap_uint32_scan_uninteger(project_id_str);
+    if (project_id == 0) {
+        DAP_DELETE(enc_key);
+        dap_chain_wallet_close(wallet);
+        PyErr_SetString(PyExc_ValueError, "Invalid project id format");
+        return NULL;
+    }
     
     // Parse fee
     const char *fee_str = PyUnicode_AsUTF8(obj_fee);
@@ -96,7 +107,7 @@ PyObject *wrapping_dap_chain_net_srv_auctions_bid_tx_create(PyObject *self, PyOb
     // Create transaction
     int ret_code = 0;
     char *tx_hash_str = dap_auction_bid_tx_create(((PyDapChainNetSrvAuctionsObject *)self)->net, enc_key, &auction_hash,
-                                     amount, lock_time_seconds, 0, fee, &ret_code);
+                                     amount, lock_time_seconds, project_id, fee, &ret_code);
     
     // Cleanup
     DAP_DELETE(enc_key);
@@ -132,7 +143,8 @@ PyObject *wrapping_dap_chain_net_srv_auctions_bid_withdraw_tx_create(PyObject *s
     }
     
     // Open wallet
-    dap_chain_wallet_t *wallet = dap_chain_wallet_open(wallet_path, NULL, NULL);
+    unsigned int wallet_status = 0;
+    dap_chain_wallet_t *wallet = dap_chain_wallet_open(wallet_path, NULL, &wallet_status);
     if (!wallet) {
         PyErr_SetString(PyExc_RuntimeError, "Failed to open wallet");
         return NULL;
