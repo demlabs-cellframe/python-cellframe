@@ -27,10 +27,11 @@ int DapChainNetSrvAuctionsObject_init(PyObject *self, PyObject *args, PyObject *
 PyObject *wrapping_dap_chain_net_srv_auctions_bid_tx_create(PyObject *self, PyObject *argv){
     (void)self;
     PyObject *obj_wallet_path, *obj_auction_hash, *obj_amount, *obj_fee;
+    uint32_t project_id;
     uint64_t lock_time;
     
-    if (!PyArg_ParseTuple(argv, "OSSLSO", &obj_wallet_path, &obj_auction_hash, 
-                        &obj_amount, &lock_time, &obj_project_id, &obj_fee)) {
+    if (!PyArg_ParseTuple(argv, "OSSLLO", &obj_wallet_path, &obj_auction_hash, 
+                        &obj_amount, &lock_time, &project_id, &obj_fee)) {
         return NULL;
     }
     
@@ -81,16 +82,6 @@ PyObject *wrapping_dap_chain_net_srv_auctions_bid_tx_create(PyObject *self, PyOb
         DAP_DELETE(enc_key);
         dap_chain_wallet_close(wallet);
         PyErr_SetString(PyExc_ValueError, "Invalid amount format");
-        return NULL;
-    }
-
-    // Parse project id
-    const char *project_id_str = PyUnicode_AsUTF8(obj_project_id);
-    uint32_t project_id = dap_uint32_scan_uninteger(project_id_str);
-    if (project_id == 0) {
-        DAP_DELETE(enc_key);
-        dap_chain_wallet_close(wallet);
-        PyErr_SetString(PyExc_ValueError, "Invalid project id format");
         return NULL;
     }
     
