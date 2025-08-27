@@ -74,19 +74,21 @@ with cellframe.create_library_node("my-app") as node:
 """
 
 # Core universal architecture
-from .core import (
-    # Context system
-    AppContext, PluginContext, LibContext, ExecutionMode,
-    ContextFactory, get_context, initialize_context, shutdown_context,
+from .core import (    
+    # Core classes - will be implemented when ready
+    # ExecutionMode,
     
-    # Core classes
-    CellframeComponent, CellframeChain, CellframeNode,
-    
-    # Convenience functions
-    create_node, create_plugin_node, create_library_node, auto_create_node,
+    # Convenience functions - will be implemented when core classes are ready
+    # create_node, create_plugin_node, create_library_node, auto_create_node,
     
     # Exceptions
     CellframeException, ConfigurationException
+)
+
+# Context system
+from .core.context import (
+    AppContext, PluginContext, LibContext, ExecutionMode,
+    ContextFactory, get_context, initialize_context, shutdown_context
 )
 
 # Types
@@ -126,7 +128,7 @@ def _auto_detect_and_warn():
 
 
 # Convenience imports for common use cases
-def init_plugin(app_name: str = "cellframe-plugin") -> CellframeNode:
+def init_plugin(app_name: str = "cellframe-plugin"):
     """
     Initialize for plugin mode
     
@@ -140,8 +142,8 @@ def init_plugin(app_name: str = "cellframe-plugin") -> CellframeNode:
     return create_plugin_node(app_name)
 
 
-def init_library(app_name: str = "cellframe-lib", 
-                config_dir: str = None) -> CellframeNode:
+def init_library(app_name: str = "cellframe-lib",
+                config_dir: str = None):
     """
     Initialize for library mode
     
@@ -159,7 +161,7 @@ def init_library(app_name: str = "cellframe-lib",
     return create_library_node(app_name, config_path)
 
 
-def init_auto(app_name: str = None) -> CellframeNode:
+def init_auto(app_name: str = None):
     """
     Auto-detect mode and initialize
     
@@ -178,7 +180,7 @@ def init_auto(app_name: str = None) -> CellframeNode:
 
 
 # Legacy compatibility functions
-def init(modules: list = None) -> CellframeNode:
+def init(modules: list = None):
     """
     Legacy initialization function
     
@@ -282,15 +284,15 @@ __all__ = [
     # Version info
     '__version__', '__author__', '__email__', '__description__',
     
-    # Core classes (universal)
-    'CellframeNode', 'CellframeChain', 'CellframeComponent',
+    # Core classes (universal) - will be added when implemented
+    # 'CellframeNode', 'CellframeChain',
     
     # Context system
     'AppContext', 'PluginContext', 'LibContext', 'ExecutionMode',
     'ContextFactory', 'get_context', 'initialize_context', 'shutdown_context',
     
-    # Node creation functions
-    'create_node', 'create_plugin_node', 'create_library_node', 'auto_create_node',
+    # Node creation functions - will be implemented when core classes are ready
+    # 'create_node', 'create_plugin_node', 'create_library_node', 'auto_create_node',
     
     # Initialization functions
     'init_plugin', 'init_library', 'init_auto', 'init',
@@ -325,7 +327,8 @@ def __getattr__(name):
         # Return appropriate component
         context = get_context()
         if context:
-            node = CellframeNode(context=context)
+            # node = CellframeNode(context=context)  # Will be implemented when CellframeNode is ready
+            node = None
             if name == 'Chain':
                 return node.chain
         

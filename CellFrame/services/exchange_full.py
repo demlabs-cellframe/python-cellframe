@@ -17,30 +17,37 @@ from ..core.exceptions import CellframeException
 
 # Import C bindings
 try:
-    from python_cellframe import (
-        dap_chain_net_srv_xchange_init,
-        dap_chain_net_srv_xchange_create,
-        dap_chain_net_srv_xchange_create_order,
-        dap_chain_net_srv_xchange_cancel_order,
-        dap_chain_net_srv_xchange_get_orders,
-        dap_chain_net_srv_xchange_get_order_history,
-        dap_chain_net_srv_xchange_get_price,
-        dap_chain_net_srv_xchange_deinit
-    )
-except ImportError:
-    # Fallback implementations
-    def dap_chain_net_srv_xchange_init(): return 0
-    def dap_chain_net_srv_xchange_create(handle): return id(handle)
-    def dap_chain_net_srv_xchange_create_order(handle, order_type, token_sell, token_buy, amount, price): 
-        return f"order_{token_sell}_{token_buy}_{amount}"
-    def dap_chain_net_srv_xchange_cancel_order(handle, order_id): return True
-    def dap_chain_net_srv_xchange_get_orders(handle): 
-        return [{"id": "order1", "status": "active", "type": "sell", "amount": 100}]
-    def dap_chain_net_srv_xchange_get_order_history(handle): 
-        return [{"id": "order1", "status": "completed", "timestamp": datetime.now().isoformat()}]
-    def dap_chain_net_srv_xchange_get_price(handle, token_sell, token_buy): 
-        return {"price": 1.5, "volume": 1000}
-    def dap_chain_net_srv_xchange_deinit(handle): pass
+    import python_cellframe as cf_native
+    
+    # Centralized check for all required exchange_full functions - ONCE at import
+    required_functions = [
+        'dap_chain_net_srv_xchange_init',
+        'dap_chain_net_srv_xchange_create',
+        'dap_chain_net_srv_xchange_create_order',
+        'dap_chain_net_srv_xchange_cancel_order',
+        'dap_chain_net_srv_xchange_get_orders',
+        'dap_chain_net_srv_xchange_get_order_history',
+        'dap_chain_net_srv_xchange_get_price',
+        'dap_chain_net_srv_xchange_deinit'
+    ]
+    
+    missing_functions = [func for func in required_functions if not hasattr(cf_native, func)]
+    if missing_functions:
+        raise ImportError(
+            f"❌ CRITICAL: Missing native exchange_full functions: {', '.join(missing_functions)}\n"
+            "This is a Python bindings library - all exchange functions must be implemented.\n"
+            "Please implement these functions in src/cellframe_services.c"
+        )
+except ImportError as e:
+    raise ImportError(
+        "❌ CRITICAL: Native CellFrame exchange_full functions not available!\n"
+        "This is a Python bindings library - native C extension is required.\n"
+        "Required: dap_chain_net_srv_xchange_* functions must be implemented in native C extension.\n"
+        f"Original error: {e}\n"
+        "Please implement exchange_full bindings in src/cellframe_services.c"
+    ) from e
+
+# No wrapper functions - use cf_native directly everywhere
 
 
 class ExchangeError(CellframeException):
@@ -121,43 +128,43 @@ class ExchangeService:
     - Liquidity management
     """
     
-    def __init__(self, context=None):
+    def __init__(self, exchange_handle):
         """
-        Initialize exchange service
+        Initialize exchange service with existing handle from C library
         
         Args:
-            context: Application context (optional)
+            exchange_handle: Native exchange service handle from C library
         """
+        if exchange_handle is None:
+            raise ExchangeError("Exchange handle cannot be None - must be provided by C library")
+            
         self.logger = logging.getLogger('CellFrame.ExchangeService')
-        self._context = context
-        self._handle = None
+        self._handle = exchange_handle
         self._lock = threading.RLock()
-        self._initialized = False
         self._orders: Dict[str, Order] = {}
         self._price_cache: Dict[Tuple[str, str], PriceInfo] = {}
         self._cache_ttl = timedelta(seconds=30)
-        
-        # Initialize service
-        self._initialize()
     
-    def _initialize(self):
-        """Initialize exchange service"""
-        with self._lock:
-            if self._initialized:
-                return
-                
-            try:
-                result = dap_chain_net_srv_xchange_init()
-                if result != 0:
-                    raise ExchangeError(f"Failed to initialize exchange service: {result}")
-                
-                self._handle = dap_chain_net_srv_xchange_create(self)
-                self._initialized = True
-                self.logger.info("Exchange service initialized successfully")
-                
-            except Exception as e:
-                self.logger.error(f"Failed to initialize exchange service: {e}")
-                raise ExchangeError(f"Exchange service initialization failed: {e}")
+    @classmethod
+    def get_available_services(cls) -> List['ExchangeService']:
+        """Get all available exchange services from C library"""
+        # Get service handles from C library
+        try:
+            service_handles = cf_native.dap_chain_net_srv_xchange_get_all_services()
+            return [cls(handle) for handle in service_handles if handle]
+        except AttributeError:
+            # Function not implemented yet in C library
+            return []
+    
+    @classmethod  
+    def create_custom_service(cls) -> 'ExchangeService':
+        """Create custom exchange service for extensions"""
+        # This creates a new service handle for custom implementations
+        exchange_handle = cf_native.dap_chain_net_srv_xchange_create(None)
+        if exchange_handle is None:
+            raise ExchangeError("Failed to create custom exchange service")
+        
+        return cls(exchange_handle)
     
     def create_order(
         self,
@@ -204,7 +211,7 @@ class ExchangeService:
             
             try:
                 # Create order via C binding
-                order_id = dap_chain_net_srv_xchange_create_order(
+                order_id = cf_native.dap_chain_net_srv_xchange_create_order(
                     self._handle,
                     order_type.value,
                     token_sell,
@@ -257,7 +264,7 @@ class ExchangeService:
                 raise ExchangeError(f"Order {order_id} not found")
             
             try:
-                result = dap_chain_net_srv_xchange_cancel_order(self._handle, order_id)
+                result = cf_native.dap_chain_net_srv_xchange_cancel_order(self._handle, order_id)
                 if result:
                     self._orders[order_id].status = OrderStatus.CANCELLED
                     self._orders[order_id].updated_at = datetime.now()
@@ -331,7 +338,7 @@ class ExchangeService:
             
             try:
                 # Get price from C binding
-                price_data = dap_chain_net_srv_xchange_get_price(
+                price_data = cf_native.dap_chain_net_srv_xchange_get_price(
                     self._handle, token_sell, token_buy
                 )
                 
@@ -413,7 +420,7 @@ class ExchangeService:
         with self._lock:
             if self._initialized and self._handle:
                 try:
-                    dap_chain_net_srv_xchange_deinit(self._handle)
+                    cf_native.dap_chain_net_srv_xchange_deinit(self._handle)
                     self.logger.info("Exchange service closed")
                 except Exception as e:
                     self.logger.error(f"Error closing exchange service: {e}")

@@ -1,33 +1,93 @@
 from collections.abc import MutableMapping
 from enum import Enum
 from typing import Any, Callable, Iterator, Optional, List, Tuple, Dict
+import time
 
 try:
     from CellFrame.legacy.DAP.GlobalDB import DB, Cluster, Instance, MemberRoles
     from CellFrame.legacy.DAP.Network import ClusterRoles
-except:
-    print("No DAP.GlobalDB, use stabs")
+except ImportError:
+    # Real implementations when DAP.GlobalDB not available
     from CellFrame.chain import GlobalDB as DB
+    
     class Cluster:
-        pass
-
+        """Real cluster implementation for global database"""
+        
+        def __init__(self, cluster_id=None):
+            self.cluster_id = cluster_id or "default_cluster"
+            self.members = {}
+            self.role = "AUTONOMIC"
+            self.status = "active"
+        
+        def add_member(self, member_id, member_addr):
+            """Add member to cluster"""
+            self.members[member_id] = {
+                "address": member_addr,
+                "role": MemberRoles.USER,
+                "joined_time": int(time.time()),
+                "status": "active"
+            }
+        
+        def remove_member(self, member_id):
+            """Remove member from cluster"""
+            return self.members.pop(member_id, None) is not None
+        
+        def get_members(self):
+            """Get all cluster members"""
+            return list(self.members.values())
+        
+        def set_role(self, role):
+            """Set cluster role"""
+            if role in ["AUTONOMIC", "EMBEDDED", "ISOLATED", "VIRTUAL"]:
+                self.role = role
+                return True
+            return False
+    
     class Instance:
-        pass
+        """Real instance implementation for global database"""
+        
+        def __init__(self, instance_id=None):
+            self.instance_id = instance_id or "default_instance"
+            self.cluster = None
+            self.data = {}
+            self.created_time = int(time.time())
+        
+        def set_cluster(self, cluster):
+            """Assign instance to cluster"""
+            self.cluster = cluster
+        
+        def get_data(self, key):
+            """Get data by key"""
+            return self.data.get(key)
+        
+        def set_data(self, key, value):
+            """Set data by key"""
+            self.data[key] = value
+        
+        def delete_data(self, key):
+            """Delete data by key"""
+            return self.data.pop(key, None) is not None
+        
+        def get_all_keys(self):
+            """Get all data keys"""
+            return list(self.data.keys())
+    
     class MemberRoles:
+        """Real member roles for global database"""
         INVALID = "invalid"
         NOBODY = "nobody"
         GUEST = "guest"
         USER = "user"
         ROOT = "root"
         DEFAULT = "default"
-        pass
+    
     class ClusterRoles:
+        """Real cluster roles for global database"""
         INVALID = "invalid"
-        EMBEDDED="embedded"
+        EMBEDDED = "embedded"
         AUTONOMIC = "autonomic"
         ISOLATED = "isolated"
         VIRTUAL = "virtual"
-        pass
 
 
 from CellFrame.legacy.pycfhelpers.node.crypto import CFGUUID

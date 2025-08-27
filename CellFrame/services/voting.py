@@ -17,31 +17,42 @@ from ..core.exceptions import CellframeException
 
 # Import C bindings
 try:
-    from python_cellframe import (
-        dap_chain_net_srv_voting_init,
-        dap_chain_net_srv_voting_create,
-        dap_chain_net_srv_voting_create_proposal,
-        dap_chain_net_srv_voting_cast_vote,
-        dap_chain_net_srv_voting_delegate,
-        dap_chain_net_srv_voting_get_proposals,
-        dap_chain_net_srv_voting_get_results,
-        dap_chain_net_srv_voting_deinit
-    )
-except ImportError:
-    # Fallback implementations
-    def dap_chain_net_srv_voting_init(): return 0
-    def dap_chain_net_srv_voting_create(handle): return id(handle)
-    def dap_chain_net_srv_voting_create_proposal(handle, title, description, options, duration):
-        return f"proposal_{hash(title)}"
-    def dap_chain_net_srv_voting_cast_vote(handle, proposal_id, option_index, weight):
-        return {"success": True, "tx_hash": f"vote_{proposal_id}_{option_index}"}
-    def dap_chain_net_srv_voting_delegate(handle, delegate_address, weight):
-        return {"success": True, "tx_hash": f"delegate_{delegate_address}"}
-    def dap_chain_net_srv_voting_get_proposals(handle, status=None):
-        return [{"id": "proposal1", "title": "Test Proposal", "status": "active"}]
-    def dap_chain_net_srv_voting_get_results(handle, proposal_id):
-        return {"total_votes": 100, "results": [{"option": "Yes", "votes": 70}, {"option": "No", "votes": 30}]}
-    def dap_chain_net_srv_voting_deinit(handle): pass
+    import python_cellframe as cf_native
+    
+    # Centralized check for all required voting functions - ONCE at import
+    required_functions = [
+        'dap_chain_net_srv_voting_init',
+        'dap_chain_net_srv_voting_create',
+        'dap_chain_net_srv_voting_create_proposal',
+        'dap_chain_net_srv_voting_cast_vote',
+        'dap_chain_net_srv_voting_delegate',
+        'dap_chain_net_srv_voting_get_proposals',
+        'dap_chain_net_srv_voting_get_results',
+        'dap_chain_net_srv_voting_deinit'
+    ]
+    
+    missing_functions = [func for func in required_functions if not hasattr(cf_native, func)]
+    if missing_functions:
+        # In test mode, allow missing functions for mock testing
+        import os
+        if os.environ.get('CELLFRAME_TEST_MODE') == '1':
+            print(f"⚠️  TEST MODE: Missing native voting functions: {', '.join(missing_functions)}")
+        else:
+            raise ImportError(
+                f"❌ CRITICAL: Missing native voting functions: {', '.join(missing_functions)}\n"
+                "This is a Python bindings library - all voting functions must be implemented.\n"
+                "Please implement these functions in src/cellframe_services.c"
+            )
+except ImportError as e:
+    raise ImportError(
+        "❌ CRITICAL: Native CellFrame voting functions not available!\n"
+        "This is a Python bindings library - native C extension is required.\n"
+        "Required: dap_chain_net_srv_voting_* functions must be implemented in native C extension.\n"
+        f"Original error: {e}\n"
+        "Please implement voting bindings in src/cellframe_services.c"
+    ) from e
+
+# No wrapper functions - use cf_native directly everywhere
 
 
 class VotingError(CellframeException):
@@ -151,46 +162,50 @@ class VotingService:
     - Vote casting and delegation
     - Result calculation and tracking
     - Governance analytics
+    
+    Note: Service handles are created and initialized by C library.
+    Python only wraps existing handles or creates custom extensions.
     """
     
-    def __init__(self, context=None):
+    def __init__(self, voting_handle):
         """
-        Initialize voting service
+        Initialize voting service with existing handle from C library
         
         Args:
-            context: Application context (optional)
+            voting_handle: Native voting service handle from C library
         """
+        if voting_handle is None:
+            raise VotingError("Voting handle cannot be None - must be provided by C library")
+            
         self.logger = logging.getLogger('CellFrame.VotingService')
-        self._context = context
-        self._handle = None
+        self._handle = voting_handle
         self._lock = threading.RLock()
-        self._initialized = False
         self._proposals: Dict[str, Proposal] = {}
         self._votes: Dict[str, List[Vote]] = {}
         self._delegations: Dict[str, str] = {}
+    
+    @classmethod
+    def get_available_services(cls) -> List['VotingService']:
+        """Get all available voting services from C library"""
+        # Get service handles from C library
+        try:
+            service_handles = cf_native.dap_chain_net_srv_voting_get_all_services()
+            return [cls(handle) for handle in service_handles if handle]
+        except AttributeError:
+            # Function not implemented yet in C library
+            return []
+    
+    @classmethod  
+    def create_custom_service(cls) -> 'VotingService':
+        """Create custom voting service for extensions"""
+        # This creates a new service handle for custom implementations
+        voting_handle = cf_native.dap_chain_net_srv_voting_create(None)
+        if voting_handle is None:
+            raise VotingError("Failed to create custom voting service")
         
-        # Initialize service
-        self._initialize()
+        return cls(voting_handle)
     
-    def _initialize(self):
-        """Initialize voting service"""
-        with self._lock:
-            if self._initialized:
-                return
-                
-            try:
-                result = dap_chain_net_srv_voting_init()
-                if result != 0:
-                    raise VotingError(f"Failed to initialize voting service: {result}")
-                
-                self._handle = dap_chain_net_srv_voting_create(self)
-                self._initialized = True
-                self.logger.info("Voting service initialized successfully")
-                
-            except Exception as e:
-                self.logger.error(f"Failed to initialize voting service: {e}")
-                raise VotingError(f"Voting service initialization failed: {e}")
-    
+
     def create_proposal(
         self,
         title: str,
@@ -237,7 +252,7 @@ class VotingService:
             
             try:
                 # Create proposal via C binding
-                proposal_id = dap_chain_net_srv_voting_create_proposal(
+                proposal_id = cf_native.dap_chain_net_srv_voting_create_proposal(
                     self._handle,
                     title,
                     description,
@@ -323,7 +338,7 @@ class VotingService:
             
             try:
                 # Cast vote via C binding
-                result = dap_chain_net_srv_voting_cast_vote(
+                result = cf_native.dap_chain_net_srv_voting_cast_vote(
                     self._handle,
                     proposal_id,
                     option_index,
@@ -377,7 +392,7 @@ class VotingService:
             weight = Decimal(str(weight)) if weight else Decimal('1')
             
             try:
-                result = dap_chain_net_srv_voting_delegate(
+                result = cf_native.dap_chain_net_srv_voting_delegate(
                     self._handle,
                     delegate_address,
                     float(weight)
@@ -456,7 +471,7 @@ class VotingService:
             
             try:
                 # Get results from C binding
-                result_data = dap_chain_net_srv_voting_get_results(
+                result_data = cf_native.dap_chain_net_srv_voting_get_results(
                     self._handle, proposal_id
                 )
                 
@@ -557,7 +572,7 @@ class VotingService:
         with self._lock:
             if self._initialized and self._handle:
                 try:
-                    dap_chain_net_srv_voting_deinit(self._handle)
+                    cf_native.dap_chain_net_srv_voting_deinit(self._handle)
                     self.logger.info("Voting service closed")
                 except Exception as e:
                     self.logger.error(f"Error closing voting service: {e}")

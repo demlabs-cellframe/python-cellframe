@@ -18,12 +18,8 @@ from ..types import TransactionType
 logger = logging.getLogger(__name__)
 
 # Try to import cellframe if available
-try:
-    import cellframe as cf
-    _CELLFRAME_AVAILABLE = True
-except ImportError:
-    _CELLFRAME_AVAILABLE = False
-
+# Import python_cellframe directly to avoid circular imports
+import python_cellframe as cf_native
 
 class FeeOptimizer:
     """
@@ -154,7 +150,7 @@ class FeeOptimizer:
     def _get_network_congestion_factor(self) -> Decimal:
         """Get network congestion factor for fee adjustment."""
         try:
-            if _CELLFRAME_AVAILABLE and self.config:
+            if self.config:
                 # This would query actual network congestion
                 # For now, return a reasonable default
                 return Decimal("1.0")

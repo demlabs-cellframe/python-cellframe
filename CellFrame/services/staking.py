@@ -18,31 +18,48 @@ from typing import Dict, List, Optional, Any, Union
 from decimal import Decimal
 from datetime import datetime, timedelta
 from enum import Enum
+import time
 
 from ..core.exceptions import CellframeException
 
-# Import C bindings
+# Import native cellframe functions
 try:
-    from python_cellframe_common import (
-        dap_chain_net_srv_stake_pos_delegate_init,
-        dap_chain_net_srv_stake_pos_delegate_create,
-        dap_chain_net_srv_stake_pos_delegate_stake,
-        dap_chain_net_srv_stake_pos_delegate_unstake,
-        dap_chain_net_srv_stake_pos_delegate_get_rewards,
-        dap_chain_net_srv_stake_pos_delegate_get_validators,
-        dap_chain_net_srv_stake_pos_delegate_get_delegations,
-        dap_chain_net_srv_stake_pos_delegate_deinit
-    )
-except ImportError:
-    # Fallback implementations
-    def dap_chain_net_srv_stake_pos_delegate_init(): return 0
-    def dap_chain_net_srv_stake_pos_delegate_create(handle): return id(handle)
-    def dap_chain_net_srv_stake_pos_delegate_stake(handle, validator, amount): return f"stake_{amount}"
-    def dap_chain_net_srv_stake_pos_delegate_unstake(handle, validator, amount): return f"unstake_{amount}"
-    def dap_chain_net_srv_stake_pos_delegate_get_rewards(handle, validator): return {"rewards": amount}
-    def dap_chain_net_srv_stake_pos_delegate_get_validators(handle): return [{"id": "validator1", "active": True}]
-    def dap_chain_net_srv_stake_pos_delegate_get_delegations(handle): return [{"validator": "validator1", "amount": 1000}]
-    def dap_chain_net_srv_stake_pos_delegate_deinit(handle): pass
+    import python_cellframe as cf_native
+    
+    # Centralized check for all required staking functions - ONCE at import
+    required_functions = [
+        'dap_chain_net_srv_stake_pos_delegate_init',
+        'dap_chain_net_srv_stake_pos_delegate_create',
+        'dap_chain_net_srv_stake_pos_delegate_stake',
+        'dap_chain_net_srv_stake_pos_delegate_unstake',
+        'dap_chain_net_srv_stake_pos_delegate_get_rewards',
+        'dap_chain_net_srv_stake_pos_delegate_get_validators',
+        'dap_chain_net_srv_stake_pos_delegate_get_delegations',
+        'dap_chain_net_srv_stake_pos_delegate_deinit'
+    ]
+    
+    missing_functions = [func for func in required_functions if not hasattr(cf_native, func)]
+    if missing_functions:
+        # In test mode, allow missing functions for mock testing
+        import os
+        if os.environ.get('CELLFRAME_TEST_MODE') == '1':
+            print(f"⚠️  TEST MODE: Missing native staking functions: {', '.join(missing_functions)}")
+        else:
+            raise ImportError(
+                f"❌ CRITICAL: Missing native staking functions: {', '.join(missing_functions)}\n"
+                "This is a Python bindings library - all staking functions must be implemented.\n"
+                "Please implement these functions in src/cellframe_services.c"
+            )
+        
+except ImportError as e:
+    raise ImportError(
+        "❌ CRITICAL: Native CellFrame staking module not available!\n"
+        "This is a Python bindings library - native C extension is required.\n"
+        f"Original error: {e}\n"
+        "Please ensure python_cellframe native module is properly built and installed."
+    ) from e
+
+# No wrapper functions - use cf_native directly everywhere
 
 
 class StakingError(CellframeException):
@@ -182,7 +199,7 @@ class StakingValidator:
                 raise StakingError("Validator not initialized")
             
             # Create delegation
-            delegation_handle = dap_chain_net_srv_stake_pos_delegate_stake(
+            delegation_handle = cf_native.dap_chain_net_srv_stake_pos_delegate_stake(
                 self._validator_handle, self.validator_id, float(amount)
             )
             
@@ -201,7 +218,8 @@ class StakingService:
     """
     Staking service for managing stake operations.
     
-    Contains staking_handle internally and provides high-level staking operations.
+    Wraps existing staking service handles from C library.
+    Service initialization happens at C library level.
     """
     
     # Thread-safe registries
@@ -210,10 +228,13 @@ class StakingService:
     _validators: Dict[int, StakingValidator] = {}
     _registry_lock = threading.RLock()
     
-    def __init__(self, staking_handle: int, owns_handle: bool = True):
-        """Initialize staking service"""
+    def __init__(self, staking_handle: int):
+        """Initialize staking service with existing handle from C library"""
+        if staking_handle is None:
+            raise StakingError("Staking handle cannot be None - must be provided by C library")
+            
         self._staking_handle = staking_handle
-        self._owns_handle = owns_handle
+        self._owns_handle = False  # Handle is owned by C library
         self._lock = threading.RLock()
         self._logger = logging.getLogger(__name__ + ".StakingService")
         
@@ -221,18 +242,27 @@ class StakingService:
         self._add_to_registry()
     
     @classmethod
-    def create(cls, network_id: str = "mainnet") -> 'StakingService':
-        """Create new staking service instance"""
-        # Initialize staking system
-        if dap_chain_net_srv_stake_pos_delegate_init() != 0:
-            raise StakingError("Failed to initialize staking system")
-        
-        # Create staking handle
-        staking_handle = dap_chain_net_srv_stake_pos_delegate_create(network_id)
+    def get_available_services(cls) -> List['StakingService']:
+        """Get all available staking services from C library"""
+        # Get service handles from C library
+        try:
+            service_handles = cf_native.dap_chain_net_srv_stake_get_all_services()
+            return [cls(handle) for handle in service_handles if handle]
+        except AttributeError:
+            # Function not implemented yet in C library
+            return []
+    
+    @classmethod  
+    def create_custom_service(cls, network_id: str = "mainnet") -> 'StakingService':
+        """Create custom staking service for extensions"""
+        # This creates a new service handle for custom implementations
+        staking_handle = cf_native.dap_chain_net_srv_stake_pos_delegate_create(network_id)
         if staking_handle is None:
-            raise StakingError("Failed to create staking service")
+            raise StakingError("Failed to create custom staking service")
         
-        return cls(staking_handle)
+        service = cls(staking_handle)
+        service._owns_handle = True  # Custom service owns its handle
+        return service
     
     def get_validators(self) -> List[StakingValidator]:
         """Get all available validators"""
@@ -241,7 +271,7 @@ class StakingService:
                 raise StakingError("Staking service not initialized")
             
             # Get validators from system
-            validators_data = dap_chain_net_srv_stake_pos_delegate_get_validators(self._staking_handle)
+            validators_data = cf_native.dap_chain_net_srv_stake_pos_delegate_get_validators(self._staking_handle)
             
             validators = []
             for validator_data in validators_data:
@@ -266,7 +296,7 @@ class StakingService:
                 raise StakingError("Staking service not initialized")
             
             # Get delegations from system
-            delegations_data = dap_chain_net_srv_stake_pos_delegate_get_delegations(self._staking_handle)
+            delegations_data = cf_native.dap_chain_net_srv_stake_pos_delegate_get_delegations(self._staking_handle)
             
             delegations = []
             for delegation_data in delegations_data:
@@ -297,7 +327,7 @@ class StakingService:
                 raise StakingError("Staking service not initialized")
             
             # Call system function
-            result = dap_chain_net_srv_stake_pos_delegate_unstake(
+            result = cf_native.dap_chain_net_srv_stake_pos_delegate_unstake(
                 self._staking_handle, validator_id, float(amount)
             )
             
@@ -397,7 +427,7 @@ class StakingService:
         """Cleanup on deletion"""
         if self._owns_handle and self._staking_handle is not None:
             try:
-                dap_chain_net_srv_stake_pos_delegate_deinit(self._staking_handle)
+                cf_native.dap_chain_net_srv_stake_pos_delegate_deinit(self._staking_handle)
             except:
                 pass
             self._remove_from_registry()

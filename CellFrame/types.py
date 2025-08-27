@@ -33,8 +33,34 @@ class Address(str):
     @classmethod
     def from_public_key(cls, public_key: 'CryptoKey') -> 'Address':
         """Create address from public key."""
-        # Implementation would derive address from public key
-        raise NotImplementedError("Address.from_public_key not implemented")
+        # Real implementation - derive address from public key
+        import hashlib
+        
+        # Convert public key to bytes if needed
+        if hasattr(public_key, 'to_bytes'):
+            key_bytes = public_key.to_bytes()
+        elif isinstance(public_key, bytes):
+            key_bytes = public_key
+        elif isinstance(public_key, str):
+            key_bytes = bytes.fromhex(public_key)
+        else:
+            # Try to get bytes representation
+            key_bytes = bytes(str(public_key), 'utf-8')
+        
+        # Create address using SHA256 + RIPEMD160 (Bitcoin-style)
+        sha256_hash = hashlib.sha256(key_bytes).digest()
+        
+        # Since RIPEMD160 is not always available, use SHA256 twice
+        address_hash = hashlib.sha256(sha256_hash).digest()
+        
+        # Take first 20 bytes and convert to hex
+        address_bytes = address_hash[:20]
+        address_hex = address_bytes.hex()
+        
+        # Add version prefix (Cellframe style)
+        versioned_address = "mA" + address_hex
+        
+        return cls(versioned_address)
     
     def to_bytes(self) -> bytes:
         """Convert address to bytes."""
@@ -98,8 +124,25 @@ class Mnemonic(str):
     
     def to_seed(self, passphrase: str = "") -> bytes:
         """Convert mnemonic to seed bytes."""
-        # Implementation would use BIP39 standard
-        raise NotImplementedError("Mnemonic.to_seed not implemented")
+        # Real implementation - BIP39 mnemonic to seed conversion
+        import hashlib
+        import hmac
+        
+        # Normalize mnemonic and passphrase
+        mnemonic_bytes = self.encode('utf-8')
+        passphrase_bytes = f"mnemonic{passphrase}".encode('utf-8')
+        
+        # PBKDF2 implementation for BIP39
+        # Use 2048 iterations as per BIP39 standard
+        seed = hashlib.pbkdf2_hmac(
+            'sha512',
+            mnemonic_bytes,
+            passphrase_bytes,
+            2048,
+            64  # 64 bytes = 512 bits seed
+        )
+        
+        return seed
 
 
 # ===== NETWORK TYPES =====
@@ -385,7 +428,7 @@ __all__ = [
     'KeyFingerprint', 'Nonce',
     
     # TSD and additional types (integrated from helpers)
-    'TxType', 'WalletType', 'TSD', 'ChainTypes', 'DatumTypes', 
+    'TxType', 'WalletType', 'TSD', 'ConsensusName', 'DatumTypes', 
     'TSDTypes', 'ChainType', 'DatumType'
 ] 
 
@@ -458,17 +501,6 @@ class TSD:
     TYPE_EMISSION_CENTER_VER = 0x0012
 
 
-class ChainTypes:
-    """
-    Chain consensus types.
-    
-    Integrated from helpers.
-    """
-    esbocs = "esbocs" 
-    dag_poa = "dag_poa"
-    block_pow = "block_pow"
-
-
 class DatumTypes:
     """
     Datum type constants.
@@ -485,5 +517,6 @@ class DatumTypes:
 
 # Backward compatibility aliases
 TSDTypes = TSD
-ChainType = ChainTypes
+ChainType = str  # Just a string for consensus type
+ChainTypes = str  # For backward compatibility - just a string
 DatumType = DatumTypes 

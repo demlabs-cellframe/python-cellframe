@@ -11,7 +11,7 @@ ledger_cache_rc = NewType("ledger_cache_rc", str)
 datum_hash = NewType("datum_hash", str)
 
 
-class CFLedgerCacheResponse(int, Enum):
+class CfLedgerCacheResponse(int, Enum):
     """Enumeration ledger cache responses."""
     DAP_LEDGER_CHECK_OK = 0
     DAP_LEDGER_CHECK_INVALID_ARGS = 1
@@ -66,7 +66,7 @@ class CFLedgerCacheResponse(int, Enum):
     DAP_LEDGER_TOKEN_ADD_CHECK_TSD_OTHER_TICKER_EXPECTED=47
 
 
-class CFNetState(str, Enum):
+class CfNetState(str, Enum):
     """Enumeration of network states."""
 
     NET_STATE_OFFLINE = "NET_STATE_OFFLINE"
@@ -113,7 +113,7 @@ class TYPE_SOURCE_SUBTYPE(str, Enum):
     COMMISSION = "COMMISSION"
 
 
-class CFSignType(int, Enum):
+class CfSignType(int, Enum):
     """Sign type constants for CellFrame wallets"""
     NULL = 0x0000
     BLISS = 0x0001

@@ -11,15 +11,12 @@ For new code, consider using the specialized processors directly:
 - etc.
 
 For backward compatibility, the original ConditionalProcessor interface
-is maintained through the unified processor.
+is maintained through the main processor.
 """
 
-# Legacy compatibility stub for tests
-def dap_chain_wallet_open(*args, **kwargs):
-    """Legacy function stub for tests"""
-    return None
+# No legacy stubs - use real implementations only
 
-# Re-export the new unified ConditionalProcessor for backward compatibility
+# Re-export the main ConditionalProcessor for backward compatibility
 from .cond.unified import ConditionalProcessor
 
 # Re-export specialized processors for convenience

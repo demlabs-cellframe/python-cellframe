@@ -28,23 +28,16 @@ try:
         dap_chain_net_srv_order_get_matches,
         dap_chain_net_srv_order_deinit
     )
-except ImportError:
-    # Fallback implementations
-    def dap_chain_net_srv_order_init(): return 0
-    def dap_chain_net_srv_order_create(handle): return id(handle)
-    def dap_chain_net_srv_order_create_order(handle, order_type, description, amount, price, conditions):
-        return f"order_{hash(description)}"
-    def dap_chain_net_srv_order_accept_order(handle, order_id, acceptor):
-        return {"success": True, "tx_hash": f"accept_{order_id}"}
-    def dap_chain_net_srv_order_reject_order(handle, order_id, reason):
-        return {"success": True, "tx_hash": f"reject_{order_id}"}
-    def dap_chain_net_srv_order_complete_order(handle, order_id):
-        return {"success": True, "tx_hash": f"complete_{order_id}"}
-    def dap_chain_net_srv_order_get_orders(handle, status=None):
-        return [{"id": "order1", "status": "pending", "type": "buy"}]
-    def dap_chain_net_srv_order_get_matches(handle, order_id):
-        return [{"order_id": order_id, "match_id": "order2", "score": 0.95}]
-    def dap_chain_net_srv_order_deinit(handle): pass
+except ImportError as e:
+    raise ImportError(
+        "❌ CRITICAL: Native CellFrame order functions not available!\n"
+        "This is a Python bindings library - native C extension is required.\n"
+        "Required: dap_chain_net_srv_order_* functions must be implemented in native C extension.\n"
+        f"Original error: {e}\n"
+        "Please implement order bindings in src/cellframe_services.c"
+    ) from e
+
+# No wrapper functions - use cf_native directly everywhere
 
 
 class OrderError(CellframeException):

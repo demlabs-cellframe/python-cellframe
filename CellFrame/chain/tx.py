@@ -21,22 +21,45 @@ _tx_registry: Dict[int, 'TX'] = {}
 _registry_lock = threading.RLock()
 
 # Try to import cellframe if available
+# Import native functions with conditional availability check
 try:
-    import cellframe as cf
-    from cellframe import (
-        dap_chain_datum_tx_create,
-        dap_chain_datum_tx_add_in_item,
-        dap_chain_datum_tx_add_out_ext_item,
-        dap_chain_datum_tx_add_sign_item,
-        dap_chain_datum_tx_verify,
-        dap_chain_datum_tx_get_size,
-        dap_chain_mempool_tx_put,
-        dap_chain_mempool_tx_get_by_hash,
-        DapSign
-    )
-    _CELLFRAME_AVAILABLE = True
-except ImportError:
-    _CELLFRAME_AVAILABLE = False
+    import python_cellframe as cf_native
+    
+    # Centralized check for all required transaction functions - ONCE at import
+    required_functions = [
+        'dap_chain_datum_tx_create',
+        'dap_chain_datum_tx_add_in_item',
+        'dap_chain_datum_tx_add_out_ext_item',
+        'cf_native.dap_chain_datum_tx_add_sign_item',
+        'dap_chain_datum_tx_verify',
+        'dap_chain_datum_tx_get_size',
+        'dap_chain_mempool_tx_put',
+        'dap_chain_mempool_tx_get_by_hash'
+    ]
+    
+    missing_functions = [func for func in required_functions if not hasattr(cf_native, func)]
+    if missing_functions:
+        raise ImportError(
+            f"❌ CRITICAL: Missing native transaction functions: {', '.join(missing_functions)}\n"
+            "This is a Python bindings library - all transaction functions must be implemented.\n"
+            "Please implement these functions in src/cellframe_tx.c"
+        )
+    
+    # Use DapSign directly from native module when needed
+
+except ImportError as e:
+    # Check for test mode - allow imports in test environment
+    import os
+    if os.getenv('CELLFRAME_TEST_MODE') == '1':
+        print(f"⚠️ WARNING: TX module running in test mode, some functions may not be available: {e}")
+        # Create minimal stubs for testing
+        cf_native = None
+    else:
+        raise ImportError(
+            "❌ CRITICAL: Native python_cellframe module not available!\n"
+            f"Original error: {e}\n"
+            "Please ensure python_cellframe native module is properly built and installed."
+        ) from e
 
 
 class TxError(CellframeException):
@@ -139,12 +162,11 @@ class TX:
     @classmethod
     def from_raw(cls, raw_tx_data: bytes) -> 'TX':
         """Создать TX из raw данных"""
-        if not _CELLFRAME_AVAILABLE:
-            return cls._create_fallback(TxType.TRANSFER, "FALLBACK")
+
             
         try:
             # Парсим raw данные в dap_chain_datum_tx_t
-            tx_handle = dap_chain_datum_tx_create()
+            tx_handle = cf_native.dap_chain_datum_tx_create()
             if not tx_handle:
                 raise TxError("Не удалось создать транзакцию из raw данных")
                 
@@ -165,12 +187,11 @@ class TX:
         input_item = TxInput(tx_hash, out_index, value, token_ticker)
         self.inputs.append(input_item)
         
-        if not _CELLFRAME_AVAILABLE:
-            return
+
             
         try:
             # Используем РЕАЛЬНУЮ функцию добавления входа
-            dap_chain_datum_tx_add_in_item(
+            cf_native.dap_chain_datum_tx_add_in_item(
                 self._tx_handle,
                 tx_hash.encode(),
                 out_index,
@@ -187,12 +208,11 @@ class TX:
         output_item = TxOutput(address, value, token_ticker)
         self.outputs.append(output_item)
         
-        if not _CELLFRAME_AVAILABLE:
-            return
+
             
         try:
             # Используем РЕАЛЬНУЮ функцию добавления выхода
-            dap_chain_datum_tx_add_out_ext_item(
+            cf_native.dap_chain_datum_tx_add_out_ext_item(
                 self._tx_handle,
                 address.encode(),
                 value,
@@ -208,8 +228,7 @@ class TX:
             
         self.signatures.append(signature)
         
-        if not _CELLFRAME_AVAILABLE:
-            return
+
             
         try:
             # Используем РЕАЛЬНУЮ функцию добавления подписи
@@ -218,7 +237,7 @@ class TX:
             else:
                 sign_data = signature
                 
-            dap_chain_datum_tx_add_sign_item(
+            cf_native.dap_chain_datum_tx_add_sign_item(
                 self._tx_handle,
                 sign_data,
                 len(sign_data)
@@ -228,8 +247,7 @@ class TX:
     
     def verify(self) -> bool:
         """Верифицировать транзакцию"""
-        if not _CELLFRAME_AVAILABLE:
-            return True  # Fallback
+
             
         try:
             # Используем РЕАЛЬНУЮ функцию верификации
@@ -240,8 +258,7 @@ class TX:
     
     def get_size(self) -> int:
         """Получить размер транзакции"""
-        if not _CELLFRAME_AVAILABLE:
-            return 256  # Fallback
+
             
         try:
             # Используем РЕАЛЬНУЮ функцию получения размера
@@ -257,9 +274,6 @@ class TX:
         """
         if self._is_finalized:
             raise TxError("Транзакция уже финализирована")
-            
-        if not _CELLFRAME_AVAILABLE:
-            return f"broadcasted_{self.hash}"
             
         try:
             # Используем РЕАЛЬНУЮ функцию отправки в mempool
@@ -311,15 +325,7 @@ class TX:
         except Exception as e:
             raise TxError(f"Ошибка финализации транзакции: {e}")
     
-    @classmethod
-    def _create_fallback(cls, tx_type: TxType, token_ticker: str) -> 'TX':
-        """Fallback для разработки"""
-        fake_handle = f"tx_handle_{tx_type.value}_{token_ticker}"
-        transaction = cls(fake_handle, owns_handle=True)
-        transaction.type = tx_type
-        transaction.token_ticker = token_ticker
-        transaction.hash = f"fallback_hash_{tx_type.value}_{token_ticker}"
-        return transaction
+
     
     def __del__(self):
         if not self._is_finalized:
@@ -329,8 +335,7 @@ class TX:
 # Utility functions for working with transactions
 def get_tx_by_hash(tx_hash: str) -> Optional[TX]:
     """Получить транзакцию по хешу из mempool"""
-    if not _CELLFRAME_AVAILABLE:
-        return None
+
         
     try:
         tx_handle = dap_chain_mempool_tx_get_by_hash(tx_hash.encode())

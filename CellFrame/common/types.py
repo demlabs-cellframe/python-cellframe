@@ -6,22 +6,6 @@ from enum import Enum
 from typing import Union, Optional, Dict, Any
 
 
-class ChainTypes(Enum):
-    """Blockchain types supported by CellFrame"""
-    BITCOIN = "bitcoin"
-    ETHEREUM = "ethereum" 
-    CELLFRAME = "cellframe"
-    DAG = "dag"
-    POW = "pow"
-    POS = "pos"
-    
-    @classmethod
-    def from_string(cls, chain_type: str) -> 'ChainTypes':
-        """Create ChainType from string"""
-        return cls(chain_type.lower())
-    
-    def __str__(self) -> str:
-        return self.value
 
 
 class NetTypes(Enum):
@@ -130,7 +114,7 @@ ItemTypesValues = {
 
 # Export all types
 __all__ = [
-    'ChainTypes',
+    'ConsensusName',
     'NetTypes',
     'TxTypes',
     'DatumTypes',

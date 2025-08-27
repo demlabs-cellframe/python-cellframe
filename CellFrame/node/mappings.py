@@ -9,67 +9,67 @@ from CellFrame.Common import (
 
 from ..common.types import ItemTypes, DatumTypes
 from .items import (
-    CFItem, CFTxIn, CFTxInCond, CFTxOut, CFTxOutCond, CFTxPkey, CFTxSig,
-    CFTxToken, CFTxReceipt, CFTxReceiptOld, CFTxOutExt, CFTxTSD,
-    CFTxOutCondSubtypeSrvPay, CFTxOutCondSubtypeSrvXchange,
-    CFTxOutCondSubtypeSrvStakeLock, CFTxOutCondSubtypeSrvStakePosDelegate,
-    CFTxVoting, CFTxVote, CFTxOutStd
+    CfItem, CfTxIn, CfTxInCond, CfTxOut, CfTxOutCond, CfTxPkey, CfTxSig,
+    CfTxToken, CfTxReceipt, CfTxReceiptOld, CfTxOutExt, CfTxTSD,
+    CfTxOutCondSubtypeSrvPay, CfTxOutCondSubtypeSrvXchange,
+    CfTxOutCondSubtypeSrvStakeLock, CfTxOutCondSubtypeSrvStakePosDelegate,
+    CfTxVoting, CfTxVote, CfTxOutStd
 )
 
 from .datums import (
-    CFDatumTX, CFDatumToken, CFDatumEmission, CFDatumCustom,
-    CFDatumDecree, CFDatumAnchor
+    CfDatumTX, CfDatumToken, CfDatumEmission, CfDatumCustom,
+    CfDatumDecree, CfDatumAnchor
 )
 
 ItemMeta = namedtuple('ItemMapping', ['cf_wrapper_cls', 'type'])
 
 ITEM_WRAPPER_MAPPING = {
-    TxIn: ItemMeta(CFTxIn, ItemTypes.TX_ITEM_TYPE_IN),
-    TxInCond: ItemMeta(CFTxInCond, ItemTypes.TX_ITEM_TYPE_IN_COND),
-    TxOut: ItemMeta(CFTxOut, ItemTypes.TX_ITEM_TYPE_OUT),
-    TxOutCond: ItemMeta(CFTxOutCond, ItemTypes.TX_ITEM_TYPE_OUT_COND),
-    TxPkey: ItemMeta(CFTxPkey, ItemTypes.TX_ITEM_TYPE_PKEY),
-    TxSig: ItemMeta(CFTxSig, ItemTypes.TX_ITEM_TYPE_SIG),
-    TxToken: ItemMeta(CFTxToken, ItemTypes.TX_ITEM_TYPE_IN_EMS),
-    TxReceipt: ItemMeta(CFTxReceipt, ItemTypes.TX_ITEM_TYPE_RECEIPT),
-    TxReceiptOld: ItemMeta(CFTxReceiptOld, ItemTypes.TX_ITEM_TYPE_RECEIPT_OLD),
-    TxOutExt: ItemMeta(CFTxOutExt, ItemTypes.TX_ITEM_TYPE_OUT_EXT),
-    TxTSD: ItemMeta(CFTxTSD, ItemTypes.TX_ITEM_TYPE_TSD),
+    TxIn: ItemMeta(CfTxIn, ItemTypes.TX_ITEM_TYPE_IN),
+    TxInCond: ItemMeta(CfTxInCond, ItemTypes.TX_ITEM_TYPE_IN_COND),
+    TxOut: ItemMeta(CfTxOut, ItemTypes.TX_ITEM_TYPE_OUT),
+    TxOutCond: ItemMeta(CfTxOutCond, ItemTypes.TX_ITEM_TYPE_OUT_COND),
+    TxPkey: ItemMeta(CfTxPkey, ItemTypes.TX_ITEM_TYPE_PKEY),
+    TxSig: ItemMeta(CfTxSig, ItemTypes.TX_ITEM_TYPE_SIG),
+    TxToken: ItemMeta(CfTxToken, ItemTypes.TX_ITEM_TYPE_IN_EMS),
+    TxReceipt: ItemMeta(CfTxReceipt, ItemTypes.TX_ITEM_TYPE_RECEIPT),
+    TxReceiptOld: ItemMeta(CfTxReceiptOld, ItemTypes.TX_ITEM_TYPE_RECEIPT_OLD),
+    TxOutExt: ItemMeta(CfTxOutExt, ItemTypes.TX_ITEM_TYPE_OUT_EXT),
+    TxTSD: ItemMeta(CfTxTSD, ItemTypes.TX_ITEM_TYPE_TSD),
     TxOutCondSubtypeSrvPay: ItemMeta(
-        CFTxOutCondSubtypeSrvPay, 
+        CfTxOutCondSubtypeSrvPay, 
         ItemTypes.DAP_CHAIN_TX_OUT_COND_SUBTYPE_SRV_PAY
     ),
     TxOutCondSubtypeSrvXchange: ItemMeta(
-        CFTxOutCondSubtypeSrvXchange,
+        CfTxOutCondSubtypeSrvXchange,
         ItemTypes.DAP_CHAIN_TX_OUT_COND_SUBTYPE_SRV_XCHANGE
     ),
     TxOutCondSubtypeSrvStakeLock: ItemMeta(
-        CFTxOutCondSubtypeSrvStakeLock,
+        CfTxOutCondSubtypeSrvStakeLock,
         ItemTypes.DAP_CHAIN_TX_OUT_COND_SUBTYPE_SRV_STAKE_LOCK
     ),
     TxOutCondSubtypeSrvStakePosDelegate: ItemMeta(
-        CFTxOutCondSubtypeSrvStakePosDelegate,
+        CfTxOutCondSubtypeSrvStakePosDelegate,
         ItemTypes.DAP_CHAIN_TX_OUT_COND_SUBTYPE_SRV_STAKE_POS_DELEGATE
     ),
-    TxVoting: ItemMeta(CFTxVoting, ItemTypes.TX_ITEM_TYPE_VOTING),
-    TxVote: ItemMeta(CFTxVote, ItemTypes.TX_ITEM_TYPE_VOTE),
-    TxOutStd: ItemMeta(CFTxOutStd, ItemTypes.TX_ITEM_TYPE_OUT_STD),
+    TxVoting: ItemMeta(CfTxVoting, ItemTypes.TX_ITEM_TYPE_VOTING),
+    TxVote: ItemMeta(CfTxVote, ItemTypes.TX_ITEM_TYPE_VOTE),
+    TxOutStd: ItemMeta(CfTxOutStd, ItemTypes.TX_ITEM_TYPE_OUT_STD),
 }
 
 
-class CFItemMapper:
+class CfItemMapper:
     """Maps item types to corresponding CellFrame item wrapper classes."""
 
     @staticmethod
-    def build(origin_item, chain) -> CFItem:
+    def build(origin_item, chain) -> CfItem:
         """Build a CellFrame item based on the provided origin item.
 
         Args:
             origin_item: The original item.
-            net: The CFNet instance representing the network context.
+            net: The CfNet instance representing the network context.
 
         Returns:
-            CFItem: The CellFrame item.
+            CfItem: The CellFrame item.
         """
         mapping = ITEM_WRAPPER_MAPPING.get(type(origin_item))
 
@@ -79,23 +79,23 @@ class CFItemMapper:
 SubDatumMeta = namedtuple('SubDatumMapping', ['origin_method_name', 'cf_wrapper_cls'])
 
 SUB_DATUM_WRAPPER_MAPPING = {
-    DatumTypes.DATUM_TX: SubDatumMeta("getDatumTX", CFDatumTX),
-    DatumTypes.DATUM_TOKEN_DECL: SubDatumMeta("getDatumToken", CFDatumToken),
-    DatumTypes.DATUM_TOKEN: SubDatumMeta("getDatumToken", CFDatumToken),
+    DatumTypes.DATUM_TX: SubDatumMeta("getDatumTX", CfDatumTX),
+    DatumTypes.DATUM_TOKEN_DECL: SubDatumMeta("getDatumToken", CfDatumToken),
+    DatumTypes.DATUM_TOKEN: SubDatumMeta("getDatumToken", CfDatumToken),
     DatumTypes.DATUM_TOKEN_EMISSION: SubDatumMeta("getDatumTokenEmission", 
-                                                  CFDatumEmission),
-    DatumTypes.DATUM_CUSTOM: SubDatumMeta("getDatumCustom", CFDatumCustom),
-    DatumTypes.DATUM_DECREE: SubDatumMeta("getDatumDecree", CFDatumDecree),
-    DatumTypes.DATUM_ANCHOR: SubDatumMeta("getDatumAnchor", CFDatumAnchor),
+                                                  CfDatumEmission),
+    DatumTypes.DATUM_CUSTOM: SubDatumMeta("getDatumCustom", CfDatumCustom),
+    DatumTypes.DATUM_DECREE: SubDatumMeta("getDatumDecree", CfDatumDecree),
+    DatumTypes.DATUM_ANCHOR: SubDatumMeta("getDatumAnchor", CfDatumAnchor),
 }
 
 
-class CFSubDatumBuilder:
+class CfSubDatumBuilder:
     """Build sub-datums for CellFrame based on datum type."""
 
     def __init__(self, type):
         """
-        Initialize a new CFSubDatumBuilder instance.
+        Initialize a new CfSubDatumBuilder instance.
 
         Args:
             type (DatumTypes): The type of datum for which sub-datum is being 
@@ -111,7 +111,7 @@ class CFSubDatumBuilder:
             parent_datum: The parent datum.
 
         Returns:
-            CFDatum: The sub-datum.
+            CfDatum: The sub-datum.
         """
         method = getattr(
             parent_datum._origin_datum, 

@@ -90,8 +90,7 @@ class TestLegacyBackwardCompatibility:
             assert legacy_result["tx_hash"] == "legacy_mock_hash"
 
         # New way (should produce same result)
-        with patch('CellFrame.composer.core.dap_chain_wallet_open'), \
-             patch.object(TxComposer, 'create_tx') as mock_new:
+        with patch.object(TxComposer, 'create_tx') as mock_new:
             
             mock_new.return_value = {"tx_hash": "new_hash"}
             
@@ -253,19 +252,18 @@ class TestLegacyBackwardCompatibility:
         }
         
         # Should be able to use legacy config with new system
-        with patch('cellframe.composer.core.dap_chain_wallet_open'):
-            # Mock wallet for testing
-            from unittest.mock import Mock
-            mock_wallet = Mock()
-            mock_wallet.get_address.return_value = "test_address"
-            
-            composer = TxComposer(
-                net_name=legacy_config["network"],
-                wallet=mock_wallet
-            )
-            
-            assert composer.config.net_name == legacy_config["network"]
-            # Legacy compatibility test passed if no exceptions
+        # Mock wallet for testing
+        from unittest.mock import Mock
+        mock_wallet = Mock()
+        mock_wallet.get_address.return_value = "test_address"
+        
+        composer = TxComposer(
+            net_name=legacy_config["network"],
+            wallet=mock_wallet
+        )
+        
+        assert composer.config.net_name == legacy_config["network"]
+        # Legacy compatibility test passed if no exceptions
 
 
 @pytest.mark.unit
@@ -294,8 +292,7 @@ class TestLegacyMigrationGuide:
             legacy_result = legacy_tx.create_transfer()
             
         # NEW WAY (recommended)
-        with patch('cellframe.composer.core.dap_chain_wallet_open'), \
-             patch.object(TxComposer, 'create_tx') as mock_new:
+        with patch.object(TxComposer, 'create_tx') as mock_new:
             
             mock_new.return_value = {"status": "success"}
             

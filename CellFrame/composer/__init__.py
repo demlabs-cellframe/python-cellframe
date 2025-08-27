@@ -10,7 +10,7 @@ Components:
 - FeeOptimizer: Fee calculation and optimization algorithms  
 - BatchProcessor: Batch transaction processing
 - TransactionTemplates: Predefined transaction templates
-- ConditionalProcessor: Conditional transaction handling (unified)
+- ConditionalProcessor: Conditional transaction handling
 
 Specialized Conditional Processors:
 - StakeLockProcessor: Advanced stake lock operations with penalties/rewards
@@ -40,7 +40,7 @@ Usage:
     stake_processor = StakeLockProcessor(composer)
     tx = stake_processor.create_stake_lock_order(amount, lock_time, reinvest, fee)
     
-    # Or using unified processor (backward compatibility)
+    # Or using conditional processor (backward compatibility)
     from cellframe.composer import ConditionalProcessor
     cond_processor = ConditionalProcessor(composer)
     tx = cond_processor.create_conditional_transaction(...)
@@ -58,7 +58,7 @@ from .fee_optimizer import FeeOptimizer
 from .batch_processor import BatchProcessor  
 from .templates import TransactionTemplates
 
-# Conditional processors - unified and specialized
+# Conditional processors - main and specialized
 from .conditional import (
     ConditionalProcessor,
     StakeLockProcessor,
@@ -87,7 +87,7 @@ from .utils import (
 )
 
 # Import TSD constants - these belong here since composer creates transactions
-from ..types import TSD, ChainTypes, DatumTypes
+from ..types import TSD, DatumTypes
 
 __all__ = [
     # Core components

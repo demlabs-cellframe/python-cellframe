@@ -23,16 +23,10 @@ from .exchange import ExchangeService
 from .voting import VotingService
 from .order import OrderService
 
-# Stub class for StakePosDelegate
-class StakePosDelegate:
-    """Stub class for stake PoS delegate - to be implemented in native module"""
-    pass
-
 # Export all services
 __all__ = [
     'StakingService',
     'ExchangeService', 
     'VotingService',
-    'OrderService',
-    'StakePosDelegate'
+    'OrderService'
 ] 

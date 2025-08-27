@@ -8,9 +8,8 @@ from __future__ import annotations
 import contextlib
 import re
 import sqlite3
-
-from typing import cast, Any
 from collections.abc import Iterable, Iterator
+from typing import Any, cast
 
 from coverage.debug import auto_repr, clipped_repr, exc_one_line
 from coverage.exceptions import DataError
@@ -76,13 +75,14 @@ class SqliteDb:
         # to keep things going.
         self.execute_void("pragma synchronous=off", fail_ok=True)
 
-    def close(self) -> None:
+    def close(self, force: bool = False) -> None:
         """If needed, close the connection."""
-        if self.con is not None and self.filename != ":memory:":
-            if self.debug.should("sql"):
-                self.debug.write(f"Closing {self.con!r} on {self.filename!r}")
-            self.con.close()
-            self.con = None
+        if self.con is not None:
+            if force or self.filename != ":memory:":
+                if self.debug.should("sql"):
+                    self.debug.write(f"Closing {self.con!r} on {self.filename!r}")
+                self.con.close()
+                self.con = None
 
     def __enter__(self) -> SqliteDb:
         if self.nest == 0:

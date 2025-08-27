@@ -1,8 +1,7 @@
 """
 🔗 Cellframe Chain Module
 
-Comprehensive blockchain interaction framework providing unified interfaces 
-for wallet management, transaction composition, and ledger operations.
+Blockchain interaction framework for wallet management, transaction composition, and ledger operations.
 
 Usage:
     from cellframe.chain import Wallet
@@ -14,22 +13,136 @@ Usage:
         tx = composer.create_tx(dest_addr, amount, "CELL", fee)
 """
 
-# Stub classes - will be replaced by native implementation
-class ChainAtomPtr:
-    """Stub class for chain atom pointer - to be implemented in native module"""
-    pass
+# FAIL-FAST: These classes require native C implementations
+def _require_native_implementation(class_name: str):
+    """Helper function to raise ImportError for unimplemented classes."""
+    raise ImportError(
+        f"❌ CRITICAL: {class_name} requires native C implementation!\n"
+        "This is a Python bindings library - stub classes are not allowed.\n"
+        f"Required: {class_name} must be implemented in native C module.\n"
+        "Please implement these classes in src/cellframe_chain.c"
+    )
 
-class Ledger:
-    """Stub class for ledger - to be implemented in native module"""
-    pass
+# Import native C implementations or implement Python wrappers
+try:
+    import python_cellframe as cf_native
+    
+    # Centralized check for required native functions
+    required_functions = [
+        'dap_chain_atom_create',
+        'dap_chain_addr_from_str', 
+        'dap_chain_addr_get_net_id',
+        'dap_chain_mempool_by_chain_name',
+        'dap_chain_mempool_tx_get_by_hash'
+    ]
+    
+    missing_functions = [func for func in required_functions if not hasattr(cf_native, func)]
+    if missing_functions:
+        # In test mode, allow missing functions for mock testing
+        import os
+        if os.environ.get('CELLFRAME_TEST_MODE') == '1':
+            print(f"⚠️  TEST MODE: Missing native functions: {', '.join(missing_functions)}")
+        else:
+            raise NotImplementedError(
+                f"❌ CRITICAL: Missing native functions: {', '.join(missing_functions)}\n"
+                "This is a Python bindings library - all chain functions must be implemented.\n"
+                "Please implement these functions in src/cellframe_chain.c"
+            )
+    
+    class ChainAtomPtr:
+        """Chain atom pointer - wrapper for native C implementation"""
+        
+        def __init__(self, atom_data: bytes = None):
+            """Initialize chain atom pointer."""
+            self._native_atom = cf_native.dap_chain_atom_create(atom_data) if atom_data else None
+            if atom_data and not self._native_atom:
+                raise RuntimeError("Failed to create native chain atom")
+        
+        def get_data(self) -> bytes:
+            """Get atom data."""
+            if not self._native_atom:
+                raise RuntimeError("Chain atom not initialized")
+            return cf_native.dap_chain_atom_get_data(self._native_atom)
+    
+    # Ledger class removed - use CfLedger instead (imported below)
+    
+    # Create CfAddr class (renamed from ChainAddr)
+    class CfAddr:
+        """Cellframe address - wrapper for native C implementation"""
+        
+        def __init__(self, address_str: str = None):
+            """Initialize chain address."""
+            if address_str:
+                self._native_addr = cf_native.dap_chain_addr_from_str(address_str)
+                if not self._native_addr:
+                    raise ValueError(f"Invalid address string: {address_str}")
+            else:
+                self._native_addr = None
+        
+        @classmethod
+        def fromStr(cls, address_str: str) -> 'CfAddr':
+            """Create address from string (legacy compatibility)."""
+            return cls(address_str)
+        
+        def getNetId(self) -> 'CfNetId':
+            """Get network ID for address."""
+            if not self._native_addr:
+                raise RuntimeError("Address not initialized")
+            # Use native function - no fallbacks
+            net_id = cf_native.dap_chain_addr_get_net_id(self._native_addr)
+            return CfNetId(net_id)
+        
+        def to_str(self) -> str:
+            """Convert address to string."""
+            if not self._native_addr:
+                raise RuntimeError("Address not initialized")
+            return cf_native.dap_chain_addr_to_str(self._native_addr)
+        
+        def __str__(self) -> str:
+            return self.to_str() if self._native_addr else ""
+    
+    class CfNetId:
+        """Network ID class"""
+        
+        def __init__(self, net_id: int):
+            self.net_id = net_id
+        
+        def long(self) -> int:
+            """Get network ID as long."""
+            return self.net_id
+    
+    class Mempool:
+        """Mempool - wrapper for native C implementation"""
+        
+        def __init__(self, chain_name: str):
+            """Initialize mempool for chain."""
+            # Native functions already checked at import
+            self.chain_name = chain_name
+            self._native_mempool = cf_native.dap_chain_mempool_by_chain_name(chain_name)
+            if not self._native_mempool:
+                raise RuntimeError(f"Failed to get mempool for chain: {chain_name}")
+        
+        def add_tx(self, tx_hash: str) -> bool:
+            """Add transaction to mempool."""
+            return cf_native.dap_chain_mempool_tx_put(self._native_mempool, tx_hash)
+        
+        def get_tx(self, tx_hash: str):
+            """Get transaction from mempool."""
+            return cf_native.dap_chain_mempool_tx_get_by_hash(self._native_mempool, tx_hash)
 
-class ChainAddr:
-    """Stub class for chain address - to be implemented in native module"""
-    pass
+except ImportError:
+    # FAIL-FAST: No implementations without native module
+    def ChainAtomPtr(*args, **kwargs):
+        _require_native_implementation("ChainAtomPtr")
 
-class Mempool:
-    """Stub class for mempool - to be implemented in native module"""  
-    pass
+    def CfAddr(*args, **kwargs):
+        _require_native_implementation("CfAddr")
+
+    def Mempool(*args, **kwargs):
+        _require_native_implementation("Mempool")
+
+# Create aliases for backward compatibility
+ChainAddr = CfAddr  # Alias for legacy code
 
 # Ticker constant
 ticker = "CELL"
@@ -52,12 +165,12 @@ from .wallet import (
 )
 
 from .ledger import (
-    DapLedger,
+    CfLedger,
     DapLedgerType,
     DapLedgerError,
     DapTokenInfo,
     DapAccount,
-    DapLedgerManager,
+    CfLedgerManager,
     create_ledger,
     open_ledger,
     get_account_balance
@@ -111,9 +224,9 @@ from ..composer import (
 __all__ = [
     # Native types
     'ChainAtomPtr',
-    'Ledger',
-    'ChainAddr',
-    'Mempool',
+    'CfAddr',
+    'ChainAddr',  # Alias for CfAddr
+    'Mempool', 
     'ticker',
     
     # Core wallet functionality
@@ -133,12 +246,12 @@ __all__ = [
     'close_all_wallets',
     
     # Ledger operations
-    'DapLedger',
+    'CfLedger',
     'DapLedgerType',
     'DapLedgerError',
     'DapTokenInfo',
     'DapAccount',
-    'DapLedgerManager',
+    'CfLedgerManager',
     'create_ledger',
     'open_ledger',
     'get_account_balance',

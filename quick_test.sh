@@ -4,63 +4,38 @@
 PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 VENV_DIR="$PROJECT_ROOT/venv_test"
 
-if [ -f "$VENV_DIR/bin/activate" ]; then
-    source "$VENV_DIR/bin/activate"
-fi
+source "$VENV_DIR/bin/activate_test"
 
 echo "🔬 Quick functionality test..."
-python3 -c "
+python -c "
 import sys
-import os
-import tempfile
 sys.path.insert(0, '$PROJECT_ROOT')
 
 try:
-    # Setup test environment like in conftest.py
-    test_session_dir = '/tmp/quick_test_cellframe_session'
-    config_dir = f'{test_session_dir}/etc'
-    temp_dir = f'{test_session_dir}/tmp'
-    log_dir = f'{test_session_dir}/var/log'
-    log_file = f'{log_dir}/quick_test.log'
+    import CellFrame
+    print('✅ CellFrame module import successful')
     
-    # Create all required directories
-    os.makedirs(config_dir, exist_ok=True)
-    os.makedirs(temp_dir, exist_ok=True)
-    os.makedirs(log_dir, exist_ok=True)
-    
-    # Initialize DAP SDK with proper test paths
+    # Test context system
     try:
-        import python_dap
-        result = python_dap.dap_sdk_init(
-            'quick_test',           # app_name
-            test_session_dir,       # working_dir
-            config_dir,             # config_dir
-            temp_dir,               # temp_dir
-            log_file,               # log_file
-            2,                      # events_threads
-            10000,                  # events_timeout
-            False                   # debug_mode
-        )
-        if result == 0:
-            print('✅ DAP SDK initialized with test paths')
-    except ImportError:
-        print('⚠️ python_dap not available in quick test environment')
+        from CellFrame.core.context import ExecutionMode, AppContext
+        print('✅ Context system import successful')
+        print(f'✅ ExecutionMode.LIBRARY = {ExecutionMode.LIBRARY.value}')
     except Exception as e:
-        print(f'⚠️ DAP SDK initialization failed: {e}')
-
-    from CellFrame.core import CellframeNode
-    print('✅ CellframeNode import successful')
+        print(f'⚠️  Context system test failed: {e}')
     
-    # Try to create a node (may fail if SDK not available)
+    # Test basic types
     try:
-        node = CellframeNode()
-        print('✅ CellframeNode creation successful')
+        from CellFrame.core import TxOut, TxIn, Datum
+        print('✅ Core types import successful')
     except Exception as e:
-        print(f'⚠️  CellframeNode creation failed (may be normal): {e}')
+        print(f'⚠️  Core types test failed: {e}')
     
     print('🎉 Basic functionality check passed!')
     
 except Exception as e:
+    import traceback
     print(f'❌ Quick test failed: {e}')
+    print('📊 Full traceback:')
+    traceback.print_exc()
     sys.exit(1)
 "

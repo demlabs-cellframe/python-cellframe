@@ -10,17 +10,31 @@ from typing import Any, Optional, List, Dict, Iterator, Union
 
 from ..core.exceptions import TransactionException
 from ..common import logger
+from ..legacy.pycfhelpers import TxOutCondSubtypeSrvStakeLock
 
 # Try to import native CellFrame transaction components
 try:
-    from CellFrame.Common import Datum, DatumTx, TxOut, TxIn, TxToken, TxSig, TxOutCondSubtypeSrvStakeLock, TxInCond, TxOutExt
-    CELLFRAME_NATIVE_AVAILABLE = True
-except ImportError:
-    CELLFRAME_NATIVE_AVAILABLE = False
-    # Create dummy classes for fallback
-    class _DummyType:
-        pass
-    Datum = DatumTx = TxOut = TxIn = TxToken = TxSig = TxOutCondSubtypeSrvStakeLock = TxInCond = TxOutExt = _DummyType
+    try:
+        from ..common.types import Datum, DatumTx
+    except ImportError:
+        # Create basic types when not available
+        class Datum:
+            def __init__(self, data=None):
+                self.data = data
+        
+        class DatumTx:
+            def __init__(self, tx_data=None):
+                self.tx_data = tx_data
+    # TxOut, TxIn, TxToken, TxSig types are defined in native C module
+    import python_cellframe as cf_native
+except ImportError as e:
+    # FAIL-FAST: No dummy classes allowed
+    raise ImportError(
+        "❌ CRITICAL: Native CellFrame types not available!\n"
+        "This is a Python bindings library - dummy classes are not allowed.\n"
+        f"Original error: {e}\n"
+        "Please ensure python_cellframe native module is properly built and installed."
+    ) from e
 
 
 def find_tx_out(tx: Any, out_type: Any) -> Optional[Any]:
@@ -36,10 +50,6 @@ def find_tx_out(tx: Any, out_type: Any) -> Optional[Any]:
     Returns:
         Transaction output of the specified type, or None if not found
     """
-    if not CELLFRAME_NATIVE_AVAILABLE:
-        logger.warning("Native CellFrame API not available")
-        return None
-    
     try:
         if not tx or not hasattr(tx, 'getOutByType'):
             logger.warning("Invalid transaction object")
@@ -70,10 +80,6 @@ def get_tx_items(tx: Any) -> List[Dict[str, Any]]:
     Returns:
         List of transaction items with metadata
     """
-    if not CELLFRAME_NATIVE_AVAILABLE:
-        logger.warning("Native CellFrame API not available")
-        return []
-    
     items = []
     
     try:
@@ -253,9 +259,6 @@ def is_stake_lock_tx(tx: Any) -> bool:
         True if transaction contains stake lock
     """
     try:
-        if not CELLFRAME_NATIVE_AVAILABLE:
-            return False
-        
         stake_out = find_tx_out(tx, TxOutCondSubtypeSrvStakeLock)
         return stake_out is not None
         

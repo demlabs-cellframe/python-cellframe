@@ -5,24 +5,33 @@
 
 from __future__ import annotations
 
+import base64
 import collections
 import configparser
 import copy
+import json
 import os
 import os.path
 import re
-
-from typing import (
-    Any, Callable, Final, Mapping, Union,
-)
 from collections.abc import Iterable
+from typing import (
+    Any,
+    Callable,
+    Final,
+    Mapping,
+    Union,
+)
 
 from coverage.exceptions import ConfigError
-from coverage.misc import isolate_module, human_sorted_items, substitute_variables
+from coverage.misc import human_sorted_items, isolate_module, substitute_variables
 from coverage.tomlconfig import TomlConfigParser, TomlDecodeError
 from coverage.types import (
-    TConfigurable, TConfigSectionIn, TConfigValueIn, TConfigSectionOut,
-    TConfigValueOut, TPluginConfig,
+    TConfigSectionIn,
+    TConfigSectionOut,
+    TConfigurable,
+    TConfigValueIn,
+    TConfigValueOut,
+    TPluginConfig,
 )
 
 os = isolate_module(os)
@@ -264,6 +273,10 @@ class CoverageConfig(TConfigurable, TPluginConfig):
         "report_omit", "report_include",
         "run_omit", "run_include",
         "patch",
+    }
+
+    SERIALIZE_ABSPATH = {
+        "data_file", "debug_file", "source_dirs",
     }
 
     def from_args(self, **kwargs: TConfigValueIn) -> None:
@@ -547,6 +560,22 @@ class CoverageConfig(TConfigurable, TPluginConfig):
             (k, v) for k, v in self.__dict__.items() if not k.startswith("_")
         )
 
+    def serialize(self) -> str:
+        """Convert to a string that can be ingested with `deserialize_config`.
+
+        File paths used by `coverage run` are made absolute to ensure the
+        deserialized config will refer to the same files.
+        """
+        data = {k:v for k, v in self.__dict__.items() if not k.startswith("_")}
+        for k in self.SERIALIZE_ABSPATH:
+            v = data[k]
+            if isinstance(v, list):
+                v = list(map(os.path.abspath, v))
+            elif isinstance(v, str):
+                v = os.path.abspath(v)
+            data[k] = v
+        return base64.b64encode(json.dumps(data).encode()).decode()
+
 
 def process_file_value(path: str) -> str:
     """Make adjustments to a file path to make it usable."""
@@ -661,4 +690,12 @@ def read_coverage_config(
     # to do.
     config.post_process()
 
+    return config
+
+
+def deserialize_config(config_str: str) -> CoverageConfig:
+    """Take a string from CoverageConfig.serialize, and make a CoverageConfig."""
+    data = json.loads(base64.b64decode(config_str.encode()).decode())
+    config = CoverageConfig()
+    config.__dict__.update(data)
     return config

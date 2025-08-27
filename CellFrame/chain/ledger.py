@@ -14,47 +14,58 @@ from typing import Optional, Dict, Any, List, Union, Tuple
 from enum import Enum
 from decimal import Decimal
 
+# Ledger type enumeration
+class DapLedgerType(Enum):
+    """Типы ledger в Cellframe"""
+    MAIN = "main"
+    CACHE = "cache"  
+    LOCAL = "local"
+
+# Ledger exceptions
+class DapLedgerError(Exception):
+    """Базовое исключение для операций с ledger"""
+    pass
+
+# Ledger data classes
+class DapTokenInfo:
+    """Информация о токене"""
+    def __init__(self, ticker: str, total_supply: int = 0, emissions: int = 0):
+        self.ticker = ticker
+        self.total_supply = total_supply
+        self.emissions = emissions
+
+class DapAccount:
+    """Аккаунт ledger"""
+    def __init__(self, address: str):
+        self.address = address
+        self.balances = {}
+
 # Import existing DAP functions
 try:
-    from python_cellframe_common import (
-        # РЕАЛЬНЫЕ функции ledger с ОБЯЗАТЕЛЬНЫМИ токенами!
-        dap_ledger_new, dap_ledger_delete, dap_ledger_open, dap_ledger_close,
+    import python_cellframe as cf_native
+    # Import ledger functions from native module
+    from python_cellframe import (
+        # Пользовательские функции ledger (только чтение)
         dap_ledger_calc_balance, dap_ledger_calc_balance_full,
-        dap_ledger_tx_add, dap_ledger_tx_remove, dap_ledger_tx_find_by_hash,
-        dap_ledger_tx_find_by_addr, dap_ledger_tx_get_main_ticker,
-        dap_ledger_get_list_tx_outs_with_val, dap_ledger_get_txs,
-        
-        # Операции с адресами и токенами
-        dap_ledger_token_add, dap_ledger_token_remove, dap_ledger_token_find,
-        dap_ledger_token_get_all, dap_ledger_token_get_ticker_by_hash,
-        dap_ledger_addr_get_token_all_emission,
-        
-        # Shared wallet functions
-        dap_ledger_verificator_add, dap_ledger_service_add,
-        
-        # Функции эмиссии и сжигания
-        dap_ledger_token_emission_add, dap_ledger_token_emission_remove,
-        dap_ledger_token_update, dap_ledger_token_auth_signs_add,
-        
-        # Константы
-        DAP_CHAIN_LEDGER_TX_STATE_NOT_FOUND,
-        DAP_CHAIN_LEDGER_TX_STATE_ACCEPTED,
-        DAP_CHAIN_LEDGER_TX_STATE_INVALID,
-        DAP_LEDGER_CHECK_LOCAL_DS,
-        DAP_LEDGER_CHECK_TOKEN_EMISSION,
+        dap_ledger_tx_find_by_hash,
         DAP_CHAIN_TICKER_SIZE_MAX,
     )
-    _CELLFRAME_AVAILABLE = True
-except ImportError:
-    _CELLFRAME_AVAILABLE = False
+except ImportError as e:
+    raise ImportError(
+        "❌ CRITICAL: Native CellFrame ledger functions not available!\n"
+        "This is a Python bindings library - native C extension is required.\n"
+        "Required: dap_ledger_* functions must be implemented in native C extension.\n"
+        f"Original error: {e}\n"
+        "Please ensure python_cellframe native module is properly built and installed."
+    ) from e
 
 from ..core.exceptions import CellframeException
 
-class DapLedgerError(CellframeException):
+class CfLedgerError(CellframeException):
     """Ошибки ledger"""
     pass
 
-class DapLedgerType(Enum):
+class CfLedgerType(Enum):
     """Типы ledger согласно реальной архитектуре Cellframe"""
     UTXO = "utxo"               # UTXO model
     ACCOUNT = "account"         # Account model  
@@ -62,7 +73,7 @@ class DapLedgerType(Enum):
     TOKEN = "token"             # Token ledger
     STAKE = "stake"             # Staking ledger
 
-class DapLedgerTxState(Enum):
+class CfLedgerTxState(Enum):
     """Состояния транзакций в ledger"""
     NOT_FOUND = 0               # Транзакция не найдена
     ACCEPTED = 1                # Транзакция принята
@@ -150,7 +161,7 @@ class DapAccount:
 _ledger_registry = {}
 _registry_lock = threading.RLock()
 
-class DapLedger:
+class CfLedger:
     """
     Реальный ledger Cellframe с полным API
     Содержит dap_ledger_t* внутри
@@ -158,12 +169,12 @@ class DapLedger:
     
     def __init__(self, ledger_handle: Any, owns_handle: bool = True):
         if ledger_handle is None:
-            raise DapLedgerError("ledger_handle не может быть None")
+            raise CfLedgerError("ledger_handle не может быть None")
             
         self._ledger_handle = ledger_handle
         self._owns_handle = owns_handle
         self._is_closed = False
-        self.type = DapLedgerType.MIXED
+        self.type = CfLedgerType.MIXED
         self.name = ""
         self.net_name = ""
         self._accounts: Dict[str, DapAccount] = {}
@@ -182,19 +193,17 @@ class DapLedger:
         self.close()
     
     @classmethod
-    def create(cls, net_name: str, ledger_type: DapLedgerType = DapLedgerType.MIXED) -> 'DapLedger':
+    def create(cls, net_name: str, ledger_type: CfLedgerType = CfLedgerType.MIXED) -> 'CfLedger':
         """
         Создать новый ledger
         Использует РЕАЛЬНУЮ функцию dap_ledger_new!
         """
-        if not _CELLFRAME_AVAILABLE:
-            return cls._create_fallback(net_name, ledger_type)
-            
+
         try:
             # Используем РЕАЛЬНУЮ функцию создания ledger
             ledger_handle = dap_ledger_new(net_name.encode())
             if not ledger_handle:
-                raise DapLedgerError(f"Не удалось создать ledger для сети {net_name}")
+                raise CfLedgerError(f"Не удалось создать ledger для сети {net_name}")
                 
             ledger = cls(ledger_handle, owns_handle=True)
             ledger.type = ledger_type
@@ -203,22 +212,20 @@ class DapLedger:
             
             return ledger
         except Exception as e:
-            raise DapLedgerError(f"Ошибка создания ledger: {e}")
+            raise CfLedgerError(f"Ошибка создания ledger: {e}")
     
     @classmethod
-    def open(cls, net_name: str) -> 'DapLedger':
+    def open(cls, net_name: str) -> 'CfLedger':
         """
         Открыть существующий ledger
         Использует РЕАЛЬНУЮ функцию dap_ledger_open!
         """
-        if not _CELLFRAME_AVAILABLE:
-            return cls._create_fallback(net_name, DapLedgerType.MIXED)
-            
+
         try:
             # Используем РЕАЛЬНУЮ функцию открытия ledger
             ledger_handle = dap_ledger_open(net_name.encode())
             if not ledger_handle:
-                raise DapLedgerError(f"Не удалось открыть ledger для сети {net_name}")
+                raise CfLedgerError(f"Не удалось открыть ledger для сети {net_name}")
                 
             ledger = cls(ledger_handle, owns_handle=True)
             ledger.net_name = net_name
@@ -226,7 +233,7 @@ class DapLedger:
             
             return ledger
         except Exception as e:
-            raise DapLedgerError(f"Ошибка открытия ledger: {e}")
+            raise CfLedgerError(f"Ошибка открытия ledger: {e}")
     
     def get_balance(self, address: str, token_ticker: str) -> int:
         """
@@ -234,10 +241,9 @@ class DapLedger:
         Использует РЕАЛЬНУЮ функцию dap_ledger_calc_balance!
         """
         if not token_ticker:
-            raise DapLedgerError("token_ticker ОБЯЗАТЕЛЬНО должен быть указан!")
+            raise CfLedgerError("token_ticker ОБЯЗАТЕЛЬНО должен быть указан!")
             
-        if not _CELLFRAME_AVAILABLE:
-            return self._get_balance_fallback(address, token_ticker)
+
             
         try:
             # Используем РЕАЛЬНУЮ функцию получения баланса
@@ -248,7 +254,7 @@ class DapLedger:
             )
             return int(balance)
         except Exception as e:
-            raise DapLedgerError(f"Ошибка получения баланса: {e}")
+            raise CfLedgerError(f"Ошибка получения баланса: {e}")
     
     def get_balance_full(self, address: str, token_ticker: str, 
                         with_unconfirmed: bool = False) -> Dict[str, int]:
@@ -257,15 +263,7 @@ class DapLedger:
         Использует РЕАЛЬНУЮ функцию dap_ledger_calc_balance_full!
         """
         if not token_ticker:
-            raise DapLedgerError("token_ticker ОБЯЗАТЕЛЬНО должен быть указан!")
-            
-        if not _CELLFRAME_AVAILABLE:
-            balance = self._get_balance_fallback(address, token_ticker)
-            return {
-                'balance': balance,
-                'balance_unconfirmed': balance // 10,
-                'balance_total': balance + (balance // 10)
-            }
+            raise CfLedgerError("token_ticker ОБЯЗАТЕЛЬНО должен быть указан!")
             
         try:
             # Используем РЕАЛЬНУЮ функцию полного баланса
@@ -277,18 +275,13 @@ class DapLedger:
             )
             return balance_info
         except Exception as e:
-            raise DapLedgerError(f"Ошибка получения полного баланса: {e}")
+            raise CfLedgerError(f"Ошибка получения полного баланса: {e}")
     
     def add_token(self, token_info: DapTokenInfo) -> bool:
         """
         Добавить токен в ledger
         Использует РЕАЛЬНУЮ функцию dap_ledger_token_add!
         """
-        if not _CELLFRAME_AVAILABLE:
-            with self._lock:
-                self._tokens[token_info.ticker] = token_info
-                return True
-                
         try:
             # Используем РЕАЛЬНУЮ функцию добавления токена
             result = dap_ledger_token_add(
@@ -307,7 +300,7 @@ class DapLedger:
                 return False
                 
         except Exception as e:
-            raise DapLedgerError(f"Ошибка добавления токена: {e}")
+            raise CfLedgerError(f"Ошибка добавления токена: {e}")
     
     def remove_token(self, token_ticker: str) -> bool:
         """
@@ -315,12 +308,8 @@ class DapLedger:
         Использует РЕАЛЬНУЮ функцию dap_ledger_token_remove!
         """
         if not token_ticker:
-            raise DapLedgerError("token_ticker ОБЯЗАТЕЛЬНО должен быть указан!")
+            raise CfLedgerError("token_ticker ОБЯЗАТЕЛЬНО должен быть указан!")
             
-        if not _CELLFRAME_AVAILABLE:
-            with self._lock:
-                return self._tokens.pop(token_ticker, None) is not None
-                
         try:
             # Используем РЕАЛЬНУЮ функцию удаления токена
             result = dap_ledger_token_remove(
@@ -336,7 +325,7 @@ class DapLedger:
                 return False
                 
         except Exception as e:
-            raise DapLedgerError(f"Ошибка удаления токена: {e}")
+            raise CfLedgerError(f"Ошибка удаления токена: {e}")
     
     def get_token_info(self, token_ticker: str) -> Optional[DapTokenInfo]:
         """
@@ -344,12 +333,8 @@ class DapLedger:
         Использует РЕАЛЬНУЮ функцию dap_ledger_token_find!
         """
         if not token_ticker:
-            raise DapLedgerError("token_ticker ОБЯЗАТЕЛЬНО должен быть указан!")
+            raise CfLedgerError("token_ticker ОБЯЗАТЕЛЬНО должен быть указан!")
             
-        if not _CELLFRAME_AVAILABLE:
-            with self._lock:
-                return self._tokens.get(token_ticker)
-                
         try:
             # Используем РЕАЛЬНУЮ функцию поиска токена
             token_handle = dap_ledger_token_find(
@@ -367,17 +352,13 @@ class DapLedger:
                 return None
                 
         except Exception as e:
-            raise DapLedgerError(f"Ошибка получения информации о токене: {e}")
+            raise CfLedgerError(f"Ошибка получения информации о токене: {e}")
     
     def get_all_tokens(self) -> List[DapTokenInfo]:
         """
         Получить все токены
         Использует РЕАЛЬНУЮ функцию dap_ledger_token_get_all!
         """
-        if not _CELLFRAME_AVAILABLE:
-            with self._lock:
-                return list(self._tokens.values())
-                
         try:
             # Используем РЕАЛЬНУЮ функцию получения всех токенов
             tokens_list = dap_ledger_token_get_all(self._ledger_handle)
@@ -395,21 +376,14 @@ class DapLedger:
             
             return result
         except Exception as e:
-            raise DapLedgerError(f"Ошибка получения списка токенов: {e}")
+            raise CfLedgerError(f"Ошибка получения списка токенов: {e}")
     
     def add_transaction(self, tx_hash: str, tx_data: Any) -> bool:
         """
         Добавить транзакцию в ledger
         Использует РЕАЛЬНУЮ функцию dap_ledger_tx_add!
         """
-        if not _CELLFRAME_AVAILABLE:
-            with self._lock:
-                self._tx_cache[tx_hash] = {
-                    'data': tx_data,
-                    'state': DapLedgerTxState.ACCEPTED
-                }
-                return True
-                
+
         try:
             # Используем РЕАЛЬНУЮ функцию добавления транзакции
             result = dap_ledger_tx_add(
@@ -422,24 +396,21 @@ class DapLedger:
                 with self._lock:
                     self._tx_cache[tx_hash] = {
                         'data': tx_data,
-                        'state': DapLedgerTxState.ACCEPTED
+                        'state': CfLedgerTxState.ACCEPTED
                     }
                 return True
             else:
                 return False
                 
         except Exception as e:
-            raise DapLedgerError(f"Ошибка добавления транзакции: {e}")
+            raise CfLedgerError(f"Ошибка добавления транзакции: {e}")
     
     def remove_transaction(self, tx_hash: str) -> bool:
         """
         Удалить транзакцию из ledger
         Использует РЕАЛЬНУЮ функцию dap_ledger_tx_remove!
         """
-        if not _CELLFRAME_AVAILABLE:
-            with self._lock:
-                return self._tx_cache.pop(tx_hash, None) is not None
-                
+
         try:
             # Используем РЕАЛЬНУЮ функцию удаления транзакции
             result = dap_ledger_tx_remove(
@@ -455,18 +426,14 @@ class DapLedger:
                 return False
                 
         except Exception as e:
-            raise DapLedgerError(f"Ошибка удаления транзакции: {e}")
+            raise CfLedgerError(f"Ошибка удаления транзакции: {e}")
     
     def find_transaction_by_hash(self, tx_hash: str) -> Optional[Any]:
         """
         Найти транзакцию по хешу
         Использует РЕАЛЬНУЮ функцию dap_ledger_tx_find_by_hash!
         """
-        if not _CELLFRAME_AVAILABLE:
-            with self._lock:
-                tx_info = self._tx_cache.get(tx_hash)
-                return tx_info['data'] if tx_info else None
-                
+
         try:
             # Используем РЕАЛЬНУЮ функцию поиска транзакции
             tx_data = dap_ledger_tx_find_by_hash(
@@ -475,7 +442,7 @@ class DapLedger:
             )
             return tx_data
         except Exception as e:
-            raise DapLedgerError(f"Ошибка поиска транзакции: {e}")
+            raise CfLedgerError(f"Ошибка поиска транзакции: {e}")
     
     def find_transactions_by_address(self, address: str, token_ticker: str, 
                                     limit: int = 100) -> List[Any]:
@@ -484,12 +451,9 @@ class DapLedger:
         Использует РЕАЛЬНУЮ функцию dap_ledger_tx_find_by_addr!
         """
         if not token_ticker:
-            raise DapLedgerError("token_ticker ОБЯЗАТЕЛЬНО должен быть указан!")
+            raise CfLedgerError("token_ticker ОБЯЗАТЕЛЬНО должен быть указан!")
             
-        if not _CELLFRAME_AVAILABLE:
-            # Fallback - возвращаем заглушку
-            return []
-            
+
         try:
             # Используем РЕАЛЬНУЮ функцию поиска по адресу
             tx_list = dap_ledger_tx_find_by_addr(
@@ -500,7 +464,7 @@ class DapLedger:
             )
             return tx_list or []
         except Exception as e:
-            raise DapLedgerError(f"Ошибка поиска транзакций по адресу: {e}")
+            raise CfLedgerError(f"Ошибка поиска транзакций по адресу: {e}")
     
     def get_outputs_with_value(self, address: str, token_ticker: str, 
                               value_needed: int) -> List[Any]:
@@ -509,12 +473,9 @@ class DapLedger:
         Использует РЕАЛЬНУЮ функцию dap_ledger_get_list_tx_outs_with_val!
         """
         if not token_ticker:
-            raise DapLedgerError("token_ticker ОБЯЗАТЕЛЬНО должен быть указан!")
+            raise CfLedgerError("token_ticker ОБЯЗАТЕЛЬНО должен быть указан!")
             
-        if not _CELLFRAME_AVAILABLE:
-            # Fallback - возвращаем заглушку
-            return []
-            
+
         try:
             # Используем РЕАЛЬНУЮ функцию получения выходов
             outputs_list = dap_ledger_get_list_tx_outs_with_val(
@@ -525,13 +486,13 @@ class DapLedger:
             )
             return outputs_list or []
         except Exception as e:
-            raise DapLedgerError(f"Ошибка получения выходов: {e}")
+            raise CfLedgerError(f"Ошибка получения выходов: {e}")
     
     def transfer(self, from_address: str, to_address: str, 
                 token_ticker: str, amount: int) -> bool:
         """Перевод токенов между адресами"""
         if not token_ticker:
-            raise DapLedgerError("token_ticker ОБЯЗАТЕЛЬНО должен быть указан!")
+            raise CfLedgerError("token_ticker ОБЯЗАТЕЛЬНО должен быть указан!")
             
         with self._lock:
             # Получаем или создаем аккаунты
@@ -551,7 +512,7 @@ class DapLedger:
     def mint_tokens(self, to_address: str, token_ticker: str, amount: int) -> bool:
         """Создание новых токенов"""
         if not token_ticker:
-            raise DapLedgerError("token_ticker ОБЯЗАТЕЛЬНО должен быть указан!")
+            raise CfLedgerError("token_ticker ОБЯЗАТЕЛЬНО должен быть указан!")
             
         with self._lock:
             # Проверяем, что токен существует и можно эмитировать
@@ -572,7 +533,7 @@ class DapLedger:
     def burn_tokens(self, from_address: str, token_ticker: str, amount: int) -> bool:
         """Уничтожение токенов"""
         if not token_ticker:
-            raise DapLedgerError("token_ticker ОБЯЗАТЕЛЬНО должен быть указан!")
+            raise CfLedgerError("token_ticker ОБЯЗАТЕЛЬНО должен быть указан!")
             
         with self._lock:
             # Проверяем, что токен существует и можно сжигать
@@ -604,7 +565,7 @@ class DapLedger:
         """Создать новый аккаунт"""
         with self._lock:
             if address in self._accounts:
-                raise DapLedgerError(f"Аккаунт {address} уже существует")
+                raise CfLedgerError(f"Аккаунт {address} уже существует")
             
             account = DapAccount(address)
             self._accounts[address] = account
@@ -618,7 +579,7 @@ class DapLedger:
     def get_total_supply(self, token_ticker: str) -> int:
         """Получить общий объем токена"""
         if not token_ticker:
-            raise DapLedgerError("token_ticker ОБЯЗАТЕЛЬНО должен быть указан!")
+            raise CfLedgerError("token_ticker ОБЯЗАТЕЛЬНО должен быть указан!")
             
         with self._lock:
             token_info = self._tokens.get(token_ticker)
@@ -627,7 +588,7 @@ class DapLedger:
     def get_circulating_supply(self, token_ticker: str) -> int:
         """Получить объем токена в обращении"""
         if not token_ticker:
-            raise DapLedgerError("token_ticker ОБЯЗАТЕЛЬНО должен быть указан!")
+            raise CfLedgerError("token_ticker ОБЯЗАТЕЛЬНО должен быть указан!")
             
         with self._lock:
             token_info = self._tokens.get(token_ticker)
@@ -677,7 +638,7 @@ class DapLedger:
             return
             
         try:
-            if self._owns_handle and _CELLFRAME_AVAILABLE:
+            if self._owns_handle:
                 dap_ledger_close(self._ledger_handle)
                 
             self._is_closed = True
@@ -687,7 +648,7 @@ class DapLedger:
                 _ledger_registry.pop(id(self), None)
                 
         except Exception as e:
-            raise DapLedgerError(f"Ошибка закрытия ledger: {e}")
+            raise CfLedgerError(f"Ошибка закрытия ledger: {e}")
     
     def _get_or_create_account(self, address: str) -> DapAccount:
         """Получить или создать аккаунт"""
@@ -697,55 +658,39 @@ class DapLedger:
             self._accounts[address] = account
         return account
     
-    def _get_balance_fallback(self, address: str, token_ticker: str) -> int:
-        """Fallback для получения баланса"""
-        with self._lock:
-            account = self._accounts.get(address)
-            return account.get_balance(token_ticker) if account else 0
-    
-    @classmethod
-    def _create_fallback(cls, net_name: str, ledger_type: DapLedgerType) -> 'DapLedger':
-        """Fallback для разработки"""
-        fake_handle = f"ledger_handle_{net_name}_{ledger_type.value}"
-        ledger = cls(fake_handle, owns_handle=True)
-        ledger.name = f"{net_name}_ledger"
-        ledger.net_name = net_name
-        ledger.type = ledger_type
-        return ledger
-    
     def __del__(self):
         if not self._is_closed:
             self.close()
 
-class DapLedgerManager:
+class CfLedgerManager:
     """Менеджер для управления множественными ledger"""
     
     def __init__(self):
-        self._ledgers: Dict[str, DapLedger] = {}
+        self._ledgers: Dict[str, CfLedger] = {}
         self._lock = threading.RLock()
     
     def create_ledger(self, net_name: str, 
-                     ledger_type: DapLedgerType = DapLedgerType.MIXED) -> DapLedger:
+                     ledger_type: CfLedgerType = CfLedgerType.MIXED) -> CfLedger:
         """Создать новый ledger"""
         with self._lock:
             if net_name in self._ledgers:
-                raise DapLedgerError(f"Ledger для сети {net_name} уже существует")
+                raise CfLedgerError(f"Ledger для сети {net_name} уже существует")
                 
-            ledger = DapLedger.create(net_name, ledger_type)
+            ledger = CfLedger.create(net_name, ledger_type)
             self._ledgers[net_name] = ledger
             return ledger
     
-    def open_ledger(self, net_name: str) -> DapLedger:
+    def open_ledger(self, net_name: str) -> CfLedger:
         """Открыть существующий ledger"""
         with self._lock:
             if net_name in self._ledgers:
                 return self._ledgers[net_name]
                 
-            ledger = DapLedger.open(net_name)
+            ledger = CfLedger.open(net_name)
             self._ledgers[net_name] = ledger
             return ledger
     
-    def get_ledger(self, net_name: str) -> Optional[DapLedger]:
+    def get_ledger(self, net_name: str) -> Optional[CfLedger]:
         """Получить ledger по имени сети"""
         with self._lock:
             return self._ledgers.get(net_name)
@@ -757,7 +702,7 @@ class DapLedgerManager:
                 self._ledgers[net_name].close()
                 del self._ledgers[net_name]
     
-    def get_all_ledgers(self) -> Dict[str, DapLedger]:
+    def get_all_ledgers(self) -> Dict[str, CfLedger]:
         """Получить все ledger"""
         with self._lock:
             return self._ledgers.copy()
@@ -771,26 +716,26 @@ class DapLedgerManager:
 
 # Convenience functions
 def create_ledger(net_name: str, 
-                 ledger_type: DapLedgerType = DapLedgerType.MIXED) -> DapLedger:
+                 ledger_type: CfLedgerType = CfLedgerType.MIXED) -> CfLedger:
     """Создать новый ledger"""
-    return DapLedger.create(net_name, ledger_type)
+    return CfLedger.create(net_name, ledger_type)
 
-def open_ledger(net_name: str) -> DapLedger:
+def open_ledger(net_name: str) -> CfLedger:
     """Открыть существующий ledger"""
-    return DapLedger.open(net_name)
+    return CfLedger.open(net_name)
 
-def get_account_balance(ledger: DapLedger, address: str, token_ticker: str) -> int:
+def get_account_balance(ledger: CfLedger, address: str, token_ticker: str) -> int:
     """Получить баланс аккаунта"""
     return ledger.get_balance(address, token_ticker)
 
 __all__ = [
-    'DapLedger',
-    'DapLedgerError',
-    'DapLedgerType',
-    'DapLedgerTxState',
+    'CfLedger',
+    'CfLedgerError',
+    'CfLedgerType',
+    'CfLedgerTxState',
     'DapTokenInfo',
     'DapAccount',
-    'DapLedgerManager',
+    'CfLedgerManager',
     'create_ledger',
     'open_ledger',
     'get_account_balance'

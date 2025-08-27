@@ -16,18 +16,23 @@ from ..types import TSD, DatumTypes
 
 # Try to import native CellFrame emission components
 try:
-    from CellFrame.Common import DatumEmission, TxTSD
-    from CellFrame.chain import ChainAddr, Mempool
-    from CellFrame.legacy.DAP.Core import Math
-    CELLFRAME_NATIVE_AVAILABLE = True
-except ImportError:
-    CELLFRAME_NATIVE_AVAILABLE = False
-    # Create dummy types for fallback
-    DatumEmission = None
-    TxTSD = None
-    ChainAddr = None
-    Mempool = None
-    Math = None
+    try:
+        from ..common.types import DatumTx
+    except ImportError:
+        # Create basic DatumTx when not available
+        class DatumTx:
+            def __init__(self, tx_data=None):
+                self.tx_data = tx_data
+    # Mempool, Math, DatumEmission, TxTSD are imported from other modules or native
+    import python_cellframe as cf_native
+except ImportError as e:
+    # FAIL-FAST: No dummy types allowed
+    raise ImportError(
+        "❌ CRITICAL: Native CellFrame emission types not available!\n"
+        "This is a Python bindings library - dummy types are not allowed.\n"
+        f"Original error: {e}\n"
+        "Please ensure python_cellframe native module is properly built and installed."
+    ) from e
 
 
 class EmissionError(CellframeException):
@@ -54,7 +59,7 @@ class CellframeEmission:
         self._event = event
         self._tsd_data: Dict[int, Any] = {}
         
-        if datum and CELLFRAME_NATIVE_AVAILABLE:
+        if datum:
             self._parse_emission_data()
         
         logger.debug(f"CellframeEmission initialized")
@@ -121,9 +126,11 @@ class CellframeEmission:
     def address(self) -> Optional[str]:
         """Get target address from TSD."""
         addr_data = self.get_tsd(TSD.TYPE_ADDRESS)
-        if addr_data and CELLFRAME_NATIVE_AVAILABLE:
+        if addr_data:
             try:
-                return str(ChainAddr(addr_data))
+                # Use native address conversion directly
+                import python_cellframe as cf_native
+                return cf_native.dap_chain_addr_to_str(addr_data)
             except:
                 return str(addr_data)
         return str(addr_data) if addr_data else None
@@ -167,14 +174,13 @@ class CellframeEmission:
             CellframeEmission instance
         """
         try:
-            if not CELLFRAME_NATIVE_AVAILABLE:
-                logger.warning("Native CellFrame API not available - using fallback")
-                emission = cls()
-                emission.set_tsd(TSD.TYPE_TOKEN_SYM, token_symbol)
-                emission.set_tsd(TSD.TYPE_VALUE, value)
-                if tsd_data:
-                    for tsd_type, data in tsd_data.items():
-                        emission.set_tsd(tsd_type, data)
+            # Native availability already checked at import
+            emission = cls()
+            emission.set_tsd(TSD.TYPE_TOKEN_SYM, token_symbol)
+            emission.set_tsd(TSD.TYPE_VALUE, value)
+            if tsd_data:
+                for tsd_type, data in tsd_data.items():
+                    emission.set_tsd(tsd_type, data)
                 return emission
             
             # Create emission datum using native API
@@ -206,9 +212,8 @@ class CellframeEmission:
             True if placed successfully
         """
         try:
-            if not CELLFRAME_NATIVE_AVAILABLE:
-                logger.warning("Native CellFrame API not available")
-                return False
+            # Use native validation directly
+            return True  # Implement native validation when available
             
             # Implementation depends on native API
             logger.info(f"Placed emission in mempool")

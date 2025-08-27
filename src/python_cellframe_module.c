@@ -1,6 +1,19 @@
 #include "python_cellframe.h"
 #include <string.h>
 
+// Forward declarations for chain functions
+PyObject* py_dap_chain_addr_from_str(PyObject *self, PyObject *args);
+PyObject* py_dap_chain_addr_get_net_id(PyObject *self, PyObject *args);
+PyObject* py_dap_chain_atom_create(PyObject *self, PyObject *args);
+PyObject* py_dap_chain_mempool_by_chain_name(PyObject *self, PyObject *args);
+PyObject* py_dap_chain_mempool_tx_get_by_hash(PyObject *self, PyObject *args);
+
+// Forward declarations for submodule init functions  
+int cellframe_wallet_init(PyObject *module);
+int cellframe_chain_init(PyObject *module);
+int cellframe_ledger_init(PyObject *module);
+int cellframe_tx_init(PyObject *module);
+
 // =========================================
 // ERROR OBJECTS
 // =========================================
@@ -60,7 +73,6 @@ PyObject* cellframe_initialize(PyObject *self, PyObject *args, PyObject *kwds) {
         return NULL;
     }
     
-#ifdef CELLFRAME_SDK_EMBEDDED
     // If no parameters provided, assume DAP SDK is already initialized
     if (!app_name && !working_dir) {
         // Check if DAP SDK is already initialized
@@ -119,24 +131,14 @@ PyObject* cellframe_initialize(PyObject *self, PyObject *args, PyObject *kwds) {
     }
     
     Py_RETURN_TRUE;
-#else
-    // Stub mode - no real initialization
-    PyErr_SetString(CellframeError, "Cellframe SDK not embedded in this build");
-    return NULL;
-#endif
 }
 
 PyObject* cellframe_deinitialize(PyObject *self) {
     (void)self;
     
-#ifdef CELLFRAME_SDK_EMBEDDED
     // Real Cellframe SDK deinitialization
     // TODO: Add actual dap_common_deinit() call
     return PyBool_FromLong(1);
-#else
-    // Stub mode - no real deinitialization needed
-    return PyBool_FromLong(1);
-#endif
 }
 
 // =========================================
@@ -163,33 +165,9 @@ static PyMethodDef CellframeMethods[] = {
     {"is_sdk_available", (PyCFunction)cellframe_sdk_is_available_wrapper, METH_NOARGS,
      "Check if Cellframe SDK is available"},
     
-    // Wallet functions
-    {"dap_chain_wallet_create", py_dap_chain_wallet_create, METH_VARARGS,
-     "Create a new wallet"},
-    {"dap_chain_wallet_create_with_seed", py_dap_chain_wallet_create_with_seed, METH_VARARGS,
-     "Create a new wallet with seed"},
-    {"dap_chain_wallet_create_with_seed_multi", py_dap_chain_wallet_create_with_seed_multi, METH_VARARGS,
-     "Create a new wallet with seed and multiple signatures"},
-    {"dap_chain_wallet_open", py_dap_chain_wallet_open, METH_VARARGS,
-     "Open an existing wallet"},
-    {"dap_chain_wallet_open_ext", py_dap_chain_wallet_open_ext, METH_VARARGS,
-     "Open an existing wallet with extended parameters"},
-    {"dap_chain_wallet_close", py_dap_chain_wallet_close, METH_VARARGS,
-     "Close a wallet"},
-    {"dap_chain_wallet_save", py_dap_chain_wallet_save, METH_VARARGS,
-     "Save a wallet"},
-    {"dap_chain_wallet_get_addr", py_dap_chain_wallet_get_addr, METH_VARARGS,
-     "Get wallet address"},
-    {"dap_chain_wallet_get_balance", py_dap_chain_wallet_get_balance, METH_VARARGS,
-     "Get wallet balance"},
-    {"dap_chain_wallet_get_key", py_dap_chain_wallet_get_key, METH_VARARGS,
-     "Get wallet key"},
-    {"dap_chain_wallet_get_pkey", py_dap_chain_wallet_get_pkey, METH_VARARGS,
-     "Get wallet public key"},
-    {"dap_chain_wallet_activate", py_dap_chain_wallet_activate, METH_VARARGS,
-     "Activate a wallet"},
-    {"dap_chain_wallet_deactivate", py_dap_chain_wallet_deactivate, METH_VARARGS,
-     "Deactivate a wallet"},
+    // NOTE: All specific functions (wallet, chain, ledger, etc.) are now registered
+    // by their respective modules through init functions. This keeps only core
+    // module functions here
     
     {NULL, NULL, 0, NULL}  // Sentinel
 };
@@ -271,15 +249,41 @@ PyMODINIT_FUNC PyInit_python_cellframe(void) {
     PyModule_AddIntConstant(module, "SDK_AVAILABLE", CELLFRAME_AVAILABLE);
     PyModule_AddIntConstant(module, "DAP_CHAIN_TICKER_SIZE_MAX", DAP_CHAIN_TICKER_SIZE_MAX);
     
-#ifdef CELLFRAME_SDK_EMBEDDED
     PyModule_AddStringConstant(module, "BUILD_MODE", "dynamic_with_sdk");
-#else
-    PyModule_AddStringConstant(module, "BUILD_MODE", "static_no_sdk");
-#endif
     
     // Initialize and add types
     // Note: Chain, Network, Wallet, Node types would be added here
-    // For now, we'll add them in separate files
+    // Initialize submodules by calling their init functions
+    // This replaces the old method of listing all functions in one big array
+    
+    // Initialize wallet module
+    if (cellframe_wallet_init(module) < 0) {
+        Py_DECREF(module);
+        return NULL;
+    }
+    
+    // Initialize chain module  
+    if (cellframe_chain_init(module) < 0) {
+        Py_DECREF(module);
+        return NULL;
+    }
+    
+    // Initialize ledger module
+    if (cellframe_ledger_init(module) < 0) {
+        PyErr_SetString(PyExc_ImportError, "Failed to initialize ledger module");
+        Py_DECREF(module);
+        return NULL;
+    }
+
+    if (cellframe_tx_init(module) < 0) {
+        PyErr_SetString(PyExc_ImportError, "Failed to initialize TX module");
+        Py_DECREF(module);
+        return NULL;
+    }
+    
+    // TODO: Add other modules when they implement init functions
+    // - cellframe_network_init(module)
+    // - cellframe_node_init(module)
     
     return module;
 }
@@ -305,4 +309,6 @@ void set_cellframe_wallet_error(const char *message) {
 
 void set_cellframe_node_error(const char *message) {
     PyErr_SetString(CellframeNodeError, message);
-} 
+}
+
+ 

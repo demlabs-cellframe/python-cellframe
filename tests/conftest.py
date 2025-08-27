@@ -234,7 +234,7 @@ def reset_imports():
 def setup_test_environment():
     """
     Setup proper test environment before all tests.
-    Creates test directories and properly initializes DAP SDK.
+    Creates test directories and environment variables for DAP SDK initialization.
     """
     # Create test environment directories
     test_session_dir = "/tmp/pytest_cellframe_test_session"
@@ -248,39 +248,22 @@ def setup_test_environment():
     os.makedirs(temp_dir, exist_ok=True)
     os.makedirs(log_dir, exist_ok=True)
     
+    # Set environment variables for DAP SDK initialization
+    os.environ["DAP_SDK_TEST_WORKING_DIR"] = test_session_dir
+    os.environ["DAP_SDK_TEST_CONFIG_DIR"] = config_dir
+    os.environ["DAP_SDK_TEST_TEMP_DIR"] = temp_dir
+    os.environ["DAP_SDK_TEST_LOG_FILE"] = log_file
+    
     print(f"✅ Test environment created:")
     print(f"  Working dir: {test_session_dir}")
     print(f"  Config dir: {config_dir}")
     print(f"  Temp dir: {temp_dir}")
     print(f"  Log file: {log_file}")
     
-    # Initialize DAP SDK with proper test paths
-    try:
-        import python_dap
-        # Properly initialize with test paths instead of auto-detection
-        result = python_dap.dap_sdk_init(
-            app_name="pytest_cellframe",
-            working_dir=test_session_dir,
-            config_dir=config_dir,
-            temp_dir=temp_dir,
-            log_file=log_file,
-            events_threads=2,
-            events_timeout=10000,
-            debug_mode=True
-        )
-        if result == 0:
-            print("✅ DAP SDK initialized with test paths")
-        else:
-            print(f"⚠️ DAP SDK init returned {result} (may be already initialized)")
-    except ImportError:
-        print("⚠️ python_dap not available in test environment")
-    except Exception as e:
-        print(f"⚠️ DAP SDK initialization failed: {e}")
-    
     # Yield to tests
     yield
     
-    # Cleanup handled by OS
+    # Cleanup is automatic (OS cleans /tmp on reboot)
 
 
 def pytest_configure(config):

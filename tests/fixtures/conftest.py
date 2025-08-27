@@ -55,13 +55,10 @@ def setup_dap_sdk_for_tests():
         yield None
 
 # Import types for proper mocking (after DAP SDK is initialized)
-try:
-    from CellFrame.core.context import AppContext, LibContext, PluginContext, ExecutionMode
-    from CellFrame.chain import Wallet, TX, DapLedger, WalletType, TxType
-    from CellFrame.core.exceptions import CellframeException
-    CELLFRAME_AVAILABLE = True
-except ImportError:
-    CELLFRAME_AVAILABLE = False
+# FAIL-FAST: Either CellFrame modules are available or tests fail
+from CellFrame.core.context import AppContext, LibContext, PluginContext, ExecutionMode
+from CellFrame.chain import Wallet, TX, CfLedger, WalletType, TxType
+from CellFrame.core.exceptions import CellframeException
 
 
 # =========================================
@@ -71,7 +68,7 @@ except ImportError:
 @pytest.fixture
 def mock_lib_context():
     """Mock LibContext for library mode testing."""
-    context = Mock(spec=LibContext if CELLFRAME_AVAILABLE else object)
+    context = Mock(spec=LibContext)
     context.is_plugin_mode = False
     context.is_library_mode = True
     context.app_name = "test_app"
@@ -87,7 +84,7 @@ def mock_lib_context():
 @pytest.fixture
 def mock_plugin_context():
     """Mock PluginContext for plugin mode testing."""
-    context = Mock(spec=PluginContext if CELLFRAME_AVAILABLE else object)
+    context = Mock(spec=PluginContext)
     context.is_plugin_mode = True
     context.is_library_mode = False
     context.app_name = "test_plugin"
@@ -103,7 +100,7 @@ def mock_plugin_context():
 @pytest.fixture
 def mock_app_context():
     """Generic mock AppContext."""
-    context = Mock(spec=AppContext if CELLFRAME_AVAILABLE else object)
+    context = Mock(spec=AppContext)
     context.is_plugin_mode = False
     context.is_library_mode = True
     context.app_name = "test_generic"
@@ -120,9 +117,9 @@ def mock_app_context():
 @pytest.fixture
 def mock_wallet():
     """Mock Wallet with standard test data."""
-    wallet = Mock(spec=Wallet if CELLFRAME_AVAILABLE else object)
+    wallet = Mock(spec=Wallet)
     wallet.name = "test_wallet"
-    wallet.type = WalletType.SIMPLE if CELLFRAME_AVAILABLE else "simple"
+    wallet.type = WalletType.SIMPLE
     wallet.get_address.return_value = "test_address_12345"
     wallet.get_balance.return_value = Decimal("1000.0")
     wallet.save.return_value = True
@@ -133,9 +130,9 @@ def mock_wallet():
 @pytest.fixture
 def mock_hd_wallet():
     """Mock HD Wallet with hierarchical features."""
-    wallet = Mock(spec=Wallet if CELLFRAME_AVAILABLE else object)
+    wallet = Mock(spec=Wallet)
     wallet.name = "hd_test_wallet"
-    wallet.type = WalletType.HD if CELLFRAME_AVAILABLE else "hd"
+    wallet.type = WalletType.HD
     wallet.get_address.return_value = "hd_address_67890"
     wallet.get_balance.return_value = Decimal("5000.0")
     wallet.can_derive_addresses = True
@@ -164,9 +161,9 @@ def mock_wallet_manager():
 @pytest.fixture
 def mock_transaction():
     """Mock Transaction with standard test data."""
-    tx = Mock(spec=TX if CELLFRAME_AVAILABLE else object)
+    tx = Mock(spec=TX)
     tx.hash = "tx_hash_abcdef123456"
-    tx.type = TxType.TRANSFER if CELLFRAME_AVAILABLE else "transfer"
+    tx.type = TxType.TRANSFER
     tx.status = "pending"
     tx.amount = Decimal("100.0")
     tx.fee = Decimal("1.0")
@@ -185,9 +182,9 @@ def mock_transaction():
 @pytest.fixture
 def mock_confirmed_transaction():
     """Mock confirmed transaction."""
-    tx = Mock(spec=TX if CELLFRAME_AVAILABLE else object)
+    tx = Mock(spec=TX)
     tx.hash = "confirmed_tx_hash_123"
-    tx.type = TxType.TRANSFER if CELLFRAME_AVAILABLE else "transfer"
+    tx.type = TxType.TRANSFER
     tx.status = "confirmed"
     tx.amount = Decimal("200.0")
     tx.fee = Decimal("2.0")
@@ -210,8 +207,8 @@ def mock_confirmed_transaction():
 
 @pytest.fixture
 def mock_ledger():
-    """Mock DapLedger for testing ledger operations."""
-    ledger = Mock(spec=DapLedger if CELLFRAME_AVAILABLE else object)
+    """Mock CfLedger for testing ledger operations."""
+    ledger = Mock(spec=CfLedger)
     ledger.name = "test_ledger"
     ledger.token = "CELL"
     ledger.get_balance.return_value = Decimal("10000.0")
@@ -328,7 +325,7 @@ def mock_wallet_file(temp_directory):
 @pytest.fixture
 def mock_cellframe_exception():
     """Mock CellframeException for error testing."""
-    return CellframeException("Test error message") if CELLFRAME_AVAILABLE else Exception("Test error")
+    return CellframeException("Test error message")
 
 
 @pytest.fixture
@@ -411,13 +408,55 @@ def memory_monitor():
         return MemoryMonitor()
         
     except ImportError:
-        # Fallback if psutil not available
+        # Fallback if psutil not available - real implementation
         class DummyMemoryMonitor:
-            def start(self): pass
-            def check(self): pass
+            def __init__(self):
+                self.start_memory = 0
+                self.current_memory = 0
+                self.started = False
+                
+            def start(self):
+                """Start memory monitoring using basic system info"""
+                import os
+                try:
+                    # Use /proc/self/status on Linux
+                    with open('/proc/self/status') as f:
+                        for line in f:
+                            if line.startswith('VmRSS:'):
+                                self.start_memory = int(line.split()[1])  # KB
+                                break
+                    self.started = True
+                except (FileNotFoundError, PermissionError):
+                    # Fallback for non-Linux systems
+                    self.start_memory = 0
+                    self.started = True
+                    
+            def check(self):
+                """Check current memory usage"""
+                if not self.started:
+                    return
+                try:
+                    with open('/proc/self/status') as f:
+                        for line in f:
+                            if line.startswith('VmRSS:'):
+                                self.current_memory = int(line.split()[1])  # KB
+                                break
+                except (FileNotFoundError, PermissionError):
+                    self.current_memory = self.start_memory
+                    
             @property
-            def memory_growth(self): return 0
-            def assert_memory_under(self, max_mb): pass
+            def memory_growth(self):
+                """Get memory growth in MB"""
+                if not self.started:
+                    return 0
+                return (self.current_memory - self.start_memory) / 1024  # Convert KB to MB
+                
+            def assert_memory_under(self, max_mb):
+                """Assert memory growth is under limit"""
+                self.check()
+                growth = self.memory_growth
+                if growth > max_mb:
+                    pytest.fail(f"Memory grew by {growth:.2f}MB, expected < {max_mb}MB")
         
         return DummyMemoryMonitor()
 
@@ -514,7 +553,7 @@ async def async_mock_wallet():
 # MARKERS AND PARAMETRIZATION
 # =========================================
 
-@pytest.fixture(params=[WalletType.SIMPLE, WalletType.HARDWARE] if CELLFRAME_AVAILABLE else ["simple", "hardware"])
+@pytest.fixture(params=[WalletType.SIMPLE, WalletType.HARDWARE])
 def wallet_type(request):
     """Parametrized wallet type fixture."""
     return request.param

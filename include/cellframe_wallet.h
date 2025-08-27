@@ -1,13 +1,50 @@
 #ifndef CELLFRAME_WALLET_H
 #define CELLFRAME_WALLET_H
 
-#include "python_cellframe.h"
+#include <Python.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-// Объявления для типа Wallet уже в python_cellframe.h
+// =========================================
+// WALLET TYPE DEFINITION
+// =========================================
+
+typedef struct {
+    PyObject_HEAD
+    void *wallet_ptr;
+    char *wallet_name;
+} PyCellframeWallet;
+
+// =========================================
+// WALLET FUNCTION DECLARATIONS
+// =========================================
+
+extern PyTypeObject PyCellframeWalletType;
+PyObject* PyCellframeWallet_new(PyTypeObject *type, PyObject *args, PyObject *kwds);
+int PyCellframeWallet_init(PyCellframeWallet *self, PyObject *args, PyObject *kwds);
+void PyCellframeWallet_dealloc(PyCellframeWallet *self);
+PyObject* PyCellframeWallet_create(PyObject *self, PyObject *args);
+PyObject* PyCellframeWallet_get_balance_method(PyCellframeWallet *self, PyObject *args);
+
+// Wallet module-level functions (for import)
+PyObject* py_dap_chain_wallet_create(PyObject *self, PyObject *args);
+PyObject* py_dap_chain_wallet_create_with_seed(PyObject *self, PyObject *args);
+PyObject* py_dap_chain_wallet_create_with_seed_multi(PyObject *self, PyObject *args);
+PyObject* py_dap_chain_wallet_open(PyObject *self, PyObject *args);
+PyObject* py_dap_chain_wallet_open_ext(PyObject *self, PyObject *args);
+PyObject* py_dap_chain_wallet_close(PyObject *self, PyObject *args);
+PyObject* py_dap_chain_wallet_save(PyObject *self, PyObject *args);
+PyObject* py_dap_chain_wallet_get_addr(PyObject *self, PyObject *args);
+PyObject* py_dap_chain_wallet_get_key(PyObject *self, PyObject *args);
+PyObject* py_dap_chain_wallet_get_pkey(PyObject *self, PyObject *args);
+PyObject* py_dap_chain_wallet_get_balance(PyObject *self, PyObject *args);
+PyObject* py_dap_chain_wallet_activate(PyObject *self, PyObject *args);
+PyObject* py_dap_chain_wallet_deactivate(PyObject *self, PyObject *args);
+
+// Module initialization function
+int cellframe_wallet_init(PyObject *module);
 
 #ifdef __cplusplus
 }

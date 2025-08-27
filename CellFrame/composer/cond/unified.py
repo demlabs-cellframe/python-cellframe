@@ -160,27 +160,27 @@ class ConditionalProcessor:
     
     @property
     def stake_lock(self) -> StakeLockProcessor:
-        """Get access to StakeLockProcessor for advanced stake lock operations."""
+        """Get access to StakeLockProcessor for stake lock operations."""
         return self._processors[TransactionType.SRV_STAKE_LOCK]
     
     @property
     def exchange(self) -> ExchangeProcessor:
-        """Get access to ExchangeProcessor for advanced exchange operations."""
+        """Get access to ExchangeProcessor for exchange operations."""
         return self._processors[TransactionType.SRV_XCHANGE]
     
     @property
     def voting(self) -> VotingProcessor:
-        """Get access to VotingProcessor for advanced voting operations."""
+        """Get access to VotingProcessor for voting operations."""
         return self._processors[TransactionType.SRV_VOTING]
     
     @property
     def service_payment(self) -> ServicePaymentProcessor:
-        """Get access to ServicePaymentProcessor for advanced service payment operations."""
+        """Get access to ServicePaymentProcessor for service payment operations."""
         return self._processors[TransactionType.SRV_PAY]
     
     @property
     def delegation(self) -> DelegationProcessor:
-        """Get access to DelegationProcessor for advanced delegation operations."""
+        """Get access to DelegationProcessor for delegation operations."""
         return self._processors[TransactionType.SRV_STAKE_POS_DELEGATE]
     
     # === Convenience Methods that Route to Specialized Processors ===

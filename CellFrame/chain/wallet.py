@@ -72,8 +72,7 @@ try:
             "Required: dap_chain_wallet_* functions must be implemented in native C extension.\n"
             "Please implement wallet bindings in src/cellframe_wallet.c"
         )
-    
-    _CELLFRAME_AVAILABLE = True
+
 except ImportError as e:
     raise ImportError(
         "❌ CRITICAL: Native python_cellframe module not available!\n"
@@ -82,12 +81,6 @@ except ImportError as e:
         f"Original error: {e}\n"
         "Please run: cmake .. && make && make install"
     ) from e
-    def dap_chain_wallet_get_pkey(wallet, key_idx): return "mock_pkey"
-    def dap_chain_wallet_activate(wallet): return True
-    def dap_chain_wallet_deactivate(wallet): return True
-    
-    # Constants
-    DAP_CHAIN_TICKER_SIZE_MAX = 10
 
 from ..core.exceptions import CellframeException
 
@@ -378,7 +371,7 @@ class Wallet:
             True if address is valid
         """
         try:
-            # Basic validation - can be enhanced with actual API call
+            # Basic validation using address format
             return len(address) > 20 and address.startswith('mC')
                 
         except Exception as e:
@@ -463,11 +456,14 @@ class Wallet:
                     
                     return WalletAddress(str(addr_obj), self.name, network_name)
                     
-                except ImportError:
-                    # Fallback for library mode
-                    logger.warning("Native CellFrame API not available - using fallback")
-                    fake_address = f"{self.name}_{network_name}_{key_index}_address"
-                    return WalletAddress(fake_address, self.name, network_name)
+                except ImportError as e:
+                    # FAIL-FAST: No fallbacks allowed
+                    raise ImportError(
+                        "❌ CRITICAL: Native CellFrame API not available for wallet address generation!\n"
+                        "This is a Python bindings library - fallback implementations are not allowed.\n"
+                        f"Original error: {e}\n"
+                        "Please ensure python_cellframe native module is properly built and installed."
+                    ) from e
                     
         except Exception as e:
             logger.error("Failed to get address for network %s: %s", network_name, e)
@@ -496,11 +492,14 @@ class Wallet:
                 net_id = net.id
                 return self.get_balance(net_id, token_ticker)
                 
-            except ImportError:
-                # Fallback - use hash of network name as ID
-                import hashlib
-                net_id = int(hashlib.md5(network_name.encode()).hexdigest()[:8], 16)
-                return self.get_balance(net_id, token_ticker)
+            except ImportError as e:
+                # FAIL-FAST: No fallbacks allowed
+                raise ImportError(
+                    "❌ CRITICAL: Native CellFrame API not available for balance calculation!\n"
+                    "This is a Python bindings library - fallback implementations are not allowed.\n"
+                    f"Original error: {e}\n"
+                    "Please ensure python_cellframe native module is properly built and installed."
+                ) from e
                 
         except Exception as e:
             logger.error("Failed to get balance for network %s: %s", network_name, e)
@@ -535,8 +534,9 @@ class Wallet:
                     if not os.path.isabs(path):
                         path = os.path.join(CFConfig().storage_path(), "etc", path)
                     wallet_path = path
-                except:
-                    wallet_path = f"./wallets"  # Fallback
+                except Exception as e:
+                    # FAIL-FAST: No fallbacks for critical path resolution
+                    raise WalletError(f"Failed to determine wallet path: {e}") from e
             
             # Create wallet
             wallet = cls.create(name, wallet_path, seed=seed, signature_type=signature_type)

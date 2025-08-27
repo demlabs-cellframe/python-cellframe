@@ -15,6 +15,7 @@ class MixinHasValue:
         return value in cls._value2member_map_
 
 
+# For backward compatibility, keep the enum-like interface
 class ChainTypes(MixinHasValue, str, Enum):
     esbocs = "esbocs"
     dag_poa = "dag_poa"
