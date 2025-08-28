@@ -315,7 +315,7 @@ PyObject *wrapping_dap_chain_net_srv_auctions_get_list(PyObject *self, PyObject 
         memset(auction_hash_str, 0, sizeof(auction_hash_str)); // Initialize to zero
         
         int ret = dap_chain_hash_fast_to_str(&auction->auction_hash, auction_hash_str, sizeof(auction_hash_str));
-        if (ret != 0 || auction_hash_str[0] == '\0') {
+        if (ret <= 0 || auction_hash_str[0] == '\0') {
             // If hash conversion failed, use a placeholder
             strncpy(auction_hash_str, "INVALID_HASH", sizeof(auction_hash_str) - 1);
             auction_hash_str[sizeof(auction_hash_str) - 1] = '\0';
