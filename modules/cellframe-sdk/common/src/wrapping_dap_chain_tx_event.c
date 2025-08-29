@@ -79,7 +79,6 @@ static PyMethodDef PyDapChainTxEventObjectMethods[] ={
     {"AUCTION_BID_PLACED", (PyCFunction)TX_EVENT_TYPE_AUCTION_BID_PLACED_PY, METH_NOARGS | METH_STATIC, ""},
     {"AUCTION_ENDED", (PyCFunction)TX_EVENT_TYPE_AUCTION_ENDED_PY, METH_NOARGS | METH_STATIC, ""},
     {"AUCTION_CANCELLED", (PyCFunction)TX_EVENT_TYPE_AUCTION_CANCELLED_PY, METH_NOARGS | METH_STATIC, ""},
-    {"AUCTION_ENDED", (PyCFunction)TX_EVENT_TYPE_AUCTION_ENDED_PY, METH_NOARGS | METH_STATIC, ""},
     {"auction_started_create", (PyCFunction)TX_EVENT_DATA_AUCTION_STARTED_CREATE_PY, METH_VARARGS | METH_STATIC, "Create auction_started event data bytes"},
     {}
 };
