@@ -5,6 +5,9 @@ Common types used across CellFrame SDK
 from enum import Enum
 from typing import Union, Optional, Dict, Any
 
+# Import ConsensusName from core.types
+ConsensusName = str
+
 
 
 
