@@ -3,7 +3,7 @@
 #include "dap_chain_net.h"
 #include "math_python.h"
 #include "datetime.h"
-#include "dap_chain_wallet_python.h"
+#include "wrapped_dap_chain_wallet_python.h"
 #include "libdap_chain_net_python.h"
 #include "wrapping_dap_chain_net_srv_vote_info.h"
 

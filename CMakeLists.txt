@@ -61,7 +61,7 @@ endif()
 
 
 if (NOT (SUPPORT_PYTHON_PLUGINS))
-    set(CELLFRAME_MODULES "core chains network cs-none srv")
+    set(CELLFRAME_MODULES "core chains network cs-none srv srv-emit-delegate srv-auctions")
     include(dap-sdk/cmake/OS_Detection.cmake)
     add_subdirectory(dap-sdk)
     add_subdirectory(cellframe-sdk)
@@ -94,6 +94,7 @@ add_subdirectory(modules/cellframe-sdk/consensus/dag_poa)
 add_subdirectory(modules/cellframe-sdk/services/pos_delegate)
 add_subdirectory(modules/cellframe-sdk/services/xchange)
 add_subdirectory(modules/cellframe-sdk/services/vote)
+add_subdirectory(modules/cellframe-sdk/services/auctions)
 add_subdirectory(modules/cellframe-sdk/channel/chain-net)
 
     target_compile_options(dap_chain_common_python_module PRIVATE "-fpic")
@@ -105,6 +106,7 @@ add_subdirectory(modules/cellframe-sdk/channel/chain-net)
     target_compile_options(dap_app_cli_python_module PRIVATE "-fpic")
     target_compile_options(dap_client_python_module PRIVATE "-fpic")
     target_compile_options(dap_chain_wallet_python_module PRIVATE "-fpic")
+    target_compile_options(dap_chain_net_srv_auctions_python_module PRIVATE "-fpic")
 
 
 target_compile_options(dap_core PRIVATE "-fpic")
@@ -167,6 +169,7 @@ target_link_libraries(${PROJECT_NAME} cellframe-sdk dap_python_module
                       wrapping_dap_chain_net_srv_xchange
                       dap_chain_net_srv_vote_python
                       dap_chain_net_ch_python_module
+                      dap_chain_net_srv_auctions_python_module
                       ${PYTHON_LIBRARIES}
                      )
 

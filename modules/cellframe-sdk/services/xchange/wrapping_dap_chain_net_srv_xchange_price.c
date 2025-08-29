@@ -2,7 +2,7 @@
 #include "libdap-python.h"
 #include "libdap_chain_net_python.h"
 #include "libdap_crypto_key_python.h"
-#include "dap_chain_wallet_python.h"
+#include "wrapped_dap_chain_wallet_python.h"
 #include "dap_chain_srv.h"
 
 #define PRICE(a) ((PyDapChainNetSrvXchangeOrderObject*)a)->price

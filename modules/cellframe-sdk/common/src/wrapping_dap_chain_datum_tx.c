@@ -1,7 +1,7 @@
 #include "wrapping_dap_chain_datum_tx.h"
 #include "dap_chain_datum_tx_sig.h"
 
-#include "dap_chain_wallet_python.h"
+#include "wrapped_dap_chain_wallet_python.h"
 
 #define LOG_TAG "wrapping_datum_tx"
 
