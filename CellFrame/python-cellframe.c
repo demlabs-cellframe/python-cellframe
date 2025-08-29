@@ -576,6 +576,7 @@ PyMODINIT_FUNC PyInit_libCellFrame(void)
         PyType_Ready( &DapChainAddrObjectType ) < 0 ||
         PyType_Ready( &DapChainCsObjectType ) < 0 ||
         PyType_Ready( &DapChainLedgerObjectType ) < 0 ||
+        PyType_Ready( &DapChainLedgerEventObjectType ) < 0 ||
         PyType_Ready( &DapChainWalletObjectType ) < 0 ||
         // === Chain datum
         /// Common
@@ -637,6 +638,7 @@ PyMODINIT_FUNC PyInit_libCellFrame(void)
         PyType_Ready( &PyDapChainNetSrvVoteObjectType ) < 0 ||
         PyType_Ready( &DapChainNetSrvVoteInfoObjectType ) < 0 ||
         PyType_Ready( &DapChainNetSrvVoteInfoOptionObjectType ) < 0 ||
+        PyType_Ready( &PyDapChainNetSrvAuctionsObjectType ) < 0 ||
         // === Chain consensuses
         PyType_Ready( &DapChainCsDagPoaObjectType ) < 0 ||
         PyType_Ready(&DapChainCsBlockType) < 0 ||
@@ -718,6 +720,7 @@ PyMODINIT_FUNC PyInit_libCellFrame(void)
     PyModule_AddObject(servicesModule, "Xchange", (PyObject*)&DapChainNetSrvXchangeObjectType);
     PyModule_AddObject(servicesModule, "StreamChChainValidatorTest", (PyObject*)&PyDapStreamChChainValidatorTestObjectType);
     PyModule_AddObject(servicesModule, "Vote", (PyObject*)&PyDapChainNetSrvVoteObjectType);
+    PyModule_AddObject(servicesModule, "Auctions", (PyObject*)&PyDapChainNetSrvAuctionsObjectType);
 
     PyObject *csModule = PyModule_Create(&CellframeConsensusPythonModule);
     // === Chain cs dag poa

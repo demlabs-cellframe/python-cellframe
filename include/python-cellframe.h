@@ -75,7 +75,7 @@
 #include "wrapping_dap_stream_ctl.h"
 #include "wrapping_dap_mempool.h"
 #include "wrapping_dap_http_folder.h"
-#include "dap_chain_wallet_python.h"
+#include "wrapped_dap_chain_wallet_python.h"
 #include "wrapping_dap_stream_cluster_role.h"
 #include "wrapping_dap_cluster_member.h"
 
@@ -119,6 +119,7 @@ BOOL WINAPI consoleHandler(DWORD);
 #include "wrapping_dap_chain_net_srv_xchange_price.h"
 #include "wrapping_dap_chain_net_srv_vote.h"
 #include "wrapping_dap_chain_net_srv_vote_info.h"
+#include "wrapping_dap_chain_net_srv_auctions.h"
 #ifdef DAP_SUPPORT_PYTHON_PLUGINS
     #include "../modules/plugins/include/dap_plugins_python_app_context.h"
 #endif // DAP_SUPPORT_PYTHON_PLUGINS
