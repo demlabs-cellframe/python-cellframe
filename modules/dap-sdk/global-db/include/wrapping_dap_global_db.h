@@ -16,5 +16,5 @@ PyObject *wrapping_dap_global_db_gr_del(PyObject *self, PyObject *args);
 PyObject *wrapping_dap_global_db_gr_pin(PyObject *self, PyObject *args);
 PyObject *wrapping_dap_global_db_gr_unpin(PyObject *self, PyObject *args);
 PyObject *wrapping_dap_global_db_gr_load(PyObject *self, PyObject *args);
-
+PyObject *wrapping_dap_global_db_group_clean(PyObject *self, PyObject *args);
 extern PyTypeObject DapGlobalDBObjectType;
