@@ -32,7 +32,7 @@ int DapGlobalDBCluster_init(PyGlobalDBClusterObject *self, PyObject *argv, PyObj
     const char *mnemonuim;
     PyObject *guid;
     const char *group_mask;
-    uint32_t ttl;
+    uint64_t ttl;
     bool owner_root_access;
     unsigned int ttl_tmp;
     int owner_root_access_tmp;
@@ -41,6 +41,7 @@ int DapGlobalDBCluster_init(PyGlobalDBClusterObject *self, PyObject *argv, PyObj
     if (!PyArg_ParseTupleAndKeywords(argv, kwds, "OsOsIpOO", (char **)kwlist, &dbi, &mnemonuim, &guid, &group_mask, &ttl_tmp, &owner_root_access_tmp, &defaultRole, &clusterRole))
         return -1;
     ttl = ttl_tmp;
+    ttl *= 3600;
     owner_root_access = owner_root_access_tmp != 0;
     if (!PyObject_TypeCheck(dbi, &DapGlobalDBInstanceObjectType)){
         PyErr_SetString(PyExc_Exception, "The first argument is incorrect, it should be an instance of the DAP.GlobalDB.Instance class.");
