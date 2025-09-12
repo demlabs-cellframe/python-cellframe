@@ -11,20 +11,28 @@ char* _PyErr_get_stacktrace(PyObject *a_obj){
     if (!a_obj){
         return "No stack trace";
     }
+    
+    // Security fix: sanitize stack trace to prevent information disclosure
+    // Only include function names and line numbers, not full file paths
     PyTracebackObject *l_traceback = (PyTracebackObject*)a_obj;
     char  *s = "\tStack trace:\n";
     size_t cnt = 0;
-    while (l_traceback != NULL)  {
-        const char *l_name, *l_file;
-#if PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION < 10
-        l_name = l_file = "unknown";
-#else
+    while (l_traceback != NULL && cnt < 10)  {  // Limit stack depth
+        const char *l_name = "unknown";
+        const char *l_file_basename = "script";
+#if PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION >= 10
         PyCodeObject *l_code = PyFrame_GetCode(l_traceback->tb_frame);
         l_name = PyUnicode_AsUTF8(l_code->co_name);
-        l_file = PyUnicode_AsUTF8(l_code->co_filename);
+        const char *l_file = PyUnicode_AsUTF8(l_code->co_filename);
+        // Security: only show basename, not full path
+        if (l_file) {
+            const char *l_basename = strrchr(l_file, '/');
+            l_file_basename = l_basename ? l_basename + 1 : l_file;
+        }
 #endif
         int l_lineo = l_traceback->tb_lineno;
-        s = dap_strdup_printf("%s\t\t(%zu) File \"%s\", line %d, in %s\n", s, cnt, l_file, l_lineo, l_name);
+        // Security: sanitized output without exposing internal paths
+        s = dap_strdup_printf("%s\t\t(%zu) in %s() line %d\n", s, cnt, l_name ? l_name : "unknown", l_lineo);
         l_traceback = l_traceback->tb_next;
         cnt++;
     }
