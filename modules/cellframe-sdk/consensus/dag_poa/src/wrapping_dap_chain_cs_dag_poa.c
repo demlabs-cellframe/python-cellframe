@@ -32,20 +32,27 @@ int _wrapping_callback_handler(dap_chain_t *a_chain, dap_chain_cs_dag_event_t *a
     l_obj_event->event_size = a_event_size;
     PyObject *argv = Py_BuildValue("OOO", l_obj_chain, l_obj_event, l_callback->arg);
     PyObject *res = PyObject_CallObject(l_callback->func, argv);
+    
+    // Security fix: properly decrement reference count for all created objects
     Py_XDECREF(argv);
-    PyGILState_Release(state);
+    Py_DECREF(l_obj_chain);
+    Py_DECREF(l_obj_event);
+    
+    long l_result = -2;  // Default error value
     if (res){
         if (PyLong_Check(res)){
-            long l_res = PyLong_AsLong(res);
-            return l_res;
+            l_result = PyLong_AsLong(res);
         } else {
             log_it(L_ERROR, "Python function was executed but returned not a number.");
-            return -3;
+            l_result = -3;
         }
+        Py_DECREF(res);  // Don't forget to decref result
     }else{
         log_it(L_ERROR, "An error occurred while executing a Python function. ");
-        return -2;
     }
+    
+    PyGILState_Release(state);
+    return l_result;
 }
 
 PyObject* wrapping_dap_chain_cs_dag_poa_presign_callback_set(PyObject *self, PyObject *args){
