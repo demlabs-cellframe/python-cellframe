@@ -97,7 +97,7 @@ PyObject *wrapping_dap_chain_net_srv_auctions_bid_tx_create(PyObject *self, PyOb
     
     // Create transaction
     int ret_code = 0;
-    char *tx_hash_str = dap_auction_bid_tx_create(((PyDapChainNetSrvAuctionsObject *)self)->net, enc_key, &auction_hash,
+    char *tx_hash_str = dap_chain_net_srv_auction_bid_create(((PyDapChainNetSrvAuctionsObject *)self)->net, enc_key, &auction_hash,
                                      amount, lock_time_seconds, project_id, fee, &ret_code);
     
     // Cleanup
@@ -118,7 +118,7 @@ PyObject *wrapping_dap_chain_net_srv_auctions_bid_tx_create(PyObject *self, PyOb
     Py_RETURN_NONE;
 }
 
-PyObject *wrapping_dap_chain_net_srv_auctions_bid_withdraw_tx_create(PyObject *self, PyObject *argv){
+PyObject *wrapping_dap_chain_net_srv_auctions_withdraw_tx_create(PyObject *self, PyObject *argv){
     (void)self;
     PyObject *obj_wallet_path, *obj_bid_tx_hash, *obj_fee;
     
@@ -171,7 +171,7 @@ PyObject *wrapping_dap_chain_net_srv_auctions_bid_withdraw_tx_create(PyObject *s
     
     // Create withdrawal transaction
     int ret_code = 0;
-    char *tx_hash_str = dap_auction_bid_withdraw_tx_create(((PyDapChainNetSrvAuctionsObject *)self)->net, enc_key, &bid_tx_hash, fee, &ret_code);
+    char *tx_hash_str = dap_chain_net_srv_auction_withdraw_create(((PyDapChainNetSrvAuctionsObject *)self)->net, enc_key, &bid_tx_hash, fee, NULL, &ret_code);
     
     // Cleanup
     DAP_DELETE(enc_key);
@@ -331,8 +331,8 @@ PyObject *wrapping_dap_chain_net_srv_auctions_get_list(PyObject *self, PyObject 
             PyDict_SetItemString(auction_obj, "auction_hash", PyUnicode_FromString("ERROR"));
         }
         
-        if (auction->group_name) {
-            PyObject *name_obj = PyUnicode_FromString(auction->group_name);
+        if (auction->guuid) {
+            PyObject *name_obj = PyUnicode_FromString(auction->guuid);
             if (name_obj) {
                 PyDict_SetItemString(auction_obj, "auction_name", name_obj);
                 Py_DECREF(name_obj);
@@ -493,7 +493,7 @@ static PyMethodDef PyDapChainNetSrvAuctionsMethods[] = {
         },
         {
             "bidWithdrawTxCreate",
-            wrapping_dap_chain_net_srv_auctions_bid_withdraw_tx_create,
+            wrapping_dap_chain_net_srv_auctions_withdraw_tx_create,
             METH_VARARGS,
             "Create a withdrawal transaction for a bid"
         },
