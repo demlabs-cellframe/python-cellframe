@@ -311,18 +311,27 @@ bool dap_py_chain_net_gdb_notifier(void *a_arg) {
     l_op_code[0] = dap_store_obj_get_type(l_callback->store_obj);
     l_op_code[1] = '\0';
     PyObject *l_obj_value = NULL;
-    if (!l_callback->store_obj->value || !l_callback->store_obj->value_len)
+    if (!l_callback->store_obj->value || !l_callback->store_obj->value_len) {
         l_obj_value = Py_None;
-    else
+        Py_INCREF(Py_None);  // Security fix: proper reference counting for Py_None
+    } else {
         l_obj_value = PyBytes_FromStringAndSize((char *)l_callback->store_obj->value, (Py_ssize_t)l_callback->store_obj->value_len);
+    }
     PyObject *argv = Py_BuildValue("sssOO", l_op_code, l_callback->store_obj->group, l_callback->store_obj->key, l_obj_value, l_callback->arg);
     Py_XINCREF(l_callback->func);
     Py_XINCREF(l_callback->arg);
-    PyObject_CallObject(l_callback->func, argv);
     
-    if (argv)
-        Py_DECREF(argv);
-
+    // Security fix: add exception handling and proper cleanup
+    PyObject *result = PyObject_CallObject(l_callback->func, argv);
+    if (!result) {
+        python_error_in_log_it("libdap_chain_net_python");
+    } else {
+        Py_DECREF(result);
+    }
+    
+    // Security fix: proper cleanup to prevent double-free
+    Py_XDECREF(argv);
+    Py_XDECREF(l_obj_value);
     Py_XDECREF(l_callback->func);
     Py_XDECREF(l_callback->arg);
     PyGILState_Release(state);
