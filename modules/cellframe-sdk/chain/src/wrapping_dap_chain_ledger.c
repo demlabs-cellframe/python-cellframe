@@ -55,6 +55,8 @@ static PyMethodDef DapChainLedgerEventMethods[] = {
         {"getType", (PyCFunction)dap_chain_ledger_event_get_type_py, METH_NOARGS, "Get event type"},
         {"getEventData", (PyCFunction)dap_chain_ledger_event_get_data_py, METH_NOARGS, "Get event data as bytes"},
         {"getTimestamp", (PyCFunction)dap_chain_ledger_event_get_timestamp_py, METH_NOARGS, "Get event timestamp"},
+        {"getPkeyHash", (PyCFunction)dap_chain_ledger_event_get_pkey_hash_py, METH_NOARGS, "Get event pkey hash"},
+        {"getTxHash", (PyCFunction)dap_chain_ledger_event_get_tx_hash_py, METH_NOARGS, "Get event tx hash"},
         {}
 };
 
@@ -932,6 +934,30 @@ PyObject *dap_chain_ledger_event_get_timestamp_py(PyObject *self, void *closure)
         Py_RETURN_NONE;
     }
     return PyLong_FromLong(obj->event->timestamp);
+}
+
+PyObject *dap_chain_ledger_event_get_pkey_hash_py(PyObject *self, void *closure) {
+    (void)closure;
+    PyDapChainLedgerEventObject *obj = (PyDapChainLedgerEventObject *)self;
+    if (!obj->event) {
+        Py_RETURN_NONE;
+    }
+    PyDapHashFastObject *obj_hash = PyObject_New(PyDapHashFastObject, &DapChainHashFastObjectType);
+    obj_hash->hash_fast = DAP_DUP(&obj->event->pkey_hash);
+    obj_hash->origin = true;
+    return (PyObject *)obj_hash;
+}
+
+PyObject *dap_chain_ledger_event_get_tx_hash_py(PyObject *self, void *closure) {
+    (void)closure;
+    PyDapChainLedgerEventObject *obj = (PyDapChainLedgerEventObject *)self;
+    if (!obj->event) {
+        Py_RETURN_NONE;
+    }
+    PyDapHashFastObject *obj_hash = PyObject_New(PyDapHashFastObject, &DapChainHashFastObjectType);
+    obj_hash->hash_fast = DAP_DUP(&obj->event->tx_hash);
+    obj_hash->origin = true;
+    return (PyObject *)obj_hash;
 }
 
 // Структура для хранения Python-колбэка и его аргументов

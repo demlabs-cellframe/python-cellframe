@@ -311,9 +311,7 @@ PyObject *wrapping_dap_chain_net_srv_auctions_get_list(PyObject *self, PyObject 
         }
         
         // Convert auction hash to string with proper error handling
-        char auction_hash_str[65];
-        memset(auction_hash_str, 0, sizeof(auction_hash_str)); // Initialize to zero
-        
+        char auction_hash_str[DAP_HASH_FAST_STR_SIZE] = {};      
         int ret = dap_chain_hash_fast_to_str(&auction->auction_hash, auction_hash_str, sizeof(auction_hash_str));
         if (ret <= 0 || auction_hash_str[0] == '\0') {
             // If hash conversion failed, use a placeholder
@@ -381,6 +379,12 @@ PyObject *wrapping_dap_chain_net_srv_auctions_get_list(PyObject *self, PyObject 
             for (uint32_t i = 0; i < auction->projects_count; i++) {
                 PyObject *project_obj = PyDict_New();
                 
+                PyObject *project_id_obj = PyLong_FromUnsignedLong(auction->projects[i].project_id);
+                if (project_id_obj) {
+                    PyDict_SetItemString(project_obj, "project_id", project_id_obj);
+                    Py_DECREF(project_id_obj);
+                }
+                 
                 if (auction->projects[i].project_name) {
                     PyObject *project_name_obj = PyUnicode_FromString(auction->projects[i].project_name);
                     if (project_name_obj) {
@@ -390,7 +394,7 @@ PyObject *wrapping_dap_chain_net_srv_auctions_get_list(PyObject *self, PyObject 
                         PyDict_SetItemString(project_obj, "project_name", PyUnicode_FromString("INVALID_NAME"));
                     }
                 } else {
-                    PyDict_SetItemString(project_obj, "project_name", PyUnicode_FromString("Unknown"));
+                    PyDict_SetItemString(project_obj, "project_name", PyUnicode_FromString("N/A"));
                 }
                 
                 char *total_amount_str = dap_uint256_uninteger_to_char(auction->projects[i].total_amount);
