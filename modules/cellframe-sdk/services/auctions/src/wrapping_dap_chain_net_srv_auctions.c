@@ -12,6 +12,19 @@
 #include "dap_json_rpc.h"
 #include <json-c/json.h>
 
+// Transaction creation functions
+static PyObject *wrapping_dap_chain_net_srv_auctions_bid_tx_create(PyObject *self, PyObject *argv);
+static PyObject *wrapping_dap_chain_net_srv_auctions_withdraw_tx_create(PyObject *self, PyObject *argv);
+
+// Information retrieval functions
+static PyObject *wrapping_dap_chain_net_srv_auctions_get_info(PyObject *self, PyObject *argv);
+static PyObject *wrapping_dap_chain_net_srv_auctions_get_list(PyObject *self, PyObject *argv);
+static PyObject *wrapping_dap_chain_net_srv_auctions_get_stats(PyObject *self, PyObject *argv);
+static PyObject *wrapping_dap_chain_net_srv_auctions_get_events(PyObject *self, PyObject *argv);
+static PyObject *wrapping_dap_chain_net_srv_auction_started_tx_event_create_py(PyObject *self, PyObject *argv);
+static PyObject *wrapping_dap_chain_net_srv_auction_ended_tx_event_create_py(PyObject *self, PyObject *argv);
+
+
 int DapChainNetSrvAuctionsObject_init(PyObject *self, PyObject *args, PyObject *kwds){
     const char *kwlist[] = {
             "net",
@@ -24,7 +37,7 @@ int DapChainNetSrvAuctionsObject_init(PyObject *self, PyObject *args, PyObject *
     return 0;
 }
 
-PyObject *wrapping_dap_chain_net_srv_auctions_bid_tx_create(PyObject *self, PyObject *argv){
+static PyObject *wrapping_dap_chain_net_srv_auctions_bid_tx_create(PyObject *self, PyObject *argv){
     (void)self;
     PyObject *obj_wallet_path, *obj_auction_hash, *obj_amount, *obj_fee;
     uint32_t project_id;
@@ -118,7 +131,7 @@ PyObject *wrapping_dap_chain_net_srv_auctions_bid_tx_create(PyObject *self, PyOb
     Py_RETURN_NONE;
 }
 
-PyObject *wrapping_dap_chain_net_srv_auctions_withdraw_tx_create(PyObject *self, PyObject *argv){
+static PyObject *wrapping_dap_chain_net_srv_auctions_withdraw_tx_create(PyObject *self, PyObject *argv){
     (void)self;
     PyObject *obj_wallet_path, *obj_bid_tx_hash, *obj_fee;
     
@@ -191,7 +204,7 @@ PyObject *wrapping_dap_chain_net_srv_auctions_withdraw_tx_create(PyObject *self,
     Py_RETURN_NONE;
 }
 
-PyObject *wrapping_dap_chain_net_srv_auctions_get_info(PyObject *self, PyObject *argv){
+static PyObject *wrapping_dap_chain_net_srv_auctions_get_info(PyObject *self, PyObject *argv){
     (void)self;
     PyObject *obj_auction_hash;
     
@@ -246,11 +259,7 @@ PyObject *wrapping_dap_chain_net_srv_auctions_get_info(PyObject *self, PyObject 
         PyObject *projects_array = PyList_New(auction->projects_count);
         for (uint32_t i = 0; i < auction->projects_count; i++) {
             PyObject *project_obj = PyDict_New();
-            
-            if (auction->projects[i].project_name) {
-                PyDict_SetItemString(project_obj, "project_name", PyUnicode_FromString(auction->projects[i].project_name));
-            }
-            
+                       
             char *total_amount_str = dap_uint256_uninteger_to_char(auction->projects[i].total_amount);
             PyDict_SetItemString(project_obj, "total_amount", PyUnicode_FromString(total_amount_str));
             DAP_DELETE(total_amount_str);
@@ -276,7 +285,7 @@ PyObject *wrapping_dap_chain_net_srv_auctions_get_info(PyObject *self, PyObject 
     return result;
 }
 
-PyObject *wrapping_dap_chain_net_srv_auctions_get_list(PyObject *self, PyObject *argv){
+static PyObject *wrapping_dap_chain_net_srv_auctions_get_list(PyObject *self, PyObject *argv){
     (void)self;
     int active_only = 0;
     int include_projects = 0;
@@ -383,18 +392,6 @@ PyObject *wrapping_dap_chain_net_srv_auctions_get_list(PyObject *self, PyObject 
                 if (project_id_obj) {
                     PyDict_SetItemString(project_obj, "project_id", project_id_obj);
                     Py_DECREF(project_id_obj);
-                }
-                 
-                if (auction->projects[i].project_name) {
-                    PyObject *project_name_obj = PyUnicode_FromString(auction->projects[i].project_name);
-                    if (project_name_obj) {
-                        PyDict_SetItemString(project_obj, "project_name", project_name_obj);
-                        Py_DECREF(project_name_obj);
-                    } else {
-                        PyDict_SetItemString(project_obj, "project_name", PyUnicode_FromString("INVALID_NAME"));
-                    }
-                } else {
-                    PyDict_SetItemString(project_obj, "project_name", PyUnicode_FromString("N/A"));
                 }
                 
                 char *total_amount_str = dap_uint256_uninteger_to_char(auction->projects[i].total_amount);
@@ -525,6 +522,18 @@ static PyMethodDef PyDapChainNetSrvAuctionsMethods[] = {
             METH_VARARGS,
             "Get auction events"
         },
+        {
+            "auctionStartedTxEventCreate",
+            wrapping_dap_chain_net_srv_auction_started_tx_event_create_py,
+            METH_VARARGS,
+            "Create auction started tx event"
+        },
+        {
+            "auctionEndedTxEventCreate",
+            wrapping_dap_chain_net_srv_auction_ended_tx_event_create_py,
+            METH_VARARGS,
+            "Create auction ended tx event"
+        },
         {NULL, NULL, 0, NULL}
 };
 
@@ -576,4 +585,120 @@ PyTypeObject PyDapChainNetSrvAuctionsObjectType = {
         .tp_del = 0,
         .tp_version_tag = 0,
         .tp_finalize = 0,
-}; 
+};
+
+static PyObject *wrapping_dap_chain_net_srv_auction_started_tx_event_create_py(PyObject *self, PyObject *argv)
+{
+    (void)self;
+    unsigned int multiplier;
+    unsigned long long duration; // dap_time_t
+    unsigned int time_unit; // dap_chain_tx_event_data_time_unit_t
+    unsigned int calculation_rule_id;
+    PyObject *py_projects = NULL;
+    if (!PyArg_ParseTuple(argv, "IKII|O", &multiplier, &duration, &time_unit, &calculation_rule_id, &py_projects))
+        return NULL;
+
+    uint8_t projects_cnt = 0;
+    uint32_t *project_ids = NULL;
+
+    if (py_projects && py_projects != Py_None) {
+        if (!PyList_Check(py_projects) && !PyTuple_Check(py_projects)) {
+            PyErr_SetString(PyExc_TypeError, "project_ids must be a list or tuple of integers");
+            return NULL;
+        }
+        Py_ssize_t n = PySequence_Size(py_projects);
+        if (n < 0)
+            return NULL;
+        if (n > 255) {
+            PyErr_SetString(PyExc_ValueError, "project_ids length must be <= 255");
+            return NULL;
+        }
+        projects_cnt = (uint8_t)n;
+        if (projects_cnt) {
+            project_ids = (uint32_t *)DAP_NEW_Z_COUNT(uint32_t, projects_cnt);
+            if (!project_ids) {
+                PyErr_SetString(PyExc_MemoryError, "Allocation failed");
+                return NULL;
+            }
+            for (Py_ssize_t i = 0; i < n; i++) {
+                PyObject *item = PySequence_GetItem(py_projects, i);
+                if (!item) { DAP_DELETE(project_ids); return NULL; }
+                unsigned long val = PyLong_AsUnsignedLong(item);
+                Py_DECREF(item);
+                if (PyErr_Occurred()) { DAP_DELETE(project_ids); return NULL; }
+                project_ids[i] = (uint32_t)val;
+            }
+        }
+    }
+
+    size_t data_size = 0;
+    byte_t *data = dap_chain_srv_auction_started_tx_event_create(
+        &data_size, (uint32_t)multiplier, (dap_time_t)duration, (dap_chain_tx_event_data_time_unit_t)time_unit,
+        (uint32_t)calculation_rule_id, projects_cnt, (uint32_t *)project_ids);
+
+    if (project_ids)
+        DAP_DELETE(project_ids);
+
+    if (!data) {
+        Py_RETURN_NONE;
+    }
+
+    PyObject *py_bytes = PyBytes_FromStringAndSize((const char *)data, (Py_ssize_t)data_size);
+    DAP_DELETE(data);
+    return py_bytes;
+}
+
+static PyObject *wrapping_dap_chain_net_srv_auction_ended_tx_event_create_py(PyObject *self, PyObject *argv)
+{
+    (void)self;
+    unsigned int winners_cnt;
+    PyObject *py_winners_ids = NULL;
+    if (!PyArg_ParseTuple(argv, "I|O", &winners_cnt, &py_winners_ids))
+        return NULL;
+
+    uint32_t *winners_ids = NULL;
+    if (py_winners_ids && py_winners_ids != Py_None) {
+        if (!PyList_Check(py_winners_ids) && !PyTuple_Check(py_winners_ids)) {
+            PyErr_SetString(PyExc_TypeError, "winners_ids must be a list or tuple of integers");
+            return NULL;
+        }
+        Py_ssize_t n = PySequence_Size(py_winners_ids);
+        if (n < 0)
+            return NULL;
+        if (n > 255) {
+            PyErr_SetString(PyExc_ValueError, "winners_ids length must be <= 255");
+            return NULL;
+        }
+        winners_cnt = (uint8_t)n;
+        if (winners_cnt) {
+            winners_ids = (uint32_t *)DAP_NEW_Z_COUNT(uint32_t, winners_cnt);
+            if (!winners_ids) {
+                PyErr_SetString(PyExc_MemoryError, "Allocation failed");
+                return NULL;
+            }
+        }
+        for (Py_ssize_t i = 0; i < n; i++) {
+            PyObject *item = PySequence_GetItem(py_winners_ids, i);
+            if (!item) { DAP_DELETE(winners_ids); return NULL; }
+            unsigned long val = PyLong_AsUnsignedLong(item);
+            Py_DECREF(item);
+            if (PyErr_Occurred()) { DAP_DELETE(winners_ids); return NULL; }
+            winners_ids[i] = (uint32_t)val;
+        }
+    }
+
+    size_t data_size = 0;
+    byte_t *data = dap_chain_srv_auction_ended_tx_event_create(
+        &data_size, winners_cnt, (uint32_t *)winners_ids);
+
+    if (winners_ids)
+        DAP_DELETE(winners_ids);
+
+    if (!data) {
+        Py_RETURN_NONE;
+    }
+
+    PyObject *py_bytes = PyBytes_FromStringAndSize((const char *)data, (Py_ssize_t)data_size);
+    DAP_DELETE(data);
+    return py_bytes;
+}
