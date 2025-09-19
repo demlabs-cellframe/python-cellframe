@@ -33,7 +33,6 @@ int _wrapping_callback_handler(dap_chain_t *a_chain, dap_chain_cs_dag_event_t *a
     PyObject *argv = Py_BuildValue("OOO", l_obj_chain, l_obj_event, l_callback->arg);
     PyObject *res = PyObject_CallObject(l_callback->func, argv);
     
-    // Security fix: properly decrement reference count for all created objects
     Py_XDECREF(argv);
     Py_DECREF(l_obj_chain);
     Py_DECREF(l_obj_event);
