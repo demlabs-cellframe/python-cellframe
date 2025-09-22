@@ -48,6 +48,7 @@ PyObject *wrapping_dap_chain_tx_event_get_group_name(PyObject *self, void *closu
 PyObject *wrapping_dap_chain_tx_event_get_group_size(PyObject *self, void *closure);
 PyObject *wrapping_dap_chain_tx_event_get_event_type(PyObject *self, void *closure);
 PyObject *wrapping_dap_chain_tx_event_get_timestamp(PyObject *self, void *closure);
+PyObject *wrapping_dap_chain_tx_event_get_srv_uid(PyObject *self, void *closure);
 
 // Static methods for event types
 PyObject *TX_EVENT_TYPE_AUCTION_STARTED_PY(PyObject *self, PyObject *args);
