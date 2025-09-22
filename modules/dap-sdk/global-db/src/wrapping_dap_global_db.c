@@ -169,6 +169,7 @@ PyObject *wrapping_dap_global_db_gr_load(PyObject *self, PyObject *args){
     return l_list;
 }
 
+static int dap_global_db_group_clear(const char *a_group, bool a_pinned) {return 0;}
 /**
  * @brief wrapping_dap_global_db_group_clear
  * @param self

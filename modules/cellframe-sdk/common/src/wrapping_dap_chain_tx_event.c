@@ -11,6 +11,7 @@ static PyGetSetDef DapChainTxEventGetsSetsDef[] = {
     {"group_size", (getter)wrapping_dap_chain_tx_event_get_group_size, NULL, NULL, NULL},
     {"event_type", (getter)wrapping_dap_chain_tx_event_get_event_type, NULL, NULL, NULL},
     {"timestamp", (getter)wrapping_dap_chain_tx_event_get_timestamp, NULL, NULL, NULL},
+    {"srv_uid", (getter)wrapping_dap_chain_tx_event_get_srv_uid, NULL, NULL, NULL},
     {}
 };
 
@@ -34,17 +35,18 @@ int PyDapChainTxEvent_init(PyObject *self, PyObject *args, PyObject *kwds) {
     const char *kwlist[] = {
         "group_name",
         "event_type",
+        "srv_uid",
         "timestamp",
         NULL
     };
     char *group_name;
     uint16_t event_type;
+    uint64_t srv_uid;
     uint64_t timestamp = dap_time_now();
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "sH|L", (char **)kwlist, &group_name, &event_type, &timestamp)) {
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "sHH|L", (char **)kwlist, &group_name, &event_type, &srv_uid, &timestamp)) {
         return -1;
     }
-    
-    ((PyDapChainTxEventObject*)self)->tx_event = dap_chain_datum_tx_event_create(group_name, event_type, timestamp);
+    ((PyDapChainTxEventObject*)self)->tx_event = dap_chain_datum_tx_event_create((dap_chain_srv_uid_t){.uint64 = srv_uid}, group_name, event_type, timestamp);
     if (!((PyDapChainTxEventObject*)self)->tx_event)
         return -1;
     return 0;
@@ -78,6 +80,11 @@ PyObject *wrapping_dap_chain_tx_event_get_event_type(PyObject *self, void *closu
 PyObject *wrapping_dap_chain_tx_event_get_timestamp(PyObject *self, void *closure) {
     (void)closure;
     return Py_BuildValue("L", ((PyDapChainTxEventObject*)self)->tx_event->timestamp);
+}
+
+PyObject *wrapping_dap_chain_tx_event_get_srv_uid(PyObject *self, void *closure) {
+    (void)closure;
+    return Py_BuildValue("k", ((PyDapChainTxEventObject*)self)->tx_event->srv_uid.uint64);
 }
 
 PyObject *TX_EVENT_TYPE_AUCTION_STARTED_PY(PyObject *self, PyObject *args) {

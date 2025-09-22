@@ -838,13 +838,14 @@ PyObject *dap_chain_mempool_tx_create_event_py(PyObject *self, PyObject *args)
     PyDapChainObject *obj_chain;
     PyObject *obj_key_from;
     PyObject *obj_service_key;
+    PyDapChainNetSrvUIDObject *obj_srv_uid;
     const char *group_name;
     unsigned int event_type;
     PyObject *obj_event_data = NULL;  // Может быть None
     const char *fee_value_str;
     const char *hash_out_type;
 
-    if (!PyArg_ParseTuple(args, "OOOsIOss", &obj_chain, &obj_key_from, &obj_service_key,
+    if (!PyArg_ParseTuple(args, "OOOOsIOss", &obj_chain, &obj_key_from, &obj_service_key, &obj_srv_uid,
                          &group_name, &event_type, &obj_event_data, &fee_value_str, &hash_out_type)) {
         PyErr_SetString(PyExc_AttributeError, "Invalid arguments");
         return NULL;
@@ -861,6 +862,10 @@ PyObject *dap_chain_mempool_tx_create_event_py(PyObject *self, PyObject *args)
     }
     if (!DapEncKeyObject_Check(obj_service_key)) {
         PyErr_SetString(PyExc_AttributeError, "Third argument must be key object");
+        return NULL;
+    }
+    if (!PyDapChainNetSrvUid_Check(obj_srv_uid)) {
+        PyErr_SetString(PyExc_AttributeError, "Fourth argument must be ServiceUID object");
         return NULL;
     }
     
@@ -888,6 +893,7 @@ PyObject *dap_chain_mempool_tx_create_event_py(PyObject *self, PyObject *args)
         obj_chain->chain_t,
         ((PyCryptoKeyObject *)obj_key_from)->key,
         ((PyCryptoKeyObject *)obj_service_key)->key,
+        obj_srv_uid->net_srv_uid,
         group_name,
         (uint16_t)event_type,
         event_data,
