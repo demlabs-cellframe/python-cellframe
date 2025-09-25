@@ -20,6 +20,7 @@ static PyMethodDef DapChainDatumMethods[] = {
         {"isDatumTokenEmission", dap_chain_datum_is_type_emission, METH_NOARGS, ""},
         {"getDatumTokenEmission", wrapping_dap_chain_datum_get_datum_token_emission, METH_NOARGS, ""},
         {"isDatumCustom", wrapping_dap_chain_datum_is_type_custom, METH_NOARGS, ""},
+        {"getDatumCustom", wrapping_dap_chain_datum_get_custom, METH_NOARGS, ""},
         {"isDatumDecree", wrapping_dap_chain_datum_is_type_decree, METH_NOARGS, ""},
         {"getDatumDecree", wrapping_dap_chain_datum_get_decree, METH_NOARGS, ""},
         {"isDatumAnchor", wrapping_dap_chain_datum_is_type_anchor, METH_NOARGS, ""},
@@ -312,6 +313,20 @@ PyObject *wrapping_dap_chain_datum_create_from_bytes(PyObject *self, PyObject *a
     memcpy(obj_datum->datum, l_btd, l_bytes_size);
     obj_datum->origin = true;
     return (PyObject*)obj_datum;
+}
+
+PyObject *wrapping_dap_chain_datum_get_custom(PyObject *self, PyObject *args){
+    (void)args;
+    if (((PyDapChainDatumObject*)self)->datum->header.type_id != DAP_CHAIN_DATUM_CUSTOM){
+        PyErr_SetString(PyExc_Exception, "Due to the type of this datum, it is not possible to get the custom datum.");
+        return NULL;
+    }
+
+    size_t l_size = dap_chain_datum_size(((PyDapChainDatumObject*)self)->datum);
+    PyObject *obj_bytes = PyBytes_FromStringAndSize(
+            (char*)((PyDapChainDatumObject*)self)->datum,
+            (Py_ssize_t)l_size);
+    return obj_bytes;
 }
 
 /* DAP chain datum iter */
