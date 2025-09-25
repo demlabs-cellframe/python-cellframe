@@ -232,17 +232,9 @@ PyObject *wrapping_dap_chain_block_get_meta_data(PyObject *self, void *closure) 
     PyDict_SetItemString(obj_dict, "links", obj_block_links);
     Py_DECREF(obj_block_links); // Dictionary holds reference
     
-    if (l_is_genesis) {
-        PyDict_SetItemString(obj_dict, "isGenesis", Py_True);
-    } else {
-        PyDict_SetItemString(obj_dict, "isGenesis", Py_False);
-    }   
+    PyDict_SetItemString(obj_dict, "isGenesis", l_is_genesis ? Py_True : Py_False);
+    PyDict_SetItemString(obj_dict, "isBlockgen", l_is_blockgen ? Py_True : Py_False);
     
-    if (l_is_blockgen) {
-        PyDict_SetItemString(obj_dict, "isBlockgen", Py_True);
-    } else {
-        PyDict_SetItemString(obj_dict, "isBlockgen", Py_False);
-    }
     
     PyObject *obj_nonce = Py_BuildValue("k", l_nonce);
     if (!obj_nonce) {
