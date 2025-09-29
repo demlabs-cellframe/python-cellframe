@@ -11,7 +11,7 @@ static PyMethodDef DapGlobalDBMethods[] = {
         {"pin", (PyCFunction)wrapping_dap_global_db_gr_pin, METH_VARARGS | METH_STATIC, ""},
         {"unpin", (PyCFunction)wrapping_dap_global_db_gr_unpin, METH_VARARGS | METH_STATIC, ""},
         {"grLoad", (PyCFunction)wrapping_dap_global_db_gr_load, METH_VARARGS | METH_STATIC, ""},
-        {"clear", (PyCFunction)wrapping_dap_global_db_group_clear, METH_VARARGS | METH_STATIC, ""},
+        {"clear", (PyCFunction)wrapping_dap_global_db_clear_table, METH_VARARGS | METH_STATIC, ""},
         {NULL, NULL, 0, NULL}
 };
 
@@ -170,18 +170,18 @@ PyObject *wrapping_dap_global_db_gr_load(PyObject *self, PyObject *args){
 }
 
 /**
- * @brief wrapping_dap_global_db_group_clear
+ * @brief wrapping_dap_global_db_clear_table
  * @param self
  * @param args
  * @return
  */
-PyObject *wrapping_dap_global_db_group_clear(PyObject *self, PyObject *args){
+PyObject *wrapping_dap_global_db_clear_table(PyObject *self, PyObject *args){
     (void)self;
     char *l_group;
     bool l_pinned = false;
     if (!PyArg_ParseTuple(args, "sp", &l_group, &l_pinned)){
         return NULL;
     }
-    size_t ret = dap_global_db_group_clear(l_group, l_pinned);
+    size_t ret = dap_global_db_clear_table(l_group, l_pinned);
     return Py_BuildValue("I", ret);
 }
