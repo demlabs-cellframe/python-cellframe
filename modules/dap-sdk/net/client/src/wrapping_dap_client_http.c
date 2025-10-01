@@ -48,7 +48,9 @@ void _wrapping_response_callback_err(int a_err_code, void *a_callback_arg) {
     Py_XDECREF(result);
     Py_XDECREF(obj_argv);
     Py_XDECREF(lcb->obj_argv);
+    lcb->obj_argv = NULL;
     Py_XDECREF(lcb->obj_callable_error);
+    lcb->obj_callable_error = NULL;
 }
 
 int PyDapClientHttp_create(PyObject *self, PyObject *argv, PyObject *kwds)
