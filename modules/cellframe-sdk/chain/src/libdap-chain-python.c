@@ -607,7 +607,8 @@ PyObject *dap_chain_net_add_atom_notify_callback(PyObject *self, PyObject *args)
     }
     _wrapping_chain_mempool_notify_callback_t *l_callback = DAP_NEW_Z(_wrapping_chain_mempool_notify_callback_t);
     if (!l_callback) {
-        log_it(L_CRITICAL, "Memory allocation error");
+        log_it(L_CRITICAL, "Memory allocation error for mempool callback");
+        PyErr_SetString(PyExc_MemoryError, "Failed to allocate memory for callback structure");
         return NULL;
     }
     l_callback->func = obj_func;

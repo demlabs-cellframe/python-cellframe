@@ -1,4 +1,5 @@
 #include "wrapping_dap_chain_net_srv_client.h"
+#include "python-cellframe_common.h"
 
 #define LOG_TAG "wrapping_dap_chain_net_srv_client"
 
@@ -137,7 +138,12 @@ static void _wrapping_dap_chain_net_srv_client_callback_error(dap_chain_net_srv_
     if (PyCallable_Check(l_call)) {
         PyGILState_STATE state = PyGILState_Ensure();
         PyObject *l_args = Py_BuildValue("OiO", py_client, a_error_code, (PyObject *)a_arg);
-        PyObject_CallObject(l_call, l_args);
+        PyObject *result = PyObject_CallObject(l_call, l_args);
+        if (!result) {
+            python_error_in_log_it("wrapping_dap_chain_net_srv_client");
+        } else {
+            Py_DECREF(result);
+        }
         Py_DECREF(l_args);
         PyGILState_Release(state);
     } else {
@@ -155,8 +161,14 @@ static void _wrapping_dap_chain_net_srv_client_callback_data(dap_chain_net_srv_c
         PyGILState_STATE state = PyGILState_Ensure();
         PyObject *l_data = PyBytes_FromStringAndSize((char *)a_data, a_data_size);
         PyObject *l_args = Py_BuildValue("OOO", py_client, l_data, (PyObject *)a_arg);
-        PyObject_CallObject(l_call, l_args);
+        PyObject *result = PyObject_CallObject(l_call, l_args);
+        if (!result) {
+            python_error_in_log_it("wrapping_dap_chain_net_srv_client");
+        } else {
+            Py_DECREF(result);
+        }
         Py_DECREF(l_args);
+        Py_DECREF(l_data);
         PyGILState_Release(state);
     } else {
         log_it(L_ERROR, "Can't call handler Python in data callback");
