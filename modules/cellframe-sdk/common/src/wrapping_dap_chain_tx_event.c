@@ -1,6 +1,6 @@
 #include "wrapping_dap_chain_tx_event.h"
 #include "dap_chain_datum_tx_event.h"
-#include "dap_chain_net_srv_auctions.h"
+#include "dap_chain_net_srv_stake_ext.h"
 
 #define LOG_TAG "wrapping_dap_chain_tx_event"
 
@@ -16,10 +16,10 @@ static PyGetSetDef DapChainTxEventGetsSetsDef[] = {
 };
 
 static PyMethodDef PyDapChainTxEventObjectMethods[] ={
-    {"AUCTION_STARTED", (PyCFunction)TX_EVENT_TYPE_AUCTION_STARTED_PY, METH_NOARGS | METH_STATIC, ""},
-    {"AUCTION_BID_PLACED", (PyCFunction)TX_EVENT_TYPE_AUCTION_BID_PLACED_PY, METH_NOARGS | METH_STATIC, ""},
-    {"AUCTION_ENDED", (PyCFunction)TX_EVENT_TYPE_AUCTION_ENDED_PY, METH_NOARGS | METH_STATIC, ""},
-    {"AUCTION_CANCELLED", (PyCFunction)TX_EVENT_TYPE_AUCTION_CANCELLED_PY, METH_NOARGS | METH_STATIC, ""},
+    {"STAKE_EXT_STARTED", (PyCFunction)TX_EVENT_TYPE_STAKE_EXT_STARTED_PY, METH_NOARGS | METH_STATIC, ""},
+    {"STAKE_EXT_BID_PLACED", (PyCFunction)TX_EVENT_TYPE_STAKE_EXT_BID_PLACED_PY, METH_NOARGS | METH_STATIC, ""},
+    {"STAKE_EXT_ENDED", (PyCFunction)TX_EVENT_TYPE_STAKE_EXT_ENDED_PY, METH_NOARGS | METH_STATIC, ""},
+    {"STAKE_EXT_CANCELLED", (PyCFunction)TX_EVENT_TYPE_STAKE_EXT_CANCELLED_PY, METH_NOARGS | METH_STATIC, ""},
     {}
 };
 
@@ -84,26 +84,26 @@ PyObject *wrapping_dap_chain_tx_event_get_srv_uid(PyObject *self, void *closure)
     return Py_BuildValue("k", ((PyDapChainTxEventObject*)self)->tx_event->srv_uid.uint64);
 }
 
-PyObject *TX_EVENT_TYPE_AUCTION_STARTED_PY(PyObject *self, PyObject *args) {
+PyObject *TX_EVENT_TYPE_STAKE_EXT_STARTED_PY(PyObject *self, PyObject *args) {
     (void)self;
     (void)args;
-    return PyLong_FromLong(DAP_CHAIN_TX_EVENT_TYPE_AUCTION_STARTED);
+    return PyLong_FromLong(DAP_CHAIN_TX_EVENT_TYPE_STAKE_EXT_STARTED);
 }
 
-PyObject *TX_EVENT_TYPE_AUCTION_BID_PLACED_PY(PyObject *self, PyObject *args) {
+PyObject *TX_EVENT_TYPE_STAKE_EXT_BID_PLACED_PY(PyObject *self, PyObject *args) {
     (void)self;
     (void)args;
-    return PyLong_FromLong(DAP_CHAIN_TX_EVENT_TYPE_AUCTION_BID_PLACED);
+    return PyLong_FromLong(DAP_CHAIN_TX_EVENT_TYPE_STAKE_EXT_LOCK_PLACED);
 }
 
-PyObject *TX_EVENT_TYPE_AUCTION_ENDED_PY(PyObject *self, PyObject *args) {
+PyObject *TX_EVENT_TYPE_STAKE_EXT_ENDED_PY(PyObject *self, PyObject *args) {
     (void)self;
     (void)args;
-    return PyLong_FromLong(DAP_CHAIN_TX_EVENT_TYPE_AUCTION_ENDED);
+    return PyLong_FromLong(DAP_CHAIN_TX_EVENT_TYPE_STAKE_EXT_ENDED);
 }
 
-PyObject *TX_EVENT_TYPE_AUCTION_CANCELLED_PY(PyObject *self, PyObject *args) {
+PyObject *TX_EVENT_TYPE_STAKE_EXT_CANCELLED_PY(PyObject *self, PyObject *args) {
     (void)self;
     (void)args;
-    return PyLong_FromLong(DAP_CHAIN_TX_EVENT_TYPE_AUCTION_CANCELLED);
+    return PyLong_FromLong(DAP_CHAIN_TX_EVENT_TYPE_STAKE_EXT_CANCELLED);
 } 
