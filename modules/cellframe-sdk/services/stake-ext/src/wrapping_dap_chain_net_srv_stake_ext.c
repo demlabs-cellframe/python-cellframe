@@ -242,9 +242,9 @@ static PyObject *wrapping_dap_chain_net_srv_stake_ext_get_info(PyObject *self, P
     
     PyDict_SetItemString(result, "locks_count", PyLong_FromUnsignedLong(stake_ext->locks_count));
     PyDict_SetItemString(result, "positions_count", PyLong_FromUnsignedLong(stake_ext->positions_count));
-    PyDict_SetItemString(result, "has_winner", PyBool_FromLong(stake_ext->has_winner));
+    PyDict_SetItemString(result, "has_winner", PyBool_FromLong(stake_ext->winners_cnt));
     
-    if (stake_ext->has_winner) {
+    if (stake_ext->winners_cnt) {
         PyDict_SetItemString(result, "winners_count", PyLong_FromUnsignedLong(stake_ext->winners_cnt));
         
         PyObject *winners_array = PyList_New(stake_ext->winners_cnt);
@@ -370,9 +370,9 @@ static PyObject *wrapping_dap_chain_net_srv_stake_ext_get_list(PyObject *self, P
         
         PyDict_SetItemString(stake_ext_obj, "locks_count", PyLong_FromUnsignedLong(stake_ext->locks_count));
         PyDict_SetItemString(stake_ext_obj, "positions_count", PyLong_FromUnsignedLong(stake_ext->positions_count));
-        PyDict_SetItemString(stake_ext_obj, "has_winner", PyBool_FromLong(stake_ext->has_winner));
+        PyDict_SetItemString(stake_ext_obj, "has_winner", PyBool_FromLong(stake_ext->winners_cnt));
         
-        if (stake_ext->has_winner) {
+        if (stake_ext->winners_cnt) {
             PyDict_SetItemString(stake_ext_obj, "winners_count", PyLong_FromUnsignedLong(stake_ext->winners_cnt));
             
             PyObject *winners_array = PyList_New(stake_ext->winners_cnt);
@@ -590,12 +590,13 @@ PyTypeObject PyDapChainNetSrvStakeExtObjectType = {
 static PyObject *wrapping_dap_chain_net_srv_stake_ext_started_tx_event_create_py(PyObject *self, PyObject *argv)
 {
     (void)self;
+    dap_time_t start_time;
     unsigned int multiplier;
     unsigned long long duration; // dap_time_t
     unsigned int time_unit; // dap_chain_tx_event_data_time_unit_t
     unsigned int calculation_rule_id;
     PyObject *py_positions = NULL;
-    if (!PyArg_ParseTuple(argv, "IKII|O", &multiplier, &duration, &time_unit, &calculation_rule_id, &py_positions))
+    if (!PyArg_ParseTuple(argv, "LIKII|O", &start_time, &multiplier, &duration, &time_unit, &calculation_rule_id, &py_positions))
         return NULL;
 
     uint8_t total_positions = 0;
@@ -633,7 +634,7 @@ static PyObject *wrapping_dap_chain_net_srv_stake_ext_started_tx_event_create_py
 
     size_t data_size = 0;
     byte_t *data = dap_chain_srv_stake_ext_started_tx_event_create(
-        &data_size, (uint32_t)multiplier, (dap_time_t)duration, (dap_chain_tx_event_data_time_unit_t)time_unit,
+        &data_size, start_time, (uint32_t)multiplier, (dap_time_t)duration, (dap_chain_tx_event_data_time_unit_t)time_unit,
         (uint32_t)calculation_rule_id, total_positions, (uint32_t *)position_ids);
 
     if (position_ids)
@@ -651,9 +652,10 @@ static PyObject *wrapping_dap_chain_net_srv_stake_ext_started_tx_event_create_py
 static PyObject *wrapping_dap_chain_net_srv_stake_ext_ended_tx_event_create_py(PyObject *self, PyObject *argv)
 {
     (void)self;
+    dap_time_t end_time;
     unsigned int winners_cnt;
     PyObject *py_winners_ids = NULL;
-    if (!PyArg_ParseTuple(argv, "I|O", &winners_cnt, &py_winners_ids))
+    if (!PyArg_ParseTuple(argv, "LI|O", &end_time, &winners_cnt, &py_winners_ids))
         return NULL;
 
     uint32_t *winners_ids = NULL;
@@ -689,7 +691,7 @@ static PyObject *wrapping_dap_chain_net_srv_stake_ext_ended_tx_event_create_py(P
 
     size_t data_size = 0;
     byte_t *data = dap_chain_srv_stake_ext_ended_tx_event_create(
-        &data_size, winners_cnt, (uint32_t *)winners_ids);
+        &data_size, end_time, winners_cnt, (uint32_t *)winners_ids);
 
     if (winners_ids)
         DAP_DELETE(winners_ids);
