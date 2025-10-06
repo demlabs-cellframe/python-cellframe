@@ -1,7 +1,13 @@
 #include "wrapping_dap_chain_ledger.h"
+#include "wrapping_dap_chain_atom_ptr.h"
 #include "python-cellframe_common.h"
 #include "dap_proc_thread.h"
 #include "dap_events.h"
+#include "dap_chain_datum_tx_in.h"
+#include "dap_chain_net.h"
+#include "dap_hash.h"
+#include "dap_time.h"
+#include "utlist.h"
 
 #define LOG_TAG "ledger wrapper"
 
@@ -36,6 +42,7 @@ static PyMethodDef DapChainLedgerMethods[] = {
         {"bridgedTxNotifyAdd", (PyCFunction)s_bridged_tx_notify_add, METH_VARARGS, ""},
         {"txHashIsUsedOutItemHash", (PyCFunction)dap_chain_ledger_tx_hash_is_used_out_item_hash_py, METH_VARARGS, ""},
         {"getFinalMultiWalletTxHash", (PyCFunction)dap_chain_ledger_get_final_multi_wallet_tx_hash_py, METH_VARARGS, ""},
+        {"listUnspent", (PyCFunction)dap_chain_ledger_get_unspent_outputs_for_amount_py, METH_VARARGS, ""},
         {}
 };
 
@@ -306,15 +313,77 @@ PyObject *dap_chain_ledger_tx_find_by_hash_py(PyObject *self, PyObject *args){
     PyObject *h_fast;
     if (!PyArg_ParseTuple(args, "O", &h_fast))
         return NULL;
-    PyDapChainDatumTxObject *res = PyObject_NEW(PyDapChainDatumTxObject, &DapChainDatumTxObjectType);
-    res->datum_tx = dap_ledger_tx_find_by_hash(((PyDapChainLedgerObject*)self)->ledger, ((PyDapHashFastObject*)h_fast)->hash_fast);
     
-    res->original = false;
-    if (res->datum_tx == NULL) {
-        PyObject_DEL(res);
-        Py_RETURN_NONE;
+    dap_ledger_t *ledger = ((PyDapChainLedgerObject*)self)->ledger;
+    dap_hash_fast_t *hash_fast = ((PyDapHashFastObject*)h_fast)->hash_fast;
+
+    dap_chain_datum_t *full_datum = NULL;
+    dap_chain_hash_fast_t block_hash = {0};
+    int ret_code = 0;
+    dap_chain_atom_ptr_t atom = NULL;
+    size_t atom_size = 0;
+    
+    dap_chain_t *main_chain = dap_chain_net_get_chain_by_name(ledger->net, "main");
+    
+    if (ledger->net && main_chain && main_chain->callback_datum_find_by_hash) {
+        full_datum = main_chain->callback_datum_find_by_hash(
+            main_chain, hash_fast, &block_hash, &ret_code);
+        
+        if (full_datum && !dap_hash_fast_is_blank(&block_hash)) {
+            atom = dap_chain_get_atom_by_hash(main_chain, &block_hash, &atom_size);
+        }
     }
-    return Py_BuildValue("O", res);
+    
+    PyObject *obj_datum = NULL;
+    PyObject *obj_atom = NULL;
+    
+    if (full_datum) {
+        PyDapChainDatumObject *obj_datum_full = PyObject_NEW(PyDapChainDatumObject, &DapChainDatumObjectType);
+        if (!obj_datum_full) {
+            PyErr_SetString(PyExc_MemoryError, "Failed to create datum object");
+            return NULL;
+        }
+        obj_datum_full->datum = full_datum;
+        obj_datum_full->origin = false;
+        obj_datum = (PyObject*)obj_datum_full;
+        
+        if (atom) {
+            PyChainAtomObject *obj_atom_ptr = PyObject_NEW(PyChainAtomObject, &DapChainAtomPtrObjectType);
+            if (!obj_atom_ptr) {
+                Py_DECREF(obj_datum);
+                PyErr_SetString(PyExc_MemoryError, "Failed to create atom object");
+                return NULL;
+            }
+            obj_atom_ptr->atom = atom;
+            obj_atom_ptr->atom_size = atom_size;
+            obj_atom = (PyObject*)obj_atom_ptr;
+        } else {
+            obj_atom = Py_None;
+            Py_INCREF(Py_None);
+        }
+        
+        return Py_BuildValue("OO", obj_datum, obj_atom);
+    } else {
+        PyDapChainDatumTxObject *res = PyObject_NEW(PyDapChainDatumTxObject, &DapChainDatumTxObjectType);
+        if (!res) {
+            PyErr_SetString(PyExc_MemoryError, "Failed to create tx object");
+            return NULL;
+        }
+        
+        res->datum_tx = dap_ledger_tx_find_by_hash(ledger, hash_fast);
+        res->original = false;
+        
+        if (res->datum_tx == NULL) {
+            PyObject_DEL(res);
+            Py_RETURN_NONE;
+        }
+        
+        obj_datum = (PyObject*)res;
+        obj_atom = Py_None;
+        Py_INCREF(Py_None);
+        
+        return Py_BuildValue("OO", obj_datum, obj_atom);
+    }
 }
 PyObject *dap_chain_ledger_tx_find_by_addr_py(PyObject *self, PyObject *args){
     const char *token;
@@ -406,30 +475,65 @@ typedef struct pvt_ledger_notify{
     PyObject *argv;
 }pvt_ledger_notify_t;
 
-static void pvt_wrapping_dap_chain_ledger_tx_add_notify(void *a_arg, dap_ledger_t *a_ledger, dap_chain_datum_tx_t *a_tx, 
-                                                        dap_hash_fast_t *a_tx_hash, dap_chan_ledger_notify_opcodes_t a_opcode){
+typedef struct pvt_ledger_tx_notify_args {
+    dap_ledger_t *ledger;
+    dap_chain_datum_tx_t *tx;
+    dap_hash_fast_t tx_hash;
+    pvt_ledger_notify_t *notifier;
+    dap_chan_ledger_notify_opcodes_t opcode;
+} pvt_ledger_tx_notify_args_t;
+
+static bool s_ledger_tx_proc_notifier(void *a_arg)
+{
     if (!a_arg)
-        return;
-    if (a_opcode == DAP_LEDGER_NOTIFY_OPCODE_ADDED){
-        pvt_ledger_notify_t *notifier = (pvt_ledger_notify_t*)a_arg;
+        return false;
+        
+    pvt_ledger_tx_notify_args_t *l_args = (pvt_ledger_tx_notify_args_t *)a_arg;
+    
+    if (l_args->opcode == DAP_LEDGER_NOTIFY_OPCODE_ADDED) {
         PyGILState_STATE state = PyGILState_Ensure();
+        
         PyDapChainLedgerObject *obj_ledger = PyObject_NEW(PyDapChainLedgerObject, &DapChainLedgerObjectType);
         PyDapChainDatumTxObject *obj_tx = PyObject_NEW(PyDapChainDatumTxObject, &DapChainDatumTxObjectType);
-        obj_ledger->ledger = a_ledger;
-        obj_tx->datum_tx = a_tx;
-        PyObject *notify_arg = !notifier->argv ? Py_None : notifier->argv;
+        obj_ledger->ledger = l_args->ledger;
+        obj_tx->datum_tx = l_args->tx;
+        
+        PyObject *notify_arg = !l_args->notifier->argv ? Py_None : l_args->notifier->argv;
         PyObject *argv = Py_BuildValue("OOO", (PyObject*)obj_ledger, (PyObject*)obj_tx, notify_arg);
-        log_it(L_DEBUG, "Call tx added ledger notifier for net %s", a_ledger->net->pub.name);
-        PyObject* result = PyObject_CallObject(notifier->func, argv);
-        if (!result){
+        
+        log_it(L_DEBUG, "Call tx added ledger notifier for net %s", l_args->ledger->net->pub.name);
+        PyObject* result = PyObject_CallObject(l_args->notifier->func, argv);
+        if (!result) {
             python_error_in_log_it(LOG_TAG);
         }
         Py_XDECREF(result);
         Py_XDECREF(argv);
         PyGILState_Release(state);
-    } else {
-
     }
+    
+    DAP_DELETE(l_args->tx);
+    DAP_DELETE(l_args);
+    return false;
+}
+
+static void pvt_wrapping_dap_chain_ledger_tx_add_notify(void *a_arg, dap_ledger_t *a_ledger, dap_chain_datum_tx_t *a_tx, 
+                                                        dap_hash_fast_t *a_tx_hash, dap_chan_ledger_notify_opcodes_t a_opcode){
+    if (!a_arg)
+        return;
+        
+    pvt_ledger_tx_notify_args_t *l_args = DAP_NEW_Z(pvt_ledger_tx_notify_args_t);
+    if (!l_args) {
+        log_it(L_CRITICAL, "Memory allocation error");
+        return;
+    }
+    
+    l_args->ledger = a_ledger;
+    l_args->tx = DAP_DUP_SIZE(a_tx, dap_chain_datum_tx_get_size(a_tx));
+    l_args->tx_hash = *a_tx_hash;
+    l_args->notifier = (pvt_ledger_notify_t*)a_arg;
+    l_args->opcode = a_opcode;
+    
+    dap_proc_thread_callback_add(NULL, s_ledger_tx_proc_notifier, l_args);
 }
 
 PyObject *dap_chain_ledger_tx_add_notify_py(PyObject *self, PyObject *args) {
@@ -529,6 +633,8 @@ static PyObject *s_bridged_tx_notify_add(PyObject *self, PyObject *args)
     Py_RETURN_NONE;
 }
 
+
+
 PyObject *dap_chain_ledger_tx_get_main_ticker_py(PyObject *self, PyObject *args)
 {
     PyObject *l_obj_tx = NULL;
@@ -597,4 +703,94 @@ static PyObject *dap_chain_ledger_get_final_multi_wallet_tx_hash_py(PyObject *se
     py_final->origin = true;
 
     return (PyObject *)py_final;
+}
+
+
+PyObject *dap_chain_ledger_get_unspent_outputs_for_amount_py(PyObject *self, PyObject *args) {
+    PyObject   *py_addr            = NULL;
+    const char *token_ticker       = NULL;
+    PyObject   *py_required_amount = NULL;
+
+    if (!PyArg_ParseTuple(args, "Os|O",
+                          &py_addr,
+                          &token_ticker,
+                          &py_required_amount))
+        return NULL;
+
+    uint256_t required_amount = {0};
+    if (py_required_amount && py_required_amount != Py_None) {
+        if (!PyLong_Check(py_required_amount)) {
+            PyErr_SetString(PyExc_TypeError,
+                            "required_amount must be int or None");
+            return NULL;
+        }
+        PyObject *py_str = PyObject_Str(py_required_amount);
+        if (!py_str)
+            return NULL;
+        required_amount = dap_chain_balance_scan(
+            PyUnicode_AsUTF8(py_str));
+        Py_DECREF(py_str);
+    }
+
+    dap_list_t *used_out_list = dap_ledger_get_list_tx_outs_with_val(
+        ((PyDapChainLedgerObject*)self)->ledger,
+        token_ticker,
+        ((PyDapChainAddrObject*)py_addr)->addr,
+        required_amount,
+        NULL);
+
+    if (!used_out_list)
+        return PyList_New(0);
+
+    const size_t list_length = dap_list_length(used_out_list);
+    PyObject *py_result_list = PyList_New(list_length);
+    if (!py_result_list) {
+        dap_list_free_full(used_out_list, free);
+        return NULL;
+    }
+
+    size_t            py_index = 0;
+    dap_list_t       *el;
+    LL_FOREACH(used_out_list, el) {
+        dap_chain_tx_used_out_item_t *out_item =
+            (dap_chain_tx_used_out_item_t *)el->data;
+
+        PyDapHashFastObject *py_hash =
+            PyObject_New(PyDapHashFastObject,
+                         &DapChainHashFastObjectType);
+        if (!py_hash) {
+            Py_DECREF(py_result_list);
+            dap_list_free_full(used_out_list, free);
+            return NULL;
+        }
+        py_hash->hash_fast = DAP_DUP(&out_item->tx_hash_fast);
+        py_hash->origin    = true;
+
+        const char *value_str = dap_uint256_to_char(out_item->value, NULL);
+        PyObject   *py_value  = PyLong_FromString((char*)value_str,
+                                                  NULL, 10);
+        if (!py_value) {
+            Py_DECREF(py_hash);
+            Py_DECREF(py_result_list);
+            dap_list_free_full(used_out_list, free);
+            return NULL;
+        }
+
+        PyObject *py_tuple = Py_BuildValue("OIO",
+                                           py_hash,
+                                           out_item->num_idx_out,
+                                           py_value);
+        Py_DECREF(py_hash);
+        Py_DECREF(py_value);
+        if (!py_tuple) {
+            Py_DECREF(py_result_list);
+            dap_list_free_full(used_out_list, free);
+            return NULL;
+        }
+
+        PyList_SET_ITEM(py_result_list, py_index++, py_tuple);
+    }
+
+    dap_list_free_full(used_out_list, free);
+    return py_result_list;
 }

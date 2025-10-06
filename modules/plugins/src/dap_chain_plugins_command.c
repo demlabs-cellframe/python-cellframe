@@ -12,7 +12,7 @@ static bool s_l_restart_plugins = false;
 
 void dap_chain_plugins_command_create(void){
     if (!s_l_restart_plugins){
-        dap_cli_server_cmd_add("plugins", dap_chain_plugins_command_handler,
+        dap_cli_server_cmd_add("plugins", dap_chain_plugins_command_handler, NULL,
                                            "Commands for working with plugins.",
                                            "plugins list \t- show list plugins \n"
                                            "plugins show --name <name_plugin> \t-show information for plugin \n"
@@ -21,7 +21,7 @@ void dap_chain_plugins_command_create(void){
         s_l_restart_plugins = true;
     }
 }
-int dap_chain_plugins_command_handler(int a_argc, char **a_argv, void **a_str_reply){
+int dap_chain_plugins_command_handler(int a_argc, char **a_argv, void **a_str_reply, int a_version){
     enum {
         CMD_NONE, CMD_LIST, CMD_SHOW_NAME, CMD_RESTART, CMD_RELOAD_NAME
     };
