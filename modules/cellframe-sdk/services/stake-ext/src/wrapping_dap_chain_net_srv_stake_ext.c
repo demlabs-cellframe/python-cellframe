@@ -40,11 +40,11 @@ int DapChainNetSrvStakeExtObject_init(PyObject *self, PyObject *args, PyObject *
 static PyObject *wrapping_dap_chain_net_srv_stake_ext_lock_tx_create(PyObject *self, PyObject *argv){
     (void)self;
     PyObject *obj_wallet_path, *obj_stake_ext_hash, *obj_amount, *obj_fee;
-    uint32_t project_id;
+    uint32_t position_id;
     uint64_t lock_time;
     
     if (!PyArg_ParseTuple(argv, "OSSLLO", &obj_wallet_path, &obj_stake_ext_hash, 
-                        &obj_amount, &lock_time, &project_id, &obj_fee)) {
+                        &obj_amount, &lock_time, &position_id, &obj_fee)) {
         return NULL;
     }
     
@@ -111,7 +111,7 @@ static PyObject *wrapping_dap_chain_net_srv_stake_ext_lock_tx_create(PyObject *s
     // Create transaction
     int ret_code = 0;
     char *tx_hash_str = dap_chain_net_srv_stake_ext_lock_create(((PyDapChainNetSrvStakeExtObject *)self)->net, enc_key, &stake_ext_hash,
-                                     amount, lock_time_seconds, project_id, fee, &ret_code);
+                                     amount, lock_time_seconds, position_id, fee, &ret_code);
     
     // Cleanup
     DAP_DELETE(enc_key);
@@ -241,7 +241,7 @@ static PyObject *wrapping_dap_chain_net_srv_stake_ext_get_info(PyObject *self, P
     }
     
     PyDict_SetItemString(result, "locks_count", PyLong_FromUnsignedLong(stake_ext->locks_count));
-    PyDict_SetItemString(result, "projects_count", PyLong_FromUnsignedLong(stake_ext->projects_count));
+    PyDict_SetItemString(result, "positions_count", PyLong_FromUnsignedLong(stake_ext->positions_count));
     PyDict_SetItemString(result, "has_winner", PyBool_FromLong(stake_ext->has_winner));
     
     if (stake_ext->has_winner) {
@@ -254,31 +254,31 @@ static PyObject *wrapping_dap_chain_net_srv_stake_ext_get_info(PyObject *self, P
         PyDict_SetItemString(result, "winners_ids", winners_array);
     }
     
-    // Add projects if available
-    if (stake_ext->projects) {
-        PyObject *projects_array = PyList_New(stake_ext->projects_count);
-        for (uint32_t i = 0; i < stake_ext->projects_count; i++) {
-            PyObject *project_obj = PyDict_New();
+    // Add positions if available
+    if (stake_ext->positions) {
+        PyObject *positions_array = PyList_New(stake_ext->positions_count);
+        for (uint32_t i = 0; i < stake_ext->positions_count; i++) {
+            PyObject *position_obj = PyDict_New();
                        
-            char *total_amount_str = dap_uint256_uninteger_to_char(stake_ext->projects[i].total_amount);
-            PyDict_SetItemString(project_obj, "total_amount", PyUnicode_FromString(total_amount_str));
+            char *total_amount_str = dap_uint256_uninteger_to_char(stake_ext->positions[i].total_amount);
+            PyDict_SetItemString(position_obj, "total_amount", PyUnicode_FromString(total_amount_str));
             DAP_DELETE(total_amount_str);
             
             // Total amount in CELL
-            char *total_amount_coin_str = dap_uint256_decimal_to_char(stake_ext->projects[i].total_amount);
+            char *total_amount_coin_str = dap_uint256_decimal_to_char(stake_ext->positions[i].total_amount);
             if (total_amount_coin_str) {
-                PyDict_SetItemString(project_obj, "total_amount_coin", PyUnicode_FromString(total_amount_coin_str));
+                PyDict_SetItemString(position_obj, "total_amount_coin", PyUnicode_FromString(total_amount_coin_str));
                 DAP_DELETE(total_amount_coin_str);
             } else {
-                PyDict_SetItemString(project_obj, "total_amount_coin", PyUnicode_FromString("0.0"));
+                PyDict_SetItemString(position_obj, "total_amount_coin", PyUnicode_FromString("0.0"));
             }
             
-            PyDict_SetItemString(project_obj, "locks_count", PyLong_FromUnsignedLong(stake_ext->projects[i].locks_count));
-            PyDict_SetItemString(project_obj, "active_locks_count", PyLong_FromUnsignedLong(stake_ext->projects[i].active_locks_count));
+            PyDict_SetItemString(position_obj, "locks_count", PyLong_FromUnsignedLong(stake_ext->positions[i].locks_count));
+            PyDict_SetItemString(position_obj, "active_locks_count", PyLong_FromUnsignedLong(stake_ext->positions[i].active_locks_count));
             
-            PyList_SetItem(projects_array, i, project_obj);
+            PyList_SetItem(positions_array, i, position_obj);
         }
-        PyDict_SetItemString(result, "projects", projects_array);
+        PyDict_SetItemString(result, "positions", positions_array);
     }
     
     dap_chain_net_srv_stake_ext_delete(stake_ext);
@@ -288,9 +288,9 @@ static PyObject *wrapping_dap_chain_net_srv_stake_ext_get_info(PyObject *self, P
 static PyObject *wrapping_dap_chain_net_srv_stake_ext_get_list(PyObject *self, PyObject *argv){
     (void)self;
     int active_only = 0;
-    int include_projects = 0;
+    int include_positions = 0;
     
-    if (!PyArg_ParseTuple(argv, "|ii", &active_only, &include_projects)) {
+    if (!PyArg_ParseTuple(argv, "|ii", &active_only, &include_positions)) {
         return NULL;
     }
     
@@ -298,7 +298,7 @@ static PyObject *wrapping_dap_chain_net_srv_stake_ext_get_list(PyObject *self, P
     dap_stake_ext_status_t status_filter = active_only ? DAP_STAKE_EXT_STATUS_ACTIVE : DAP_STAKE_EXT_STATUS_UNKNOWN;
     
     // Get list of stake_ext
-    dap_list_t *stake_ext_list = dap_chain_net_srv_stake_ext_get_list(((PyDapChainNetSrvStakeExtObject *)self)->net, status_filter, include_projects);
+    dap_list_t *stake_ext_list = dap_chain_net_srv_stake_ext_get_list(((PyDapChainNetSrvStakeExtObject *)self)->net, status_filter, include_positions);
     if (!stake_ext_list) {
         return PyList_New(0); // Return empty list
     }
@@ -369,7 +369,7 @@ static PyObject *wrapping_dap_chain_net_srv_stake_ext_get_list(PyObject *self, P
         }
         
         PyDict_SetItemString(stake_ext_obj, "locks_count", PyLong_FromUnsignedLong(stake_ext->locks_count));
-        PyDict_SetItemString(stake_ext_obj, "projects_count", PyLong_FromUnsignedLong(stake_ext->projects_count));
+        PyDict_SetItemString(stake_ext_obj, "positions_count", PyLong_FromUnsignedLong(stake_ext->positions_count));
         PyDict_SetItemString(stake_ext_obj, "has_winner", PyBool_FromLong(stake_ext->has_winner));
         
         if (stake_ext->has_winner) {
@@ -382,53 +382,53 @@ static PyObject *wrapping_dap_chain_net_srv_stake_ext_get_list(PyObject *self, P
             PyDict_SetItemString(stake_ext_obj, "winners_ids", winners_array);
         }
         
-        // Add projects if requested and available
-        if (include_projects && stake_ext->projects) {
-            PyObject *projects_array = PyList_New(stake_ext->projects_count);
-            for (uint32_t i = 0; i < stake_ext->projects_count; i++) {
-                PyObject *project_obj = PyDict_New();
+        // Add positions if requested and available
+        if (include_positions && stake_ext->positions) {
+            PyObject *positions_array = PyList_New(stake_ext->positions_count);
+            for (uint32_t i = 0; i < stake_ext->positions_count; i++) {
+                PyObject *position_obj = PyDict_New();
                 
-                PyObject *project_id_obj = PyLong_FromUnsignedLong(stake_ext->projects[i].project_id);
-                if (project_id_obj) {
-                    PyDict_SetItemString(project_obj, "project_id", project_id_obj);
-                    Py_DECREF(project_id_obj);
+                PyObject *position_id_obj = PyLong_FromUnsignedLong(stake_ext->positions[i].position_id);
+                if (position_id_obj) {
+                    PyDict_SetItemString(position_obj, "position_id", position_id_obj);
+                    Py_DECREF(position_id_obj);
                 }
                 
-                char *total_amount_str = dap_uint256_uninteger_to_char(stake_ext->projects[i].total_amount);
+                char *total_amount_str = dap_uint256_uninteger_to_char(stake_ext->positions[i].total_amount);
                 if (total_amount_str) {
                     PyObject *amount_obj = PyUnicode_FromString(total_amount_str);
                     if (amount_obj) {
-                        PyDict_SetItemString(project_obj, "total_amount", amount_obj);
+                        PyDict_SetItemString(position_obj, "total_amount", amount_obj);
                         Py_DECREF(amount_obj);
                     } else {
-                        PyDict_SetItemString(project_obj, "total_amount", PyUnicode_FromString("0"));
+                        PyDict_SetItemString(position_obj, "total_amount", PyUnicode_FromString("0"));
                     }
                     DAP_DELETE(total_amount_str);
                 } else {
-                    PyDict_SetItemString(project_obj, "total_amount", PyUnicode_FromString("0"));
+                    PyDict_SetItemString(position_obj, "total_amount", PyUnicode_FromString("0"));
                 }
                 
                 // Total amount in CELL
-                char *total_amount_coin_str = dap_uint256_decimal_to_char(stake_ext->projects[i].total_amount);
+                char *total_amount_coin_str = dap_uint256_decimal_to_char(stake_ext->positions[i].total_amount);
                 if (total_amount_coin_str) {
                     PyObject *amount_coin_obj = PyUnicode_FromString(total_amount_coin_str);
                     if (amount_coin_obj) {
-                        PyDict_SetItemString(project_obj, "total_amount_coin", amount_coin_obj);
+                        PyDict_SetItemString(position_obj, "total_amount_coin", amount_coin_obj);
                         Py_DECREF(amount_coin_obj);
                     } else {
-                        PyDict_SetItemString(project_obj, "total_amount_coin", PyUnicode_FromString("0.0"));
+                        PyDict_SetItemString(position_obj, "total_amount_coin", PyUnicode_FromString("0.0"));
                     }
                     DAP_DELETE(total_amount_coin_str);
                 } else {
-                    PyDict_SetItemString(project_obj, "total_amount_coin", PyUnicode_FromString("0.0"));
+                    PyDict_SetItemString(position_obj, "total_amount_coin", PyUnicode_FromString("0.0"));
                 }
                 
-                PyDict_SetItemString(project_obj, "locks_count", PyLong_FromUnsignedLong(stake_ext->projects[i].locks_count));
-                PyDict_SetItemString(project_obj, "active_locks_count", PyLong_FromUnsignedLong(stake_ext->projects[i].active_locks_count));
+                PyDict_SetItemString(position_obj, "locks_count", PyLong_FromUnsignedLong(stake_ext->positions[i].locks_count));
+                PyDict_SetItemString(position_obj, "active_locks_count", PyLong_FromUnsignedLong(stake_ext->positions[i].active_locks_count));
                 
-                PyList_SetItem(projects_array, i, project_obj);
+                PyList_SetItem(positions_array, i, position_obj);
             }
-            PyDict_SetItemString(stake_ext_obj, "projects", projects_array);
+            PyDict_SetItemString(stake_ext_obj, "positions", positions_array);
         }
         
         PyList_Append(result, stake_ext_obj);
@@ -461,7 +461,7 @@ PyObject *wrapping_dap_chain_net_srv_stake_ext_get_stats(PyObject *self, PyObjec
     PyDict_SetItemString(result, "ended_stake_ext", PyLong_FromUnsignedLong(stats->ended_stake_ext));
     PyDict_SetItemString(result, "cancelled_stake_ext", PyLong_FromUnsignedLong(stats->cancelled_stake_ext));
     PyDict_SetItemString(result, "total_locks", PyLong_FromUnsignedLong(stats->total_locks));
-    PyDict_SetItemString(result, "total_projects", PyLong_FromUnsignedLong(stats->total_projects));
+    PyDict_SetItemString(result, "total_positions", PyLong_FromUnsignedLong(stats->total_positions));
     
     DAP_DELETE(stats);
     return result;
@@ -594,39 +594,39 @@ static PyObject *wrapping_dap_chain_net_srv_stake_ext_started_tx_event_create_py
     unsigned long long duration; // dap_time_t
     unsigned int time_unit; // dap_chain_tx_event_data_time_unit_t
     unsigned int calculation_rule_id;
-    PyObject *py_projects = NULL;
-    if (!PyArg_ParseTuple(argv, "IKII|O", &multiplier, &duration, &time_unit, &calculation_rule_id, &py_projects))
+    PyObject *py_positions = NULL;
+    if (!PyArg_ParseTuple(argv, "IKII|O", &multiplier, &duration, &time_unit, &calculation_rule_id, &py_positions))
         return NULL;
 
-    uint8_t projects_cnt = 0;
-    uint32_t *project_ids = NULL;
+    uint8_t total_positions = 0;
+    uint32_t *position_ids = NULL;
 
-    if (py_projects && py_projects != Py_None) {
-        if (!PyList_Check(py_projects) && !PyTuple_Check(py_projects)) {
-            PyErr_SetString(PyExc_TypeError, "project_ids must be a list or tuple of integers");
+    if (py_positions && py_positions != Py_None) {
+        if (!PyList_Check(py_positions) && !PyTuple_Check(py_positions)) {
+            PyErr_SetString(PyExc_TypeError, "position_ids must be a list or tuple of integers");
             return NULL;
         }
-        Py_ssize_t n = PySequence_Size(py_projects);
+        Py_ssize_t n = PySequence_Size(py_positions);
         if (n < 0)
             return NULL;
         if (n > 255) {
-            PyErr_SetString(PyExc_ValueError, "project_ids length must be <= 255");
+            PyErr_SetString(PyExc_ValueError, "position_ids length must be <= 255");
             return NULL;
         }
-        projects_cnt = (uint8_t)n;
-        if (projects_cnt) {
-            project_ids = (uint32_t *)DAP_NEW_Z_COUNT(uint32_t, projects_cnt);
-            if (!project_ids) {
+        total_positions = (uint8_t)n;
+        if (total_positions) {
+            position_ids = (uint32_t *)DAP_NEW_Z_COUNT(uint32_t, total_positions);
+            if (!position_ids) {
                 PyErr_SetString(PyExc_MemoryError, "Allocation failed");
                 return NULL;
             }
             for (Py_ssize_t i = 0; i < n; i++) {
-                PyObject *item = PySequence_GetItem(py_projects, i);
-                if (!item) { DAP_DELETE(project_ids); return NULL; }
+                PyObject *item = PySequence_GetItem(py_positions, i);
+                if (!item) { DAP_DELETE(position_ids); return NULL; }
                 unsigned long val = PyLong_AsUnsignedLong(item);
                 Py_DECREF(item);
-                if (PyErr_Occurred()) { DAP_DELETE(project_ids); return NULL; }
-                project_ids[i] = (uint32_t)val;
+                if (PyErr_Occurred()) { DAP_DELETE(position_ids); return NULL; }
+                position_ids[i] = (uint32_t)val;
             }
         }
     }
@@ -634,10 +634,10 @@ static PyObject *wrapping_dap_chain_net_srv_stake_ext_started_tx_event_create_py
     size_t data_size = 0;
     byte_t *data = dap_chain_srv_stake_ext_started_tx_event_create(
         &data_size, (uint32_t)multiplier, (dap_time_t)duration, (dap_chain_tx_event_data_time_unit_t)time_unit,
-        (uint32_t)calculation_rule_id, projects_cnt, (uint32_t *)project_ids);
+        (uint32_t)calculation_rule_id, total_positions, (uint32_t *)position_ids);
 
-    if (project_ids)
-        DAP_DELETE(project_ids);
+    if (position_ids)
+        DAP_DELETE(position_ids);
 
     if (!data) {
         Py_RETURN_NONE;
