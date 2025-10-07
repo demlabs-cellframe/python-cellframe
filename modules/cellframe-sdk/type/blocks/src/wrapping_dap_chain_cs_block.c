@@ -119,13 +119,15 @@ PyObject *wrapping_dap_chain_block_get_meta_data(PyObject *self, void *closure) 
     dap_chain_hash_fast_t *l_block_links = NULL;
     size_t l_block_links_count = 0;
     bool l_is_genesis = false;
+    bool l_is_blockgen = false;
     uint64_t l_nonce = {0}, l_nonce2 = {0};
     
     dap_chain_block_meta_extract(
             ((PyDapChainCSBlockObject*)self)->block, ((PyDapChainCSBlockObject*)self)->block_size,
             &l_block_prev_hash, &l_block_anchor_hash,
             &l_merkle, &l_block_links,
-            &l_block_links_count, &l_is_genesis, &l_nonce, &l_nonce2, NULL);
+            &l_block_links_count, &l_is_genesis, &l_nonce, &l_nonce2, NULL, &l_is_blockgen);
+    
     PyObject *obj_dict = PyDict_New();
     if (!obj_dict) {
         log_it(L_CRITICAL, "Failed to create dictionary");
@@ -230,11 +232,9 @@ PyObject *wrapping_dap_chain_block_get_meta_data(PyObject *self, void *closure) 
     PyDict_SetItemString(obj_dict, "links", obj_block_links);
     Py_DECREF(obj_block_links); // Dictionary holds reference
     
-    if (l_is_genesis) {
-        PyDict_SetItemString(obj_dict, "isGenesis", Py_True);
-    } else {
-        PyDict_SetItemString(obj_dict, "isGenesis", Py_False);
-    }
+    PyDict_SetItemString(obj_dict, "isGenesis", l_is_genesis ? Py_True : Py_False);
+    PyDict_SetItemString(obj_dict, "isBlockgen", l_is_blockgen ? Py_True : Py_False);
+    
     
     PyObject *obj_nonce = Py_BuildValue("k", l_nonce);
     if (!obj_nonce) {
