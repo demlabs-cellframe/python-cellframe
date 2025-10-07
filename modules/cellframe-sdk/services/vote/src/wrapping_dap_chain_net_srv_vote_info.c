@@ -45,12 +45,9 @@ PyObject *wrapping_dap_chain_net_srv_vote_get_hash(PyObject *self, void *closure
 PyObject *wrapping_dap_chain_net_srv_vote_get_question(PyObject *self, void *closure) {
     (void)closure;
     dap_chain_net_voting_info_t *l_info = PVT(self);
-    if (!PVT(self)->question.question_str)
+    if (!l_info->params || !l_info->params->question)
         Py_RETURN_NONE;
-    char *l_str = dap_strup(l_info->question.question_str, l_info->question.question_size);
-    PyObject *obj_str = Py_BuildValue("s", l_str);
-    DAP_DELETE(l_str);
-    return obj_str;
+    return Py_BuildValue("s", l_info->params->question);
 }
 PyObject *wrapping_dap_chain_net_srv_vote_get_options(PyObject *self, void *closure) {
     (void)closure;
@@ -72,16 +69,23 @@ PyObject *wrapping_dap_chain_net_srv_vote_get_options(PyObject *self, void *clos
 }
 PyObject *wrapping_dap_chain_net_srv_vote_get_expire_datetime(PyObject *self, void *closure) {
     (void)closure;
+    dap_chain_net_voting_info_t *l_info = PVT(self);
+    if (!l_info->params || !l_info->params->voting_expire) {
+        Py_RETURN_NONE;
+    }
     PyDateTime_IMPORT;
-    PyDapChainNetSrvVoteInfoObject *l_info = (PyDapChainNetSrvVoteInfoObject*)self;
-    uint64_t l_ts_expire = l_info->info->expired;
+    uint64_t l_ts_expire = l_info->params->voting_expire;
     PyObject *obj_ts_long =  Py_BuildValue("(k)", l_ts_expire);
     PyObject *obj_ts = PyDateTime_FromTimestamp(obj_ts_long);
     return obj_ts;
 }
 PyObject *wrapping_dap_chain_net_srv_vote_get_is_delegate_key_required(PyObject *self, void *closure) {
     (void)closure;
-    bool delegate_key = PVT(self)->is_delegate_key_required;
+    dap_chain_net_voting_info_t *l_info = PVT(self);
+    if (!l_info->params) {
+        Py_RETURN_FALSE;
+    }
+    bool delegate_key = l_info->params->delegate_key_required;
     if (delegate_key)
         Py_RETURN_TRUE;
     else
@@ -89,7 +93,11 @@ PyObject *wrapping_dap_chain_net_srv_vote_get_is_delegate_key_required(PyObject 
 }
 PyObject *wrapping_dap_chain_net_srv_vote_get_is_vote_changing_allowed(PyObject *self, void *closure) {
     (void)closure;
-    bool vote_changing_allowed = PVT(self)->is_changing_allowed;
+    dap_chain_net_voting_info_t *l_info = PVT(self);
+    if (!l_info->params) {
+        Py_RETURN_FALSE;
+    }
+    bool vote_changing_allowed = l_info->params->vote_changing_allowed;
     if (vote_changing_allowed)
         Py_RETURN_TRUE;
     else
