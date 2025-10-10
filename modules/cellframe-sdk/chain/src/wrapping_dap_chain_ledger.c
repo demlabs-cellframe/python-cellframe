@@ -99,10 +99,11 @@ PyObject *dap_chain_ledger_token_add_py(PyObject *self, PyObject *args)
 {
     PyObject *token;
     size_t token_size;
-    if (!PyArg_ParseTuple(args, "O|n", &token, &token_size))
+    dap_time_t creation_time;
+    if (!PyArg_ParseTuple(args, "O|nL", &token, &token_size, &creation_time))
         return NULL;
     int res = dap_ledger_token_add(((PyDapChainLedgerObject*)self)->ledger,
-                                         (byte_t *)((PyDapChainDatumTokenObject*)token)->token, token_size);
+                                         (byte_t *)((PyDapChainDatumTokenObject*)token)->token, token_size, creation_time);
     return PyLong_FromLong(res);
 }
 PyObject *dap_chain_ledger_token_emission_load_py(PyObject *self, PyObject *args){
