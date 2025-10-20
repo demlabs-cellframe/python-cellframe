@@ -16,25 +16,10 @@
 static PyObject *s_bridged_tx_notify_add(PyObject *self, PyObject *args);
 static PyObject *dap_chain_ledger_get_final_multi_wallet_tx_hash_py(PyObject *self, PyObject *args);
 
-typedef struct py_ledger_history_entry {
-    dap_chain_datum_tx_t *tx;
-    dap_chain_hash_fast_t hash;
-} py_ledger_history_entry_t;
-
-typedef struct py_ledger_history_hash {
-    dap_chain_hash_fast_t hash;
-    UT_hash_handle hh;
-} py_ledger_history_hash_t;
-
-static void s_py_ledger_history_hash_free(py_ledger_history_hash_t **a_hash);
-static int s_py_ledger_history_compare_desc(dap_list_t *a_list1, dap_list_t *a_list2);
-static int s_py_ledger_history_compare_asc(dap_list_t *a_list1, dap_list_t *a_list2);
-static bool s_py_ledger_history_collect_entry(dap_list_t **a_entries, py_ledger_history_hash_t **a_seen,
-                                              dap_chain_datum_tx_t *a_tx, const dap_chain_addr_t *a_addr);
-static int s_py_ledger_collect_history(dap_chain_net_t *a_net, dap_chain_t *a_chain,
-                                       const dap_chain_addr_t *a_addr, bool a_newest_first,
-                                       dap_list_t **a_entries_out, size_t *a_total_out);
-static void s_py_ledger_history_entry_free(void *a_data);
+static int s_py_ledger_history_append(PyObject *a_list, dap_chain_datum_tx_t *a_tx);
+static PyObject *s_py_ledger_history_collect(dap_chain_net_t *a_net, dap_chain_t *a_chain,
+                                             const dap_chain_addr_t *a_addr, bool a_newest_first,
+                                             size_t *a_total_out, int *a_status_out);
 
 static PyMethodDef DapChainLedgerMethods[] = {
         {"setLocalCellId", (PyCFunction)dap_chain_ledger_set_local_cell_id_py, METH_VARARGS, ""},
@@ -70,82 +55,36 @@ static PyMethodDef DapChainLedgerMethods[] = {
         {}
 };
 
-static void s_py_ledger_history_hash_free(py_ledger_history_hash_t **a_hash)
+static int s_py_ledger_history_append(PyObject *a_list, dap_chain_datum_tx_t *a_tx)
 {
-    if (!a_hash || !*a_hash)
-        return;
-    py_ledger_history_hash_t *l_curr, *l_tmp;
-    HASH_ITER(hh, *a_hash, l_curr, l_tmp) {
-        HASH_DEL(*a_hash, l_curr);
-        DAP_DELETE(l_curr);
-    }
-}
-
-static int s_py_ledger_history_compare_desc(dap_list_t *a_list1, dap_list_t *a_list2)
-{
-    if (!a_list1 || !a_list2)
-        return 0;
-    py_ledger_history_entry_t *l_entry1 = a_list1->data;
-    py_ledger_history_entry_t *l_entry2 = a_list2->data;
-    if (!l_entry1 || !l_entry2 || !l_entry1->tx || !l_entry2->tx)
-        return 0;
-    if (l_entry1->tx->header.ts_created > l_entry2->tx->header.ts_created)
+    PyDapChainDatumTxObject *l_tx_obj = PyObject_New(PyDapChainDatumTxObject, &DapChainDatumTxObjectType);
+    if (!l_tx_obj)
         return -1;
-    if (l_entry1->tx->header.ts_created < l_entry2->tx->header.ts_created)
-        return 1;
+    l_tx_obj->datum_tx = a_tx;
+    l_tx_obj->original = true;
+    if (PyList_Append(a_list, (PyObject *)l_tx_obj) != 0) {
+        Py_DECREF((PyObject *)l_tx_obj);
+        return -1;
+    }
+    Py_DECREF((PyObject *)l_tx_obj);
     return 0;
 }
 
-static int s_py_ledger_history_compare_asc(dap_list_t *a_list1, dap_list_t *a_list2)
+static PyObject *s_py_ledger_history_collect(dap_chain_net_t *a_net, dap_chain_t *a_chain,
+                                             const dap_chain_addr_t *a_addr, bool a_newest_first,
+                                             size_t *a_total_out, int *a_status_out)
 {
-    return -s_py_ledger_history_compare_desc(a_list1, a_list2);
-}
-
-static bool s_py_ledger_history_collect_entry(dap_list_t **a_entries, py_ledger_history_hash_t **a_seen,
-                                              dap_chain_datum_tx_t *a_tx, const dap_chain_addr_t *a_addr)
-{
-    if (!a_entries || !a_seen || !a_tx || !a_addr)
-        return false;
-    if (!dap_chain_tx_belongs_to_addr(a_tx, a_addr))
-        return false;
-    dap_chain_hash_fast_t l_hash = {0};
-    dap_hash_fast(a_tx, dap_chain_datum_tx_get_size((dap_chain_datum_tx_t *)a_tx), &l_hash);
-    py_ledger_history_hash_t *l_found = NULL;
-    HASH_FIND(hh, *a_seen, &l_hash, sizeof(l_hash), l_found);
-    if (l_found)
-        return false;
-    l_found = DAP_NEW_Z(py_ledger_history_hash_t);
-    if (!l_found)
-        return false;
-    l_found->hash = l_hash;
-    HASH_ADD(hh, *a_seen, hash, sizeof(l_hash), l_found);
-    py_ledger_history_entry_t *l_entry = DAP_NEW_Z(py_ledger_history_entry_t);
-    if (!l_entry) {
-        HASH_DEL(*a_seen, l_found);
-        DAP_DELETE(l_found);
-        return false;
+    (void)a_net;
+    PyObject *l_list = PyList_New(0);
+    if (!l_list) {
+        if (a_status_out)
+            *a_status_out = -1;
+        return NULL;
     }
-    l_entry->tx = a_tx;
-    l_entry->hash = l_hash;
-    *a_entries = dap_list_prepend(*a_entries, l_entry);
-    return true;
-}
 
-static void s_py_ledger_history_entry_free(void *a_data)
-{
-    DAP_DELETE((py_ledger_history_entry_t *)a_data);
-}
-
-static int s_py_ledger_collect_history(dap_chain_net_t *a_net, dap_chain_t *a_chain,
-                                       const dap_chain_addr_t *a_addr, bool a_newest_first,
-                                       dap_list_t **a_entries_out, size_t *a_total_out)
-{
-    if (!a_entries_out || !a_total_out)
-        return -1;
-    py_ledger_history_hash_t *l_seen = NULL;
-    dap_list_t *l_entries = NULL;
     size_t l_total = 0;
-    bool l_use_cache = false;
+    int l_status = 0;
+    bool l_used_cache = false;
 
     if (a_addr) {
         dap_chain_wallet_cache_iter_t *l_cache_iter = dap_chain_wallet_cache_iter_create(*a_addr);
@@ -153,23 +92,27 @@ static int s_py_ledger_collect_history(dap_chain_net_t *a_net, dap_chain_t *a_ch
             for (dap_chain_datum_tx_t *l_tx = dap_chain_wallet_cache_iter_get(l_cache_iter, DAP_CHAIN_WALLET_CACHE_GET_FIRST);
                     l_tx;
                     l_tx = dap_chain_wallet_cache_iter_get(l_cache_iter, DAP_CHAIN_WALLET_CACHE_GET_NEXT)) {
-                if (s_py_ledger_history_collect_entry(&l_entries, &l_seen, l_tx, a_addr))
-                    ++l_total;
+                if (s_py_ledger_history_append(l_list, l_tx) != 0) {
+                    l_status = -1;
+                    dap_chain_wallet_cache_iter_delete(l_cache_iter);
+                    goto cleanup;
+                }
+                ++l_total;
             }
-            l_use_cache = l_entries != NULL;
+            l_used_cache = true;
             dap_chain_wallet_cache_iter_delete(l_cache_iter);
         }
     }
 
-    if (!l_use_cache) {
+    if (!l_used_cache) {
         if (!a_chain || !a_chain->callback_datum_iter_create || !a_chain->callback_datum_iter_get_first || !a_chain->callback_datum_iter_get_next) {
-            s_py_ledger_history_hash_free(&l_seen);
-            return -2;
+            l_status = -2;
+            goto cleanup;
         }
         dap_chain_datum_iter_t *l_iter = a_chain->callback_datum_iter_create(a_chain);
         if (!l_iter) {
-            s_py_ledger_history_hash_free(&l_seen);
-            return -3;
+            l_status = -3;
+            goto cleanup;
         }
         for (dap_chain_datum_t *l_datum = a_chain->callback_datum_iter_get_first(l_iter);
                 l_datum;
@@ -177,19 +120,37 @@ static int s_py_ledger_collect_history(dap_chain_net_t *a_net, dap_chain_t *a_ch
             if (l_datum->header.type_id != DAP_CHAIN_DATUM_TX)
                 continue;
             dap_chain_datum_tx_t *l_tx = (dap_chain_datum_tx_t *)l_datum->data;
-            if (s_py_ledger_history_collect_entry(&l_entries, &l_seen, l_tx, a_addr))
-                ++l_total;
+            if (!dap_chain_tx_belongs_to_addr(l_tx, a_addr))
+                continue;
+            if (s_py_ledger_history_append(l_list, l_tx) != 0) {
+                l_status = -1;
+                break;
+            }
+            ++l_total;
         }
         a_chain->callback_datum_iter_delete(l_iter);
+        if (l_status != 0)
+            goto cleanup;
     }
 
-    if (l_entries)
-        l_entries = dap_list_sort(l_entries, a_newest_first ? s_py_ledger_history_compare_desc : s_py_ledger_history_compare_asc);
+    if (a_newest_first) {
+        if (PyList_Reverse(l_list) != 0) {
+            l_status = -1;
+            goto cleanup;
+        }
+    }
 
-    *a_entries_out = l_entries;
-    *a_total_out = l_total;
-    s_py_ledger_history_hash_free(&l_seen);
-    return 0;
+    if (a_total_out)
+        *a_total_out = l_total;
+    if (a_status_out)
+        *a_status_out = l_status;
+    return l_list;
+
+cleanup:
+    Py_DECREF(l_list);
+    if (a_status_out)
+        *a_status_out = l_status ? l_status : -1;
+    return NULL;
 }
 
 PyTypeObject DapChainLedgerObjectType = DAP_PY_TYPE_OBJECT(
@@ -1004,46 +965,29 @@ PyObject *dap_chain_ledger_address_history_page_py(PyObject *self, PyObject *arg
         }
     }
 
-    dap_list_t *entries = NULL;
     size_t total = 0;
-    int status = s_py_ledger_collect_history(net, chain, &addr, newest_first != 0, &entries, &total);
-    if (status != 0) {
-        dap_list_free_full(entries, s_py_ledger_history_entry_free);
+    int status = 0;
+    PyObject *entries = s_py_ledger_history_collect(net, chain, &addr, newest_first != 0, &total, &status);
+    if (!entries) {
         if (status == -2)
             PyErr_SetString(PyExc_RuntimeError, "Chain iterator callbacks are unavailable");
         else if (status == -3)
             PyErr_SetString(PyExc_RuntimeError, "Failed to create chain iterator");
-        else
+        else if (!PyErr_Occurred())
             PyErr_SetString(PyExc_RuntimeError, "Failed to collect address history");
         return NULL;
     }
 
-    size_t start_index = (size_t)offset;
-    size_t limit_size = (size_t)limit;
-    size_t available = total > start_index ? total - start_index : 0;
-    size_t emit = limit_size == 0 ? available : (limit_size < available ? limit_size : available);
+    Py_ssize_t total_ssize = PyList_GET_SIZE(entries);
+    Py_ssize_t start_index = offset < total_ssize ? offset : total_ssize;
+    Py_ssize_t end_index = limit == 0 ? total_ssize : start_index + limit;
+    if (end_index > total_ssize)
+        end_index = total_ssize;
 
-    PyObject *py_list = PyList_New((Py_ssize_t)emit);
-    if (!py_list) {
-        dap_list_free_full(entries, s_py_ledger_history_entry_free);
+    PyObject *py_list = PyList_GetSlice(entries, start_index, end_index);
+    Py_DECREF(entries);
+    if (!py_list)
         return NULL;
-    }
-
-    dap_list_t *node = dap_list_nth(entries, start_index);
-    for (size_t idx = 0; idx < emit && node; ++idx, node = node->next) {
-        py_ledger_history_entry_t *entry = node->data;
-        PyDapChainDatumTxObject *tx_obj = PyObject_New(PyDapChainDatumTxObject, &DapChainDatumTxObjectType);
-        if (!tx_obj) {
-            Py_DECREF(py_list);
-            dap_list_free_full(entries, s_py_ledger_history_entry_free);
-            return PyErr_NoMemory();
-        }
-        tx_obj->datum_tx = entry ? entry->tx : NULL;
-        tx_obj->original = true;
-        PyList_SET_ITEM(py_list, (Py_ssize_t)idx, (PyObject *)tx_obj);
-    }
-
-    dap_list_free_full(entries, s_py_ledger_history_entry_free);
     PyObject *result = PyTuple_New(2);
     if (!result) {
         Py_DECREF(py_list);
@@ -1116,47 +1060,23 @@ PyObject *dap_chain_ledger_address_history_iter_py(PyObject *self, PyObject *arg
         }
     }
 
-    dap_list_t *entries = NULL;
     size_t total = 0;
-    int status = s_py_ledger_collect_history(net, chain, &addr, newest_first != 0, &entries, &total);
-    if (status != 0) {
-        dap_list_free_full(entries, s_py_ledger_history_entry_free);
+    int status = 0;
+    PyObject *entries = s_py_ledger_history_collect(net, chain, &addr, newest_first != 0, &total, &status);
+    if (!entries) {
         if (status == -2)
             PyErr_SetString(PyExc_RuntimeError, "Chain iterator callbacks are unavailable");
         else if (status == -3)
             PyErr_SetString(PyExc_RuntimeError, "Failed to create chain iterator");
-        else
+        else if (!PyErr_Occurred())
             PyErr_SetString(PyExc_RuntimeError, "Failed to collect address history");
         return NULL;
     }
 
-    PyObject *py_list = PyList_New((Py_ssize_t)total);
-    if (!py_list) {
-        dap_list_free_full(entries, s_py_ledger_history_entry_free);
+    PyObject *iterator = PyObject_GetIter(entries);
+    Py_DECREF(entries);
+    if (!iterator)
         return NULL;
-    }
-    dap_list_t *node = entries;
-    for (size_t idx = 0; idx < total && node; ++idx, node = node->next) {
-        py_ledger_history_entry_t *entry = node->data;
-        PyDapChainDatumTxObject *tx_obj = PyObject_New(PyDapChainDatumTxObject, &DapChainDatumTxObjectType);
-        if (!tx_obj) {
-            Py_DECREF(py_list);
-            dap_list_free_full(entries, s_py_ledger_history_entry_free);
-            return PyErr_NoMemory();
-        }
-        tx_obj->datum_tx = entry ? entry->tx : NULL;
-        tx_obj->original = true;
-        PyList_SET_ITEM(py_list, (Py_ssize_t)idx, (PyObject *)tx_obj);
-    }
-
-    PyObject *iterator = PyObject_GetIter(py_list);
-    if (!iterator) {
-        Py_DECREF(py_list);
-        dap_list_free_full(entries, s_py_ledger_history_entry_free);
-        return NULL;
-    }
-    Py_DECREF(py_list);
-    dap_list_free_full(entries, s_py_ledger_history_entry_free);
 
     PyObject *result = PyTuple_New(2);
     if (!result) {
