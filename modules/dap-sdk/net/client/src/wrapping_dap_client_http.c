@@ -1,7 +1,7 @@
 #include "wrapping_dap_client_http.h"
 #include "python-cellframe_common.h"
 #include "dap_string.h"
-#include "http_status_code.h"
+#include "dap_http_status_code.h"
 
 #define LOG_TAG "wrapping_dap_client_http"
 
@@ -19,7 +19,7 @@ typedef struct _s_callback{
 }_s_callback_t;
 
 void _wrapping_response_callback_call(void *a_response, size_t a_response_size, void *a_callback_arg,
-                                      http_status_code_t a_http_code) {
+                                      dap_http_status_code_t a_http_code) {
     _s_callback_t *lcb = (_s_callback_t*)a_callback_arg;
     log_it(L_DEBUG, "[GIL-DEBUG] HTTP client callback acquire thread=%lu", (unsigned long)pthread_self());
     PyGILState_STATE gstate;

@@ -69,7 +69,7 @@ void wrapping_dap_http_simple_callback(dap_http_simple_t *sh, void *obj){
     ((PyDapHttpSimpleObject*)obj_http_simple)->sh = sh;
     obj_http_simple->response_http_header = Py_None;
     Py_INCREF(Py_None);
-    http_status_code_t *ret = (http_status_code_t*)obj;
+    dap_http_status_code_t *ret = (dap_http_status_code_t*)obj;
     ((PyHttpStatusCodeObject*)obj_http_status_code)->http_status = *ret;
     PyObject *obj_argv = Py_BuildValue("OO", obj_http_simple, obj_http_status_code);
 //    python_error_in_log_it(LOG_TAG);
@@ -77,7 +77,7 @@ void wrapping_dap_http_simple_callback(dap_http_simple_t *sh, void *obj){
     if (!result){
         log_it(L_DEBUG, "Function can't be called");
         python_error_in_log_it(LOG_TAG);
-        *ret = Http_Status_InternalServerError;
+        *ret = DAP_HTTP_STATUS_INTERNAL_SERVER_ERROR;
     }
     *ret = ((PyHttpStatusCodeObject*)obj_http_status_code)->http_status;
     if (obj_http_simple->response_http_header != Py_None) {

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "dap_common.h"
-#include "http_status_code.h"
+#include "dap_http_status_code.h"
 #include "Python.h"
 
 #ifdef __cplusplus
@@ -10,7 +10,7 @@ extern "C" {
 
 typedef struct PyHTTPStatusCode{
     PyObject_HEAD
-    http_status_code_t http_status;
+    dap_http_status_code_t http_status;
 }PyHttpStatusCodeObject;
 
 PyObject *wrapping_http_status_code_set_py(PyObject *self, PyObject *args);

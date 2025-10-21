@@ -5,7 +5,7 @@
 #include "dap_http_simple.h"
 #include "Python.h"
 #include "wrapping_http.h"
-#include "wrapping_http_status_code.h"
+#include "wrapping_dap_http_status_code.h"
 #include "uthash.h"
 
 #ifdef __cplusplus

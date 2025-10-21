@@ -1,5 +1,5 @@
 #include "libdap-python.h"
-#include "wrapping_http_status_code.h"
+#include "wrapping_dap_http_status_code.h"
 
 #define LOG_TAG "wrapping_http_status_code"
 
@@ -15,21 +15,21 @@ PyTypeObject DapHttpCodeObjectType = DAP_PY_TYPE_OBJECT(
         "Dap http code",
         .tp_methods = PyDapHttpCodeMethods);
 
-http_status_code_t _get_status_code_from_init(int a_code){
+dap_http_status_code_t _get_status_code_from_init(int a_code){
     switch (a_code) {
 //    case
         /*####### 1xx - Informational #######*/
-        case 100: return Http_Status_OK;
+        case 100: return DAP_HTTP_STATUS_OK;
         case 101: return Http_Status_SwitchingProtocols;
         case 102: return Http_Status_Processing;
         case 103: return Http_Status_EarlyHints;
 
             /*####### 2xx - Successful #######*/
-        case 200: return Http_Status_OK;
+        case 200: return DAP_HTTP_STATUS_OK;
         case 201: return Http_Status_Created;
         case 202: return Http_Status_Accepted;
         case 203: return Http_Status_NonAuthoritativeInformation;
-        case 204: return Http_Status_NoContent;
+        case 204: return DAP_HTTP_STATUS_NO_CONTENT;
         case 205: return Http_Status_ResetContent;
         case 206: return Http_Status_PartialContent;
         case 207: return Http_Status_MultiStatus;
@@ -47,12 +47,12 @@ http_status_code_t _get_status_code_from_init(int a_code){
         case 308: return Http_Status_PermanentRedirect;
 
             /*####### 4xx - Client Error #######*/
-        case 400: return Http_Status_BadRequest;
+        case 400: return DAP_HTTP_STATUS_BAD_REQUEST;
         case 401: return Http_Status_Unauthorized;
         case 402: return Http_Status_PaymentRequired;
-        case 403: return Http_Status_Forbidden;
-        case 404: return Http_Status_NotFound;
-        case 405: return Http_Status_MethodNotAllowed;
+        case 403: return DAP_HTTP_STATUS_FORBIDDEN;
+        case 404: return DAP_HTTP_STATUS_NOT_FOUND;
+        case 405: return DAP_HTTP_STATUS_METHOD_NOT_ALLOWED;
         case 406: return Http_Status_NotAcceptable;
         case 407: return Http_Status_ProxyAuthenticationRequired;
         case 408: return Http_Status_RequestTimeout;
@@ -76,7 +76,7 @@ http_status_code_t _get_status_code_from_init(int a_code){
         case 451: return Http_Status_UnavailableForLegalReasons;
 
             /*####### 5xx - Server Error #######*/
-        case 500: return Http_Status_InternalServerError;
+        case 500: return DAP_HTTP_STATUS_INTERNAL_SERVER_ERROR;
         case 501: return Http_Status_NotImplemented;
         case 502: return Http_Status_BadGateway;
         case 503: return Http_Status_ServiceUnavailable;
@@ -88,7 +88,7 @@ http_status_code_t _get_status_code_from_init(int a_code){
         case 510: return Http_Status_NotExtended;
         default:
             log_it(L_ERROR, "Unknown status code %d. Returned default status: Internal Server Error", a_code);
-            return Http_Status_InternalServerError;
+            return DAP_HTTP_STATUS_INTERNAL_SERVER_ERROR;
     }
 }
 
@@ -106,12 +106,12 @@ PyObject *wrapping_http_status_code_set_py(PyObject *self, PyObject *args){
 
 PyObject *wrapping_http_code_set_ok(PyObject *self, PyObject *args){
     (void)args;
-    ((PyHttpStatusCodeObject*)self)->http_status = Http_Status_OK;
+    ((PyHttpStatusCodeObject*)self)->http_status = DAP_HTTP_STATUS_OK;
     Py_RETURN_NONE;
 }
 
 PyObject *wrapping_http_code_set_bad_request(PyObject *self, PyObject *args) {
     (void) args;
-    ((PyHttpStatusCodeObject *) self)->http_status = Http_Status_BadRequest;
+    ((PyHttpStatusCodeObject *) self)->http_status = DAP_HTTP_STATUS_BAD_REQUEST;
     Py_RETURN_NONE;
 }

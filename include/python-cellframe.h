@@ -115,7 +115,7 @@
 BOOL WINAPI consoleHandler(DWORD);
 #else
 #include "signal.h"
-#include "wrapping_http_status_code.h"
+#include "wrapping_dap_http_status_code.h"
 #include "wrapping_dap_http_simple.h"
 #include "wrapping_dap_http_header.h"
 #include "wrapping_dap_client_http.h"
