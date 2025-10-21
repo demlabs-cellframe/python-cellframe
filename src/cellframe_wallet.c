@@ -1,4 +1,4 @@
-#include "python_cellframe.h"
+#include "cellframe.h"
 
 #include <stdlib.h>
 #include <string.h>

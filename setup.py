@@ -57,7 +57,8 @@ setup(
     url="https://github.com/demlabs-cellframe/cellframe-node",
     
     # Packages
-    packages=find_packages(),
+    packages=find_packages(where="src"),
+    package_dir={"": "src"},
     include_package_data=True,
     
     # Package data - include native module

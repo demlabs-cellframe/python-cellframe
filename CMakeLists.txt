@@ -13,6 +13,9 @@ endif()
 
 # Common includes and definitions
 include(dap-sdk/cmake/OS_Detection.cmake)
+include(dap-sdk/cmake/PackageComponents.cmake)
+include(dap-sdk/cmake/ObjectLibraryHelpers.cmake)
+include(dap-sdk/cmake/DapLibrary.cmake)
 
 # =========================================
 # INTERNAL MODULE CREATION MACRO
@@ -53,97 +56,42 @@ macro(dap_create_final_library)
         # Create final library
         add_library(dap_sdk ${DAP_FINAL_LIB_TYPE} ${DAP_ALL_OBJECTS})
         
-        message("[+] Final DAP SDK Library: dap_sdk created from real object files")
-    else()
-        message("[!] No DAP internal modules found!")
-    endif()
-endmacro()
-
-# =========================================
-# INTERNAL MODULE CREATION MACRO
-# =========================================
-# Creates internal OBJECT modules (always OBJECT for combining)
-# Usage: dap_add_library(target_name sources... HEADERS headers...)
-macro(dap_add_library TARGET_NAME)
-    cmake_parse_arguments(DAP_LIB "" "" "HEADERS" ${ARGN})
-    
-    # Always create modules as OBJECT for combining into final library
-    add_library(${TARGET_NAME} OBJECT ${DAP_LIB_UNPARSED_ARGUMENTS} ${DAP_LIB_HEADERS})
-    
-    # Track modules for final library creation
-    if(NOT DEFINED DAP_INTERNAL_MODULES)
-        set(DAP_INTERNAL_MODULES "")
-    endif()
-    list(APPEND DAP_INTERNAL_MODULES ${TARGET_NAME})
-    set(DAP_INTERNAL_MODULES ${DAP_INTERNAL_MODULES} CACHE INTERNAL "List of DAP internal modules")
-    
-    message("[+] DAP Internal Module: ${TARGET_NAME} (object)")
-endmacro()
-
-# =========================================
-# FINAL LIBRARY CREATION
-# =========================================
-# Creates final combined DAP SDK library from OBJECT modules
-macro(dap_create_final_library)
-    if(DEFINED DAP_INTERNAL_MODULES)
-        message("[+] Creating final DAP SDK library: dap_sdk")
-        message("[+] Internal OBJECT modules to combine: ${DAP_INTERNAL_MODULES}")
-        
-        # Create object file lists for each module
-        set(DAP_ALL_OBJECTS "")
+        # Aggregate include directories from all OBJECT modules
+        # For OBJECT libraries, use INTERFACE_INCLUDE_DIRECTORIES (CMake 3.12+) or INCLUDE_DIRECTORIES
+        set(DAP_AGGREGATED_INCLUDES "")
         foreach(MODULE ${DAP_INTERNAL_MODULES})
-            list(APPEND DAP_ALL_OBJECTS $<TARGET_OBJECTS:${MODULE}>)
+            # Try INTERFACE_INCLUDE_DIRECTORIES first (for proper PUBLIC includes)
+            get_target_property(MODULE_INCS ${MODULE} INTERFACE_INCLUDE_DIRECTORIES)
+            if(NOT MODULE_INCS OR MODULE_INCS STREQUAL "MODULE_INCS-NOTFOUND")
+                # Fallback: get INCLUDE_DIRECTORIES for OBJECT libraries
+                get_target_property(MODULE_INCS ${MODULE} INCLUDE_DIRECTORIES)
+            endif()
+            
+            if(MODULE_INCS AND NOT MODULE_INCS STREQUAL "MODULE_INCS-NOTFOUND")
+                list(APPEND DAP_AGGREGATED_INCLUDES ${MODULE_INCS})
+            endif()
         endforeach()
         
-        # Create final library
-        add_library(dap_sdk ${DAP_FINAL_LIB_TYPE} ${DAP_ALL_OBJECTS})
+        # Remove duplicates and export to consumers
+        if(DAP_AGGREGATED_INCLUDES)
+            list(REMOVE_DUPLICATES DAP_AGGREGATED_INCLUDES)
+            target_include_directories(dap_sdk INTERFACE ${DAP_AGGREGATED_INCLUDES})
+            list(LENGTH DAP_AGGREGATED_INCLUDES INC_COUNT)
+            message("[+] DAP SDK: Exported ${INC_COUNT} unique include directories from ${CMAKE_MATCH_COUNT} modules")
+        else()
+            message("[!] DAP SDK: No include directories found in modules!")
+        endif()
         
-        message("[+] Final DAP SDK Library: dap_sdk created from real object files")
-    else()
-        message("[!] No DAP internal modules found!")
-    endif()
-endmacro()
-
-# =========================================
-# INTERNAL MODULE CREATION MACRO
-# =========================================
-# Creates internal OBJECT modules (always OBJECT for combining)
-# Usage: dap_add_library(target_name sources... HEADERS headers...)
-macro(dap_add_library TARGET_NAME)
-    cmake_parse_arguments(DAP_LIB "" "" "HEADERS" ${ARGN})
-    
-    # Always create modules as OBJECT for combining into final library
-    add_library(${TARGET_NAME} OBJECT ${DAP_LIB_UNPARSED_ARGUMENTS} ${DAP_LIB_HEADERS})
-    
-    # Track modules for final library creation
-    if(NOT DEFINED DAP_INTERNAL_MODULES)
-        set(DAP_INTERNAL_MODULES "")
-    endif()
-    list(APPEND DAP_INTERNAL_MODULES ${TARGET_NAME})
-    set(DAP_INTERNAL_MODULES ${DAP_INTERNAL_MODULES} CACHE INTERNAL "List of DAP internal modules")
-    
-    message("[+] DAP Internal Module: ${TARGET_NAME} (object)")
-endmacro()
-
-# =========================================
-# FINAL LIBRARY CREATION
-# =========================================
-# Creates final combined DAP SDK library from OBJECT modules
-macro(dap_create_final_library)
-    if(DEFINED DAP_INTERNAL_MODULES)
-        message("[+] Creating final DAP SDK library: dap_sdk")
-        message("[+] Internal OBJECT modules to combine: ${DAP_INTERNAL_MODULES}")
+        # Link with external dependencies
+        target_link_libraries(dap_sdk PUBLIC 
+            dap_json-c 
+            dap_crypto_XKCP 
+            dap_crypto_kyber512
+            pthread 
+            m
+        )
         
-        # Create object file lists for each module
-        set(DAP_ALL_OBJECTS "")
-        foreach(MODULE ${DAP_INTERNAL_MODULES})
-            list(APPEND DAP_ALL_OBJECTS $<TARGET_OBJECTS:${MODULE}>)
-        endforeach()
-        
-        # Create final library
-        add_library(dap_sdk ${DAP_FINAL_LIB_TYPE} ${DAP_ALL_OBJECTS})
-        
-        message("[+] Final DAP SDK Library: dap_sdk created from real object files")
+        message("[+] Final DAP SDK Library: dap_sdk created from real object files with dependencies")
     else()
         message("[!] No DAP internal modules found!")
     endif()
@@ -201,6 +149,15 @@ if (DAPSDK_MODULES MATCHES "io")
     message("[+] Module 'io'")
 endif()
 
+# Network common types (required for all network modules)
+add_subdirectory(dap-sdk/module/net/common)
+
+# HTTP client (standalone, used by json_rpc and other modules)
+add_subdirectory(dap-sdk/module/net/client_http)
+
+# App CLI (application command-line interface utilities)
+add_subdirectory(dap-sdk/module/net/app-cli)
+
 if (DAPSDK_MODULES MATCHES "network-core")
     add_subdirectory(dap-sdk/module/net/stream)
     message("[+] Module 'stream'")
@@ -237,22 +194,89 @@ if(BUILD_EXAMPLES)
     message("[+] Module 'examples'")
 endif()
 
-# Test framework - UPDATED PATH
+# Test framework - DAP SDK test module
 if (BUILD_WITH_TEST)
     enable_testing()
     add_subdirectory(dap-sdk/module/test)
-    message("[+] Testing framework")
+    message("[+] DAP test framework module")
 endif()
 
-# New tests structure - UPDATED PATHS
+# DAP SDK C tests
+if(BUILD_TESTS OR BUILD_WITH_TEST)
+    enable_testing()
+    add_subdirectory(dap-sdk/tests)
+    message("[+] DAP SDK C tests enabled")
+endif()
+
+# Python tests structure
 if(BUILD_TESTS OR BUILD_WITH_TEST)
     add_subdirectory(tests)
-    message("[+] Tests enabled with new structure")
+    message("[+] Python tests enabled")
 endif()
+
+# Add DAP SDK main initialization file
+add_library(dap_sdk_init OBJECT dap-sdk/dap_sdk.c)
+target_include_directories(dap_sdk_init PRIVATE
+    dap-sdk/module/core/include
+    dap-sdk/module/crypto/include
+    dap-sdk/module/io/include
+)
+target_link_libraries(dap_sdk_init PUBLIC dap_core)
+list(APPEND DAP_INTERNAL_MODULES dap_sdk_init)
+set(DAP_INTERNAL_MODULES ${DAP_INTERNAL_MODULES} CACHE INTERNAL "List of DAP internal modules")
+message("[+] DAP SDK init module added")
 
 # Create final library from all modules
 dap_create_final_library()
 
 message("[+] =========================================")
 message("[+] DAP SDK with module/ structure configured")
+message("[+] =========================================")
+
+# =========================================
+# CELLFRAME SDK
+# =========================================
+# Cellframe SDK depends on DAP SDK
+message("[+] =========================================")
+message("[+] Configuring Cellframe SDK (depends on DAP SDK)")
+message("[+] =========================================")
+
+# Set DAP SDK path for Cellframe SDK
+set(DAP_SDK_PATH ${CMAKE_CURRENT_SOURCE_DIR}/dap-sdk CACHE PATH "Path to DAP SDK")
+
+# Build Cellframe SDK as shared library
+set(BUILD_SHARED ON CACHE BOOL "Build Cellframe SDK as shared library" FORCE)
+add_subdirectory(cellframe-sdk)
+
+message("[+] Cellframe SDK configured")
+
+# =========================================
+# PYTHON-DAP BINDINGS
+# =========================================
+# Python-DAP depends on DAP SDK
+message("[+] =========================================")
+message("[+] Configuring Python-DAP bindings (depends on DAP SDK)")
+message("[+] =========================================")
+
+# Set DAP SDK information for Python-DAP
+set(DAP_SDK_PATH ${CMAKE_CURRENT_SOURCE_DIR}/dap-sdk CACHE PATH "Path to DAP SDK")
+set(DAP_SDK_TARGET_NAME "dap_sdk" CACHE STRING "DAP SDK target name")
+
+# Build Python-DAP as MODULE (Python extension)
+set(BUILD_SHARED ON CACHE BOOL "Build Python-DAP as shared library" FORCE)
+set(LINK_DAP_SDK_STATIC OFF CACHE BOOL "Link DAP SDK dynamically" FORCE)
+add_subdirectory(python-dap)
+
+message("[+] Python-DAP bindings configured")
+
+# =========================================
+# PROJECT SUMMARY
+# =========================================
+message("[+] =========================================")
+message("[+] Python-Cellframe Project Configuration:")
+message("[+] - DAP SDK:        libdap_sdk.so (SHARED)")
+message("[+] - Cellframe SDK:  libcellframe-sdk.so (SHARED)")
+message("[+] - Python-DAP:     MODULE (Python extension)")
+message("[+] =========================================")
+message("[+] All components configured successfully!")
 message("[+] =========================================")

@@ -1,4 +1,4 @@
-#include "python_cellframe.h"
+#include "cellframe.h"
 
 // Network type stub - будет реализован позже
 PyTypeObject PyCellframeNetworkType = {0};
