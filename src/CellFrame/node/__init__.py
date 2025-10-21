@@ -9,6 +9,6 @@ from .tx_items import (
     CfTxOutCondSubtypeSrvStakePosDelegate
 )
 
-from ..core.config import CfConfig
+from dap.config import DapConfig
 
-config = CfConfig()
+config = DapConfig()

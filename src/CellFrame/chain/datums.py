@@ -8,18 +8,17 @@ from abc import ABC, abstractmethod
 
 from ..common import logger as log  # Use modern logging
 
-from .crypto import CfCertificate
-from CellFrame.core import Datum, DatumTx, DatumToken, DatumDecree, DatumAnchor, DatumEmission, TxTSD
-from CellFrame.chain import ChainAddr
+from dap.crypto import DapCert, DapSign, DapKey
+from CellFrame.common import Datum, DatumTx, DatumToken, DatumDecree, DatumAnchor, DatumEmission, TxTSD
+from CellFrame.chain import CfAddr
 import python_dap as dap  # Use python_dap for DAP functions
 
 if TYPE_CHECKING:
     from .net import CfNet, CfChain, CfWalletAddress
     from .consensus import CfBlock, CfEvent
-    from CellFrame.types import ticker
+    from CellFrame.common.types import ticker
 
 from .items import CfItem, CfTxOut, CfTxOutCond, CfTxToken, CfTxSig, CfTxTSD
-from .crypto import CfSign, CfKey
 from .types import TSD, CfLedgerCacheResponse
 from .exceptions import InsufficientFundsError
 
@@ -80,11 +79,11 @@ class CfDatum:
         return sub_datum
 
     @property
-    def signs(self) -> list[CfSign]:
+    def signs(self) -> list[DapSign]:
         """Get the list of signatures associated with the datum.
 
         Returns:
-            list[CfSign]: The list of signatures.
+            list[DapSign]: The list of signatures.
         """
         return [sign for sign in self.get_sub_datum().get_signs()]
     
@@ -157,7 +156,7 @@ class CfSubDatum(ABC):
         return self._net
     
     @abstractmethod
-    def get_signs(self) -> list[CfSign]:
+    def get_signs(self) -> list[DapSign]:
         pass
     
 T = TypeVar('T', bound=CfItem)
@@ -223,20 +222,20 @@ class CfDatumTX(CfSubDatum):
         """
         return bool(self.get_items(filter_type=CFTxToken))
 
-    def get_signs(self) -> list[CfSign]:
+    def get_signs(self) -> list[DapSign]:
         """Get the list of signatures associated with the transaction.
 
         Returns:
-            list[CfSign]: The list of signatures.
+            list[DapSign]: The list of signatures.
         """
         return [sign.sign for sign in self.get_items(filter_type=CFTxSig)]
     
     @property
-    def signs(self) -> list[CfSign]:
+    def signs(self) -> list[DapSign]:
         """Get the list of signatures associated with the transaction.
 
         Returns:
-            list[CfSign]: The list of signatures.
+            list[DapSign]: The list of signatures.
         """
         return self.get_signs()
     
@@ -341,7 +340,7 @@ class CfDatumTX(CfSubDatum):
         sign_items = self.get_items(CFTxSig)
         return sign_items[-1]
 
-    def append_sign(self, sign: CfSign):
+    def append_sign(self, sign: DapSign):
         res = self._origin_sub_datum.appendSignItem(sign._origin_sign)
         return sign if res else None
 
@@ -461,7 +460,7 @@ class CfDatumToken(CfSubDatum):
         ticker (str): The ticker symbol of the token.
         data (str): Additional data associated with the token.
     Properties:
-        signs (list[CfSign]): List of cryptographic signatures
+        signs (list[DapSign]): List of cryptographic signatures
             associated with the token.
     """
 
@@ -483,19 +482,19 @@ class CfDatumToken(CfSubDatum):
         else:
             self.hash = str(sub_datum.hash)
 
-    def get_signs(self) -> list[CfSign]:
+    def get_signs(self) -> list[DapSign]:
         """Get the list of signatures associated with the token.
 
         Returns:
-            list[CfSign]: The list of signatures.
+            list[DapSign]: The list of signatures.
         """
         try:
-            return [CfSign(sign, self.net) for sign in self._origin_sub_datum.signs]
+            return [DapSign(sign, self.net) for sign in self._origin_sub_datum.signs]
         except AttributeError:
             return []
     
     @property   
-    def signs(self) -> list[CfSign]:
+    def signs(self) -> list[DapSign]:
         """Get the list of signature hashes associated with the token.
 
         Returns:
@@ -514,7 +513,7 @@ class CfDatumEmission(CfSubDatum):
         version (str): The version of the emission.
         address (str): The address associated with the emission.
         value (int): The value of the emission, representing a quantity of some unit.
-        data (list[Union[CfSign, dict, str]]): Additional data associated with the emission, including cryptographic signatures, dictionaries, or strings.
+        data (list[Union[DapSign, dict, str]]): Additional data associated with the emission, including cryptographic signatures, dictionaries, or strings.
         tsd (dict[str, Union[str, dict[str, Any]]]): Typed section data associated with the emission, containing various information in a structured format.
     """
 
@@ -539,7 +538,7 @@ class CfDatumEmission(CfSubDatum):
         # TODO: Math --> CFMath
         self.value: Math = sub_datum.value
         if self.type == "TOKEN_EMISSION_TYPE_AUTH":
-            self.data = [CfSign(sign, self.net) for sign in sub_datum.signs]
+            self.data = [DapSign(sign, self.net) for sign in sub_datum.signs]
         else:
             self.data = sub_datum.data
 
@@ -565,22 +564,22 @@ class CfDatumEmission(CfSubDatum):
             # FIXME: [tsd_type.name] --> [tsd_type]
             self.tsd[tsd_type] = tsd_data
 
-    def get_signs(self) -> list[CfSign]:
+    def get_signs(self) -> list[DapSign]:
         """Get the list of signatures associated with the emission.
 
         Returns:
-            list[CfSign]: The list of signatures.
+            list[DapSign]: The list of signatures.
         """
         if self.type == "CORRUPTED":
             return []
-        return [CfSign(sign, self.net) for sign in self._origin_sub_datum.signs]
+        return [DapSign(sign, self.net) for sign in self._origin_sub_datum.signs]
     
     @property
-    def signs(self) -> list[CfSign]:
+    def signs(self) -> list[DapSign]:
         """Get the list of signatures associated with the emission.
 
         Returns:
-            list[CfSign]: The list of signatures.
+            list[DapSign]: The list of signatures.
         """
         return self.get_signs()
 
@@ -603,19 +602,19 @@ class CfDatumEmission(CfSubDatum):
         return [sign.pkey_hash for sign in self.signs if
                 sign.pkey_hash in token_auth_signs_pkey_hashes]
 
-    def add_sign(self, certificate_or_sign: CfCertificate | CfSign) -> CfSign:
+    def add_sign(self, certificate_or_sign: DapCert | DapSign) -> DapSign:
         """Add a new signature to the emission.
 
         Args:
-            certificate (CfCertificate | CfSign): The certificate or signature to add.
+            certificate (DapCert | DapSign): The certificate or signature to add.
 
         Returns:
-            CfSign: The added signature.
+            DapSign: The added signature.
         """
-        if isinstance(certificate_or_sign, CfCertificate):
+        if isinstance(certificate_or_sign, DapCert):
             self._origin_sub_datum.addSign(certificate_or_sign._origin_certificate)
             return self.signs[-1]
-        if isinstance(certificate_or_sign, CfSign):
+        if isinstance(certificate_or_sign, DapSign):
             self._origin_sub_datum.appendSign(certificate_or_sign.serialize())
             return self.signs[-1]
 
@@ -657,7 +656,7 @@ class CfDatumDecree(CfSubDatum):
         type (str): The type of the decree sub-datum.
         subtype (str): The subtype of the decree sub-datum.
         created_at (datetime): The creation timestamp of the decree sub-datum.
-        signs (list[CfSign]): List of cryptographic signatures associated with the decree.
+        signs (list[DapSign]): List of cryptographic signatures associated with the decree.
     """
 
     def __init__(self, parent_datum: CFDatum | None, sub_datum: DatumDecree):
@@ -675,20 +674,20 @@ class CfDatumDecree(CfSubDatum):
         self.type = sub_datum.typeStr
         self.subtype = sub_datum.subtypeStr
     
-    def get_signs(self) -> list[CfSign]:
+    def get_signs(self) -> list[DapSign]:
         """Get the list of signatures associated with the decree.
 
         Returns:
-            list[CfSign]: The list of signatures.
+            list[DapSign]: The list of signatures.
         """
-        return [CfSign(sign, self.net) for sign in self._origin_sub_datum.signs]
+        return [DapSign(sign, self.net) for sign in self._origin_sub_datum.signs]
     
     @property
-    def signs(self) -> list[CfSign]:
+    def signs(self) -> list[DapSign]:
         """Get the list of signatures associated with the decree.
 
         Returns:
-            list[CfSign]: The list of signatures.
+            list[DapSign]: The list of signatures.
         """
         return self.get_signs()
 
@@ -700,7 +699,7 @@ class CfDatumAnchor(CfSubDatum):
     Attributes:
         hash (str): The hash value of the anchor sub-datum.
         created_at (datetime): The creation timestamp of the anchor sub-datum.
-        signs (list[CfSign]): List of cryptographic signatures associated with the anchor.
+        signs (list[DapSign]): List of cryptographic signatures associated with the anchor.
     """
 
     def __init__(self, parent_datum: CFDatum | None, sub_datum: DatumAnchor):
@@ -716,20 +715,20 @@ class CfDatumAnchor(CfSubDatum):
         self.hash = str(sub_datum.hash)
         self.created_at = sub_datum.created
 
-    def get_signs(self) -> list[CfSign]:
+    def get_signs(self) -> list[DapSign]:
         """Get the list of signatures associated with the anchor.
 
         Returns:
-            list[CfSign]: The list of signatures.
+            list[DapSign]: The list of signatures.
         """
-        return [CfSign(sign, self.net) for sign in self._origin_sub_datum.signs]
+        return [DapSign(sign, self.net) for sign in self._origin_sub_datum.signs]
     
     @property
-    def signs(self) -> list[CfSign]:
+    def signs(self) -> list[DapSign]:
         """Get the list of signatures associated with the anchor.
 
         Returns:
-            list[CfSign]: The list of signatures.   
+            list[DapSign]: The list of signatures.   
         """
         return self.get_signs()
 
@@ -756,20 +755,20 @@ class CfDatumCustom(CfSubDatum):
         self._origin_sub_datum = None
         self.data = sub_datum.hex()
         
-    def get_signs(self) -> list[CfSign]:
+    def get_signs(self) -> list[DapSign]:
         """Get the list of signatures associated with the custom sub-datum.
 
         Returns:
-            list[CfSign]: The list of signatures.
+            list[DapSign]: The list of signatures.
         """
         return []   
     
     @property
-    def signs(self) -> list[CfSign]:
+    def signs(self) -> list[DapSign]:
         """Get the list of signatures associated with the custom sub-datum.
 
         Returns:
-            list[CfSign]: The list of signatures.
+            list[DapSign]: The list of signatures.
         """
         return self.get_signs()
 

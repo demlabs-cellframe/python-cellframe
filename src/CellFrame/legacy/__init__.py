@@ -30,8 +30,8 @@ from typing import List, Dict, Any, Optional
 
 # Import new architecture - avoid circular imports
 # CellframeNode, CellframeChain, CellframeComponent will be imported lazily when needed
-from ..types import Address, TokenAmount, TransactionHash
-from ..chain.wallet import Wallet
+from ..common.types import Address, TokenAmount, TransactionHash
+from ..wallet.wallet import Wallet
 # from ..network import NetworkClient  # Not yet implemented
 # from ..services import StakingService, ExchangeService  # Not yet implemented
 
@@ -181,7 +181,7 @@ class CfWallet:
         """Open wallet (legacy method)"""
         _show_legacy_warning("CfWallet.open()", "Wallet.open()")
         try:
-            from CellFrame.chain.wallet import Wallet
+            from CellFrame.wallet.wallet import Wallet
             # Try to delegate to new API
             wallet = Wallet.open(*args, **kwargs)
             self._wallet = wallet

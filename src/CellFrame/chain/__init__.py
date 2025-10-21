@@ -141,13 +141,10 @@ except ImportError:
     def Mempool(*args, **kwargs):
         _require_native_implementation("Mempool")
 
-# Create aliases for backward compatibility
-ChainAddr = CfAddr  # Alias for legacy code
-
 # Ticker constant
 ticker = "CELL"
 
-from .wallet import (
+from ..wallet.wallet import (
     Wallet,
     WalletAddress,
     WalletAccessType,
@@ -156,12 +153,12 @@ from .wallet import (
     InvalidAddressError,
     InsufficientFundsError,
     WalletManager,
-    create_wallet,
-    open_wallet,
-    get_wallet,
-    close_wallet,
-    get_all_wallets,
-    close_all_wallets
+    create,
+    open,
+    get,
+    close,
+    list as list_wallets,
+    close_all
 )
 
 from .ledger import (
@@ -225,7 +222,6 @@ __all__ = [
     # Native types
     'ChainAtomPtr',
     'CfAddr',
-    'ChainAddr',  # Alias for CfAddr
     'Mempool', 
     'ticker',
     
@@ -238,12 +234,12 @@ __all__ = [
     'InvalidAddressError',
     'InsufficientFundsError',
     'WalletManager',
-    'create_wallet',
-    'open_wallet',
-    'get_wallet',
-    'close_wallet',
-    'get_all_wallets',
-    'close_all_wallets',
+    'create',
+    'open',
+    'get',
+    'close',
+    'list_wallets',
+    'close_all',
     
     # Ledger operations
     'CfLedger',

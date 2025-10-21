@@ -7,18 +7,18 @@ import binascii
 
 from ..common import logger as log  # Use modern logging
 import python_dap as dap  # Use python_dap for crypto functions
+from dap.crypto import DapCert, DapKey
+from dap.config import DapConfig
 # Math and other DAP functions available through python_dap
 from CellFrame.network import Net, NetID
 # Native types imported directly when needed - avoid circular imports
 
 from .consensus import CfEvent, CfBlock
 from .datums import CfDatum, CfSubDatum, CfDatumTX, CfDatumEmission
-from .crypto import CfCertificate, CfKey
 from .types import CfNetState, ledger_cache_rc, datum_hash, TSD, CfSignType
 from .tx_items import CfTxOutCond
-from ..core.config import CfConfig
 from .exceptions import InsufficientFundsError
-from ..core.types import DatumTypes, ItemTypes, ItemTypesValues
+from ..common.types import DatumTypes, ItemTypes, ItemTypesValues
 
 
 try:
@@ -184,12 +184,12 @@ class CFNodeAddress:
 
 class CFWallet:
     def __init__(self, name: str, path: Optional[str] = None):
-        from .config import CFConfig
+        from dap.config import DapConfig
         import os
         if not path:
-            path = CFConfig().get("resources", "wallets_path")
+            path = DapConfig().get("resources", "wallets_path")
             if not os.path.isabs(path):
-                path = os.path.join(CFConfig().storage_path(), "etc", path)
+                path = os.path.join(DapConfig().storage_path(), "etc", path)
 
         self._origin_wallet = Wallet.open(name, path)
 
@@ -243,9 +243,9 @@ class CFWallet:
             raise ValueError("name and net_name are required")
             
         if path is None:
-            raw = CFConfig().get("resources", "wallets_path")
+            raw = DapConfig().get("resources", "wallets_path")
             path = raw if os.path.isabs(raw) else os.path.join(
-                CFConfig().storage_path(), "etc", raw
+                DapConfig().storage_path(), "etc", raw
             )
         os.makedirs(path, exist_ok=True)
 

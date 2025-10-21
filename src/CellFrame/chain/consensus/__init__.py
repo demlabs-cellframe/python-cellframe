@@ -79,4 +79,4 @@ class CfBlock:
         """Validate block using native implementation."""
         return cf_native.dap_chain_block_validate(self._native_block)
 
-__all__ = ['DAG', 'Block']
+__all__ = ['CfDAG', 'CfBlock']

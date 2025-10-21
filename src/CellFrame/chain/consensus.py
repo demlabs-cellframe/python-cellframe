@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING
 import traceback
 
 from CellFrame.chain import ChainAtomPtr
-from CellFrame.consensus import DAG, Block
+from CellFrame.chain.consensus import CfDAG, CfBlock
 from CellFrame.services import StakePosDelegate
 import python_dap as dap  # Use python_dap for DAP functions
 
@@ -66,7 +66,7 @@ class CfBlock(CfAtom):
         self._origin_atom = atom
         if not CfBlock.is_supported_by_chain(chain.type):
             raise TypeError(f"Chain type={chain.type} does not contain blocks")
-        block = Block.fromAtom(self._origin_atom)
+        block = CfBlock.fromAtom(self._origin_atom)
         if not block:
             raise RuntimeError("Not found block from atom")
         self._origin_block = block
@@ -155,7 +155,7 @@ class CfEvent(CfAtom):
         self._origin_atom = atom
         if not CfEvent.is_supported_by_chain(chain.type):
             raise TypeError(f"Chain type={chain.type} does not contain events")
-        event = DAG.fromAtom(self._origin_atom)
+        event = CfDAG.fromAtom(self._origin_atom)
         if not event:
             raise RuntimeError("Not found event from atom")
         self._origin_event = event

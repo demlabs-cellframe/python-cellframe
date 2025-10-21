@@ -74,7 +74,7 @@ with cellframe.create_library_node("my-app") as node:
 """
 
 # Core universal architecture
-from .core import (    
+from .common import (    
     # Core classes - will be implemented when ready
     # ExecutionMode,
     
@@ -86,13 +86,13 @@ from .core import (
 )
 
 # Context system
-from .core.context import (
+from .common.context import (
     AppContext, PluginContext, LibContext, ExecutionMode,
     ContextFactory, get_context, initialize_context, shutdown_context
 )
 
 # Types
-from .types import (
+from .common.types import (
     Address, TokenAmount, TransactionHash, BlockHash,
     NetworkID, KeyType
 )

@@ -7,7 +7,12 @@ Secure wallet operations:
 - Transaction signing and sending
 """
 
-# Will be implemented in Phase 3
-from ..core.exceptions import WalletException
+# Import from common (previously core)
+from ..common.exceptions import WalletException
 
-__all__ = ['WalletException'] 
+# Import wallet class if available
+try:
+    from .wallet import Wallet
+    __all__ = ['WalletException', 'Wallet']
+except ImportError:
+    __all__ = ['WalletException'] 

@@ -527,12 +527,12 @@ class Wallet:
             # Auto-detect wallet path if not provided
             if not wallet_path:
                 try:
-                    from ..node.config import CFConfig
+                    from dap.config import DapConfig
                     import os
                     
-                    path = CFConfig().get("resources", "wallets_path")
+                    path = DapConfig().get("resources", "wallets_path")
                     if not os.path.isabs(path):
-                        path = os.path.join(CFConfig().storage_path(), "etc", path)
+                        path = os.path.join(DapConfig().storage_path(), "etc", path)
                     wallet_path = path
                 except Exception as e:
                     # FAIL-FAST: No fallbacks for critical path resolution
@@ -561,8 +561,8 @@ class WalletManager:
         
         logger.info("WalletManager initialized")
     
-    def create_wallet(self, name: str, wallet_path: str, password: Optional[str] = None,
-                     seed: Optional[bytes] = None, signature_type: int = 0x0102) -> Wallet:
+    def create(self, name: str, wallet_path: str, password: Optional[str] = None,
+               seed: Optional[bytes] = None, signature_type: int = 0x0102) -> Wallet:
         """
         Create and register new wallet.
         
@@ -594,7 +594,7 @@ class WalletManager:
                 logger.error("Failed to create wallet %s: %s", name, e)
                 raise
     
-    def open_wallet(self, name: str, wallet_path: str, password: Optional[str] = None) -> Wallet:
+    def open(self, name: str, wallet_path: str, password: Optional[str] = None) -> Wallet:
         """
         Open and register existing wallet.
         
@@ -625,7 +625,7 @@ class WalletManager:
                 logger.error("Failed to open wallet %s: %s", name, e)
                 raise
     
-    def get_wallet(self, name: str) -> Optional[Wallet]:
+    def get(self, name: str) -> Optional[Wallet]:
         """
         Get registered wallet by name.
         
@@ -638,7 +638,7 @@ class WalletManager:
         with self._lock:
             return self._wallets.get(name)
     
-    def close_wallet(self, name: str):
+    def close(self, name: str):
         """
         Close and unregister wallet.
         
@@ -651,7 +651,7 @@ class WalletManager:
                 del self._wallets[name]
                 logger.info("Wallet %s closed and unregistered", name)
     
-    def get_all_wallets(self) -> Dict[str, Wallet]:
+    def list(self) -> Dict[str, Wallet]:
         """
         Get all registered wallets.
         
@@ -665,7 +665,7 @@ class WalletManager:
         """Close all registered wallets."""
         with self._lock:
             for name in list(self._wallets.keys()):
-                self.close_wallet(name)
+                self.close(name)
             
             logger.info("All wallets closed")
 
@@ -675,32 +675,32 @@ _global_wallet_manager = WalletManager()
 
 
 # Convenience functions using global manager
-def create_wallet(name: str, wallet_path: str, password: Optional[str] = None,
-                 seed: Optional[bytes] = None) -> Wallet:
+def create(name: str, wallet_path: str, password: Optional[str] = None,
+           seed: Optional[bytes] = None) -> Wallet:
     """Create wallet using global manager."""
-    return _global_wallet_manager.create_wallet(name, wallet_path, password, seed)
+    return _global_wallet_manager.create(name, wallet_path, password, seed)
 
 
-def open_wallet(name: str, wallet_path: str, password: Optional[str] = None) -> Wallet:
+def open(name: str, wallet_path: str, password: Optional[str] = None) -> Wallet:
     """Open wallet using global manager."""
-    return _global_wallet_manager.open_wallet(name, wallet_path, password)
+    return _global_wallet_manager.open(name, wallet_path, password)
 
 
-def get_wallet(name: str) -> Optional[Wallet]:
+def get(name: str) -> Optional[Wallet]:
     """Get wallet using global manager."""
-    return _global_wallet_manager.get_wallet(name)
+    return _global_wallet_manager.get(name)
 
 
-def close_wallet(name: str):
+def close(name: str):
     """Close wallet using global manager."""
-    _global_wallet_manager.close_wallet(name)
+    _global_wallet_manager.close(name)
 
 
-def get_all_wallets() -> Dict[str, Wallet]:
+def list() -> Dict[str, Wallet]:
     """Get all wallets using global manager."""
-    return _global_wallet_manager.get_all_wallets()
+    return _global_wallet_manager.list()
 
 
-def close_all_wallets():
+def close_all():
     """Close all wallets using global manager."""
     _global_wallet_manager.close_all() 
