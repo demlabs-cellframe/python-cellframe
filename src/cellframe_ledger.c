@@ -9,6 +9,219 @@
 #define LOG_TAG "python_cellframe_ledger"
 
 // =============================================================================
+// LIFECYCLE OPERATIONS
+// =============================================================================
+
+/**
+ * @brief Initialize ledger subsystem globally
+ * @param a_self Python self object (unused)
+ * @param a_args No arguments
+ * @return Integer result code
+ */
+PyObject* dap_ledger_init_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    (void)a_args;
+    
+    int l_result = dap_ledger_init();
+    
+    log_it(L_DEBUG, "Ledger subsystem initialized, result: %d", l_result);
+    return PyLong_FromLong(l_result);
+}
+
+/**
+ * @brief Deinitialize ledger subsystem globally
+ * @param a_self Python self object (unused)
+ * @param a_args No arguments
+ * @return None
+ */
+PyObject* dap_ledger_deinit_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    (void)a_args;
+    
+    dap_ledger_deinit();
+    
+    log_it(L_DEBUG, "Ledger subsystem deinitialized");
+    Py_RETURN_NONE;
+}
+
+/**
+ * @brief Create new ledger for a network
+ * @param a_self Python self object (unused)
+ * @param a_args Arguments (chain_net capsule, flags integer)
+ * @return PyCapsule wrapping dap_ledger_t* or None on error
+ */
+PyObject* dap_ledger_create_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    PyObject *l_net_obj;
+    uint16_t l_flags;
+    
+    if (!PyArg_ParseTuple(a_args, "OH", &l_net_obj, &l_flags)) {
+        return NULL;
+    }
+    
+    if (!PyCapsule_CheckExact(l_net_obj)) {
+        PyErr_SetString(PyExc_TypeError, "First argument must be a chain_net capsule");
+        return NULL;
+    }
+    
+    dap_chain_net_t *l_net = (dap_chain_net_t *)PyCapsule_GetPointer(l_net_obj, "dap_chain_net_t");
+    if (!l_net) {
+        PyErr_SetString(PyExc_ValueError, "Invalid chain_net capsule");
+        return NULL;
+    }
+    
+    dap_ledger_t *l_ledger = dap_ledger_create(l_net, l_flags);
+    if (!l_ledger) {
+        log_it(L_ERROR, "Failed to create ledger");
+        Py_RETURN_NONE;
+    }
+    
+    log_it(L_DEBUG, "Created ledger for network with flags 0x%04x", l_flags);
+    return PyCapsule_New(l_ledger, "dap_ledger_t", NULL);
+}
+
+/**
+ * @brief Free ledger handle
+ * @param a_self Python self object (unused)
+ * @param a_args Arguments (ledger capsule)
+ * @return None
+ */
+PyObject* dap_ledger_handle_free_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    PyObject *l_ledger_obj;
+    
+    if (!PyArg_ParseTuple(a_args, "O", &l_ledger_obj)) {
+        return NULL;
+    }
+    
+    if (!PyCapsule_CheckExact(l_ledger_obj)) {
+        PyErr_SetString(PyExc_TypeError, "First argument must be a ledger capsule");
+        return NULL;
+    }
+    
+    dap_ledger_t *l_ledger = (dap_ledger_t *)PyCapsule_GetPointer(l_ledger_obj, "dap_ledger_t");
+    if (!l_ledger) {
+        PyErr_SetString(PyExc_ValueError, "Invalid ledger capsule");
+        return NULL;
+    }
+    
+    dap_ledger_handle_free(l_ledger);
+    
+    log_it(L_DEBUG, "Ledger handle freed");
+    Py_RETURN_NONE;
+}
+
+// =============================================================================
+// TOKEN TICKER OPERATIONS
+// =============================================================================
+
+/**
+ * @brief Get all token tickers for an address
+ * @param a_self Python self object (unused)
+ * @param a_args Arguments (ledger capsule, address bytes)
+ * @return Python list of ticker strings or None
+ */
+PyObject* dap_ledger_addr_get_token_ticker_all_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    PyObject *l_ledger_obj;
+    const char *l_addr_bytes;
+    Py_ssize_t l_addr_size;
+    
+    if (!PyArg_ParseTuple(a_args, "Os#", &l_ledger_obj, &l_addr_bytes, &l_addr_size)) {
+        return NULL;
+    }
+    
+    if (!PyCapsule_CheckExact(l_ledger_obj)) {
+        PyErr_SetString(PyExc_TypeError, "First argument must be a ledger capsule");
+        return NULL;
+    }
+    
+    if ((size_t)l_addr_size != sizeof(dap_chain_addr_t)) {
+        PyErr_Format(PyExc_ValueError, "Address must be exactly %zu bytes", sizeof(dap_chain_addr_t));
+        return NULL;
+    }
+    
+    dap_ledger_t *l_ledger = (dap_ledger_t *)PyCapsule_GetPointer(l_ledger_obj, "dap_ledger_t");
+    if (!l_ledger) {
+        PyErr_SetString(PyExc_ValueError, "Invalid ledger capsule");
+        return NULL;
+    }
+    
+    dap_chain_addr_t *l_addr = (dap_chain_addr_t *)l_addr_bytes;
+    char **l_tickers = NULL;
+    size_t l_tickers_size = 0;
+    
+    dap_ledger_addr_get_token_ticker_all(l_ledger, l_addr, &l_tickers, &l_tickers_size);
+    
+    if (!l_tickers || l_tickers_size == 0) {
+        log_it(L_DEBUG, "No tickers found for address");
+        Py_RETURN_NONE;
+    }
+    
+    PyObject *l_list = PyList_New(l_tickers_size);
+    for (size_t i = 0; i < l_tickers_size; i++) {
+        PyList_SetItem(l_list, i, PyUnicode_FromString(l_tickers[i]));
+    }
+    
+    // Free C array (strings are managed by ledger, only free the array itself if needed)
+    
+    log_it(L_DEBUG, "Retrieved %zu tickers for address", l_tickers_size);
+    return l_list;
+}
+
+/**
+ * @brief Get all token tickers for an address (deprecated version)
+ * @param a_self Python self object (unused)
+ * @param a_args Arguments (ledger capsule, address bytes)
+ * @return Python list of ticker strings or None
+ */
+PyObject* dap_ledger_addr_get_token_ticker_all_depricated_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    PyObject *l_ledger_obj;
+    const char *l_addr_bytes;
+    Py_ssize_t l_addr_size;
+    
+    if (!PyArg_ParseTuple(a_args, "Os#", &l_ledger_obj, &l_addr_bytes, &l_addr_size)) {
+        return NULL;
+    }
+    
+    if (!PyCapsule_CheckExact(l_ledger_obj)) {
+        PyErr_SetString(PyExc_TypeError, "First argument must be a ledger capsule");
+        return NULL;
+    }
+    
+    if ((size_t)l_addr_size != sizeof(dap_chain_addr_t)) {
+        PyErr_Format(PyExc_ValueError, "Address must be exactly %zu bytes", sizeof(dap_chain_addr_t));
+        return NULL;
+    }
+    
+    dap_ledger_t *l_ledger = (dap_ledger_t *)PyCapsule_GetPointer(l_ledger_obj, "dap_ledger_t");
+    if (!l_ledger) {
+        PyErr_SetString(PyExc_ValueError, "Invalid ledger capsule");
+        return NULL;
+    }
+    
+    dap_chain_addr_t *l_addr = (dap_chain_addr_t *)l_addr_bytes;
+    char **l_tickers = NULL;
+    size_t l_tickers_size = 0;
+    
+    dap_ledger_addr_get_token_ticker_all_depricated(l_ledger, l_addr, &l_tickers, &l_tickers_size);
+    
+    if (!l_tickers || l_tickers_size == 0) {
+        log_it(L_DEBUG, "No tickers found for address (deprecated)");
+        Py_RETURN_NONE;
+    }
+    
+    PyObject *l_list = PyList_New(l_tickers_size);
+    for (size_t i = 0; i < l_tickers_size; i++) {
+        PyList_SetItem(l_list, i, PyUnicode_FromString(l_tickers[i]));
+    }
+    
+    log_it(L_DEBUG, "Retrieved %zu tickers for address (deprecated)", l_tickers_size);
+    return l_list;
+}
+
+// =============================================================================
 // TRANSACTION OPERATIONS
 // =============================================================================
 
@@ -3213,6 +3426,948 @@ PyObject* dap_ledger_anchor_find_py(PyObject *a_self, PyObject *a_args) {
     return PyCapsule_New(l_anchor, "dap_chain_datum_anchor_t", NULL);
 }
 
+// =============================================================================
+// UTILITY & SERVICE FUNCTIONS
+// =============================================================================
+
+/**
+ * @brief Count transactions from timestamp range
+ * @param a_self Python self object (unused)
+ * @param a_args Arguments (ledger capsule, ts_from uint64, ts_to uint64)
+ * @return Integer count of transactions
+ */
+PyObject* dap_ledger_count_from_to_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    PyObject *l_ledger_obj;
+    unsigned long long l_ts_from, l_ts_to;
+    
+    if (!PyArg_ParseTuple(a_args, "OKK", &l_ledger_obj, &l_ts_from, &l_ts_to)) {
+        return NULL;
+    }
+    
+    if (!PyCapsule_CheckExact(l_ledger_obj)) {
+        PyErr_SetString(PyExc_TypeError, "First argument must be a ledger capsule");
+        return NULL;
+    }
+    
+    dap_ledger_t *l_ledger = (dap_ledger_t *)PyCapsule_GetPointer(l_ledger_obj, "dap_ledger_t");
+    if (!l_ledger) {
+        PyErr_SetString(PyExc_ValueError, "Invalid ledger capsule");
+        return NULL;
+    }
+    
+    uint64_t l_count = dap_ledger_count_from_to(l_ledger, l_ts_from, l_ts_to);
+    
+    log_it(L_DEBUG, "TX count from %llu to %llu: %llu", l_ts_from, l_ts_to, l_count);
+    return PyLong_FromUnsignedLongLong(l_count);
+}
+
+/**
+ * @brief Check if datum is enforced
+ * @param a_self Python self object (unused)
+ * @param a_args Arguments (ledger capsule, hash bytes, accept bool)
+ * @return Boolean
+ */
+PyObject* dap_ledger_datum_is_enforced_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    PyObject *l_ledger_obj;
+    const char *l_hash_bytes;
+    Py_ssize_t l_hash_size;
+    int l_accept;
+    
+    if (!PyArg_ParseTuple(a_args, "Os#p", &l_ledger_obj, &l_hash_bytes, &l_hash_size, &l_accept)) {
+        return NULL;
+    }
+    
+    if (!PyCapsule_CheckExact(l_ledger_obj)) {
+        PyErr_SetString(PyExc_TypeError, "First argument must be a ledger capsule");
+        return NULL;
+    }
+    
+    if ((size_t)l_hash_size != sizeof(dap_hash_fast_t)) {
+        PyErr_Format(PyExc_ValueError, "Hash must be exactly %zu bytes", sizeof(dap_hash_fast_t));
+        return NULL;
+    }
+    
+    dap_ledger_t *l_ledger = (dap_ledger_t *)PyCapsule_GetPointer(l_ledger_obj, "dap_ledger_t");
+    if (!l_ledger) {
+        PyErr_SetString(PyExc_ValueError, "Invalid ledger capsule");
+        return NULL;
+    }
+    
+    dap_hash_fast_t *l_hash = (dap_hash_fast_t *)l_hash_bytes;
+    bool l_result = dap_ledger_datum_is_enforced(l_ledger, l_hash, (bool)l_accept);
+    
+    log_it(L_DEBUG, "Datum is_enforced: %s", l_result ? "true" : "false");
+    return PyBool_FromLong(l_result);
+}
+
+/**
+ * @brief Get blockchain time
+ * @param a_self Python self object (unused)
+ * @param a_args Arguments (ledger capsule)
+ * @return Integer timestamp
+ */
+PyObject* dap_ledger_get_blockchain_time_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    PyObject *l_ledger_obj;
+    
+    if (!PyArg_ParseTuple(a_args, "O", &l_ledger_obj)) {
+        return NULL;
+    }
+    
+    if (!PyCapsule_CheckExact(l_ledger_obj)) {
+        PyErr_SetString(PyExc_TypeError, "First argument must be a ledger capsule");
+        return NULL;
+    }
+    
+    dap_ledger_t *l_ledger = (dap_ledger_t *)PyCapsule_GetPointer(l_ledger_obj, "dap_ledger_t");
+    if (!l_ledger) {
+        PyErr_SetString(PyExc_ValueError, "Invalid ledger capsule");
+        return NULL;
+    }
+    
+    dap_time_t l_time = dap_ledger_get_blockchain_time(l_ledger);
+    
+    log_it(L_DEBUG, "Blockchain time: %llu", (unsigned long long)l_time);
+    return PyLong_FromUnsignedLongLong(l_time);
+}
+
+/**
+ * @brief Get transaction action string
+ * @param a_self Python self object (unused)
+ * @param a_args Arguments (action type integer)
+ * @return String or None
+ */
+PyObject* dap_ledger_tx_action_str_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    int l_action_type;
+    
+    if (!PyArg_ParseTuple(a_args, "i", &l_action_type)) {
+        return NULL;
+    }
+    
+    const char *l_str = dap_ledger_tx_action_str((dap_chain_tx_tag_action_type_t)l_action_type);
+    if (!l_str) {
+        log_it(L_DEBUG, "Unknown action type: %d", l_action_type);
+        Py_RETURN_NONE;
+    }
+    
+    log_it(L_DEBUG, "Action type %d -> '%s'", l_action_type, l_str);
+    return PyUnicode_FromString(l_str);
+}
+
+/**
+ * @brief Convert action string to action type
+ * @param a_self Python self object (unused)
+ * @param a_args Arguments (action string)
+ * @return Integer action type
+ */
+PyObject* dap_ledger_tx_action_str_to_action_t_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    const char *l_str;
+    
+    if (!PyArg_ParseTuple(a_args, "s", &l_str)) {
+        return NULL;
+    }
+    
+    dap_chain_tx_tag_action_type_t l_action = dap_ledger_tx_action_str_to_action_t(l_str);
+    
+    log_it(L_DEBUG, "Action string '%s' -> type %d", l_str, l_action);
+    return PyLong_FromLong(l_action);
+}
+
+/**
+ * @brief Get tag string by service UID
+ * @param a_self Python self object (unused)
+ * @param a_args Arguments (service_uid uint64)
+ * @return String or None
+ */
+PyObject* dap_ledger_tx_tag_str_by_uid_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    unsigned long long l_uid;
+    
+    if (!PyArg_ParseTuple(a_args, "K", &l_uid)) {
+        return NULL;
+    }
+    
+    dap_chain_srv_uid_t l_service_uid = {.uint64 = l_uid};
+    const char *l_str = dap_ledger_tx_tag_str_by_uid(l_service_uid);
+    if (!l_str) {
+        log_it(L_DEBUG, "No tag for service UID %llu", l_uid);
+        Py_RETURN_NONE;
+    }
+    
+    log_it(L_DEBUG, "Service UID %llu -> tag '%s'", l_uid, l_str);
+    return PyUnicode_FromString(l_str);
+}
+
+/**
+ * @brief Calculate main ticker for transaction
+ * @param a_self Python self object (unused)
+ * @param a_args Arguments (ledger capsule, tx capsule)
+ * @return Tuple (ticker string, result_code) or None
+ */
+PyObject* dap_ledger_tx_calculate_main_ticker_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    PyObject *l_ledger_obj, *l_tx_obj;
+    
+    if (!PyArg_ParseTuple(a_args, "OO", &l_ledger_obj, &l_tx_obj)) {
+        return NULL;
+    }
+    
+    if (!PyCapsule_CheckExact(l_ledger_obj)) {
+        PyErr_SetString(PyExc_TypeError, "First argument must be a ledger capsule");
+        return NULL;
+    }
+    
+    if (!PyCapsule_CheckExact(l_tx_obj)) {
+        PyErr_SetString(PyExc_TypeError, "Second argument must be a tx capsule");
+        return NULL;
+    }
+    
+    dap_ledger_t *l_ledger = (dap_ledger_t *)PyCapsule_GetPointer(l_ledger_obj, "dap_ledger_t");
+    dap_chain_datum_tx_t *l_tx = (dap_chain_datum_tx_t *)PyCapsule_GetPointer(l_tx_obj, "dap_chain_datum_tx_t");
+    
+    if (!l_ledger || !l_tx) {
+        PyErr_SetString(PyExc_ValueError, "Invalid ledger or tx capsule");
+        return NULL;
+    }
+    
+    int l_rc = 0;
+    dap_chain_token_ticker_str_t l_ticker = dap_ledger_tx_calculate_main_ticker_(l_ledger, l_tx, &l_rc);
+    
+    PyObject *l_tuple = PyTuple_New(2);
+    PyTuple_SetItem(l_tuple, 0, PyUnicode_FromString(l_ticker.s));
+    PyTuple_SetItem(l_tuple, 1, PyLong_FromLong(l_rc));
+    
+    log_it(L_DEBUG, "Calculated main ticker: '%s', rc: %d", l_ticker.s, l_rc);
+    return l_tuple;
+}
+
+/**
+ * @brief Get list of TX outputs from JSON
+ * @param a_self Python self object (unused)
+ * @param a_args Arguments (json capsule, outputs_count, value_need bytes, need_all_outputs bool)
+ * @return PyCapsule wrapping dap_list_t* or None
+ */
+PyObject* dap_ledger_get_list_tx_outs_from_json_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    PyObject *l_json_obj;
+    int l_outputs_count;
+    const char *l_value_need_bytes;
+    Py_ssize_t l_value_need_size;
+    int l_need_all_outputs;
+    
+    // Note: value_transfer is output parameter, for simplicity we skip it in Python binding
+    if (!PyArg_ParseTuple(a_args, "Ois#p", &l_json_obj, &l_outputs_count, 
+                          &l_value_need_bytes, &l_value_need_size, &l_need_all_outputs)) {
+        return NULL;
+    }
+    
+    if (!PyCapsule_CheckExact(l_json_obj)) {
+        PyErr_SetString(PyExc_TypeError, "First argument must be a JSON capsule");
+        return NULL;
+    }
+    
+    if ((size_t)l_value_need_size != sizeof(uint256_t)) {
+        PyErr_Format(PyExc_ValueError, "value_need must be exactly %zu bytes", sizeof(uint256_t));
+        return NULL;
+    }
+    
+    dap_json_t *l_json = (dap_json_t *)PyCapsule_GetPointer(l_json_obj, "dap_json_t");
+    if (!l_json) {
+        PyErr_SetString(PyExc_ValueError, "Invalid JSON capsule");
+        return NULL;
+    }
+    
+    uint256_t l_value_need = *(uint256_t *)l_value_need_bytes;
+    uint256_t l_value_transfer = uint256_0;
+    
+    dap_list_t *l_list = dap_ledger_get_list_tx_outs_from_json(l_json, l_outputs_count,
+                                                                 l_value_need, &l_value_transfer,
+                                                                 (bool)l_need_all_outputs);
+    if (!l_list) {
+        log_it(L_DEBUG, "No TX outs from JSON");
+        Py_RETURN_NONE;
+    }
+    
+    log_it(L_DEBUG, "Got TX outs list from JSON (need_all=%d)", l_need_all_outputs);
+    return PyCapsule_New(l_list, "dap_list_t", NULL);
+}
+
+// =============================================================================
+// CALLBACKS & SPECIAL OPERATIONS
+// =============================================================================
+
+/**
+ * @brief Get token emission rate
+ * @param a_self Python self object (unused)
+ * @param a_args Arguments (ledger capsule, token_ticker string)
+ * @return Bytes representing uint256_t
+ */
+PyObject* dap_ledger_token_get_emission_rate_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    PyObject *l_ledger_obj;
+    const char *l_token_ticker;
+    
+    if (!PyArg_ParseTuple(a_args, "Os", &l_ledger_obj, &l_token_ticker)) {
+        return NULL;
+    }
+    
+    if (!PyCapsule_CheckExact(l_ledger_obj)) {
+        PyErr_SetString(PyExc_TypeError, "First argument must be a ledger capsule");
+        return NULL;
+    }
+    
+    dap_ledger_t *l_ledger = (dap_ledger_t *)PyCapsule_GetPointer(l_ledger_obj, "dap_ledger_t");
+    if (!l_ledger) {
+        PyErr_SetString(PyExc_ValueError, "Invalid ledger capsule");
+        return NULL;
+    }
+    
+    uint256_t l_rate = dap_ledger_token_get_emission_rate(l_ledger, l_token_ticker);
+    
+    log_it(L_DEBUG, "Got emission rate for token '%s'", l_token_ticker);
+    return PyBytes_FromStringAndSize((const char *)&l_rate, sizeof(uint256_t));
+}
+
+/**
+ * @brief Mark token emissions hardfork
+ * @param a_self Python self object (unused)
+ * @param a_args Arguments (ledger capsule, hardfork_time uint64)
+ * @return Integer result code
+ */
+PyObject* dap_ledger_token_emissions_mark_hardfork_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    PyObject *l_ledger_obj;
+    unsigned long long l_hardfork_time;
+    
+    if (!PyArg_ParseTuple(a_args, "OK", &l_ledger_obj, &l_hardfork_time)) {
+        return NULL;
+    }
+    
+    if (!PyCapsule_CheckExact(l_ledger_obj)) {
+        PyErr_SetString(PyExc_TypeError, "First argument must be a ledger capsule");
+        return NULL;
+    }
+    
+    dap_ledger_t *l_ledger = (dap_ledger_t *)PyCapsule_GetPointer(l_ledger_obj, "dap_ledger_t");
+    if (!l_ledger) {
+        PyErr_SetString(PyExc_ValueError, "Invalid ledger capsule");
+        return NULL;
+    }
+    
+    int l_result = dap_ledger_token_emissions_mark_hardfork(l_ledger, l_hardfork_time);
+    
+    log_it(L_DEBUG, "Mark emissions hardfork at time %llu, result: %d", l_hardfork_time, l_result);
+    return PyLong_FromLong(l_result);
+}
+
+/**
+ * @brief Add service with callback (stub - callbacks require GIL management)
+ * @param a_self Python self object (unused)
+ * @param a_args Arguments (service_uid uint64, tag_str string)
+ * @return Integer result code (stub returns -1)
+ */
+PyObject* dap_ledger_service_add_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    unsigned long long l_uid;
+    const char *l_tag_str;
+    
+    if (!PyArg_ParseTuple(a_args, "Ks", &l_uid, &l_tag_str)) {
+        return NULL;
+    }
+    
+    log_it(L_WARNING, "dap_ledger_service_add: stub implementation (callback registration requires GIL management)");
+    log_it(L_INFO, "Service add requested: UID=%llu, tag='%s' - not implemented", l_uid, l_tag_str);
+    
+    // Stub: cannot register C callback from Python without proper GIL management
+    // Full implementation would require Python callback wrapper
+    return PyLong_FromLong(-1);  // Return error to indicate stub
+}
+
+/**
+ * @brief Set tax callback (stub - callbacks require GIL management)
+ * @param a_self Python self object (unused)
+ * @param a_args No arguments (callback would be passed if implemented)
+ * @return Integer result code (stub returns -1)
+ */
+PyObject* dap_ledger_tax_callback_set_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    (void)a_args;
+    
+    log_it(L_WARNING, "dap_ledger_tax_callback_set: stub implementation (callback registration requires GIL management)");
+    log_it(L_INFO, "Tax callback set requested - not implemented");
+    
+    // Stub: cannot register C callback from Python without proper GIL management
+    return PyLong_FromLong(-1);  // Return error to indicate stub
+}
+
+// =============================================================================
+// TRACKER & COLOR OPERATIONS
+// =============================================================================
+
+/**
+ * @brief Get uncoloured value of a coin
+ * @param a_self Python self object (unused)
+ * @param a_args Arguments (ledger, voting_hash, tx_hash, out_idx, pkey_hash)
+ * @return Bytes representing uint256_t
+ */
+PyObject* dap_ledger_coin_get_uncoloured_value_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    PyObject *l_ledger_obj;
+    const char *l_voting_hash_bytes, *l_tx_hash_bytes, *l_pkey_hash_bytes;
+    Py_ssize_t l_voting_hash_size, l_tx_hash_size, l_pkey_hash_size;
+    int l_out_idx;
+    
+    if (!PyArg_ParseTuple(a_args, "Os#s#is#", &l_ledger_obj, 
+                          &l_voting_hash_bytes, &l_voting_hash_size,
+                          &l_tx_hash_bytes, &l_tx_hash_size,
+                          &l_out_idx,
+                          &l_pkey_hash_bytes, &l_pkey_hash_size)) {
+        return NULL;
+    }
+    
+    if (!PyCapsule_CheckExact(l_ledger_obj)) {
+        PyErr_SetString(PyExc_TypeError, "First argument must be a ledger capsule");
+        return NULL;
+    }
+    
+    if ((size_t)l_voting_hash_size != sizeof(dap_hash_fast_t) ||
+        (size_t)l_tx_hash_size != sizeof(dap_hash_fast_t) ||
+        (size_t)l_pkey_hash_size != sizeof(dap_hash_fast_t)) {
+        PyErr_Format(PyExc_ValueError, "All hashes must be exactly %zu bytes", sizeof(dap_hash_fast_t));
+        return NULL;
+    }
+    
+    dap_ledger_t *l_ledger = (dap_ledger_t *)PyCapsule_GetPointer(l_ledger_obj, "dap_ledger_t");
+    if (!l_ledger) {
+        PyErr_SetString(PyExc_ValueError, "Invalid ledger capsule");
+        return NULL;
+    }
+    
+    dap_hash_fast_t *l_voting_hash = (dap_hash_fast_t *)l_voting_hash_bytes;
+    dap_hash_fast_t *l_tx_hash = (dap_hash_fast_t *)l_tx_hash_bytes;
+    dap_hash_fast_t *l_pkey_hash = (dap_hash_fast_t *)l_pkey_hash_bytes;
+    
+    uint256_t l_value = dap_ledger_coin_get_uncoloured_value(l_ledger, l_voting_hash, 
+                                                              l_tx_hash, l_out_idx, l_pkey_hash);
+    
+    log_it(L_DEBUG, "Got uncoloured value for coin (out_idx=%d)", l_out_idx);
+    return PyBytes_FromStringAndSize((const char *)&l_value, sizeof(uint256_t));
+}
+
+/**
+ * @brief Get transaction trackers
+ * @param a_self Python self object (unused)
+ * @param a_args Arguments (ledger capsule, tx_hash bytes, out_idx uint32)
+ * @return PyCapsule wrapping dap_list_t* or None
+ */
+PyObject* dap_ledger_tx_get_trackers_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    PyObject *l_ledger_obj;
+    const char *l_tx_hash_bytes;
+    Py_ssize_t l_tx_hash_size;
+    unsigned int l_out_idx;
+    
+    if (!PyArg_ParseTuple(a_args, "Os#I", &l_ledger_obj, &l_tx_hash_bytes, &l_tx_hash_size, &l_out_idx)) {
+        return NULL;
+    }
+    
+    if (!PyCapsule_CheckExact(l_ledger_obj)) {
+        PyErr_SetString(PyExc_TypeError, "First argument must be a ledger capsule");
+        return NULL;
+    }
+    
+    if ((size_t)l_tx_hash_size != sizeof(dap_chain_hash_fast_t)) {
+        PyErr_Format(PyExc_ValueError, "TX hash must be exactly %zu bytes", sizeof(dap_chain_hash_fast_t));
+        return NULL;
+    }
+    
+    dap_ledger_t *l_ledger = (dap_ledger_t *)PyCapsule_GetPointer(l_ledger_obj, "dap_ledger_t");
+    if (!l_ledger) {
+        PyErr_SetString(PyExc_ValueError, "Invalid ledger capsule");
+        return NULL;
+    }
+    
+    dap_chain_hash_fast_t *l_tx_hash = (dap_chain_hash_fast_t *)l_tx_hash_bytes;
+    
+    dap_list_t *l_list = dap_ledger_tx_get_trackers(l_ledger, l_tx_hash, (uint32_t)l_out_idx);
+    if (!l_list) {
+        log_it(L_DEBUG, "No trackers for TX out_idx=%u", l_out_idx);
+        Py_RETURN_NONE;
+    }
+    
+    log_it(L_DEBUG, "Got trackers for TX out_idx=%u", l_out_idx);
+    return PyCapsule_New(l_list, "dap_list_t", NULL);
+}
+
+/**
+ * @brief Clear transaction colour
+ * @param a_self Python self object (unused)
+ * @param a_args Arguments (ledger capsule, tx_hash bytes)
+ * @return None
+ */
+PyObject* dap_ledger_tx_clear_colour_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    PyObject *l_ledger_obj;
+    const char *l_tx_hash_bytes;
+    Py_ssize_t l_tx_hash_size;
+    
+    if (!PyArg_ParseTuple(a_args, "Os#", &l_ledger_obj, &l_tx_hash_bytes, &l_tx_hash_size)) {
+        return NULL;
+    }
+    
+    if (!PyCapsule_CheckExact(l_ledger_obj)) {
+        PyErr_SetString(PyExc_TypeError, "First argument must be a ledger capsule");
+        return NULL;
+    }
+    
+    if ((size_t)l_tx_hash_size != sizeof(dap_hash_fast_t)) {
+        PyErr_Format(PyExc_ValueError, "TX hash must be exactly %zu bytes", sizeof(dap_hash_fast_t));
+        return NULL;
+    }
+    
+    dap_ledger_t *l_ledger = (dap_ledger_t *)PyCapsule_GetPointer(l_ledger_obj, "dap_ledger_t");
+    if (!l_ledger) {
+        PyErr_SetString(PyExc_ValueError, "Invalid ledger capsule");
+        return NULL;
+    }
+    
+    dap_hash_fast_t *l_tx_hash = (dap_hash_fast_t *)l_tx_hash_bytes;
+    
+    dap_ledger_tx_clear_colour(l_ledger, l_tx_hash);
+    
+    log_it(L_DEBUG, "Cleared TX colour");
+    Py_RETURN_NONE;
+}
+
+/**
+ * @brief Colour clear callback
+ * @param a_self Python self object (unused)
+ * @param a_args Arguments (list_data pointer as capsule)
+ * @return None
+ */
+PyObject* dap_ledger_colour_clear_callback_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    PyObject *l_list_data_obj;
+    
+    if (!PyArg_ParseTuple(a_args, "O", &l_list_data_obj)) {
+        return NULL;
+    }
+    
+    if (!PyCapsule_CheckExact(l_list_data_obj)) {
+        PyErr_SetString(PyExc_TypeError, "Argument must be a capsule");
+        return NULL;
+    }
+    
+    void *l_list_data = PyCapsule_GetPointer(l_list_data_obj, NULL);
+    if (!l_list_data) {
+        PyErr_SetString(PyExc_ValueError, "Invalid capsule");
+        return NULL;
+    }
+    
+    dap_ledger_colour_clear_callback(l_list_data);
+    
+    log_it(L_DEBUG, "Colour clear callback executed");
+    Py_RETURN_NONE;
+}
+
+// =============================================================================
+// AGGREGATION & DECREE OPERATIONS
+// =============================================================================
+
+/**
+ * @brief Aggregate ledger states for hardfork
+ * @param a_self Python self object (unused)
+ * @param a_args Arguments (ledger capsule, hardfork_decree_creation_time uint64)
+ * @return PyCapsule wrapping dap_ledger_hardfork_balances_t* or None
+ * Note: cond_outs_list output parameter is skipped for Python binding simplicity
+ */
+PyObject* dap_ledger_states_aggregate_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    PyObject *l_ledger_obj;
+    unsigned long long l_hardfork_time;
+    
+    if (!PyArg_ParseTuple(a_args, "OK", &l_ledger_obj, &l_hardfork_time)) {
+        return NULL;
+    }
+    
+    if (!PyCapsule_CheckExact(l_ledger_obj)) {
+        PyErr_SetString(PyExc_TypeError, "First argument must be a ledger capsule");
+        return NULL;
+    }
+    
+    dap_ledger_t *l_ledger = (dap_ledger_t *)PyCapsule_GetPointer(l_ledger_obj, "dap_ledger_t");
+    if (!l_ledger) {
+        PyErr_SetString(PyExc_ValueError, "Invalid ledger capsule");
+        return NULL;
+    }
+    
+    dap_ledger_hardfork_condouts_t *l_cond_outs = NULL;
+    dap_ledger_hardfork_fees_t l_fees_list = {0};
+    dap_ledger_hardfork_balances_t *l_balances = dap_ledger_states_aggregate(l_ledger, l_hardfork_time, &l_cond_outs, NULL, &l_fees_list);
+    
+    if (!l_balances) {
+        log_it(L_DEBUG, "States aggregation returned NULL");
+        Py_RETURN_NONE;
+    }
+    
+    log_it(L_DEBUG, "States aggregated for hardfork time %llu", l_hardfork_time);
+    return PyCapsule_New(l_balances, "dap_ledger_hardfork_balances_t", NULL);
+}
+
+/**
+ * @brief Aggregate anchors for chain
+ * @param a_self Python self object (unused)
+ * @param a_args Arguments (ledger capsule, chain_id uint64)
+ * @return PyCapsule wrapping dap_ledger_hardfork_anchors_t* or None
+ */
+PyObject* dap_ledger_anchors_aggregate_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    PyObject *l_ledger_obj;
+    unsigned long long l_chain_id;
+    
+    if (!PyArg_ParseTuple(a_args, "OK", &l_ledger_obj, &l_chain_id)) {
+        return NULL;
+    }
+    
+    if (!PyCapsule_CheckExact(l_ledger_obj)) {
+        PyErr_SetString(PyExc_TypeError, "First argument must be a ledger capsule");
+        return NULL;
+    }
+    
+    dap_ledger_t *l_ledger = (dap_ledger_t *)PyCapsule_GetPointer(l_ledger_obj, "dap_ledger_t");
+    if (!l_ledger) {
+        PyErr_SetString(PyExc_ValueError, "Invalid ledger capsule");
+        return NULL;
+    }
+    
+    dap_chain_id_t l_chain_id_union = {.uint64 = l_chain_id};
+    dap_ledger_hardfork_anchors_t *l_anchors = dap_ledger_anchors_aggregate(l_ledger, l_chain_id_union);
+    
+    if (!l_anchors) {
+        log_it(L_DEBUG, "Anchors aggregation returned NULL for chain_id %llu", l_chain_id);
+        Py_RETURN_NONE;
+    }
+    
+    log_it(L_DEBUG, "Anchors aggregated for chain_id %llu", l_chain_id);
+    return PyCapsule_New(l_anchors, "dap_ledger_hardfork_anchors_t", NULL);
+}
+
+/**
+ * @brief Aggregate events for chain
+ * @param a_self Python self object (unused)
+ * @param a_args Arguments (ledger capsule, chain_id uint64)
+ * @return PyCapsule wrapping dap_ledger_hardfork_events_t* or None
+ */
+PyObject* dap_ledger_events_aggregate_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    PyObject *l_ledger_obj;
+    unsigned long long l_chain_id;
+    
+    if (!PyArg_ParseTuple(a_args, "OK", &l_ledger_obj, &l_chain_id)) {
+        return NULL;
+    }
+    
+    if (!PyCapsule_CheckExact(l_ledger_obj)) {
+        PyErr_SetString(PyExc_TypeError, "First argument must be a ledger capsule");
+        return NULL;
+    }
+    
+    dap_ledger_t *l_ledger = (dap_ledger_t *)PyCapsule_GetPointer(l_ledger_obj, "dap_ledger_t");
+    if (!l_ledger) {
+        PyErr_SetString(PyExc_ValueError, "Invalid ledger capsule");
+        return NULL;
+    }
+    
+    dap_chain_id_t l_chain_id_union = {.uint64 = l_chain_id};
+    dap_ledger_hardfork_events_t *l_events = dap_ledger_events_aggregate(l_ledger, l_chain_id_union);
+    
+    if (!l_events) {
+        log_it(L_DEBUG, "Events aggregation returned NULL for chain_id %llu", l_chain_id);
+        Py_RETURN_NONE;
+    }
+    
+    log_it(L_DEBUG, "Events aggregated for chain_id %llu", l_chain_id);
+    return PyCapsule_New(l_events, "dap_ledger_hardfork_events_t", NULL);
+}
+
+/**
+ * @brief Get decrees by type
+ * @param a_self Python self object (unused)
+ * @param a_args Arguments (ledger capsule, decree_type integer)
+ * @return PyCapsule wrapping dap_list_t* or None
+ */
+PyObject* dap_ledger_decrees_get_by_type_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    PyObject *l_ledger_obj;
+    int l_type;
+    
+    if (!PyArg_ParseTuple(a_args, "Oi", &l_ledger_obj, &l_type)) {
+        return NULL;
+    }
+    
+    if (!PyCapsule_CheckExact(l_ledger_obj)) {
+        PyErr_SetString(PyExc_TypeError, "First argument must be a ledger capsule");
+        return NULL;
+    }
+    
+    dap_ledger_t *l_ledger = (dap_ledger_t *)PyCapsule_GetPointer(l_ledger_obj, "dap_ledger_t");
+    if (!l_ledger) {
+        PyErr_SetString(PyExc_ValueError, "Invalid ledger capsule");
+        return NULL;
+    }
+    
+    dap_list_t *l_list = dap_ledger_decrees_get_by_type(l_ledger, l_type);
+    
+    if (!l_list) {
+        log_it(L_DEBUG, "No decrees found for type %d", l_type);
+        Py_RETURN_NONE;
+    }
+    
+    log_it(L_DEBUG, "Got decrees list for type %d", l_type);
+    return PyCapsule_New(l_list, "dap_list_t", NULL);
+}
+
+// =============================================================================
+// EVENT OPERATIONS
+// =============================================================================
+
+/**
+ * @brief Check if event public key is registered
+ * @param a_self Python self object (unused)
+ * @param a_args Arguments (ledger capsule, pkey_hash bytes)
+ * @return Integer result (0=not found, 1=found)
+ */
+PyObject* dap_ledger_event_pkey_check_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    PyObject *l_ledger_obj;
+    const char *l_pkey_hash_bytes;
+    Py_ssize_t l_pkey_hash_size;
+    
+    if (!PyArg_ParseTuple(a_args, "Os#", &l_ledger_obj, &l_pkey_hash_bytes, &l_pkey_hash_size)) {
+        return NULL;
+    }
+    
+    if (!PyCapsule_CheckExact(l_ledger_obj)) {
+        PyErr_SetString(PyExc_TypeError, "First argument must be a ledger capsule");
+        return NULL;
+    }
+    
+    if ((size_t)l_pkey_hash_size != sizeof(dap_hash_fast_t)) {
+        PyErr_Format(PyExc_ValueError, "Pkey hash must be exactly %zu bytes", sizeof(dap_hash_fast_t));
+        return NULL;
+    }
+    
+    dap_ledger_t *l_ledger = (dap_ledger_t *)PyCapsule_GetPointer(l_ledger_obj, "dap_ledger_t");
+    if (!l_ledger) {
+        PyErr_SetString(PyExc_ValueError, "Invalid ledger capsule");
+        return NULL;
+    }
+    
+    dap_hash_fast_t *l_pkey_hash = (dap_hash_fast_t *)l_pkey_hash_bytes;
+    int l_result = dap_ledger_event_pkey_check(l_ledger, l_pkey_hash);
+    
+    log_it(L_DEBUG, "Event pkey check result: %d", l_result);
+    return PyLong_FromLong(l_result);
+}
+
+/**
+ * @brief Add event public key
+ * @param a_self Python self object (unused)
+ * @param a_args Arguments (ledger capsule, pkey_hash bytes)
+ * @return Integer result code
+ */
+PyObject* dap_ledger_event_pkey_add_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    PyObject *l_ledger_obj;
+    const char *l_pkey_hash_bytes;
+    Py_ssize_t l_pkey_hash_size;
+    
+    if (!PyArg_ParseTuple(a_args, "Os#", &l_ledger_obj, &l_pkey_hash_bytes, &l_pkey_hash_size)) {
+        return NULL;
+    }
+    
+    if (!PyCapsule_CheckExact(l_ledger_obj)) {
+        PyErr_SetString(PyExc_TypeError, "First argument must be a ledger capsule");
+        return NULL;
+    }
+    
+    if ((size_t)l_pkey_hash_size != sizeof(dap_hash_fast_t)) {
+        PyErr_Format(PyExc_ValueError, "Pkey hash must be exactly %zu bytes", sizeof(dap_hash_fast_t));
+        return NULL;
+    }
+    
+    dap_ledger_t *l_ledger = (dap_ledger_t *)PyCapsule_GetPointer(l_ledger_obj, "dap_ledger_t");
+    if (!l_ledger) {
+        PyErr_SetString(PyExc_ValueError, "Invalid ledger capsule");
+        return NULL;
+    }
+    
+    dap_hash_fast_t *l_pkey_hash = (dap_hash_fast_t *)l_pkey_hash_bytes;
+    int l_result = dap_ledger_event_pkey_add(l_ledger, l_pkey_hash);
+    
+    log_it(L_DEBUG, "Event pkey add result: %d", l_result);
+    return PyLong_FromLong(l_result);
+}
+
+/**
+ * @brief Remove event public key
+ * @param a_self Python self object (unused)
+ * @param a_args Arguments (ledger capsule, pkey_hash bytes)
+ * @return Integer result code
+ */
+PyObject* dap_ledger_event_pkey_rm_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    PyObject *l_ledger_obj;
+    const char *l_pkey_hash_bytes;
+    Py_ssize_t l_pkey_hash_size;
+    
+    if (!PyArg_ParseTuple(a_args, "Os#", &l_ledger_obj, &l_pkey_hash_bytes, &l_pkey_hash_size)) {
+        return NULL;
+    }
+    
+    if (!PyCapsule_CheckExact(l_ledger_obj)) {
+        PyErr_SetString(PyExc_TypeError, "First argument must be a ledger capsule");
+        return NULL;
+    }
+    
+    if ((size_t)l_pkey_hash_size != sizeof(dap_hash_fast_t)) {
+        PyErr_Format(PyExc_ValueError, "Pkey hash must be exactly %zu bytes", sizeof(dap_hash_fast_t));
+        return NULL;
+    }
+    
+    dap_ledger_t *l_ledger = (dap_ledger_t *)PyCapsule_GetPointer(l_ledger_obj, "dap_ledger_t");
+    if (!l_ledger) {
+        PyErr_SetString(PyExc_ValueError, "Invalid ledger capsule");
+        return NULL;
+    }
+    
+    dap_hash_fast_t *l_pkey_hash = (dap_hash_fast_t *)l_pkey_hash_bytes;
+    int l_result = dap_ledger_event_pkey_rm(l_ledger, l_pkey_hash);
+    
+    log_it(L_DEBUG, "Event pkey remove result: %d", l_result);
+    return PyLong_FromLong(l_result);
+}
+
+/**
+ * @brief Get list of event public keys
+ * @param a_self Python self object (unused)
+ * @param a_args Arguments (ledger capsule)
+ * @return PyCapsule wrapping dap_list_t* or None
+ */
+PyObject* dap_ledger_event_pkey_list_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    PyObject *l_ledger_obj;
+    
+    if (!PyArg_ParseTuple(a_args, "O", &l_ledger_obj)) {
+        return NULL;
+    }
+    
+    if (!PyCapsule_CheckExact(l_ledger_obj)) {
+        PyErr_SetString(PyExc_TypeError, "First argument must be a ledger capsule");
+        return NULL;
+    }
+    
+    dap_ledger_t *l_ledger = (dap_ledger_t *)PyCapsule_GetPointer(l_ledger_obj, "dap_ledger_t");
+    if (!l_ledger) {
+        PyErr_SetString(PyExc_ValueError, "Invalid ledger capsule");
+        return NULL;
+    }
+    
+    dap_list_t *l_list = dap_ledger_event_pkey_list(l_ledger);
+    if (!l_list) {
+        log_it(L_DEBUG, "No event pkeys in list");
+        Py_RETURN_NONE;
+    }
+    
+    log_it(L_DEBUG, "Got event pkey list");
+    return PyCapsule_New(l_list, "dap_list_t", NULL);
+}
+
+/**
+ * @brief Find event by transaction hash
+ * @param a_self Python self object (unused)
+ * @param a_args Arguments (ledger capsule, tx_hash bytes)
+ * @return PyCapsule wrapping dap_chain_tx_event_t* or None
+ */
+PyObject* dap_ledger_event_find_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    PyObject *l_ledger_obj;
+    const char *l_tx_hash_bytes;
+    Py_ssize_t l_tx_hash_size;
+    
+    if (!PyArg_ParseTuple(a_args, "Os#", &l_ledger_obj, &l_tx_hash_bytes, &l_tx_hash_size)) {
+        return NULL;
+    }
+    
+    if (!PyCapsule_CheckExact(l_ledger_obj)) {
+        PyErr_SetString(PyExc_TypeError, "First argument must be a ledger capsule");
+        return NULL;
+    }
+    
+    if ((size_t)l_tx_hash_size != sizeof(dap_hash_fast_t)) {
+        PyErr_Format(PyExc_ValueError, "TX hash must be exactly %zu bytes", sizeof(dap_hash_fast_t));
+        return NULL;
+    }
+    
+    dap_ledger_t *l_ledger = (dap_ledger_t *)PyCapsule_GetPointer(l_ledger_obj, "dap_ledger_t");
+    if (!l_ledger) {
+        PyErr_SetString(PyExc_ValueError, "Invalid ledger capsule");
+        return NULL;
+    }
+    
+    dap_hash_fast_t *l_tx_hash = (dap_hash_fast_t *)l_tx_hash_bytes;
+    dap_chain_tx_event_t *l_event = dap_ledger_event_find(l_ledger, l_tx_hash);
+    
+    if (!l_event) {
+        log_it(L_DEBUG, "Event not found by TX hash");
+        Py_RETURN_NONE;
+    }
+    
+    log_it(L_DEBUG, "Event found by TX hash");
+    return PyCapsule_New(l_event, "dap_chain_tx_event_t", NULL);
+}
+
+/**
+ * @brief Get list of events with extended options
+ * @param a_self Python self object (unused)
+ * @param a_args Arguments (ledger capsule, group_name string, need_lock bool)
+ * @return PyCapsule wrapping dap_list_t* or None
+ */
+PyObject* dap_ledger_event_get_list_ex_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    PyObject *l_ledger_obj;
+    const char *l_group_name;
+    int l_need_lock;
+    
+    if (!PyArg_ParseTuple(a_args, "Osp", &l_ledger_obj, &l_group_name, &l_need_lock)) {
+        return NULL;
+    }
+    
+    if (!PyCapsule_CheckExact(l_ledger_obj)) {
+        PyErr_SetString(PyExc_TypeError, "First argument must be a ledger capsule");
+        return NULL;
+    }
+    
+    dap_ledger_t *l_ledger = (dap_ledger_t *)PyCapsule_GetPointer(l_ledger_obj, "dap_ledger_t");
+    if (!l_ledger) {
+        PyErr_SetString(PyExc_ValueError, "Invalid ledger capsule");
+        return NULL;
+    }
+    
+    dap_list_t *l_list = dap_ledger_event_get_list_ex(l_ledger, l_group_name, (bool)l_need_lock);
+    if (!l_list) {
+        log_it(L_DEBUG, "No events found for group '%s'", l_group_name);
+        Py_RETURN_NONE;
+    }
+    
+    log_it(L_DEBUG, "Got events list for group '%s' (lock=%d)", l_group_name, l_need_lock);
+    return PyCapsule_New(l_list, "dap_list_t", NULL);
+}
+
 // =========================================
 // MODULE INITIALIZATION
 // =========================================
@@ -3403,6 +4558,84 @@ int cellframe_ledger_init(PyObject *module) {
          "Unload anchor from chain"},
         {"ledger_anchor_find", (PyCFunction)dap_ledger_anchor_find_py, METH_VARARGS,
          "Find anchor by hash"},
+        
+        // Lifecycle operations
+        {"ledger_init", (PyCFunction)dap_ledger_init_py, METH_VARARGS,
+         "Initialize ledger subsystem globally"},
+        {"ledger_deinit", (PyCFunction)dap_ledger_deinit_py, METH_VARARGS,
+         "Deinitialize ledger subsystem globally"},
+        {"ledger_create", (PyCFunction)dap_ledger_create_py, METH_VARARGS,
+         "Create new ledger for a network"},
+        {"ledger_handle_free", (PyCFunction)dap_ledger_handle_free_py, METH_VARARGS,
+         "Free ledger handle"},
+        
+        // Token ticker operations
+        {"ledger_addr_get_token_ticker_all", (PyCFunction)dap_ledger_addr_get_token_ticker_all_py, METH_VARARGS,
+         "Get all token tickers for an address"},
+        {"ledger_addr_get_token_ticker_all_depricated", (PyCFunction)dap_ledger_addr_get_token_ticker_all_depricated_py, METH_VARARGS,
+         "Get all token tickers for an address (deprecated)"},
+        
+        // Utility functions
+        {"ledger_count_from_to", (PyCFunction)dap_ledger_count_from_to_py, METH_VARARGS,
+         "Count transactions from timestamp range"},
+        {"ledger_datum_is_enforced", (PyCFunction)dap_ledger_datum_is_enforced_py, METH_VARARGS,
+         "Check if datum is enforced"},
+        {"ledger_get_blockchain_time", (PyCFunction)dap_ledger_get_blockchain_time_py, METH_VARARGS,
+         "Get blockchain time"},
+        {"ledger_tx_action_str", (PyCFunction)dap_ledger_tx_action_str_py, METH_VARARGS,
+         "Get transaction action string"},
+        {"ledger_tx_action_str_to_action_t", (PyCFunction)dap_ledger_tx_action_str_to_action_t_py, METH_VARARGS,
+         "Convert action string to action type"},
+        {"ledger_tx_tag_str_by_uid", (PyCFunction)dap_ledger_tx_tag_str_by_uid_py, METH_VARARGS,
+         "Get tag string by service UID"},
+        {"ledger_tx_calculate_main_ticker", (PyCFunction)dap_ledger_tx_calculate_main_ticker_py, METH_VARARGS,
+         "Calculate main ticker for transaction"},
+        {"ledger_get_list_tx_outs_from_json", (PyCFunction)dap_ledger_get_list_tx_outs_from_json_py, METH_VARARGS,
+         "Get list of TX outputs from JSON"},
+        
+        // Callbacks & special operations
+        {"ledger_token_get_emission_rate", (PyCFunction)dap_ledger_token_get_emission_rate_py, METH_VARARGS,
+         "Get token emission rate"},
+        {"ledger_token_emissions_mark_hardfork", (PyCFunction)dap_ledger_token_emissions_mark_hardfork_py, METH_VARARGS,
+         "Mark token emissions hardfork"},
+        {"ledger_service_add", (PyCFunction)dap_ledger_service_add_py, METH_VARARGS,
+         "Add service with callback (stub)"},
+        {"ledger_tax_callback_set", (PyCFunction)dap_ledger_tax_callback_set_py, METH_VARARGS,
+         "Set tax callback (stub)"},
+        
+        // Tracker & color operations
+        {"ledger_coin_get_uncoloured_value", (PyCFunction)dap_ledger_coin_get_uncoloured_value_py, METH_VARARGS,
+         "Get uncoloured value of a coin"},
+        {"ledger_tx_get_trackers", (PyCFunction)dap_ledger_tx_get_trackers_py, METH_VARARGS,
+         "Get transaction trackers"},
+        {"ledger_tx_clear_colour", (PyCFunction)dap_ledger_tx_clear_colour_py, METH_VARARGS,
+         "Clear transaction colour"},
+        {"ledger_colour_clear_callback", (PyCFunction)dap_ledger_colour_clear_callback_py, METH_VARARGS,
+         "Colour clear callback"},
+        
+        // Aggregation & decree operations
+        {"ledger_states_aggregate", (PyCFunction)dap_ledger_states_aggregate_py, METH_VARARGS,
+         "Aggregate ledger states for hardfork"},
+        {"ledger_anchors_aggregate", (PyCFunction)dap_ledger_anchors_aggregate_py, METH_VARARGS,
+         "Aggregate anchors for chain"},
+        {"ledger_events_aggregate", (PyCFunction)dap_ledger_events_aggregate_py, METH_VARARGS,
+         "Aggregate events for chain"},
+        {"ledger_decrees_get_by_type", (PyCFunction)dap_ledger_decrees_get_by_type_py, METH_VARARGS,
+         "Get decrees by type"},
+        
+        // Event operations
+        {"ledger_event_pkey_check", (PyCFunction)dap_ledger_event_pkey_check_py, METH_VARARGS,
+         "Check if event public key is registered"},
+        {"ledger_event_pkey_add", (PyCFunction)dap_ledger_event_pkey_add_py, METH_VARARGS,
+         "Add event public key"},
+        {"ledger_event_pkey_rm", (PyCFunction)dap_ledger_event_pkey_rm_py, METH_VARARGS,
+         "Remove event public key"},
+        {"ledger_event_pkey_list", (PyCFunction)dap_ledger_event_pkey_list_py, METH_VARARGS,
+         "Get list of event public keys"},
+        {"ledger_event_find", (PyCFunction)dap_ledger_event_find_py, METH_VARARGS,
+         "Find event by transaction hash"},
+        {"ledger_event_get_list_ex", (PyCFunction)dap_ledger_event_get_list_ex_py, METH_VARARGS,
+         "Get list of events with extended options"},
         
         {NULL, NULL, 0, NULL}  // Sentinel
     };
