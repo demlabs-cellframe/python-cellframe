@@ -737,6 +737,173 @@ PyObject* dap_ledger_tx_purge_py(PyObject *a_self, PyObject *a_args) {
     Py_RETURN_NONE;
 }
 
+// =============================================================================
+// TOKEN AND BALANCE INFO OPERATIONS (JSON)
+// =============================================================================
+
+/**
+ * @brief Get token info as JSON (Python binding)
+ * @param a_self Python self object (unused)
+ * @param a_args Python arguments tuple (ledger capsule, limit, offset, version)
+ * @return JSON object capsule or None
+ */
+PyObject* dap_ledger_token_info_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    PyObject *l_ledger_capsule = NULL;
+    size_t l_limit = 0;
+    size_t l_offset = 0;
+    int l_version = 0;
+    
+    if (!PyArg_ParseTuple(a_args, "Onni", &l_ledger_capsule, &l_limit, &l_offset, &l_version)) {
+        log_it(L_ERROR, "Invalid arguments for ledger_token_info");
+        return NULL;
+    }
+    
+    if (!l_ledger_capsule || !PyCapsule_CheckExact(l_ledger_capsule)) {
+        PyErr_SetString(PyExc_TypeError, "Expected ledger capsule");
+        return NULL;
+    }
+    
+    dap_ledger_t *l_ledger = (dap_ledger_t*)PyCapsule_GetPointer(l_ledger_capsule, "dap_ledger_t");
+    if (!l_ledger) {
+        log_it(L_ERROR, "Failed to extract ledger pointer");
+        return NULL;
+    }
+    
+    dap_json_t *l_json = dap_ledger_token_info(l_ledger, l_limit, l_offset, l_version);
+    if (!l_json) {
+        log_it(L_DEBUG, "No token info available");
+        Py_RETURN_NONE;
+    }
+    
+    log_it(L_DEBUG, "Retrieved token info (limit=%zu, offset=%zu)", l_limit, l_offset);
+    return PyCapsule_New(l_json, "dap_json_t", NULL);
+}
+
+/**
+ * @brief Get token info by name as JSON (Python binding)
+ * @param a_self Python self object (unused)
+ * @param a_args Python arguments tuple (ledger capsule, token_ticker, version)
+ * @return JSON object capsule or None
+ */
+PyObject* dap_ledger_token_info_by_name_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    PyObject *l_ledger_capsule = NULL;
+    const char *l_token_ticker = NULL;
+    int l_version = 0;
+    
+    if (!PyArg_ParseTuple(a_args, "Osi", &l_ledger_capsule, &l_token_ticker, &l_version)) {
+        log_it(L_ERROR, "Invalid arguments for ledger_token_info_by_name");
+        return NULL;
+    }
+    
+    if (!l_ledger_capsule || !PyCapsule_CheckExact(l_ledger_capsule)) {
+        PyErr_SetString(PyExc_TypeError, "Expected ledger capsule");
+        return NULL;
+    }
+    
+    dap_ledger_t *l_ledger = (dap_ledger_t*)PyCapsule_GetPointer(l_ledger_capsule, "dap_ledger_t");
+    if (!l_ledger) {
+        log_it(L_ERROR, "Failed to extract ledger pointer");
+        return NULL;
+    }
+    
+    dap_json_t *l_json = dap_ledger_token_info_by_name(l_ledger, l_token_ticker, l_version);
+    if (!l_json) {
+        log_it(L_DEBUG, "Token '%s' info not found", l_token_ticker);
+        Py_RETURN_NONE;
+    }
+    
+    log_it(L_DEBUG, "Retrieved token info for '%s'", l_token_ticker);
+    return PyCapsule_New(l_json, "dap_json_t", NULL);
+}
+
+/**
+ * @brief Get balance info as JSON (Python binding)
+ * @param a_self Python self object (unused)
+ * @param a_args Python arguments tuple (ledger capsule, limit, offset, head, version)
+ * @return JSON object capsule or None
+ */
+PyObject* dap_ledger_balance_info_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    PyObject *l_ledger_capsule = NULL;
+    size_t l_limit = 0;
+    size_t l_offset = 0;
+    int l_head = 0;
+    int l_version = 0;
+    
+    if (!PyArg_ParseTuple(a_args, "Onnpi", &l_ledger_capsule, &l_limit, &l_offset, &l_head, &l_version)) {
+        log_it(L_ERROR, "Invalid arguments for ledger_balance_info");
+        return NULL;
+    }
+    
+    if (!l_ledger_capsule || !PyCapsule_CheckExact(l_ledger_capsule)) {
+        PyErr_SetString(PyExc_TypeError, "Expected ledger capsule");
+        return NULL;
+    }
+    
+    dap_ledger_t *l_ledger = (dap_ledger_t*)PyCapsule_GetPointer(l_ledger_capsule, "dap_ledger_t");
+    if (!l_ledger) {
+        log_it(L_ERROR, "Failed to extract ledger pointer");
+        return NULL;
+    }
+    
+    dap_json_t *l_json = dap_ledger_balance_info(l_ledger, l_limit, l_offset, (bool)l_head, l_version);
+    if (!l_json) {
+        log_it(L_DEBUG, "No balance info available");
+        Py_RETURN_NONE;
+    }
+    
+    log_it(L_DEBUG, "Retrieved balance info");
+    return PyCapsule_New(l_json, "dap_json_t", NULL);
+}
+
+/**
+ * @brief Get threshold info as JSON (Python binding)
+ * @param a_self Python self object (unused)
+ * @param a_args Python arguments tuple (ledger capsule, limit, offset, threshold_hash, head, version)
+ * @return JSON object capsule or None
+ */
+PyObject* dap_ledger_threshold_info_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    PyObject *l_ledger_capsule = NULL;
+    size_t l_limit = 0;
+    size_t l_offset = 0;
+    PyObject *l_hash_capsule = Py_None;
+    int l_head = 0;
+    int l_version = 0;
+    
+    if (!PyArg_ParseTuple(a_args, "OnnOpi", &l_ledger_capsule, &l_limit, &l_offset, &l_hash_capsule, &l_head, &l_version)) {
+        log_it(L_ERROR, "Invalid arguments for ledger_threshold_info");
+        return NULL;
+    }
+    
+    if (!l_ledger_capsule || !PyCapsule_CheckExact(l_ledger_capsule)) {
+        PyErr_SetString(PyExc_TypeError, "Expected ledger capsule");
+        return NULL;
+    }
+    
+    dap_ledger_t *l_ledger = (dap_ledger_t*)PyCapsule_GetPointer(l_ledger_capsule, "dap_ledger_t");
+    if (!l_ledger) {
+        log_it(L_ERROR, "Failed to extract ledger pointer");
+        return NULL;
+    }
+    
+    dap_hash_fast_t *l_threshold_hash = NULL;
+    if (l_hash_capsule && l_hash_capsule != Py_None) {
+        l_threshold_hash = (dap_hash_fast_t*)PyCapsule_GetPointer(l_hash_capsule, "dap_hash_fast_t");
+    }
+    
+    dap_json_t *l_json = dap_ledger_threshold_info(l_ledger, l_limit, l_offset, l_threshold_hash, (bool)l_head, l_version);
+    if (!l_json) {
+        log_it(L_DEBUG, "No threshold info available");
+        Py_RETURN_NONE;
+    }
+    
+    log_it(L_DEBUG, "Retrieved threshold info");
+    return PyCapsule_New(l_json, "dap_json_t", NULL);
+}
+
 // =========================================
 // MODULE INITIALIZATION
 // =========================================
@@ -787,6 +954,16 @@ int cellframe_ledger_init(PyObject *module) {
          "Get count of valid authorization signatures for token"},
         {"ledger_token_get_auth_signs_total", (PyCFunction)dap_ledger_token_get_auth_signs_total_py, METH_VARARGS,
          "Get total count of authorization signatures for token"},
+        
+        // JSON info operations
+        {"ledger_token_info", (PyCFunction)dap_ledger_token_info_py, METH_VARARGS,
+         "Get token info as JSON"},
+        {"ledger_token_info_by_name", (PyCFunction)dap_ledger_token_info_by_name_py, METH_VARARGS,
+         "Get token info by name as JSON"},
+        {"ledger_balance_info", (PyCFunction)dap_ledger_balance_info_py, METH_VARARGS,
+         "Get balance info as JSON"},
+        {"ledger_threshold_info", (PyCFunction)dap_ledger_threshold_info_py, METH_VARARGS,
+         "Get threshold info as JSON"},
         
         {NULL, NULL, 0, NULL}  // Sentinel
     };
