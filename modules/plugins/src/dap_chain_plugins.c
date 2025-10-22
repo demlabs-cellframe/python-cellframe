@@ -30,8 +30,6 @@ static void s_plugins_load_plugin_uninitialization(void* a_module);
 
 const char *pycfhelpers_path = "/opt/cellframe-node/python/lib/"PYTHON_VERSION"/site-packages/pycfhelpers";
 const char *pycftools_path = "/opt/cellframe-node/python/lib/"PYTHON_VERSION"/site-packages/pycftools";
-const char *plugins_path = "/opt/cellframe-node/var/lib/plugins/";
-char *strings[]={"DAP", "CellFrame", NULL};
 
 wchar_t *s_get_full_path(const char *a_prefix, const char *a_path)
 {
@@ -241,6 +239,11 @@ void* dap_chain_plugins_load_plugin_importing(const char *a_dir_path, const char
     PyList_Append(s_sys_path, l_obj_dir_path);
     Py_XDECREF(l_obj_dir_path);
 
+    if (PyRun_SimpleString("import importlib; importlib.invalidate_caches()") != 0) {
+        python_error_in_log_it(LOG_TAG);
+        PyErr_Clear();
+    }
+
     PyObject *l_module_name = PyUnicode_FromString(a_name);
 
     // Trying to get an already loaded module
@@ -248,67 +251,40 @@ void* dap_chain_plugins_load_plugin_importing(const char *a_dir_path, const char
     PyObject *l_module = NULL;
 
     if (l_ext_module) {
-        // The module has already been imported, remove it from sys.modules
-        log_it(L_NOTICE, "Module \"%s\" is already imported, reloading...", a_name);
-        if (PyDict_DelItem(PyImport_GetModuleDict(), l_module_name) < 0) {
-            python_error_in_log_it(LOG_TAG);
-            log_it(L_ERROR, "Failed to remove module \"%s\" from sys.modules", a_name);
-        } else {
-            log_it(L_NOTICE, "Module \"%s\" removed from sys.modules", a_name);
+        // The module has already been imported, drop it and its submodules from sys.modules
+        log_it(L_NOTICE, "Module \"%s\" is already imported, dropping cached entries...", a_name);
+        PyObject *sys_modules = PyImport_GetModuleDict(); // borrowed ref
+        if (sys_modules && PyDict_Check(sys_modules)) {
+            PyObject *keys = PyDict_Keys(sys_modules); // new ref
+            if (keys) {
+                Py_ssize_t count = PyList_GET_SIZE(keys);
+                size_t name_len = strlen(a_name);
+                for (Py_ssize_t i = 0; i < count; ++i) {
+                    PyObject *key = PyList_GET_ITEM(keys, i); // borrowed ref
+                    if (!PyUnicode_Check(key))
+                        continue;
+                    const char *key_str = PyUnicode_AsUTF8(key);
+                    if (!key_str) {
+                        PyErr_Clear();
+                        continue;
+                    }
+                    bool is_self = strcmp(key_str, a_name) == 0;
+                    bool is_submodule = name_len > 0 && strncmp(key_str, a_name, name_len) == 0 && key_str[name_len] == '.';
+                    if (is_self || is_submodule) {
+                        if (PyDict_DelItem(sys_modules, key) < 0) {
+                            PyErr_Clear();
+                        }
+                    }
+                }
+                Py_DECREF(keys);
+            }
         }
         Py_DECREF(l_ext_module);
 
-        // Get the list of keys in sys.modules
-        PyObject *modules_dict = PyImport_GetModuleDict();
-        PyObject *modules_keys = PyDict_Keys(modules_dict);
-        Py_ssize_t num_modules = PyList_Size(modules_keys);
-
-        // Reload each module except for those in system paths or DAP and CellFrame related ones
-        for (Py_ssize_t i = 0; i < num_modules; ++i) {
-            PyObject *module_name = PyList_GetItem(modules_keys, i);
-            const char *module_name_str = PyUnicode_AsUTF8(module_name);
-
-            // Skip system modules
-            int j = 0;
-            bool sysmodule = false;
-            while (strings[j]) {
-                if (dap_strstr_len(module_name_str, strlen(module_name_str), strings[j]) != NULL) {
-                    sysmodule = true;
-                    break;
-                }
-                j++;
-            }
-            if (sysmodule) continue;
-
-            // Get the module
-            PyObject *module = PyImport_GetModule(module_name);
-            if (!module) {
-                continue;
-            }
-
-            // Get the file path of the module
-            PyObject *module_file_attr = PyObject_GetAttrString(module, "__file__");
-            if (!module_file_attr) {
-                Py_DECREF(module);
-                continue;
-            }
-            const char *module_file_path = PyUnicode_AsUTF8(module_file_attr);
-
-            // Check if the module is in the site-packages or plugins path
-            if (dap_strstr_len(module_file_path, strlen(module_file_path), pycfhelpers_path) != NULL ||
-                dap_strstr_len(module_file_path, strlen(module_file_path), pycftools_path) != NULL ||
-                dap_strstr_len(module_file_path, strlen(module_file_path), plugins_path) != NULL) {
-                log_it(L_NOTICE, "Reloading module \"%s\" from \"%s\"...", module_name_str, module_file_path);
-                if (PyImport_ReloadModule(module) == NULL) {
-                    log_it(L_WARNING, "Failed to reload module \"%s\"", module_name_str);
-                    PyErr_Clear();
-                }
-            }
-
-            Py_DECREF(module_file_attr);
-            Py_DECREF(module);
+        if (PyRun_SimpleString("import importlib; importlib.invalidate_caches()") != 0) {
+            python_error_in_log_it(LOG_TAG);
+            PyErr_Clear();
         }
-        Py_DECREF(modules_keys);
     }
 
     // Import the module
@@ -332,7 +308,6 @@ void* dap_chain_plugins_load_plugin_importing(const char *a_dir_path, const char
     }
     module->module = l_module;
     module->name = dap_strdup(a_name);
-    Py_INCREF(l_module);
     return module;
 }
 
@@ -351,9 +326,7 @@ static void s_plugins_load_plugin_initialization(void* a_module){
         l_res_int = PyObject_CallObject(l_func_init, l_void_tuple);
         PyGILState_Release(l_gil_state);
         if (l_res_int && PyLong_Check(l_res_int)) {
-            if (_PyLong_AsInt(l_res_int) == 0) {
-                Py_INCREF(l_container->module);
-            } else {
+            if (_PyLong_AsInt(l_res_int) != 0) {
                 python_error_in_log_it(LOG_TAG);
                 log_it(L_ERROR, "Can't initialize \"%s\" plugin. Code error: %i", l_container->name,
                        _PyLong_AsInt(l_res_int));
@@ -376,33 +349,63 @@ static void s_plugins_load_plugin_uninitialization(void* a_module){
     if (!a_module)
         return;
     _dap_chain_plugins_module_t  *l_container = (_dap_chain_plugins_module_t  *)a_module;
-    PyObject *l_func_deinit = PyObject_GetAttrString(l_container->module, "deinit");
-    PyObject *l_res_int = NULL;
+    PyGILState_STATE l_gil_state = PyGILState_Ensure();
+
     PyErr_Clear();
-    if (PyCallable_Check(l_func_deinit)) {
-        PyObject *l_void_tuple = PyTuple_New(0);
-        PyGILState_STATE l_gil_state;
-        l_gil_state = PyGILState_Ensure();
-        l_res_int = PyObject_CallObject(l_func_deinit, l_void_tuple);
-        PyGILState_Release(l_gil_state);
-        if (l_res_int && PyLong_Check(l_res_int)) {
-            if (_PyLong_AsInt(l_res_int) == 0) {
-                //                dap_chain_plugins_list_add(l_container->module, l_container->name);
-                Py_INCREF(l_container->module);
-            } else {
-                python_error_in_log_it(LOG_TAG);
-                log_it(L_ERROR, "Can't deinitialize \"%s\" plugin. Code error: %i", l_container->name,
-                       _PyLong_AsInt(l_res_int));
-            }
-        } else {
+    PyObject *l_func_deinit = PyObject_GetAttrString(l_container->module, "deinit");
+    if (l_func_deinit && PyCallable_Check(l_func_deinit)) {
+        PyObject *l_res = PyObject_CallFunctionObjArgs(l_func_deinit, NULL);
+        if (!l_res) {
             python_error_in_log_it(LOG_TAG);
-            log_it(L_ERROR, "The 'deinit' function of \"%s\" plugin didn't return an integer value", l_container->name);
+            PyErr_Clear();
+        } else {
+            Py_DECREF(l_res);
         }
-        Py_XDECREF(l_res_int);
-        Py_XDECREF(l_void_tuple);
     } else {
-        log_it(L_ERROR, "Can't find 'deinit' function of \"%s\" plugin", l_container->name);
+        log_it(L_WARNING, "Can't find 'deinit' function of \"%s\" plugin", l_container->name);
     }
+    Py_XDECREF(l_func_deinit);
+
+    PyObject *sys_modules = PyImport_GetModuleDict(); // borrowed reference
+    if (sys_modules && PyDict_Check(sys_modules)) {
+        PyObject *keys = PyDict_Keys(sys_modules); // new reference
+        if (keys) {
+            Py_ssize_t count = PyList_GET_SIZE(keys);
+            size_t name_len = strlen(l_container->name);
+            for (Py_ssize_t i = 0; i < count; ++i) {
+                PyObject *key = PyList_GET_ITEM(keys, i); // borrowed reference
+                if (!PyUnicode_Check(key))
+                    continue;
+                const char *key_str = PyUnicode_AsUTF8(key);
+                if (!key_str) {
+                    PyErr_Clear();
+                    continue;
+                }
+                bool is_self = strcmp(key_str, l_container->name) == 0;
+                bool is_submodule = name_len > 0 && strncmp(key_str, l_container->name, name_len) == 0
+                                    && key_str[name_len] == '.';
+                if (is_self || is_submodule) {
+                    if (PyDict_DelItem(sys_modules, key) < 0) {
+                        PyErr_Clear();
+                    }
+                }
+            }
+            Py_DECREF(keys);
+        }
+    }
+
+    if (PyRun_SimpleString("import importlib; importlib.invalidate_caches()") != 0) {
+        python_error_in_log_it(LOG_TAG);
+        PyErr_Clear();
+    }
+
+    Py_XDECREF(l_container->module);
+    l_container->module = NULL;
+
+    PyGILState_Release(l_gil_state);
+
+    DAP_DELETE(l_container->name);
+    DAP_DELETE(l_container);
 }
 
 void dap_chain_plugins_load_plugin(const char *a_dir_path, const char *a_name){
