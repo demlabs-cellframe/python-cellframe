@@ -99,7 +99,7 @@ endmacro()
 
 # Options
 option(BUILD_SHARED "Build final DAP SDK library as shared (default)" ON)
-option(BUILD_EXAMPLES "Build examples" ON)
+option(BUILD_EXAMPLES "Build examples" OFF)
 option(BUILD_TESTS "Build tests" OFF)
 
 # Internal modules are ALWAYS static, final can be SHARED or STATIC
@@ -191,7 +191,7 @@ endif()
 # Examples - UPDATED PATH
 if(BUILD_EXAMPLES)
     add_subdirectory(dap-sdk/module/examples)
-    message("[+] Module 'examples'")
+    message("[+] Module 'examples' (enabled via -DBUILD_EXAMPLES=ON)")
 endif()
 
 # Test framework - DAP SDK test module
@@ -270,6 +270,57 @@ add_subdirectory(python-dap)
 message("[+] Python-DAP bindings configured")
 
 # =========================================
+# PYTHON-CELLFRAME BINDINGS  
+# =========================================
+message("[+] =========================================")
+message("[+] Configuring Python-Cellframe bindings")
+message("[+] =========================================")
+
+# Find Python
+find_package(Python3 REQUIRED COMPONENTS Interpreter Development)
+
+# Python-Cellframe sources
+set(PYTHON_CELLFRAME_SOURCES
+    src/cellframe.c
+    src/cellframe_network.c
+    src/cellframe_node.c
+    src/cellframe_chain.c
+    src/cellframe_ledger.c
+    src/cellframe_wallet.c
+    src/cellframe_tx.c
+)
+
+# Create Python extension module
+add_library(python_cellframe MODULE ${PYTHON_CELLFRAME_SOURCES})
+
+# Set proper Python module properties
+set_target_properties(python_cellframe PROPERTIES
+    PREFIX ""
+    OUTPUT_NAME "python_cellframe"
+    SUFFIX "${Python3_SOABI}.so"
+    LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+# Include directories
+target_include_directories(python_cellframe PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/include
+    ${Python3_INCLUDE_DIRS}
+    # Get include directories from linked libraries
+    $<TARGET_PROPERTY:dap_sdk,INTERFACE_INCLUDE_DIRECTORIES>
+    $<TARGET_PROPERTY:cellframe_sdk,INTERFACE_INCLUDE_DIRECTORIES>
+)
+
+# Link libraries
+target_link_libraries(python_cellframe PRIVATE
+    dap_sdk
+    cellframe_sdk
+    python_dap
+    ${Python3_LIBRARIES}
+)
+
+message("[+] Python-Cellframe bindings configured")
+
+# =========================================
 # PROJECT SUMMARY
 # =========================================
 message("[+] =========================================")
@@ -277,6 +328,7 @@ message("[+] Python-Cellframe Project Configuration:")
 message("[+] - DAP SDK:        libdap_sdk.so (SHARED)")
 message("[+] - Cellframe SDK:  libcellframe-sdk.so (SHARED)")
 message("[+] - Python-DAP:     MODULE (Python extension)")
+message("[+] - Python-Cellframe: MODULE (Python extension)")
 message("[+] =========================================")
 message("[+] All components configured successfully!")
 message("[+] =========================================")

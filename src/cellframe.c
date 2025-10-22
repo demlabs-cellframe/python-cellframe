@@ -9,6 +9,7 @@ PyObject* py_dap_chain_mempool_by_chain_name(PyObject *self, PyObject *args);
 PyObject* py_dap_chain_mempool_tx_get_by_hash(PyObject *self, PyObject *args);
 
 // Forward declarations for submodule init functions  
+int cellframe_network_init(PyObject *module);
 int cellframe_wallet_init(PyObject *module);
 int cellframe_chain_init(PyObject *module);
 int cellframe_ledger_init(PyObject *module);
@@ -165,7 +166,7 @@ static PyMethodDef CellframeMethods[] = {
     {"is_sdk_available", (PyCFunction)cellframe_sdk_is_available_wrapper, METH_NOARGS,
      "Check if Cellframe SDK is available"},
     
-    // NOTE: All specific functions (wallet, chain, ledger, etc.) are now registered
+    // NOTE: All specific functions (network, wallet, chain, ledger, etc.) are now registered
     // by their respective modules through init functions. This keeps only core
     // module functions here
     
@@ -281,8 +282,14 @@ PyMODINIT_FUNC PyInit_python_cellframe(void) {
         return NULL;
     }
     
+    // Initialize network module
+    if (cellframe_network_init(module) < 0) {
+        PyErr_SetString(PyExc_ImportError, "Failed to initialize network module");
+        Py_DECREF(module);
+        return NULL;
+    }
+    
     // TODO: Add other modules when they implement init functions
-    // - cellframe_network_init(module)
     // - cellframe_node_init(module)
     
     return module;
