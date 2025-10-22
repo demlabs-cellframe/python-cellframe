@@ -559,6 +559,184 @@ PyObject* dap_ledger_count_py(PyObject *a_self, PyObject *a_args) {
     return Py_BuildValue("I", l_count);
 }
 
+// =============================================================================
+// TOKEN INFO AND QUERY OPERATIONS
+// =============================================================================
+
+/**
+ * @brief Check token ticker and get token datum (Python binding)
+ * @param a_self Python self object (unused)
+ * @param a_args Python arguments tuple (ledger capsule, token_ticker string)
+ * @return Token datum capsule or None if not found
+ */
+PyObject* dap_ledger_token_ticker_check_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    PyObject *l_ledger_capsule = NULL;
+    const char *l_token_ticker = NULL;
+    
+    if (!PyArg_ParseTuple(a_args, "Os", &l_ledger_capsule, &l_token_ticker)) {
+        log_it(L_ERROR, "Invalid arguments for ledger_token_ticker_check");
+        return NULL;
+    }
+    
+    if (!l_ledger_capsule || !PyCapsule_CheckExact(l_ledger_capsule)) {
+        PyErr_SetString(PyExc_TypeError, "Expected ledger capsule");
+        return NULL;
+    }
+    
+    if (!l_token_ticker) {
+        PyErr_SetString(PyExc_ValueError, "Token ticker is required");
+        return NULL;
+    }
+    
+    dap_ledger_t *l_ledger = (dap_ledger_t*)PyCapsule_GetPointer(l_ledger_capsule, "dap_ledger_t");
+    if (!l_ledger) {
+        log_it(L_ERROR, "Failed to extract ledger pointer");
+        return NULL;
+    }
+    
+    dap_chain_datum_token_t *l_token = dap_ledger_token_ticker_check(l_ledger, l_token_ticker);
+    if (!l_token) {
+        log_it(L_DEBUG, "Token '%s' not found in ledger", l_token_ticker);
+        Py_RETURN_NONE;
+    }
+    
+    log_it(L_DEBUG, "Token '%s' found in ledger", l_token_ticker);
+    return PyCapsule_New(l_token, "dap_chain_datum_token_t", NULL);
+}
+
+/**
+ * @brief Get token authorization signs valid count (Python binding)
+ * @param a_self Python self object (unused)
+ * @param a_args Python arguments tuple (ledger capsule, token_ticker string)
+ * @return Count of valid authorization signatures
+ */
+PyObject* dap_ledger_token_get_auth_signs_valid_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    PyObject *l_ledger_capsule = NULL;
+    const char *l_token_ticker = NULL;
+    
+    if (!PyArg_ParseTuple(a_args, "Os", &l_ledger_capsule, &l_token_ticker)) {
+        log_it(L_ERROR, "Invalid arguments for ledger_token_get_auth_signs_valid");
+        return NULL;
+    }
+    
+    if (!l_ledger_capsule || !PyCapsule_CheckExact(l_ledger_capsule)) {
+        PyErr_SetString(PyExc_TypeError, "Expected ledger capsule");
+        return NULL;
+    }
+    
+    dap_ledger_t *l_ledger = (dap_ledger_t*)PyCapsule_GetPointer(l_ledger_capsule, "dap_ledger_t");
+    if (!l_ledger) {
+        log_it(L_ERROR, "Failed to extract ledger pointer");
+        return NULL;
+    }
+    
+    size_t l_count = dap_ledger_token_get_auth_signs_valid(l_ledger, l_token_ticker);
+    log_it(L_DEBUG, "Token '%s' has %zu valid auth signatures", l_token_ticker, l_count);
+    
+    return Py_BuildValue("n", (Py_ssize_t)l_count);
+}
+
+/**
+ * @brief Get token authorization signs total count (Python binding)
+ * @param a_self Python self object (unused)
+ * @param a_args Python arguments tuple (ledger capsule, token_ticker string)
+ * @return Total count of authorization signatures
+ */
+PyObject* dap_ledger_token_get_auth_signs_total_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    PyObject *l_ledger_capsule = NULL;
+    const char *l_token_ticker = NULL;
+    
+    if (!PyArg_ParseTuple(a_args, "Os", &l_ledger_capsule, &l_token_ticker)) {
+        log_it(L_ERROR, "Invalid arguments for ledger_token_get_auth_signs_total");
+        return NULL;
+    }
+    
+    if (!l_ledger_capsule || !PyCapsule_CheckExact(l_ledger_capsule)) {
+        PyErr_SetString(PyExc_TypeError, "Expected ledger capsule");
+        return NULL;
+    }
+    
+    dap_ledger_t *l_ledger = (dap_ledger_t*)PyCapsule_GetPointer(l_ledger_capsule, "dap_ledger_t");
+    if (!l_ledger) {
+        log_it(L_ERROR, "Failed to extract ledger pointer");
+        return NULL;
+    }
+    
+    size_t l_count = dap_ledger_token_get_auth_signs_total(l_ledger, l_token_ticker);
+    log_it(L_DEBUG, "Token '%s' has %zu total auth signatures", l_token_ticker, l_count);
+    
+    return Py_BuildValue("n", (Py_ssize_t)l_count);
+}
+
+/**
+ * @brief Purge token data from ledger (Python binding)
+ * @param a_self Python self object (unused)
+ * @param a_args Python arguments tuple (ledger capsule, preserve_db bool)
+ * @return None
+ */
+PyObject* dap_ledger_token_purge_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    PyObject *l_ledger_capsule = NULL;
+    int l_preserve_db = 0;
+    
+    if (!PyArg_ParseTuple(a_args, "Op", &l_ledger_capsule, &l_preserve_db)) {
+        log_it(L_ERROR, "Invalid arguments for ledger_token_purge");
+        return NULL;
+    }
+    
+    if (!l_ledger_capsule || !PyCapsule_CheckExact(l_ledger_capsule)) {
+        PyErr_SetString(PyExc_TypeError, "Expected ledger capsule");
+        return NULL;
+    }
+    
+    dap_ledger_t *l_ledger = (dap_ledger_t*)PyCapsule_GetPointer(l_ledger_capsule, "dap_ledger_t");
+    if (!l_ledger) {
+        log_it(L_ERROR, "Failed to extract ledger pointer");
+        return NULL;
+    }
+    
+    log_it(L_INFO, "Purging token data from ledger (preserve_db=%d)", l_preserve_db);
+    dap_ledger_token_purge(l_ledger, (bool)l_preserve_db);
+    
+    Py_RETURN_NONE;
+}
+
+/**
+ * @brief Purge transaction data from ledger (Python binding)
+ * @param a_self Python self object (unused)
+ * @param a_args Python arguments tuple (ledger capsule, preserve_db bool)
+ * @return None
+ */
+PyObject* dap_ledger_tx_purge_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    PyObject *l_ledger_capsule = NULL;
+    int l_preserve_db = 0;
+    
+    if (!PyArg_ParseTuple(a_args, "Op", &l_ledger_capsule, &l_preserve_db)) {
+        log_it(L_ERROR, "Invalid arguments for ledger_tx_purge");
+        return NULL;
+    }
+    
+    if (!l_ledger_capsule || !PyCapsule_CheckExact(l_ledger_capsule)) {
+        PyErr_SetString(PyExc_TypeError, "Expected ledger capsule");
+        return NULL;
+    }
+    
+    dap_ledger_t *l_ledger = (dap_ledger_t*)PyCapsule_GetPointer(l_ledger_capsule, "dap_ledger_t");
+    if (!l_ledger) {
+        log_it(L_ERROR, "Failed to extract ledger pointer");
+        return NULL;
+    }
+    
+    log_it(L_INFO, "Purging transaction data from ledger (preserve_db=%d)", l_preserve_db);
+    dap_ledger_tx_purge(l_ledger, (bool)l_preserve_db);
+    
+    Py_RETURN_NONE;
+}
+
 // =========================================
 // MODULE INITIALIZATION
 // =========================================
@@ -597,6 +775,18 @@ int cellframe_ledger_init(PyObject *module) {
          "Purge ledger data"},
         {"ledger_count", (PyCFunction)dap_ledger_count_py, METH_VARARGS,
          "Get ledger transaction count"},
+        {"ledger_token_purge", (PyCFunction)dap_ledger_token_purge_py, METH_VARARGS,
+         "Purge token data from ledger"},
+        {"ledger_tx_purge", (PyCFunction)dap_ledger_tx_purge_py, METH_VARARGS,
+         "Purge transaction data from ledger"},
+        
+        // Token info and query
+        {"ledger_token_ticker_check", (PyCFunction)dap_ledger_token_ticker_check_py, METH_VARARGS,
+         "Check token ticker and get token datum"},
+        {"ledger_token_get_auth_signs_valid", (PyCFunction)dap_ledger_token_get_auth_signs_valid_py, METH_VARARGS,
+         "Get count of valid authorization signatures for token"},
+        {"ledger_token_get_auth_signs_total", (PyCFunction)dap_ledger_token_get_auth_signs_total_py, METH_VARARGS,
+         "Get total count of authorization signatures for token"},
         
         {NULL, NULL, 0, NULL}  // Sentinel
     };
