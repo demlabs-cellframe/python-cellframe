@@ -1895,6 +1895,181 @@ PyObject* dap_ledger_is_used_reward_py(PyObject *a_self, PyObject *a_args) {
     return PyBool_FromLong(l_result);
 }
 
+// =============================================================================
+// DATUM ITERATOR OPERATIONS
+// =============================================================================
+
+/**
+ * @brief Create datum iterator
+ * @param a_self Python self object (unused)
+ * @param a_args Arguments (chain_net capsule)
+ * @return PyCapsule wrapping dap_ledger_datum_iter_t* or NULL on error
+ */
+PyObject* dap_ledger_datum_iter_create_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    PyObject *l_net_obj;
+    
+    if (!PyArg_ParseTuple(a_args, "O", &l_net_obj)) {
+        return NULL;
+    }
+    
+    if (!PyCapsule_CheckExact(l_net_obj)) {
+        PyErr_SetString(PyExc_TypeError, "First argument must be a chain_net capsule");
+        return NULL;
+    }
+    
+    dap_chain_net_t *l_net = (dap_chain_net_t *)PyCapsule_GetPointer(l_net_obj, "dap_chain_net_t");
+    if (!l_net) {
+        PyErr_SetString(PyExc_ValueError, "Invalid chain_net capsule");
+        return NULL;
+    }
+    
+    dap_ledger_datum_iter_t *l_iter = dap_ledger_datum_iter_create(l_net);
+    if (!l_iter) {
+        PyErr_SetString(PyExc_RuntimeError, "Failed to create datum iterator");
+        return NULL;
+    }
+    
+    log_it(L_DEBUG, "Created datum iterator");
+    return PyCapsule_New(l_iter, "dap_ledger_datum_iter_t", NULL);
+}
+
+/**
+ * @brief Delete datum iterator
+ * @param a_self Python self object (unused)
+ * @param a_args Arguments (iterator capsule)
+ * @return None
+ */
+PyObject* dap_ledger_datum_iter_delete_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    PyObject *l_iter_obj;
+    
+    if (!PyArg_ParseTuple(a_args, "O", &l_iter_obj)) {
+        return NULL;
+    }
+    
+    if (!PyCapsule_CheckExact(l_iter_obj)) {
+        PyErr_SetString(PyExc_TypeError, "First argument must be an iterator capsule");
+        return NULL;
+    }
+    
+    dap_ledger_datum_iter_t *l_iter = (dap_ledger_datum_iter_t *)PyCapsule_GetPointer(l_iter_obj, "dap_ledger_datum_iter_t");
+    if (!l_iter) {
+        PyErr_SetString(PyExc_ValueError, "Invalid iterator capsule");
+        return NULL;
+    }
+    
+    dap_ledger_datum_iter_delete(l_iter);
+    
+    log_it(L_DEBUG, "Deleted datum iterator");
+    Py_RETURN_NONE;
+}
+
+/**
+ * @brief Get first datum from iterator
+ * @param a_self Python self object (unused)
+ * @param a_args Arguments (iterator capsule)
+ * @return PyCapsule wrapping dap_chain_datum_tx_t* or None
+ */
+PyObject* dap_ledger_datum_iter_get_first_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    PyObject *l_iter_obj;
+    
+    if (!PyArg_ParseTuple(a_args, "O", &l_iter_obj)) {
+        return NULL;
+    }
+    
+    if (!PyCapsule_CheckExact(l_iter_obj)) {
+        PyErr_SetString(PyExc_TypeError, "First argument must be an iterator capsule");
+        return NULL;
+    }
+    
+    dap_ledger_datum_iter_t *l_iter = (dap_ledger_datum_iter_t *)PyCapsule_GetPointer(l_iter_obj, "dap_ledger_datum_iter_t");
+    if (!l_iter) {
+        PyErr_SetString(PyExc_ValueError, "Invalid iterator capsule");
+        return NULL;
+    }
+    
+    dap_chain_datum_tx_t *l_tx = dap_ledger_datum_iter_get_first(l_iter);
+    if (!l_tx) {
+        log_it(L_DEBUG, "No first datum in iterator");
+        Py_RETURN_NONE;
+    }
+    
+    log_it(L_DEBUG, "Retrieved first datum from iterator");
+    return PyCapsule_New(l_tx, "dap_chain_datum_tx_t", NULL);
+}
+
+/**
+ * @brief Get next datum from iterator
+ * @param a_self Python self object (unused)
+ * @param a_args Arguments (iterator capsule)
+ * @return PyCapsule wrapping dap_chain_datum_tx_t* or None
+ */
+PyObject* dap_ledger_datum_iter_get_next_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    PyObject *l_iter_obj;
+    
+    if (!PyArg_ParseTuple(a_args, "O", &l_iter_obj)) {
+        return NULL;
+    }
+    
+    if (!PyCapsule_CheckExact(l_iter_obj)) {
+        PyErr_SetString(PyExc_TypeError, "First argument must be an iterator capsule");
+        return NULL;
+    }
+    
+    dap_ledger_datum_iter_t *l_iter = (dap_ledger_datum_iter_t *)PyCapsule_GetPointer(l_iter_obj, "dap_ledger_datum_iter_t");
+    if (!l_iter) {
+        PyErr_SetString(PyExc_ValueError, "Invalid iterator capsule");
+        return NULL;
+    }
+    
+    dap_chain_datum_tx_t *l_tx = dap_ledger_datum_iter_get_next(l_iter);
+    if (!l_tx) {
+        log_it(L_DEBUG, "No next datum in iterator");
+        Py_RETURN_NONE;
+    }
+    
+    log_it(L_DEBUG, "Retrieved next datum from iterator");
+    return PyCapsule_New(l_tx, "dap_chain_datum_tx_t", NULL);
+}
+
+/**
+ * @brief Get last datum from iterator
+ * @param a_self Python self object (unused)
+ * @param a_args Arguments (iterator capsule)
+ * @return PyCapsule wrapping dap_chain_datum_tx_t* or None
+ */
+PyObject* dap_ledger_datum_iter_get_last_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    PyObject *l_iter_obj;
+    
+    if (!PyArg_ParseTuple(a_args, "O", &l_iter_obj)) {
+        return NULL;
+    }
+    
+    if (!PyCapsule_CheckExact(l_iter_obj)) {
+        PyErr_SetString(PyExc_TypeError, "First argument must be an iterator capsule");
+        return NULL;
+    }
+    
+    dap_ledger_datum_iter_t *l_iter = (dap_ledger_datum_iter_t *)PyCapsule_GetPointer(l_iter_obj, "dap_ledger_datum_iter_t");
+    if (!l_iter) {
+        PyErr_SetString(PyExc_ValueError, "Invalid iterator capsule");
+        return NULL;
+    }
+    
+    dap_chain_datum_tx_t *l_tx = dap_ledger_datum_iter_get_last(l_iter);
+    if (!l_tx) {
+        log_it(L_DEBUG, "No last datum in iterator");
+        Py_RETURN_NONE;
+    }
+    
+    log_it(L_DEBUG, "Retrieved last datum from iterator");
+    return PyCapsule_New(l_tx, "dap_chain_datum_tx_t", NULL);
+}
+
 // =========================================
 // MODULE INITIALIZATION
 // =========================================
@@ -2005,6 +2180,18 @@ int cellframe_ledger_init(PyObject *module) {
          "Get locked values for address"},
         {"ledger_is_used_reward", (PyCFunction)dap_ledger_is_used_reward_py, METH_VARARGS,
          "Check if reward is used"},
+        
+        // Datum Iterator operations
+        {"ledger_datum_iter_create", (PyCFunction)dap_ledger_datum_iter_create_py, METH_VARARGS,
+         "Create datum iterator"},
+        {"ledger_datum_iter_delete", (PyCFunction)dap_ledger_datum_iter_delete_py, METH_VARARGS,
+         "Delete datum iterator"},
+        {"ledger_datum_iter_get_first", (PyCFunction)dap_ledger_datum_iter_get_first_py, METH_VARARGS,
+         "Get first datum from iterator"},
+        {"ledger_datum_iter_get_next", (PyCFunction)dap_ledger_datum_iter_get_next_py, METH_VARARGS,
+         "Get next datum from iterator"},
+        {"ledger_datum_iter_get_last", (PyCFunction)dap_ledger_datum_iter_get_last_py, METH_VARARGS,
+         "Get last datum from iterator"},
         
         {NULL, NULL, 0, NULL}  // Sentinel
     };

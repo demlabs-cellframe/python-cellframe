@@ -904,6 +904,185 @@ PyObject* dap_chain_generation_ban_py(PyObject *a_self, PyObject *a_args) {
     return Py_BuildValue("i", l_result);
 }
 
+/**
+ * @brief Get last atom hash, number and timestamp
+ * @param a_self Python self object (unused)
+ * @param a_args Arguments (chain capsule, cell_id)
+ * @return Dict with atom_hash (bytes), atom_num (int), atom_timestamp (int) or None
+ */
+PyObject* dap_chain_get_atom_last_hash_num_ts_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    PyObject *l_chain_obj;
+    unsigned long long l_cell_id;
+    
+    if (!PyArg_ParseTuple(a_args, "OK", &l_chain_obj, &l_cell_id)) {
+        return NULL;
+    }
+    
+    if (!PyCapsule_CheckExact(l_chain_obj)) {
+        PyErr_SetString(PyExc_TypeError, "First argument must be a chain capsule");
+        return NULL;
+    }
+    
+    dap_chain_t *l_chain = (dap_chain_t *)PyCapsule_GetPointer(l_chain_obj, "dap_chain_t");
+    if (!l_chain) {
+        PyErr_SetString(PyExc_ValueError, "Invalid chain capsule");
+        return NULL;
+    }
+    
+    dap_hash_fast_t l_atom_hash = {0};
+    uint64_t l_atom_num = 0;
+    dap_time_t l_atom_timestamp = 0;
+    
+    dap_chain_cell_id_t l_cell_id_union = {.uint64 = l_cell_id};
+    
+    bool l_result = dap_chain_get_atom_last_hash_num_ts(l_chain, l_cell_id_union, 
+                                                         &l_atom_hash, &l_atom_num, &l_atom_timestamp);
+    if (!l_result) {
+        log_it(L_DEBUG, "No last atom found for chain '%s' cell %llu", l_chain->name, l_cell_id);
+        Py_RETURN_NONE;
+    }
+    
+    PyObject *l_dict = PyDict_New();
+    PyDict_SetItemString(l_dict, "atom_hash", PyBytes_FromStringAndSize((const char *)&l_atom_hash, sizeof(dap_hash_fast_t)));
+    PyDict_SetItemString(l_dict, "atom_num", PyLong_FromUnsignedLongLong(l_atom_num));
+    PyDict_SetItemString(l_dict, "atom_timestamp", PyLong_FromUnsignedLongLong(l_atom_timestamp));
+    
+    log_it(L_DEBUG, "Retrieved last atom info for chain '%s' cell %llu", l_chain->name, l_cell_id);
+    return l_dict;
+}
+
+/**
+ * @brief Add callback for datum index notifications
+ * @note Callback functionality requires Python wrapper - stub implementation
+ * @param a_self Python self object (unused)
+ * @param a_args Arguments (chain capsule)
+ * @return None
+ */
+PyObject* dap_chain_add_callback_datum_index_notify_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    PyObject *l_chain_obj;
+    
+    if (!PyArg_ParseTuple(a_args, "O", &l_chain_obj)) {
+        return NULL;
+    }
+    
+    if (!PyCapsule_CheckExact(l_chain_obj)) {
+        PyErr_SetString(PyExc_TypeError, "First argument must be a chain capsule");
+        return NULL;
+    }
+    
+    dap_chain_t *l_chain = (dap_chain_t *)PyCapsule_GetPointer(l_chain_obj, "dap_chain_t");
+    if (!l_chain) {
+        PyErr_SetString(PyExc_ValueError, "Invalid chain capsule");
+        return NULL;
+    }
+    
+    // TODO: Implement full Python callback wrapper with GIL management
+    // For now, just a stub that logs the request
+    log_it(L_INFO, "Add datum index notify callback for chain '%s' (stub - callback not yet implemented)", l_chain->name);
+    
+    Py_RETURN_NONE;
+}
+
+/**
+ * @brief Add callback for datum removed from index notifications
+ * @note Callback functionality requires Python wrapper - stub implementation
+ * @param a_self Python self object (unused)
+ * @param a_args Arguments (chain capsule)
+ * @return None
+ */
+PyObject* dap_chain_add_callback_datum_removed_from_index_notify_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    PyObject *l_chain_obj;
+    
+    if (!PyArg_ParseTuple(a_args, "O", &l_chain_obj)) {
+        return NULL;
+    }
+    
+    if (!PyCapsule_CheckExact(l_chain_obj)) {
+        PyErr_SetString(PyExc_TypeError, "First argument must be a chain capsule");
+        return NULL;
+    }
+    
+    dap_chain_t *l_chain = (dap_chain_t *)PyCapsule_GetPointer(l_chain_obj, "dap_chain_t");
+    if (!l_chain) {
+        PyErr_SetString(PyExc_ValueError, "Invalid chain capsule");
+        return NULL;
+    }
+    
+    // TODO: Implement full Python callback wrapper with GIL management
+    log_it(L_INFO, "Add datum removed notify callback for chain '%s' (stub - callback not yet implemented)", l_chain->name);
+    
+    Py_RETURN_NONE;
+}
+
+/**
+ * @brief Add callback for atom confirmed notifications
+ * @note Callback functionality requires Python wrapper - stub implementation
+ * @param a_self Python self object (unused)
+ * @param a_args Arguments (chain capsule, conf_cnt)
+ * @return None
+ */
+PyObject* dap_chain_atom_confirmed_notify_add_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    PyObject *l_chain_obj;
+    unsigned long long l_conf_cnt = 1;
+    
+    if (!PyArg_ParseTuple(a_args, "O|K", &l_chain_obj, &l_conf_cnt)) {
+        return NULL;
+    }
+    
+    if (!PyCapsule_CheckExact(l_chain_obj)) {
+        PyErr_SetString(PyExc_TypeError, "First argument must be a chain capsule");
+        return NULL;
+    }
+    
+    dap_chain_t *l_chain = (dap_chain_t *)PyCapsule_GetPointer(l_chain_obj, "dap_chain_t");
+    if (!l_chain) {
+        PyErr_SetString(PyExc_ValueError, "Invalid chain capsule");
+        return NULL;
+    }
+    
+    // TODO: Implement full Python callback wrapper with GIL management
+    log_it(L_INFO, "Add atom confirmed notify callback for chain '%s' (conf_cnt=%llu, stub - callback not yet implemented)", 
+           l_chain->name, l_conf_cnt);
+    
+    Py_RETURN_NONE;
+}
+
+/**
+ * @brief Add timer callback for blockchain
+ * @note Callback functionality requires Python wrapper - stub implementation
+ * @param a_self Python self object (unused)
+ * @param a_args Arguments (chain capsule)
+ * @return Integer result code
+ */
+PyObject* dap_chain_add_callback_timer_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    PyObject *l_chain_obj;
+    
+    if (!PyArg_ParseTuple(a_args, "O", &l_chain_obj)) {
+        return NULL;
+    }
+    
+    if (!PyCapsule_CheckExact(l_chain_obj)) {
+        PyErr_SetString(PyExc_TypeError, "First argument must be a chain capsule");
+        return NULL;
+    }
+    
+    dap_chain_t *l_chain = (dap_chain_t *)PyCapsule_GetPointer(l_chain_obj, "dap_chain_t");
+    if (!l_chain) {
+        PyErr_SetString(PyExc_ValueError, "Invalid chain capsule");
+        return NULL;
+    }
+    
+    // TODO: Implement full Python callback wrapper with GIL management
+    log_it(L_INFO, "Add timer callback for chain '%s' (stub - callback not yet implemented)", l_chain->name);
+    
+    return PyLong_FromLong(0);  // Success
+}
+
 // =========================================
 // MODULE INITIALIZATION
 // =========================================
@@ -974,6 +1153,18 @@ int cellframe_chain_init(PyObject *module) {
          "Check if chain generation is banned"},
         {"chain_generation_ban", (PyCFunction)dap_chain_generation_ban_py, METH_VARARGS,
          "Ban a chain generation"},
+        
+        // Chain extended operations
+        {"chain_get_atom_last_hash_num_ts", (PyCFunction)dap_chain_get_atom_last_hash_num_ts_py, METH_VARARGS,
+         "Get last atom hash, number and timestamp with full details"},
+        {"chain_add_callback_datum_index_notify", (PyCFunction)dap_chain_add_callback_datum_index_notify_py, METH_VARARGS,
+         "Add callback for datum index notifications (stub)"},
+        {"chain_add_callback_datum_removed_from_index_notify", (PyCFunction)dap_chain_add_callback_datum_removed_from_index_notify_py, METH_VARARGS,
+         "Add callback for datum removed from index notifications (stub)"},
+        {"chain_atom_confirmed_notify_add", (PyCFunction)dap_chain_atom_confirmed_notify_add_py, METH_VARARGS,
+         "Add callback for atom confirmed notifications (stub)"},
+        {"chain_add_callback_timer", (PyCFunction)dap_chain_add_callback_timer_py, METH_VARARGS,
+         "Add timer callback for blockchain (stub)"},
         
         {NULL, NULL, 0, NULL}  // Sentinel
     };
