@@ -66,6 +66,7 @@ int dap_chain_plugins_init(dap_config_t *a_config)
     }
     PyImport_AppendInittab("DAP", PyInit_libDAP);
     PyImport_AppendInittab("CellFrame", PyInit_libCellFrame);
+    // Ensure Notify type is ready
 
     PyStatus l_status;
     PyPreConfig l_preconfig;
