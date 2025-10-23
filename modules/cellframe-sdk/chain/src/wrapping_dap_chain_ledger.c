@@ -970,7 +970,6 @@ PyObject *dap_chain_ledger_get_unspent_outputs_for_amount_py(PyObject *self, PyO
     return py_result_list;
 }
 
-<<<<<<< HEAD
 // Event functions
 PyObject *dap_chain_ledger_event_find_py(PyObject *self, PyObject *args){
     PyObject *obj_hash;
@@ -1261,7 +1260,6 @@ PyObject *dap_chain_ledger_event_notify_add_py(PyObject *self, PyObject *args)
     
     Py_RETURN_NONE;
 }
-=======
 PyObject *dap_chain_ledger_address_history_page_py(PyObject *self, PyObject *args, PyObject *kwds)
 {
     PyObject *addr_obj = NULL;
@@ -1339,4 +1337,3 @@ PyObject *dap_chain_ledger_address_history_page_py(PyObject *self, PyObject *arg
     PyTuple_SET_ITEM(result, 1, entries);
     return result;
 }
->>>>>>> 35b780f5180e98b20e9dc8574433506b3a1734ed
