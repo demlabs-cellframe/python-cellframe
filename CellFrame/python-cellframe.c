@@ -468,6 +468,7 @@ PyMODINIT_FUNC PyInit_libDAP()
         PyType_Ready( &DapEncServerObjectType ) < 0 ||
         PyType_Ready( &DapStreamObjectType ) < 0 ||
         PyType_Ready( &DapStreamCtlObjectType ) < 0 ||
+        PyType_Ready( &DapNotifySrvObjectType ) < 0 ||
         PyType_Ready( &DapClusterRoleObjectType) < 0 ||
         PyType_Ready( &DapClusterRolesObjectType ) < 0 ||
         PyType_Ready( &DapClusterMemberObjectType ) < 0 ||
@@ -518,6 +519,7 @@ PyMODINIT_FUNC PyInit_libDAP()
     PyModule_AddObject(netModule, "EncHttp", (PyObject*)&DapEncServerObjectType);
     PyModule_AddObject(netModule, "Stream", (PyObject*)&DapStreamObjectType);
     PyModule_AddObject(netModule, "StreamCtl", (PyObject*)&DapStreamCtlObjectType);
+    PyModule_AddObject(netModule, "Notify", (PyObject*)&DapNotifySrvObjectType);
     PyModule_AddObject(netModule, "JSONRPCRequest", (PyObject*)&DapJsonRpcRequestObjectType);
     PyModule_AddObject(netModule, "JSONRPCResponse", (PyObject*)&DapJsonRpcResponseobjectType);
     PyModule_AddObject(netModule, "Member", (PyObject*)&DapClusterMemberObjectType);

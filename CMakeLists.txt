@@ -47,6 +47,8 @@ else()
     add_library(CellFrame MODULE ${PYTHON_CELLFRAME_SRCS} ${PYTHON_CELLFRAME_HEADERS})
     add_library(python_static STATIC IMPORTED GLOBAL)
     target_include_directories(CellFrame INTERFACE include/)
+    # Needed for wrapping_dap_notify_srv.h when compiling python-cellframe.c
+    target_include_directories(CellFrame PRIVATE modules/dap-sdk/net/server/notify/include)
 
     install(TARGETS ${PROJECT_NAME} LIBRARY DESTINATION ${PROJECT_NAME})
     install(FILES CellFrame/__init__.py DESTINATION ${PROJECT_NAME})
@@ -78,6 +80,7 @@ add_subdirectory(modules/dap-sdk/net/client)
 add_subdirectory(modules/dap-sdk/net/server/enc)
 add_subdirectory(modules/dap-sdk/net/server/http)
 add_subdirectory(modules/dap-sdk/net/server/json_rpc)
+add_subdirectory(modules/dap-sdk/net/server/notify)
 add_subdirectory(modules/dap-sdk/net/stream/stream)
 add_subdirectory(modules/dap-sdk/global-db)
 add_subdirectory(modules/cellframe-sdk/common)
@@ -189,6 +192,7 @@ target_link_libraries(${PROJECT_NAME} cellframe-sdk dap_python_module
                       dap_chain_common_python_module
                       dap_chain_net_python_module
                       dap_chain_net_srv_python_module
+                      dap_notify_srv_python_module
                       dap_mempool_python_module
                       dap_app_cli_python_module
                       dap_chain_wallet_python_module
