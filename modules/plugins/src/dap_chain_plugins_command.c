@@ -22,7 +22,7 @@ void dap_chain_plugins_command_create(void){
     }
 }
 
-int dap_chain_plugins_command_handler(int a_argc, char **a_argv, void **a_str_reply, int UNUSED_ARG a_version)
+int dap_chain_plugins_command_handler(int a_argc, char **a_argv, dap_json_t *a_json_arr_reply, int UNUSED_ARG a_version)
 {   
     enum {
         CMD_NONE, CMD_LIST, CMD_SHOW_NAME, CMD_RESTART, CMD_RELOAD_NAME
@@ -48,7 +48,8 @@ int dap_chain_plugins_command_handler(int a_argc, char **a_argv, void **a_str_re
                               l_str, "|\t",l_element->name, "\t|\t", l_element->version, "\t|\t", l_element->author, "\t|\n", NULL);
 
         }
-        dap_cli_server_cmd_set_reply_text(a_str_reply, "%s", l_str);
+        dap_json_rpc_error_add(a_json_arr_reply, 0, l_str);
+        DAP_DELETE(l_str);
         break;
     case CMD_SHOW_NAME:
         dap_cli_server_cmd_find_option_val(a_argv, l_arg_index, a_argc, "--name", &l_name_plugin);
@@ -56,18 +57,24 @@ int dap_chain_plugins_command_handler(int a_argc, char **a_argv, void **a_str_re
         if (l_element != NULL){
             char *l_dep = dap_chain_plugins_manifests_get_list_dependencyes(l_element);
             if (l_dep != NULL){
-                dap_cli_server_cmd_set_reply_text(a_str_reply, " Name: %s\n Version: %s\n Author: %s\n"
-                                                               " Description: %s\n Dependencies: %s \n\n",
-                                                  l_element->name, l_element->version, l_element->author,
-                                                  l_element->description, l_dep);
+                char *l_reply_str = dap_strdup_printf(" Name: %s\n Version: %s\n Author: %s\n"
+                                                      " Description: %s\n Dependencies: %s \n\n",
+                                                      l_element->name, l_element->version, l_element->author,
+                                                      l_element->description, l_dep);
+                dap_json_rpc_error_add(a_json_arr_reply, 0, l_reply_str);
+                DAP_DELETE(l_reply_str);
                 DAP_FREE(l_dep);
             } else {
-                dap_cli_server_cmd_set_reply_text(a_str_reply, " Name: %s\n Version: %s\n Author: %s\n"
-                                                               " Description: %s\n\n",
-                                                  l_element->name, l_element->version, l_element->author, l_element->description);
+                char *l_reply_str = dap_strdup_printf(" Name: %s\n Version: %s\n Author: %s\n"
+                                                      " Description: %s\n\n",
+                                                      l_element->name, l_element->version, l_element->author, l_element->description);
+                dap_json_rpc_error_add(a_json_arr_reply, 0, l_reply_str);
+                DAP_DELETE(l_reply_str);
             }
         } else {
-            dap_cli_server_cmd_set_reply_text(a_str_reply, "Can't find a plugin named %s", l_name_plugin);
+            char *l_reply_str = dap_strdup_printf("Can't find a plugin named %s", l_name_plugin);
+            dap_json_rpc_error_add(a_json_arr_reply, -1, l_reply_str);
+            DAP_DELETE(l_reply_str);
         }
         break;
     case CMD_RESTART:
@@ -75,33 +82,39 @@ int dap_chain_plugins_command_handler(int a_argc, char **a_argv, void **a_str_re
         dap_chain_plugins_deinit();
         dap_chain_plugins_init(g_config);
         log_it(L_NOTICE, "Restart is completed");
-        dap_cli_server_cmd_set_reply_text(a_str_reply, "Restart is completed.");
+        dap_json_rpc_error_add(a_json_arr_reply, 0, "Restart is completed.");
         break;
     case CMD_RELOAD_NAME:
         dap_cli_server_cmd_find_option_val(a_argv, l_arg_index, a_argc, "--name", &l_name_plugin);
         int l_result = dap_chain_plugins_reload_plugin(l_name_plugin);
         switch (l_result) {
         case 0:
-            dap_cli_server_cmd_set_reply_text(a_str_reply, "Restart \"%s\" plugin is completed successfully.", l_name_plugin);
+            char *l_reply_str = dap_strdup_printf("Restart \"%s\" plugin is completed successfully.", l_name_plugin);
+            dap_json_rpc_error_add(a_json_arr_reply, 0, l_reply_str);
+            DAP_DELETE(l_reply_str);
             break;
         case -2:
-            dap_cli_server_cmd_set_reply_text(a_str_reply,
-                                              "\"%s\" plugin has unresolved dependencies. Restart all plugins.",
-                                              l_name_plugin);
+            char *l_reply_str = dap_strdup_printf("\"%s\" plugin has unresolved dependencies. Restart all plugins.", l_name_plugin);
+            dap_json_rpc_error_add(a_json_arr_reply, -1, l_reply_str);
+            DAP_DELETE(l_reply_str);
             break;
         case -3:
-            dap_cli_server_cmd_set_reply_text(a_str_reply, "Registration manifest for \"%s\" plugin is failed.", l_name_plugin);
+            char *l_reply_str = dap_strdup_printf("Registration manifest for \"%s\" plugin is failed.", l_name_plugin);
+            dap_json_rpc_error_add(a_json_arr_reply, -1, l_reply_str);
+            DAP_DELETE(l_reply_str);
             break;
         case -4:
-            dap_cli_server_cmd_set_reply_text(a_str_reply, "A plugin named \"%s\" was not found.", l_name_plugin);
+            char *l_reply_str = dap_strdup_printf("A plugin named \"%s\" was not found.", l_name_plugin);
+            dap_json_rpc_error_add(a_json_arr_reply, -1, l_reply_str);
+            DAP_DELETE(l_reply_str);
             break;
         default:
-            dap_cli_server_cmd_set_reply_text(a_str_reply, "An unforeseen error has occurred.");
+            dap_json_rpc_error_add(a_json_arr_reply, l_result, "An unforeseen error has occurred.");
             break;
         }
         break;
     default:
-        dap_cli_server_cmd_set_reply_text(a_str_reply, "Arguments are incorrect.");
+        dap_json_rpc_error_add(a_json_arr_reply, -1, "Arguments are incorrect.");
         break;
 
     }

@@ -132,7 +132,7 @@ void element_py_func_del_all(){
     }
 }
 
-static int wrapping_cmdfunc(int argc, char **argv, void **a_str_reply, int a_version)
+static int wrapping_cmdfunc(int argc, char **argv, dap_json_t *a_json_arr_reply, int a_version)
 {
     log_it(L_DEBUG, "Wrapping command: %s", argv[0]);
     
