@@ -2,8 +2,11 @@
 
 #define LOG_TAG "wrapping_dap_app_cli_server"
 
+bool dap_cli_server_cmd_remove(const char *a_name);
+
 static PyMethodDef DapChainNodeCliMethods[] = {
         {"cmdItemCreate", dap_chain_node_cli_cmd_item_create_py, METH_VARARGS| METH_STATIC, ""},
+        {"cmdItemDelete", dap_chain_node_cli_cmd_item_delete_py, METH_VARARGS| METH_STATIC, ""},
         {"setReplyText", dap_chain_node_cli_set_reply_text_py, METH_VARARGS| METH_STATIC, ""},
         {"cli_exec_str", dap_chain_node_cli_cmd_exec_str, METH_VARARGS| METH_STATIC, ""},
         {}
@@ -87,47 +90,64 @@ void elements_str_reply_delete_all(){
 }
 
 void element_py_func_add(const char *name, PyObject *func){
-    element_py_func_t *el = DAP_NEW(element_py_func_t);
-    if (!el) {
+    if (!name || !func)
+        return;
+    element_py_func_t *el = NULL;
+    LL_FOREACH(l_element_py_func_list, el){
+        if (dap_strcmp(el->name, name) == 0){
+            Py_XDECREF(el->func);
+            el->func = func;
+            Py_XINCREF(el->func);
+            return;
+        }
+    }
+    element_py_func_t *new_el = DAP_NEW(element_py_func_t);
+    if (!new_el) {
         return;
     }
-    el->name = dap_strdup(name);
-    el->func = func;
-    Py_XINCREF(el->func);
-    LL_APPEND(l_element_py_func_list, el);
+    new_el->name = dap_strdup(name);
+    if (!new_el->name) {
+        DAP_FREE(new_el);
+        return;
+    }
+    new_el->func = func;
+    Py_XINCREF(new_el->func);
+    LL_APPEND(l_element_py_func_list, new_el);
 }
 int element_py_func_cmp_by_name(element_py_func_t *e1, element_py_func_t *e2){
     return dap_strcmp(e1->name, e2->name);
 }
-PyObject *element_py_func_get(char *name){
-    element_py_func_t *el, *like;
-    like = DAP_NEW(element_py_func_t);
-    if (!like) {
+PyObject *element_py_func_get(const char *name){
+    if (!name)
         return NULL;
+    element_py_func_t *el;
+    LL_FOREACH(l_element_py_func_list, el){
+        if (dap_strcmp(el->name, name) == 0)
+            return el->func;
     }
-    like->name = name;
-    LL_SEARCH(l_element_py_func_list, el, like,  element_py_func_cmp_by_name);
-    DAP_FREE(like);
-    return el->func;
+    return NULL;
 }
-void element_py_func_del_by_name(char *name){
-    element_py_func_t *el, *like;
-    like = DAP_NEW(element_py_func_t);
-    if (!like) {
-        return;
+bool element_py_func_del_by_name(const char *name){
+    if (!name)
+        return false;
+    element_py_func_t *el, *tmp;
+    LL_FOREACH_SAFE(l_element_py_func_list, el, tmp){
+        if (dap_strcmp(el->name, name) == 0){
+            LL_DELETE(l_element_py_func_list, el);
+            Py_XDECREF(el->func);
+            DAP_FREE(el->name);
+            DAP_FREE(el);
+            return true;
+        }
     }
-    like->name = name;
-    LL_SEARCH(l_element_py_func_list, el, like,  element_py_func_cmp_by_name);
-    DAP_FREE(like);
-    LL_DELETE(l_element_py_func_list, el);
-    Py_XDECREF(el->func);
-    DAP_FREE(el);
+    return false;
 }
 void element_py_func_del_all(){
     element_py_func_t *el, *tmp;
     LL_FOREACH_SAFE(l_element_py_func_list, el, tmp){
         LL_DELETE(l_element_py_func_list, el);
         Py_XDECREF(el->func);
+        DAP_FREE(el->name);
         DAP_FREE(el);
     }
 }
@@ -141,10 +161,20 @@ static int wrapping_cmdfunc(int argc, char **argv, void **a_str_reply, int a_ver
     PyObject *arglist = Py_BuildValue("OO", obj_argv, obj_id_str_replay);
     Py_XINCREF(arglist);
     PyObject *binden_obj_cmdfunc = element_py_func_get(argv[0]);
+    if (!binden_obj_cmdfunc){
+        log_it(L_WARNING, "Command \"%s\" handler is not registered", argv[0]);
+        Py_XDECREF(arglist);
+        Py_XDECREF(obj_argv);
+        PyGILState_Release(l_state);
+        elements_str_reply_delete(id_str_replay);
+        return -1;
+    }
     PyObject *result = PyObject_CallObject(binden_obj_cmdfunc, arglist);
     if (!result){
         log_it(L_DEBUG, "Function can't be called");
         python_error_in_log_it(LOG_TAG);
+    } else {
+        Py_DECREF(result);
     }
     Py_XDECREF(arglist);
     Py_XDECREF(obj_argv);
@@ -174,6 +204,18 @@ PyObject *dap_chain_node_cli_cmd_item_create_py(PyObject *a_self, PyObject *a_ar
     element_py_func_add(name, obj_cmdfunc);
     dap_cli_server_cmd_add(name, wrapping_cmdfunc, NULL, doc, doc_ex);
     return PyLong_FromLong(0);
+}
+
+PyObject *dap_chain_node_cli_cmd_item_delete_py(PyObject *a_self, PyObject *a_args){
+    (void)a_self;
+    const char *name = NULL;
+    if (!PyArg_ParseTuple(a_args, "s", &name))
+        return NULL;
+    bool l_removed_py = element_py_func_del_by_name(name);
+    bool l_removed_cli = dap_cli_server_cmd_remove(name);
+    if (l_removed_py || l_removed_cli)
+        Py_RETURN_TRUE;
+    Py_RETURN_FALSE;
 }
 
 PyObject *dap_chain_node_cli_set_reply_text_py(PyObject *self, PyObject *args){
