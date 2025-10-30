@@ -71,6 +71,8 @@ PyObject *wrapping_dap_chain_tx_out_std_get_used_by(PyObject *self, void UNUSED_
 {
     PyDapChainTXOutStdObject *obj_out = (PyDapChainTXOutStdObject *)self;
     dap_hash_fast_t l_spender_hash = {0};
+    if (!obj_out->ledger)
+        Py_RETURN_NONE;
     if (!dap_ledger_tx_hash_is_used_out_item(obj_out->ledger, &obj_out->tx_hash, obj_out->idx, &l_spender_hash))
         Py_RETURN_NONE;
 

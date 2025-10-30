@@ -60,6 +60,7 @@ static int s_py_ledger_history_append(PyObject *a_list, dap_chain_datum_tx_t *a_
         return -1;
     l_tx_obj->datum_tx = a_tx;
     l_tx_obj->original = true;
+    l_tx_obj->ledger = NULL;
     if (PyList_Append(a_list, (PyObject *)l_tx_obj) != 0) {
         Py_DECREF((PyObject *)l_tx_obj);
         return -1;
@@ -513,6 +514,7 @@ PyObject *dap_chain_ledger_tx_find_by_hash_py(PyObject *self, PyObject *args){
         
         res->datum_tx = dap_ledger_tx_find_by_hash(ledger, hash_fast);
         res->original = false;
+        res->ledger = ledger;
         
         if (res->datum_tx == NULL) {
             PyObject_DEL(res);
@@ -535,6 +537,7 @@ PyObject *dap_chain_ledger_tx_find_by_addr_py(PyObject *self, PyObject *args){
     PyDapChainDatumTxObject *res = PyObject_New(PyDapChainDatumTxObject, &DapChainDatumTxObjectType);
     res->datum_tx = dap_ledger_tx_find_by_addr(((PyDapChainLedgerObject*)self)->ledger, token, ((PyDapChainAddrObject*)addr)->addr, ((PyDapHashFastObject*)first_hash)->hash_fast, false);
     res->original = false;
+    res->ledger = ((PyDapChainLedgerObject*)self)->ledger;
     
     return (PyObject*)res;
 }
@@ -605,6 +608,7 @@ PyObject *dap_chain_ledger_get_txs_py(PyObject *self, PyObject *args){
         PyDapChainDatumTxObject *obj_tx = PyObject_New(PyDapChainDatumTxObject, &DapChainDatumTxObjectType);
         obj_tx->datum_tx = l_iter->data;
         obj_tx->original = false;
+        obj_tx->ledger = ((PyDapChainLedgerObject*)self)->ledger;
         PyList_SetItem(obj_list, i, (PyObject*)obj_tx);
     }
     dap_list_free(l_txs);
@@ -638,6 +642,8 @@ static bool s_ledger_tx_proc_notifier(void *a_arg)
         PyDapChainDatumTxObject *obj_tx = PyObject_NEW(PyDapChainDatumTxObject, &DapChainDatumTxObjectType);
         obj_ledger->ledger = l_args->ledger;
         obj_tx->datum_tx = l_args->tx;
+        obj_tx->original = false;
+        obj_tx->ledger = l_args->ledger;
         
         PyObject *notify_arg = !l_args->notifier->argv ? Py_None : l_args->notifier->argv;
         PyObject *argv = Py_BuildValue("OOO", (PyObject*)obj_ledger, (PyObject*)obj_tx, notify_arg);
@@ -715,6 +721,8 @@ static bool s_python_obj_notifier(void *a_arg)
     obj_ledger->ledger = l_args->ledger;
     PyDapChainDatumTxObject *obj_tx = PyObject_NEW(PyDapChainDatumTxObject, &DapChainDatumTxObjectType);
     obj_tx->datum_tx = l_args->tx;
+    obj_tx->original = false;
+    obj_tx->ledger = l_args->ledger;
     obj_tx->original = false;
     PyObject *l_notify_arg = !l_notifier->argv ? Py_None : l_notifier->argv;
     Py_INCREF(l_notify_arg);

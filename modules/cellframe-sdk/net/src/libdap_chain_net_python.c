@@ -292,6 +292,7 @@ PyObject *dap_chain_net_get_tx_by_hash_py(PyObject *self, PyObject *args){
         Py_RETURN_NONE;
     }
     l_tx->original = false;
+    l_tx->ledger = ((PyDapChainNetObject*)self)->chain_net->pub.ledger;
     return (PyObject*)l_tx;
 }
 

@@ -887,11 +887,14 @@ PyObject *dap_chain_python_get_txs(PyObject *self, PyObject *args){
     dap_list_t *l_list = l_chain->callback_get_txs(l_chain, count, page, l_reverse);
     if (l_list != NULL){
         PyObject *l_obj_list = PyList_New(dap_list_length(l_list));
+        dap_chain_net_t *l_net = dap_chain_net_by_id(l_chain->net_id);
+        dap_ledger_t *l_ledger = l_net ? l_net->pub.ledger : NULL;
         size_t i = 0;
         for (dap_list_t *l_ptr = l_list; l_ptr != NULL; l_ptr = l_ptr->next, ++i) {
             PyDapChainDatumTxObject *l_obj_tx = PyObject_New(PyDapChainDatumTxObject, &DapChainDatumTxObjectType);
             l_obj_tx->datum_tx = l_ptr->data;
             l_obj_tx->original = false;
+            l_obj_tx->ledger = l_ledger;
             PyList_SetItem(l_obj_list, i, (PyObject*)l_obj_tx);
         }
         dap_list_free(l_list);

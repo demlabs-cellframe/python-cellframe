@@ -38,6 +38,7 @@
 #include "wrapping_dap_chain_tx_in_cond.h"
 #include "wrapping_dap_chain_tx_out.h"
 #include "wrapping_dap_chain_tx_out_cond.h"
+#include "dap_chain_ledger.h"
 #include "wrapping_dap_chain_tx_out_cond_subtype_srv_pay.h"
 #include "wrapping_dap_chain_tx_out_cond_subtype_srv_stake.h"
 #include "wrapping_dap_chain_tx_out_cond_subtype_srv_stake_lock.h"
@@ -85,6 +86,7 @@ typedef struct PyDapChainDatumTx{
     PyObject_HEAD
     dap_chain_datum_tx_t *datum_tx;
     bool original;
+    dap_ledger_t *ledger;
 }PyDapChainDatumTxObject;
 
 PyObject *PyDapChainDatumTxObject_create(PyTypeObject *type_object, PyObject *args, PyObject *kwds);
