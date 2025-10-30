@@ -26,8 +26,11 @@ void PyDapChainTxOutCondObject_delete(PyDapChainTxOutCondObject* datum_tx_out_co
 
 PyObject *wrapping_dap_chain_tx_out_cond_get_ts_expires(PyObject *self, void *closure){
     (void)closure;
+    dap_time_t l_ts = ((PyDapChainTxOutCondObject*)self)->out_cond->header.ts_expires;
+    if (!l_ts)
+        Py_RETURN_NONE;
     PyDateTime_IMPORT;
-    PyObject *timestamp = Py_BuildValue("(k)", ((PyDapChainTxOutCondObject*)self)->out_cond->header.ts_expires);
+    PyObject *timestamp = Py_BuildValue("(k)", l_ts);
     return PyDateTime_FromTimestamp(timestamp);
 }
 PyObject *wrapping_dap_chain_tx_out_cond_get_value(PyObject *self, void *closure){
