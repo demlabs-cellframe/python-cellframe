@@ -1,9 +1,11 @@
 #pragma once
 
+#include <stdbool.h>
 #include <Python.h>
 #include "dap_config.h"
 #include "dap_chain_node_cli.h"
 #include "dap_chain_node_cli_cmd.h"
+#include "dap_cli_server.h"
 #include "wrapping_dap_chain_common.h"
 #include "wrapping_dap_chain_net_node.h"
 #include "utlist.h"
@@ -37,8 +39,8 @@ static element_py_func_t *l_element_py_func_list;
 
 void element_py_func_add(const char *name, PyObject *func);
 int element_py_func_cmp_by_name(element_py_func_t *e1, element_py_func_t *e2);
-PyObject *element_py_func_get(char *name);
-void element_py_func_del_by_name(char *name);
+PyObject *element_py_func_get(const char *name);
+bool element_py_func_del_by_name(const char *name);
 void element_py_func_del_all();
 
 
@@ -51,6 +53,7 @@ void dap_chain_node_cli_delete_py(void);
 PyObject *DapChainNodeCliObject_new(PyTypeObject *type_object, PyObject *args, PyObject *kwds);
 
 PyObject *dap_chain_node_cli_cmd_item_create_py(PyObject *a_self, PyObject *a_args);
+PyObject *dap_chain_node_cli_cmd_item_delete_py(PyObject *a_self, PyObject *a_args);
 PyObject *dap_chain_node_cli_set_reply_text_py(PyObject *self, PyObject *args);
 
 PyObject *dap_chain_node_cli_cmd_exec_str(PyObject *self, PyObject *args);
