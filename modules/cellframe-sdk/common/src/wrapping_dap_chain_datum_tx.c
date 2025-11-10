@@ -2,6 +2,7 @@
 #include "dap_chain_datum_tx_sig.h"
 #include "dap_chain_net_tx.h"
 #include "libdap_crypto_key_python.h"
+#include "dap_pkey.h"
 
 #define LOG_TAG "wrapping_datum_tx"
 
@@ -184,8 +185,16 @@ PyObject *dap_chain_datum_tx_add_out_cond_item_py(PyObject *self, PyObject *args
                           &obj_srv_price_unit_uid, &obj_cond_bytes, &cond_size))
         return NULL;
     void *cond = (void*)PyBytes_AsString(obj_cond_bytes);
+    
+    // Get hash from pkey (function expects dap_hash_fast_t*, not dap_pkey_t*)
+    dap_chain_hash_fast_t l_key_hash = {};
+    if (!dap_pkey_get_hash(((PyDapPkeyObject*)obj_key)->pkey, &l_key_hash)) {
+        PyErr_SetString(PyExc_AttributeError, "Failed to get hash from public key");
+        return NULL;
+    }
+    
     int res = dap_chain_datum_tx_add_out_cond_item(&(((PyDapChainDatumTxObject*)self)->datum_tx),
-                                                   ((PyDapPkeyObject*)obj_key)->pkey,
+                                                   &l_key_hash,
                                                    ((PyDapChainNetSrvUIDObject*)obj_srv_uid)->net_srv_uid,
                                                    value, value_max_per_unit,
                                                    ((PyDapChainNetSrvPriceUnitUIDObject*)obj_srv_price_unit_uid)->price_unit_uid,
