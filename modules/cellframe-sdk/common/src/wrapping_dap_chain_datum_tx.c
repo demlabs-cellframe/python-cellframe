@@ -190,7 +190,7 @@ PyObject *dap_chain_datum_tx_add_out_cond_item_py(PyObject *self, PyObject *args
         PyErr_SetString(PyExc_RuntimeError, "Failed to calculate hash for conditioned public key.");
         return NULL;
     }
-    int res = dap_chain_datum_tx_add_out_cond_item(&(((PyDapChainDatumTxObject*)self)->datum_tx),
+    int res = dap_chain_datum_tx_add_out_cond_item_with_hash(&(((PyDapChainDatumTxObject*)self)->datum_tx),
                                                    &l_cond_key_hash,
                                                    ((PyDapChainNetSrvUIDObject*)obj_srv_uid)->net_srv_uid,
                                                    value, value_max_per_unit,
