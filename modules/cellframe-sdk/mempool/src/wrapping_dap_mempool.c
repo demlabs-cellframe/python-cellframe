@@ -4,6 +4,7 @@
 #include "dap_chain_wallet_shared.h"
 #include "dap_chain_datum_tx_items.h"
 #include "dap_list.h"
+#include "wrapping_dap_pkey.h"
 
 #define LOG_TAG "python-mempool"
 
@@ -566,10 +567,16 @@ PyObject *dap_chain_mempool_tx_create_cond_py(PyObject *self, PyObject *args){
     uint256_t l_value_256 = dap_chain_balance_scan(l_value);
     uint256_t l_value_per_unit_max_256 = dap_chain_balance_scan(l_value_per_unit_max);
     uint256_t l_fee_256  = dap_chain_balance_scan(l_fee);
+    dap_hash_fast_t l_pkey_cond_hash = {};
+    if (!((PyDapPkeyObject *)obj_key_cond)->pkey ||
+            !dap_pkey_get_hash(((PyDapPkeyObject *)obj_key_cond)->pkey, &l_pkey_cond_hash)) {
+        PyErr_SetString(PyExc_RuntimeError, "Failed to calculate conditional public key hash.");
+        return NULL;
+    }
     char *l_tx_hash_str = dap_chain_mempool_tx_create_cond(
             obj_net->chain_net,
             ((PyCryptoKeyObject*)obj_key_from)->key,
-            ((PyDapPkeyObject *)obj_key_cond)->pkey,
+            &l_pkey_cond_hash,
             l_token_ticker,
             l_value_256,
             l_value_per_unit_max_256,
