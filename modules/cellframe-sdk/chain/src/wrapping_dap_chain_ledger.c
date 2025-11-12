@@ -434,29 +434,8 @@ PyObject *dap_chain_ledger_tx_hash_is_used_out_item_py(PyObject *self, PyObject 
     }
     
     // Find transaction and validate upper bound
-    dap_ledger_tx_item_t *l_item_out = NULL;
-    dap_ledger_tx_find_datum_by_hash(
-        ((PyDapChainLedgerObject*)self)->ledger, 
-        ((PyDapHashFastObject*)obj_h_fast)->hash_fast, 
-        &l_item_out, 
-        false
-    );
-    
-    // If transaction not found or has no outputs, cannot proceed safely
-    if (!l_item_out || l_item_out->cache_data.n_outs == 0) {
-        PyErr_SetString(PyExc_ValueError, "Transaction not found or has no outputs");
-        return NULL;
-    }
-    
-    // Validate upper bound (n_outs is guaranteed > 0 here)
-    if ((uint32_t)idx_out >= l_item_out->cache_data.n_outs) {
-        PyErr_Format(PyExc_IndexError, 
-                    "Output index %d is out of bounds (0-%u)", 
-                    idx_out, l_item_out->cache_data.n_outs - 1);
-        return NULL;
-    }
-    
-    // All checks passed, safe to call C function
+    // C function will validate transaction existence and output index bounds internally
+    // No need to check l_item_out->cache_data.n_outs here (it's in private struct)
     bool res = dap_ledger_tx_hash_is_used_out_item(
         ((PyDapChainLedgerObject*)self)->ledger, 
         ((PyDapHashFastObject*)obj_h_fast)->hash_fast, 
@@ -847,31 +826,8 @@ PyObject *dap_chain_ledger_tx_hash_is_used_out_item_hash_py(PyObject *self, PyOb
         return NULL;
     }
 
-    // Find transaction and validate upper bound
-    // (idx is uint64_t, so no need to check for negative)
-    dap_ledger_tx_item_t *l_item_out = NULL;
-    dap_ledger_tx_find_datum_by_hash(
-        ((PyDapChainLedgerObject*)self)->ledger, 
-        ((PyDapHashFastObject*)tx_hash)->hash_fast, 
-        &l_item_out, 
-        false
-    );
-
-    // If transaction not found or has no outputs, cannot proceed safely
-    if (!l_item_out || l_item_out->cache_data.n_outs == 0) {
-        PyErr_SetString(PyExc_ValueError, "Transaction not found or has no outputs");
-        return NULL;
-    }
-
-    // Validate upper bound (n_outs is guaranteed > 0 here)
-    if (idx >= l_item_out->cache_data.n_outs) {
-        PyErr_Format(PyExc_IndexError, 
-                    "Output index %llu is out of bounds (0-%u)", 
-                    (unsigned long long)idx, l_item_out->cache_data.n_outs - 1);
-        return NULL;
-    }
-
-    // All checks passed, safe to call C function
+    // C function will validate transaction existence and output index bounds internally
+    // No need to check l_item_out->cache_data.n_outs here (it's in private struct)
     dap_hash_fast_t l_spender_hash = {0};
     if (dap_ledger_tx_hash_is_used_out_item(
             ((PyDapChainLedgerObject*)self)->ledger, 
