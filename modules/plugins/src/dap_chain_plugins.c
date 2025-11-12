@@ -18,6 +18,7 @@ PyThreadState *s_thread_state;
 typedef struct _dap_chain_plugins_module{
     PyObject *module;
     char *name;
+    char *path;
     struct _dap_chain_plugins_module *next;
 }_dap_chain_plugins_module_t;
 
@@ -27,6 +28,13 @@ static int s_dap_chain_plugins_load(dap_plugin_manifest_t * a_manifest, void ** 
 static int s_dap_chain_plugins_unload(dap_plugin_manifest_t * a_manifest, void * a_pvt_data, char ** a_error_str );
 static void s_plugins_load_plugin_initialization(void* a_module);
 static void s_plugins_load_plugin_uninitialization(void* a_module);
+static void s_modules_purge_cache(const char *a_module_name, const char *a_plugin_path);
+static bool s_module_originates_from(PyObject *a_module_obj, const char *a_plugin_path);
+static char *s_prepare_plugin_path(const char *a_dir_path);
+static char *s_path_canonicalize(const char *a_path);
+static char *s_path_ensure_trailing_sep(char *a_path);
+static bool s_path_is_within(const char *a_candidate, const char *a_parent);
+static void s_normalize_slashes(char *a_path);
 
 const char *pycfhelpers_path = "/opt/cellframe-node/python/lib/"PYTHON_VERSION"/site-packages/pycfhelpers";
 const char *pycftools_path = "/opt/cellframe-node/python/lib/"PYTHON_VERSION"/site-packages/pycftools";
@@ -39,6 +47,177 @@ wchar_t *s_get_full_path(const char *a_prefix, const char *a_path)
     mbstowcs(l_ret, l_full_char_path, l_len);
     DAP_DELETE(l_full_char_path);
     return l_ret;
+}
+
+static void s_normalize_slashes(char *a_path)
+{
+    if (!a_path)
+        return;
+#ifdef DAP_OS_WINDOWS
+    for (char *p = a_path; *p; ++p)
+        if (*p == '\\')
+            *p = '/';
+#else
+    (void)a_path;
+#endif
+}
+
+static char *s_path_canonicalize(const char *a_path)
+{
+    if (!a_path)
+        return NULL;
+    char *l_real = realpath(a_path, NULL);
+    if (!l_real) {
+        if (dap_path_is_absolute(a_path)) {
+            l_real = dap_strdup(a_path);
+        } else {
+            char *l_cwd = dap_get_current_dir();
+            if (!l_cwd)
+                return NULL;
+            char *l_full = dap_strjoin(NULL, l_cwd, DAP_DIR_SEPARATOR_S, a_path, NULL);
+            DAP_DELETE(l_cwd);
+            if (!l_full)
+                return NULL;
+            l_real = realpath(l_full, NULL);
+            if (!l_real)
+                l_real = l_full;
+            else
+                DAP_DELETE(l_full);
+        }
+    }
+    if (!l_real)
+        return NULL;
+    s_normalize_slashes(l_real);
+    return l_real;
+}
+
+static char *s_path_ensure_trailing_sep(char *a_path)
+{
+    if (!a_path)
+        return NULL;
+    size_t l_len = strlen(a_path);
+    if (l_len && a_path[l_len - 1] == '/')
+        return a_path;
+    char *l_with_sep = dap_strjoin(NULL, a_path, "/", NULL);
+    DAP_DELETE(a_path);
+    return l_with_sep;
+}
+
+static char *s_prepare_plugin_path(const char *a_dir_path)
+{
+    char *l_path = s_path_canonicalize(a_dir_path);
+    if (!l_path)
+        return NULL;
+    return s_path_ensure_trailing_sep(l_path);
+}
+
+static bool s_path_is_within(const char *a_candidate, const char *a_parent)
+{
+    if (!a_candidate || !a_parent)
+        return false;
+    size_t l_prefix_len = strlen(a_parent);
+    if (!l_prefix_len)
+        return false;
+    return strncmp(a_candidate, a_parent, l_prefix_len) == 0;
+}
+
+static bool s_module_originates_from(PyObject *a_module_obj, const char *a_plugin_path)
+{
+    if (!a_module_obj || !a_plugin_path)
+        return false;
+    bool l_result = false;
+    PyObject *l_file_attr = PyObject_GetAttrString(a_module_obj, "__file__");
+    if (l_file_attr) {
+        if (PyUnicode_Check(l_file_attr)) {
+            const char *l_file_str = PyUnicode_AsUTF8(l_file_attr);
+            if (l_file_str) {
+                char *l_canon = s_path_canonicalize(l_file_str);
+                if (l_canon) {
+                    l_result = s_path_is_within(l_canon, a_plugin_path);
+                    DAP_DELETE(l_canon);
+                }
+            }
+        }
+        Py_DECREF(l_file_attr);
+    } else {
+        PyErr_Clear();
+    }
+    if (l_result)
+        return true;
+
+    PyObject *l_path_attr = PyObject_GetAttrString(a_module_obj, "__path__");
+    if (!l_path_attr) {
+        PyErr_Clear();
+        return false;
+    }
+    Py_ssize_t l_size = PySequence_Size(l_path_attr);
+    if (l_size < 0) {
+        PyErr_Clear();
+        Py_DECREF(l_path_attr);
+        return false;
+    }
+    for (Py_ssize_t i = 0; i < l_size && !l_result; ++i) {
+        PyObject *l_item = PySequence_GetItem(l_path_attr, i);
+        if (!l_item) {
+            PyErr_Clear();
+            continue;
+        }
+        if (PyUnicode_Check(l_item)) {
+            const char *l_item_str = PyUnicode_AsUTF8(l_item);
+            if (l_item_str) {
+                char *l_canon = s_path_canonicalize(l_item_str);
+                if (l_canon) {
+                    l_result = s_path_is_within(l_canon, a_plugin_path);
+                    DAP_DELETE(l_canon);
+                }
+            }
+        }
+        Py_DECREF(l_item);
+    }
+    Py_DECREF(l_path_attr);
+    return l_result;
+}
+
+static void s_modules_purge_cache(const char *a_module_name, const char *a_plugin_path)
+{
+    PyObject *l_sys_modules = PyImport_GetModuleDict();
+    if (!l_sys_modules || !PyDict_Check(l_sys_modules))
+        return;
+
+    PyObject *l_keys = PyDict_Keys(l_sys_modules);
+    if (!l_keys)
+        return;
+
+    size_t l_name_len = a_module_name ? strlen(a_module_name) : 0;
+    Py_ssize_t l_count = PyList_GET_SIZE(l_keys);
+    for (Py_ssize_t i = 0; i < l_count; ++i) {
+        PyObject *l_key = PyList_GET_ITEM(l_keys, i); // borrowed
+        if (!PyUnicode_Check(l_key))
+            continue;
+        const char *l_key_str = PyUnicode_AsUTF8(l_key);
+        if (!l_key_str) {
+            PyErr_Clear();
+            continue;
+        }
+        bool l_match = false;
+        if (a_module_name && l_name_len) {
+            bool l_is_self = strcmp(l_key_str, a_module_name) == 0;
+            bool l_is_submodule = strncmp(l_key_str, a_module_name, l_name_len) == 0 && l_key_str[l_name_len] == '.';
+            l_match = l_is_self || l_is_submodule;
+        }
+        if (!l_match && a_plugin_path) {
+            PyObject *l_module_obj = PyDict_GetItem(l_sys_modules, l_key); // borrowed
+            if (l_module_obj)
+                l_match = s_module_originates_from(l_module_obj, a_plugin_path);
+            else
+                PyErr_Clear();
+        }
+        if (l_match) {
+            if (PyDict_DelItem(l_sys_modules, l_key) < 0)
+                PyErr_Clear();
+        }
+    }
+    Py_DECREF(l_keys);
 }
 
 int dap_chain_plugins_init(dap_config_t *a_config)
@@ -235,6 +414,10 @@ static int s_dap_chain_plugins_unload(dap_plugin_manifest_t * a_manifest, void *
 void* dap_chain_plugins_load_plugin_importing(const char *a_dir_path, const char *a_name) {
     log_it(L_NOTICE, "Import \"%s\" module from \"%s\" directory", a_name, a_dir_path);
 
+    char *l_plugin_path = s_prepare_plugin_path(a_dir_path);
+    if (!l_plugin_path)
+        l_plugin_path = s_path_ensure_trailing_sep(dap_strdup(a_dir_path));
+
     PyObject *l_obj_dir_path = PyUnicode_FromString(a_dir_path);
     PyList_Append(s_sys_path, l_obj_dir_path);
     Py_XDECREF(l_obj_dir_path);
@@ -253,32 +436,7 @@ void* dap_chain_plugins_load_plugin_importing(const char *a_dir_path, const char
     if (l_ext_module) {
         // The module has already been imported, drop it and its submodules from sys.modules
         log_it(L_NOTICE, "Module \"%s\" is already imported, dropping cached entries...", a_name);
-        PyObject *sys_modules = PyImport_GetModuleDict(); // borrowed ref
-        if (sys_modules && PyDict_Check(sys_modules)) {
-            PyObject *keys = PyDict_Keys(sys_modules); // new ref
-            if (keys) {
-                Py_ssize_t count = PyList_GET_SIZE(keys);
-                size_t name_len = strlen(a_name);
-                for (Py_ssize_t i = 0; i < count; ++i) {
-                    PyObject *key = PyList_GET_ITEM(keys, i); // borrowed ref
-                    if (!PyUnicode_Check(key))
-                        continue;
-                    const char *key_str = PyUnicode_AsUTF8(key);
-                    if (!key_str) {
-                        PyErr_Clear();
-                        continue;
-                    }
-                    bool is_self = strcmp(key_str, a_name) == 0;
-                    bool is_submodule = name_len > 0 && strncmp(key_str, a_name, name_len) == 0 && key_str[name_len] == '.';
-                    if (is_self || is_submodule) {
-                        if (PyDict_DelItem(sys_modules, key) < 0) {
-                            PyErr_Clear();
-                        }
-                    }
-                }
-                Py_DECREF(keys);
-            }
-        }
+        s_modules_purge_cache(a_name, l_plugin_path);
         Py_DECREF(l_ext_module);
 
         if (PyRun_SimpleString("import importlib; importlib.invalidate_caches()") != 0) {
@@ -297,6 +455,7 @@ void* dap_chain_plugins_load_plugin_importing(const char *a_dir_path, const char
     Py_DECREF(l_module_name);
 
     if (!l_module) {
+        DAP_DELETE(l_plugin_path);
         return NULL;
     }
 
@@ -304,10 +463,12 @@ void* dap_chain_plugins_load_plugin_importing(const char *a_dir_path, const char
     if (!module) {
         python_error_in_log_it(LOG_TAG);
         PyErr_Clear();
+        DAP_DELETE(l_plugin_path);
         return NULL;
     }
     module->module = l_module;
     module->name = dap_strdup(a_name);
+    module->path = l_plugin_path;
     return module;
 }
 
@@ -366,33 +527,7 @@ static void s_plugins_load_plugin_uninitialization(void* a_module){
     }
     Py_XDECREF(l_func_deinit);
 
-    PyObject *sys_modules = PyImport_GetModuleDict(); // borrowed reference
-    if (sys_modules && PyDict_Check(sys_modules)) {
-        PyObject *keys = PyDict_Keys(sys_modules); // new reference
-        if (keys) {
-            Py_ssize_t count = PyList_GET_SIZE(keys);
-            size_t name_len = strlen(l_container->name);
-            for (Py_ssize_t i = 0; i < count; ++i) {
-                PyObject *key = PyList_GET_ITEM(keys, i); // borrowed reference
-                if (!PyUnicode_Check(key))
-                    continue;
-                const char *key_str = PyUnicode_AsUTF8(key);
-                if (!key_str) {
-                    PyErr_Clear();
-                    continue;
-                }
-                bool is_self = strcmp(key_str, l_container->name) == 0;
-                bool is_submodule = name_len > 0 && strncmp(key_str, l_container->name, name_len) == 0
-                                    && key_str[name_len] == '.';
-                if (is_self || is_submodule) {
-                    if (PyDict_DelItem(sys_modules, key) < 0) {
-                        PyErr_Clear();
-                    }
-                }
-            }
-            Py_DECREF(keys);
-        }
-    }
+    s_modules_purge_cache(l_container->name, l_container->path);
 
     if (PyRun_SimpleString("import importlib; importlib.invalidate_caches()") != 0) {
         python_error_in_log_it(LOG_TAG);
@@ -405,6 +540,7 @@ static void s_plugins_load_plugin_uninitialization(void* a_module){
     PyGILState_Release(l_gil_state);
 
     DAP_DELETE(l_container->name);
+    DAP_DELETE(l_container->path);
     DAP_DELETE(l_container);
 }
 
