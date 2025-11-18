@@ -55,6 +55,7 @@ PyObject *dap_chain_ledger_tx_hash_is_used_out_item_hash_py(PyObject *self, PyOb
 PyObject *dap_chain_ledger_tx_get_main_ticker_py(PyObject *self, PyObject *args);
 PyObject *dap_chain_ledger_get_unspent_outputs_for_amount_py(PyObject *self, PyObject *args);
 PyObject *dap_chain_ledger_address_history_page_py(PyObject *self, PyObject *args, PyObject *kwds);
+PyObject *dap_chain_ledger_get_first_chain_tx_hash_py(PyObject *self, PyObject *args);
 
 extern PyTypeObject DapChainLedgerObjectType;
 
