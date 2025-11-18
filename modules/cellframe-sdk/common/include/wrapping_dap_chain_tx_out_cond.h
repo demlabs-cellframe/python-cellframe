@@ -51,6 +51,8 @@ PyObject *wrapping_dap_chain_tx_out_cond_get_type_subtype(PyObject *self, void *
 PyObject *wrapping_dap_chain_tx_out_cond_get_subtype(PyObject *self, void *closure);
 PyObject *wrapping_dap_chain_tx_out_cound_used_by(PyObject *self, void *closure);
 PyObject *wrapping_dap_chain_tx_out_cond_get_tag(PyObject *self, void *closure);
+PyObject *wrapping_dap_chain_tx_out_cond_get_tsd(PyObject *self, void *closure);
+PyObject *wrapping_dap_chain_tx_out_cond_get_tsd_by_type(PyObject *self, PyObject *args);
 
 extern PyTypeObject DapChainTxOutCondObjectType;
 
