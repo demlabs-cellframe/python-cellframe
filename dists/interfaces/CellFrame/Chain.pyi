@@ -284,11 +284,6 @@ class Mempool(Protocol):
     def addDatum(data: Any, chain: Any) -> None | str:
         pass
 
-    @staticmethod
-    def txCreateEvent(chain: Any, key_from: Any, service_key: Any, group_name: str,
-                     event_type: int, event_data: bytes | None, fee_value: str, hash_out_type: str) -> None | str:
-        pass
-
 
 # DapChainLedgerObjectType
 class Ledger(Protocol):

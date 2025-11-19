@@ -4,7 +4,6 @@
 #include "dap_chain_wallet_shared.h"
 #include "dap_chain_datum_tx_items.h"
 #include "dap_list.h"
-#include "wrapping_dap_enc_key.h"
 #include "wrapping_dap_pkey.h"
 
 #define LOG_TAG "python-mempool"
@@ -26,7 +25,6 @@ static PyMethodDef  DapMempoolMethods[] = {
         {"list", dap_chain_mempool_list_py, METH_VARARGS | METH_STATIC, ""},
         {"addDatum", dap_chain_mempool_add_datum_py, METH_VARARGS | METH_STATIC, ""},
         {"txCreateMultisignWithdraw", dap_chain_mempool_tx_create_multisign_withdraw_py, METH_VARARGS | METH_STATIC, ""},
-        {"txCreateEvent", dap_chain_mempool_tx_create_event_py, METH_VARARGS | METH_STATIC, ""},
         {NULL,NULL,0,NULL}
 };
 
@@ -827,92 +825,4 @@ PyObject *dap_chain_mempool_datum_get_py(PyObject *self, PyObject *args)
     l_pydatum->datum = l_datum;
     l_pydatum->origin = true;
     return (PyObject*)l_pydatum;
-}
-
-/**
- * @brief Python wrapper for dap_chain_mempool_tx_create_event function
- * @param[in] self Python object
- * @param[in] args Python arguments: chain, key_from, service_key, group_name, event_type, event_data, fee_value, hash_out_type
- * @return Transaction hash string on success, None on error
- */
-PyObject *dap_chain_mempool_tx_create_event_py(PyObject *self, PyObject *args)
-{
-    (void)self;
-    // Аргументы: chain, key_from, service_key, group_name, event_type, event_data, fee_value, hash_out_type
-    PyDapChainObject *obj_chain;
-    PyObject *obj_key_from;
-    PyObject *obj_service_key;
-    PyDapChainNetSrvUIDObject *obj_srv_uid;
-    const char *group_name;
-    unsigned int event_type;
-    PyObject *obj_event_data = NULL;  // Может быть None
-    const char *fee_value_str;
-    const char *hash_out_type;
-
-    if (!PyArg_ParseTuple(args, "OOOOsIOss", &obj_chain, &obj_key_from, &obj_service_key, &obj_srv_uid,
-                         &group_name, &event_type, &obj_event_data, &fee_value_str, &hash_out_type)) {
-        PyErr_SetString(PyExc_AttributeError, "Invalid arguments");
-        return NULL;
-    }
-
-    // Проверка типов аргументов
-    if (!PyDapChain_Check(obj_chain)) {
-        PyErr_SetString(PyExc_AttributeError, "First argument must be CellFrame.Chain object");
-        return NULL;
-    }
-    if (!DapEncKeyObject_Check(obj_key_from)) {
-        PyErr_SetString(PyExc_AttributeError, "Second argument must be key object");
-        return NULL;
-    }
-    if (!DapEncKeyObject_Check(obj_service_key)) {
-        PyErr_SetString(PyExc_AttributeError, "Third argument must be key object");
-        return NULL;
-    }
-    if (!PyDapChainNetSrvUid_Check(obj_srv_uid)) {
-        PyErr_SetString(PyExc_AttributeError, "Fourth argument must be ServiceUID object");
-        return NULL;
-    }
-    
-    // Проверка event_data (может быть None)
-    void *event_data = NULL;
-    size_t event_data_size = 0;
-    if (obj_event_data != Py_None) {
-        if (!PyBytes_Check(obj_event_data)) {
-            PyErr_SetString(PyExc_AttributeError, "Event data must be bytes object");
-            return NULL;
-        }
-        event_data = PyBytes_AsString(obj_event_data);
-        event_data_size = PyBytes_Size(obj_event_data);
-    }
-
-    // Получение значения комиссии
-    uint256_t fee_value = dap_chain_balance_scan(fee_value_str);
-    if (IS_ZERO_256(fee_value)) {
-        PyErr_SetString(PyExc_AttributeError, "Invalid fee value format");
-        return NULL;
-    }
-    
-    // Вызываем C функцию
-    char *tx_hash = dap_chain_mempool_tx_create_event(
-        obj_chain->chain_t,
-        ((PyCryptoKeyObject *)obj_key_from)->key,
-        ((PyCryptoKeyObject *)obj_service_key)->key,
-        obj_srv_uid->net_srv_uid,
-        group_name,
-        (uint16_t)event_type,
-        event_data,
-        event_data_size,
-        fee_value,
-        hash_out_type
-    );
-    
-    // Проверка результата
-    if (!tx_hash) {
-        Py_RETURN_NONE;
-    }
-    
-    // Создаем объект строки Python и возвращаем его
-    PyObject *obj_hash = Py_BuildValue("s", tx_hash);
-    DAP_DELETE(tx_hash);
-    return obj_hash;
 }

@@ -39,22 +39,6 @@ typedef struct PyDapPkey{
     dap_pkey_t *pkey;
 }PyDapPkeyObject;
 
-typedef struct PyDapPkeyType{
-    PyObject_HEAD
-    dap_pkey_type_t pkey_type;
-}PyDapPkeyTypeObject;
-
-extern PyTypeObject DapCryproPkeyTypeObjectType;
-extern PyTypeObject DapPkeyObject_DapPkeyObjectType;
-
-DAP_STATIC_INLINE bool DapPkeyTypeObject_Check(PyDapPkeyTypeObject *self) {
-    return PyObject_TypeCheck(self, &DapCryproPkeyTypeObjectType);
-}
-
-DAP_STATIC_INLINE bool DapPkeyObject_Check(PyDapPkeyObject *self) {
-    return PyObject_TypeCheck(self, &DapPkeyObject_DapPkeyObjectType);
-}
-
 PyObject *wrapping_dap_pkey_get_type(PyObject *self, void *closure);
 PyObject *wrapping_dap_pkey_get_hash(PyObject *self, void *closure);
 PyObject *wrapping_dap_pkey_get_size(PyObject *self, void *closure);
@@ -62,6 +46,7 @@ PyObject *wrapping_dap_pkey_to_bytes(PyObject *self, PyObject *args);
 PyObject *wrapping_dap_pkey_from_bytes(PyObject *self, PyObject *args);
 PyObject *wrapping_dap_pkey_encrypt(PyDapPkeyObject *self, PyObject *args);
 
+extern PyTypeObject DapPkeyObject_DapPkeyObjectType;
 
 /* ----------------------------------- */
 

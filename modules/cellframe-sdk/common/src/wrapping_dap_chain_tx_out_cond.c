@@ -2,11 +2,6 @@
 #include "wrapping_dap_chain_tx_out_cond.h"
 #include "libdap-chain-python.h"
 
-static PyMethodDef PyDapChainTxOutCondMethods[] = {
-        {"getTsdByType", wrapping_dap_chain_tx_out_cond_get_tsd_by_type, METH_VARARGS, "Get TSD data by type"},
-        {NULL, NULL, 0, NULL}
-};
-
 static PyGetSetDef PyDapChainTxOutCondGetsSetsDef[] = {
         {"tsExpires", (getter)wrapping_dap_chain_tx_out_cond_get_ts_expires, NULL, "", NULL},
         {"value", (getter)wrapping_dap_chain_tx_out_cond_get_value, NULL, "", NULL},
@@ -15,15 +10,12 @@ static PyGetSetDef PyDapChainTxOutCondGetsSetsDef[] = {
         {"usedBy", (getter)wrapping_dap_chain_tx_out_cound_used_by, NULL, "", NULL},
         {"tag", (getter)wrapping_dap_chain_tx_out_cond_get_tag, NULL,
             "Return TSD tag if present, else None", NULL},
-        {"tsd", (getter)wrapping_dap_chain_tx_out_cond_get_tsd, NULL,
-            "Return TSD data as bytes", NULL},
         {}
 };
 
 PyTypeObject DapChainTxOutCondObjectType = DAP_PY_TYPE_OBJECT(
         "CellFrame.ChainTxOutCond", sizeof(PyDapChainTxOutCondObject),
         "Chain tx out cond object",
-        .tp_methods = PyDapChainTxOutCondMethods,
         .tp_getset = PyDapChainTxOutCondGetsSetsDef,
         .tp_dealloc = (destructor) PyDapChainTxOutCondObject_delete);
 
@@ -34,8 +26,11 @@ void PyDapChainTxOutCondObject_delete(PyDapChainTxOutCondObject* datum_tx_out_co
 
 PyObject *wrapping_dap_chain_tx_out_cond_get_ts_expires(PyObject *self, void *closure){
     (void)closure;
+    dap_time_t l_ts = ((PyDapChainTxOutCondObject*)self)->out_cond->header.ts_expires;
+    if (!l_ts)
+        Py_RETURN_NONE;
     PyDateTime_IMPORT;
-    PyObject *timestamp = Py_BuildValue("(k)", ((PyDapChainTxOutCondObject*)self)->out_cond->header.ts_expires);
+    PyObject *timestamp = Py_BuildValue("(k)", l_ts);
     return PyDateTime_FromTimestamp(timestamp);
 }
 PyObject *wrapping_dap_chain_tx_out_cond_get_value(PyObject *self, void *closure){
@@ -110,44 +105,4 @@ PyObject *wrapping_dap_chain_tx_out_cond_get_tag(PyObject *self, void *closure)
     }
 
     Py_RETURN_NONE;
-}
-
-PyObject *wrapping_dap_chain_tx_out_cond_get_tsd(PyObject *self, void *closure)
-{
-    (void)closure;
-    
-    PyDapChainTxOutCondObject *obj_cond = (PyDapChainTxOutCondObject *)self;
-    
-    if (!obj_cond->out_cond || obj_cond->out_cond->tsd_size == 0) {
-        Py_RETURN_NONE;
-    }
-    
-    dap_chain_tx_out_cond_t *l_cond = obj_cond->out_cond;
-    
-    // Return TSD data as bytes
-    return PyBytes_FromStringAndSize((const char *)l_cond->tsd, l_cond->tsd_size);
-}
-
-PyObject *wrapping_dap_chain_tx_out_cond_get_tsd_by_type(PyObject *self, PyObject *args)
-{
-    uint16_t l_tsd_type = 0;
-    
-    if (!PyArg_ParseTuple(args, "H", &l_tsd_type)) {
-        return NULL;
-    }
-    
-    PyDapChainTxOutCondObject *obj_cond = (PyDapChainTxOutCondObject *)self;
-    
-    if (!obj_cond->out_cond || obj_cond->out_cond->tsd_size == 0) {
-        Py_RETURN_NONE;
-    }
-    
-    dap_chain_tx_out_cond_t *l_cond = obj_cond->out_cond;
-    dap_tsd_t *l_tsd = dap_tsd_find(l_cond->tsd, l_cond->tsd_size, l_tsd_type);
-    
-    if (!l_tsd) {
-        Py_RETURN_NONE;
-    }
-    
-    return PyBytes_FromStringAndSize((const char *)l_tsd->data, l_tsd->size);
 }

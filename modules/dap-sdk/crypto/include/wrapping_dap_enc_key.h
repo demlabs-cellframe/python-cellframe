@@ -34,9 +34,6 @@
 extern "C" {
 #endif
 
-DAP_STATIC_INLINE bool DapEncKeyObject_Check(PyObject *self) {
-    return true; // TODO: PyObject_TypeCheck(self, &DapEncKeyObjectType);
-}
 
 PyObject* dap_enc_key_get_enc_size_py(PyObject *self, PyObject *args);//dap_enc_key_t * a_key, const size_t buf_in_size); -> size_t
 PyObject* dap_enc_key_get_dec_size_py(PyObject *self, PyObject *args);//dap_enc_key_t * a_key, const size_t buf_in_size); -> size_t

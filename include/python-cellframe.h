@@ -120,7 +120,6 @@ BOOL WINAPI consoleHandler(DWORD);
 #include "wrapping_dap_chain_net_srv_xchange_price.h"
 #include "wrapping_dap_chain_net_srv_vote.h"
 #include "wrapping_dap_chain_net_srv_vote_info.h"
-#include "wrapping_dap_chain_net_srv_stake_ext.h"
 #ifdef DAP_SUPPORT_PYTHON_PLUGINS
     #include "../modules/plugins/include/dap_plugins_python_app_context.h"
 #endif // DAP_SUPPORT_PYTHON_PLUGINS
