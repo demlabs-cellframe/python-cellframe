@@ -49,6 +49,7 @@ static PyMethodDef DapChainLedgerMethods[] = {
         {"bridgedTxNotifyAdd", (PyCFunction)s_bridged_tx_notify_add, METH_VARARGS, ""},
         {"txHashIsUsedOutItemHash", (PyCFunction)dap_chain_ledger_tx_hash_is_used_out_item_hash_py, METH_VARARGS, ""},
         {"getFinalMultiWalletTxHash", (PyCFunction)dap_chain_ledger_get_final_multi_wallet_tx_hash_py, METH_VARARGS, ""},
+        {"getFirstChainTxHash", (PyCFunction)dap_chain_ledger_get_first_chain_tx_hash_py, METH_VARARGS, ""},
         {"listUnspent", (PyCFunction)dap_chain_ledger_get_unspent_outputs_for_amount_py, METH_VARARGS, ""},
         {}
 };
@@ -417,52 +418,9 @@ PyObject *dap_chain_ledger_count_from_to_py(PyObject *self, PyObject *args){
 PyObject *dap_chain_ledger_tx_hash_is_used_out_item_py(PyObject *self, PyObject *args){
     PyObject *obj_h_fast;
     int idx_out;
-    // Make idx_out mandatory (removed | from format string)
-    if (!PyArg_ParseTuple(args, "Oi", &obj_h_fast, &idx_out))
+    if (!PyArg_ParseTuple(args, "O|i", &obj_h_fast, &idx_out))
             return NULL;
-    
-    // Validate object type before casting
-    if (!PyObject_TypeCheck(obj_h_fast, &DapChainHashFastObjectType)) {
-        PyErr_SetString(PyExc_TypeError, "First argument must be CellFrame.HashFast object");
-        return NULL;
-    }
-    
-    // Validate index bounds
-    if (idx_out < 0) {
-        PyErr_SetString(PyExc_IndexError, "Output index must be non-negative");
-        return NULL;
-    }
-    
-    // Find transaction and validate upper bound
-    dap_ledger_tx_item_t *l_item_out = NULL;
-    dap_ledger_tx_find_datum_by_hash(
-        ((PyDapChainLedgerObject*)self)->ledger, 
-        ((PyDapHashFastObject*)obj_h_fast)->hash_fast, 
-        &l_item_out, 
-        false
-    );
-    
-    // If transaction not found or has no outputs, cannot proceed safely
-    if (!l_item_out || l_item_out->cache_data.n_outs == 0) {
-        PyErr_SetString(PyExc_ValueError, "Transaction not found or has no outputs");
-        return NULL;
-    }
-    
-    // Validate upper bound (n_outs is guaranteed > 0 here)
-    if ((uint32_t)idx_out >= l_item_out->cache_data.n_outs) {
-        PyErr_Format(PyExc_IndexError, 
-                    "Output index %d is out of bounds (0-%u)", 
-                    idx_out, l_item_out->cache_data.n_outs - 1);
-        return NULL;
-    }
-    
-    // All checks passed, safe to call C function
-    bool res = dap_ledger_tx_hash_is_used_out_item(
-        ((PyDapChainLedgerObject*)self)->ledger, 
-        ((PyDapHashFastObject*)obj_h_fast)->hash_fast, 
-        idx_out, 
-        NULL
-    );
+    bool res = dap_ledger_tx_hash_is_used_out_item(((PyDapChainLedgerObject*)self)->ledger, ((PyDapHashFastObject*)obj_h_fast)->hash_fast, idx_out, NULL);
     if (res)
         Py_RETURN_TRUE;
     else
@@ -840,44 +798,8 @@ PyObject *dap_chain_ledger_tx_hash_is_used_out_item_hash_py(PyObject *self, PyOb
     if (!PyArg_ParseTuple(args, "OK", &tx_hash, &idx)) {
         return NULL;
     }
-
-    // Validate object type before casting
-    if (!PyObject_TypeCheck(tx_hash, &DapChainHashFastObjectType)) {
-        PyErr_SetString(PyExc_TypeError, "First argument must be CellFrame.HashFast object");
-        return NULL;
-    }
-
-    // Find transaction and validate upper bound
-    // (idx is uint64_t, so no need to check for negative)
-    dap_ledger_tx_item_t *l_item_out = NULL;
-    dap_ledger_tx_find_datum_by_hash(
-        ((PyDapChainLedgerObject*)self)->ledger, 
-        ((PyDapHashFastObject*)tx_hash)->hash_fast, 
-        &l_item_out, 
-        false
-    );
-
-    // If transaction not found or has no outputs, cannot proceed safely
-    if (!l_item_out || l_item_out->cache_data.n_outs == 0) {
-        PyErr_SetString(PyExc_ValueError, "Transaction not found or has no outputs");
-        return NULL;
-    }
-
-    // Validate upper bound (n_outs is guaranteed > 0 here)
-    if (idx >= l_item_out->cache_data.n_outs) {
-        PyErr_Format(PyExc_IndexError, 
-                    "Output index %llu is out of bounds (0-%u)", 
-                    (unsigned long long)idx, l_item_out->cache_data.n_outs - 1);
-        return NULL;
-    }
-
-    // All checks passed, safe to call C function
     dap_hash_fast_t l_spender_hash = {0};
-    if (dap_ledger_tx_hash_is_used_out_item(
-            ((PyDapChainLedgerObject*)self)->ledger, 
-            ((PyDapHashFastObject*)tx_hash)->hash_fast, 
-            idx, 
-            &l_spender_hash)) {
+    if (dap_ledger_tx_hash_is_used_out_item(((PyDapChainLedgerObject*)self)->ledger, ((PyDapHashFastObject*)tx_hash)->hash_fast, idx, &l_spender_hash)){
         PyDapHashFastObject *obj_hf = PyObject_New(PyDapHashFastObject, &DapChainHashFastObjectType);
         obj_hf->hash_fast = DAP_NEW(dap_hash_fast_t);
         memcpy(obj_hf->hash_fast, &l_spender_hash, sizeof(dap_hash_fast_t));
@@ -925,6 +847,48 @@ static PyObject *dap_chain_ledger_get_final_multi_wallet_tx_hash_py(PyObject *se
     return (PyObject *)py_final;
 }
 
+PyObject *dap_chain_ledger_get_first_chain_tx_hash_py(PyObject *self, PyObject *args)
+{
+    PyObject *py_tx = NULL;
+    int       subtype = 0;
+
+    if (!PyArg_ParseTuple(args, "Oi", &py_tx, &subtype))
+        return NULL;
+
+    if (!PyObject_TypeCheck(py_tx, &DapChainDatumTxObjectType)) {
+        PyErr_SetString(PyExc_TypeError,
+            "First arg must be CellFrame.DatumTx object");
+        return NULL;
+    }
+
+    dap_chain_datum_tx_t *tx = ((PyDapChainDatumTxObject *)py_tx)->datum_tx;
+    dap_ledger_t *ledger = ((PyDapChainLedgerObject *)self)->ledger;
+    
+    if (!ledger || !tx) {
+        Py_RETURN_NONE;
+    }
+
+    dap_hash_fast_t first_hash = dap_ledger_get_first_chain_tx_hash(
+        ledger,
+        tx,
+        (dap_chain_tx_out_cond_subtype_t)subtype
+    );
+
+    if (dap_hash_fast_is_blank(&first_hash)) {
+        Py_RETURN_NONE;
+    }
+
+    PyDapHashFastObject *py_first =
+        PyObject_New(PyDapHashFastObject, &DapChainHashFastObjectType);
+    if (!py_first)
+        return PyErr_NoMemory();
+
+    py_first->hash_fast = DAP_NEW(dap_hash_fast_t);
+    memcpy(py_first->hash_fast, &first_hash, sizeof(first_hash));
+    py_first->origin = true;
+
+    return (PyObject *)py_first;
+}
 
 PyObject *dap_chain_ledger_get_unspent_outputs_for_amount_py(PyObject *self, PyObject *args) {
     PyObject   *py_addr            = NULL;
