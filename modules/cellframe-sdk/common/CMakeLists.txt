@@ -212,7 +212,12 @@ target_link_libraries(${PROJECT_NAME} dap_chain_common
         dap_crypto_python_module
         dap_chain_python_module
         dap_chain_net_python_module
-        dap_chain_net_srv_stake)
+        dap_chain_net_srv_stake
+        dap_chain_net_srv_stake_ext)
 
-target_include_directories(${PROJECT_NAME} PUBLIC include/ )
+target_include_directories(${PROJECT_NAME} PUBLIC include/)
+# Add include directory for dap_chain_net_srv_stake_ext.h
+target_include_directories(${PROJECT_NAME} PRIVATE 
+    ${CMAKE_SOURCE_DIR}/cellframe-sdk/modules/service/stake-ext/include
+)
 

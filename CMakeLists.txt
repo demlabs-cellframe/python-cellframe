@@ -49,6 +49,10 @@ else()
     target_include_directories(CellFrame INTERFACE include/)
     # Needed for wrapping_dap_notify_srv.h when compiling python-cellframe.c
     target_include_directories(CellFrame PRIVATE modules/dap-sdk/net/server/notify/include)
+    # Needed for wrapping_dap_chain_net_srv_stake_ext.h when compiling python-cellframe.c
+    # Use absolute path from project root
+    get_filename_component(PROJECT_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/.." ABSOLUTE)
+    include_directories("${PROJECT_ROOT}/cellframe-sdk/modules/service/stake-ext/include")
 
     install(TARGETS ${PROJECT_NAME} LIBRARY DESTINATION ${PROJECT_NAME})
     install(FILES CellFrame/__init__.py DESTINATION ${PROJECT_NAME})
@@ -59,9 +63,9 @@ endif()
 
 if (NOT (SUPPORT_PYTHON_PLUGINS))
     if (NOT(WIN32))
-        set(CELLFRAME_MODULES "core chains network cs-none srv srv-emit-delegate")
+        set(CELLFRAME_MODULES "core chains network cs-none srv srv-emit-delegate srv-stake-ext")
     else()
-        set(CELLFRAME_MODULES "core chains network cs-none srv srv-emit-delegate")
+        set(CELLFRAME_MODULES "core chains network cs-none srv srv-emit-delegate srv-stake-ext")
     endif()
     include(dap-sdk/cmake/OS_Detection.cmake)
     add_subdirectory(dap-sdk)
@@ -72,6 +76,9 @@ else()
 endif()
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
+# Add include directory for dap_chain_net_srv_stake_ext.h
+get_filename_component(PROJECT_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/.." ABSOLUTE)
+include_directories("${PROJECT_ROOT}/cellframe-sdk/modules/service/stake-ext/include")
 
 add_subdirectory(modules/dap-sdk/core)
 add_subdirectory(modules/dap-sdk/crypto)
@@ -96,6 +103,7 @@ add_subdirectory(modules/cellframe-sdk/consensus/dag_poa)
 add_subdirectory(modules/cellframe-sdk/services/pos_delegate)
 add_subdirectory(modules/cellframe-sdk/services/xchange)
 add_subdirectory(modules/cellframe-sdk/services/vote)
+add_subdirectory(modules/cellframe-sdk/services/stake-ext)
 add_subdirectory(modules/cellframe-sdk/channel/chain-net)
 
     target_compile_options(dap_chain_common_python_module PRIVATE "-fpic")
@@ -107,6 +115,7 @@ add_subdirectory(modules/cellframe-sdk/channel/chain-net)
     target_compile_options(dap_app_cli_python_module PRIVATE "-fpic")
     target_compile_options(dap_client_python_module PRIVATE "-fpic")
     target_compile_options(dap_chain_wallet_python_module PRIVATE "-fpic")
+    target_compile_options(dap_chain_net_srv_stake_ext_python_module PRIVATE "-fpic")
 
 
 target_compile_options(dap_core PRIVATE "-fpic")
@@ -187,6 +196,7 @@ target_link_libraries(${PROJECT_NAME} cellframe-sdk dap_python_module
                       dap_server_http_python_module
                       dap_stream_python_module
                       dap_chain_python_module
+                      dap_chain_common_python_module
                       dap_chain_net_python_module
                       dap_chain_net_srv_python_module
                       dap_notify_srv_python_module
@@ -200,6 +210,7 @@ target_link_libraries(${PROJECT_NAME} cellframe-sdk dap_python_module
                       dap_chain_net_srv_stake_pos_delegate_python_module
                       wrapping_dap_chain_net_srv_xchange
                       dap_chain_net_srv_vote_python
+                      dap_chain_net_srv_stake_ext_python_module
                       dap_stream_ch_chain_net_python_module
                       ${PYTHON_LIBRARIES}
                      )

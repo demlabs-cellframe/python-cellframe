@@ -21,6 +21,7 @@ void dap_chain_plugins_command_create(void){
         s_l_restart_plugins = true;
     }
 }
+
 int dap_chain_plugins_command_handler(int a_argc, char **a_argv, void **a_str_reply, int a_version){
     enum {
         CMD_NONE, CMD_LIST, CMD_SHOW_NAME, CMD_RESTART, CMD_RELOAD_NAME

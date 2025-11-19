@@ -17,6 +17,9 @@ file(GLOB DAP_PLUGINS_PYTHON_SRCS src/*.c)
 file(GLOB DAP_PLUGINS_PYTHON_HEADERS include/*.h)
 
 include_directories(${PYTHON_INCLUDE_DIR} include/)
+# Add include directory for dap_chain_net_srv_stake_ext.h
+get_filename_component(PROJECT_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/../../.." ABSOLUTE)
+include_directories("${PROJECT_ROOT}/cellframe-sdk/modules/service/stake-ext/include")
 
 add_library(${PROJECT_NAME} STATIC ${DAP_PLUGINS_PYTHON_SRCS} ${DAP_PLUGINS_PYTHON_HEADERS})
 

@@ -33,13 +33,6 @@ if(NOT (${SUBMODULES_NO_BUILD} MATCHES ON))
                 "-fpic"
         )
     endif()
-    if (NOT (TARGET dap_chain_crypto))
-        add_subdirectory(libdap-chain-crypto)
-        target_compile_options(
-                dap_chain_crypto PRIVATE
-                "-fpic"
-        )
-    endif()
     if (NOT (TARGET dap_chain_mempool))
         add_subdirectory(libdap-chain-mempool)
         target_compile_options(
