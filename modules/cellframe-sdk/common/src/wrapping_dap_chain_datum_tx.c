@@ -458,6 +458,15 @@ PyObject *wrapping_dap_chain_datum_tx_get_items(PyObject *self, PyObject *args) 
                     return NULL;
                 }
                 break;
+            case TX_ITEM_TYPE_EVENT:
+                obj_tx_item = (PyObject *)PyObject_New(PyDapChainTxEventObject, &DapChainTxEventObjectType);
+                if (!obj_tx_item) {
+                    log_it(L_CRITICAL, "Failed to create TX EVENT object");
+                    Py_DECREF(obj_list);
+                    return NULL;
+                }
+                ((PyDapChainTxEventObject *)obj_tx_item)->tx_event = (dap_chain_tx_item_event_t *)item;
+                break;
             default:
                 obj_tx_item = Py_None;
                 break;

@@ -49,7 +49,22 @@ static PyMethodDef DapChainLedgerMethods[] = {
         {"bridgedTxNotifyAdd", (PyCFunction)s_bridged_tx_notify_add, METH_VARARGS, ""},
         {"txHashIsUsedOutItemHash", (PyCFunction)dap_chain_ledger_tx_hash_is_used_out_item_hash_py, METH_VARARGS, ""},
         {"getFinalMultiWalletTxHash", (PyCFunction)dap_chain_ledger_get_final_multi_wallet_tx_hash_py, METH_VARARGS, ""},
+        {"getFirstChainTxHash", (PyCFunction)dap_chain_ledger_get_first_chain_tx_hash_py, METH_VARARGS, ""},
         {"listUnspent", (PyCFunction)dap_chain_ledger_get_unspent_outputs_for_amount_py, METH_VARARGS, ""},
+        {"eventFind", (PyCFunction)dap_chain_ledger_event_find_py, METH_VARARGS, "Find event by hash"},
+        {"eventGetList", (PyCFunction)dap_chain_ledger_event_get_list_py, METH_VARARGS, "Get list of events by group name"},
+        {"eventPkeyList", (PyCFunction)dap_chain_ledger_event_pkey_list_py, METH_VARARGS, "Get list of allowed public keys for events"},
+        {"eventNotifyAdd", (PyCFunction)dap_chain_ledger_event_notify_add_py, METH_VARARGS, "Add notification callback for events"},
+        {}
+};
+
+static PyMethodDef DapChainLedgerEventMethods[] = {
+        {"getGroupName", (PyCFunction)dap_chain_ledger_event_get_group_name_py, METH_NOARGS, "Get event group name"},
+        {"getType", (PyCFunction)dap_chain_ledger_event_get_type_py, METH_NOARGS, "Get event type"},
+        {"getEventData", (PyCFunction)dap_chain_ledger_event_get_data_py, METH_NOARGS, "Get event data as bytes"},
+        {"getTimestamp", (PyCFunction)dap_chain_ledger_event_get_timestamp_py, METH_NOARGS, "Get event timestamp"},
+        {"getPkeyHash", (PyCFunction)dap_chain_ledger_event_get_pkey_hash_py, METH_NOARGS, "Get event pkey hash"},
+        {"getTxHash", (PyCFunction)dap_chain_ledger_event_get_tx_hash_py, METH_NOARGS, "Get event tx hash"},
         {}
 };
 
@@ -191,6 +206,11 @@ PyTypeObject DapChainLedgerObjectType = DAP_PY_TYPE_OBJECT(
         "Chain ledger objects",
         .tp_methods = DapChainLedgerMethods);
 
+PyTypeObject DapChainLedgerEventObjectType = DAP_PY_TYPE_OBJECT(
+        "CellFrame.ChainLedgerEvent", sizeof(PyDapChainLedgerEventObject),
+        "Chain ledger event objects",
+        .tp_methods = DapChainLedgerEventMethods);
+
 PyObject *DapChainLedgerObject_create(PyTypeObject *type_object, PyObject *args, PyObject *kwds){
     uint16_t check_flag;
     char *net_name;
@@ -203,6 +223,21 @@ PyObject *DapChainLedgerObject_create(PyTypeObject *type_object, PyObject *args,
 }
 void DapChainLedgerObject_free(PyDapChainLedgerObject* object){
     dap_ledger_handle_free(object->ledger);
+    Py_TYPE(object)->tp_free(object);
+}
+
+PyObject *DapChainLedgerEventObject_create(PyTypeObject *type_object, PyObject *args, PyObject *kwds){
+    (void)args;
+    (void)kwds;
+    PyDapChainLedgerEventObject *obj = (PyDapChainLedgerEventObject *)PyType_GenericNew(type_object, args, kwds);
+    obj->event = NULL;
+    obj->origin = false;
+    return (PyObject *)obj;
+}
+
+void DapChainLedgerEventObject_free(PyDapChainLedgerEventObject* object){
+    if (object->event && object->origin)
+        dap_chain_datum_tx_event_delete(object->event);
     Py_TYPE(object)->tp_free(object);
 }
 
@@ -417,8 +452,7 @@ PyObject *dap_chain_ledger_count_from_to_py(PyObject *self, PyObject *args){
 PyObject *dap_chain_ledger_tx_hash_is_used_out_item_py(PyObject *self, PyObject *args){
     PyObject *obj_h_fast;
     int idx_out;
-    // Make idx_out mandatory (removed | from format string)
-    if (!PyArg_ParseTuple(args, "Oi", &obj_h_fast, &idx_out))
+    if (!PyArg_ParseTuple(args, "O|i", &obj_h_fast, &idx_out))
             return NULL;
     
     // Validate object type before casting
@@ -829,11 +863,7 @@ PyObject *dap_chain_ledger_tx_hash_is_used_out_item_hash_py(PyObject *self, PyOb
     // C function will validate transaction existence and output index bounds internally
     // No need to check l_item_out->cache_data.n_outs here (it's in private struct)
     dap_hash_fast_t l_spender_hash = {0};
-    if (dap_ledger_tx_hash_is_used_out_item(
-            ((PyDapChainLedgerObject*)self)->ledger, 
-            ((PyDapHashFastObject*)tx_hash)->hash_fast, 
-            idx, 
-            &l_spender_hash)) {
+    if (dap_ledger_tx_hash_is_used_out_item(((PyDapChainLedgerObject*)self)->ledger, ((PyDapHashFastObject*)tx_hash)->hash_fast, idx, &l_spender_hash)){
         PyDapHashFastObject *obj_hf = PyObject_New(PyDapHashFastObject, &DapChainHashFastObjectType);
         obj_hf->hash_fast = DAP_NEW(dap_hash_fast_t);
         memcpy(obj_hf->hash_fast, &l_spender_hash, sizeof(dap_hash_fast_t));
@@ -881,6 +911,48 @@ static PyObject *dap_chain_ledger_get_final_multi_wallet_tx_hash_py(PyObject *se
     return (PyObject *)py_final;
 }
 
+PyObject *dap_chain_ledger_get_first_chain_tx_hash_py(PyObject *self, PyObject *args)
+{
+    PyObject *py_tx = NULL;
+    int       subtype = 0;
+
+    if (!PyArg_ParseTuple(args, "Oi", &py_tx, &subtype))
+        return NULL;
+
+    if (!PyObject_TypeCheck(py_tx, &DapChainDatumTxObjectType)) {
+        PyErr_SetString(PyExc_TypeError,
+            "First arg must be CellFrame.DatumTx object");
+        return NULL;
+    }
+
+    dap_chain_datum_tx_t *tx = ((PyDapChainDatumTxObject *)py_tx)->datum_tx;
+    dap_ledger_t *ledger = ((PyDapChainLedgerObject *)self)->ledger;
+    
+    if (!ledger || !tx) {
+        Py_RETURN_NONE;
+    }
+
+    dap_hash_fast_t first_hash = dap_ledger_get_first_chain_tx_hash(
+        ledger,
+        tx,
+        (dap_chain_tx_out_cond_subtype_t)subtype
+    );
+
+    if (dap_hash_fast_is_blank(&first_hash)) {
+        Py_RETURN_NONE;
+    }
+
+    PyDapHashFastObject *py_first =
+        PyObject_New(PyDapHashFastObject, &DapChainHashFastObjectType);
+    if (!py_first)
+        return PyErr_NoMemory();
+
+    py_first->hash_fast = DAP_NEW(dap_hash_fast_t);
+    memcpy(py_first->hash_fast, &first_hash, sizeof(first_hash));
+    py_first->origin = true;
+
+    return (PyObject *)py_first;
+}
 
 PyObject *dap_chain_ledger_get_unspent_outputs_for_amount_py(PyObject *self, PyObject *args) {
     PyObject   *py_addr            = NULL;
@@ -971,6 +1043,296 @@ PyObject *dap_chain_ledger_get_unspent_outputs_for_amount_py(PyObject *self, PyO
     return py_result_list;
 }
 
+// Event functions
+PyObject *dap_chain_ledger_event_find_py(PyObject *self, PyObject *args){
+    PyObject *obj_hash;
+    if (!PyArg_ParseTuple(args, "O", &obj_hash))
+        return NULL;
+    
+    dap_hash_fast_t *l_hash = ((PyDapHashFastObject *)obj_hash)->hash_fast;
+    dap_chain_tx_event_t *l_event = dap_ledger_event_find(((PyDapChainLedgerObject *)self)->ledger, l_hash);
+    
+    if (!l_event) {
+        Py_RETURN_NONE;
+    }
+    
+    PyDapChainLedgerEventObject *obj_event = PyObject_New(PyDapChainLedgerEventObject, &DapChainLedgerEventObjectType);
+    obj_event->event = l_event;
+    obj_event->origin = true;
+    return (PyObject *)obj_event;
+}
+
+PyObject *dap_chain_ledger_event_get_list_py(PyObject *self, PyObject *args){
+    const char *group_name = NULL;
+    if (!PyArg_ParseTuple(args, "|s", &group_name))
+        return NULL;
+    
+    dap_list_t *l_list = dap_ledger_event_get_list(((PyDapChainLedgerObject *)self)->ledger, group_name);
+    if (!l_list) {
+        PyObject *l_list_empty = PyList_New(0);
+        return l_list_empty;
+    }
+    
+    PyObject *l_list_obj = PyList_New(0);
+    for (dap_list_t *l_iter = l_list; l_iter; l_iter = l_iter->next) {
+        dap_chain_tx_event_t *l_event = (dap_chain_tx_event_t *)l_iter->data;
+        PyDapChainLedgerEventObject *obj_event = PyObject_New(PyDapChainLedgerEventObject, &DapChainLedgerEventObjectType);
+        obj_event->event = l_event;
+        obj_event->origin = false; // The events will be freed by dap_list_free_full
+        PyList_Append(l_list_obj, (PyObject *)obj_event);
+        Py_DECREF(obj_event);
+    }
+    
+    // Free the list but not the events (they will be freed by the Python objects)
+    dap_list_free(l_list);
+    
+    return l_list_obj;
+}
+
+PyObject *dap_chain_ledger_event_pkey_list_py(PyObject *self, PyObject *args){
+    (void)args;
+    dap_list_t *l_list = dap_ledger_event_pkey_list(((PyDapChainLedgerObject *)self)->ledger);
+    if (!l_list) {
+        PyObject *l_list_empty = PyList_New(0);
+        return l_list_empty;
+    }
+    
+    PyObject *l_list_obj = PyList_New(0);
+    for (dap_list_t *l_iter = l_list; l_iter; l_iter = l_iter->next) {
+        dap_hash_fast_t *l_hash = (dap_hash_fast_t *)l_iter->data;
+        PyDapHashFastObject *obj_hash = PyObject_New(PyDapHashFastObject, &DapChainHashFastObjectType);
+        obj_hash->hash_fast = DAP_DUP(l_hash);
+        obj_hash->origin = true;
+        PyList_Append(l_list_obj, (PyObject *)obj_hash);
+        Py_DECREF(obj_hash);
+    }
+    
+    // Free the list and the hashes
+    dap_list_free_full(l_list, free);
+    
+    return l_list_obj;
+}
+
+// Event object methods
+PyObject *dap_chain_ledger_event_get_group_name_py(PyObject *self, void *closure) {
+    (void)closure;
+    PyDapChainLedgerEventObject *obj = (PyDapChainLedgerEventObject *)self;
+    if (!obj->event) {
+        Py_RETURN_NONE;
+    }
+    return PyUnicode_FromString(obj->event->group_name);
+}
+
+PyObject *dap_chain_ledger_event_get_type_py(PyObject *self, void *closure) {
+    (void)closure;
+    PyDapChainLedgerEventObject *obj = (PyDapChainLedgerEventObject *)self;
+    if (!obj->event) {
+        Py_RETURN_NONE;
+    }
+    return PyLong_FromLong(obj->event->event_type);
+}
+
+PyObject *dap_chain_ledger_event_get_data_py(PyObject *self, void *closure) {
+    (void)closure;
+    PyDapChainLedgerEventObject *obj = (PyDapChainLedgerEventObject *)self;
+    if (!obj->event || !obj->event->event_data_size) {
+        Py_RETURN_NONE;
+    }
+    return PyBytes_FromStringAndSize((char *)obj->event->event_data, obj->event->event_data_size);
+}
+
+PyObject *dap_chain_ledger_event_get_timestamp_py(PyObject *self, void *closure) {
+    (void)closure;
+    PyDapChainLedgerEventObject *obj = (PyDapChainLedgerEventObject *)self;
+    if (!obj->event) {
+        Py_RETURN_NONE;
+    }
+    return PyLong_FromLong(obj->event->timestamp);
+}
+
+PyObject *dap_chain_ledger_event_get_pkey_hash_py(PyObject *self, void *closure) {
+    (void)closure;
+    PyDapChainLedgerEventObject *obj = (PyDapChainLedgerEventObject *)self;
+    if (!obj->event) {
+        Py_RETURN_NONE;
+    }
+    PyDapHashFastObject *obj_hash = PyObject_New(PyDapHashFastObject, &DapChainHashFastObjectType);
+    obj_hash->hash_fast = DAP_DUP(&obj->event->pkey_hash);
+    obj_hash->origin = true;
+    return (PyObject *)obj_hash;
+}
+
+PyObject *dap_chain_ledger_event_get_tx_hash_py(PyObject *self, void *closure) {
+    (void)closure;
+    PyDapChainLedgerEventObject *obj = (PyDapChainLedgerEventObject *)self;
+    if (!obj->event) {
+        Py_RETURN_NONE;
+    }
+    PyDapHashFastObject *obj_hash = PyObject_New(PyDapHashFastObject, &DapChainHashFastObjectType);
+    obj_hash->hash_fast = DAP_DUP(&obj->event->tx_hash);
+    obj_hash->origin = true;
+    return (PyObject *)obj_hash;
+}
+
+// Структура для хранения Python-колбэка и его аргументов
+typedef struct dap_chain_ledger_event_py_callback {
+    PyObject *py_callback;
+    PyObject *py_arg;
+} dap_chain_ledger_event_py_callback_t;
+
+// Функция-обёртка для вызова Python-колбэка из C
+static void s_ledger_event_py_callback(void *a_arg, dap_ledger_t *a_ledger, dap_chain_tx_event_t *a_event, 
+                                      dap_hash_fast_t *a_tx_hash, dap_chan_ledger_notify_opcodes_t a_opcode)
+{
+    dap_chain_ledger_event_py_callback_t *l_py_cb = (dap_chain_ledger_event_py_callback_t *)a_arg;
+    PyGILState_STATE l_gil_state;
+    l_gil_state = PyGILState_Ensure();
+
+    // Создаем объект события для передачи в Python-колбэк
+    PyDapChainLedgerEventObject *l_event_obj = PyObject_New(PyDapChainLedgerEventObject, &DapChainLedgerEventObjectType);
+    if (!l_event_obj) {
+        log_it(L_ERROR, "Can't create Python event object in callback");
+        PyGILState_Release(l_gil_state);
+        return;
+    }
+    
+    // Создаем копию события, так как оно будет освобождено после вызова колбэка
+    l_event_obj->event = DAP_NEW_Z(dap_chain_tx_event_t);
+    if (!l_event_obj->event) {
+        log_it(L_ERROR, "Memory allocation error in Python event callback");
+        Py_DECREF(l_event_obj);
+        PyGILState_Release(l_gil_state);
+        return;
+    }
+    
+    // Копируем данные события
+    *l_event_obj->event = *a_event;
+    l_event_obj->event->group_name = dap_strdup(a_event->group_name);
+    if (a_event->event_data_size > 0 && a_event->event_data)
+        l_event_obj->event->event_data = DAP_DUP_SIZE(a_event->event_data, a_event->event_data_size);
+    else {
+        l_event_obj->event->event_data = NULL;
+        l_event_obj->event->event_data_size = 0;
+    }
+    
+    l_event_obj->origin = true;
+    
+    // Создаем объект хэша транзакции
+    PyDapHashFastObject *l_hash_obj = PyObject_New(PyDapHashFastObject, &DapChainHashFastObjectType);
+    if (!l_hash_obj) {
+        log_it(L_ERROR, "Can't create Python hash object in callback");
+        Py_DECREF(l_event_obj);
+        PyGILState_Release(l_gil_state);
+        return;
+    }
+    l_hash_obj->hash_fast = DAP_NEW(dap_hash_fast_t);
+    if (!l_hash_obj->hash_fast) {
+        log_it(L_ERROR, "Memory allocation error in Python event callback");
+        Py_DECREF(l_event_obj);
+        Py_DECREF(l_hash_obj);
+        PyGILState_Release(l_gil_state);
+        return;
+    }
+    memcpy(l_hash_obj->hash_fast, a_tx_hash, sizeof(dap_hash_fast_t));
+    l_hash_obj->origin = true;
+    
+    // Создаем объект леджера
+    PyDapChainLedgerObject *l_ledger_obj = PyObject_New(PyDapChainLedgerObject, &DapChainLedgerObjectType);
+    if (!l_ledger_obj) {
+        log_it(L_ERROR, "Can't create Python ledger object in callback");
+        Py_DECREF(l_event_obj);
+        Py_DECREF(l_hash_obj);
+        PyGILState_Release(l_gil_state);
+        return;
+    }
+    l_ledger_obj->ledger = a_ledger;
+    
+    // Создаем аргументы для вызова Python-колбэка
+    PyObject *l_args = Py_BuildValue("OOOci", l_ledger_obj, l_event_obj, l_hash_obj, a_opcode, l_py_cb->py_arg);
+    if (!l_args) {
+        log_it(L_ERROR, "Can't build arguments for Python callback");
+        Py_DECREF(l_event_obj);
+        Py_DECREF(l_hash_obj);
+        Py_DECREF(l_ledger_obj);
+        PyGILState_Release(l_gil_state);
+        return;
+    }
+    
+    // Вызываем Python-колбэк
+    PyObject *l_result = PyObject_CallObject(l_py_cb->py_callback, l_args);
+    if (!l_result) {
+        PyErr_Print();
+        log_it(L_ERROR, "Error calling Python callback for ledger event");
+    } else {
+        Py_DECREF(l_result);
+    }
+    
+    Py_DECREF(l_args);
+    Py_DECREF(l_ledger_obj);
+    Py_DECREF(l_hash_obj);
+    Py_DECREF(l_event_obj);
+    
+    PyGILState_Release(l_gil_state);
+}
+
+// Функция для освобождения ресурсов Python-колбэка
+static void s_ledger_event_py_callback_delete(void *a_arg)
+{
+    if (!a_arg)
+        return;
+        
+    dap_chain_ledger_event_py_callback_t *l_py_cb = (dap_chain_ledger_event_py_callback_t *)a_arg;
+    
+    PyGILState_STATE l_gil_state;
+    l_gil_state = PyGILState_Ensure();
+    
+    Py_XDECREF(l_py_cb->py_callback);
+    Py_XDECREF(l_py_cb->py_arg);
+    
+    PyGILState_Release(l_gil_state);
+    
+    DAP_DELETE(l_py_cb);
+}
+
+// Python-функция для регистрации колбэка событий
+PyObject *dap_chain_ledger_event_notify_add_py(PyObject *self, PyObject *args)
+{
+    PyObject *py_callback;
+    PyObject *py_arg = Py_None;
+    
+    if (!PyArg_ParseTuple(args, "O|O", &py_callback, &py_arg))
+        return NULL;
+    
+    if (!PyCallable_Check(py_callback)) {
+        PyErr_SetString(PyExc_TypeError, "First argument must be callable");
+        return NULL;
+    }
+    
+    dap_ledger_t *l_ledger = ((PyDapChainLedgerObject *)self)->ledger;
+    if (!l_ledger) {
+        PyErr_SetString(PyExc_ValueError, "Invalid ledger object");
+        return NULL;
+    }
+    
+    // Создаем структуру для хранения Python-колбэка и его аргументов
+    dap_chain_ledger_event_py_callback_t *l_py_cb = DAP_NEW_Z(dap_chain_ledger_event_py_callback_t);
+    if (!l_py_cb) {
+        PyErr_SetString(PyExc_MemoryError, "Memory allocation error");
+        return NULL;
+    }
+    
+    // Сохраняем ссылки на Python-объекты
+    l_py_cb->py_callback = py_callback;
+    Py_INCREF(py_callback);
+    
+    l_py_cb->py_arg = py_arg;
+    Py_INCREF(py_arg);
+    
+    // Регистрируем C-колбэк, который будет вызывать Python-колбэк
+    dap_ledger_event_notify_add(l_ledger, s_ledger_event_py_callback, l_py_cb);
+    
+    Py_RETURN_NONE;
+}
 PyObject *dap_chain_ledger_address_history_page_py(PyObject *self, PyObject *args, PyObject *kwds)
 {
     PyObject *addr_obj = NULL;
