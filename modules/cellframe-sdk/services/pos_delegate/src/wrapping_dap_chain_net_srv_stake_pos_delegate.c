@@ -5,7 +5,6 @@
 #include "dap_chain_net_srv_stake_pos_delegate.h"
 #include "math_python.h"
 #include "dap_chain_common.h"
-#include "dap_net_common.h"
 
 int DapChainNetSrvStakePosDelegateObject_init(PyObject *self, PyObject *args, PyObject *kwds){
     const char *kwlist[] = {
