@@ -5,6 +5,7 @@
 #include "dap_chain_net_srv_stake_pos_delegate.h"
 #include "math_python.h"
 #include "dap_chain_common.h"
+#include "dap_common.h"
 
 int DapChainNetSrvStakePosDelegateObject_init(PyObject *self, PyObject *args, PyObject *kwds){
     const char *kwlist[] = {
@@ -103,7 +104,13 @@ PyObject *wrapping_dap_chain_net_srv_stake_get_validators_list(PyObject *self, P
     // Create Python list
     PyObject *result = PyList_New(0);
     if (!result) {
-        dap_list_free_full(validators_list, DAP_DELETE);
+        // Free validators list - elements were created with DAP_DUP, need to free them
+        for (dap_list_t *item = validators_list; item; item = dap_list_next(item)) {
+            if (item->data) {
+                DAP_DELETE(item->data);
+            }
+        }
+        dap_list_free_full(validators_list, NULL);
         return NULL;
     }
     
@@ -117,7 +124,13 @@ PyObject *wrapping_dap_chain_net_srv_stake_get_validators_list(PyObject *self, P
         PyObject *validator_dict = PyDict_New();
         if (!validator_dict) {
             Py_DECREF(result);
-            dap_list_free_full(validators_list, DAP_DELETE);
+            // Free validators list - elements were created with DAP_DUP, need to free them
+            for (dap_list_t *free_item = validators_list; free_item; free_item = dap_list_next(free_item)) {
+                if (free_item->data) {
+                    DAP_DELETE(free_item->data);
+                }
+            }
+            dap_list_free_full(validators_list, NULL);
             return NULL;
         }
         
@@ -136,44 +149,37 @@ PyObject *wrapping_dap_chain_net_srv_stake_get_validators_list(PyObject *self, P
         }
         
         // stake_value (locked_value)
-        char *stake_value_str = dap_chain_balance_coins_print(stake->locked_value);
-        if (stake_value_str) {
-            PyObject *py_stake_value = PyUnicode_FromString(stake_value_str);
-            if (py_stake_value) {
-                PyDict_SetItemString(validator_dict, "stake_value", py_stake_value);
-                Py_DECREF(py_stake_value);
-            }
-            DAP_DELETE(stake_value_str);
+        const char *stake_value_str;
+        dap_uint256_to_char(stake->locked_value, &stake_value_str);
+        PyObject *py_stake_value = PyUnicode_FromString(stake_value_str);
+        if (py_stake_value) {
+            PyDict_SetItemString(validator_dict, "stake_value", py_stake_value);
+            Py_DECREF(py_stake_value);
         }
         
         // effective_value (value)
-        char *effective_value_str = dap_chain_balance_coins_print(stake->value);
-        if (effective_value_str) {
-            PyObject *py_effective_value = PyUnicode_FromString(effective_value_str);
-            if (py_effective_value) {
-                PyDict_SetItemString(validator_dict, "effective_value", py_effective_value);
-                Py_DECREF(py_effective_value);
-            }
-            DAP_DELETE(effective_value_str);
+        const char *effective_value_str;
+        dap_uint256_to_char(stake->value, &effective_value_str);
+        PyObject *py_effective_value = PyUnicode_FromString(effective_value_str);
+        if (py_effective_value) {
+            PyDict_SetItemString(validator_dict, "effective_value", py_effective_value);
+            Py_DECREF(py_effective_value);
         }
         
         // related_weight (percentage)
         uint256_t rel_weight, tmp;
         MULT_256_256(stake->value, GET_256_FROM_64(100), &tmp);
         DIV_256_COIN(tmp, total_weight, &rel_weight);
-        char *rel_weight_str = dap_chain_balance_coins_print(rel_weight);
-        if (rel_weight_str) {
-            PyObject *py_rel_weight = PyUnicode_FromString(rel_weight_str);
-            if (py_rel_weight) {
-                PyDict_SetItemString(validator_dict, "related_weight", py_rel_weight);
-                Py_DECREF(py_rel_weight);
-            }
-            DAP_DELETE(rel_weight_str);
+        const char *rel_weight_str;
+        dap_uint256_to_char(rel_weight, &rel_weight_str);
+        PyObject *py_rel_weight = PyUnicode_FromString(rel_weight_str);
+        if (py_rel_weight) {
+            PyDict_SetItemString(validator_dict, "related_weight", py_rel_weight);
+            Py_DECREF(py_rel_weight);
         }
         
         // tx_hash
-        char tx_hash_str[DAP_CHAIN_HASH_FAST_STR_SIZE];
-        dap_chain_hash_fast_to_str(&stake->tx_hash.hash, tx_hash_str, sizeof(tx_hash_str));
+        const char *tx_hash_str = dap_hash_fast_to_str_static(&stake->tx_hash.hash);
         PyObject *py_tx_hash = PyUnicode_FromString(tx_hash_str);
         if (py_tx_hash) {
             PyDict_SetItemString(validator_dict, "tx_hash", py_tx_hash);
@@ -201,14 +207,12 @@ PyObject *wrapping_dap_chain_net_srv_stake_get_validators_list(PyObject *self, P
         // sovereign_tax (as percentage)
         uint256_t sov_tax_percent = uint256_0;
         MULT_256_256(stake->sovereign_tax, GET_256_FROM_64(100), &sov_tax_percent);
-        char *sov_tax_str = dap_chain_balance_coins_print(sov_tax_percent);
-        if (sov_tax_str) {
-            PyObject *py_sov_tax = PyUnicode_FromString(sov_tax_str);
-            if (py_sov_tax) {
-                PyDict_SetItemString(validator_dict, "sovereign_tax", py_sov_tax);
-                Py_DECREF(py_sov_tax);
-            }
-            DAP_DELETE(sov_tax_str);
+        const char *sov_tax_str;
+        dap_uint256_to_char(sov_tax_percent, &sov_tax_str);
+        PyObject *py_sov_tax = PyUnicode_FromString(sov_tax_str);
+        if (py_sov_tax) {
+            PyDict_SetItemString(validator_dict, "sovereign_tax", py_sov_tax);
+            Py_DECREF(py_sov_tax);
         }
         
         // active status
@@ -218,8 +222,7 @@ PyObject *wrapping_dap_chain_net_srv_stake_get_validators_list(PyObject *self, P
         Py_DECREF(py_active);
         
         // decree_hash
-        char decree_hash_str[DAP_CHAIN_HASH_FAST_STR_SIZE];
-        dap_chain_hash_fast_to_str(&stake->decree_hash.hash, decree_hash_str, sizeof(decree_hash_str));
+        const char *decree_hash_str = dap_hash_fast_to_str_static(&stake->decree_hash.hash);
         PyObject *py_decree_hash = PyUnicode_FromString(decree_hash_str);
         if (py_decree_hash) {
             PyDict_SetItemString(validator_dict, "decree_hash", py_decree_hash);
@@ -230,14 +233,25 @@ PyObject *wrapping_dap_chain_net_srv_stake_get_validators_list(PyObject *self, P
         if (PyList_Append(result, validator_dict) < 0) {
             Py_DECREF(validator_dict);
             Py_DECREF(result);
-            dap_list_free_full(validators_list, DAP_DELETE);
+            // Free validators list - elements were created with DAP_DUP, need to free them
+            for (dap_list_t *free_item = validators_list; free_item; free_item = dap_list_next(free_item)) {
+                if (free_item->data) {
+                    DAP_DELETE(free_item->data);
+                }
+            }
+            dap_list_free_full(validators_list, NULL);
             return NULL;
         }
         Py_DECREF(validator_dict);
     }
     
-    // Free validators list
-    dap_list_free_full(validators_list, DAP_DELETE);
+    // Free validators list - elements were created with DAP_DUP, need to free them
+    for (dap_list_t *item = validators_list; item; item = dap_list_next(item)) {
+        if (item->data) {
+            DAP_DELETE(item->data);
+        }
+    }
+    dap_list_free_full(validators_list, NULL);
     
     return result;
 }
