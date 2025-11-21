@@ -10,5 +10,6 @@ PyObject *wrapping_dap_chain_net_srv_stake_check_validator(PyObject *self, PyObj
 PyObject *wrapping_dap_chain_net_srv_stake_check_validator_full_info(PyObject *self, PyObject *argv);
 PyObject *wrapping_dap_chain_net_srv_stake_get_count_validator(PyObject *self, void *closure);
 PyObject *wrapping_dap_chain_net_srv_stake_get_total_weight(PyObject *self, void *closure);
+PyObject *wrapping_dap_chain_net_srv_stake_get_validators_list(PyObject *self, PyObject *argv);
 
 extern PyTypeObject PyDapChainNetSrvStakePosDelegateObjectType;
