@@ -179,7 +179,7 @@ PyObject *wrapping_dap_chain_net_srv_stake_get_validators_list(PyObject *self, P
         }
         
         // tx_hash
-        const char *tx_hash_str = dap_hash_fast_to_str_static(&stake->tx_hash.hash);
+        const char *tx_hash_str = dap_hash_fast_to_str_static(&stake->tx_hash);
         PyObject *py_tx_hash = PyUnicode_FromString(tx_hash_str);
         if (py_tx_hash) {
             PyDict_SetItemString(validator_dict, "tx_hash", py_tx_hash);
@@ -220,14 +220,6 @@ PyObject *wrapping_dap_chain_net_srv_stake_get_validators_list(PyObject *self, P
         Py_INCREF(py_active);
         PyDict_SetItemString(validator_dict, "active", py_active);
         Py_DECREF(py_active);
-        
-        // decree_hash
-        const char *decree_hash_str = dap_hash_fast_to_str_static(&stake->decree_hash.hash);
-        PyObject *py_decree_hash = PyUnicode_FromString(decree_hash_str);
-        if (py_decree_hash) {
-            PyDict_SetItemString(validator_dict, "decree_hash", py_decree_hash);
-            Py_DECREF(py_decree_hash);
-        }
         
         // Add validator dictionary to result list
         if (PyList_Append(result, validator_dict) < 0) {
