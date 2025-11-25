@@ -146,7 +146,7 @@ PyObject* cellframe_deinitialize(PyObject *self) {
     (void)self;
     
     // Real Cellframe SDK deinitialization
-    // TODO: Add actual dap_common_deinit() call
+    dap_common_deinit();
     return PyBool_FromLong(1);
 }
 

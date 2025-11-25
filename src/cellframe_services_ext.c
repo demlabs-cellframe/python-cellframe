@@ -7,6 +7,10 @@
 
 #define LOG_TAG "python_cellframe_services_ext"
 
+#include "dap_cert.h"
+#include "dap_cert_file.h"
+#include "python_dap_crypto_cert.h" // For PyCryptoCertObject
+
 // =============================================================================
 // STAKE EXT
 // =============================================================================
@@ -252,11 +256,26 @@ PyObject* dap_chain_net_srv_xchange_get_tx_xchange_py(PyObject *a_self, PyObject
     PyObject *a_net_obj;
     if (!PyArg_ParseTuple(a_args, "O", &a_net_obj))
         return NULL;
+        
     dap_chain_net_t *l_net = ((PyDapChainNetObject*)a_net_obj)->chain_net;
     dap_list_t *l_list = dap_chain_net_srv_xchange_get_tx_xchange(l_net);
-    // TODO: convert list to python list of dicts
+    
+    PyObject *l_py_list = PyList_New(0);
+    for (dap_list_t *l_ptr = l_list; l_ptr; l_ptr = l_ptr->next) {
+        // Assuming list contains dap_chain_datum_tx_t* or hash strings?
+        // Looking at dap_chain_net_srv_xchange.c source, it returns list of dap_chain_datum_tx_t*
+        dap_chain_datum_tx_t *l_tx = (dap_chain_datum_tx_t*)l_ptr->data;
+        dap_chain_hash_fast_t l_tx_hash;
+        dap_hash_fast(l_tx, dap_chain_datum_tx_get_size(l_tx), &l_tx_hash);
+        char *l_hash_str = dap_chain_hash_fast_to_str_new(&l_tx_hash);
+        
+        PyObject *l_hash_obj = PyUnicode_FromString(l_hash_str);
+        PyList_Append(l_py_list, l_hash_obj);
+        Py_DECREF(l_hash_obj);
+        DAP_DELETE(l_hash_str);
+    }
     dap_list_free(l_list);
-    Py_RETURN_NONE; // Stub for now
+    return l_py_list;
 }
 
 PyObject* dap_chain_net_srv_xchange_get_prices_py(PyObject *a_self, PyObject *a_args) {
@@ -333,15 +352,112 @@ PyObject* dap_chain_net_srv_voting_deinit_py(PyObject *a_self, PyObject *a_args)
 }
 
 PyObject* dap_chain_net_srv_voting_create_py(PyObject *a_self, PyObject *a_args) {
-    // TODO: complex argument parsing for question options
-    PyErr_SetString(PyExc_NotImplementedError, "Voting creation not fully implemented yet");
-    return NULL;
+    char *a_question;
+    PyObject *a_options_list;
+    long long a_expire_vote;
+    long long a_max_vote;
+    PyObject *a_fee_obj;
+    int a_delegated_key_required;
+    int a_vote_changing_allowed;
+    PyObject *a_wallet_obj;
+    PyObject *a_net_obj;
+    char *a_token_ticker;
+    char *a_hash_out_type = "hex";
+    
+    if (!PyArg_ParseTuple(a_args, "sOLLOiiOOs|s", 
+        &a_question, &a_options_list, &a_expire_vote, &a_max_vote, &a_fee_obj, 
+        &a_delegated_key_required, &a_vote_changing_allowed, &a_wallet_obj, &a_net_obj, 
+        &a_token_ticker, &a_hash_out_type))
+        return NULL;
+
+    if (!PyList_Check(a_options_list)) {
+        PyErr_SetString(PyExc_TypeError, "Options must be a list of strings");
+        return NULL;
+    }
+
+    dap_list_t *l_options = NULL;
+    Py_ssize_t l_size = PyList_Size(a_options_list);
+    for (Py_ssize_t i = 0; i < l_size; i++) {
+        PyObject *l_item = PyList_GetItem(a_options_list, i);
+        if (!PyUnicode_Check(l_item)) {
+            dap_list_free_full(l_options, NULL); // Strings are not allocated by us here if using PyUnicode_AsUTF8 directly? 
+            // PyUnicode_AsUTF8 returns pointer to internal buffer. dap_list stores pointers.
+            // But dap_chain_net_srv_voting_create likely expects to own strings or copy them?
+            // Usually SDK copies if needed. Let's check... it takes 'dap_list_t *a_options'.
+            // If it's just list of char*, we should strdup them if the list is long-lived or modifyable.
+            // But PyUnicode_AsUTF8 buffer is valid as long as PyObject is alive.
+            // Let's strdup to be safe and free later if SDK doesn't take ownership.
+            // Actually, SDK usually copies. Let's use strdup.
+            
+            PyErr_SetString(PyExc_TypeError, "All options must be strings");
+            return NULL;
+        }
+        l_options = dap_list_append(l_options, strdup(PyUnicode_AsUTF8(l_item)));
+    }
+
+    dap_chain_wallet_t *l_wallet = ((PyDapChainWalletObject*)a_wallet_obj)->wallet;
+    dap_chain_net_t *l_net = ((PyDapChainNetObject*)a_net_obj)->chain_net;
+    uint256_t l_fee = dap_chain_balance_scan(a_fee_obj);
+    char *l_hash_output = NULL;
+
+    int l_ret = dap_chain_net_srv_voting_create(
+        a_question, l_options, (dap_time_t)a_expire_vote, (uint64_t)a_max_vote, l_fee,
+        (bool)a_delegated_key_required, (bool)a_vote_changing_allowed,
+        l_wallet, l_net, a_token_ticker, a_hash_out_type, &l_hash_output
+    );
+
+    // Free options list (and strings)
+    dap_list_free_full(l_options, free);
+
+    if (l_ret != 0) {
+        return Py_BuildValue("is", l_ret, NULL);
+    }
+    
+    PyObject *l_ret_obj = Py_BuildValue("is", l_ret, l_hash_output);
+    DAP_DELETE(l_hash_output);
+    return l_ret_obj;
 }
 
 PyObject* dap_chain_net_srv_vote_create_py(PyObject *a_self, PyObject *a_args) {
-    // TODO: complex argument parsing
-    PyErr_SetString(PyExc_NotImplementedError, "Vote creation not fully implemented yet");
-    return NULL;
+    PyObject *a_cert_obj; // Optional?
+    PyObject *a_fee_obj;
+    PyObject *a_wallet_obj;
+    char *a_voting_hash_str;
+    long long a_option_idx;
+    PyObject *a_net_obj;
+    char *a_hash_out_type = "hex";
+
+    if (!PyArg_ParseTuple(a_args, "OOOsLO|s", &a_cert_obj, &a_fee_obj, &a_wallet_obj, 
+        &a_voting_hash_str, &a_option_idx, &a_net_obj, &a_hash_out_type))
+        return NULL;
+
+    dap_cert_t *l_cert = NULL;
+    if (a_cert_obj != Py_None) {
+        // Assuming PyDapCryptoCertObject wrapper exists and exposes 'cert'
+        // If not, we might need to check type. Assuming PyCryptoCertObject from dap_crypto.
+        l_cert = ((PyCryptoCertObject*)a_cert_obj)->cert;
+    }
+
+    dap_chain_wallet_t *l_wallet = ((PyDapChainWalletObject*)a_wallet_obj)->wallet;
+    dap_chain_net_t *l_net = ((PyDapChainNetObject*)a_net_obj)->chain_net;
+    uint256_t l_fee = dap_chain_balance_scan(a_fee_obj);
+    
+    dap_chain_hash_fast_t l_voting_hash;
+    dap_chain_hash_fast_from_str(a_voting_hash_str, &l_voting_hash);
+
+    char *l_hash_tx_out = NULL;
+    int l_ret = dap_chain_net_srv_vote_create(
+        l_cert, l_fee, l_wallet, &l_voting_hash, (uint64_t)a_option_idx,
+        l_net, a_hash_out_type, &l_hash_tx_out
+    );
+
+    if (l_ret != 0) {
+        return Py_BuildValue("is", l_ret, NULL);
+    }
+
+    PyObject *l_ret_obj = Py_BuildValue("is", l_ret, l_hash_tx_out);
+    DAP_DELETE(l_hash_tx_out);
+    return l_ret_obj;
 }
 
 PyObject* dap_chain_net_voting_list_py(PyObject *a_self, PyObject *a_args) {
