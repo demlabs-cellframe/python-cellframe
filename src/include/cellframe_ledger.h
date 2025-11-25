@@ -12,6 +12,11 @@ extern "C" {
 // User-facing functions for balance calculations and transaction queries
 // =========================================
 
+// Lifecycle operations
+PyObject* dap_ledger_new_py(PyObject *self, PyObject *args);
+PyObject* dap_ledger_open_py(PyObject *self, PyObject *args);
+PyObject* dap_ledger_close_py(PyObject *self, PyObject *args);
+
 // Balance calculations 
 PyObject* py_dap_ledger_calc_balance(PyObject *self, PyObject *args);
 PyObject* py_dap_ledger_calc_balance_full(PyObject *self, PyObject *args);

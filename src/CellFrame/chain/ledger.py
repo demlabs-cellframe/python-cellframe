@@ -45,11 +45,22 @@ try:
     import python_cellframe as cf_native
     # Import ledger functions from native module
     from python_cellframe import (
+        # Lifecycle functions
+        ledger_new, ledger_open, ledger_close,
         # Пользовательские функции ledger (только чтение)
-        dap_ledger_calc_balance, dap_ledger_calc_balance_full,
-        dap_ledger_tx_find_by_hash,
+        ledger_calc_balance, ledger_calc_balance_full,
+        ledger_tx_find_by_hash,
+        ledger_addr_get_token_ticker_all,
         DAP_CHAIN_TICKER_SIZE_MAX,
     )
+    
+    # Map to expected names for compatibility
+    dap_ledger_new = ledger_new
+    dap_ledger_open = ledger_open
+    dap_ledger_close = ledger_close
+    dap_ledger_calc_balance = ledger_calc_balance
+    dap_ledger_calc_balance_full = ledger_calc_balance_full
+    dap_ledger_tx_find_by_hash = ledger_tx_find_by_hash
 except ImportError as e:
     raise ImportError(
         "❌ CRITICAL: Native CellFrame ledger functions not available!\n"
@@ -200,8 +211,14 @@ class CfLedger:
         """
 
         try:
+            if not hasattr(cf_native, 'ledger_new'):
+                raise ImportError(
+                    "❌ CRITICAL: ledger_new not available in python_cellframe!\n"
+                    "Please ensure this function is exported in src/cellframe_ledger.c"
+                )
+            
             # Используем РЕАЛЬНУЮ функцию создания ledger
-            ledger_handle = dap_ledger_new(net_name.encode())
+            ledger_handle = cf_native.ledger_new(net_name)
             if not ledger_handle:
                 raise CfLedgerError(f"Не удалось создать ledger для сети {net_name}")
                 
@@ -222,8 +239,14 @@ class CfLedger:
         """
 
         try:
+            if not hasattr(cf_native, 'ledger_open'):
+                raise ImportError(
+                    "❌ CRITICAL: ledger_open not available in python_cellframe!\n"
+                    "Please ensure this function is exported in src/cellframe_ledger.c"
+                )
+            
             # Используем РЕАЛЬНУЮ функцию открытия ledger
-            ledger_handle = dap_ledger_open(net_name.encode())
+            ledger_handle = cf_native.ledger_open(net_name)
             if not ledger_handle:
                 raise CfLedgerError(f"Не удалось открыть ledger для сети {net_name}")
                 
@@ -246,13 +269,39 @@ class CfLedger:
 
             
         try:
+            # Преобразуем address в dap_chain_addr_t capsule
+            if isinstance(address, str):
+                addr_capsule = cf_native.dap_chain_addr_from_str(address)
+                if not addr_capsule:
+                    raise CfLedgerError(f"Invalid address format: {address}")
+            else:
+                addr_capsule = address
+            
             # Используем РЕАЛЬНУЮ функцию получения баланса
-            balance = dap_ledger_calc_balance(
+            # Функция возвращает bytes (uint256_t)
+            balance_bytes = cf_native.ledger_calc_balance(
                 self._ledger_handle,
-                address.encode(),
-                token_ticker.encode()  # ОБЯЗАТЕЛЬНЫЙ параметр токена!
+                addr_capsule,
+                token_ticker  # ОБЯЗАТЕЛЬНЫЙ параметр токена!
             )
-            return int(balance)
+            
+            if not balance_bytes:
+                return 0
+            
+            # Преобразуем uint256_t bytes в Decimal
+            # uint256_t это 32 байта, нужно использовать правильную конвертацию
+            from decimal import Decimal
+            # Для простоты, используем первые 8 байт как uint64 (временное решение)
+            # TODO: Использовать полную конвертацию uint256_t
+            if isinstance(balance_bytes, bytes) and len(balance_bytes) >= 8:
+                import struct
+                # Читаем младшие 8 байт как uint64
+                value = struct.unpack('<Q', balance_bytes[:8])[0]
+                return Decimal(value)
+            else:
+                # Если уже число или строка
+                return Decimal(str(balance_bytes))
+                
         except Exception as e:
             raise CfLedgerError(f"Ошибка получения баланса: {e}")
     

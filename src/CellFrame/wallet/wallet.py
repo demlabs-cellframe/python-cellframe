@@ -49,8 +49,8 @@ try:
     import python_dap
     
     # First try the main python_cellframe module
-    import python_cellframe
-    if hasattr(python_cellframe, 'is_sdk_available') and not python_cellframe.is_sdk_available():
+    import python_cellframe as cf_native
+    if hasattr(cf_native, 'is_sdk_available') and not cf_native.is_sdk_available():
         raise RuntimeError("Native SDK not properly initialized")
     
     # Try to import wallet functions - they might be in a submodule
@@ -62,6 +62,8 @@ try:
             dap_chain_wallet_get_addr, dap_chain_wallet_get_balance,
             dap_chain_wallet_get_key, dap_chain_wallet_get_pkey,
             dap_chain_wallet_activate, dap_chain_wallet_deactivate,
+            dap_chain_wallet_shared_get_tx_hashes_json,
+            dap_chain_wallet_shared_hold_tx_add,
             DAP_CHAIN_TICKER_SIZE_MAX,
         )
     except ImportError:
@@ -321,6 +323,42 @@ class Wallet:
                 logger.error("Failed to get public key for %s: %s", self.name, e)
                 raise WalletError(f"Failed to get public key: {e}")
     
+    def get_pkey_hash(self) -> str:
+        """
+        Get public key hash from wallet.
+        
+        Uses native C API dap_chain_wallet_get_pkey_hash.
+        
+        Returns:
+            str: Public key hash as hex string (0x...)
+            
+        Raises:
+            WalletError: If hash retrieval fails
+        """
+        with self._lock:
+            if self._is_closed:
+                raise WalletError("Wallet is closed")
+            
+            if not self._wallet_handle:
+                raise WalletError("No wallet handle available")
+            
+            try:
+                if not hasattr(cf_native, 'dap_chain_wallet_get_pkey_hash'):
+                    raise ImportError(
+                        "❌ CRITICAL: dap_chain_wallet_get_pkey_hash not available in python_cellframe!\n"
+                        "Please ensure this function is exported in src/cellframe_wallet.c"
+                    )
+                
+                pkey_hash_str = cf_native.dap_chain_wallet_get_pkey_hash(self._wallet_handle)
+                if not pkey_hash_str:
+                    raise WalletError("Failed to get public key hash")
+                
+                return str(pkey_hash_str)
+                    
+            except Exception as e:
+                logger.error("Failed to get public key hash for %s: %s", self.name, e)
+                raise WalletError(f"Failed to get public key hash: {e}")
+    
     def activate(self) -> bool:
         """
         Activate wallet.
@@ -419,59 +457,139 @@ class Wallet:
         if not self._is_closed:
             self.close()
     
+    # ========== SHARED WALLET METHODS ==========
+    
+    def get_shared_tx_hashes(self, pkey_hash: str, network_name: str) -> Optional[Dict[str, Any]]:
+        """
+        Get shared wallet transaction hashes by public key hash.
+        
+        Args:
+            pkey_hash: Public key hash string
+            network_name: Network name
+            
+        Returns:
+            Dictionary with transaction hashes or None if not found
+            
+        Raises:
+            WalletError: If operation fails
+        """
+        with self._lock:
+            if self._is_closed:
+                raise WalletError("Wallet is closed")
+            
+            try:
+                import json
+                
+                if not hasattr(cf_native, 'dap_chain_wallet_shared_get_tx_hashes_json'):
+                    raise ImportError(
+                        "❌ CRITICAL: Shared wallet functions not available in python_cellframe!\n"
+                        "Required: dap_chain_wallet_shared_get_tx_hashes_json\n"
+                        "Please ensure shared wallet functions are exported in src/cellframe_wallet.c"
+                    )
+                
+                json_str = cf_native.dap_chain_wallet_shared_get_tx_hashes_json(pkey_hash, network_name)
+                if not json_str:
+                    return None
+                
+                return json.loads(json_str)
+                
+            except Exception as e:
+                logger.error("Failed to get shared tx hashes: %s", e)
+                raise WalletError(f"Failed to get shared tx hashes: {e}")
+    
+    def hold_shared_tx(self, tx_handle: Any, network_name: str) -> bool:
+        """
+        Add transaction to shared wallet hold list.
+        
+        Args:
+            tx_handle: Transaction handle (capsule)
+            network_name: Network name
+            
+        Returns:
+            True if successful
+            
+        Raises:
+            WalletError: If operation fails
+        """
+        with self._lock:
+            if self._is_closed:
+                raise WalletError("Wallet is closed")
+            
+            try:
+                if not hasattr(cf_native, 'dap_chain_wallet_shared_hold_tx_add'):
+                    raise ImportError(
+                        "❌ CRITICAL: Shared wallet functions not available in python_cellframe!\n"
+                        "Required: dap_chain_wallet_shared_hold_tx_add\n"
+                        "Please ensure shared wallet functions are exported in src/cellframe_wallet.c"
+                    )
+                
+                cf_native.dap_chain_wallet_shared_hold_tx_add(tx_handle, network_name)
+                return True
+                
+            except Exception as e:
+                logger.error("Failed to hold shared tx: %s", e)
+                raise WalletError(f"Failed to hold shared tx: {e}")
+    
     # ========== ENHANCED METHODS (integrated from CFWallet) ==========
     
     def get_address_for_network(self, network_name: str, key_index: int = 0) -> WalletAddress:
         """
         Get wallet address for specific network.
         
-        Integrated from CFWallet functionality.
+        Uses functional C API dap_chain_wallet_get_addr.
         
         Args:
             network_name: Network name
-            key_index: Key index (default 0)
+            key_index: Key index (default 0, currently not used in C API)
             
         Returns:
             WalletAddress for the network
+            
+        Raises:
+            WalletError: If wallet is closed or address retrieval fails
         """
-        try:
-            with self._lock:
-                if self._is_closed:
-                    raise WalletError("Wallet is closed")
+        with self._lock:
+            if self._is_closed:
+                raise WalletError("Wallet is closed")
+            
+            if not self._wallet_handle:
+                raise WalletError("No wallet handle available")
+            
+            try:
+                # Use functional C API - dap_chain_wallet_get_addr accepts wallet handle and net_name
+                addr_str = dap_chain_wallet_get_addr(self._wallet_handle, network_name)
+                if not addr_str:
+                    raise WalletError(f"Could not get address for network {network_name}")
                 
-                if not self._wallet_handle:
-                    raise WalletError("No wallet handle available")
-                
-                # Try to get address using native API
-                try:
-                    from CellFrame.network import Net
-                    
-                    net = Net.byName(network_name)
-                    if not net:
-                        raise ValueError(f"Network {network_name} not found")
-                    
-                    addr_obj = self._wallet_handle.getAddr(net.id)
-                    if not addr_obj:
-                        raise WalletError(f"Could not get address for network {network_name}")
-                    
-                    return WalletAddress(str(addr_obj), self.name, network_name)
-                    
-                except ImportError as e:
-                    # FAIL-FAST: No fallbacks allowed
+                # Extract net_id from address string using native API
+                if not hasattr(cf_native, 'dap_chain_addr_from_str') or not hasattr(cf_native, 'dap_chain_addr_get_net_id'):
                     raise ImportError(
-                        "❌ CRITICAL: Native CellFrame API not available for wallet address generation!\n"
-                        "This is a Python bindings library - fallback implementations are not allowed.\n"
-                        f"Original error: {e}\n"
-                        "Please ensure python_cellframe native module is properly built and installed."
-                    ) from e
-                    
-        except Exception as e:
-            logger.error("Failed to get address for network %s: %s", network_name, e)
-            raise WalletError(f"Failed to get address: {e}")
+                        "❌ CRITICAL: Address parsing functions not available in python_cellframe!\n"
+                        "Required: dap_chain_addr_from_str, dap_chain_addr_get_net_id\n"
+                        "Please ensure these functions are exported in src/cellframe_chain.c"
+                    )
+                
+                # Parse address string to get address object
+                addr_capsule = cf_native.dap_chain_addr_from_str(str(addr_str))
+                if not addr_capsule:
+                    raise WalletError(f"Failed to parse address string: {addr_str}")
+                
+                # Extract net_id from address
+                net_id = cf_native.dap_chain_addr_get_net_id(addr_capsule)
+                if net_id is None or net_id == 0:
+                    raise WalletError(f"Failed to extract net_id from address: {addr_str}")
+                
+                return WalletAddress(str(addr_str), int(net_id))
+                
+            except Exception as e:
+                logger.error("Failed to get address for network %s: %s", network_name, e)
+                raise WalletError(f"Failed to get address: {e}")
     
     def get_balance_by_network(self, network_name: str, token_ticker: str = "CELL") -> Decimal:
         """
         Get wallet balance by network name (convenience method).
+        
+        Uses functional C API dap_chain_wallet_get_balance.
         
         Args:
             network_name: Network name
@@ -479,31 +597,46 @@ class Wallet:
             
         Returns:
             Decimal: Current balance
+            
+        Raises:
+            WalletError: If balance retrieval fails
         """
-        try:
-            # Try to resolve network name to ID
+        with self._lock:
+            if self._is_closed:
+                raise WalletError("Wallet is closed")
+            
+            if not self._wallet_handle:
+                raise WalletError("No wallet handle available")
+            
             try:
-                from CellFrame.network import Net
+                # Resolve network_name to net_id using native API
+                try:
+                    # Use net_id_by_name function - it returns uint64
+                    if not hasattr(cf_native, 'net_id_by_name'):
+                        raise ImportError(
+                            "❌ CRITICAL: net_id_by_name function not available in python_cellframe!\n"
+                            "This is a Python bindings library - all network functions must be implemented.\n"
+                            "Please ensure net_id_by_name is exported in src/cellframe_network.c"
+                        )
+                    
+                    net_id = cf_native.net_id_by_name(network_name)
+                    if net_id is None or net_id == 0:
+                        raise WalletError(f"Network '{network_name}' not found")
+                    
+                    return self.get_balance(net_id, token_ticker)
+                        
+                except ImportError as e:
+                    # FAIL-FAST: No fallbacks allowed
+                    raise ImportError(
+                        "❌ CRITICAL: Native CellFrame API not available for network lookup!\n"
+                        "This is a Python bindings library - fallback implementations are not allowed.\n"
+                        f"Original error: {e}\n"
+                        "Please ensure python_cellframe native module is properly built and installed."
+                    ) from e
                 
-                net = Net.byName(network_name)
-                if not net:
-                    raise ValueError(f"Network {network_name} not found")
-                
-                net_id = net.id
-                return self.get_balance(net_id, token_ticker)
-                
-            except ImportError as e:
-                # FAIL-FAST: No fallbacks allowed
-                raise ImportError(
-                    "❌ CRITICAL: Native CellFrame API not available for balance calculation!\n"
-                    "This is a Python bindings library - fallback implementations are not allowed.\n"
-                    f"Original error: {e}\n"
-                    "Please ensure python_cellframe native module is properly built and installed."
-                ) from e
-                
-        except Exception as e:
-            logger.error("Failed to get balance for network %s: %s", network_name, e)
-            raise WalletError(f"Failed to get balance: {e}")
+            except Exception as e:
+                logger.error("Failed to get balance for network %s: %s", network_name, e)
+                raise WalletError(f"Failed to get balance: {e}")
     
     @classmethod
     def create_with_network(cls, name: str, network_name: str, wallet_path: Optional[str] = None,

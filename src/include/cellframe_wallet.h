@@ -42,6 +42,11 @@ PyObject* py_dap_chain_wallet_get_pkey(PyObject *self, PyObject *args);
 PyObject* py_dap_chain_wallet_get_balance(PyObject *self, PyObject *args);
 PyObject* py_dap_chain_wallet_activate(PyObject *self, PyObject *args);
 PyObject* py_dap_chain_wallet_deactivate(PyObject *self, PyObject *args);
+PyObject* py_dap_chain_wallet_get_pkey_hash(PyObject *self, PyObject *args);
+
+// Shared wallet functions
+PyObject* py_dap_chain_wallet_shared_get_tx_hashes_json(PyObject *self, PyObject *args);
+PyObject* py_dap_chain_wallet_shared_hold_tx_add(PyObject *self, PyObject *args);
 
 // Module initialization function
 int cellframe_wallet_init(PyObject *module);

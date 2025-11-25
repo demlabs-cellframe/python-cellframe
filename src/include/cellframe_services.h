@@ -7,29 +7,11 @@
 extern "C" {
 #endif
 
-// =========================================
-// SERVICES TYPE DEFINITIONS
-// =========================================
-
-// Services are implemented as module-level functions
-// No specific Python types needed for services yet
-
-// =========================================
-// SERVICES FUNCTION DECLARATIONS  
-// =========================================
-
-// Staking service functions
-// (These would be declared here when implemented)
-
-// Exchange service functions
-// (These would be declared here when implemented)
-
-// Voting service functions
-// (These would be declared here when implemented)
+// Get method definitions for services module
+PyMethodDef* cellframe_services_get_methods(void);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif // CELLFRAME_SERVICES_H
-
+#endif /* CELLFRAME_SERVICES_H */

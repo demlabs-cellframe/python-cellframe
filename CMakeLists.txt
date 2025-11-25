@@ -1,6 +1,16 @@
 cmake_minimum_required(VERSION 3.10)
 project(DAP_SDK_NATIVE C)
 
+# Disable DAP SDK installation and packaging (we only package python-dap and python-cellframe)
+set(INSTALL_DAP_SDK OFF CACHE BOOL "Disable DAP SDK packaging" FORCE)
+
+# Disable json-c packaging explicitly
+set(INSTALL_SDK OFF CACHE BOOL "Disable json-c installation" FORCE)
+
+# Set global CPack maintainer (required for component-based DEB packages)
+# This is needed for the base package name, but components have their own maintainers
+set(CPACK_PACKAGE_CONTACT "support@demlabs.net")
+
 # Отключение SSL по умолчанию - WolfSSL больше не используется
 add_definitions(-DDAP_NET_CLIENT_NO_SSL)
 
@@ -102,6 +112,13 @@ option(BUILD_SHARED "Build final DAP SDK library as shared (default)" ON)
 option(BUILD_EXAMPLES "Build examples" OFF)
 option(BUILD_TESTS "Build tests" OFF)
 
+# Apply ENABLE_TESTING define globally BEFORE adding subdirectories
+# This ensures all modules can use test-specific code when BUILD_TESTS is ON
+if(BUILD_TESTS OR BUILD_WITH_TEST)
+    add_definitions(-DENABLE_TESTING)
+    message("[+] ENABLE_TESTING define enabled globally for DAP SDK modules")
+endif()
+
 # Internal modules are ALWAYS static, final can be SHARED or STATIC
 if(BUILD_SHARED)
     message("[+] DAP SDK: Building final library as SHARED (modules: static internally)")
@@ -129,6 +146,10 @@ if(COMMAND dap_add_library)
 else()
     message("[ERROR] dap_add_library macro is NOT DEFINED!")
 endif()
+
+# Disable DAP SDK installation/packaging - we only package python-dap and python-cellframe
+# dap-sdk components should NOT be packaged separately
+set(INSTALL_DAP_SDK OFF CACHE BOOL "Disable DAP SDK packaging" FORCE)
 
 # Core is always required - UPDATED PATH
 add_subdirectory(dap-sdk/module/core)
@@ -195,7 +216,8 @@ if(BUILD_EXAMPLES)
 endif()
 
 # Test framework - DAP SDK test module
-if (BUILD_WITH_TEST)
+# Must be added before tests if BUILD_TESTS is enabled
+if (BUILD_WITH_TEST OR BUILD_TESTS)
     enable_testing()
     add_subdirectory(dap-sdk/module/test)
     message("[+] DAP test framework module")
@@ -285,7 +307,31 @@ set(PYTHON_CELLFRAME_SOURCES
     src/cellframe_network.c
     src/cellframe_node.c
     src/cellframe_chain.c
-    src/cellframe_ledger.c
+    src/cellframe_consensus.c
+    src/cellframe_consensus_init.c
+    src/cellframe_stake.c
+    src/cellframe_stake_init.c
+    src/cellframe_mempool.c
+    src/cellframe_mempool_init.c
+    src/cellframe_services.c
+    src/cellframe_services_init.c
+    src/cellframe_compose.c
+    src/cellframe_compose_init.c
+    src/cellframe_net_balancer.c
+    src/cellframe_net_balancer_init.c
+    # Modularized ledger bindings
+    src/cellframe_ledger_init.c
+    src/cellframe_ledger_lifecycle.c
+    src/cellframe_ledger_tx.c
+    src/cellframe_ledger_token.c
+    src/cellframe_ledger_balance.c
+    src/cellframe_ledger_tx_lists.c
+    src/cellframe_ledger_cond.c
+    src/cellframe_ledger_callbacks.c
+    src/cellframe_ledger_decree.c
+    src/cellframe_ledger_anchor.c
+    src/cellframe_ledger_event.c
+    src/cellframe_ledger_utils.c
     src/cellframe_wallet.c
     src/cellframe_tx.c
 )
@@ -319,6 +365,136 @@ target_link_libraries(python_cellframe PRIVATE
 )
 
 message("[+] Python-Cellframe bindings configured")
+
+# =========================================
+# PACKAGING SUPPORT (CPack) for Python-Cellframe
+# =========================================
+# Install python_cellframe module (component: python-cellframe)
+install(TARGETS python_cellframe
+    LIBRARY DESTINATION lib/python3/dist-packages
+    ARCHIVE DESTINATION lib
+    COMPONENT python-cellframe
+)
+
+# Explicitly install the library file (CPack sometimes misses MODULE targets)
+# Use generator expression to get the actual output file name
+install(FILES
+    $<TARGET_FILE:python_cellframe>
+    DESTINATION lib/python3/dist-packages
+    COMPONENT python-cellframe
+    OPTIONAL
+)
+
+# Install Python CellFrame package files (component: python-cellframe)
+install(DIRECTORY 
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/CellFrame/
+    DESTINATION lib/python3/dist-packages/CellFrame
+    COMPONENT python-cellframe
+    FILES_MATCHING PATTERN "*.py"
+)
+
+# Note: Cellframe SDK and DAP SDK shared libraries are NOT included in python-cellframe package
+# They must be installed separately via system packages (dap-sdk, cellframe-sdk)
+# Dependencies are specified in CPACK_DEBIAN_PYTHON-CELLFRAME_PACKAGE_DEPENDS
+
+# Install documentation files if they exist (component: python-cellframe)
+install(FILES
+    README.md
+    LICENSE  
+    DESTINATION share/doc/python-cellframe
+    OPTIONAL
+    COMPONENT python-cellframe
+)
+
+# CPack component configuration for python-cellframe
+# Note: CPack is already included by python-dap, so we configure components here
+# python-cellframe does NOT include python-dap - it only depends on it via package dependencies
+
+# Define package OS suffix and debug suffix (FAIL-FAST: no fallbacks)
+if(NOT DEFINED DAP_PACKAGE_OS_SUFFIX)
+    if(NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/dap-sdk/cmake/PackageDetection.cmake)
+        message(FATAL_ERROR "PackageDetection.cmake not found at ${CMAKE_CURRENT_SOURCE_DIR}/dap-sdk/cmake/PackageDetection.cmake")
+    endif()
+    include(${CMAKE_CURRENT_SOURCE_DIR}/dap-sdk/cmake/PackageDetection.cmake)
+endif()
+
+set(CPACK_COMPONENT_PYTHON-CELLFRAME_DISPLAY_NAME "Python-Cellframe")
+set(CPACK_COMPONENT_PYTHON-CELLFRAME_DESCRIPTION "Python bindings for Cellframe SDK")
+# No component dependency - python-dap is a package dependency, not a component dependency
+
+# Override package name for python-cellframe component
+set(CPACK_COMPONENT_PYTHON-CELLFRAME_PACKAGE_NAME "python-cellframe${DAP_DEBUG_SUFFIX}")
+
+# Debian package specific for python-cellframe component
+# Dependencies: python-dap (Python bindings), dap-sdk (C library), cellframe-sdk (C library)
+set(CPACK_DEBIAN_PYTHON-CELLFRAME_PACKAGE_NAME "python-cellframe${DAP_DEBUG_SUFFIX}")
+# Set file name for component package (format: name_version_arch, without .deb)
+set(CPACK_DEBIAN_PYTHON-CELLFRAME_FILE_NAME "python-cellframe${DAP_DEBUG_SUFFIX}_3.0.0_${DAP_PACKAGE_OS_SUFFIX}")
+set(CPACK_DEBIAN_PYTHON-CELLFRAME_PACKAGE_DEPENDS "python3 (>= 3.8), python3-dev, python-dap, dap-sdk, cellframe-sdk")
+set(CPACK_DEBIAN_PYTHON-CELLFRAME_PACKAGE_SECTION "python")
+set(CPACK_DEBIAN_PYTHON-CELLFRAME_PACKAGE_PRIORITY "optional")
+set(CPACK_DEBIAN_PYTHON-CELLFRAME_PACKAGE_MAINTAINER "support@demlabs.net")
+set(CPACK_DEBIAN_PYTHON-CELLFRAME_PACKAGE_CONTROL_EXTRA "${CMAKE_CURRENT_SOURCE_DIR}/cmake/debian/python-cellframe/postinst;${CMAKE_CURRENT_SOURCE_DIR}/cmake/debian/python-cellframe/prerm" OPTIONAL)
+
+# Enable component-based packaging for both python-dap and python-cellframe
+# This is set AFTER python-dap has configured its component, so we add python-cellframe
+# Note: python-dap sets CPACK_COMPONENTS_ALL to python-dap, we extend it here
+if(DEFINED CPACK_COMPONENTS_ALL)
+    # Add python-cellframe to existing components
+    list(APPEND CPACK_COMPONENTS_ALL python-cellframe)
+    # Remove any unwanted components (like dap_json-c which shouldn't be packaged separately)
+    list(REMOVE_ITEM CPACK_COMPONENTS_ALL dap_json-c Unspecified)
+    list(REMOVE_DUPLICATES CPACK_COMPONENTS_ALL)
+else()
+    # Fallback if python-dap hasn't set it yet
+    set(CPACK_COMPONENTS_ALL python-dap python-cellframe)
+endif()
+
+# Ensure component-based DEB packaging is enabled (python-dap may have already set it)
+set(CPACK_DEB_COMPONENT_INSTALL ON)
+set(CPACK_DEBIAN_ENABLE_COMPONENT_DEPENDS ON)
+
+# Create separate CPack config for python-cellframe package
+if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/cmake/CPackConfig-python-cellframe.cmake.in)
+    configure_file(
+        ${CMAKE_CURRENT_SOURCE_DIR}/cmake/CPackConfig-python-cellframe.cmake.in
+        ${CMAKE_BINARY_DIR}/CPackConfig-python-cellframe.cmake
+        @ONLY
+    )
+    
+    # Create custom target for building python-cellframe package only
+    add_custom_target(package-python-cellframe
+        COMMAND ${CMAKE_CPACK_COMMAND} --config ${CMAKE_BINARY_DIR}/CPackConfig-python-cellframe.cmake -G DEB
+        DEPENDS python_cellframe
+        COMMENT "Creating python-cellframe DEB package"
+    )
+else()
+    # Fallback: use component-based approach
+    add_custom_target(package-python-cellframe
+        COMMAND ${CMAKE_CPACK_COMMAND} -G DEB -D CPACK_COMPONENTS_ALL=python-cellframe
+        DEPENDS python_cellframe
+        COMMENT "Creating python-cellframe DEB package"
+    )
+endif()
+
+message("[+] CPack: Python-Cellframe component configured")
+message("[+] CPack: Use 'make package-python-cellframe' to create python-cellframe package only")
+message("[+] CPack: Use 'cpack -G DEB' to create all packages (python-dap + python-cellframe)")
+message("[+] CPack: Use 'cpack -G DEB -D CPACK_COMPONENTS_ALL=python-cellframe' to create python-cellframe only")
+
+# Include CPack here, after all components (python-dap and python-cellframe) are configured
+# This ensures clean architecture: python-dap doesn't know about python-cellframe
+# CPack is configured by python-dap but not included, so we include it here
+
+# Override generators to DEB only (component-based packaging)
+# Other generators (STGZ, TGZ, TZ) create empty packages for main project DAP_SDK_NATIVE
+# which has no installation targets (we only package python-dap and python-cellframe components)
+set(CPACK_GENERATOR "DEB" CACHE STRING "CPack generators" FORCE)
+
+# Ensure components are set (python-dap may have set it, but we override to include both)
+set(CPACK_COMPONENTS_ALL "python-dap;python-cellframe" CACHE STRING "CPack components" FORCE)
+
+include(CPack)
 
 # =========================================
 # PROJECT SUMMARY

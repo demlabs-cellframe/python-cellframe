@@ -8,6 +8,9 @@
 #include "dap_sign.h"
 #include "dap_chain_ledger.h"
 #include "dap_math_ops.h"
+#include "dap_chain_wallet_shared.h"
+#include "dap_json.h"
+#include "dap_chain_common.h"  // Includes hash_fast definitions
 
 // Wallet type - to be implemented
 PyTypeObject PyCellframeWalletType = {0};
@@ -522,6 +525,104 @@ PyObject* py_dap_chain_wallet_deactivate(PyObject *self, PyObject *args) {
     Py_RETURN_NONE;
 }
 
+// Get public key hash from wallet
+PyObject* py_dap_chain_wallet_get_pkey_hash(PyObject *self, PyObject *args) {
+    (void)self;
+    PyObject *wallet_capsule;
+    
+    if (!PyArg_ParseTuple(args, "O", &wallet_capsule)) {
+        return NULL;
+    }
+    
+    dap_chain_wallet_t *wallet = (dap_chain_wallet_t*)PyCapsule_GetPointer(wallet_capsule, "dap_chain_wallet_t");
+    if (!wallet) {
+        PyErr_SetString(CellframeWalletError, "Invalid wallet object");
+        return NULL;
+    }
+    
+    dap_hash_fast_t pkey_hash = {};
+    int result = dap_chain_wallet_get_pkey_hash(wallet, &pkey_hash);
+    if (result != 0) {
+        char error_msg[256];
+        snprintf(error_msg, sizeof(error_msg), "Failed to get public key hash (error code: %d)", result);
+        PyErr_SetString(CellframeWalletError, error_msg);
+        return NULL;
+    }
+    
+    // Convert dap_hash_fast_t to hex string (0x...)
+    char hash_str[DAP_CHAIN_HASH_FAST_STR_SIZE];
+    dap_chain_hash_fast_to_str(&pkey_hash, hash_str, sizeof(hash_str));
+    
+    return PyUnicode_FromString(hash_str);
+}
+
+// =========================================
+// SHARED WALLET FUNCTIONS
+// =========================================
+
+// Get shared wallet transaction hashes by public key hash
+PyObject* py_dap_chain_wallet_shared_get_tx_hashes_json(PyObject *self, PyObject *args) {
+    (void)self;
+    const char *pkey_hash_str;
+    const char *net_name;
+    
+    if (!PyArg_ParseTuple(args, "ss", &pkey_hash_str, &net_name)) {
+        return NULL;
+    }
+    
+    // Convert pkey_hash string to dap_hash_fast_t
+    dap_hash_fast_t pkey_hash = {};
+    if (dap_chain_hash_fast_from_str(pkey_hash_str, &pkey_hash) != 0) {
+        PyErr_SetString(CellframeWalletError, "Invalid public key hash format");
+        return NULL;
+    }
+    
+    // Get shared wallet transaction hashes
+    dap_json_t *json_result = dap_chain_wallet_shared_get_tx_hashes_json(&pkey_hash, net_name);
+    if (!json_result) {
+        Py_RETURN_NONE;
+    }
+    
+    // Convert dap_json_t to Python string
+    char *json_str = dap_json_to_string(json_result);
+    dap_json_object_free(json_result);
+    
+    if (!json_str) {
+        Py_RETURN_NONE;
+    }
+    
+    PyObject *result = PyUnicode_FromString(json_str);
+    DAP_DELETE(json_str);
+    return result;
+}
+
+// Hold transaction in shared wallet
+PyObject* py_dap_chain_wallet_shared_hold_tx_add(PyObject *self, PyObject *args) {
+    (void)self;
+    PyObject *tx_capsule;
+    const char *net_name;
+    
+    if (!PyArg_ParseTuple(args, "Os", &tx_capsule, &net_name)) {
+        return NULL;
+    }
+    
+    dap_chain_datum_tx_t *tx = (dap_chain_datum_tx_t*)PyCapsule_GetPointer(tx_capsule, "dap_chain_datum_tx_t");
+    if (!tx) {
+        PyErr_SetString(CellframeWalletError, "Invalid transaction object");
+        return NULL;
+    }
+    
+    int result = dap_chain_wallet_shared_hold_tx_add(tx, net_name);
+    if (result != 0) {
+        char error_msg[256];
+        snprintf(error_msg, sizeof(error_msg), "Failed to add hold transaction (error code: %d)", result);
+        PyErr_SetString(CellframeWalletError, error_msg);
+        return NULL;
+    }
+    
+    Py_RETURN_NONE;
+}
+
 // =========================================
 // WALLET TYPE METHODS - For Wallet object
 // =========================================
@@ -583,6 +684,12 @@ int cellframe_wallet_init(PyObject *module) {
          "Open wallet with extended parameters"},
         {"dap_chain_wallet_create_with_seed_multi", py_dap_chain_wallet_create_with_seed_multi, METH_VARARGS,
          "Create wallet with seed (multi-signature support)"},
+        
+        // Shared wallet functions
+        {"dap_chain_wallet_shared_get_tx_hashes_json", py_dap_chain_wallet_shared_get_tx_hashes_json, METH_VARARGS,
+         "Get shared wallet transaction hashes by public key hash"},
+        {"dap_chain_wallet_shared_hold_tx_add", py_dap_chain_wallet_shared_hold_tx_add, METH_VARARGS,
+         "Add transaction to shared wallet hold list"},
         
         {NULL, NULL, 0, NULL}  // Sentinel
     };

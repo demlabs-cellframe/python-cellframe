@@ -52,16 +52,46 @@ try:
     class ChainAtomPtr:
         """Chain atom pointer - wrapper for native C implementation"""
         
-        def __init__(self, atom_data: bytes = None):
-            """Initialize chain atom pointer."""
-            self._native_atom = cf_native.dap_chain_atom_create(atom_data) if atom_data else None
-            if atom_data and not self._native_atom:
-                raise RuntimeError("Failed to create native chain atom")
+        def __init__(self, atom_data: bytes = None, atom_size: int = None):
+            """Initialize chain atom pointer.
+            
+            Args:
+                atom_data: Atom data bytes (optional)
+                atom_size: Atom size in bytes (required if atom_data provided)
+            """
+            if atom_data is not None:
+                if atom_size is None:
+                    atom_size = len(atom_data)
+                # Create atom with specified size
+                self._native_atom = cf_native.dap_chain_atom_create(atom_size)
+                if not self._native_atom:
+                    raise RuntimeError("Failed to create native chain atom")
+                # Copy data if provided
+                if atom_data:
+                    import ctypes
+                    ctypes.memmove(self._native_atom, atom_data, atom_size)
+                self._atom_size = atom_size
+            else:
+                self._native_atom = None
+                self._atom_size = 0
         
         def get_data(self) -> bytes:
-            """Get atom data."""
+            """Get atom data as bytes.
+            
+            Uses native C API dap_chain_atom_get_data.
+            
+            Returns:
+                bytes: Atom data
+            """
             if not self._native_atom:
                 raise RuntimeError("Chain atom not initialized")
+            
+            if not hasattr(cf_native, 'dap_chain_atom_get_data'):
+                raise ImportError(
+                    "❌ CRITICAL: dap_chain_atom_get_data not available in python_cellframe!\n"
+                    "Please ensure this function is exported in src/cellframe_chain.c"
+                )
+            
             return cf_native.dap_chain_atom_get_data(self._native_atom)
     
     # Ledger class removed - use CfLedger instead (imported below)

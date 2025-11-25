@@ -1162,7 +1162,7 @@ PyObject* dap_chain_net_announce_addr_all_py(PyObject *a_self, PyObject *a_args)
     (void)a_self;
     (void)a_args;
     
-    dap_chain_net_announce_addr_all();
+    dap_chain_net_announce_addr_all(NULL);
     log_it(L_DEBUG, "All network addresses announced");
     
     Py_RETURN_NONE;

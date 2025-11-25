@@ -1,0 +1,30 @@
+# CPack configuration for python-cellframe package
+# This file is generated from CPackConfig-python-cellframe.cmake.in
+
+set(CPACK_GENERATOR "DEB;TGZ")
+set(CPACK_PACKAGE_NAME "python-cellframe@DAP_DEBUG_SUFFIX@")
+set(CPACK_PACKAGE_VERSION "3.0.0")
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Python bindings for Cellframe SDK")
+set(CPACK_PACKAGE_VENDOR "Demlabs")
+set(CPACK_PACKAGE_CONTACT "support@demlabs.net")
+
+# Package file name
+set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}_@DAP_PACKAGE_OS_SUFFIX@")
+
+# Component configuration - only python-cellframe
+set(CPACK_COMPONENTS_ALL python-cellframe)
+
+# Component settings
+set(CPACK_COMPONENT_PYTHON-CELLFRAME_DISPLAY_NAME "Python-Cellframe")
+set(CPACK_COMPONENT_PYTHON-CELLFRAME_DESCRIPTION "Python bindings for Cellframe SDK")
+
+# Debian package specific for component
+# Dependencies: python-dap (Python bindings), dap-sdk (C library), cellframe-sdk (C library)
+set(CPACK_DEBIAN_PYTHON-CELLFRAME_PACKAGE_NAME "${CPACK_PACKAGE_NAME}")
+set(CPACK_DEBIAN_PYTHON-CELLFRAME_PACKAGE_DEPENDS "python3 (>= 3.8), python3-dev, python-dap, dap-sdk, cellframe-sdk")
+set(CPACK_DEBIAN_PYTHON-CELLFRAME_PACKAGE_SECTION "python")
+set(CPACK_DEBIAN_PYTHON-CELLFRAME_PACKAGE_PRIORITY "optional")
+
+# Include main CPack (this will use the component settings above)
+include(CPack)
+

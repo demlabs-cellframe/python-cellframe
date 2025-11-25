@@ -14,6 +14,14 @@ int cellframe_wallet_init(PyObject *module);
 int cellframe_chain_init(PyObject *module);
 int cellframe_ledger_init(PyObject *module);
 int cellframe_tx_init(PyObject *module);
+int cellframe_consensus_init(PyObject *module);
+int cellframe_stake_init(PyObject *module);
+int cellframe_mempool_init(PyObject *module);
+int cellframe_services_init(PyObject *module);
+int cellframe_node_init(PyObject *module);
+int cellframe_compose_init(PyObject *module);
+int cellframe_net_balancer_init(PyObject *module);
+int cellframe_services_ext_init(PyObject *module);
 
 // =========================================
 // ERROR OBJECTS
@@ -146,9 +154,9 @@ PyObject* cellframe_deinitialize(PyObject *self) {
 // MODULE METHODS
 // =========================================
 static PyMethodDef CellframeMethods[] = {
-    {"get_version", (PyCFunction)cellframe_get_version, METH_NOARGS, 
+    {"get_version", (PyCFunction)(void*)cellframe_get_version, METH_NOARGS, 
      "Get Python Cellframe SDK version"},
-    {"initialize", (PyCFunction)cellframe_initialize, METH_VARARGS | METH_KEYWORDS,
+    {"initialize", (PyCFunction)(void*)cellframe_initialize, METH_VARARGS | METH_KEYWORDS,
      "Initialize Cellframe SDK\n"
      "Args:\n"
      "    app_name (str, optional): Application name (default: 'cellframe')\n"
@@ -161,9 +169,9 @@ static PyMethodDef CellframeMethods[] = {
      "    debug_mode (bool, optional): Enable debug mode (default: False)\n"
      "\n"
      "If called without parameters, assumes DAP SDK is already initialized."},
-    {"deinitialize", (PyCFunction)cellframe_deinitialize, METH_NOARGS,
+    {"deinitialize", (PyCFunction)(void*)cellframe_deinitialize, METH_NOARGS,
      "Deinitialize Cellframe SDK"},
-    {"is_sdk_available", (PyCFunction)cellframe_sdk_is_available_wrapper, METH_NOARGS,
+    {"is_sdk_available", (PyCFunction)(void*)cellframe_sdk_is_available_wrapper, METH_NOARGS,
      "Check if Cellframe SDK is available"},
     
     // NOTE: All specific functions (network, wallet, chain, ledger, etc.) are now registered
@@ -289,8 +297,60 @@ PyMODINIT_FUNC PyInit_python_cellframe(void) {
         return NULL;
     }
     
-    // TODO: Add other modules when they implement init functions
-    // - cellframe_node_init(module)
+    // Initialize consensus module
+    if (cellframe_consensus_init(module) < 0) {
+        PyErr_SetString(PyExc_ImportError, "Failed to initialize consensus module");
+        Py_DECREF(module);
+        return NULL;
+    }
+    
+    // Initialize stake module
+    if (cellframe_stake_init(module) < 0) {
+        PyErr_SetString(PyExc_ImportError, "Failed to initialize stake module");
+        Py_DECREF(module);
+        return NULL;
+    }
+    
+    // Initialize mempool module
+    if (cellframe_mempool_init(module) < 0) {
+        PyErr_SetString(PyExc_ImportError, "Failed to initialize mempool module");
+        Py_DECREF(module);
+        return NULL;
+    }
+    
+    // Initialize services module
+    if (cellframe_services_init(module) < 0) {
+        PyErr_SetString(PyExc_ImportError, "Failed to initialize services module");
+        Py_DECREF(module);
+        return NULL;
+    }
+    
+    // Initialize node CLI module
+    if (cellframe_node_init(module) < 0) {
+        PyErr_SetString(PyExc_ImportError, "Failed to initialize node CLI module");
+        Py_DECREF(module);
+        return NULL;
+    }
+    
+    // Initialize compose module
+    if (cellframe_compose_init(module) < 0) {
+        PyErr_SetString(PyExc_ImportError, "Failed to initialize compose module");
+        Py_DECREF(module);
+        return NULL;
+    }
+    
+    // Initialize net balancer module
+    if (cellframe_net_balancer_init(module) < 0) {
+        PyErr_SetString(PyExc_ImportError, "Failed to initialize net balancer module");
+        Py_DECREF(module);
+        return NULL;
+    }
+
+    if (cellframe_services_ext_init(module) < 0) {
+        PyErr_SetString(PyExc_ImportError, "Failed to initialize services ext module");
+        Py_DECREF(module);
+        return NULL;
+    }
     
     return module;
 }

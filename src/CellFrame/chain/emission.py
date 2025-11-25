@@ -201,27 +201,86 @@ class CellframeEmission:
             logger.error(f"Failed to create emission: {e}")
             raise EmissionError(f"Failed to create emission: {e}")
     
-    def place_emission(self, chain: Any) -> bool:
+    def place_emission(self, ledger: Any, chain: Any = None) -> bool:
         """
-        Place emission in mempool.
+        Place emission in ledger.
+        
+        Uses native C API dap_ledger_token_emission_add.
         
         Args:
-            chain: Chain to place emission
+            ledger: Ledger handle (capsule)
+            chain: Chain handle (optional, for mempool placement)
             
         Returns:
             True if placed successfully
+            
+        Raises:
+            EmissionError: If placement fails
         """
         try:
-            # Use native validation directly
-            return True  # Implement native validation when available
+            import python_cellframe as cf_native
             
-            # Implementation depends on native API
-            logger.info(f"Placed emission in mempool")
-            return True
+            if not hasattr(cf_native, 'ledger_token_emission_add'):
+                raise ImportError(
+                    "❌ CRITICAL: ledger_token_emission_add not available in python_cellframe!\n"
+                    "Please ensure this function is exported in src/cellframe_ledger.c"
+                )
+            
+            # Convert emission to bytes (dap_chain_datum_token_emission_t)
+            # This requires serializing the emission datum
+            # For now, raise NotImplementedError until proper serialization is implemented
+            raise NotImplementedError(
+                "Emission serialization to dap_chain_datum_token_emission_t not yet implemented. "
+                "Use native emission creation functions directly."
+            )
             
         except Exception as e:
             logger.error(f"Failed to place emission: {e}")
             raise EmissionError(f"Failed to place emission: {e}")
+    
+    @classmethod
+    def find_by_hash(cls, ledger: Any, emission_hash: str) -> Optional['CellframeEmission']:
+        """
+        Find emission by hash in ledger.
+        
+        Uses native C API dap_ledger_token_emission_find.
+        
+        Args:
+            ledger: Ledger handle (capsule)
+            emission_hash: Emission hash string
+            
+        Returns:
+            CellframeEmission instance or None if not found
+            
+        Raises:
+            EmissionError: If lookup fails
+        """
+        try:
+            import python_cellframe as cf_native
+            
+            if not hasattr(cf_native, 'ledger_token_emission_find'):
+                raise ImportError(
+                    "❌ CRITICAL: ledger_token_emission_find not available in python_cellframe!\n"
+                    "Please ensure this function is exported in src/cellframe_ledger.c"
+                )
+            
+            # Convert hash string to dap_hash_fast_t
+            # Parse hash string
+            emission_hash_bytes = bytes.fromhex(emission_hash.replace('0x', ''))
+            if len(emission_hash_bytes) != 32:  # sizeof(dap_hash_fast_t)
+                raise ValueError(f"Invalid emission hash length: {len(emission_hash_bytes)}")
+            
+            # Find emission in ledger
+            emission_datum = cf_native.ledger_token_emission_find(ledger, emission_hash_bytes)
+            if not emission_datum:
+                return None
+            
+            # Create CellframeEmission from datum
+            return cls(datum=emission_datum)
+            
+        except Exception as e:
+            logger.error(f"Failed to find emission: {e}")
+            raise EmissionError(f"Failed to find emission: {e}")
     
     def to_dict(self) -> Dict[str, Any]:
         """Convert emission to dictionary."""

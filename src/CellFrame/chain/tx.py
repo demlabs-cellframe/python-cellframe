@@ -30,10 +30,10 @@ try:
         'dap_chain_datum_tx_create',
         'dap_chain_datum_tx_add_in_item',
         'dap_chain_datum_tx_add_out_ext_item',
-        'cf_native.dap_chain_datum_tx_add_sign_item',
-        'dap_chain_datum_tx_verify',
+        'dap_chain_datum_tx_add_sign_item',
+        'dap_chain_datum_tx_verify_sign',
         'dap_chain_datum_tx_get_size',
-        'dap_chain_mempool_tx_put',
+        'dap_chain_mempool_datum_add',
         'dap_chain_mempool_tx_get_by_hash'
     ]
     
@@ -246,12 +246,16 @@ class TX:
             raise TxError(f"Ошибка подписания транзакции: {e}")
     
     def verify(self) -> bool:
-        """Верифицировать транзакцию"""
-
-            
+        """Верифицировать транзакцию (проверка всех подписей)"""
         try:
-            # Используем РЕАЛЬНУЮ функцию верификации
-            result = dap_chain_datum_tx_verify(self._tx_handle)
+            # Используем РЕАЛЬНУЮ функцию верификации подписей
+            if not hasattr(cf_native, 'dap_chain_datum_tx_verify_sign'):
+                raise ImportError(
+                    "❌ CRITICAL: dap_chain_datum_tx_verify_sign not available in python_cellframe!\n"
+                    "Please ensure this function is exported in src/cellframe_tx.c"
+                )
+            # Verify all signatures (sign_num = -1 means verify all)
+            result = cf_native.dap_chain_datum_tx_verify_sign(self._tx_handle, -1)
             return result == 0
         except Exception as e:
             raise TxError(f"Ошибка верификации транзакции: {e}")
@@ -262,7 +266,12 @@ class TX:
             
         try:
             # Используем РЕАЛЬНУЮ функцию получения размера
-            size = dap_chain_datum_tx_get_size(self._tx_handle)
+            if not hasattr(cf_native, 'dap_chain_datum_tx_get_size'):
+                raise ImportError(
+                    "❌ CRITICAL: dap_chain_datum_tx_get_size not available in python_cellframe!\n"
+                    "Please ensure this function is exported in src/cellframe_tx.c"
+                )
+            size = cf_native.dap_chain_datum_tx_get_size(self._tx_handle)
             return int(size)
         except Exception as e:
             raise TxError(f"Ошибка получения размера транзакции: {e}")
@@ -270,17 +279,24 @@ class TX:
     def broadcast(self, chain_handle: Any, hash_out_type: str = "hex") -> str:
         """
         Отправить транзакцию в mempool
-        Использует РЕАЛЬНУЮ функцию dap_chain_mempool_tx_put!
+        Использует РЕАЛЬНУЮ функцию dap_chain_mempool_datum_add!
         """
         if self._is_finalized:
             raise TxError("Транзакция уже финализирована")
             
         try:
             # Используем РЕАЛЬНУЮ функцию отправки в mempool
-            result = dap_chain_mempool_tx_put(
+            # dap_chain_mempool_datum_add принимает datum и chain
+            if not hasattr(cf_native, 'dap_chain_mempool_datum_add'):
+                raise ImportError(
+                    "❌ CRITICAL: dap_chain_mempool_datum_add not available in python_cellframe!\n"
+                    "Please ensure this function is exported in src/cellframe_tx.c"
+                )
+            # Convert tx handle to datum (tx is a subtype of datum)
+            result = cf_native.dap_chain_mempool_datum_add(
+                self._tx_handle,  # dap_chain_datum_tx_t* is compatible with dap_chain_datum_t*
                 chain_handle,
-                self._tx_handle,
-                hash_out_type.encode()
+                hash_out_type if hash_out_type else None
             )
             
             if result:
@@ -338,7 +354,9 @@ def get_tx_by_hash(tx_hash: str) -> Optional[TX]:
 
         
     try:
-        tx_handle = dap_chain_mempool_tx_get_by_hash(tx_hash.encode())
+        if not hasattr(cf_native, 'dap_chain_mempool_tx_get_by_hash'):
+            return None
+        tx_handle = cf_native.dap_chain_mempool_tx_get_by_hash(tx_hash.encode())
         if tx_handle:
             tx = TX(tx_handle, owns_handle=True)
             tx.hash = tx_hash

@@ -2,6 +2,10 @@
 #include "dap_chain_common.h"
 #include "dap_chain_net.h"
 #include "dap_chain_mempool.h"
+#include "dap_chain_block.h"
+#include "dap_chain_datum.h"
+#include <string.h>
+#include <stdlib.h>
 
 // Chain type - to be implemented
 PyTypeObject PyCellframeChainType = {0};
@@ -477,6 +481,74 @@ PyObject* py_dap_chain_addr_get_net_id(PyObject *self, PyObject *args) {
 }
 
 /**
+ * @brief Python wrapper for dap_chain_addr_to_str
+ */
+PyObject* py_dap_chain_addr_to_str(PyObject *self, PyObject *args) {
+    (void)self;
+    PyObject *addr_capsule;
+    
+    if (!PyArg_ParseTuple(args, "O", &addr_capsule)) {
+        return NULL;
+    }
+    
+    dap_chain_addr_t *addr = (dap_chain_addr_t*)PyCapsule_GetPointer(addr_capsule, "dap_chain_addr_t");
+    if (!addr) {
+        PyErr_SetString(PyExc_ValueError, "Invalid address object");
+        return NULL;
+    }
+    
+    const char *addr_str = dap_chain_addr_to_str(addr);
+    if (!addr_str) {
+        PyErr_SetString(PyExc_RuntimeError, "Failed to convert address to string");
+        return NULL;
+    }
+    
+    return PyUnicode_FromString(addr_str);
+}
+
+/**
+ * @brief Python wrapper for dap_chain_addr_is_blank
+ */
+PyObject* py_dap_chain_addr_is_blank(PyObject *self, PyObject *args) {
+    (void)self;
+    PyObject *addr_capsule;
+    
+    if (!PyArg_ParseTuple(args, "O", &addr_capsule)) {
+        return NULL;
+    }
+    
+    dap_chain_addr_t *addr = (dap_chain_addr_t*)PyCapsule_GetPointer(addr_capsule, "dap_chain_addr_t");
+    if (!addr) {
+        PyErr_SetString(PyExc_ValueError, "Invalid address object");
+        return NULL;
+    }
+    
+    bool is_blank = dap_chain_addr_is_blank(addr);
+    return PyBool_FromLong(is_blank ? 1 : 0);
+}
+
+/**
+ * @brief Python wrapper for dap_chain_addr_check_sum
+ */
+PyObject* py_dap_chain_addr_check_sum(PyObject *self, PyObject *args) {
+    (void)self;
+    PyObject *addr_capsule;
+    
+    if (!PyArg_ParseTuple(args, "O", &addr_capsule)) {
+        return NULL;
+    }
+    
+    dap_chain_addr_t *addr = (dap_chain_addr_t*)PyCapsule_GetPointer(addr_capsule, "dap_chain_addr_t");
+    if (!addr) {
+        PyErr_SetString(PyExc_ValueError, "Invalid address object");
+        return NULL;
+    }
+    
+    int result = dap_chain_addr_check_sum(addr);
+    return PyLong_FromLong(result);
+}
+
+/**
  * @brief Python wrapper for dap_chain_atom_create
  */
 PyObject* py_dap_chain_atom_create(PyObject *self, PyObject *args) {
@@ -493,7 +565,51 @@ PyObject* py_dap_chain_atom_create(PyObject *self, PyObject *args) {
         return NULL;
     }
     
-    return PyCapsule_New(atom, "dap_chain_atom", NULL);
+    // Return capsule with size information stored in name
+    char capsule_name[64];
+    snprintf(capsule_name, sizeof(capsule_name), "dap_chain_atom:%zu", size);
+    return PyCapsule_New(atom, capsule_name, NULL);
+}
+
+/**
+ * @brief Get atom data from atom pointer
+ * @param a_self Python self object (unused)
+ * @param a_args Arguments (atom capsule)
+ * @return Atom data as bytes or None
+ */
+PyObject* py_dap_chain_atom_get_data(PyObject *self, PyObject *args) {
+    (void)self;
+    PyObject *atom_capsule;
+    
+    if (!PyArg_ParseTuple(args, "O", &atom_capsule)) {
+        return NULL;
+    }
+    
+    if (!PyCapsule_CheckExact(atom_capsule)) {
+        PyErr_SetString(PyExc_TypeError, "Expected atom capsule");
+        return NULL;
+    }
+    
+    void *atom = PyCapsule_GetPointer(atom_capsule, NULL);
+    if (!atom) {
+        PyErr_SetString(PyExc_ValueError, "Invalid atom capsule");
+        return NULL;
+    }
+    
+    // Extract size from capsule name if available
+    const char *capsule_name = PyCapsule_GetName(atom_capsule);
+    size_t atom_size = 0;
+    if (capsule_name && strncmp(capsule_name, "dap_chain_atom:", 15) == 0) {
+        atom_size = (size_t)atoi(capsule_name + 15);
+    }
+    
+    if (atom_size == 0) {
+        PyErr_SetString(PyExc_ValueError, "Atom size not available");
+        return NULL;
+    }
+    
+    // Return atom data as bytes
+    return PyBytes_FromStringAndSize((const char*)atom, atom_size);
 }
 
 /**
@@ -1084,6 +1200,228 @@ PyObject* dap_chain_add_callback_timer_py(PyObject *a_self, PyObject *a_args) {
 }
 
 // =========================================
+// BLOCK OPERATIONS
+// =========================================
+
+/**
+ * @brief Create new block (Python binding)
+ * @param a_self Python self object (unused)
+ * @param a_args Python arguments tuple (prev_block_hash bytes or None)
+ * @return PyCapsule wrapping dap_chain_block_t* or None on error
+ */
+PyObject* py_dap_chain_block_new(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    PyObject *l_prev_hash_obj = NULL;
+    const char *l_prev_hash_bytes = NULL;
+    Py_ssize_t l_prev_hash_size = 0;
+    
+    if (!PyArg_ParseTuple(a_args, "|O", &l_prev_hash_obj)) {
+        return NULL;
+    }
+    
+    dap_chain_hash_fast_t *l_prev_hash = NULL;
+    if (l_prev_hash_obj && l_prev_hash_obj != Py_None) {
+        if (!PyArg_Parse(l_prev_hash_obj, "y#", &l_prev_hash_bytes, &l_prev_hash_size)) {
+            PyErr_SetString(PyExc_TypeError, "prev_hash must be bytes or None");
+            return NULL;
+        }
+        
+        if (l_prev_hash_size != sizeof(dap_chain_hash_fast_t)) {
+            PyErr_Format(PyExc_ValueError, "prev_hash must be exactly %zu bytes", sizeof(dap_chain_hash_fast_t));
+            return NULL;
+        }
+        
+        l_prev_hash = (dap_chain_hash_fast_t*)l_prev_hash_bytes;
+    }
+    
+    size_t l_block_size = 0;
+    dap_chain_block_t *l_block = dap_chain_block_new(l_prev_hash, &l_block_size);
+    if (!l_block) {
+        PyErr_SetString(PyExc_RuntimeError, "Failed to create block");
+        return NULL;
+    }
+    
+    log_it(L_DEBUG, "Created new block (size=%zu)", l_block_size);
+    return PyCapsule_New(l_block, "dap_chain_block_t", NULL);
+}
+
+/**
+ * @brief Add datum to block (Python binding)
+ * @param a_self Python self object (unused)
+ * @param a_args Python arguments tuple (block capsule, datum capsule)
+ * @return New block size or None on error
+ */
+PyObject* py_dap_chain_block_datum_add(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    PyObject *l_block_obj = NULL;
+    PyObject *l_datum_obj = NULL;
+    
+    if (!PyArg_ParseTuple(a_args, "OO", &l_block_obj, &l_datum_obj)) {
+        return NULL;
+    }
+    
+    if (!PyCapsule_CheckExact(l_block_obj) || !PyCapsule_CheckExact(l_datum_obj)) {
+        PyErr_SetString(PyExc_TypeError, "Expected block and datum capsules");
+        return NULL;
+    }
+    
+    dap_chain_block_t *l_block = (dap_chain_block_t*)PyCapsule_GetPointer(l_block_obj, "dap_chain_block_t");
+    dap_chain_datum_t *l_datum = (dap_chain_datum_t*)PyCapsule_GetPointer(l_datum_obj, "dap_chain_datum_t");
+    
+    if (!l_block || !l_datum) {
+        PyErr_SetString(PyExc_ValueError, "Invalid block or datum capsule");
+        return NULL;
+    }
+    
+    size_t l_block_size = dap_chain_block_get_size(l_block);
+    uint64_t l_datum_size = dap_chain_datum_size(l_datum);
+    
+    size_t l_new_size = dap_chain_block_datum_add(&l_block, l_block_size, l_datum, (size_t)l_datum_size);
+    if (l_new_size == 0) {
+        PyErr_SetString(PyExc_RuntimeError, "Failed to add datum to block");
+        return NULL;
+    }
+    
+    log_it(L_DEBUG, "Added datum to block (new_size=%zu)", l_new_size);
+    return PyLong_FromSize_t(l_new_size);
+}
+
+/**
+ * @brief Get datums from block (Python binding)
+ * @param a_self Python self object (unused)
+ * @param a_args Python arguments tuple (block capsule)
+ * @return List of datum capsules or None on error
+ */
+PyObject* py_dap_chain_block_get_datums(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    PyObject *l_block_obj = NULL;
+    
+    if (!PyArg_ParseTuple(a_args, "O", &l_block_obj)) {
+        return NULL;
+    }
+    
+    if (!PyCapsule_CheckExact(l_block_obj)) {
+        PyErr_SetString(PyExc_TypeError, "Expected block capsule");
+        return NULL;
+    }
+    
+    dap_chain_block_t *l_block = (dap_chain_block_t*)PyCapsule_GetPointer(l_block_obj, "dap_chain_block_t");
+    if (!l_block) {
+        PyErr_SetString(PyExc_ValueError, "Invalid block capsule");
+        return NULL;
+    }
+    
+    size_t l_block_size = dap_chain_block_get_size(l_block);
+    size_t l_datums_count = 0;
+    
+    dap_chain_datum_t **l_datums = dap_chain_block_get_datums(l_block, l_block_size, &l_datums_count);
+    if (!l_datums) {
+        log_it(L_DEBUG, "No datums found in block");
+        Py_RETURN_NONE;
+    }
+    
+    PyObject *l_result = PyList_New(l_datums_count);
+    if (!l_result) {
+        DAP_DELETE(l_datums);
+        return NULL;
+    }
+    
+    for (size_t i = 0; i < l_datums_count; i++) {
+        PyObject *l_datum_capsule = PyCapsule_New(l_datums[i], "dap_chain_datum_t", NULL);
+        if (!l_datum_capsule) {
+            Py_DECREF(l_result);
+            DAP_DELETE(l_datums);
+            return NULL;
+        }
+        PyList_SET_ITEM(l_result, i, l_datum_capsule);
+    }
+    
+    DAP_DELETE(l_datums);
+    log_it(L_DEBUG, "Retrieved %zu datums from block", l_datums_count);
+    return l_result;
+}
+
+/**
+ * @brief Add metadata to block (Python binding)
+ * @param a_self Python self object (unused)
+ * @param a_args Python arguments tuple (block capsule, meta_type, data bytes)
+ * @return New block size or None on error
+ */
+PyObject* py_dap_chain_block_meta_add(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    PyObject *l_block_obj = NULL;
+    unsigned int l_meta_type = 0;
+    const char *l_data_bytes = NULL;
+    Py_ssize_t l_data_size = 0;
+    
+    if (!PyArg_ParseTuple(a_args, "OIy#", &l_block_obj, &l_meta_type, &l_data_bytes, &l_data_size)) {
+        return NULL;
+    }
+    
+    if (!PyCapsule_CheckExact(l_block_obj)) {
+        PyErr_SetString(PyExc_TypeError, "Expected block capsule");
+        return NULL;
+    }
+    
+    dap_chain_block_t *l_block = (dap_chain_block_t*)PyCapsule_GetPointer(l_block_obj, "dap_chain_block_t");
+    if (!l_block) {
+        PyErr_SetString(PyExc_ValueError, "Invalid block capsule");
+        return NULL;
+    }
+    
+    size_t l_block_size = dap_chain_block_get_size(l_block);
+    
+    size_t l_new_size = dap_chain_block_meta_add(&l_block, l_block_size, (uint8_t)l_meta_type, l_data_bytes, l_data_size);
+    if (l_new_size == 0) {
+        PyErr_SetString(PyExc_RuntimeError, "Failed to add metadata to block");
+        return NULL;
+    }
+    
+    log_it(L_DEBUG, "Added metadata (type=%u) to block (new_size=%zu)", l_meta_type, l_new_size);
+    return PyLong_FromSize_t(l_new_size);
+}
+
+/**
+ * @brief Add signature to block (Python binding)
+ * @param a_self Python self object (unused)
+ * @param a_args Python arguments tuple (block capsule, key capsule)
+ * @return New block size or None on error
+ */
+PyObject* py_dap_chain_block_sign_add(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    PyObject *l_block_obj = NULL;
+    PyObject *l_key_obj = NULL;
+    
+    if (!PyArg_ParseTuple(a_args, "OO", &l_block_obj, &l_key_obj)) {
+        return NULL;
+    }
+    
+    if (!PyCapsule_CheckExact(l_block_obj) || !PyCapsule_CheckExact(l_key_obj)) {
+        PyErr_SetString(PyExc_TypeError, "Expected block and key capsules");
+        return NULL;
+    }
+    
+    dap_chain_block_t *l_block = (dap_chain_block_t*)PyCapsule_GetPointer(l_block_obj, "dap_chain_block_t");
+    dap_enc_key_t *l_key = (dap_enc_key_t*)PyCapsule_GetPointer(l_key_obj, "dap_enc_key_t");
+    
+    if (!l_block || !l_key) {
+        PyErr_SetString(PyExc_ValueError, "Invalid block or key capsule");
+        return NULL;
+    }
+    
+    size_t l_block_size = dap_chain_block_get_size(l_block);
+    
+    size_t l_new_size = dap_chain_block_sign_add(&l_block, l_block_size, l_key);
+    if (l_new_size == 0) {
+        PyErr_SetString(PyExc_RuntimeError, "Failed to add signature to block");
+        return NULL;
+    }
+    
+    log_it(L_DEBUG, "Added signature to block (new_size=%zu)", l_new_size);
+    return PyLong_FromSize_t(l_new_size);
+}
+
+// =========================================
 // MODULE INITIALIZATION
 // =========================================
 // This function registers all chain functions with the Python module
@@ -1095,10 +1433,18 @@ int cellframe_chain_init(PyObject *module) {
          "Create chain address from string"},
         {"dap_chain_addr_get_net_id", py_dap_chain_addr_get_net_id, METH_VARARGS,
          "Get network ID from chain address"},
+        {"dap_chain_addr_to_str", py_dap_chain_addr_to_str, METH_VARARGS,
+         "Convert chain address to string"},
+        {"dap_chain_addr_is_blank", py_dap_chain_addr_is_blank, METH_VARARGS,
+         "Check if chain address is blank"},
+        {"dap_chain_addr_check_sum", py_dap_chain_addr_check_sum, METH_VARARGS,
+         "Check chain address checksum"},
         
         // Chain operations
         {"dap_chain_atom_create", py_dap_chain_atom_create, METH_VARARGS,
          "Create chain atom"},
+        {"dap_chain_atom_get_data", py_dap_chain_atom_get_data, METH_VARARGS,
+         "Get atom data from atom pointer"},
         
         // Mempool operations
         {"dap_chain_mempool_by_chain_name", py_dap_chain_mempool_by_chain_name, METH_VARARGS,
@@ -1123,6 +1469,18 @@ int cellframe_chain_init(PyObject *module) {
          "Save atom to chain"},
         {"chain_add_callback_notify", (PyCFunction)dap_chain_add_callback_notify_py, METH_VARARGS,
          "Add callback notify for chain (not yet fully implemented)"},
+        
+        // Block operations
+        {"dap_chain_block_new", py_dap_chain_block_new, METH_VARARGS,
+         "Create new block"},
+        {"dap_chain_block_datum_add", py_dap_chain_block_datum_add, METH_VARARGS,
+         "Add datum to block"},
+        {"dap_chain_block_get_datums", py_dap_chain_block_get_datums, METH_VARARGS,
+         "Get datums from block"},
+        {"dap_chain_block_meta_add", py_dap_chain_block_meta_add, METH_VARARGS,
+         "Add metadata to block"},
+        {"dap_chain_block_sign_add", py_dap_chain_block_sign_add, METH_VARARGS,
+         "Add signature to block"},
         
         // Chain lifecycle operations
         {"chain_create", (PyCFunction)dap_chain_create_py, METH_VARARGS,
