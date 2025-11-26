@@ -15,17 +15,19 @@
 // HELPER FUNCTIONS
 // =============================================================================
 
-// Convert PyObject (string or uint256) to uint256_t
+// Convert PyObject to uint256_t via string representation
 static uint256_t py_obj_to_uint256(PyObject *a_obj) {
-    if (PyUnicode_Check(a_obj)) {
-        return dap_chain_balance_scan(PyUnicode_AsUTF8(a_obj));
-    } else if (PyLong_Check(a_obj)) {
-        unsigned long long val = PyLong_AsUnsignedLongLong(a_obj);
-        return GET_256_FROM_64(val);
+    // Convert any PyObject to string first
+    PyObject *str_obj = PyObject_Str(a_obj);
+    if (!str_obj) {
+        return uint256_0;
     }
-    // Default: try as string
-    const char *str = PyUnicode_AsUTF8(a_obj);
-    return str ? dap_chain_balance_scan(str) : uint256_0;
+    
+    const char *str = PyUnicode_AsUTF8(str_obj);
+    uint256_t result = str ? dap_chain_balance_scan(str) : uint256_0;
+    Py_DECREF(str_obj);
+    
+    return result;
 }
 
 // =============================================================================
