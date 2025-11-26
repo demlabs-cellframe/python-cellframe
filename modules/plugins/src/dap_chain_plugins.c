@@ -97,6 +97,14 @@ int dap_chain_plugins_init(dap_config_t *a_config)
     DAP_DELETE(l_path);
     if (PyStatus_Exception(l_status))
         goto excpt;
+#ifdef DAP_OS_WINDOWS
+    // Windows runtime keeps extension modules in DLLs/
+    l_path = s_get_full_path(pypath, "python/DLLs");
+    l_status = PyWideStringList_Append(&l_config.module_search_paths, l_path);
+    DAP_DELETE(l_path);
+    if (PyStatus_Exception(l_status))
+        goto excpt;
+#endif
 
     l_path = s_get_full_path(pypath, "python");
     l_status = PyConfig_SetString(&l_config, &l_config.base_exec_prefix, l_path);
@@ -134,7 +142,7 @@ int dap_chain_plugins_init(dap_config_t *a_config)
         Py_ExitStatusException(l_status);
 
 #ifdef DAP_OS_WINDOWS
-    wchar_t l_progam_name[] = L"python";
+    wchar_t l_program_name[] = L"python";
 #else
     wchar_t l_program_name[] = L"python3";
 #endif
