@@ -15,7 +15,11 @@
  * @param a_self Python self object (unused)
  * @param a_args Arguments (ledger, addr_from, subtype)
  * @return PyCapsule wrapping dap_chain_tx_used_out_item_t* or None
+ * 
+ * NOTE: DISABLED - dap_ledger_get_tx_cond_out() declared in SDK header but NOT implemented
+ *       Code kept for future when SDK implements this function
  */
+#if 0  // DISABLED: dap_ledger_get_tx_cond_out not implemented in SDK
 PyObject* dap_ledger_get_tx_cond_out_py(PyObject *a_self, PyObject *a_args) {
     (void)a_self;
     PyObject *l_ledger_obj, *l_addr_obj;
@@ -57,6 +61,7 @@ PyObject* dap_ledger_get_tx_cond_out_py(PyObject *a_self, PyObject *a_args) {
     log_it(L_DEBUG, "Retrieved conditional output for subtype %d", l_subtype);
     return PyCapsule_New(l_out, "dap_chain_tx_used_out_item_t", NULL);
 }
+#endif  // End DISABLED
 
 /**
  * @brief Find unspent conditional output by address
@@ -311,8 +316,9 @@ PyObject* dap_ledger_voting_verificator_add_py(PyObject *a_self, PyObject *a_arg
 // Get method definitions for cond module
 PyMethodDef* cellframe_ledger_cond_get_methods(void) {
     static PyMethodDef cond_methods[] = {
-        {"ledger_get_tx_cond_out", (PyCFunction)dap_ledger_get_tx_cond_out_py, METH_VARARGS,
-         "Get first transaction conditional output"},
+        // DISABLED: dap_ledger_get_tx_cond_out not implemented in SDK (declared in header but no implementation exists)
+        // {"ledger_get_tx_cond_out", (PyCFunction)dap_ledger_get_tx_cond_out_py, METH_VARARGS,
+        //  "Get first transaction conditional output"},
         {"ledger_out_cond_unspent_find_by_addr", (PyCFunction)dap_ledger_out_cond_unspent_find_by_addr_py, METH_VARARGS,
          "Find unspent conditional output by address"},
         {"ledger_get_list_tx_cond_outs", (PyCFunction)dap_ledger_get_list_tx_cond_outs_py, METH_VARARGS,
