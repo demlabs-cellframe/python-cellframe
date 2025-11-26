@@ -114,19 +114,26 @@ int dap_chain_plugins_init(dap_config_t *a_config)
     if (PyStatus_Exception(l_status))
         goto excpt;
 #else
-    l_path = s_get_full_path(pypath, "python/Lib");
+    // Unix layout: stdlib in lib, site-packages in lib/python3.10/site-packages
+    l_path = s_get_full_path(pypath, "python/lib");
     l_status = PyWideStringList_Append(&l_config.module_search_paths, l_path);
     DAP_DELETE(l_path);
     if (PyStatus_Exception(l_status))
         goto excpt;
 
-    l_path = s_get_full_path(pypath, "python/Lib/python3.10");
+    l_path = s_get_full_path(pypath, "python/lib/python3.10");
     l_status = PyWideStringList_Append(&l_config.module_search_paths, l_path);
     DAP_DELETE(l_path);
     if (PyStatus_Exception(l_status))
         goto excpt;
 
-    l_path = s_get_full_path(pypath, "python/Lib/python3.10/lib-dynload");
+    l_path = s_get_full_path(pypath, "python/lib/python3.10/site-packages");
+    l_status = PyWideStringList_Append(&l_config.module_search_paths, l_path);
+    DAP_DELETE(l_path);
+    if (PyStatus_Exception(l_status))
+        goto excpt;
+
+    l_path = s_get_full_path(pypath, "python/lib/python3.10/lib-dynload");
     l_status = PyWideStringList_Append(&l_config.module_search_paths, l_path);
     DAP_DELETE(l_path);
     if (PyStatus_Exception(l_status))
