@@ -307,31 +307,40 @@ set(PYTHON_CELLFRAME_SOURCES
     src/cellframe_network.c
     src/cellframe_node.c
     src/cellframe_chain.c
-    src/cellframe_consensus.c
-    src/cellframe_consensus_init.c
-    src/cellframe_stake.c
-    src/cellframe_stake_init.c
-    src/cellframe_mempool.c
-    src/cellframe_mempool_init.c
+    # Consensus group
+    src/consensus/cf_consensus.c
+    src/consensus/cf_consensus_init.c
+    # Stake group
+    src/stake/cf_stake.c
+    src/stake/cf_stake_init.c
+    # Mempool group
+    src/mempool/cf_mempool.c
+    src/mempool/cf_mempool_init.c
+    # Services group
     src/cellframe_services.c
     src/cellframe_services_init.c
+    src/cellframe_services_ext.c
+    src/cellframe_services_ext_init.c
+    # Compose group
     src/cellframe_compose.c
     src/cellframe_compose_init.c
+    # Network balancer
     src/cellframe_net_balancer.c
     src/cellframe_net_balancer_init.c
-    # Modularized ledger bindings
-    src/cellframe_ledger_init.c
-    src/cellframe_ledger_lifecycle.c
-    src/cellframe_ledger_tx.c
-    src/cellframe_ledger_token.c
-    src/cellframe_ledger_balance.c
-    src/cellframe_ledger_tx_lists.c
-    src/cellframe_ledger_cond.c
-    src/cellframe_ledger_callbacks.c
-    src/cellframe_ledger_decree.c
-    src/cellframe_ledger_anchor.c
-    src/cellframe_ledger_event.c
-    src/cellframe_ledger_utils.c
+    # Ledger group (modularized)
+    src/ledger/cf_ledger_init.c
+    src/ledger/cf_ledger_lifecycle.c
+    src/ledger/cf_ledger_tx.c
+    src/ledger/cf_ledger_token.c
+    src/ledger/cf_ledger_balance.c
+    src/ledger/cf_ledger_tx_lists.c
+    src/ledger/cf_ledger_cond.c
+    src/ledger/cf_ledger_callbacks.c
+    src/ledger/cf_ledger_decree.c
+    src/ledger/cf_ledger_anchor.c
+    src/ledger/cf_ledger_event.c
+    src/ledger/cf_ledger_utils.c
+    # Wallet and TX
     src/cellframe_wallet.c
     src/cellframe_tx.c
 )

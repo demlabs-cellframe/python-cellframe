@@ -47,9 +47,12 @@ extern PyObject *CellframeNodeError;
 #include "cellframe_node.h"
 #include "cellframe_wallet.h"
 #include "cellframe_chain.h"
-#include "cellframe_ledger.h"
+#include "cf_ledger.h"
 #include "cellframe_services.h"
 #include "cellframe_network.h"
+#include "cf_consensus.h"
+#include "cf_stake.h"
+#include "cf_mempool.h"
 
 // =========================================
 // FUNCTION DECLARATIONS

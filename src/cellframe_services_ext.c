@@ -9,7 +9,7 @@
 
 #include "dap_cert.h"
 #include "dap_cert_file.h"
-#include "python_dap_crypto_cert.h" // For PyCryptoCertObject
+// #include "python_dap_crypto_cert.h" // For PyCryptoCertObject - временно закомментировано
 
 // =============================================================================
 // STAKE EXT
@@ -57,7 +57,16 @@ PyObject* dap_chain_net_srv_stake_ext_get_list_py(PyObject *a_self, PyObject *a_
     if (!PyArg_ParseTuple(a_args, "O", &a_net_obj))
         return NULL;
         
-    dap_chain_net_t *l_net = ((PyDapChainNetObject*)a_net_obj)->chain_net;
+    if (!PyCapsule_CheckExact(a_net_obj)) {
+        PyErr_SetString(PyExc_TypeError, "First argument must be a network capsule");
+        return NULL;
+    }
+    
+    dap_chain_net_t *l_net = (dap_chain_net_t *)PyCapsule_GetPointer(a_net_obj, "dap_chain_net_t");
+    if (!l_net) {
+        PyErr_SetString(PyExc_ValueError, "Invalid network capsule");
+        return NULL;
+    }
     dap_list_t *l_list = dap_chain_net_srv_stake_ext_get_list(l_net, DAP_STAKE_EXT_STATUS_UNKNOWN, false);
     
     PyObject *l_py_list = PyList_New(0);
@@ -82,7 +91,16 @@ PyObject* dap_chain_net_srv_stake_ext_get_stats_py(PyObject *a_self, PyObject *a
     if (!PyArg_ParseTuple(a_args, "O", &a_net_obj))
         return NULL;
         
-    dap_chain_net_t *l_net = ((PyDapChainNetObject*)a_net_obj)->chain_net;
+    if (!PyCapsule_CheckExact(a_net_obj)) {
+        PyErr_SetString(PyExc_TypeError, "First argument must be a network capsule");
+        return NULL;
+    }
+    
+    dap_chain_net_t *l_net = (dap_chain_net_t *)PyCapsule_GetPointer(a_net_obj, "dap_chain_net_t");
+    if (!l_net) {
+        PyErr_SetString(PyExc_ValueError, "Invalid network capsule");
+        return NULL;
+    }
     dap_chain_srv_stake_ext_stats_t *l_stats = dap_chain_net_srv_stake_ext_get_stats(l_net);
     if (!l_stats) Py_RETURN_NONE;
     
@@ -131,8 +149,13 @@ PyObject* dap_chain_net_srv_stake_ext_unlock_create_py(PyObject *a_self, PyObjec
     if (!PyArg_ParseTuple(a_args, "OOsO", &a_net_obj, &a_key_obj, &a_lock_hash_str, &a_fee_obj))
         return NULL;
         
-    dap_chain_net_t *l_net = ((PyDapChainNetObject*)a_net_obj)->chain_net;
-    dap_enc_key_t *l_key = ((PyCryptoKeyObject*)a_key_obj)->key;
+    if (!PyCapsule_CheckExact(a_net_obj) || !PyCapsule_CheckExact(a_key_obj)) {
+        PyErr_SetString(PyExc_TypeError, "Invalid capsule arguments");
+        return NULL;
+    }
+    
+    dap_chain_net_t *l_net = (dap_chain_net_t *)PyCapsule_GetPointer(a_net_obj, "dap_chain_net_t");
+    dap_enc_key_t *l_key = (dap_enc_key_t *)PyCapsule_GetPointer(a_key_obj, "dap_enc_key_t");
     dap_chain_hash_fast_t l_lock_hash;
     dap_chain_hash_fast_from_str(a_lock_hash_str, &l_lock_hash);
     
@@ -196,8 +219,13 @@ PyObject* dap_chain_net_srv_xchange_create_py(PyObject *a_self, PyObject *a_args
     if (!PyArg_ParseTuple(a_args, "OssOOOO", &a_net_obj, &a_token_buy, &a_token_sell, &a_datoshi_sell_obj, &a_rate_obj, &a_fee_obj, &a_wallet_obj))
         return NULL;
         
-    dap_chain_net_t *l_net = ((PyDapChainNetObject*)a_net_obj)->chain_net;
-    dap_chain_wallet_t *l_wallet = ((PyDapChainWalletObject*)a_wallet_obj)->wallet;
+    if (!PyCapsule_CheckExact(a_net_obj) || !PyCapsule_CheckExact(a_wallet_obj)) {
+        PyErr_SetString(PyExc_TypeError, "Invalid capsule arguments");
+        return NULL;
+    }
+    
+    dap_chain_net_t *l_net = (dap_chain_net_t *)PyCapsule_GetPointer(a_net_obj, "dap_chain_net_t");
+    dap_chain_wallet_t *l_wallet = (dap_chain_wallet_t *)PyCapsule_GetPointer(a_wallet_obj, "dap_chain_wallet_t");
     uint256_t l_datoshi_sell = dap_chain_balance_scan(a_datoshi_sell_obj);
     uint256_t l_rate = dap_chain_balance_scan(a_rate_obj);
     uint256_t l_fee = dap_chain_balance_scan(a_fee_obj);
@@ -219,8 +247,13 @@ PyObject* dap_chain_net_srv_xchange_remove_py(PyObject *a_self, PyObject *a_args
     if (!PyArg_ParseTuple(a_args, "OsOO", &a_net_obj, &a_hash_str, &a_fee_obj, &a_wallet_obj))
         return NULL;
         
-    dap_chain_net_t *l_net = ((PyDapChainNetObject*)a_net_obj)->chain_net;
-    dap_chain_wallet_t *l_wallet = ((PyDapChainWalletObject*)a_wallet_obj)->wallet;
+    if (!PyCapsule_CheckExact(a_net_obj) || !PyCapsule_CheckExact(a_wallet_obj)) {
+        PyErr_SetString(PyExc_TypeError, "Invalid capsule arguments");
+        return NULL;
+    }
+    
+    dap_chain_net_t *l_net = (dap_chain_net_t *)PyCapsule_GetPointer(a_net_obj, "dap_chain_net_t");
+    dap_chain_wallet_t *l_wallet = (dap_chain_wallet_t *)PyCapsule_GetPointer(a_wallet_obj, "dap_chain_wallet_t");
     dap_chain_hash_fast_t l_hash;
     dap_chain_hash_fast_from_str(a_hash_str, &l_hash);
     uint256_t l_fee = dap_chain_balance_scan(a_fee_obj);
@@ -239,8 +272,13 @@ PyObject* dap_chain_net_srv_xchange_purchase_py(PyObject *a_self, PyObject *a_ar
     if (!PyArg_ParseTuple(a_args, "OsOOO", &a_net_obj, &a_order_hash_str, &a_value_obj, &a_fee_obj, &a_wallet_obj))
         return NULL;
         
-    dap_chain_net_t *l_net = ((PyDapChainNetObject*)a_net_obj)->chain_net;
-    dap_chain_wallet_t *l_wallet = ((PyDapChainWalletObject*)a_wallet_obj)->wallet;
+    if (!PyCapsule_CheckExact(a_net_obj) || !PyCapsule_CheckExact(a_wallet_obj)) {
+        PyErr_SetString(PyExc_TypeError, "Invalid capsule arguments");
+        return NULL;
+    }
+    
+    dap_chain_net_t *l_net = (dap_chain_net_t *)PyCapsule_GetPointer(a_net_obj, "dap_chain_net_t");
+    dap_chain_wallet_t *l_wallet = (dap_chain_wallet_t *)PyCapsule_GetPointer(a_wallet_obj, "dap_chain_wallet_t");
     dap_chain_hash_fast_t l_order_hash;
     dap_chain_hash_fast_from_str(a_order_hash_str, &l_order_hash);
     uint256_t l_value = dap_chain_balance_scan(a_value_obj);
@@ -257,7 +295,16 @@ PyObject* dap_chain_net_srv_xchange_get_tx_xchange_py(PyObject *a_self, PyObject
     if (!PyArg_ParseTuple(a_args, "O", &a_net_obj))
         return NULL;
         
-    dap_chain_net_t *l_net = ((PyDapChainNetObject*)a_net_obj)->chain_net;
+    if (!PyCapsule_CheckExact(a_net_obj)) {
+        PyErr_SetString(PyExc_TypeError, "First argument must be a network capsule");
+        return NULL;
+    }
+    
+    dap_chain_net_t *l_net = (dap_chain_net_t *)PyCapsule_GetPointer(a_net_obj, "dap_chain_net_t");
+    if (!l_net) {
+        PyErr_SetString(PyExc_ValueError, "Invalid network capsule");
+        return NULL;
+    }
     dap_list_t *l_list = dap_chain_net_srv_xchange_get_tx_xchange(l_net);
     
     PyObject *l_py_list = PyList_New(0);
@@ -283,7 +330,16 @@ PyObject* dap_chain_net_srv_xchange_get_prices_py(PyObject *a_self, PyObject *a_
     if (!PyArg_ParseTuple(a_args, "O", &a_net_obj))
         return NULL;
         
-    dap_chain_net_t *l_net = ((PyDapChainNetObject*)a_net_obj)->chain_net;
+    if (!PyCapsule_CheckExact(a_net_obj)) {
+        PyErr_SetString(PyExc_TypeError, "First argument must be a network capsule");
+        return NULL;
+    }
+    
+    dap_chain_net_t *l_net = (dap_chain_net_t *)PyCapsule_GetPointer(a_net_obj, "dap_chain_net_t");
+    if (!l_net) {
+        PyErr_SetString(PyExc_ValueError, "Invalid network capsule");
+        return NULL;
+    }
     dap_list_t *l_list = dap_chain_net_srv_xchange_get_prices(l_net);
     
     PyObject *l_py_list = PyList_New(0);
@@ -433,13 +489,18 @@ PyObject* dap_chain_net_srv_vote_create_py(PyObject *a_self, PyObject *a_args) {
 
     dap_cert_t *l_cert = NULL;
     if (a_cert_obj != Py_None) {
-        // Assuming PyDapCryptoCertObject wrapper exists and exposes 'cert'
-        // If not, we might need to check type. Assuming PyCryptoCertObject from dap_crypto.
-        l_cert = ((PyCryptoCertObject*)a_cert_obj)->cert;
+        if (PyCapsule_CheckExact(a_cert_obj)) {
+            l_cert = (dap_cert_t *)PyCapsule_GetPointer(a_cert_obj, "dap_cert_t");
+        }
     }
 
-    dap_chain_wallet_t *l_wallet = ((PyDapChainWalletObject*)a_wallet_obj)->wallet;
-    dap_chain_net_t *l_net = ((PyDapChainNetObject*)a_net_obj)->chain_net;
+    if (!PyCapsule_CheckExact(a_wallet_obj) || !PyCapsule_CheckExact(a_net_obj)) {
+        PyErr_SetString(PyExc_TypeError, "Invalid capsule arguments");
+        return NULL;
+    }
+
+    dap_chain_wallet_t *l_wallet = (dap_chain_wallet_t *)PyCapsule_GetPointer(a_wallet_obj, "dap_chain_wallet_t");
+    dap_chain_net_t *l_net = (dap_chain_net_t *)PyCapsule_GetPointer(a_net_obj, "dap_chain_net_t");
     uint256_t l_fee = dap_chain_balance_scan(a_fee_obj);
     
     dap_chain_hash_fast_t l_voting_hash;
@@ -465,7 +526,16 @@ PyObject* dap_chain_net_voting_list_py(PyObject *a_self, PyObject *a_args) {
     if (!PyArg_ParseTuple(a_args, "O", &a_net_obj))
         return NULL;
         
-    dap_chain_net_t *l_net = ((PyDapChainNetObject*)a_net_obj)->chain_net;
+    if (!PyCapsule_CheckExact(a_net_obj)) {
+        PyErr_SetString(PyExc_TypeError, "First argument must be a network capsule");
+        return NULL;
+    }
+    
+    dap_chain_net_t *l_net = (dap_chain_net_t *)PyCapsule_GetPointer(a_net_obj, "dap_chain_net_t");
+    if (!l_net) {
+        PyErr_SetString(PyExc_ValueError, "Invalid network capsule");
+        return NULL;
+    }
     dap_list_t *l_list = dap_chain_net_voting_list(l_net);
     
     PyObject *l_py_list = PyList_New(0);

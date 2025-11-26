@@ -1,22 +1,22 @@
 #include "cellframe.h"
-#include "include/cellframe_consensus.h"
+#include "../include/cf_mempool.h"
 
-#define LOG_TAG "python_cellframe_consensus"
+#define LOG_TAG "python_cellframe_mempool"
 
 /**
- * @brief Initialize consensus module and register methods
+ * @brief Initialize mempool module and register methods
  * @param module Python module object
  * @return 0 on success, -1 on error
  */
-int cellframe_consensus_init(PyObject *module) {
-    PyMethodDef *methods = cellframe_consensus_get_methods();
+int cellframe_mempool_init(PyObject *module) {
+    PyMethodDef *methods = cellframe_mempool_get_methods();
     
     if (!methods) {
-        log_it(L_ERROR, "Failed to get consensus methods");
+        log_it(L_ERROR, "Failed to get mempool methods");
         return -1;
     }
     
-    // Register all consensus methods
+    // Register all mempool methods
     for (PyMethodDef *method = methods; method->ml_name != NULL; method++) {
         PyObject *func = PyCFunction_New(method, NULL);
         if (!func) {
@@ -31,7 +31,7 @@ int cellframe_consensus_init(PyObject *module) {
         }
     }
     
-    log_it(L_DEBUG, "Consensus module initialized successfully");
+    log_it(L_DEBUG, "Mempool module initialized successfully");
     return 0;
 }
 

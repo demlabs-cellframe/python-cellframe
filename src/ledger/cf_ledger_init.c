@@ -1,4 +1,4 @@
-#include "cellframe_ledger_internal.h"
+#include "include/cf_ledger_internal.h"
 
 // Forward declarations for get_methods functions from all modules
 PyMethodDef* cellframe_ledger_lifecycle_get_methods(void);

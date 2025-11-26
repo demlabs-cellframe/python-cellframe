@@ -1,22 +1,22 @@
 #include "cellframe.h"
-#include "include/cellframe_stake.h"
+#include "../include/cf_consensus.h"
 
-#define LOG_TAG "python_cellframe_stake"
+#define LOG_TAG "python_cellframe_consensus"
 
 /**
- * @brief Initialize stake module and register methods
+ * @brief Initialize consensus module and register methods
  * @param module Python module object
  * @return 0 on success, -1 on error
  */
-int cellframe_stake_init(PyObject *module) {
-    PyMethodDef *methods = cellframe_stake_get_methods();
+int cellframe_consensus_init(PyObject *module) {
+    PyMethodDef *methods = cellframe_consensus_get_methods();
     
     if (!methods) {
-        log_it(L_ERROR, "Failed to get stake methods");
+        log_it(L_ERROR, "Failed to get consensus methods");
         return -1;
     }
     
-    // Register all stake methods
+    // Register all consensus methods
     for (PyMethodDef *method = methods; method->ml_name != NULL; method++) {
         PyObject *func = PyCFunction_New(method, NULL);
         if (!func) {
@@ -31,7 +31,7 @@ int cellframe_stake_init(PyObject *module) {
         }
     }
     
-    log_it(L_DEBUG, "Stake module initialized successfully");
+    log_it(L_DEBUG, "Consensus module initialized successfully");
     return 0;
 }
 
