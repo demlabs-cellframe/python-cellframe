@@ -306,29 +306,8 @@ set(PYTHON_CELLFRAME_SOURCES
     src/cellframe.c
     # Chain group
     src/chain/cf_chain.c
-    # Network group
-    src/network/cf_network.c
-    src/network/cf_balancer.c
-    src/network/cf_balancer_init.c
-    # Node group
-    src/node/cf_node.c
-    # Consensus group
-    src/consensus/cf_consensus.c
-    src/consensus/cf_consensus_init.c
-    # Stake group
-    src/stake/cf_stake.c
-    src/stake/cf_stake_init.c
-    # Mempool group
-    src/mempool/cf_mempool.c
-    src/mempool/cf_mempool_init.c
-    # Services group
-    src/services/cf_services.c
-    src/services/cf_services_init.c
-    src/services/cf_services_ext.c
-    src/services/cf_services_ext_init.c
-    # Compose group
-    src/compose/cf_compose.c
-    src/compose/cf_compose_init.c
+    src/chain/cf_consensus.c
+    src/chain/cf_consensus_init.c
     # Ledger group (modularized)
     src/ledger/cf_ledger_init.c
     src/ledger/cf_ledger_lifecycle.c
@@ -344,8 +323,23 @@ set(PYTHON_CELLFRAME_SOURCES
     src/ledger/cf_ledger_utils.c
     # Wallet group
     src/wallet/cf_wallet.c
-    # TX group
+    # TX group (tx + compose)
     src/tx/cf_tx.c
+    src/tx/cf_compose.c
+    src/tx/cf_compose_init.c
+    # Network group
+    src/network/cf_network.c
+    src/network/cf_balancer.c
+    src/network/cf_balancer_init.c
+    src/network/node/cf_node.c
+    src/network/services/cf_services.c
+    src/network/services/cf_services_init.c
+    src/network/services/cf_services_ext.c
+    src/network/services/cf_services_ext_init.c
+    src/network/stake/cf_stake.c
+    src/network/stake/cf_stake_init.c
+    src/network/mempool/cf_mempool.c
+    src/network/mempool/cf_mempool_init.c
 )
 
 # Create Python extension module
