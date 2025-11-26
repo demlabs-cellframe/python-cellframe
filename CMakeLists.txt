@@ -304,7 +304,8 @@ find_package(Python3 REQUIRED COMPONENTS Interpreter Development)
 # Python-Cellframe sources
 set(PYTHON_CELLFRAME_SOURCES
     src/cellframe.c
-    src/cellframe_chain.c
+    # Chain group
+    src/chain/cf_chain.c
     # Network group
     src/network/cf_network.c
     src/network/cf_balancer.c
@@ -326,8 +327,8 @@ set(PYTHON_CELLFRAME_SOURCES
     src/services/cf_services_ext.c
     src/services/cf_services_ext_init.c
     # Compose group
-    src/cellframe_compose.c
-    src/cellframe_compose_init.c
+    src/compose/cf_compose.c
+    src/compose/cf_compose_init.c
     # Ledger group (modularized)
     src/ledger/cf_ledger_init.c
     src/ledger/cf_ledger_lifecycle.c
@@ -341,9 +342,10 @@ set(PYTHON_CELLFRAME_SOURCES
     src/ledger/cf_ledger_anchor.c
     src/ledger/cf_ledger_event.c
     src/ledger/cf_ledger_utils.c
-    # Wallet and TX
-    src/cellframe_wallet.c
-    src/cellframe_tx.c
+    # Wallet group
+    src/wallet/cf_wallet.c
+    # TX group
+    src/tx/cf_tx.c
 )
 
 # Create Python extension module
