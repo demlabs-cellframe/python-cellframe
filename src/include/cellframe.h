@@ -44,12 +44,12 @@ extern PyObject *CellframeNodeError;
 // INCLUDE TYPE DEFINITIONS
 // =========================================
 // Include specialized headers after basic definitions
-#include "cellframe_node.h"
+#include "cf_node.h"
 #include "cellframe_wallet.h"
 #include "cellframe_chain.h"
 #include "cf_ledger.h"
-#include "cellframe_services.h"
-#include "cellframe_network.h"
+#include "cf_services.h"
+#include "cf_network.h"
 #include "cf_consensus.h"
 #include "cf_stake.h"
 #include "cf_mempool.h"

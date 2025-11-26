@@ -1,5 +1,5 @@
 #include "cellframe.h"
-#include "include/cellframe_net_balancer.h"
+#include "../include/cf_balancer.h"
 
 #define LOG_TAG "python_cellframe_net_balancer"
 

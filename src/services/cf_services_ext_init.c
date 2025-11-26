@@ -1,22 +1,22 @@
 #include "cellframe.h"
-#include "include/cellframe_services.h"
+#include "../include/cf_services_ext.h"
 
-#define LOG_TAG "python_cellframe_services"
+#define LOG_TAG "python_cellframe_services_ext"
 
 /**
- * @brief Initialize services module and register methods
+ * @brief Initialize Services Extended module and register methods
  * @param module Python module object
  * @return 0 on success, -1 on error
  */
-int cellframe_services_init(PyObject *module) {
-    PyMethodDef *methods = cellframe_services_get_methods();
+int cellframe_services_ext_init(PyObject *module) {
+    PyMethodDef *methods = cellframe_services_ext_get_methods();
     
     if (!methods) {
-        log_it(L_ERROR, "Failed to get services methods");
+        log_it(L_ERROR, "Failed to get Services Ext methods");
         return -1;
     }
     
-    // Register all services methods
+    // Register all methods
     for (PyMethodDef *method = methods; method->ml_name != NULL; method++) {
         PyObject *func = PyCFunction_New(method, NULL);
         if (!func) {
@@ -31,7 +31,7 @@ int cellframe_services_init(PyObject *module) {
         }
     }
     
-    log_it(L_DEBUG, "Services module initialized successfully");
+    log_it(L_DEBUG, "Services Ext module initialized successfully");
     return 0;
 }
 

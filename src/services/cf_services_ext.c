@@ -1,5 +1,5 @@
 #include "cellframe.h"
-#include "include/cellframe_services_ext.h"
+#include "../include/cf_services_ext.h"
 #include "dap_chain_net_srv_stake_ext.h"
 #include "dap_chain_net_srv_vpn.h"
 #include "dap_chain_net_srv_xchange.h"

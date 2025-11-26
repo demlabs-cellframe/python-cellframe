@@ -304,9 +304,13 @@ find_package(Python3 REQUIRED COMPONENTS Interpreter Development)
 # Python-Cellframe sources
 set(PYTHON_CELLFRAME_SOURCES
     src/cellframe.c
-    src/cellframe_network.c
-    src/cellframe_node.c
     src/cellframe_chain.c
+    # Network group
+    src/network/cf_network.c
+    src/network/cf_balancer.c
+    src/network/cf_balancer_init.c
+    # Node group
+    src/node/cf_node.c
     # Consensus group
     src/consensus/cf_consensus.c
     src/consensus/cf_consensus_init.c
@@ -317,16 +321,13 @@ set(PYTHON_CELLFRAME_SOURCES
     src/mempool/cf_mempool.c
     src/mempool/cf_mempool_init.c
     # Services group
-    src/cellframe_services.c
-    src/cellframe_services_init.c
-    src/cellframe_services_ext.c
-    src/cellframe_services_ext_init.c
+    src/services/cf_services.c
+    src/services/cf_services_init.c
+    src/services/cf_services_ext.c
+    src/services/cf_services_ext_init.c
     # Compose group
     src/cellframe_compose.c
     src/cellframe_compose_init.c
-    # Network balancer
-    src/cellframe_net_balancer.c
-    src/cellframe_net_balancer_init.c
     # Ledger group (modularized)
     src/ledger/cf_ledger_init.c
     src/ledger/cf_ledger_lifecycle.c
