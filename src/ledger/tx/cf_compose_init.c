@@ -1,5 +1,5 @@
 #include "cellframe.h"
-#include "../include/cf_compose.h"
+#include "../../include/cf_compose.h"
 
 #define LOG_TAG "python_cellframe_compose"
 

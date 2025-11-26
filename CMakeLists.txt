@@ -308,7 +308,7 @@ set(PYTHON_CELLFRAME_SOURCES
     src/chain/cf_chain.c
     src/chain/cf_consensus.c
     src/chain/cf_consensus_init.c
-    # Ledger group (modularized)
+    # Ledger group (modularized, includes tx operations)
     src/ledger/cf_ledger_init.c
     src/ledger/cf_ledger_lifecycle.c
     src/ledger/cf_ledger_tx.c
@@ -321,12 +321,11 @@ set(PYTHON_CELLFRAME_SOURCES
     src/ledger/cf_ledger_anchor.c
     src/ledger/cf_ledger_event.c
     src/ledger/cf_ledger_utils.c
+    src/ledger/tx/cf_tx.c
+    src/ledger/tx/cf_compose.c
+    src/ledger/tx/cf_compose_init.c
     # Wallet group
     src/wallet/cf_wallet.c
-    # TX group (tx + compose)
-    src/tx/cf_tx.c
-    src/tx/cf_compose.c
-    src/tx/cf_compose_init.c
     # Network group
     src/network/cf_network.c
     src/network/cf_balancer.c
