@@ -28,8 +28,13 @@ static int s_dap_chain_plugins_unload(dap_plugin_manifest_t * a_manifest, void *
 static void s_plugins_load_plugin_initialization(void* a_module);
 static void s_plugins_load_plugin_uninitialization(void* a_module);
 
+#ifdef DAP_OS_WINDOWS
+const char *pycfhelpers_path = "/opt/cellframe-node/python/Lib/site-packages/pycfhelpers";
+const char *pycftools_path = "/opt/cellframe-node/python/Lib/site-packages/pycftools";
+#else
 const char *pycfhelpers_path = "/opt/cellframe-node/python/lib/"PYTHON_VERSION"/site-packages/pycfhelpers";
 const char *pycftools_path = "/opt/cellframe-node/python/lib/"PYTHON_VERSION"/site-packages/pycftools";
+#endif
 
 wchar_t *s_get_full_path(const char *a_prefix, const char *a_path)
 {
@@ -82,21 +87,58 @@ int dap_chain_plugins_init(dap_config_t *a_config)
 
     PyConfig_InitIsolatedConfig(&l_config);
     l_config.module_search_paths_set = 1;
-    wchar_t *l_path = s_get_full_path(pypath, "python/lib/" PYTHON_VERSION);
+    wchar_t *l_path = NULL;
+#ifdef DAP_OS_WINDOWS
+    // Windows layout: stdlib in Lib, extension modules in DLLs, site-packages in Lib/site-packages
+    l_path = s_get_full_path(pypath, "python/Lib");
     l_status = PyWideStringList_Append(&l_config.module_search_paths, l_path);
     DAP_DELETE(l_path);
     if (PyStatus_Exception(l_status))
         goto excpt;
-    l_path = s_get_full_path(pypath, "python/lib/" PYTHON_VERSION "/lib-dynload");
+
+    l_path = s_get_full_path(pypath, "python/Lib/site-packages");
     l_status = PyWideStringList_Append(&l_config.module_search_paths, l_path);
     DAP_DELETE(l_path);
     if (PyStatus_Exception(l_status))
         goto excpt;
-    l_path = s_get_full_path(pypath, "python/lib/" PYTHON_VERSION "/site-packages");
+
+    l_path = s_get_full_path(pypath, "python/Lib/lib-dynload");
     l_status = PyWideStringList_Append(&l_config.module_search_paths, l_path);
     DAP_DELETE(l_path);
     if (PyStatus_Exception(l_status))
         goto excpt;
+
+    l_path = s_get_full_path(pypath, "python/DLLs");
+    l_status = PyWideStringList_Append(&l_config.module_search_paths, l_path);
+    DAP_DELETE(l_path);
+    if (PyStatus_Exception(l_status))
+        goto excpt;
+#else
+    // Unix layout: stdlib in lib, site-packages in lib/python3.10/site-packages
+    l_path = s_get_full_path(pypath, "python/lib");
+    l_status = PyWideStringList_Append(&l_config.module_search_paths, l_path);
+    DAP_DELETE(l_path);
+    if (PyStatus_Exception(l_status))
+        goto excpt;
+
+    l_path = s_get_full_path(pypath, "python/lib/python3.10");
+    l_status = PyWideStringList_Append(&l_config.module_search_paths, l_path);
+    DAP_DELETE(l_path);
+    if (PyStatus_Exception(l_status))
+        goto excpt;
+
+    l_path = s_get_full_path(pypath, "python/lib/python3.10/site-packages");
+    l_status = PyWideStringList_Append(&l_config.module_search_paths, l_path);
+    DAP_DELETE(l_path);
+    if (PyStatus_Exception(l_status))
+        goto excpt;
+
+    l_path = s_get_full_path(pypath, "python/lib/python3.10/lib-dynload");
+    l_status = PyWideStringList_Append(&l_config.module_search_paths, l_path);
+    DAP_DELETE(l_path);
+    if (PyStatus_Exception(l_status))
+        goto excpt;
+#endif
 
     l_path = s_get_full_path(pypath, "python");
     l_status = PyConfig_SetString(&l_config, &l_config.base_exec_prefix, l_path);
@@ -119,7 +161,7 @@ int dap_chain_plugins_init(dap_config_t *a_config)
     if (PyStatus_Exception(l_status))
         goto excpt;
 
-    l_path = s_get_full_path(pypath, "python/bin/" PYTHON_VERSION);
+    l_path = s_get_full_path(pypath, "python/python.exe");
     l_status = PyConfig_SetString(&l_config, &l_config.executable, l_path);
     DAP_DELETE(l_path);
     if (PyStatus_Exception(l_status))
@@ -134,7 +176,7 @@ int dap_chain_plugins_init(dap_config_t *a_config)
         Py_ExitStatusException(l_status);
 
 #ifdef DAP_OS_WINDOWS
-    wchar_t l_progam_name[] = L"python";
+    wchar_t l_program_name[] = L"python";
 #else
     wchar_t l_program_name[] = L"python3";
 #endif

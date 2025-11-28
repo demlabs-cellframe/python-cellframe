@@ -106,10 +106,13 @@
 #include "wrapping_json_rpc_request.h"
 #include "wrapping_json_rpc_response.h"
 #ifdef _WIN32
-#include "Windows.h"
+#include <windows.h>
 BOOL WINAPI consoleHandler(DWORD);
 #else
 #include "signal.h"
+void sigfunc(int sig);
+#endif // _WIN32
+
 #include "wrapping_http_status_code.h"
 #include "wrapping_dap_http_simple.h"
 #include "wrapping_dap_http_header.h"
@@ -124,8 +127,6 @@ BOOL WINAPI consoleHandler(DWORD);
 #ifdef DAP_SUPPORT_PYTHON_PLUGINS
     #include "../modules/plugins/include/dap_plugins_python_app_context.h"
 #endif // DAP_SUPPORT_PYTHON_PLUGINS
-void sigfunc(int sig);
-#endif // _WIN32
 
 PyObject *python_dap_init(PyObject *self, PyObject *args);
 PyObject *python_cellframe_init(PyObject *self, PyObject *args);
