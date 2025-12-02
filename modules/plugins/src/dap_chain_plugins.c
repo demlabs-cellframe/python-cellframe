@@ -5,6 +5,10 @@
 #include "python-cellframe.h"
 #include "dap_chain_plugins.h"
 
+#ifdef DAP_OS_DARWIN
+#include <mach-o/dyld.h>  // for _NSGetExecutablePath
+#endif
+
 #undef LOG_TAG
 #define LOG_TAG "dap_chain_plugins"
 
@@ -65,10 +69,8 @@ int dap_chain_plugins_init(dap_config_t *a_config)
     DAP_DELETE(l_default_path_plugins);
 
     log_it(L_INFO, "Start initialization of python (%s) plugins. Path plugins: %s", PYTHON_VERSION, s_plugins_root_path);
-    if (!dap_dir_test(s_plugins_root_path)){
-        log_it(L_ERROR, "Can't find \"%s\" directory fff", s_plugins_root_path);
-        return -1;
-    }
+    
+    // Register Python modules BEFORE Py_Initialize
     PyImport_AppendInittab("DAP", PyInit_libDAP);
     PyImport_AppendInittab("CellFrame", PyInit_libCellFrame);
 
@@ -79,16 +81,38 @@ int dap_chain_plugins_init(dap_config_t *a_config)
     PyPreConfig_InitIsolatedConfig(&l_preconfig);
     l_preconfig.utf8_mode = 1;
 
-    #if DAP_OS_DARWIN
-    char *pypath  = "/Applications/CellframeNode.app/Contents/Frameworks/";
-    #else
-    char *pypath  = g_sys_dir_path;
-    #endif
+    char *pypath = NULL;
+    char *pypath_allocated = NULL;
+#if defined(DAP_OS_DARWIN)
+    // macOS: Python.framework is in Contents/Frameworks relative to executable
+    // Get executable path and construct framework path
+    extern char **environ;
+    uint32_t bufsize = 0;
+    _NSGetExecutablePath(NULL, &bufsize);
+    char *exec_path = DAP_NEW_Z_SIZE(char, bufsize);
+    _NSGetExecutablePath(exec_path, &bufsize);
+    // exec_path is like: /path/to/CellframeNode.app/Contents/MacOS/cellframe-node
+    // We need: /path/to/CellframeNode.app/Contents/Frameworks/Python.framework/Versions/3.10
+    char *macos_dir = strrchr(exec_path, '/');
+    if (macos_dir) *macos_dir = '\0';  // Remove /cellframe-node
+    macos_dir = strrchr(exec_path, '/');
+    if (macos_dir) *macos_dir = '\0';  // Remove /MacOS
+    pypath_allocated = dap_strjoin("", exec_path, "/Frameworks/Python.framework/Versions/3.10", NULL);
+    pypath = pypath_allocated;
+    DAP_DELETE(exec_path);
+    log_it(L_INFO, "macOS Python framework path: %s", pypath);
+#elif defined(DAP_OS_WINDOWS)
+    pypath = g_sys_dir_path;
+#else
+    // Linux
+    pypath = g_sys_dir_path;
+#endif
 
     PyConfig_InitIsolatedConfig(&l_config);
     l_config.module_search_paths_set = 1;
     wchar_t *l_path = NULL;
-#ifdef DAP_OS_WINDOWS
+
+#if defined(DAP_OS_WINDOWS)
     // Windows layout: stdlib in Lib, extension modules in DLLs, site-packages in Lib/site-packages
     l_path = s_get_full_path(pypath, "python/Lib");
     l_status = PyWideStringList_Append(&l_config.module_search_paths, l_path);
@@ -113,32 +137,6 @@ int dap_chain_plugins_init(dap_config_t *a_config)
     DAP_DELETE(l_path);
     if (PyStatus_Exception(l_status))
         goto excpt;
-#else
-    // Unix layout: stdlib in lib, site-packages in lib/python3.10/site-packages
-    l_path = s_get_full_path(pypath, "python/lib");
-    l_status = PyWideStringList_Append(&l_config.module_search_paths, l_path);
-    DAP_DELETE(l_path);
-    if (PyStatus_Exception(l_status))
-        goto excpt;
-
-    l_path = s_get_full_path(pypath, "python/lib/python3.10");
-    l_status = PyWideStringList_Append(&l_config.module_search_paths, l_path);
-    DAP_DELETE(l_path);
-    if (PyStatus_Exception(l_status))
-        goto excpt;
-
-    l_path = s_get_full_path(pypath, "python/lib/python3.10/site-packages");
-    l_status = PyWideStringList_Append(&l_config.module_search_paths, l_path);
-    DAP_DELETE(l_path);
-    if (PyStatus_Exception(l_status))
-        goto excpt;
-
-    l_path = s_get_full_path(pypath, "python/lib/python3.10/lib-dynload");
-    l_status = PyWideStringList_Append(&l_config.module_search_paths, l_path);
-    DAP_DELETE(l_path);
-    if (PyStatus_Exception(l_status))
-        goto excpt;
-#endif
 
     l_path = s_get_full_path(pypath, "python");
     l_status = PyConfig_SetString(&l_config, &l_config.base_exec_prefix, l_path);
@@ -166,6 +164,116 @@ int dap_chain_plugins_init(dap_config_t *a_config)
     DAP_DELETE(l_path);
     if (PyStatus_Exception(l_status))
         goto excpt;
+
+#elif defined(DAP_OS_DARWIN)
+    // macOS layout: Python.framework structure
+    // pypath is already set to .../Python.framework/Versions/3.10
+    l_path = s_get_full_path(pypath, "lib/python3.10");
+    l_status = PyWideStringList_Append(&l_config.module_search_paths, l_path);
+    DAP_DELETE(l_path);
+    if (PyStatus_Exception(l_status))
+        goto excpt;
+
+    l_path = s_get_full_path(pypath, "lib/python3.10/site-packages");
+    l_status = PyWideStringList_Append(&l_config.module_search_paths, l_path);
+    DAP_DELETE(l_path);
+    if (PyStatus_Exception(l_status))
+        goto excpt;
+
+    l_path = s_get_full_path(pypath, "lib/python3.10/lib-dynload");
+    l_status = PyWideStringList_Append(&l_config.module_search_paths, l_path);
+    DAP_DELETE(l_path);
+    if (PyStatus_Exception(l_status))
+        goto excpt;
+
+    // Set Python home to the framework version directory
+    l_path = s_get_full_path(pypath, "");
+    l_status = PyConfig_SetString(&l_config, &l_config.home, l_path);
+    if (PyStatus_Exception(l_status)) {
+        DAP_DELETE(l_path);
+        goto excpt;
+    }
+    l_status = PyConfig_SetString(&l_config, &l_config.base_exec_prefix, l_path);
+    if (PyStatus_Exception(l_status)) {
+        DAP_DELETE(l_path);
+        goto excpt;
+    }
+    l_status = PyConfig_SetString(&l_config, &l_config.base_prefix, l_path);
+    if (PyStatus_Exception(l_status)) {
+        DAP_DELETE(l_path);
+        goto excpt;
+    }
+    l_status = PyConfig_SetString(&l_config, &l_config.exec_prefix, l_path);
+    if (PyStatus_Exception(l_status)) {
+        DAP_DELETE(l_path);
+        goto excpt;
+    }
+    l_status = PyConfig_SetString(&l_config, &l_config.prefix, l_path);
+    DAP_DELETE(l_path);
+    if (PyStatus_Exception(l_status))
+        goto excpt;
+
+    l_path = s_get_full_path(pypath, "bin/python3.10");
+    l_status = PyConfig_SetString(&l_config, &l_config.executable, l_path);
+    DAP_DELETE(l_path);
+    if (PyStatus_Exception(l_status))
+        goto excpt;
+
+#else
+    // Linux layout: stdlib in lib, site-packages in lib/python3.10/site-packages
+    l_path = s_get_full_path(pypath, "python/lib");
+    l_status = PyWideStringList_Append(&l_config.module_search_paths, l_path);
+    DAP_DELETE(l_path);
+    if (PyStatus_Exception(l_status))
+        goto excpt;
+
+    l_path = s_get_full_path(pypath, "python/lib/python3.10");
+    l_status = PyWideStringList_Append(&l_config.module_search_paths, l_path);
+    DAP_DELETE(l_path);
+    if (PyStatus_Exception(l_status))
+        goto excpt;
+
+    l_path = s_get_full_path(pypath, "python/lib/python3.10/site-packages");
+    l_status = PyWideStringList_Append(&l_config.module_search_paths, l_path);
+    DAP_DELETE(l_path);
+    if (PyStatus_Exception(l_status))
+        goto excpt;
+
+    l_path = s_get_full_path(pypath, "python/lib/python3.10/lib-dynload");
+    l_status = PyWideStringList_Append(&l_config.module_search_paths, l_path);
+    DAP_DELETE(l_path);
+    if (PyStatus_Exception(l_status))
+        goto excpt;
+
+    l_path = s_get_full_path(pypath, "python");
+    l_status = PyConfig_SetString(&l_config, &l_config.base_exec_prefix, l_path);
+    if (PyStatus_Exception(l_status)) {
+        DAP_DELETE(l_path);
+        goto excpt;
+    }
+    l_status = PyConfig_SetString(&l_config, &l_config.base_prefix, l_path);
+    if (PyStatus_Exception(l_status)) {
+        DAP_DELETE(l_path);
+        goto excpt;
+    }
+    l_status = PyConfig_SetString(&l_config, &l_config.exec_prefix, l_path);
+    if (PyStatus_Exception(l_status)) {
+        DAP_DELETE(l_path);
+        goto excpt;
+    }
+    l_status = PyConfig_SetString(&l_config, &l_config.prefix, l_path);
+    DAP_DELETE(l_path);
+    if (PyStatus_Exception(l_status))
+        goto excpt;
+
+    l_path = s_get_full_path(pypath, "python/bin/python3.10");
+    l_status = PyConfig_SetString(&l_config, &l_config.executable, l_path);
+    DAP_DELETE(l_path);
+    if (PyStatus_Exception(l_status))
+        goto excpt;
+#endif
+
+    DAP_DEL_Z(pypath_allocated);
 #else
     PyPreConfig_InitPythonConfig(&l_preconfig);
     PyConfig_InitPythonConfig(&l_config);
@@ -214,6 +322,11 @@ excpt:
                                "\tprint(\"sys.%s = %r\" % (attr, getattr(sys, attr)))\n");
     }
 
+    // Check if plugins directory exists - just a warning, not an error
+    if (!dap_dir_test(s_plugins_root_path)){
+        log_it(L_WARNING, "Python plugins directory \"%s\" not found, no plugins will be loaded", s_plugins_root_path);
+    }
+
     return 0;
 }
 
@@ -235,11 +348,20 @@ static int s_dap_chain_plugins_load(dap_plugin_manifest_t * a_manifest, void ** 
         log_it(L_ERROR, "Can't load a plugin, file not found");
         return -101;
     }
+    
+    // Check if Python interpreter was initialized
+    if (!Py_IsInitialized()) {
+        log_it(L_ERROR, "Python interpreter is not initialized, cannot load plugin %s", l_manifest->name);
+        *a_error_str = dap_strdup("Python interpreter is not initialized");
+        return -103;
+    }
+    
     log_it(L_NOTICE, "Check dependencies for plugin: %s", l_manifest->name);
 
     PyGILState_STATE l_gil_state;
     l_gil_state = PyGILState_Ensure();
-    char * module_path = dap_strjoin("", s_plugins_root_path, l_manifest->name, "/", NULL);
+    // Use the manifest's path (where manifest.json was found), not s_plugins_root_path
+    char * module_path = dap_strjoin("", l_manifest->path, "/", NULL);
     l_pvt_data = dap_chain_plugins_load_plugin_importing(module_path, l_manifest->name);
     DAP_DEL_Z(module_path);
 
@@ -266,6 +388,13 @@ static int s_dap_chain_plugins_unload(dap_plugin_manifest_t * a_manifest, void *
         log_it(L_ERROR, "Can't load a plugin, file not found");
         return -101;
     }
+    
+    // Check if Python interpreter was initialized
+    if (!Py_IsInitialized()) {
+        log_it(L_WARNING, "Python interpreter is not initialized, cannot unload plugin %s", l_manifest->name);
+        return 0;  // Nothing to unload
+    }
+    
     PyGILState_STATE l_gil_state;
     l_gil_state = PyGILState_Ensure();
     s_plugins_load_plugin_uninitialization(l_pvt_data);
