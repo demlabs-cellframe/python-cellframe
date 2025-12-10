@@ -10,58 +10,9 @@
 // CONDITIONAL OUTPUTS OPERATIONS
 // =============================================================================
 
-/**
- * @brief Get first transaction conditional output
- * @param a_self Python self object (unused)
- * @param a_args Arguments (ledger, addr_from, subtype)
- * @return PyCapsule wrapping dap_chain_tx_used_out_item_t* or None
- * 
- * NOTE: DISABLED - dap_ledger_get_tx_cond_out() declared in SDK header but NOT implemented
- *       Code kept for future when SDK implements this function
- */
-#if 0  // DISABLED: dap_ledger_get_tx_cond_out not implemented in SDK
-PyObject* dap_ledger_get_tx_cond_out_py(PyObject *a_self, PyObject *a_args) {
-    (void)a_self;
-    PyObject *l_ledger_obj, *l_addr_obj;
-    int l_subtype;
-    
-    if (!PyArg_ParseTuple(a_args, "OOi", &l_ledger_obj, &l_addr_obj, &l_subtype)) {
-        return NULL;
-    }
-    
-    if (!PyCapsule_CheckExact(l_ledger_obj)) {
-        PyErr_SetString(PyExc_TypeError, "First argument must be a ledger capsule");
-        return NULL;
-    }
-    
-    if (!PyCapsule_CheckExact(l_addr_obj)) {
-        PyErr_SetString(PyExc_TypeError, "Second argument must be an address capsule");
-        return NULL;
-    }
-    
-    dap_ledger_t *l_ledger = (dap_ledger_t *)PyCapsule_GetPointer(l_ledger_obj, "dap_ledger_t");
-    if (!l_ledger) {
-        PyErr_SetString(PyExc_ValueError, "Invalid ledger capsule");
-        return NULL;
-    }
-    
-    dap_chain_addr_t *l_addr = (dap_chain_addr_t *)PyCapsule_GetPointer(l_addr_obj, "dap_chain_addr_t");
-    if (!l_addr) {
-        PyErr_SetString(PyExc_ValueError, "Invalid address capsule");
-        return NULL;
-    }
-    
-    dap_chain_tx_used_out_item_t *l_out = dap_ledger_get_tx_cond_out(l_ledger, l_addr, 
-                                                                       (dap_chain_tx_out_cond_subtype_t)l_subtype);
-    if (!l_out) {
-        log_it(L_DEBUG, "No conditional output found for subtype %d", l_subtype);
-        Py_RETURN_NONE;
-    }
-    
-    log_it(L_DEBUG, "Retrieved conditional output for subtype %d", l_subtype);
-    return PyCapsule_New(l_out, "dap_chain_tx_used_out_item_t", NULL);
-}
-#endif  // End DISABLED
+// REMOVED: dap_ledger_get_tx_cond_out_py
+// Function dap_ledger_get_tx_cond_out() was removed from SDK
+// Use dap_ledger_get_list_tx_cond_outs_py() instead
 
 /**
  * @brief Find unspent conditional output by address
@@ -316,9 +267,6 @@ PyObject* dap_ledger_voting_verificator_add_py(PyObject *a_self, PyObject *a_arg
 // Get method definitions for cond module
 PyMethodDef* cellframe_ledger_cond_get_methods(void) {
     static PyMethodDef cond_methods[] = {
-        // DISABLED: dap_ledger_get_tx_cond_out not implemented in SDK (declared in header but no implementation exists)
-        // {"ledger_get_tx_cond_out", (PyCFunction)dap_ledger_get_tx_cond_out_py, METH_VARARGS,
-        //  "Get first transaction conditional output"},
         {"ledger_out_cond_unspent_find_by_addr", (PyCFunction)dap_ledger_out_cond_unspent_find_by_addr_py, METH_VARARGS,
          "Find unspent conditional output by address"},
         {"ledger_get_list_tx_cond_outs", (PyCFunction)dap_ledger_get_list_tx_cond_outs_py, METH_VARARGS,

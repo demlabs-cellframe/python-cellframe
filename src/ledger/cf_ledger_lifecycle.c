@@ -304,7 +304,8 @@ PyObject* dap_ledger_addr_get_token_ticker_all_depricated_py(PyObject *a_self, P
     char **l_tickers = NULL;
     size_t l_tickers_size = 0;
     
-    dap_ledger_addr_get_token_ticker_all_deprecated(l_ledger, l_addr, &l_tickers, &l_tickers_size);
+    // Use new API without deprecated suffix
+    dap_ledger_addr_get_token_ticker_all(l_ledger, l_addr, &l_tickers, &l_tickers_size);
     
     if (!l_tickers || l_tickers_size == 0) {
         log_it(L_DEBUG, "No tickers found for address (deprecated)");

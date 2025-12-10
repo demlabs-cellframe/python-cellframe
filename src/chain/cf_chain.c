@@ -855,32 +855,9 @@ PyObject* dap_chain_atom_add_from_threshold_py(PyObject *a_self, PyObject *a_arg
  * @param a_args Python arguments tuple (chain capsule)
  * @return None
  */
-PyObject* dap_chain_info_dump_log_py(PyObject *a_self, PyObject *a_args) {
-    (void)a_self;
-    PyObject *l_chain_capsule = NULL;
-    
-    if (!PyArg_ParseTuple(a_args, "O", &l_chain_capsule)) {
-        log_it(L_ERROR, "Invalid arguments for chain_info_dump_log");
-        return NULL;
-    }
-    
-    if (!l_chain_capsule || !PyCapsule_CheckExact(l_chain_capsule)) {
-        log_it(L_ERROR, "Expected chain capsule");
-        PyErr_SetString(PyExc_TypeError, "Expected chain capsule");
-        return NULL;
-    }
-    
-    dap_chain_t *l_chain = (dap_chain_t*)PyCapsule_GetPointer(l_chain_capsule, "dap_chain_t");
-    if (!l_chain) {
-        log_it(L_ERROR, "Failed to extract chain pointer from capsule");
-        return NULL;
-    }
-    
-    log_it(L_INFO, "Dumping info for chain '%s'", l_chain->name);
-    dap_chain_info_dump_log(l_chain);
-    
-    Py_RETURN_NONE;
-}
+// REMOVED: dap_chain_info_dump_log_py
+// Function dap_chain_info_dump_log() was removed from CellFrame SDK
+// No replacement available
 
 /**
  * @brief Find chain by ID (Python binding)
@@ -1497,8 +1474,6 @@ int cellframe_chain_init(PyObject *module) {
         // Chain advanced operations
         {"chain_atom_add_from_threshold", (PyCFunction)dap_chain_atom_add_from_threshold_py, METH_VARARGS,
          "Add atom from threshold to chain"},
-        {"chain_info_dump_log", (PyCFunction)dap_chain_info_dump_log_py, METH_VARARGS,
-         "Dump chain info to log"},
         
         // Chain lookup and utility
         {"chain_find_by_id", (PyCFunction)dap_chain_find_by_id_py, METH_VARARGS,

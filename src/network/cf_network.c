@@ -882,48 +882,8 @@ PyObject* dap_chain_net_get_cur_addr_int_py(PyObject *a_self, PyObject *a_args) 
 // NETWORK OPERATIONS FUNCTIONS
 // =========================================
 
-/**
- * @brief Dump network links to string (Python binding)
- * @param a_self Python self object (unused)
- * @param a_args Python arguments tuple (network capsule)
- * @return Links dump string or NULL with Python exception set
- */
-PyObject* dap_chain_net_links_dump_py(PyObject *a_self, PyObject *a_args) {
-    (void)a_self;
-    PyObject *l_net_capsule = NULL;
-    
-    // Validate and parse arguments
-    if (!PyArg_ParseTuple(a_args, "O", &l_net_capsule)) {
-        log_it(L_ERROR, "Invalid arguments for net_links_dump");
-        return NULL;
-    }
-    
-    // Validate capsule
-    if (!l_net_capsule || !PyCapsule_CheckExact(l_net_capsule)) {
-        log_it(L_ERROR, "Expected network capsule, got invalid object");
-        PyErr_SetString(PyExc_TypeError, "Expected network capsule");
-        return NULL;
-    }
-    
-    // Extract network pointer
-    dap_chain_net_t *l_net = (dap_chain_net_t*)PyCapsule_GetPointer(l_net_capsule, "dap_chain_net_t");
-    if (!l_net) {
-        log_it(L_ERROR, "Failed to extract network pointer from capsule");
-        return NULL;
-    }
-    
-    // Get links dump
-    char *l_links_dump = dap_chain_net_links_dump(l_net);
-    if (!l_links_dump) {
-        log_it(L_WARNING, "Failed to dump links for network '%s'", l_net->pub.name);
-        Py_RETURN_NONE;
-    }
-    
-    PyObject *l_result = Py_BuildValue("s", l_links_dump);
-    DAP_DELETE(l_links_dump);  // Free the allocated string
-    
-    return l_result;
-}
+// REMOVED: dap_chain_net_links_dump was deleted from CellFrame SDK
+// Function declaration removed but header not cleaned up
 
 /**
  * @brief Add link to network (Python binding)
@@ -1738,8 +1698,6 @@ int cellframe_network_init(PyObject *a_module) {
          "Get current node address as integer"},
         
         // Network operations functions
-        {"net_links_dump", (PyCFunction)dap_chain_net_links_dump_py, METH_VARARGS,
-         "Dump network links to string"},
         {"net_link_add", (PyCFunction)dap_chain_net_link_add_py, METH_VARARGS,
          "Add link to network"},
         {"net_get_target_state", (PyCFunction)dap_chain_net_get_target_state_py, METH_VARARGS,

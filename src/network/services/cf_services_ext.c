@@ -297,117 +297,9 @@ PyObject* dap_chain_net_srv_xchange_remove_py(PyObject *a_self, PyObject *a_args
     return Py_BuildValue("is", l_ret, l_out_hash);
 }
 
-PyObject* dap_chain_net_srv_xchange_purchase_py(PyObject *a_self, PyObject *a_args) {
-    PyObject *a_net_obj;
-    char *a_order_hash_str;
-    PyObject *a_value_obj, *a_fee_obj, *a_wallet_obj;
-    
-    if (!PyArg_ParseTuple(a_args, "OsOOO", &a_net_obj, &a_order_hash_str, &a_value_obj, &a_fee_obj, &a_wallet_obj))
-        return NULL;
-        
-    if (!PyCapsule_CheckExact(a_net_obj) || !PyCapsule_CheckExact(a_wallet_obj)) {
-        PyErr_SetString(PyExc_TypeError, "Invalid capsule arguments");
-        return NULL;
-    }
-    
-    dap_chain_net_t *l_net = (dap_chain_net_t *)PyCapsule_GetPointer(a_net_obj, "dap_chain_net_t");
-    dap_chain_wallet_t *l_wallet = (dap_chain_wallet_t *)PyCapsule_GetPointer(a_wallet_obj, "dap_chain_wallet_t");
-    dap_chain_hash_fast_t l_order_hash;
-    dap_chain_hash_fast_from_str(a_order_hash_str, &l_order_hash);
-    uint256_t l_value = py_obj_to_uint256(a_value_obj);
-    uint256_t l_fee = py_obj_to_uint256(a_fee_obj);
-    
-    char *l_out_hash = NULL;
-    int l_ret = dap_chain_net_srv_xchange_purchase(l_net, &l_order_hash, l_value, l_fee, l_wallet, &l_out_hash);
-    
-    return Py_BuildValue("is", l_ret, l_out_hash);
-}
-
-PyObject* dap_chain_net_srv_xchange_get_tx_xchange_py(PyObject *a_self, PyObject *a_args) {
-    PyObject *a_net_obj;
-    if (!PyArg_ParseTuple(a_args, "O", &a_net_obj))
-        return NULL;
-        
-    if (!PyCapsule_CheckExact(a_net_obj)) {
-        PyErr_SetString(PyExc_TypeError, "First argument must be a network capsule");
-        return NULL;
-    }
-    
-    dap_chain_net_t *l_net = (dap_chain_net_t *)PyCapsule_GetPointer(a_net_obj, "dap_chain_net_t");
-    if (!l_net) {
-        PyErr_SetString(PyExc_ValueError, "Invalid network capsule");
-        return NULL;
-    }
-    dap_list_t *l_list = dap_chain_net_srv_xchange_get_tx_xchange(l_net);
-    
-    PyObject *l_py_list = PyList_New(0);
-    for (dap_list_t *l_ptr = l_list; l_ptr; l_ptr = l_ptr->next) {
-        // Assuming list contains dap_chain_datum_tx_t* or hash strings?
-        // Looking at dap_chain_net_srv_xchange.c source, it returns list of dap_chain_datum_tx_t*
-        dap_chain_datum_tx_t *l_tx = (dap_chain_datum_tx_t*)l_ptr->data;
-        dap_chain_hash_fast_t l_tx_hash;
-        dap_hash_fast(l_tx, dap_chain_datum_tx_get_size(l_tx), &l_tx_hash);
-        char *l_hash_str = dap_chain_hash_fast_to_str_new(&l_tx_hash);
-        
-        PyObject *l_hash_obj = PyUnicode_FromString(l_hash_str);
-        PyList_Append(l_py_list, l_hash_obj);
-        Py_DECREF(l_hash_obj);
-        DAP_DELETE(l_hash_str);
-    }
-    dap_list_free(l_list);
-    return l_py_list;
-}
-
-PyObject* dap_chain_net_srv_xchange_get_prices_py(PyObject *a_self, PyObject *a_args) {
-    PyObject *a_net_obj;
-    if (!PyArg_ParseTuple(a_args, "O", &a_net_obj))
-        return NULL;
-        
-    if (!PyCapsule_CheckExact(a_net_obj)) {
-        PyErr_SetString(PyExc_TypeError, "First argument must be a network capsule");
-        return NULL;
-    }
-    
-    dap_chain_net_t *l_net = (dap_chain_net_t *)PyCapsule_GetPointer(a_net_obj, "dap_chain_net_t");
-    if (!l_net) {
-        PyErr_SetString(PyExc_ValueError, "Invalid network capsule");
-        return NULL;
-    }
-    dap_list_t *l_list = dap_chain_net_srv_xchange_get_prices(l_net);
-    
-    PyObject *l_py_list = PyList_New(0);
-    for (dap_list_t *l_ptr = l_list; l_ptr; l_ptr = l_ptr->next) {
-        dap_chain_net_srv_xchange_price_t *l_price = (dap_chain_net_srv_xchange_price_t*)l_ptr->data;
-        PyObject *l_dict = PyDict_New();
-        
-        PyDict_SetItemString(l_dict, "token_sell", PyUnicode_FromString(l_price->token_sell));
-        PyDict_SetItemString(l_dict, "token_buy", PyUnicode_FromString(l_price->token_buy));
-        
-        // Uint256 conversion (using string for safety)
-        char *l_sell_str = dap_chain_balance_print(l_price->datoshi_sell);
-        PyDict_SetItemString(l_dict, "datoshi_sell", PyUnicode_FromString(l_sell_str));
-        DAP_DELETE(l_sell_str);
-        
-        char *l_rate_str = dap_chain_balance_print(l_price->rate);
-        PyDict_SetItemString(l_dict, "rate", PyUnicode_FromString(l_rate_str));
-        DAP_DELETE(l_rate_str);
-        
-        // Address
-        char *l_addr_str = dap_chain_addr_to_str(&l_price->creator_addr);
-        PyDict_SetItemString(l_dict, "creator_addr", PyUnicode_FromString(l_addr_str));
-        DAP_DELETE(l_addr_str);
-        
-        // Hash
-        char *l_hash_str = dap_chain_hash_fast_to_str_new(&l_price->tx_hash);
-        PyDict_SetItemString(l_dict, "tx_hash", PyUnicode_FromString(l_hash_str));
-        DAP_DELETE(l_hash_str);
-        
-        PyList_Append(l_py_list, l_dict);
-        Py_DECREF(l_dict);
-    }
-    dap_list_free(l_list);
-    return l_py_list;
-}
+// REMOVED: dap_chain_net_srv_xchange_purchase_py, get_tx_xchange_py, get_prices_py
+// These functions were removed from CellFrame SDK (functions deleted but headers not cleaned up)
+// No replacement available - the xchange service API was refactored
 
 PyObject* dap_chain_net_srv_xchange_get_order_status_py(PyObject *a_self, PyObject *a_args) {
     PyObject *a_net_obj;
@@ -671,9 +563,6 @@ PyMethodDef* cellframe_services_ext_get_methods(void) {
         {"net_srv_xchange_deinit", (PyCFunction)dap_chain_net_srv_xchange_deinit_py, METH_VARARGS, "Deinit Xchange service"},
         {"net_srv_xchange_create", (PyCFunction)dap_chain_net_srv_xchange_create_py, METH_VARARGS, "Create exchange order"},
         {"net_srv_xchange_remove", (PyCFunction)dap_chain_net_srv_xchange_remove_py, METH_VARARGS, "Remove exchange order"},
-        {"net_srv_xchange_purchase", (PyCFunction)dap_chain_net_srv_xchange_purchase_py, METH_VARARGS, "Purchase exchange order"},
-        {"net_srv_xchange_get_tx_xchange", (PyCFunction)dap_chain_net_srv_xchange_get_tx_xchange_py, METH_VARARGS, "Get exchange transactions"},
-        {"net_srv_xchange_get_prices", (PyCFunction)dap_chain_net_srv_xchange_get_prices_py, METH_VARARGS, "Get exchange prices"},
         {"net_srv_xchange_get_order_status", (PyCFunction)dap_chain_net_srv_xchange_get_order_status_py, METH_VARARGS, "Get order status"},
         
         // Voting
