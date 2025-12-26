@@ -104,12 +104,7 @@ PyObject *wrapping_dap_chain_net_srv_stake_get_validators_list(PyObject *self, P
     // Create Python list
     PyObject *result = PyList_New(0);
     if (!result) {
-        // Free validators list - elements were created with DAP_DUP, need to free them
-        for (dap_list_t *item = validators_list; item; item = dap_list_next(item)) {
-            if (item->data) {
-                DAP_DELETE(item->data);
-            }
-        }
+        // Free validators list (also frees elements' data)
         dap_list_free_full(validators_list, NULL);
         return NULL;
     }
@@ -124,12 +119,7 @@ PyObject *wrapping_dap_chain_net_srv_stake_get_validators_list(PyObject *self, P
         PyObject *validator_dict = PyDict_New();
         if (!validator_dict) {
             Py_DECREF(result);
-            // Free validators list - elements were created with DAP_DUP, need to free them
-            for (dap_list_t *free_item = validators_list; free_item; free_item = dap_list_next(free_item)) {
-                if (free_item->data) {
-                    DAP_DELETE(free_item->data);
-                }
-            }
+            // Free validators list (also frees elements' data)
             dap_list_free_full(validators_list, NULL);
             return NULL;
         }
@@ -225,24 +215,14 @@ PyObject *wrapping_dap_chain_net_srv_stake_get_validators_list(PyObject *self, P
         if (PyList_Append(result, validator_dict) < 0) {
             Py_DECREF(validator_dict);
             Py_DECREF(result);
-            // Free validators list - elements were created with DAP_DUP, need to free them
-            for (dap_list_t *free_item = validators_list; free_item; free_item = dap_list_next(free_item)) {
-                if (free_item->data) {
-                    DAP_DELETE(free_item->data);
-                }
-            }
+            // Free validators list (also frees elements' data)
             dap_list_free_full(validators_list, NULL);
             return NULL;
         }
         Py_DECREF(validator_dict);
     }
     
-    // Free validators list - elements were created with DAP_DUP, need to free them
-    for (dap_list_t *item = validators_list; item; item = dap_list_next(item)) {
-        if (item->data) {
-            DAP_DELETE(item->data);
-        }
-    }
+    // Free validators list (also frees elements' data)
     dap_list_free_full(validators_list, NULL);
     
     return result;
