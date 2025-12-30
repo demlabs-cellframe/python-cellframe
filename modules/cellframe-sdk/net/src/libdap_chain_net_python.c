@@ -2,6 +2,8 @@
 #include "libdap_chain_net_python.h"
 #include "node_address.h"
 
+#define LOG_TAG "libdap_chain_net_python"
+
 static PyMethodDef DapChainNetMethods[] = {
         {"loadAll", dap_chain_net_load_all_py, METH_NOARGS | METH_STATIC, ""},
         {"stateGoTo", dap_chain_net_state_go_to_py, METH_VARARGS, ""},
@@ -308,33 +310,57 @@ bool dap_py_chain_net_gdb_notifier(void *a_arg) {
 
     _wrapping_dap_chain_net_notify_callback_t *l_callback = (_wrapping_dap_chain_net_notify_callback_t *)a_arg;
     PyGILState_STATE state = PyGILState_Ensure();
+    if (!l_callback->store_obj || !l_callback->store_obj->group || !l_callback->store_obj->key) {
+        log_it(L_ERROR, "Invalid store object in net notify callback");
+        PyGILState_Release(state);
+        if (l_callback->store_obj)
+            dap_store_obj_free_one(l_callback->store_obj);
+        DAP_DELETE(l_callback);
+        return false;
+    }
     char l_op_code[2];
     l_op_code[0] = dap_store_obj_get_type(l_callback->store_obj);
     l_op_code[1] = '\0';
     PyObject *l_obj_value = NULL;
+    PyObject *argv = NULL;
+    PyObject *result = NULL;
+    bool l_refs_taken = false;
     if (!l_callback->store_obj->value || !l_callback->store_obj->value_len) {
         l_obj_value = Py_None;
         Py_INCREF(Py_None);
     } else {
         l_obj_value = PyBytes_FromStringAndSize((char *)l_callback->store_obj->value, (Py_ssize_t)l_callback->store_obj->value_len);
+        if (!l_obj_value) {
+            python_error_in_log_it("libdap_chain_net_python");
+            goto cleanup;
+        }
     }
-    PyObject *argv = Py_BuildValue("sssOO", l_op_code, l_callback->store_obj->group, l_callback->store_obj->key, l_obj_value, l_callback->arg);
+    argv = Py_BuildValue("sssOO", l_op_code, l_callback->store_obj->group, l_callback->store_obj->key, l_obj_value, l_callback->arg);
+    if (!argv) {
+        python_error_in_log_it("libdap_chain_net_python");
+        goto cleanup;
+    }
     Py_XINCREF(l_callback->func);
     Py_XINCREF(l_callback->arg);
+    l_refs_taken = true;
     
-    PyObject *result = PyObject_CallObject(l_callback->func, argv);
+    result = PyObject_CallObject(l_callback->func, argv);
     if (!result) {
         python_error_in_log_it("libdap_chain_net_python");
     } else {
         Py_DECREF(result);
     }
     
+cleanup:
     Py_XDECREF(argv);
     Py_XDECREF(l_obj_value);
-    Py_XDECREF(l_callback->func);
-    Py_XDECREF(l_callback->arg);
+    if (l_refs_taken) {
+        Py_XDECREF(l_callback->func);
+        Py_XDECREF(l_callback->arg);
+    }
     PyGILState_Release(state);
     dap_store_obj_free_one(l_callback->store_obj);
+    DAP_DELETE(l_callback);
     return false;
 }
 
@@ -354,7 +380,11 @@ void pvt_dap_chain_net_py_notify_handler(dap_store_obj_t *a_obj, void *a_arg)
     }
     l_obj->func = ((_wrapping_dap_chain_net_notify_callback_t*)a_arg)->func;
     l_obj->arg = ((_wrapping_dap_chain_net_notify_callback_t*)a_arg)->arg;
-    dap_proc_thread_callback_add(NULL, dap_py_chain_net_gdb_notifier, l_obj);
+    if (dap_proc_thread_callback_add(NULL, dap_py_chain_net_gdb_notifier, l_obj) != 0) {
+        log_it(L_ERROR, "Failed to enqueue net notify callback");
+        dap_store_obj_free_one(l_obj->store_obj);
+        DAP_DELETE(l_obj);
+    }
 }
 
 static dap_global_db_cluster_t *s_find_cluster_by_mask(dap_global_db_instance_t *a_dbi, const char *a_mask)
