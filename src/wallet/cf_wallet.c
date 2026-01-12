@@ -461,7 +461,22 @@ PyObject* py_dap_chain_wallet_get_balance(PyObject *self, PyObject *args) {
         return NULL;
     }
     
-    uint256_t balance = dap_chain_wallet_get_balance(wallet, net_id, token_ticker);
+    // API changed: use ledger API instead of wallet API
+    dap_chain_net_t *l_net = dap_chain_net_by_id(net_id);
+    if (!l_net || !l_net->pub.ledger) {
+        PyErr_SetString(CellframeWalletError, "Failed to get ledger for network");
+        return NULL;
+    }
+    
+    // Get wallet address
+    dap_chain_addr_t *l_addr = dap_chain_wallet_get_addr(wallet, net_id);
+    if (!l_addr) {
+        PyErr_SetString(CellframeWalletError, "Failed to get wallet address");
+        return NULL;
+    }
+    
+    // Calculate balance using ledger API
+    uint256_t balance = dap_ledger_calc_balance(l_net->pub.ledger, l_addr, token_ticker);
     
     // Convert uint256_t to string for Python
     const char *balance_coins = NULL;

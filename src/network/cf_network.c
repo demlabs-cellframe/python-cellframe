@@ -5,6 +5,7 @@
 #include "dap_chain_datum.h"
 #include "dap_common.h"
 #include "dap_global_db_cluster.h"
+#include "cf_callbacks_registry.h"  // CRITICAL: For memory leak prevention
 
 #define LOG_TAG "python_cellframe_network"
 
@@ -1487,7 +1488,7 @@ PyObject* dap_chain_add_mempool_notify_callback_py(PyObject *a_self, PyObject *a
         return NULL;
     }
     
-    // Allocate callback context (will be freed by Python GC when callback is removed)
+    // Allocate callback context (will be freed by registry cleanup)
     python_callback_ctx_t *l_ctx = DAP_NEW_Z(python_callback_ctx_t);
     if (!l_ctx) {
         log_it(L_ERROR, "Failed to allocate callback context");
@@ -1498,12 +1499,14 @@ PyObject* dap_chain_add_mempool_notify_callback_py(PyObject *a_self, PyObject *a
     l_ctx->callback = l_callback;
     l_ctx->user_data = l_user_data;
     
-    // Increment ref counts to keep objects alive
-    Py_INCREF(l_callback);
-    Py_INCREF(l_user_data);
-    
     // Register C callback
     dap_chain_add_mempool_notify_callback(l_chain, s_python_callback_wrapper, l_ctx);
+    
+    // Register in global registry for proper cleanup (prevents memory leak)
+    if (cf_callbacks_registry_add(CF_CALLBACK_TYPE_CHAIN_MEMPOOL, l_callback, l_user_data, 
+                                   l_ctx, l_chain->name) != 0) {
+        log_it(L_WARNING, "Failed to register callback in global registry (potential leak!)");
+    }
     
     log_it(L_INFO, "Mempool notify callback registered for chain '%s'", l_chain->name);
     
@@ -1556,11 +1559,14 @@ PyObject* dap_chain_net_add_nodelist_notify_callback_py(PyObject *a_self, PyObje
     l_ctx->callback = l_callback;
     l_ctx->user_data = l_user_data;
     
-    Py_INCREF(l_callback);
-    Py_INCREF(l_user_data);
-    
     // Register C callback
     dap_chain_net_add_nodelist_notify_callback(l_net, s_python_callback_wrapper, l_ctx);
+    
+    // Register in global registry for proper cleanup (prevents memory leak)
+    if (cf_callbacks_registry_add(CF_CALLBACK_TYPE_CHAIN_NODELIST, l_callback, l_user_data, 
+                                   l_ctx, l_net->pub.name) != 0) {
+        log_it(L_WARNING, "Failed to register callback in global registry (potential leak!)");
+    }
     
     log_it(L_INFO, "Nodelist notify callback registered for network '%s'", l_net->pub.name);
     
@@ -1613,11 +1619,14 @@ PyObject* dap_chain_net_srv_order_add_notify_callback_py(PyObject *a_self, PyObj
     l_ctx->callback = l_callback;
     l_ctx->user_data = l_user_data;
     
-    Py_INCREF(l_callback);
-    Py_INCREF(l_user_data);
-    
     // Register C callback
     dap_chain_net_srv_order_add_notify_callback(l_net, s_python_callback_wrapper, l_ctx);
+    
+    // Register in global registry for proper cleanup (prevents memory leak)
+    if (cf_callbacks_registry_add(CF_CALLBACK_TYPE_CHAIN_SERVICE_ORDER, l_callback, l_user_data, 
+                                   l_ctx, l_net->pub.name) != 0) {
+        log_it(L_WARNING, "Failed to register callback in global registry (potential leak!)");
+    }
     
     log_it(L_INFO, "Service order notify callback registered for network '%s'", l_net->pub.name);
     

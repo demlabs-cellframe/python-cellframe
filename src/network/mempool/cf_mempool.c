@@ -5,6 +5,7 @@
 #include "dap_chain_mempool.h"
 #include "dap_enc_key.h"
 #include "dap_math_ops.h"
+#include "dap_global_db.h"
 
 #define LOG_TAG "python_cellframe_mempool"
 
@@ -169,22 +170,15 @@ PyObject* dap_chain_mempool_tx_create_py(PyObject *a_self, PyObject *a_args) {
         return NULL;
     }
     
-    char *l_hash = dap_chain_mempool_tx_create(
-        l_chain, l_key_from, l_addr_from, (const dap_chain_addr_t **)l_addr_to_arr,
-        l_ticker, l_value_arr, l_fee, l_hash_out_type,
-        l_count, l_time_unlock_arr
-    );
-    
+    // TODO Phase 3.5: Refactor to use new TX Compose API
+    // dap_chain_mempool_tx_create() removed in cellframe-sdk refactoring
+    // Must use new dap_chain_tx_compose_create() API instead
     DAP_DELETE(l_addr_to_arr);
     DAP_DELETE(l_value_arr);
     DAP_DELETE(l_time_unlock_arr);
-    
-    if (!l_hash) {
-        Py_RETURN_NONE;
-    }
-    
-    PyObject *l_result = PyUnicode_FromString(l_hash);
-    return l_result;
+    PyErr_SetString(PyExc_NotImplementedError, 
+        "dap_chain_mempool_tx_create: Function removed, requires TX Compose API refactoring");
+    return NULL;
 }
 
 /**
@@ -192,6 +186,9 @@ PyObject* dap_chain_mempool_tx_create_py(PyObject *a_self, PyObject *a_args) {
  * @param a_self Python self object (unused)
  * @param a_args Arguments (chain capsule, hash string)
  * @return Datum capsule or None
+ * 
+ * @note After SDK refactoring, dap_chain_mempool_datum_get() was removed.
+ *       Now using dap_global_db_get_sync() with mempool GDB group.
  */
 PyObject* dap_chain_mempool_datum_get_py(PyObject *a_self, PyObject *a_args) {
     (void)a_self;
@@ -207,10 +204,42 @@ PyObject* dap_chain_mempool_datum_get_py(PyObject *a_self, PyObject *a_args) {
         return NULL;
     }
     dap_chain_t *l_chain = (dap_chain_t *)PyCapsule_GetPointer(l_chain_obj, "dap_chain_t");
+    if (!l_chain) {
+        PyErr_SetString(PyExc_ValueError, "Invalid chain capsule");
+        return NULL;
+    }
     
-    dap_chain_datum_t *l_datum = dap_chain_mempool_datum_get(l_chain, l_hash_str);
+    // Get mempool GDB group name for this chain
+    char *l_gdb_group_mempool = dap_chain_mempool_group_new(l_chain);
+    if (!l_gdb_group_mempool) {
+        PyErr_SetString(PyExc_RuntimeError, "Failed to get mempool GDB group");
+        return NULL;
+    }
+    
+    // Get datum from Global DB
+    size_t l_datum_size = 0;
+    dap_chain_datum_t *l_datum = (dap_chain_datum_t*)dap_global_db_get_sync(
+        l_gdb_group_mempool,
+        l_hash_str,
+        &l_datum_size,
+        NULL,
+        NULL
+    );
+    
+    DAP_DELETE(l_gdb_group_mempool);
+    
     if (!l_datum) {
         Py_RETURN_NONE;
+    }
+    
+    // Verify datum size consistency
+    size_t l_datum_size2 = dap_chain_datum_size(l_datum);
+    if (l_datum_size != l_datum_size2) {
+        log_it(L_ERROR, "Corrupted datum %s: size by headers %zu != GDB size %zu",
+               l_hash_str, l_datum_size2, l_datum_size);
+        DAP_DELETE(l_datum);
+        PyErr_SetString(PyExc_RuntimeError, "Corrupted datum in mempool");
+        return NULL;
     }
     
     return PyCapsule_New(l_datum, "dap_chain_datum_t", NULL);

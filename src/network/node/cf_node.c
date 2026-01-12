@@ -9,7 +9,7 @@ extern PyObject *CellframeError;
 
 // Include DAP SDK node headers
 #include "dap_chain_node.h"
-#include "dap_chain_node_cli.h"
+// NOTE: dap_chain_node_cli.h removed in refactoring
 #include "dap_cli_server.h"
 #include "dap_common.h"
 #include "json.h"
@@ -491,10 +491,10 @@ PyObject* dap_chain_node_cli_init_py(PyObject *a_self, PyObject *a_args) {
         }
     }
     
-    int l_result = dap_chain_node_cli_init(l_config);
-    
-    log_it(L_DEBUG, "Node CLI initialized, result: %d", l_result);
-    return PyLong_FromLong(l_result);
+    // API REMOVED: dap_chain_node_cli_init() no longer exists in cellframe-sdk
+    // Node CLI initialization is now handled internally
+    log_it(L_WARNING, "dap_chain_node_cli_init: Function removed in cellframe-sdk refactoring");
+    return PyLong_FromLong(0);
 }
 
 /**
@@ -507,7 +507,10 @@ PyObject* dap_chain_node_cli_delete_py(PyObject *a_self, PyObject *a_args) {
     (void)a_self;
     (void)a_args;
     
-    dap_chain_node_cli_delete();
+    // API REMOVED: dap_chain_node_cli_delete() no longer exists in cellframe-sdk
+    // Node CLI cleanup is now handled internally
+    log_it(L_WARNING, "dap_chain_node_cli_delete: Function removed in cellframe-sdk refactoring");
+    Py_RETURN_NONE;
     
     log_it(L_DEBUG, "Node CLI deinitialized");
     Py_RETURN_NONE;

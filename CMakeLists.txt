@@ -242,6 +242,7 @@ target_include_directories(dap_sdk_init PRIVATE
     dap-sdk/module/core/include
     dap-sdk/module/crypto/include
     dap-sdk/module/io/include
+    dap-sdk/module/net/common/include
 )
 target_link_libraries(dap_sdk_init PUBLIC dap_core)
 list(APPEND DAP_INTERNAL_MODULES dap_sdk_init)
@@ -304,6 +305,10 @@ find_package(Python3 REQUIRED COMPONENTS Interpreter Development)
 # Python-Cellframe sources
 set(PYTHON_CELLFRAME_SOURCES
     src/cellframe.c
+    # Common utilities
+    src/common/cf_callbacks_registry.c
+    src/common/cf_ledger_callback_registry.c
+    src/common/cf_verificator_registry.c
     # Chain group
     src/chain/cf_chain.c
     src/chain/cf_consensus.c
@@ -322,6 +327,7 @@ set(PYTHON_CELLFRAME_SOURCES
     src/ledger/cf_ledger_event.c
     src/ledger/cf_ledger_utils.c
     src/ledger/tx/cf_tx.c
+    # Phase 3.5: TX Compose Refactoring COMPLETE
     src/ledger/tx/cf_compose.c
     src/ledger/tx/cf_compose_init.c
     # Wallet group
@@ -355,7 +361,10 @@ set_target_properties(python_cellframe PROPERTIES
 # Include directories
 target_include_directories(python_cellframe PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/common  # For cf_callbacks_registry.h
     ${Python3_INCLUDE_DIRS}
+    # Explicit paths for refactored modules
+    ${CMAKE_CURRENT_SOURCE_DIR}/cellframe-sdk/modules/datum/tx/include
     # Get include directories from linked libraries
     $<TARGET_PROPERTY:dap_sdk,INTERFACE_INCLUDE_DIRECTORIES>
     $<TARGET_PROPERTY:cellframe_sdk,INTERFACE_INCLUDE_DIRECTORIES>

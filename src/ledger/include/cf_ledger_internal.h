@@ -5,6 +5,7 @@
 #include "dap_chain_ledger.h"
 #include "dap_chain_datum_token.h"
 #include "dap_chain_datum_tx_event.h"
+#include "cf_callbacks_registry.h"  // CRITICAL: For memory leak prevention
 #include <pthread.h>
 
 #ifdef __cplusplus

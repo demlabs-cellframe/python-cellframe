@@ -43,7 +43,13 @@ PyObject* dap_ledger_anchor_verify_py(PyObject *a_self, PyObject *a_args) {
         return NULL;
     }
     
-    int l_result = dap_ledger_anchor_verify(l_net, l_anchor, (size_t)l_data_size);
+    // API changed: now requires ledger instead of net
+    if (!l_net->pub.ledger) {
+        PyErr_SetString(PyExc_RuntimeError, "Network has no ledger");
+        return NULL;
+    }
+    
+    int l_result = dap_ledger_anchor_verify(l_net->pub.ledger, l_anchor, (size_t)l_data_size);
     
     log_it(L_DEBUG, "Anchor verify result: %d", l_result);
     return PyLong_FromLong(l_result);
@@ -89,7 +95,17 @@ PyObject* dap_ledger_anchor_load_py(PyObject *a_self, PyObject *a_args) {
         return NULL;
     }
     
-    int l_result = dap_ledger_anchor_load(l_anchor, l_chain, l_hash);
+    // API changed: get ledger from chain's network
+    dap_chain_net_t *l_net = dap_chain_net_by_id(l_chain->net_id);
+    if (!l_net || !l_net->pub.ledger) {
+        PyErr_SetString(PyExc_RuntimeError, "Failed to get ledger from chain");
+        return NULL;
+    }
+    
+    // Get chain_id from chain
+    dap_chain_id_t l_chain_id = l_chain->id;
+    
+    int l_result = dap_ledger_anchor_load(l_net->pub.ledger, l_anchor, l_chain_id, l_hash);
     
     log_it(L_DEBUG, "Anchor load result: %d", l_result);
     return PyLong_FromLong(l_result);
@@ -135,7 +151,17 @@ PyObject* dap_ledger_anchor_unload_py(PyObject *a_self, PyObject *a_args) {
         return NULL;
     }
     
-    int l_result = dap_ledger_anchor_unload(l_anchor, l_chain, l_hash);
+    // API changed: get ledger from chain's network
+    dap_chain_net_t *l_net = dap_chain_net_by_id(l_chain->net_id);
+    if (!l_net || !l_net->pub.ledger) {
+        PyErr_SetString(PyExc_RuntimeError, "Failed to get ledger from chain");
+        return NULL;
+    }
+    
+    // Get chain_id from chain
+    dap_chain_id_t l_chain_id = l_chain->id;
+    
+    int l_result = dap_ledger_anchor_unload(l_net->pub.ledger, l_anchor, l_chain_id, l_hash);
     
     log_it(L_DEBUG, "Anchor unload result: %d", l_result);
     return PyLong_FromLong(l_result);

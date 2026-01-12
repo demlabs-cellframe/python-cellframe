@@ -1,9 +1,32 @@
 #include "include/cf_ledger_internal.h"
+#include "../common/cf_callbacks_registry.h"
+#include "../common/cf_verificator_registry.h"
 
 /*
  * Cellframe ledger conditional outputs bindings
  * Conditional outputs: get, find, list, verificator management
  */
+
+// Verificator callbacks context - holds 6 Python callbacks
+// NOTE: Defined in cf_verificator_registry.h, included here for reference
+// typedef struct {
+//     PyObject *in_verify_callback;
+//     PyObject *out_verify_callback;
+//     PyObject *in_add_callback;
+//     PyObject *out_add_callback;
+//     PyObject *in_delete_callback;
+//     PyObject *out_delete_callback;
+//     PyObject *user_data;
+// } python_verificator_ctx_t;
+
+// Voting verificator callbacks context - holds 4 Python callbacks
+// typedef struct {
+//     PyObject *voting_callback;
+//     PyObject *vote_callback;
+//     PyObject *delete_callback;
+//     PyObject *expire_callback;
+//     PyObject *user_data;
+// } python_voting_ctx_t;
 
 
 // =============================================================================
@@ -220,26 +243,361 @@ PyObject* dap_ledger_check_condition_owner_py(PyObject *a_self, PyObject *a_args
     return PyBool_FromLong(l_result);
 }
 
+// =========================================
+// VERIFICATOR CALLBACK WRAPPERS (6 callbacks)
+// =========================================
+
+/**
+ * @brief C wrapper for cond_in_verify callback - calls Python callback
+ * Signature: int (*dap_ledger_cond_in_verify_callback_t)(dap_ledger_t *a_ledger, dap_chain_datum_tx_t *a_tx_in,  
+ *                                                          dap_hash_fast_t *a_tx_in_hash,  dap_chain_tx_out_cond_t *a_prev_cond, 
+ *                                                          bool a_owner, bool a_from_mempool)
+ */
+static int s_verificator_in_verify_wrapper(dap_ledger_t *a_ledger, dap_chain_datum_tx_t *a_tx_in,  
+                                            dap_hash_fast_t *a_tx_in_hash, dap_chain_tx_out_cond_t *a_prev_cond, 
+                                            bool a_owner, bool a_from_mempool) {
+    if (!a_prev_cond) {
+        return 0;
+    }
+    
+    dap_chain_tx_out_cond_subtype_t l_subtype = a_prev_cond->header.subtype;
+    python_verificator_ctx_t *l_ctx = cf_verificator_get(l_subtype);
+    if (!l_ctx || !l_ctx->in_verify_callback) {
+        return 0; // No callback - allow
+    }
+    
+    PyGILState_STATE l_gstate = PyGILState_Ensure();
+    
+    PyObject *l_ledger = PyCapsule_New(a_ledger, "dap_ledger_t", NULL);
+    PyObject *l_tx = PyCapsule_New(a_tx_in, "dap_chain_datum_tx_t", NULL);
+    PyObject *l_tx_hash = a_tx_in_hash ? PyBytes_FromStringAndSize((const char*)a_tx_in_hash, sizeof(dap_hash_fast_t)) : Py_None;
+    PyObject *l_cond = PyCapsule_New(a_prev_cond, "dap_chain_tx_out_cond_t", NULL);
+    PyObject *l_owner = PyBool_FromLong(a_owner);
+    PyObject *l_from_mempool = PyBool_FromLong(a_from_mempool);
+    
+    PyObject *l_result = PyObject_CallFunctionObjArgs(
+        l_ctx->in_verify_callback, l_ledger, l_tx, l_tx_hash, l_cond, l_owner, l_from_mempool, l_ctx->user_data, NULL
+    );
+    
+    int l_ret = 0;
+    if (!l_result) {
+        log_it(L_ERROR, "Python in_verify callback raised an exception");
+        PyErr_Print();
+    } else {
+        l_ret = PyLong_AsLong(l_result);
+        Py_DECREF(l_result);
+    }
+    
+    Py_DECREF(l_ledger);
+    Py_DECREF(l_tx);
+    Py_XDECREF(l_tx_hash);
+    Py_DECREF(l_cond);
+    Py_DECREF(l_owner);
+    Py_DECREF(l_from_mempool);
+    
+    PyGILState_Release(l_gstate);
+    return l_ret;
+}
+
+/**
+ * @brief C wrapper for cond_out_verify callback - calls Python callback
+ * Signature: int (*dap_ledger_cond_out_verify_callback_t)(dap_ledger_t *a_ledger, dap_chain_datum_tx_t *a_tx_out, 
+ *                                                           dap_hash_fast_t *a_tx_out_hash, dap_chain_tx_out_cond_t *a_cond)
+ */
+static int s_verificator_out_verify_wrapper(dap_ledger_t *a_ledger, dap_chain_datum_tx_t *a_tx_out, 
+                                             dap_hash_fast_t *a_tx_out_hash, dap_chain_tx_out_cond_t *a_cond) {
+    if (!a_cond) {
+        return 0;
+    }
+    
+    dap_chain_tx_out_cond_subtype_t l_subtype = a_cond->header.subtype;
+    python_verificator_ctx_t *l_ctx = cf_verificator_get(l_subtype);
+    if (!l_ctx || !l_ctx->out_verify_callback) {
+        return 0; // No callback - allow
+    }
+    
+    PyGILState_STATE l_gstate = PyGILState_Ensure();
+    
+    PyObject *l_ledger = PyCapsule_New(a_ledger, "dap_ledger_t", NULL);
+    PyObject *l_tx = PyCapsule_New(a_tx_out, "dap_chain_datum_tx_t", NULL);
+    PyObject *l_tx_hash = a_tx_out_hash ? PyBytes_FromStringAndSize((const char*)a_tx_out_hash, sizeof(dap_hash_fast_t)) : Py_None;
+    PyObject *l_cond = PyCapsule_New(a_cond, "dap_chain_tx_out_cond_t", NULL);
+    
+    PyObject *l_result = PyObject_CallFunctionObjArgs(
+        l_ctx->out_verify_callback, l_ledger, l_tx, l_tx_hash, l_cond, l_ctx->user_data, NULL
+    );
+    
+    int l_ret = 0;
+    if (!l_result) {
+        log_it(L_ERROR, "Python out_verify callback raised an exception");
+        PyErr_Print();
+    } else {
+        l_ret = PyLong_AsLong(l_result);
+        Py_DECREF(l_result);
+    }
+    
+    Py_DECREF(l_ledger);
+    Py_DECREF(l_tx);
+    Py_XDECREF(l_tx_hash);
+    Py_DECREF(l_cond);
+    
+    PyGILState_Release(l_gstate);
+    return l_ret;
+}
+
+/**
+ * @brief C wrapper for cond_in_add callback - calls Python callback
+ * Signature: void (*dap_ledger_cond_in_add_callback_t)(dap_ledger_t *a_ledger, dap_chain_datum_tx_t *a_tx_in,  
+ *                                                        dap_hash_fast_t *a_tx_in_hash, dap_chain_tx_out_cond_t *a_prev_cond)
+ */
+static void s_verificator_in_add_wrapper(dap_ledger_t *a_ledger, dap_chain_datum_tx_t *a_tx_in,  
+                                         dap_hash_fast_t *a_tx_in_hash, dap_chain_tx_out_cond_t *a_prev_cond) {
+    if (!a_prev_cond) {
+        return;
+    }
+    
+    dap_chain_tx_out_cond_subtype_t l_subtype = a_prev_cond->header.subtype;
+    python_verificator_ctx_t *l_ctx = cf_verificator_get(l_subtype);
+    if (!l_ctx || !l_ctx->in_add_callback) {
+        return;
+    }
+    
+    PyGILState_STATE l_gstate = PyGILState_Ensure();
+    
+    PyObject *l_ledger = PyCapsule_New(a_ledger, "dap_ledger_t", NULL);
+    PyObject *l_tx = PyCapsule_New(a_tx_in, "dap_chain_datum_tx_t", NULL);
+    PyObject *l_tx_hash = a_tx_in_hash ? PyBytes_FromStringAndSize((const char*)a_tx_in_hash, sizeof(dap_hash_fast_t)) : Py_None;
+    PyObject *l_cond = PyCapsule_New(a_prev_cond, "dap_chain_tx_out_cond_t", NULL);
+    
+    PyObject *l_result = PyObject_CallFunctionObjArgs(
+        l_ctx->in_add_callback, l_ledger, l_tx, l_tx_hash, l_cond, l_ctx->user_data, NULL
+    );
+    
+    if (!l_result) {
+        log_it(L_ERROR, "Python in_add callback raised an exception");
+        PyErr_Print();
+    } else {
+        Py_DECREF(l_result);
+    }
+    
+    Py_DECREF(l_ledger);
+    Py_DECREF(l_tx);
+    Py_XDECREF(l_tx_hash);
+    Py_DECREF(l_cond);
+    
+    PyGILState_Release(l_gstate);
+}
+
+/**
+ * @brief C wrapper for cond_out_add callback - calls Python callback
+ * Signature: void (*dap_ledger_cond_out_add_callback_t)(dap_ledger_t *a_ledger, dap_chain_datum_tx_t *a_tx_out, 
+ *                                                         dap_hash_fast_t *a_tx_out_hash, dap_chain_tx_out_cond_t *a_cond)
+ */
+static void s_verificator_out_add_wrapper(dap_ledger_t *a_ledger, dap_chain_datum_tx_t *a_tx_out, 
+                                          dap_hash_fast_t *a_tx_out_hash, dap_chain_tx_out_cond_t *a_cond) {
+    if (!a_cond) {
+        return;
+    }
+    
+    dap_chain_tx_out_cond_subtype_t l_subtype = a_cond->header.subtype;
+    python_verificator_ctx_t *l_ctx = cf_verificator_get(l_subtype);
+    if (!l_ctx || !l_ctx->out_add_callback) {
+        return;
+    }
+    
+    PyGILState_STATE l_gstate = PyGILState_Ensure();
+    
+    PyObject *l_ledger = PyCapsule_New(a_ledger, "dap_ledger_t", NULL);
+    PyObject *l_tx = PyCapsule_New(a_tx_out, "dap_chain_datum_tx_t", NULL);
+    PyObject *l_tx_hash = a_tx_out_hash ? PyBytes_FromStringAndSize((const char*)a_tx_out_hash, sizeof(dap_hash_fast_t)) : Py_None;
+    PyObject *l_cond = PyCapsule_New(a_cond, "dap_chain_tx_out_cond_t", NULL);
+    
+    PyObject *l_result = PyObject_CallFunctionObjArgs(
+        l_ctx->out_add_callback, l_ledger, l_tx, l_tx_hash, l_cond, l_ctx->user_data, NULL
+    );
+    
+    if (!l_result) {
+        log_it(L_ERROR, "Python out_add callback raised an exception");
+        PyErr_Print();
+    } else {
+        Py_DECREF(l_result);
+    }
+    
+    Py_DECREF(l_ledger);
+    Py_DECREF(l_tx);
+    Py_XDECREF(l_tx_hash);
+    Py_DECREF(l_cond);
+    
+    PyGILState_Release(l_gstate);
+}
+
+/**
+ * @brief C wrapper for cond_in_delete callback - calls Python callback
+ * Signature: void (*dap_ledger_cond_in_delete_callback_t)(dap_ledger_t *a_ledger, dap_chain_datum_tx_t *a_tx_in,  
+ *                                                           dap_hash_fast_t *a_tx_in_hash, dap_chain_tx_out_cond_t *a_prev_cond)
+ */
+static void s_verificator_in_delete_wrapper(dap_ledger_t *a_ledger, dap_chain_datum_tx_t *a_tx_in,  
+                                            dap_hash_fast_t *a_tx_in_hash, dap_chain_tx_out_cond_t *a_prev_cond) {
+    if (!a_prev_cond) {
+        return;
+    }
+    
+    dap_chain_tx_out_cond_subtype_t l_subtype = a_prev_cond->header.subtype;
+    python_verificator_ctx_t *l_ctx = cf_verificator_get(l_subtype);
+    if (!l_ctx || !l_ctx->in_delete_callback) {
+        return;
+    }
+    
+    PyGILState_STATE l_gstate = PyGILState_Ensure();
+    
+    PyObject *l_ledger = PyCapsule_New(a_ledger, "dap_ledger_t", NULL);
+    PyObject *l_tx = PyCapsule_New(a_tx_in, "dap_chain_datum_tx_t", NULL);
+    PyObject *l_tx_hash = a_tx_in_hash ? PyBytes_FromStringAndSize((const char*)a_tx_in_hash, sizeof(dap_hash_fast_t)) : Py_None;
+    PyObject *l_cond = PyCapsule_New(a_prev_cond, "dap_chain_tx_out_cond_t", NULL);
+    
+    PyObject *l_result = PyObject_CallFunctionObjArgs(
+        l_ctx->in_delete_callback, l_ledger, l_tx, l_tx_hash, l_cond, l_ctx->user_data, NULL
+    );
+    
+    if (!l_result) {
+        log_it(L_ERROR, "Python in_delete callback raised an exception");
+        PyErr_Print();
+    } else {
+        Py_DECREF(l_result);
+    }
+    
+    Py_DECREF(l_ledger);
+    Py_DECREF(l_tx);
+    Py_XDECREF(l_tx_hash);
+    Py_DECREF(l_cond);
+    
+    PyGILState_Release(l_gstate);
+}
+
+/**
+ * @brief C wrapper for cond_out_delete callback - calls Python callback
+ * Signature: void (*dap_ledger_cond_out_delete_callback_t)(dap_ledger_t *a_ledger, dap_chain_datum_tx_t *a_tx_out, 
+ *                                                            dap_hash_fast_t *a_tx_out_hash, dap_chain_tx_out_cond_t *a_cond)
+ */
+static void s_verificator_out_delete_wrapper(dap_ledger_t *a_ledger, dap_chain_datum_tx_t *a_tx_out, 
+                                             dap_hash_fast_t *a_tx_out_hash, dap_chain_tx_out_cond_t *a_cond) {
+    if (!a_cond) {
+        return;
+    }
+    
+    dap_chain_tx_out_cond_subtype_t l_subtype = a_cond->header.subtype;
+    python_verificator_ctx_t *l_ctx = cf_verificator_get(l_subtype);
+    if (!l_ctx || !l_ctx->out_delete_callback) {
+        return;
+    }
+    
+    PyGILState_STATE l_gstate = PyGILState_Ensure();
+    
+    PyObject *l_ledger = PyCapsule_New(a_ledger, "dap_ledger_t", NULL);
+    PyObject *l_tx = PyCapsule_New(a_tx_out, "dap_chain_datum_tx_t", NULL);
+    PyObject *l_tx_hash = a_tx_out_hash ? PyBytes_FromStringAndSize((const char*)a_tx_out_hash, sizeof(dap_hash_fast_t)) : Py_None;
+    PyObject *l_cond = PyCapsule_New(a_cond, "dap_chain_tx_out_cond_t", NULL);
+    
+    PyObject *l_result = PyObject_CallFunctionObjArgs(
+        l_ctx->out_delete_callback, l_ledger, l_tx, l_tx_hash, l_cond, l_ctx->user_data, NULL
+    );
+    
+    if (!l_result) {
+        log_it(L_ERROR, "Python out_delete callback raised an exception");
+        PyErr_Print();
+    } else {
+        Py_DECREF(l_result);
+    }
+    
+    Py_DECREF(l_ledger);
+    Py_DECREF(l_tx);
+    Py_XDECREF(l_tx_hash);
+    Py_DECREF(l_cond);
+    
+    PyGILState_Release(l_gstate);
+}
+
 /**
  * @brief Add verificator callbacks for conditional outputs
- * @note Callback functionality requires complex implementation - stub
  * @param a_self Python self object (unused)
- * @param a_args Arguments (subtype)
+ * @param a_args Arguments (subtype, in_verify, out_verify, in_add, out_add, in_delete, out_delete, user_data)
+ *              All callbacks except subtype are optional (can be None)
  * @return Integer result code
  */
 PyObject* dap_ledger_verificator_add_py(PyObject *a_self, PyObject *a_args) {
     (void)a_self;
     int l_subtype;
+    PyObject *l_in_verify = Py_None;
+    PyObject *l_out_verify = Py_None;
+    PyObject *l_in_add = Py_None;
+    PyObject *l_out_add = Py_None;
+    PyObject *l_in_delete = Py_None;
+    PyObject *l_out_delete = Py_None;
+    PyObject *l_user_data = Py_None;
     
-    if (!PyArg_ParseTuple(a_args, "i", &l_subtype)) {
+    if (!PyArg_ParseTuple(a_args, "i|OOOOOOO", &l_subtype, &l_in_verify, &l_out_verify, 
+                          &l_in_add, &l_out_add, &l_in_delete, &l_out_delete, &l_user_data)) {
+        PyErr_SetString(PyExc_TypeError, "Expected (subtype, [in_verify], [out_verify], [in_add], [out_add], [in_delete], [out_delete], [user_data])");
         return NULL;
     }
     
-    // TODO: Implement full Python callback wrapper with GIL management
-    // This requires 6 callback functions for verify/add/delete operations
-    log_it(L_INFO, "Add verificator for subtype %d (stub - callbacks not yet implemented)", l_subtype);
+    // Validate callbacks are callable or None
+    if (l_in_verify != Py_None && !PyCallable_Check(l_in_verify)) {
+        PyErr_SetString(PyExc_TypeError, "in_verify must be callable or None");
+        return NULL;
+    }
+    if (l_out_verify != Py_None && !PyCallable_Check(l_out_verify)) {
+        PyErr_SetString(PyExc_TypeError, "out_verify must be callable or None");
+        return NULL;
+    }
+    if (l_in_add != Py_None && !PyCallable_Check(l_in_add)) {
+        PyErr_SetString(PyExc_TypeError, "in_add must be callable or None");
+        return NULL;
+    }
+    if (l_out_add != Py_None && !PyCallable_Check(l_out_add)) {
+        PyErr_SetString(PyExc_TypeError, "out_add must be callable or None");
+        return NULL;
+    }
+    if (l_in_delete != Py_None && !PyCallable_Check(l_in_delete)) {
+        PyErr_SetString(PyExc_TypeError, "in_delete must be callable or None");
+        return NULL;
+    }
+    if (l_out_delete != Py_None && !PyCallable_Check(l_out_delete)) {
+        PyErr_SetString(PyExc_TypeError, "out_delete must be callable or None");
+        return NULL;
+    }
     
-    return PyLong_FromLong(0);  // Success
+    // Convert None to NULL for registry
+    PyObject *l_in_verify_real = (l_in_verify == Py_None) ? NULL : l_in_verify;
+    PyObject *l_out_verify_real = (l_out_verify == Py_None) ? NULL : l_out_verify;
+    PyObject *l_in_add_real = (l_in_add == Py_None) ? NULL : l_in_add;
+    PyObject *l_out_add_real = (l_out_add == Py_None) ? NULL : l_out_add;
+    PyObject *l_in_delete_real = (l_in_delete == Py_None) ? NULL : l_in_delete;
+    PyObject *l_out_delete_real = (l_out_delete == Py_None) ? NULL : l_out_delete;
+    PyObject *l_user_data_real = (l_user_data == Py_None) ? NULL : l_user_data;
+    
+    // Register in global registry
+    if (cf_verificator_register(l_subtype, l_in_verify_real, l_out_verify_real, 
+                                l_in_add_real, l_out_add_real, l_in_delete_real, 
+                                l_out_delete_real, l_user_data_real) != 0) {
+        PyErr_SetString(PyExc_RuntimeError, "Failed to register verificator callbacks");
+        return NULL;
+    }
+    
+    // Register C wrappers with SDK
+    int l_result = dap_ledger_verificator_add(
+        l_subtype,
+        l_in_verify_real ? s_verificator_in_verify_wrapper : NULL,
+        l_out_verify_real ? s_verificator_out_verify_wrapper : NULL,
+        l_in_add_real ? s_verificator_in_add_wrapper : NULL,
+        l_out_add_real ? s_verificator_out_add_wrapper : NULL,
+        l_in_delete_real ? s_verificator_in_delete_wrapper : NULL,
+        l_out_delete_real ? s_verificator_out_delete_wrapper : NULL
+    );
+    
+    log_it(L_DEBUG, "Registered verificator for subtype %d, result=%d", l_subtype, l_result);
+    
+    return PyLong_FromLong(l_result);
 }
 
 /**

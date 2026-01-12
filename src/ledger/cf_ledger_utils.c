@@ -1,9 +1,56 @@
 #include "include/cf_ledger_internal.h"
+#include "../common/cf_ledger_callback_registry.h"
 
 /*
  * Cellframe ledger utilities bindings
  * Utility functions: iterators, purges, cache, time, trackers, aggregation
  */
+
+// =========================================
+// CACHE TX CHECK CALLBACK WRAPPER
+// =========================================
+
+/**
+ * @brief C wrapper for cache TX check callback - calls Python callback
+ * @note Called from SDK to check if TX should be cached
+ * Signature: bool (*dap_ledger_cache_tx_check_callback_t)(dap_ledger_t *a_ledger, dap_hash_fast_t *a_tx_hash)
+ */
+static bool s_ledger_cache_tx_check_wrapper(dap_ledger_t *a_ledger, dap_hash_fast_t *a_tx_hash) {
+    python_ledger_cache_ctx_t *l_ctx = cf_ledger_cache_callback_get(a_ledger);
+    if (!l_ctx || !l_ctx->callback) {
+        return true; // Default: allow caching
+    }
+    
+    PyGILState_STATE l_gstate = PyGILState_Ensure();
+    
+    PyObject *l_ledger = PyCapsule_New(a_ledger, "dap_ledger_t", NULL);
+    PyObject *l_tx_hash = a_tx_hash ? PyBytes_FromStringAndSize((const char*)a_tx_hash, sizeof(dap_hash_fast_t)) : Py_None;
+    
+    if (!l_ledger || !l_tx_hash) {
+        log_it(L_ERROR, "Failed to create Python objects for cache TX check callback");
+        Py_XDECREF(l_ledger);
+        Py_XDECREF(l_tx_hash);
+        PyGILState_Release(l_gstate);
+        return true;
+    }
+    
+    PyObject *l_result = PyObject_CallFunctionObjArgs(l_ctx->callback, l_ledger, l_tx_hash, l_ctx->user_data, NULL);
+    
+    bool l_ret = true;
+    if (!l_result) {
+        log_it(L_ERROR, "Python cache TX check callback raised an exception");
+        PyErr_Print();
+    } else {
+        l_ret = PyObject_IsTrue(l_result);
+        Py_DECREF(l_result);
+    }
+    
+    Py_DECREF(l_ledger);
+    Py_XDECREF(l_tx_hash);
+    
+    PyGILState_Release(l_gstate);
+    return l_ret;
+}
 
 
 // =============================================================================
@@ -35,7 +82,13 @@ PyObject* dap_ledger_datum_iter_create_py(PyObject *a_self, PyObject *a_args) {
         return NULL;
     }
     
-    dap_ledger_datum_iter_t *l_iter = dap_ledger_datum_iter_create(l_net);
+    // API changed: now requires ledger instead of net
+    if (!l_net->pub.ledger) {
+        PyErr_SetString(PyExc_RuntimeError, "Network has no ledger");
+        return NULL;
+    }
+    
+    dap_ledger_datum_iter_t *l_iter = dap_ledger_datum_iter_create(l_net->pub.ledger);
     if (!l_iter) {
         PyErr_SetString(PyExc_RuntimeError, "Failed to create datum iterator");
         return NULL;
@@ -211,7 +264,17 @@ PyObject* dap_ledger_chain_purge_py(PyObject *a_self, PyObject *a_args) {
         return NULL;
     }
     
-    int l_result = dap_ledger_chain_purge(l_chain, (size_t)l_atom_size);
+    // API changed: get ledger from chain's network
+    dap_chain_net_t *l_net = dap_chain_net_by_id(l_chain->net_id);
+    if (!l_net || !l_net->pub.ledger) {
+        PyErr_SetString(PyExc_RuntimeError, "Failed to get ledger from chain");
+        return NULL;
+    }
+    
+    // Get chain_id from chain
+    dap_chain_id_t l_chain_id = l_chain->id;
+    
+    int l_result = dap_ledger_chain_purge(l_net->pub.ledger, l_chain_id, (size_t)l_atom_size);
     
     log_it(L_DEBUG, "Chain purge result: %d", l_result);
     return PyLong_FromLong(l_result);
@@ -220,14 +283,16 @@ PyObject* dap_ledger_chain_purge_py(PyObject *a_self, PyObject *a_args) {
 /**
  * @brief Purge decree data from ledger
  * @param a_self Python self object (unused)
- * @param a_args Arguments (ledger)
+ * @param a_args Arguments (ledger capsule, chain capsule)
  * @return Integer result code
+ * 
+ * @note API changed: now requires chain_id parameter
  */
 PyObject* dap_ledger_decree_purge_py(PyObject *a_self, PyObject *a_args) {
     (void)a_self;
-    PyObject *l_ledger_obj;
+    PyObject *l_ledger_obj, *l_chain_obj;
     
-    if (!PyArg_ParseTuple(a_args, "O", &l_ledger_obj)) {
+    if (!PyArg_ParseTuple(a_args, "OO", &l_ledger_obj, &l_chain_obj)) {
         return NULL;
     }
     
@@ -236,13 +301,23 @@ PyObject* dap_ledger_decree_purge_py(PyObject *a_self, PyObject *a_args) {
         return NULL;
     }
     
-    dap_ledger_t *l_ledger = (dap_ledger_t *)PyCapsule_GetPointer(l_ledger_obj, "dap_ledger_t");
-    if (!l_ledger) {
-        PyErr_SetString(PyExc_ValueError, "Invalid ledger capsule");
+    if (!PyCapsule_CheckExact(l_chain_obj)) {
+        PyErr_SetString(PyExc_TypeError, "Second argument must be a chain capsule");
         return NULL;
     }
     
-    int l_result = dap_ledger_decree_purge(l_ledger);
+    dap_ledger_t *l_ledger = (dap_ledger_t *)PyCapsule_GetPointer(l_ledger_obj, "dap_ledger_t");
+    dap_chain_t *l_chain = (dap_chain_t *)PyCapsule_GetPointer(l_chain_obj, "dap_chain_t");
+    
+    if (!l_ledger || !l_chain) {
+        PyErr_SetString(PyExc_ValueError, "Invalid ledger or chain capsule");
+        return NULL;
+    }
+    
+    // Get chain_id from chain
+    dap_chain_id_t l_chain_id = l_chain->id;
+    
+    int l_result = dap_ledger_decree_purge(l_ledger, l_chain_id);
     
     log_it(L_DEBUG, "Decree purge result: %d", l_result);
     return PyLong_FromLong(l_result);
@@ -314,21 +389,28 @@ PyObject* dap_ledger_cache_enabled_py(PyObject *a_self, PyObject *a_args) {
 
 /**
  * @brief Set cache TX check callback
- * @note Callback functionality requires complex implementation - stub
  * @param a_self Python self object (unused)
- * @param a_args Arguments (ledger)
+ * @param a_args Arguments (ledger, callback, optional user_data)
  * @return None
  */
 PyObject* dap_ledger_set_cache_tx_check_callback_py(PyObject *a_self, PyObject *a_args) {
     (void)a_self;
-    PyObject *l_ledger_obj;
+    PyObject *l_ledger_obj = NULL;
+    PyObject *l_callback = NULL;
+    PyObject *l_user_data = Py_None;
     
-    if (!PyArg_ParseTuple(a_args, "O", &l_ledger_obj)) {
+    if (!PyArg_ParseTuple(a_args, "OO|O", &l_ledger_obj, &l_callback, &l_user_data)) {
+        PyErr_SetString(PyExc_TypeError, "Expected (ledger, callback, [user_data])");
         return NULL;
     }
     
     if (!PyCapsule_CheckExact(l_ledger_obj)) {
         PyErr_SetString(PyExc_TypeError, "First argument must be a ledger capsule");
+        return NULL;
+    }
+    
+    if (!PyCallable_Check(l_callback)) {
+        PyErr_SetString(PyExc_TypeError, "Second argument must be callable");
         return NULL;
     }
     
@@ -338,8 +420,16 @@ PyObject* dap_ledger_set_cache_tx_check_callback_py(PyObject *a_self, PyObject *
         return NULL;
     }
     
-    // TODO: Implement full Python callback wrapper with GIL management
-    log_it(L_INFO, "Set cache TX check callback (stub - callback not yet implemented)");
+    // Register in global registry
+    if (cf_ledger_cache_callback_register(l_ledger, l_callback, l_user_data) != 0) {
+        PyErr_SetString(PyExc_RuntimeError, "Failed to register cache TX check callback");
+        return NULL;
+    }
+    
+    // Register C wrapper with SDK
+    dap_ledger_set_cache_tx_check_callback(l_ledger, s_ledger_cache_tx_check_wrapper);
+    
+    log_it(L_DEBUG, "Registered cache TX check callback for ledger %p", l_ledger);
     
     Py_RETURN_NONE;
 }

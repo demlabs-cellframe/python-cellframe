@@ -4,11 +4,21 @@
 #include "dap_chain_mempool.h"
 #include "dap_chain_block.h"
 #include "dap_chain_datum.h"
+#include "dap_global_db.h"
+#include "../common/cf_callbacks_registry.h"
+
+#define LOG_TAG "python_cellframe_chain"
 #include <string.h>
 #include <stdlib.h>
 
 // Chain type - to be implemented
 PyTypeObject PyCellframeChainType = {0};
+
+// Python callback context structure
+typedef struct {
+    PyObject *callback;      // Python callable
+    PyObject *user_data;     // Optional user data
+} python_chain_callback_ctx_t;
 
 PyObject* PyCellframeChain_new(PyTypeObject *type, PyObject *args, PyObject *kwds) {
     (void)type; (void)args; (void)kwds;
@@ -90,13 +100,49 @@ dap_chain_t* dap_chain_mempool_by_chain_name(const char *a_chain_name) {
  * @param a_chain Chain pointer
  * @param a_tx_hash Transaction hash string
  * @return Transaction datum or NULL if not found
+ * 
+ * @note After SDK refactoring, dap_chain_mempool_datum_get() was removed.
+ *       Now using dap_global_db_get_sync() with mempool GDB group.
  */
 dap_chain_datum_t* dap_chain_mempool_tx_get_by_hash(dap_chain_t *a_chain, const char *a_tx_hash) {
     if (!a_chain || !a_tx_hash) {
         return NULL;
     }
     
-    return dap_chain_mempool_datum_get(a_chain, a_tx_hash);
+    // Get mempool GDB group name for this chain
+    char *l_gdb_group_mempool = dap_chain_mempool_group_new(a_chain);
+    if (!l_gdb_group_mempool) {
+        log_it(L_ERROR, "Failed to get mempool GDB group for chain");
+        return NULL;
+    }
+    
+    // Get datum from Global DB
+    size_t l_datum_size = 0;
+    dap_chain_datum_t *l_datum = (dap_chain_datum_t*)dap_global_db_get_sync(
+        l_gdb_group_mempool,
+        a_tx_hash,
+        &l_datum_size,
+        NULL,
+        NULL
+    );
+    
+    DAP_DELETE(l_gdb_group_mempool);
+    
+    if (!l_datum) {
+        log_it(L_WARNING, "Datum %s not found in mempool", a_tx_hash);
+        return NULL;
+    }
+    
+    // Verify datum size consistency
+    size_t l_datum_size2 = dap_chain_datum_size(l_datum);
+    if (l_datum_size != l_datum_size2) {
+        log_it(L_ERROR, "Corrupted datum %s: size by headers %zu != GDB size %zu",
+               a_tx_hash, l_datum_size2, l_datum_size);
+        DAP_DELETE(l_datum);
+        return NULL;
+    }
+    
+    return l_datum;
 }
 
 // =============================================================================
@@ -1045,23 +1091,268 @@ PyObject* dap_chain_get_atom_last_hash_num_ts_py(PyObject *a_self, PyObject *a_a
     return l_dict;
 }
 
+// =========================================
+// CALLBACK WRAPPERS FOR CHAIN NOTIFICATIONS
+// =========================================
+
+/**
+ * @brief C callback wrapper for atom notify - calls Python callback
+ * @note Called from C SDK when atom is added to chain
+ * Signature: void (*dap_chain_callback_notify_t)(void *a_arg, dap_chain_t *a_chain, 
+ *                                                  dap_chain_cell_id_t a_id, 
+ *                                                  dap_chain_hash_fast_t *a_atom_hash, 
+ *                                                  void *a_atom, size_t a_atom_size, 
+ *                                                  dap_time_t a_atom_time)
+ */
+static void s_chain_atom_notify_callback_wrapper(void *a_arg, dap_chain_t *a_chain, 
+                                                   dap_chain_cell_id_t a_id,
+                                                   dap_chain_hash_fast_t *a_atom_hash, 
+                                                   void *a_atom, size_t a_atom_size, 
+                                                   dap_time_t a_atom_time) {
+    python_chain_callback_ctx_t *l_ctx = (python_chain_callback_ctx_t*)a_arg;
+    if (!l_ctx || !l_ctx->callback) {
+        log_it(L_ERROR, "Invalid chain atom notify callback context");
+        return;
+    }
+    
+    // Acquire GIL for Python callback
+    PyGILState_STATE l_gstate = PyGILState_Ensure();
+    
+    // Build Python arguments
+    PyObject *l_chain_capsule = PyCapsule_New(a_chain, "dap_chain_t", NULL);
+    PyObject *l_cell_id = PyLong_FromUnsignedLongLong(a_id.uint64);
+    PyObject *l_atom_hash = a_atom_hash ? PyBytes_FromStringAndSize((const char*)a_atom_hash, sizeof(dap_hash_fast_t)) : Py_None;
+    PyObject *l_atom = a_atom ? PyBytes_FromStringAndSize((const char*)a_atom, a_atom_size) : Py_None;
+    PyObject *l_atom_size = PyLong_FromSize_t(a_atom_size);
+    PyObject *l_atom_time = PyLong_FromUnsignedLongLong(a_atom_time);
+    
+    if (!l_chain_capsule || !l_cell_id || !l_atom_hash || !l_atom || !l_atom_size || !l_atom_time) {
+        log_it(L_ERROR, "Failed to create Python objects for atom notify callback");
+        Py_XDECREF(l_chain_capsule);
+        Py_XDECREF(l_cell_id);
+        Py_XDECREF(l_atom_hash);
+        Py_XDECREF(l_atom);
+        Py_XDECREF(l_atom_size);
+        Py_XDECREF(l_atom_time);
+        PyGILState_Release(l_gstate);
+        return;
+    }
+    
+    // Call Python callback
+    PyObject *l_result = PyObject_CallFunctionObjArgs(
+        l_ctx->callback, l_chain_capsule, l_cell_id, l_atom_hash, l_atom, l_atom_size, l_atom_time, l_ctx->user_data, NULL
+    );
+    
+    // Cleanup
+    Py_DECREF(l_chain_capsule);
+    Py_DECREF(l_cell_id);
+    Py_XDECREF(l_atom_hash);
+    Py_XDECREF(l_atom);
+    Py_DECREF(l_atom_size);
+    Py_DECREF(l_atom_time);
+    
+    if (!l_result) {
+        log_it(L_ERROR, "Python atom notify callback raised an exception");
+        PyErr_Print();
+    } else {
+        Py_DECREF(l_result);
+    }
+    
+    PyGILState_Release(l_gstate);
+}
+
+/**
+ * @brief C callback wrapper for datum notify - calls Python callback
+ * @note Called from C SDK when datum is added to chain index
+ * Signature: void (*dap_chain_callback_datum_notify_t)(void *a_arg, dap_chain_hash_fast_t *a_datum_hash, 
+ *                                                        dap_chain_hash_fast_t *a_atom_hash, void *a_datum, 
+ *                                                        size_t a_datum_size, int a_ret_code, 
+ *                                                        uint32_t a_action, dap_chain_srv_uid_t a_uid)
+ */
+static void s_chain_datum_notify_callback_wrapper(void *a_arg, dap_chain_hash_fast_t *a_datum_hash, 
+                                                    dap_chain_hash_fast_t *a_atom_hash, void *a_datum, 
+                                                    size_t a_datum_size, int a_ret_code, 
+                                                    uint32_t a_action, dap_chain_srv_uid_t a_uid) {
+    python_chain_callback_ctx_t *l_ctx = (python_chain_callback_ctx_t*)a_arg;
+    if (!l_ctx || !l_ctx->callback) {
+        log_it(L_ERROR, "Invalid chain datum notify callback context");
+        return;
+    }
+    
+    // Acquire GIL for Python callback
+    PyGILState_STATE l_gstate = PyGILState_Ensure();
+    
+    // Build Python arguments
+    PyObject *l_datum_hash = a_datum_hash ? PyBytes_FromStringAndSize((const char*)a_datum_hash, sizeof(dap_hash_fast_t)) : Py_None;
+    PyObject *l_atom_hash = a_atom_hash ? PyBytes_FromStringAndSize((const char*)a_atom_hash, sizeof(dap_hash_fast_t)) : Py_None;
+    PyObject *l_datum = a_datum ? PyBytes_FromStringAndSize((const char*)a_datum, a_datum_size) : Py_None;
+    PyObject *l_datum_size = PyLong_FromSize_t(a_datum_size);
+    PyObject *l_ret_code = PyLong_FromLong(a_ret_code);
+    PyObject *l_action = PyLong_FromUnsignedLong(a_action);
+    PyObject *l_uid = PyLong_FromUnsignedLongLong(a_uid.uint64);
+    
+    if (!l_datum_hash || !l_atom_hash || !l_datum || !l_datum_size || !l_ret_code || !l_action || !l_uid) {
+        log_it(L_ERROR, "Failed to create Python objects for datum notify callback");
+        Py_XDECREF(l_datum_hash);
+        Py_XDECREF(l_atom_hash);
+        Py_XDECREF(l_datum);
+        Py_XDECREF(l_datum_size);
+        Py_XDECREF(l_ret_code);
+        Py_XDECREF(l_action);
+        Py_XDECREF(l_uid);
+        PyGILState_Release(l_gstate);
+        return;
+    }
+    
+    // Call Python callback
+    PyObject *l_result = PyObject_CallFunctionObjArgs(
+        l_ctx->callback, l_datum_hash, l_atom_hash, l_datum, l_datum_size, l_ret_code, l_action, l_uid, l_ctx->user_data, NULL
+    );
+    
+    // Cleanup
+    Py_XDECREF(l_datum_hash);
+    Py_XDECREF(l_atom_hash);
+    Py_XDECREF(l_datum);
+    Py_XDECREF(l_datum_size);
+    Py_DECREF(l_ret_code);
+    Py_DECREF(l_action);
+    Py_DECREF(l_uid);
+    
+    if (!l_result) {
+        log_it(L_ERROR, "Python datum notify callback raised an exception");
+        PyErr_Print();
+    } else {
+        Py_DECREF(l_result);
+    }
+    
+    PyGILState_Release(l_gstate);
+}
+
+/**
+ * @brief C callback wrapper for datum removed notify - calls Python callback
+ * @note Called from C SDK when datum is removed from chain index
+ * Signature: void (*dap_chain_callback_datum_removed_notify_t)(void *a_arg, 
+ *                                                                dap_chain_hash_fast_t *a_datum_hash, 
+ *                                                                dap_chain_datum_t *a_datum)
+ */
+static void s_chain_datum_removed_notify_callback_wrapper(void *a_arg, dap_chain_hash_fast_t *a_datum_hash, 
+                                                           dap_chain_datum_t *a_datum) {
+    python_chain_callback_ctx_t *l_ctx = (python_chain_callback_ctx_t*)a_arg;
+    if (!l_ctx || !l_ctx->callback) {
+        log_it(L_ERROR, "Invalid chain datum removed notify callback context");
+        return;
+    }
+    
+    // Acquire GIL for Python callback
+    PyGILState_STATE l_gstate = PyGILState_Ensure();
+    
+    // Build Python arguments
+    PyObject *l_datum_hash = a_datum_hash ? PyBytes_FromStringAndSize((const char*)a_datum_hash, sizeof(dap_hash_fast_t)) : Py_None;
+    PyObject *l_datum_capsule = a_datum ? PyCapsule_New(a_datum, "dap_chain_datum_t", NULL) : Py_None;
+    
+    if (!l_datum_hash || !l_datum_capsule) {
+        log_it(L_ERROR, "Failed to create Python objects for datum removed notify callback");
+        Py_XDECREF(l_datum_hash);
+        Py_XDECREF(l_datum_capsule);
+        PyGILState_Release(l_gstate);
+        return;
+    }
+    
+    // Call Python callback
+    PyObject *l_result = PyObject_CallFunctionObjArgs(
+        l_ctx->callback, l_datum_hash, l_datum_capsule, l_ctx->user_data, NULL
+    );
+    
+    // Cleanup
+    Py_XDECREF(l_datum_hash);
+    Py_XDECREF(l_datum_capsule);
+    
+    if (!l_result) {
+        log_it(L_ERROR, "Python datum removed notify callback raised an exception");
+        PyErr_Print();
+    } else {
+        Py_DECREF(l_result);
+    }
+    
+    PyGILState_Release(l_gstate);
+}
+
+/**
+ * @brief C callback wrapper for blockchain timer - calls Python callback
+ * @note Called from C SDK periodically for blockchain maintenance
+ * Signature: void (*dap_chain_callback_blockchain_timer_t)(dap_chain_t *a_chain, 
+ *                                                            dap_time_t a_time, 
+ *                                                            void *a_arg, 
+ *                                                            bool a_reverse)
+ */
+static void s_chain_timer_callback_wrapper(dap_chain_t *a_chain, dap_time_t a_time, void *a_arg, bool a_reverse) {
+    python_chain_callback_ctx_t *l_ctx = (python_chain_callback_ctx_t*)a_arg;
+    if (!l_ctx || !l_ctx->callback) {
+        log_it(L_ERROR, "Invalid chain timer callback context");
+        return;
+    }
+    
+    // Acquire GIL for Python callback
+    PyGILState_STATE l_gstate = PyGILState_Ensure();
+    
+    // Build Python arguments
+    PyObject *l_chain_capsule = PyCapsule_New(a_chain, "dap_chain_t", NULL);
+    PyObject *l_time = PyLong_FromUnsignedLongLong(a_time);
+    PyObject *l_reverse = PyBool_FromLong(a_reverse);
+    
+    if (!l_chain_capsule || !l_time || !l_reverse) {
+        log_it(L_ERROR, "Failed to create Python objects for timer callback");
+        Py_XDECREF(l_chain_capsule);
+        Py_XDECREF(l_time);
+        Py_XDECREF(l_reverse);
+        PyGILState_Release(l_gstate);
+        return;
+    }
+    
+    // Call Python callback
+    PyObject *l_result = PyObject_CallFunctionObjArgs(
+        l_ctx->callback, l_chain_capsule, l_time, l_reverse, l_ctx->user_data, NULL
+    );
+    
+    // Cleanup
+    Py_DECREF(l_chain_capsule);
+    Py_DECREF(l_time);
+    Py_DECREF(l_reverse);
+    
+    if (!l_result) {
+        log_it(L_ERROR, "Python timer callback raised an exception");
+        PyErr_Print();
+    } else {
+        Py_DECREF(l_result);
+    }
+    
+    PyGILState_Release(l_gstate);
+}
+
 /**
  * @brief Add callback for datum index notifications
- * @note Callback functionality requires Python wrapper - stub implementation
  * @param a_self Python self object (unused)
- * @param a_args Arguments (chain capsule)
+ * @param a_args Arguments (chain capsule, callback function, optional user_data)
  * @return None
  */
 PyObject* dap_chain_add_callback_datum_index_notify_py(PyObject *a_self, PyObject *a_args) {
     (void)a_self;
-    PyObject *l_chain_obj;
+    PyObject *l_chain_obj = NULL;
+    PyObject *l_callback = NULL;
+    PyObject *l_user_data = Py_None;
     
-    if (!PyArg_ParseTuple(a_args, "O", &l_chain_obj)) {
+    if (!PyArg_ParseTuple(a_args, "OO|O", &l_chain_obj, &l_callback, &l_user_data)) {
+        PyErr_SetString(PyExc_TypeError, "Expected (chain, callback, [user_data])");
         return NULL;
     }
     
     if (!PyCapsule_CheckExact(l_chain_obj)) {
         PyErr_SetString(PyExc_TypeError, "First argument must be a chain capsule");
+        return NULL;
+    }
+    
+    if (!PyCallable_Check(l_callback)) {
+        PyErr_SetString(PyExc_TypeError, "Second argument must be callable");
         return NULL;
     }
     
@@ -1071,30 +1362,57 @@ PyObject* dap_chain_add_callback_datum_index_notify_py(PyObject *a_self, PyObjec
         return NULL;
     }
     
-    // TODO: Implement full Python callback wrapper with GIL management
-    // For now, just a stub that logs the request
-    log_it(L_INFO, "Add datum index notify callback for chain '%s' (stub - callback not yet implemented)", l_chain->name);
+    // Allocate callback context (will be freed by registry cleanup)
+    python_chain_callback_ctx_t *l_ctx = DAP_NEW_Z(python_chain_callback_ctx_t);
+    if (!l_ctx) {
+        PyErr_SetString(PyExc_MemoryError, "Failed to allocate callback context");
+        return NULL;
+    }
+    
+    l_ctx->callback = l_callback;
+    l_ctx->user_data = l_user_data;
+    
+    // Increment reference counts (will be decremented on cleanup)
+    Py_INCREF(l_callback);
+    Py_INCREF(l_user_data);
+    
+    // Register C callback with SDK
+    dap_chain_add_callback_datum_index_notify(l_chain, s_chain_datum_notify_callback_wrapper, NULL, l_ctx);
+    
+    // Register in cleanup registry
+    char l_callback_id[128];
+    snprintf(l_callback_id, sizeof(l_callback_id), "chain_datum_notify_%s_%p", l_chain->name, l_callback);
+    cf_callbacks_registry_add(CF_CALLBACK_TYPE_CHAIN_DATUM_INDEX, l_callback, l_user_data, l_ctx, l_callback_id);
+    
+    log_it(L_DEBUG, "Registered datum index notify callback for chain '%s' (ID: %s)", l_chain->name, l_callback_id);
     
     Py_RETURN_NONE;
 }
 
 /**
  * @brief Add callback for datum removed from index notifications
- * @note Callback functionality requires Python wrapper - stub implementation
  * @param a_self Python self object (unused)
- * @param a_args Arguments (chain capsule)
+ * @param a_args Arguments (chain capsule, callback function, optional user_data)
  * @return None
  */
 PyObject* dap_chain_add_callback_datum_removed_from_index_notify_py(PyObject *a_self, PyObject *a_args) {
     (void)a_self;
-    PyObject *l_chain_obj;
+    PyObject *l_chain_obj = NULL;
+    PyObject *l_callback = NULL;
+    PyObject *l_user_data = Py_None;
     
-    if (!PyArg_ParseTuple(a_args, "O", &l_chain_obj)) {
+    if (!PyArg_ParseTuple(a_args, "OO|O", &l_chain_obj, &l_callback, &l_user_data)) {
+        PyErr_SetString(PyExc_TypeError, "Expected (chain, callback, [user_data])");
         return NULL;
     }
     
     if (!PyCapsule_CheckExact(l_chain_obj)) {
         PyErr_SetString(PyExc_TypeError, "First argument must be a chain capsule");
+        return NULL;
+    }
+    
+    if (!PyCallable_Check(l_callback)) {
+        PyErr_SetString(PyExc_TypeError, "Second argument must be callable");
         return NULL;
     }
     
@@ -1104,30 +1422,58 @@ PyObject* dap_chain_add_callback_datum_removed_from_index_notify_py(PyObject *a_
         return NULL;
     }
     
-    // TODO: Implement full Python callback wrapper with GIL management
-    log_it(L_INFO, "Add datum removed notify callback for chain '%s' (stub - callback not yet implemented)", l_chain->name);
+    // Allocate callback context (will be freed by registry cleanup)
+    python_chain_callback_ctx_t *l_ctx = DAP_NEW_Z(python_chain_callback_ctx_t);
+    if (!l_ctx) {
+        PyErr_SetString(PyExc_MemoryError, "Failed to allocate callback context");
+        return NULL;
+    }
+    
+    l_ctx->callback = l_callback;
+    l_ctx->user_data = l_user_data;
+    
+    // Increment reference counts (will be decremented on cleanup)
+    Py_INCREF(l_callback);
+    Py_INCREF(l_user_data);
+    
+    // Register C callback with SDK
+    dap_chain_add_callback_datum_removed_from_index_notify(l_chain, s_chain_datum_removed_notify_callback_wrapper, NULL, l_ctx);
+    
+    // Register in cleanup registry
+    char l_callback_id[128];
+    snprintf(l_callback_id, sizeof(l_callback_id), "chain_datum_removed_%s_%p", l_chain->name, l_callback);
+    cf_callbacks_registry_add(CF_CALLBACK_TYPE_CHAIN_DATUM_REMOVED, l_callback, l_user_data, l_ctx, l_callback_id);
+    
+    log_it(L_DEBUG, "Registered datum removed notify callback for chain '%s' (ID: %s)", l_chain->name, l_callback_id);
     
     Py_RETURN_NONE;
 }
 
 /**
- * @brief Add callback for atom confirmed notifications
- * @note Callback functionality requires Python wrapper - stub implementation
+ * @brief Add atom confirmed notification callback
  * @param a_self Python self object (unused)
- * @param a_args Arguments (chain capsule, conf_cnt)
+ * @param a_args Arguments (chain capsule, callback function, optional user_data, optional conf_cnt)
  * @return None
  */
 PyObject* dap_chain_atom_confirmed_notify_add_py(PyObject *a_self, PyObject *a_args) {
     (void)a_self;
-    PyObject *l_chain_obj;
+    PyObject *l_chain_obj = NULL;
+    PyObject *l_callback = NULL;
+    PyObject *l_user_data = Py_None;
     unsigned long long l_conf_cnt = 1;
     
-    if (!PyArg_ParseTuple(a_args, "O|K", &l_chain_obj, &l_conf_cnt)) {
+    if (!PyArg_ParseTuple(a_args, "OO|OK", &l_chain_obj, &l_callback, &l_user_data, &l_conf_cnt)) {
+        PyErr_SetString(PyExc_TypeError, "Expected (chain, callback, [user_data], [conf_cnt])");
         return NULL;
     }
     
     if (!PyCapsule_CheckExact(l_chain_obj)) {
         PyErr_SetString(PyExc_TypeError, "First argument must be a chain capsule");
+        return NULL;
+    }
+    
+    if (!PyCallable_Check(l_callback)) {
+        PyErr_SetString(PyExc_TypeError, "Second argument must be callable");
         return NULL;
     }
     
@@ -1137,30 +1483,58 @@ PyObject* dap_chain_atom_confirmed_notify_add_py(PyObject *a_self, PyObject *a_a
         return NULL;
     }
     
-    // TODO: Implement full Python callback wrapper with GIL management
-    log_it(L_INFO, "Add atom confirmed notify callback for chain '%s' (conf_cnt=%llu, stub - callback not yet implemented)", 
-           l_chain->name, l_conf_cnt);
+    // Allocate callback context (will be freed by registry cleanup)
+    python_chain_callback_ctx_t *l_ctx = DAP_NEW_Z(python_chain_callback_ctx_t);
+    if (!l_ctx) {
+        PyErr_SetString(PyExc_MemoryError, "Failed to allocate callback context");
+        return NULL;
+    }
+    
+    l_ctx->callback = l_callback;
+    l_ctx->user_data = l_user_data;
+    
+    // Increment reference counts (will be decremented on cleanup)
+    Py_INCREF(l_callback);
+    Py_INCREF(l_user_data);
+    
+    // Register C callback with SDK
+    dap_chain_atom_confirmed_notify_add(l_chain, s_chain_atom_notify_callback_wrapper, l_ctx, l_conf_cnt);
+    
+    // Register in cleanup registry
+    char l_callback_id[128];
+    snprintf(l_callback_id, sizeof(l_callback_id), "chain_atom_confirmed_%s_%p", l_chain->name, l_callback);
+    cf_callbacks_registry_add(CF_CALLBACK_TYPE_CHAIN_ATOM_CONFIRMED, l_callback, l_user_data, l_ctx, l_callback_id);
+    
+    log_it(L_DEBUG, "Registered atom confirmed notify callback for chain '%s' (conf_cnt=%llu, ID: %s)", 
+           l_chain->name, l_conf_cnt, l_callback_id);
     
     Py_RETURN_NONE;
 }
 
 /**
  * @brief Add timer callback for blockchain
- * @note Callback functionality requires Python wrapper - stub implementation
  * @param a_self Python self object (unused)
- * @param a_args Arguments (chain capsule)
- * @return Integer result code
+ * @param a_args Arguments (chain capsule, callback function, optional user_data)
+ * @return Integer result code (0 = success)
  */
 PyObject* dap_chain_add_callback_timer_py(PyObject *a_self, PyObject *a_args) {
     (void)a_self;
-    PyObject *l_chain_obj;
+    PyObject *l_chain_obj = NULL;
+    PyObject *l_callback = NULL;
+    PyObject *l_user_data = Py_None;
     
-    if (!PyArg_ParseTuple(a_args, "O", &l_chain_obj)) {
+    if (!PyArg_ParseTuple(a_args, "OO|O", &l_chain_obj, &l_callback, &l_user_data)) {
+        PyErr_SetString(PyExc_TypeError, "Expected (chain, callback, [user_data])");
         return NULL;
     }
     
     if (!PyCapsule_CheckExact(l_chain_obj)) {
         PyErr_SetString(PyExc_TypeError, "First argument must be a chain capsule");
+        return NULL;
+    }
+    
+    if (!PyCallable_Check(l_callback)) {
+        PyErr_SetString(PyExc_TypeError, "Second argument must be callable");
         return NULL;
     }
     
@@ -1170,8 +1544,36 @@ PyObject* dap_chain_add_callback_timer_py(PyObject *a_self, PyObject *a_args) {
         return NULL;
     }
     
-    // TODO: Implement full Python callback wrapper with GIL management
-    log_it(L_INFO, "Add timer callback for chain '%s' (stub - callback not yet implemented)", l_chain->name);
+    // Allocate callback context (will be freed by registry cleanup)
+    python_chain_callback_ctx_t *l_ctx = DAP_NEW_Z(python_chain_callback_ctx_t);
+    if (!l_ctx) {
+        PyErr_SetString(PyExc_MemoryError, "Failed to allocate callback context");
+        return NULL;
+    }
+    
+    l_ctx->callback = l_callback;
+    l_ctx->user_data = l_user_data;
+    
+    // Increment reference counts (will be decremented on cleanup)
+    Py_INCREF(l_callback);
+    Py_INCREF(l_user_data);
+    
+    // Register C callback with SDK
+    int l_result = dap_chain_add_callback_timer(l_chain, s_chain_timer_callback_wrapper, l_ctx);
+    if (l_result != 0) {
+        Py_DECREF(l_callback);
+        Py_DECREF(l_user_data);
+        DAP_DELETE(l_ctx);
+        PyErr_Format(PyExc_RuntimeError, "Failed to register timer callback: %d", l_result);
+        return NULL;
+    }
+    
+    // Register in cleanup registry
+    char l_callback_id[128];
+    snprintf(l_callback_id, sizeof(l_callback_id), "chain_timer_%s_%p", l_chain->name, l_callback);
+    cf_callbacks_registry_add(CF_CALLBACK_TYPE_CHAIN_TIMER, l_callback, l_user_data, l_ctx, l_callback_id);
+    
+    log_it(L_DEBUG, "Registered timer callback for chain '%s' (ID: %s)", l_chain->name, l_callback_id);
     
     return PyLong_FromLong(0);  // Success
 }

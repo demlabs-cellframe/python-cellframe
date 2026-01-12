@@ -49,6 +49,8 @@ PyObject* dap_ledger_deinit_py(PyObject *a_self, PyObject *a_args) {
  * @param a_self Python self object (unused)
  * @param a_args Arguments (chain_net capsule, flags integer)
  * @return PyCapsule wrapping dap_ledger_t* or None on error
+ * 
+ * @note API changed in SDK: now uses dap_ledger_create_options_t instead of (net, flags)
  */
 PyObject* dap_ledger_create_py(PyObject *a_self, PyObject *a_args) {
     (void)a_self;
@@ -70,7 +72,21 @@ PyObject* dap_ledger_create_py(PyObject *a_self, PyObject *a_args) {
         return NULL;
     }
     
-    dap_ledger_t *l_ledger = dap_ledger_create(l_net, l_flags);
+    // Create ledger options
+    dap_ledger_create_options_t l_options = {0};
+    l_options.net_id = l_net->pub.id;
+    l_options.flags = l_flags;
+    l_options.native_ticker = l_net->pub.native_ticker;
+    
+    // Set default chain IDs
+    dap_chain_id_t l_chain_id = {0};
+    l_options.chain_ids = &l_chain_id;
+    l_options.chain_ids_count = 1;
+    
+    // Generate name from net_id
+    snprintf(l_options.name, sizeof(l_options.name), "%"DAP_UINT64_FORMAT_U, l_options.net_id.uint64);
+    
+    dap_ledger_t *l_ledger = dap_ledger_create(&l_options);
     if (!l_ledger) {
         log_it(L_ERROR, "Failed to create ledger");
         Py_RETURN_NONE;
@@ -85,6 +101,8 @@ PyObject* dap_ledger_create_py(PyObject *a_self, PyObject *a_args) {
  * @param a_self Python self object (unused)
  * @param a_args Arguments (net_name string, flags integer optional)
  * @return PyCapsule wrapping dap_ledger_t* or None on error
+ * 
+ * @note API changed in SDK: now uses dap_ledger_create_options_t instead of (net, flags)
  */
 PyObject* dap_ledger_new_py(PyObject *a_self, PyObject *a_args) {
     (void)a_self;
@@ -103,13 +121,28 @@ PyObject* dap_ledger_new_py(PyObject *a_self, PyObject *a_args) {
         return NULL;
     }
     
-    dap_ledger_t *l_ledger = dap_ledger_create(l_net, l_flags);
+    // Create ledger options
+    dap_ledger_create_options_t l_options = {0};
+    l_options.net_id = l_net->pub.id;
+    l_options.flags = l_flags;
+    l_options.native_ticker = l_net->pub.native_ticker;
+    
+    // Set default chain IDs
+    dap_chain_id_t l_chain_id = {0};
+    l_options.chain_ids = &l_chain_id;
+    l_options.chain_ids_count = 1;
+    
+    // Generate name from net_id
+    snprintf(l_options.name, sizeof(l_options.name), "%"DAP_UINT64_FORMAT_U, l_options.net_id.uint64);
+    
+    dap_ledger_t *l_ledger = dap_ledger_create(&l_options);
     if (!l_ledger) {
         log_it(L_ERROR, "Failed to create ledger for network '%s'", l_net_name);
         Py_RETURN_NONE;
     }
     
-    log_it(L_DEBUG, "Created ledger for network '%s' with flags 0x%04x", l_net_name, l_flags);
+    log_it(L_DEBUG, "Created ledger '%s' for network '%s' with flags 0x%04x",
+           l_options.name, l_net_name, l_flags);
     return PyCapsule_New(l_ledger, "dap_ledger_t", NULL);
 }
 

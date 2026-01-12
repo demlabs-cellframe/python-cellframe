@@ -186,7 +186,18 @@ PyObject* dap_ledger_decree_apply_py(PyObject *a_self, PyObject *a_args) {
         return NULL;
     }
     
-    int l_result = dap_ledger_decree_apply(l_decree_hash, l_decree, l_chain, l_anchor_hash);
+    // API changed: get ledger from chain's network
+    dap_chain_net_t *l_net = dap_chain_net_by_id(l_chain->net_id);
+    if (!l_net || !l_net->pub.ledger) {
+        PyErr_SetString(PyExc_RuntimeError, "Failed to get ledger from chain");
+        return NULL;
+    }
+    
+    // Get chain_id from chain
+    dap_chain_id_t l_chain_id = l_chain->id;
+    
+    // New signature: dap_ledger_decree_apply(ledger, decree_hash, decree, chain_id, anchor_hash)
+    int l_result = dap_ledger_decree_apply(l_net->pub.ledger, l_decree_hash, l_decree, l_chain_id, l_anchor_hash);
     
     log_it(L_DEBUG, "Decree apply result: %d", l_result);
     return PyLong_FromLong(l_result);
@@ -234,7 +245,13 @@ PyObject* dap_ledger_decree_verify_py(PyObject *a_self, PyObject *a_args) {
         return NULL;
     }
     
-    int l_result = dap_ledger_decree_verify(l_net, l_decree, (size_t)l_data_size, l_hash);
+    // API changed: now requires ledger instead of net
+    if (!l_net->pub.ledger) {
+        PyErr_SetString(PyExc_RuntimeError, "Network has no ledger");
+        return NULL;
+    }
+    
+    int l_result = dap_ledger_decree_verify(l_net->pub.ledger, l_decree, (size_t)l_data_size, l_hash);
     
     log_it(L_DEBUG, "Decree verify result: %d", l_result);
     return PyLong_FromLong(l_result);
@@ -280,7 +297,17 @@ PyObject* dap_ledger_decree_load_py(PyObject *a_self, PyObject *a_args) {
         return NULL;
     }
     
-    int l_result = dap_ledger_decree_load(l_decree, l_chain, l_hash);
+    // API changed: get ledger from chain's network
+    dap_chain_net_t *l_net = dap_chain_net_by_id(l_chain->net_id);
+    if (!l_net || !l_net->pub.ledger) {
+        PyErr_SetString(PyExc_RuntimeError, "Failed to get ledger from chain");
+        return NULL;
+    }
+    
+    // Get chain_id from chain
+    dap_chain_id_t l_chain_id = l_chain->id;
+    
+    int l_result = dap_ledger_decree_load(l_net->pub.ledger, l_decree, l_chain_id, l_hash);
     
     log_it(L_DEBUG, "Decree load result: %d", l_result);
     return PyLong_FromLong(l_result);
@@ -318,10 +345,16 @@ PyObject* dap_ledger_decree_get_by_hash_py(PyObject *a_self, PyObject *a_args) {
         return NULL;
     }
     
+    // API changed: now requires ledger instead of net
+    if (!l_net->pub.ledger) {
+        PyErr_SetString(PyExc_RuntimeError, "Network has no ledger");
+        return NULL;
+    }
+    
     dap_hash_fast_t *l_hash = (dap_hash_fast_t *)l_hash_bytes;
     bool l_is_applied = false;
     
-    dap_chain_datum_decree_t *l_decree = dap_ledger_decree_get_by_hash(l_net, l_hash, &l_is_applied);
+    dap_chain_datum_decree_t *l_decree = dap_ledger_decree_get_by_hash(l_net->pub.ledger, l_hash, &l_is_applied);
     if (!l_decree) {
         log_it(L_DEBUG, "Decree not found");
         Py_RETURN_NONE;
@@ -367,9 +400,15 @@ PyObject* dap_ledger_decree_reset_applied_py(PyObject *a_self, PyObject *a_args)
         return NULL;
     }
     
+    // API changed: now requires ledger instead of net
+    if (!l_net->pub.ledger) {
+        PyErr_SetString(PyExc_RuntimeError, "Network has no ledger");
+        return NULL;
+    }
+    
     dap_chain_hash_fast_t *l_hash = (dap_chain_hash_fast_t *)l_hash_bytes;
     
-    int l_result = dap_ledger_decree_reset_applied(l_net, l_hash);
+    int l_result = dap_ledger_decree_reset_applied(l_net->pub.ledger, l_hash);
     
     log_it(L_DEBUG, "Decree reset applied result: %d", l_result);
     return PyLong_FromLong(l_result);

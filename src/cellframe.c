@@ -1,5 +1,10 @@
 #include "cellframe.h"
+#include "cf_callbacks_registry.h"  // CRITICAL: For memory leak prevention
+#include "cf_ledger_callback_registry.h"  // For ledger callbacks without void *arg
+#include "cf_verificator_registry.h"  // For verificator callbacks by subtype
 #include <string.h>
+
+#define LOG_TAG "python_cellframe"
 
 // Forward declarations for chain functions
 PyObject* py_dap_chain_addr_from_str(PyObject *self, PyObject *args);
@@ -7,6 +12,38 @@ PyObject* py_dap_chain_addr_get_net_id(PyObject *self, PyObject *args);
 PyObject* py_dap_chain_atom_create(PyObject *self, PyObject *args);
 PyObject* py_dap_chain_mempool_by_chain_name(PyObject *self, PyObject *args);
 PyObject* py_dap_chain_mempool_tx_get_by_hash(PyObject *self, PyObject *args);
+
+// Forward declarations for cleanup functions
+extern void dap_chain_tx_compose_cleanup_callbacks_py(void);
+
+// =========================================
+// MODULE CLEANUP
+// =========================================
+/**
+ * @brief Module finalization function
+ * @details CRITICAL: Cleanup all registered Python callbacks to prevent memory leaks
+ * @param m Module object (unused)
+ */
+static void cellframe_module_free(void *m) {
+    (void)m;
+    
+    log_it(L_INFO, "Python-Cellframe module cleanup started");
+    
+    // Cleanup TX compose callbacks
+    dap_chain_tx_compose_cleanup_callbacks_py();
+    
+    // Cleanup all registered Python callbacks (CRITICAL!)
+    cf_callbacks_registry_cleanup_all();
+    cf_ledger_callback_registry_cleanup_all();
+    cf_verificator_registry_cleanup_all();
+    
+    // Deinitialize callback registries
+    cf_callbacks_registry_deinit();
+    cf_ledger_callback_registry_deinit();
+    cf_verificator_registry_deinit();
+    
+    log_it(L_INFO, "Python-Cellframe module cleanup complete");
+}
 
 // Forward declarations for submodule init functions  
 int cellframe_network_init(PyObject *module);
@@ -193,7 +230,7 @@ static struct PyModuleDef cellframemodule = {
     NULL,     // m_slots
     NULL,     // m_traverse  
     NULL,     // m_clear
-    NULL      // m_free
+    cellframe_module_free  // m_free - CRITICAL: cleanup on module unload
 };
 
 // =========================================
@@ -202,9 +239,29 @@ static struct PyModuleDef cellframemodule = {
 PyMODINIT_FUNC PyInit_python_cellframe(void) {
     PyObject *module;
     
+    // Initialize callback registries (CRITICAL: prevents memory leaks)
+    if (cf_callbacks_registry_init() != 0) {
+        PyErr_SetString(PyExc_RuntimeError, "Failed to initialize callback registry");
+        return NULL;
+    }
+    
+    if (cf_ledger_callback_registry_init() != 0) {
+        PyErr_SetString(PyExc_RuntimeError, "Failed to initialize ledger callback registry");
+        cf_callbacks_registry_deinit();
+        return NULL;
+    }
+    
+    if (cf_verificator_registry_init() != 0) {
+        PyErr_SetString(PyExc_RuntimeError, "Failed to initialize verificator registry");
+        cf_callbacks_registry_deinit();
+        cf_ledger_callback_registry_deinit();
+        return NULL;
+    }
+    
     // Create module
     module = PyModule_Create(&cellframemodule);
     if (module == NULL) {
+        cf_callbacks_registry_deinit();
         return NULL;
     }
     
@@ -332,7 +389,7 @@ PyMODINIT_FUNC PyInit_python_cellframe(void) {
         return NULL;
     }
     
-    // Initialize compose module
+    // Initialize compose module (Phase 3.5 - COMPLETE)
     if (cellframe_compose_init(module) < 0) {
         PyErr_SetString(PyExc_ImportError, "Failed to initialize compose module");
         Py_DECREF(module);

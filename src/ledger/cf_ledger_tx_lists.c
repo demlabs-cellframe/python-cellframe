@@ -315,7 +315,8 @@ PyObject* dap_ledger_tx_poa_signed_py(PyObject *a_self, PyObject *a_args) {
         return NULL;
     }
     
-    bool l_result = dap_ledger_tx_poa_signed(l_ledger, l_tx);
+    // API changed: now uses a_ledger->poa_keys instead of l_ledger directly
+    bool l_result = dap_ledger_tx_poa_signed(l_ledger->poa_keys, l_tx);
     
     log_it(L_DEBUG, "TX PoA signed check: %s", l_result ? "true" : "false");
     return PyBool_FromLong(l_result);
