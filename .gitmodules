@@ -10,3 +10,6 @@
 	path = dap-sdk
 	url = ../../dap/dap-sdk
 	branch = feature-18297
+[submodule "tools/dap_tpl"]
+	path = tools/dap_tpl
+	url = ../../dap/dap_tpl

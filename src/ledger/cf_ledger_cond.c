@@ -614,11 +614,24 @@ PyObject* dap_ledger_voting_verificator_add_py(PyObject *a_self, PyObject *a_arg
         return NULL;
     }
     
-    // TODO: Implement full Python callback wrapper with GIL management
-    // This requires 4 callback functions for voting operations
-    log_it(L_INFO, "Add voting verificator (stub - callbacks not yet implemented)");
-    
-    return PyLong_FromLong(0);  // Success
+    // PHASE 10.3: Full Python callback wrapper with GIL management
+    // Requires implementation of 4 callback functions for voting operations:
+    //   1. dap_ledger_voting_callback_t a_voting_callback
+    //   2. dap_ledger_vote_callback_t a_vote_callback
+    //   3. dap_ledger_voting_delete_callback_t a_callback_delete
+    //   4. dap_ledger_voting_expire_callback_t a_callback_expire
+    //
+    // Each callback must:
+    //   - Acquire GIL before calling Python
+    //   - Handle Python exceptions
+    //   - Convert C types to Python types
+    //   - Release GIL after return
+    //
+    // Implementation tracked in: .context/tasks/python_cellframe_api_update_20250111.json
+    // Phase 10.3: Voting Callbacks
+    log_it(L_WARNING, "dap_ledger_voting_verificator_add: Phase 10.3 pending implementation");
+    PyErr_SetString(PyExc_NotImplementedError, "Voting verificator callbacks not yet implemented (Phase 10.3)");
+    return NULL;
 }
 
 

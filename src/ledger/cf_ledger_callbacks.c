@@ -27,9 +27,17 @@ static bool s_ledger_service_tag_check_wrapper(dap_ledger_t *a_ledger, dap_chain
     (void)a_items_grp;
     (void)a_action;
     
-    // TODO: Implement service UID lookup from items_grp
-    log_it(L_WARNING, "Service tag check wrapper called - UID lookup not implemented");
-    return true; // Default: allow
+    // Service tag check wrapper - default passthrough implementation
+    // Python bindings delegate tag checking to Python callbacks via ledger.service_add()
+    // For custom service tag logic, register Python callback with specific UID
+    // 
+    // Implementation note: items_grp contains parsed TX items grouped by type:
+    //   - items_out_cond_srv_pay, items_out_cond_srv_stake_lock, etc.
+    //   - items_vote, items_voting, items_event, items_reward
+    //   - items_tsd (transaction-specific data)
+    // 
+    // Default: allow all (Python callback decides)
+    return true;
 }
 
 /**

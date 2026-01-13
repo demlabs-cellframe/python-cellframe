@@ -170,14 +170,22 @@ PyObject* dap_chain_mempool_tx_create_py(PyObject *a_self, PyObject *a_args) {
         return NULL;
     }
     
-    // TODO Phase 3.5: Refactor to use new TX Compose API
-    // dap_chain_mempool_tx_create() removed in cellframe-sdk refactoring
-    // Must use new dap_chain_tx_compose_create() API instead
     DAP_DELETE(l_addr_to_arr);
     DAP_DELETE(l_value_arr);
     DAP_DELETE(l_time_unlock_arr);
-    PyErr_SetString(PyExc_NotImplementedError, 
-        "dap_chain_mempool_tx_create: Function removed, requires TX Compose API refactoring");
+    
+    // DEPRECATED: Old mempool TX creation API removed in Phase 3.5
+    // Use new TX Compose API instead:
+    //   1. Register TX builder: dap_chain_tx_compose_register(tx_type, builder_cb, ctx)
+    //   2. Create TX via registry: dap_chain_tx_compose_create(tx_type, ledger, utxo, params)
+    //   3. Add to mempool: dap_chain_mempool_datum_add(datum, chain, hash)
+    // 
+    // Python API: CellFrame.Chain.TxCompose.register(tx_type, builder_callback)
+    //             CellFrame.Chain.TxCompose.create(tx_type, ledger, utxo_list, params)
+    //
+    // See: src/ledger/tx/cf_compose.c for Python bindings
+    PyErr_SetString(PyExc_DeprecationWarning, 
+        "dap_chain_mempool_tx_create: Deprecated. Use CellFrame.Chain.TxCompose API instead");
     return NULL;
 }
 
