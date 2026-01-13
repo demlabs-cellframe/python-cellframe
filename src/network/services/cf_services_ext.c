@@ -1,7 +1,6 @@
 #include "cellframe.h"
 #include "../include/cf_services_ext.h"
 #include "dap_chain_net_srv_stake_ext.h"
-#include "dap_chain_net_srv_vpn.h"
 #include "dap_chain_net_srv_xchange.h"
 #include "dap_chain_net_srv_voting.h"
 
@@ -208,23 +207,6 @@ PyObject* dap_chain_net_srv_stake_ext_unlock_create_py(PyObject *a_self, PyObjec
 
 
 // =============================================================================
-// VPN
-// =============================================================================
-
-PyObject* dap_chain_net_srv_vpn_init_py(PyObject *a_self, PyObject *a_args) {
-    (void)a_self;
-    (void)a_args;
-    int l_res = dap_chain_net_srv_vpn_init();
-    return PyLong_FromLong(l_res);
-}
-
-PyObject* dap_chain_net_srv_vpn_deinit_py(PyObject *a_self, PyObject *a_args) {
-    (void)a_self;
-    (void)a_args;
-    dap_chain_net_srv_vpn_deinit();
-    Py_RETURN_NONE;
-}
-
 // =============================================================================
 // XCHANGE
 // =============================================================================
@@ -553,10 +535,6 @@ PyMethodDef* cellframe_services_ext_get_methods(void) {
         {"net_srv_stake_ext_get_stats", (PyCFunction)dap_chain_net_srv_stake_ext_get_stats_py, METH_VARARGS, "Get stake_ext statistics"},
         {"net_srv_stake_ext_lock_create", (PyCFunction)dap_chain_net_srv_stake_ext_lock_create_py, METH_VARARGS, "Create lock tx for stake_ext"},
         {"net_srv_stake_ext_unlock_create", (PyCFunction)dap_chain_net_srv_stake_ext_unlock_create_py, METH_VARARGS, "Create unlock tx for stake_ext"},
-        
-        // VPN
-        {"net_srv_vpn_init", (PyCFunction)dap_chain_net_srv_vpn_init_py, METH_VARARGS, "Init VPN service"},
-        {"net_srv_vpn_deinit", (PyCFunction)dap_chain_net_srv_vpn_deinit_py, METH_VARARGS, "Deinit VPN service"},
         
         // Xchange
         {"net_srv_xchange_init", (PyCFunction)dap_chain_net_srv_xchange_init_py, METH_VARARGS, "Init Xchange service"},
