@@ -17,6 +17,7 @@ typedef struct PyDapChainCsDag {
 } PyDapChainCsDagObject;
 
 PyObject *dap_chain_cs_dag_find_event_by_hash_py(PyObject *self, PyObject *args);
+PyObject *dap_chain_cs_dag_get_current_round_py(PyObject *self, PyObject *args);
 
 extern PyTypeObject DapChainCsDagType;
 
