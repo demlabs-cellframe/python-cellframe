@@ -142,22 +142,21 @@ PyObject* cellframe_initialize(PyObject *self, PyObject *args, PyObject *kwds) {
         return NULL;
     }
     
-    // Call dap_sdk_init with parameters
-    PyObject* init_args = PyTuple_New(8);
+    // Call dap_sdk_init with compatible parameters (python-dap expects up to 6 args)
+    PyObject* init_args = PyTuple_New(6);
     if (!init_args) {
         Py_DECREF(init_func);
         return NULL;
     }
     
-    // Set tuple items, using empty strings for NULL strings
+    // Map to python-dap signature: app_name, modules, log_level, temp_dir, log_file, enable_debug
+    // Unused params (working_dir, config_dir, events_threads, events_timeout) are ignored here.
     PyTuple_SET_ITEM(init_args, 0, PyUnicode_FromString(app_name ? app_name : "cellframe"));
-    PyTuple_SET_ITEM(init_args, 1, PyUnicode_FromString(working_dir ? working_dir : ""));
-    PyTuple_SET_ITEM(init_args, 2, PyUnicode_FromString(config_dir ? config_dir : ""));
+    PyTuple_SET_ITEM(init_args, 1, PyLong_FromUnsignedLong(0));  // DAP_SDK_MODULE_ALL
+    PyTuple_SET_ITEM(init_args, 2, PyLong_FromLong(L_INFO));
     PyTuple_SET_ITEM(init_args, 3, PyUnicode_FromString(temp_dir ? temp_dir : ""));
     PyTuple_SET_ITEM(init_args, 4, PyUnicode_FromString(log_file ? log_file : ""));
-    PyTuple_SET_ITEM(init_args, 5, PyLong_FromLong(events_threads));
-    PyTuple_SET_ITEM(init_args, 6, PyLong_FromLong(events_timeout));
-    PyTuple_SET_ITEM(init_args, 7, PyBool_FromLong(debug_mode));
+    PyTuple_SET_ITEM(init_args, 5, PyBool_FromLong(debug_mode));
     
     PyObject* result = PyObject_CallObject(init_func, init_args);
     Py_DECREF(init_func);

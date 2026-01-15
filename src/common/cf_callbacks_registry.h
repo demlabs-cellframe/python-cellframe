@@ -33,13 +33,15 @@ typedef enum {
     CF_CALLBACK_TYPE_CLI_COMMAND,         ///< CLI command callback
     CF_CALLBACK_TYPE_CHAIN_DATUM_INDEX,   ///< Chain datum index notify
     CF_CALLBACK_TYPE_CHAIN_DATUM_REMOVED, ///< Chain datum removed notify
+    CF_CALLBACK_TYPE_CHAIN_ATOM_NOTIFY,   ///< Chain atom notify
     CF_CALLBACK_TYPE_CHAIN_ATOM_CONFIRMED,///< Chain atom confirmed notify
     CF_CALLBACK_TYPE_CHAIN_TIMER,         ///< Chain timer callback
     CF_CALLBACK_TYPE_LEDGER_CACHE_CHECK,  ///< Ledger cache TX check
     CF_CALLBACK_TYPE_LEDGER_VERIFICATOR,  ///< Ledger verificator (6 callbacks)
     CF_CALLBACK_TYPE_LEDGER_VOTING,       ///< Ledger voting verificator (4 callbacks)
     CF_CALLBACK_TYPE_LEDGER_SERVICE,      ///< Ledger service registration
-    CF_CALLBACK_TYPE_LEDGER_TAX           ///< Ledger tax callback
+    CF_CALLBACK_TYPE_LEDGER_TAX,          ///< Ledger tax callback
+    CF_CALLBACK_TYPE_LAST                 ///< Sentinel value for callback counts
 } cf_callback_type_t;
 
 /**
@@ -116,7 +118,7 @@ void cf_callbacks_registry_deinit(void);
 /**
  * @brief Get registry statistics
  * @param out_count Output: total callbacks count
- * @param out_by_type Output: array of counts by type (must have CF_CALLBACK_TYPE_* slots)
+ * @param out_by_type Output: array of counts by type (must have CF_CALLBACK_TYPE_LAST slots)
  */
 void cf_callbacks_registry_stats(size_t *out_count, size_t *out_by_type);
 

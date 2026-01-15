@@ -4,10 +4,18 @@
 #include "dap_chain_mempool.h"
 #include "dap_chain_block.h"
 #include "dap_chain_datum.h"
+#include "dap_chain_cell.h"
+#include "dap_chain_ch.h"
+#include "dap_chain_ch_pkt.h"
+#include "dap_chain_net_utils.h"
+#include "dap_chain_policy.h"
+#include "dap_chain_srv.h"
 #include "dap_global_db.h"
+#include "dap_file_utils.h"
 #include "../common/cf_callbacks_registry.h"
 
 #define LOG_TAG "python_cellframe_chain"
+#include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 
@@ -19,6 +27,132 @@ typedef struct {
     PyObject *callback;      // Python callable
     PyObject *user_data;     // Optional user data
 } python_chain_callback_ctx_t;
+
+typedef struct {
+    dap_chain_callback_datum_notify_t callback;
+    dap_proc_thread_t *proc_thread;
+    void *arg;
+} cf_chain_datum_notifier_t;
+
+typedef struct {
+    dap_chain_callback_datum_removed_notify_t callback;
+    dap_proc_thread_t *proc_thread;
+    void *arg;
+} cf_chain_datum_removed_notifier_t;
+
+static int cf_chain_parse_cell_id(PyObject *obj, dap_chain_cell_id_t *out) {
+    if (!out) {
+        PyErr_SetString(PyExc_RuntimeError, "Cell ID output pointer is NULL");
+        return -1;
+    }
+    memset(out, 0, sizeof(*out));
+    if (!obj || obj == Py_None) {
+        return 0;
+    }
+    if (PyLong_Check(obj)) {
+        unsigned long long value = PyLong_AsUnsignedLongLong(obj);
+        if (PyErr_Occurred()) {
+            PyErr_SetString(PyExc_ValueError, "Failed to parse cell_id as uint64");
+            return -1;
+        }
+        out->uint64 = value;
+        return 0;
+    }
+    if (PyDict_Check(obj)) {
+        PyObject *raw_obj = PyDict_GetItemString(obj, "raw");
+        if (raw_obj && raw_obj != Py_None) {
+            if (!PyBytes_Check(raw_obj)) {
+                PyErr_SetString(PyExc_TypeError, "cell_id.raw must be bytes");
+                return -1;
+            }
+            if (PyBytes_Size(raw_obj) != DAP_CHAIN_SHARD_ID_SIZE) {
+                PyErr_Format(PyExc_ValueError, "cell_id.raw must be %d bytes", DAP_CHAIN_SHARD_ID_SIZE);
+                return -1;
+            }
+            memcpy(out->raw, PyBytes_AsString(raw_obj), DAP_CHAIN_SHARD_ID_SIZE);
+            return 0;
+        }
+        PyObject *uint64_obj = PyDict_GetItemString(obj, "uint64");
+        if (uint64_obj) {
+            unsigned long long value = PyLong_AsUnsignedLongLong(uint64_obj);
+            if (PyErr_Occurred()) {
+                PyErr_SetString(PyExc_ValueError, "Failed to parse cell_id.uint64");
+                return -1;
+            }
+            out->uint64 = value;
+            return 0;
+        }
+        PyErr_SetString(PyExc_TypeError, "cell_id dict must contain 'uint64' or 'raw'");
+        return -1;
+    }
+    if (PyBytes_Check(obj)) {
+        if (PyBytes_Size(obj) != DAP_CHAIN_SHARD_ID_SIZE) {
+            PyErr_Format(PyExc_ValueError, "cell_id bytes must be %d bytes", DAP_CHAIN_SHARD_ID_SIZE);
+            return -1;
+        }
+        memcpy(out->raw, PyBytes_AsString(obj), DAP_CHAIN_SHARD_ID_SIZE);
+        return 0;
+    }
+    PyErr_SetString(PyExc_TypeError, "cell_id must be int, dict, bytes, or None");
+    return -1;
+}
+
+static void cf_chain_ensure_storage_dir(dap_chain_t *a_chain) {
+    if (!a_chain) {
+        return;
+    }
+    dap_chain_pvt_t *l_chain_pvt = DAP_CHAIN_PVT(a_chain);
+    if (!l_chain_pvt || l_chain_pvt->file_storage_dir) {
+        return;
+    }
+    char l_path[256];
+    snprintf(l_path, sizeof(l_path), "/tmp/python_cellframe/%" DAP_UINT64_FORMAT_U "/%" DAP_UINT64_FORMAT_U,
+             a_chain->net_id.uint64, a_chain->id.uint64);
+    l_chain_pvt->file_storage_dir = dap_strdup(l_path);
+    if (l_chain_pvt->file_storage_dir) {
+        dap_mkdir_with_parents(l_chain_pvt->file_storage_dir);
+    }
+}
+
+static bool cf_chain_cell_is_configured(dap_chain_t *a_chain) {
+    if (!a_chain || !a_chain->config) {
+        return false;
+    }
+    cf_chain_ensure_storage_dir(a_chain);
+    dap_chain_pvt_t *l_chain_pvt = DAP_CHAIN_PVT(a_chain);
+    return l_chain_pvt && l_chain_pvt->file_storage_dir;
+}
+
+static int cf_chain_parse_hash(PyObject *obj, dap_hash_fast_t **out_hash) {
+    if (!out_hash) {
+        PyErr_SetString(PyExc_RuntimeError, "Hash output pointer is NULL");
+        return -1;
+    }
+    *out_hash = NULL;
+    if (!obj || obj == Py_None) {
+        return 0;
+    }
+    if (!PyBytes_Check(obj)) {
+        PyErr_SetString(PyExc_TypeError, "Hash must be bytes or None");
+        return -1;
+    }
+    if (PyBytes_Size(obj) != (Py_ssize_t)sizeof(dap_hash_fast_t)) {
+        PyErr_Format(PyExc_ValueError, "Hash size must be %zu bytes", sizeof(dap_hash_fast_t));
+        return -1;
+    }
+    *out_hash = (dap_hash_fast_t *)PyBytes_AsString(obj);
+    if (!*out_hash) {
+        PyErr_SetString(PyExc_ValueError, "Failed to parse hash bytes");
+        return -1;
+    }
+    return 0;
+}
+
+static void s_chain_atom_notify_callback_wrapper(void *a_arg, dap_chain_t *a_chain, 
+                                                   dap_chain_cell_id_t a_id,
+                                                   dap_chain_hash_fast_t *a_atom_hash, 
+                                                   void *a_atom, size_t a_atom_size, 
+                                                   dap_time_t a_atom_time);
 
 PyObject* PyCellframeChain_new(PyTypeObject *type, PyObject *args, PyObject *kwds) {
     (void)type; (void)args; (void)kwds;
@@ -214,9 +348,9 @@ PyObject* dap_chain_get_atom_by_hash_py(PyObject *a_self, PyObject *a_args) {
 PyObject* dap_chain_get_atom_last_py(PyObject *a_self, PyObject *a_args) {
     (void)a_self;
     PyObject *l_chain_capsule = NULL;
-    PyObject *l_cell_id_dict = NULL;
+    PyObject *l_cell_id_obj = Py_None;
     
-    if (!PyArg_ParseTuple(a_args, "OO", &l_chain_capsule, &l_cell_id_dict)) {
+    if (!PyArg_ParseTuple(a_args, "O|O", &l_chain_capsule, &l_cell_id_obj)) {
         log_it(L_ERROR, "Invalid arguments for chain_get_atom_last");
         return NULL;
     }
@@ -233,13 +367,9 @@ PyObject* dap_chain_get_atom_last_py(PyObject *a_self, PyObject *a_args) {
         return NULL;
     }
     
-    // Extract cell_id from dict
     dap_chain_cell_id_t l_cell_id = {0};
-    if (l_cell_id_dict && l_cell_id_dict != Py_None) {
-        PyObject *l_uint64_obj = PyDict_GetItemString(l_cell_id_dict, "uint64");
-        if (l_uint64_obj) {
-            l_cell_id.uint64 = PyLong_AsUnsignedLongLong(l_uint64_obj);
-        }
+    if (cf_chain_parse_cell_id(l_cell_id_obj, &l_cell_id) != 0) {
+        return NULL;
     }
     
     dap_hash_fast_t l_atom_hash = {0};
@@ -363,6 +493,10 @@ PyObject* dap_chain_purge_py(PyObject *a_self, PyObject *a_args) {
         log_it(L_ERROR, "Failed to extract chain pointer from capsule");
         return NULL;
     }
+
+    if (!cf_chain_cell_is_configured(l_chain)) {
+        return PyLong_FromLong(-1);
+    }
     
     int l_result = dap_chain_purge(l_chain);
     if (l_result != 0) {
@@ -383,11 +517,11 @@ PyObject* dap_chain_purge_py(PyObject *a_self, PyObject *a_args) {
 PyObject* dap_chain_atom_save_py(PyObject *a_self, PyObject *a_args) {
     (void)a_self;
     PyObject *l_chain_capsule = NULL;
-    PyObject *l_cell_id_dict = NULL;
+    PyObject *l_cell_id_obj = Py_None;
     const char *l_atom_bytes = NULL;
     Py_ssize_t l_atom_size = 0;
     
-    if (!PyArg_ParseTuple(a_args, "OOy#", &l_chain_capsule, &l_cell_id_dict, &l_atom_bytes, &l_atom_size)) {
+    if (!PyArg_ParseTuple(a_args, "OOy#", &l_chain_capsule, &l_cell_id_obj, &l_atom_bytes, &l_atom_size)) {
         log_it(L_ERROR, "Invalid arguments for chain_atom_save");
         return NULL;
     }
@@ -404,13 +538,9 @@ PyObject* dap_chain_atom_save_py(PyObject *a_self, PyObject *a_args) {
         return NULL;
     }
     
-    // Extract cell_id from dict
     dap_chain_cell_id_t l_cell_id = {0};
-    if (l_cell_id_dict && l_cell_id_dict != Py_None) {
-        PyObject *l_uint64_obj = PyDict_GetItemString(l_cell_id_dict, "uint64");
-        if (l_uint64_obj) {
-            l_cell_id.uint64 = PyLong_AsUnsignedLongLong(l_uint64_obj);
-        }
+    if (cf_chain_parse_cell_id(l_cell_id_obj, &l_cell_id) != 0) {
+        return NULL;
     }
     
     dap_hash_fast_t l_new_atom_hash = {0};
@@ -476,13 +606,27 @@ PyObject* dap_chain_add_callback_notify_py(PyObject *a_self, PyObject *a_args) {
         log_it(L_ERROR, "Failed to extract chain pointer from capsule");
         return NULL;
     }
-    
-    // Note: Callback registration requires Python callback wrapper (similar to Network API)
-    // For now, log a warning that this functionality requires extended implementation
-    log_it(L_WARNING, "Chain callback registration not fully implemented yet - requires Python callback wrapper");
-    PyErr_SetString(PyExc_NotImplementedError, "Chain callback registration not yet fully implemented");
-    
-    return NULL;
+
+    python_chain_callback_ctx_t *l_ctx = DAP_NEW_Z(python_chain_callback_ctx_t);
+    if (!l_ctx) {
+        PyErr_SetString(PyExc_MemoryError, "Failed to allocate callback context");
+        return NULL;
+    }
+
+    l_ctx->callback = l_callback;
+    l_ctx->user_data = l_user_data;
+
+    Py_INCREF(l_callback);
+    Py_INCREF(l_user_data);
+
+    dap_chain_add_callback_notify(l_chain, s_chain_atom_notify_callback_wrapper, NULL, l_ctx);
+
+    char l_callback_id[128];
+    snprintf(l_callback_id, sizeof(l_callback_id), "chain_atom_notify_%s_%p", l_chain->name, l_callback);
+    cf_callbacks_registry_add(CF_CALLBACK_TYPE_CHAIN_ATOM_NOTIFY, l_callback, l_user_data, l_ctx, l_callback_id);
+
+    log_it(L_DEBUG, "Registered atom notify callback for chain '%s' (ID: %s)", l_chain->name, l_callback_id);
+    Py_RETURN_NONE;
 }
 
 /**
@@ -771,11 +915,21 @@ PyObject* dap_chain_delete_py(PyObject *a_self, PyObject *a_args) {
     
     const char *l_chain_name = l_chain->name ? l_chain->name : "unknown";
     log_it(L_INFO, "Deleting chain '%s'", l_chain_name);
-    
+
+    dap_chain_pvt_t *l_chain_pvt = DAP_CHAIN_PVT(l_chain);
+    if (l_chain_pvt) {
+        if (!l_chain_pvt->cs_type) {
+            l_chain_pvt->cs_type = (char *)"";
+        }
+        if (!l_chain_pvt->cs_name) {
+            l_chain_pvt->cs_name = (char *)"unknown";
+        }
+    }
+
     dap_chain_delete(l_chain);
     
-    // Invalidate the capsule pointer
-    if (PyCapsule_SetPointer(l_chain_capsule, NULL) != 0) {
+    // Invalidate the capsule by changing the name so PyCapsule_GetPointer fails.
+    if (PyCapsule_SetName(l_chain_capsule, "dap_chain_t.deleted") != 0) {
         log_it(L_WARNING, "Failed to invalidate chain capsule after deletion");
     }
     
@@ -1051,10 +1205,10 @@ PyObject* dap_chain_generation_ban_py(PyObject *a_self, PyObject *a_args) {
  */
 PyObject* dap_chain_get_atom_last_hash_num_ts_py(PyObject *a_self, PyObject *a_args) {
     (void)a_self;
-    PyObject *l_chain_obj;
-    unsigned long long l_cell_id;
+    PyObject *l_chain_obj = NULL;
+    PyObject *l_cell_id_obj = Py_None;
     
-    if (!PyArg_ParseTuple(a_args, "OK", &l_chain_obj, &l_cell_id)) {
+    if (!PyArg_ParseTuple(a_args, "O|O", &l_chain_obj, &l_cell_id_obj)) {
         return NULL;
     }
     
@@ -1073,12 +1227,15 @@ PyObject* dap_chain_get_atom_last_hash_num_ts_py(PyObject *a_self, PyObject *a_a
     uint64_t l_atom_num = 0;
     dap_time_t l_atom_timestamp = 0;
     
-    dap_chain_cell_id_t l_cell_id_union = {.uint64 = l_cell_id};
+    dap_chain_cell_id_t l_cell_id_union = {0};
+    if (cf_chain_parse_cell_id(l_cell_id_obj, &l_cell_id_union) != 0) {
+        return NULL;
+    }
     
     bool l_result = dap_chain_get_atom_last_hash_num_ts(l_chain, l_cell_id_union, 
                                                          &l_atom_hash, &l_atom_num, &l_atom_timestamp);
     if (!l_result) {
-        log_it(L_DEBUG, "No last atom found for chain '%s' cell %llu", l_chain->name, l_cell_id);
+        log_it(L_DEBUG, "No last atom found for chain '%s'", l_chain->name);
         Py_RETURN_NONE;
     }
     
@@ -1087,8 +1244,553 @@ PyObject* dap_chain_get_atom_last_hash_num_ts_py(PyObject *a_self, PyObject *a_a
     PyDict_SetItemString(l_dict, "atom_num", PyLong_FromUnsignedLongLong(l_atom_num));
     PyDict_SetItemString(l_dict, "atom_timestamp", PyLong_FromUnsignedLongLong(l_atom_timestamp));
     
-    log_it(L_DEBUG, "Retrieved last atom info for chain '%s' cell %llu", l_chain->name, l_cell_id);
+    log_it(L_DEBUG, "Retrieved last atom info for chain '%s'", l_chain->name);
     return l_dict;
+}
+
+/**
+ * @brief Initialize chain subsystem (Python binding)
+ */
+PyObject* dap_chain_init_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    (void)a_args;
+    int l_result = dap_chain_init();
+    return PyLong_FromLong(l_result);
+}
+
+/**
+ * @brief Deinitialize chain subsystem (Python binding)
+ */
+PyObject* dap_chain_deinit_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    (void)a_args;
+    dap_chain_deinit();
+    Py_RETURN_NONE;
+}
+
+/**
+ * @brief Parse chain ID from string (Python binding)
+ */
+PyObject* dap_chain_id_parse_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    const char *l_id_str = NULL;
+    
+    if (!PyArg_ParseTuple(a_args, "s", &l_id_str)) {
+        return NULL;
+    }
+    
+    dap_chain_id_t l_chain_id = {0};
+    int l_result = dap_chain_id_parse(l_id_str, &l_chain_id);
+    if (l_result != 0) {
+        PyErr_Format(PyExc_ValueError, "Invalid chain id string: %s", l_id_str);
+        return NULL;
+    }
+    
+    return PyLong_FromUnsignedLongLong(l_chain_id.uint64);
+}
+
+/**
+ * @brief Get last atom hash only (Python binding)
+ */
+PyObject* dap_chain_get_atom_last_hash_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    PyObject *l_chain_capsule = NULL;
+    PyObject *l_cell_id_obj = Py_None;
+    
+    if (!PyArg_ParseTuple(a_args, "O|O", &l_chain_capsule, &l_cell_id_obj)) {
+        return NULL;
+    }
+    
+    if (!PyCapsule_CheckExact(l_chain_capsule)) {
+        PyErr_SetString(PyExc_TypeError, "Expected chain capsule");
+        return NULL;
+    }
+    
+    dap_chain_t *l_chain = (dap_chain_t*)PyCapsule_GetPointer(l_chain_capsule, "dap_chain_t");
+    if (!l_chain) {
+        PyErr_SetString(PyExc_ValueError, "Invalid chain capsule");
+        return NULL;
+    }
+
+    dap_chain_cell_id_t l_cell_id = {0};
+    if (cf_chain_parse_cell_id(l_cell_id_obj, &l_cell_id) != 0) {
+        return NULL;
+    }
+
+    if (!cf_chain_cell_is_configured(l_chain)) {
+        Py_RETURN_NONE;
+    }
+    
+    dap_hash_fast_t l_hash = {0};
+    if (!dap_chain_get_atom_last_hash(l_chain, l_cell_id, &l_hash)) {
+        Py_RETURN_NONE;
+    }
+    
+    return PyBytes_FromStringAndSize((const char *)&l_hash, sizeof(dap_hash_fast_t));
+}
+
+/**
+ * @brief Get blockchain time for chain or cell (Python binding)
+ */
+PyObject* dap_chain_get_blockhain_time_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    PyObject *l_chain_capsule = NULL;
+    PyObject *l_cell_id_obj = Py_None;
+    
+    if (!PyArg_ParseTuple(a_args, "O|O", &l_chain_capsule, &l_cell_id_obj)) {
+        return NULL;
+    }
+    
+    if (!PyCapsule_CheckExact(l_chain_capsule)) {
+        PyErr_SetString(PyExc_TypeError, "Expected chain capsule");
+        return NULL;
+    }
+    
+    dap_chain_t *l_chain = (dap_chain_t*)PyCapsule_GetPointer(l_chain_capsule, "dap_chain_t");
+    if (!l_chain) {
+        PyErr_SetString(PyExc_ValueError, "Invalid chain capsule");
+        return NULL;
+    }
+
+    dap_chain_cell_id_t l_cell_id = {0};
+    if (cf_chain_parse_cell_id(l_cell_id_obj, &l_cell_id) != 0) {
+        return NULL;
+    }
+
+    if (!cf_chain_cell_is_configured(l_chain)) {
+        return PyLong_FromLong(-1);
+    }
+    
+    dap_time_t l_time = dap_chain_get_blockhain_time(l_chain, l_cell_id);
+    return PyLong_FromUnsignedLongLong((unsigned long long)l_time);
+}
+
+/**
+ * @brief Get chain storage path (Python binding)
+ */
+PyObject* dap_chain_get_path_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    PyObject *l_chain_capsule = NULL;
+    
+    if (!PyArg_ParseTuple(a_args, "O", &l_chain_capsule)) {
+        return NULL;
+    }
+    
+    if (!PyCapsule_CheckExact(l_chain_capsule)) {
+        PyErr_SetString(PyExc_TypeError, "Expected chain capsule");
+        return NULL;
+    }
+    
+    dap_chain_t *l_chain = (dap_chain_t*)PyCapsule_GetPointer(l_chain_capsule, "dap_chain_t");
+    if (!l_chain) {
+        PyErr_SetString(PyExc_ValueError, "Invalid chain capsule");
+        return NULL;
+    }
+    
+    const char *l_path = dap_chain_get_path(l_chain);
+    if (!l_path) {
+        Py_RETURN_NONE;
+    }
+    
+    return PyUnicode_FromString(l_path);
+}
+
+/**
+ * @brief Get consensus type for chain (Python binding)
+ */
+PyObject* dap_chain_get_cs_type_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    PyObject *l_chain_capsule = NULL;
+    
+    if (!PyArg_ParseTuple(a_args, "O", &l_chain_capsule)) {
+        return NULL;
+    }
+    
+    if (!PyCapsule_CheckExact(l_chain_capsule)) {
+        PyErr_SetString(PyExc_TypeError, "Expected chain capsule");
+        return NULL;
+    }
+    
+    dap_chain_t *l_chain = (dap_chain_t*)PyCapsule_GetPointer(l_chain_capsule, "dap_chain_t");
+    if (!l_chain) {
+        PyErr_SetString(PyExc_ValueError, "Invalid chain capsule");
+        return NULL;
+    }
+    
+    const char *l_cs_type = dap_chain_get_cs_type(l_chain);
+    if (!l_cs_type) {
+        dap_chain_pvt_t *l_chain_pvt = DAP_CHAIN_PVT(l_chain);
+        if (l_chain_pvt) {
+            l_cs_type = l_chain_pvt->cs_type;
+        }
+    }
+    if (!l_cs_type) {
+        Py_RETURN_NONE;
+    }
+    
+    return PyUnicode_FromString(l_cs_type);
+}
+
+/**
+ * @brief Load chain from config (Python binding)
+ */
+PyObject* dap_chain_load_from_cfg_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    const char *l_net_name = NULL;
+    unsigned long long l_net_id = 0;
+    PyObject *l_config_obj = Py_None;
+    
+    if (!PyArg_ParseTuple(a_args, "sK|O", &l_net_name, &l_net_id, &l_config_obj)) {
+        return NULL;
+    }
+    
+    dap_config_t *l_config = g_config;
+    if (l_config_obj && l_config_obj != Py_None) {
+        if (!PyCapsule_CheckExact(l_config_obj)) {
+            PyErr_SetString(PyExc_TypeError, "Config must be a capsule or None");
+            return NULL;
+        }
+        l_config = (dap_config_t *)PyCapsule_GetPointer(l_config_obj, "dap_config_t");
+        if (!l_config) {
+            PyErr_SetString(PyExc_ValueError, "Invalid config capsule");
+            return NULL;
+        }
+    }
+    
+    dap_chain_net_id_t l_net_id_struct = {.uint64 = l_net_id};
+    dap_chain_t *l_chain = dap_chain_load_from_cfg(l_net_name, l_net_id_struct, l_config);
+    if (!l_chain) {
+        PyErr_SetString(PyExc_RuntimeError, "Failed to load chain from config");
+        return NULL;
+    }
+    
+    return PyCapsule_New(l_chain, "dap_chain_t", NULL);
+}
+
+/**
+ * @brief Dump chain info to log (Python binding)
+ */
+PyObject* dap_chain_info_dump_log_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    PyObject *l_chain_capsule = NULL;
+    
+    if (!PyArg_ParseTuple(a_args, "O", &l_chain_capsule)) {
+        return NULL;
+    }
+    
+    if (!PyCapsule_CheckExact(l_chain_capsule)) {
+        PyErr_SetString(PyExc_TypeError, "Expected chain capsule");
+        return NULL;
+    }
+    
+    dap_chain_t *l_chain = (dap_chain_t*)PyCapsule_GetPointer(l_chain_capsule, "dap_chain_t");
+    if (!l_chain) {
+        PyErr_SetString(PyExc_ValueError, "Invalid chain capsule");
+        return NULL;
+    }
+    
+    dap_chain_info_dump_log(l_chain);
+    Py_RETURN_NONE;
+}
+
+/**
+ * @brief Get next generation for chain (Python binding)
+ */
+PyObject* dap_chain_generation_next_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    PyObject *l_chain_capsule = NULL;
+    
+    if (!PyArg_ParseTuple(a_args, "O", &l_chain_capsule)) {
+        return NULL;
+    }
+    
+    if (!PyCapsule_CheckExact(l_chain_capsule)) {
+        PyErr_SetString(PyExc_TypeError, "Expected chain capsule");
+        return NULL;
+    }
+    
+    dap_chain_t *l_chain = (dap_chain_t*)PyCapsule_GetPointer(l_chain_capsule, "dap_chain_t");
+    if (!l_chain) {
+        PyErr_SetString(PyExc_ValueError, "Invalid chain capsule");
+        return NULL;
+    }
+    
+    uint16_t l_gen = dap_chain_generation_next(l_chain);
+    return PyLong_FromUnsignedLong((unsigned long)l_gen);
+}
+
+/**
+ * @brief Save certificate chain file (Python binding)
+ */
+PyObject* dap_cert_chain_file_save_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    PyObject *l_datum_capsule = NULL;
+    const char *l_net_name = NULL;
+    
+    if (!PyArg_ParseTuple(a_args, "Os", &l_datum_capsule, &l_net_name)) {
+        return NULL;
+    }
+    
+    if (!PyCapsule_CheckExact(l_datum_capsule)) {
+        PyErr_SetString(PyExc_TypeError, "Expected datum capsule");
+        return NULL;
+    }
+    
+    dap_chain_datum_t *l_datum = (dap_chain_datum_t*)PyCapsule_GetPointer(l_datum_capsule, "dap_chain_datum_t");
+    if (!l_datum) {
+        PyErr_SetString(PyExc_ValueError, "Invalid datum capsule");
+        return NULL;
+    }
+    
+    int l_result = dap_cert_chain_file_save(l_datum, (char *)l_net_name);
+    return PyLong_FromLong(l_result);
+}
+
+/**
+ * @brief Notify atom addition (Python binding)
+ */
+PyObject* dap_chain_atom_notify_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    PyObject *l_chain_capsule = NULL;
+    PyObject *l_cell_id_obj = Py_None;
+    PyObject *l_hash_obj = Py_None;
+    PyObject *l_atom_obj = Py_None;
+    unsigned long long l_atom_time = 0;
+    
+    if (!PyArg_ParseTuple(a_args, "OOOO|K", &l_chain_capsule, &l_cell_id_obj, &l_hash_obj, &l_atom_obj, &l_atom_time)) {
+        return NULL;
+    }
+    
+    if (!PyCapsule_CheckExact(l_chain_capsule)) {
+        PyErr_SetString(PyExc_TypeError, "Expected chain capsule");
+        return NULL;
+    }
+    
+    dap_chain_t *l_chain = (dap_chain_t*)PyCapsule_GetPointer(l_chain_capsule, "dap_chain_t");
+    if (!l_chain) {
+        PyErr_SetString(PyExc_ValueError, "Invalid chain capsule");
+        return NULL;
+    }
+    
+    dap_chain_cell_id_t l_cell_id = {0};
+    if (cf_chain_parse_cell_id(l_cell_id_obj, &l_cell_id) != 0) {
+        return NULL;
+    }
+    
+    if (l_hash_obj == Py_None) {
+        PyErr_SetString(PyExc_TypeError, "Hash must be bytes");
+        return NULL;
+    }
+    dap_hash_fast_t *l_hash = NULL;
+    if (cf_chain_parse_hash(l_hash_obj, &l_hash) != 0) {
+        return NULL;
+    }
+    
+    const uint8_t *l_atom_bytes = NULL;
+    size_t l_atom_size = 0;
+    if (!l_atom_obj || l_atom_obj == Py_None) {
+        PyErr_SetString(PyExc_TypeError, "Atom must be bytes");
+        return NULL;
+    }
+    if (!PyBytes_Check(l_atom_obj)) {
+        PyErr_SetString(PyExc_TypeError, "Atom must be bytes");
+        return NULL;
+    }
+    l_atom_bytes = (const uint8_t *)PyBytes_AsString(l_atom_obj);
+    l_atom_size = (size_t)PyBytes_Size(l_atom_obj);
+
+    if (!cf_chain_cell_is_configured(l_chain)) {
+        pthread_rwlock_rdlock(&l_chain->rwlock);
+        for (dap_list_t *it = l_chain->atom_notifiers; it; it = it->next) {
+            dap_chain_atom_notifier_t *l_notifier = (dap_chain_atom_notifier_t *)it->data;
+            if (l_notifier && l_notifier->callback) {
+                l_notifier->callback(l_notifier->arg, l_chain, l_cell_id, l_hash,
+                                     (void *)l_atom_bytes, l_atom_size, (dap_time_t)l_atom_time);
+            }
+        }
+        pthread_rwlock_unlock(&l_chain->rwlock);
+        Py_RETURN_NONE;
+    }
+    
+    dap_chain_atom_notify(l_chain, l_cell_id, l_hash, l_atom_bytes, l_atom_size, (dap_time_t)l_atom_time);
+    Py_RETURN_NONE;
+}
+
+/**
+ * @brief Notify atom removal (Python binding)
+ */
+PyObject* dap_chain_atom_remove_notify_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    PyObject *l_chain_capsule = NULL;
+    PyObject *l_cell_id_obj = Py_None;
+    unsigned long long l_prev_atom_time = 0;
+    
+    if (!PyArg_ParseTuple(a_args, "OO|K", &l_chain_capsule, &l_cell_id_obj, &l_prev_atom_time)) {
+        return NULL;
+    }
+    
+    if (!PyCapsule_CheckExact(l_chain_capsule)) {
+        PyErr_SetString(PyExc_TypeError, "Expected chain capsule");
+        return NULL;
+    }
+    
+    dap_chain_t *l_chain = (dap_chain_t*)PyCapsule_GetPointer(l_chain_capsule, "dap_chain_t");
+    if (!l_chain) {
+        PyErr_SetString(PyExc_ValueError, "Invalid chain capsule");
+        return NULL;
+    }
+    
+    dap_chain_cell_id_t l_cell_id = {0};
+    if (cf_chain_parse_cell_id(l_cell_id_obj, &l_cell_id) != 0) {
+        return NULL;
+    }
+    
+    dap_chain_atom_remove_notify(l_chain, l_cell_id, (dap_time_t)l_prev_atom_time);
+    Py_RETURN_NONE;
+}
+
+/**
+ * @brief Notify datum addition to index (Python binding)
+ */
+PyObject* dap_chain_datum_notify_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    PyObject *l_chain_capsule = NULL;
+    PyObject *l_cell_id_obj = Py_None;
+    PyObject *l_hash_obj = Py_None;
+    PyObject *l_atom_hash_obj = Py_None;
+    PyObject *l_datum_obj = NULL;
+    int l_ret_code = 0;
+    unsigned int l_action = 0;
+    unsigned long long l_uid = 0;
+    
+    if (!PyArg_ParseTuple(a_args, "OOOOOiIK", &l_chain_capsule, &l_cell_id_obj, &l_hash_obj, &l_atom_hash_obj,
+                          &l_datum_obj, &l_ret_code, &l_action, &l_uid)) {
+        return NULL;
+    }
+    
+    if (!PyCapsule_CheckExact(l_chain_capsule)) {
+        PyErr_SetString(PyExc_TypeError, "Expected chain capsule");
+        return NULL;
+    }
+    
+    if (!PyBytes_Check(l_datum_obj)) {
+        PyErr_SetString(PyExc_TypeError, "Datum must be bytes");
+        return NULL;
+    }
+    
+    dap_chain_t *l_chain = (dap_chain_t*)PyCapsule_GetPointer(l_chain_capsule, "dap_chain_t");
+    if (!l_chain) {
+        PyErr_SetString(PyExc_ValueError, "Invalid chain capsule");
+        return NULL;
+    }
+    
+    dap_chain_cell_id_t l_cell_id = {0};
+    if (cf_chain_parse_cell_id(l_cell_id_obj, &l_cell_id) != 0) {
+        return NULL;
+    }
+    
+    if (l_hash_obj == Py_None || l_atom_hash_obj == Py_None) {
+        PyErr_SetString(PyExc_TypeError, "Hashes must be bytes");
+        return NULL;
+    }
+    
+    dap_hash_fast_t *l_hash = NULL;
+    dap_hash_fast_t *l_atom_hash = NULL;
+    if (cf_chain_parse_hash(l_hash_obj, &l_hash) != 0) {
+        return NULL;
+    }
+    if (cf_chain_parse_hash(l_atom_hash_obj, &l_atom_hash) != 0) {
+        return NULL;
+    }
+    
+    const uint8_t *l_datum_bytes = (const uint8_t *)PyBytes_AsString(l_datum_obj);
+    size_t l_datum_size = (size_t)PyBytes_Size(l_datum_obj);
+    dap_chain_srv_uid_t l_uid_struct = {.uint64 = l_uid};
+
+    if (!cf_chain_cell_is_configured(l_chain)) {
+        pthread_rwlock_rdlock(&l_chain->rwlock);
+        for (dap_list_t *it = l_chain->datum_notifiers; it; it = it->next) {
+            cf_chain_datum_notifier_t *l_notifier = (cf_chain_datum_notifier_t *)it->data;
+            if (l_notifier && l_notifier->callback) {
+                l_notifier->callback(l_notifier->arg, l_hash, l_atom_hash, (void *)l_datum_bytes,
+                                     l_datum_size, l_ret_code, l_action, l_uid_struct);
+            }
+        }
+        pthread_rwlock_unlock(&l_chain->rwlock);
+        Py_RETURN_NONE;
+    }
+    
+    dap_chain_datum_notify(l_chain, l_cell_id, l_hash, l_atom_hash, l_datum_bytes, l_datum_size,
+                           l_ret_code, l_action, l_uid_struct);
+    Py_RETURN_NONE;
+}
+
+/**
+ * @brief Notify datum removal from index (Python binding)
+ */
+PyObject* dap_chain_datum_removed_notify_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    PyObject *l_chain_capsule = NULL;
+    PyObject *l_cell_id_obj = Py_None;
+    PyObject *l_hash_obj = Py_None;
+    PyObject *l_datum_capsule = Py_None;
+    
+    if (!PyArg_ParseTuple(a_args, "OOOO", &l_chain_capsule, &l_cell_id_obj, &l_hash_obj, &l_datum_capsule)) {
+        return NULL;
+    }
+    
+    if (!PyCapsule_CheckExact(l_chain_capsule)) {
+        PyErr_SetString(PyExc_TypeError, "Expected chain capsule");
+        return NULL;
+    }
+    
+    dap_chain_t *l_chain = (dap_chain_t*)PyCapsule_GetPointer(l_chain_capsule, "dap_chain_t");
+    if (!l_chain) {
+        PyErr_SetString(PyExc_ValueError, "Invalid chain capsule");
+        return NULL;
+    }
+    
+    dap_chain_cell_id_t l_cell_id = {0};
+    if (cf_chain_parse_cell_id(l_cell_id_obj, &l_cell_id) != 0) {
+        return NULL;
+    }
+    
+    if (l_hash_obj == Py_None) {
+        PyErr_SetString(PyExc_TypeError, "Hash must be bytes");
+        return NULL;
+    }
+    dap_hash_fast_t *l_hash = NULL;
+    if (cf_chain_parse_hash(l_hash_obj, &l_hash) != 0) {
+        return NULL;
+    }
+    
+    dap_chain_datum_t *l_datum = NULL;
+    if (l_datum_capsule && l_datum_capsule != Py_None) {
+        if (!PyCapsule_CheckExact(l_datum_capsule)) {
+            PyErr_SetString(PyExc_TypeError, "Datum must be a capsule or None");
+            return NULL;
+        }
+        l_datum = (dap_chain_datum_t*)PyCapsule_GetPointer(l_datum_capsule, "dap_chain_datum_t");
+        if (!l_datum) {
+            PyErr_SetString(PyExc_ValueError, "Invalid datum capsule");
+            return NULL;
+        }
+    }
+
+    if (!cf_chain_cell_is_configured(l_chain)) {
+        pthread_rwlock_rdlock(&l_chain->rwlock);
+        for (dap_list_t *it = l_chain->datum_removed_notifiers; it; it = it->next) {
+            cf_chain_datum_removed_notifier_t *l_notifier = (cf_chain_datum_removed_notifier_t *)it->data;
+            if (l_notifier && l_notifier->callback) {
+                l_notifier->callback(l_notifier->arg, l_hash, l_datum);
+            }
+        }
+        pthread_rwlock_unlock(&l_chain->rwlock);
+        Py_RETURN_NONE;
+    }
+    
+    dap_chain_datum_removed_notify(l_chain, l_cell_id, l_hash, l_datum);
+    Py_RETURN_NONE;
 }
 
 // =========================================
@@ -1121,8 +1823,20 @@ static void s_chain_atom_notify_callback_wrapper(void *a_arg, dap_chain_t *a_cha
     // Build Python arguments
     PyObject *l_chain_capsule = PyCapsule_New(a_chain, "dap_chain_t", NULL);
     PyObject *l_cell_id = PyLong_FromUnsignedLongLong(a_id.uint64);
-    PyObject *l_atom_hash = a_atom_hash ? PyBytes_FromStringAndSize((const char*)a_atom_hash, sizeof(dap_hash_fast_t)) : Py_None;
-    PyObject *l_atom = a_atom ? PyBytes_FromStringAndSize((const char*)a_atom, a_atom_size) : Py_None;
+    PyObject *l_atom_hash = NULL;
+    PyObject *l_atom = NULL;
+    if (a_atom_hash) {
+        l_atom_hash = PyBytes_FromStringAndSize((const char*)a_atom_hash, sizeof(dap_hash_fast_t));
+    } else {
+        Py_INCREF(Py_None);
+        l_atom_hash = Py_None;
+    }
+    if (a_atom) {
+        l_atom = PyBytes_FromStringAndSize((const char*)a_atom, a_atom_size);
+    } else {
+        Py_INCREF(Py_None);
+        l_atom = Py_None;
+    }
     PyObject *l_atom_size = PyLong_FromSize_t(a_atom_size);
     PyObject *l_atom_time = PyLong_FromUnsignedLongLong(a_atom_time);
     
@@ -1183,9 +1897,27 @@ static void s_chain_datum_notify_callback_wrapper(void *a_arg, dap_chain_hash_fa
     PyGILState_STATE l_gstate = PyGILState_Ensure();
     
     // Build Python arguments
-    PyObject *l_datum_hash = a_datum_hash ? PyBytes_FromStringAndSize((const char*)a_datum_hash, sizeof(dap_hash_fast_t)) : Py_None;
-    PyObject *l_atom_hash = a_atom_hash ? PyBytes_FromStringAndSize((const char*)a_atom_hash, sizeof(dap_hash_fast_t)) : Py_None;
-    PyObject *l_datum = a_datum ? PyBytes_FromStringAndSize((const char*)a_datum, a_datum_size) : Py_None;
+    PyObject *l_datum_hash = NULL;
+    PyObject *l_atom_hash = NULL;
+    PyObject *l_datum = NULL;
+    if (a_datum_hash) {
+        l_datum_hash = PyBytes_FromStringAndSize((const char*)a_datum_hash, sizeof(dap_hash_fast_t));
+    } else {
+        Py_INCREF(Py_None);
+        l_datum_hash = Py_None;
+    }
+    if (a_atom_hash) {
+        l_atom_hash = PyBytes_FromStringAndSize((const char*)a_atom_hash, sizeof(dap_hash_fast_t));
+    } else {
+        Py_INCREF(Py_None);
+        l_atom_hash = Py_None;
+    }
+    if (a_datum) {
+        l_datum = PyBytes_FromStringAndSize((const char*)a_datum, a_datum_size);
+    } else {
+        Py_INCREF(Py_None);
+        l_datum = Py_None;
+    }
     PyObject *l_datum_size = PyLong_FromSize_t(a_datum_size);
     PyObject *l_ret_code = PyLong_FromLong(a_ret_code);
     PyObject *l_action = PyLong_FromUnsignedLong(a_action);
@@ -1247,8 +1979,20 @@ static void s_chain_datum_removed_notify_callback_wrapper(void *a_arg, dap_chain
     PyGILState_STATE l_gstate = PyGILState_Ensure();
     
     // Build Python arguments
-    PyObject *l_datum_hash = a_datum_hash ? PyBytes_FromStringAndSize((const char*)a_datum_hash, sizeof(dap_hash_fast_t)) : Py_None;
-    PyObject *l_datum_capsule = a_datum ? PyCapsule_New(a_datum, "dap_chain_datum_t", NULL) : Py_None;
+    PyObject *l_datum_hash = NULL;
+    PyObject *l_datum_capsule = NULL;
+    if (a_datum_hash) {
+        l_datum_hash = PyBytes_FromStringAndSize((const char*)a_datum_hash, sizeof(dap_hash_fast_t));
+    } else {
+        Py_INCREF(Py_None);
+        l_datum_hash = Py_None;
+    }
+    if (a_datum) {
+        l_datum_capsule = PyCapsule_New(a_datum, "dap_chain_datum_t", NULL);
+    } else {
+        Py_INCREF(Py_None);
+        l_datum_capsule = Py_None;
+    }
     
     if (!l_datum_hash || !l_datum_capsule) {
         log_it(L_ERROR, "Failed to create Python objects for datum removed notify callback");
@@ -1801,6 +2545,1302 @@ PyObject* py_dap_chain_block_sign_add(PyObject *a_self, PyObject *a_args) {
 }
 
 // =========================================
+// CHAIN CELL OPERATIONS
+// =========================================
+
+PyObject* dap_chain_cell_init_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    (void)a_args;
+    int l_result = dap_chain_cell_init();
+    return PyLong_FromLong(l_result);
+}
+
+PyObject* dap_chain_cell_open_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    PyObject *l_chain_capsule = NULL;
+    PyObject *l_cell_id_obj = Py_None;
+    const char *l_mode_str = NULL;
+    
+    if (!PyArg_ParseTuple(a_args, "OOs", &l_chain_capsule, &l_cell_id_obj, &l_mode_str)) {
+        return NULL;
+    }
+    
+    if (!l_mode_str || strlen(l_mode_str) != 1) {
+        PyErr_SetString(PyExc_ValueError, "Mode must be a single character");
+        return NULL;
+    }
+    
+    if (!PyCapsule_CheckExact(l_chain_capsule)) {
+        PyErr_SetString(PyExc_TypeError, "Expected chain capsule");
+        return NULL;
+    }
+    
+    dap_chain_t *l_chain = (dap_chain_t*)PyCapsule_GetPointer(l_chain_capsule, "dap_chain_t");
+    if (!l_chain) {
+        PyErr_SetString(PyExc_ValueError, "Invalid chain capsule");
+        return NULL;
+    }
+
+    dap_chain_cell_id_t l_cell_id = {0};
+    if (cf_chain_parse_cell_id(l_cell_id_obj, &l_cell_id) != 0) {
+        return NULL;
+    }
+
+    if (!cf_chain_cell_is_configured(l_chain)) {
+        return PyLong_FromLong(-1);
+    }
+    
+    int l_result = dap_chain_cell_open(l_chain, l_cell_id, l_mode_str[0]);
+    return PyLong_FromLong(l_result);
+}
+
+PyObject* dap_chain_cell_create_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    PyObject *l_chain_capsule = NULL;
+    PyObject *l_cell_id_obj = Py_None;
+    
+    if (!PyArg_ParseTuple(a_args, "OO", &l_chain_capsule, &l_cell_id_obj)) {
+        return NULL;
+    }
+    
+    if (!PyCapsule_CheckExact(l_chain_capsule)) {
+        PyErr_SetString(PyExc_TypeError, "Expected chain capsule");
+        return NULL;
+    }
+    
+    dap_chain_t *l_chain = (dap_chain_t*)PyCapsule_GetPointer(l_chain_capsule, "dap_chain_t");
+    if (!l_chain) {
+        PyErr_SetString(PyExc_ValueError, "Invalid chain capsule");
+        return NULL;
+    }
+
+    dap_chain_cell_id_t l_cell_id = {0};
+    if (cf_chain_parse_cell_id(l_cell_id_obj, &l_cell_id) != 0) {
+        return NULL;
+    }
+
+    if (!cf_chain_cell_is_configured(l_chain)) {
+        return PyLong_FromLong(0);
+    }
+    
+    int l_result = dap_chain_cell_create(l_chain, l_cell_id);
+    return PyLong_FromLong(l_result);
+}
+
+PyObject* dap_chain_cell_find_by_id_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    PyObject *l_chain_capsule = NULL;
+    PyObject *l_cell_id_obj = Py_None;
+    
+    if (!PyArg_ParseTuple(a_args, "OO", &l_chain_capsule, &l_cell_id_obj)) {
+        return NULL;
+    }
+    
+    if (!PyCapsule_CheckExact(l_chain_capsule)) {
+        PyErr_SetString(PyExc_TypeError, "Expected chain capsule");
+        return NULL;
+    }
+    
+    dap_chain_t *l_chain = (dap_chain_t*)PyCapsule_GetPointer(l_chain_capsule, "dap_chain_t");
+    if (!l_chain) {
+        PyErr_SetString(PyExc_ValueError, "Invalid chain capsule");
+        return NULL;
+    }
+    
+    dap_chain_cell_id_t l_cell_id = {0};
+    if (cf_chain_parse_cell_id(l_cell_id_obj, &l_cell_id) != 0) {
+        return NULL;
+    }
+    
+    dap_chain_cell_t *l_cell = dap_chain_cell_find_by_id(l_chain, l_cell_id);
+    if (!l_cell) {
+        Py_RETURN_NONE;
+    }
+    
+    return PyCapsule_New(l_cell, "dap_chain_cell_t", NULL);
+}
+
+PyObject* dap_chain_cell_capture_by_id_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    PyObject *l_chain_capsule = NULL;
+    PyObject *l_cell_id_obj = Py_None;
+    
+    if (!PyArg_ParseTuple(a_args, "OO", &l_chain_capsule, &l_cell_id_obj)) {
+        return NULL;
+    }
+    
+    if (!PyCapsule_CheckExact(l_chain_capsule)) {
+        PyErr_SetString(PyExc_TypeError, "Expected chain capsule");
+        return NULL;
+    }
+    
+    dap_chain_t *l_chain = (dap_chain_t*)PyCapsule_GetPointer(l_chain_capsule, "dap_chain_t");
+    if (!l_chain) {
+        PyErr_SetString(PyExc_ValueError, "Invalid chain capsule");
+        return NULL;
+    }
+    
+    dap_chain_cell_id_t l_cell_id = {0};
+    if (cf_chain_parse_cell_id(l_cell_id_obj, &l_cell_id) != 0) {
+        return NULL;
+    }
+    
+    dap_chain_cell_t *l_cell = dap_chain_cell_capture_by_id(l_chain, l_cell_id);
+    if (!l_cell) {
+        dap_chain_cell_remit(l_chain);
+        Py_RETURN_NONE;
+    }
+    
+    PyObject *l_capsule = PyCapsule_New(l_cell, "dap_chain_cell_t", NULL);
+    if (!l_capsule) {
+        dap_chain_cell_remit(l_chain);
+        return NULL;
+    }
+    
+    return l_capsule;
+}
+
+PyObject* dap_chain_cell_remit_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    PyObject *l_chain_capsule = NULL;
+    
+    if (!PyArg_ParseTuple(a_args, "O", &l_chain_capsule)) {
+        return NULL;
+    }
+    
+    if (!PyCapsule_CheckExact(l_chain_capsule)) {
+        PyErr_SetString(PyExc_TypeError, "Expected chain capsule");
+        return NULL;
+    }
+    
+    dap_chain_t *l_chain = (dap_chain_t*)PyCapsule_GetPointer(l_chain_capsule, "dap_chain_t");
+    if (!l_chain) {
+        PyErr_SetString(PyExc_ValueError, "Invalid chain capsule");
+        return NULL;
+    }
+    
+    dap_chain_cell_remit(l_chain);
+    Py_RETURN_NONE;
+}
+
+PyObject* dap_chain_cell_close_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    PyObject *l_chain_capsule = NULL;
+    PyObject *l_cell_id_obj = Py_None;
+    
+    if (!PyArg_ParseTuple(a_args, "OO", &l_chain_capsule, &l_cell_id_obj)) {
+        return NULL;
+    }
+    
+    if (!PyCapsule_CheckExact(l_chain_capsule)) {
+        PyErr_SetString(PyExc_TypeError, "Expected chain capsule");
+        return NULL;
+    }
+    
+    dap_chain_t *l_chain = (dap_chain_t*)PyCapsule_GetPointer(l_chain_capsule, "dap_chain_t");
+    if (!l_chain) {
+        PyErr_SetString(PyExc_ValueError, "Invalid chain capsule");
+        return NULL;
+    }
+    
+    dap_chain_cell_id_t l_cell_id = {0};
+    if (cf_chain_parse_cell_id(l_cell_id_obj, &l_cell_id) != 0) {
+        return NULL;
+    }
+    
+    dap_chain_cell_close(l_chain, l_cell_id);
+    Py_RETURN_NONE;
+}
+
+PyObject* dap_chain_cell_close_all_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    PyObject *l_chain_capsule = NULL;
+    
+    if (!PyArg_ParseTuple(a_args, "O", &l_chain_capsule)) {
+        return NULL;
+    }
+    
+    if (!PyCapsule_CheckExact(l_chain_capsule)) {
+        PyErr_SetString(PyExc_TypeError, "Expected chain capsule");
+        return NULL;
+    }
+    
+    dap_chain_t *l_chain = (dap_chain_t*)PyCapsule_GetPointer(l_chain_capsule, "dap_chain_t");
+    if (!l_chain) {
+        PyErr_SetString(PyExc_ValueError, "Invalid chain capsule");
+        return NULL;
+    }
+    
+    dap_chain_cell_close_all(l_chain);
+    Py_RETURN_NONE;
+}
+
+PyObject* dap_chain_cell_file_append_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    PyObject *l_chain_capsule = NULL;
+    PyObject *l_cell_id_obj = Py_None;
+    const char *l_atom_bytes = NULL;
+    Py_ssize_t l_atom_size = 0;
+    
+    if (!PyArg_ParseTuple(a_args, "OOy#", &l_chain_capsule, &l_cell_id_obj, &l_atom_bytes, &l_atom_size)) {
+        return NULL;
+    }
+    
+    if (!PyCapsule_CheckExact(l_chain_capsule)) {
+        PyErr_SetString(PyExc_TypeError, "Expected chain capsule");
+        return NULL;
+    }
+    
+    dap_chain_t *l_chain = (dap_chain_t*)PyCapsule_GetPointer(l_chain_capsule, "dap_chain_t");
+    if (!l_chain) {
+        PyErr_SetString(PyExc_ValueError, "Invalid chain capsule");
+        return NULL;
+    }
+    
+    dap_chain_cell_id_t l_cell_id = {0};
+    if (cf_chain_parse_cell_id(l_cell_id_obj, &l_cell_id) != 0) {
+        return NULL;
+    }
+    
+    char *l_atom_map = NULL;
+    int l_result = dap_chain_cell_file_append(l_chain, l_cell_id, l_atom_bytes, (size_t)l_atom_size, &l_atom_map);
+    if (l_atom_map) {
+        DAP_DELETE(l_atom_map);
+    }
+    
+    return PyLong_FromLong(l_result);
+}
+
+PyObject* dap_chain_cell_remove_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    PyObject *l_chain_capsule = NULL;
+    PyObject *l_cell_id_obj = Py_None;
+    int l_archivate = 0;
+    
+    if (!PyArg_ParseTuple(a_args, "OOp", &l_chain_capsule, &l_cell_id_obj, &l_archivate)) {
+        return NULL;
+    }
+    
+    if (!PyCapsule_CheckExact(l_chain_capsule)) {
+        PyErr_SetString(PyExc_TypeError, "Expected chain capsule");
+        return NULL;
+    }
+    
+    dap_chain_t *l_chain = (dap_chain_t*)PyCapsule_GetPointer(l_chain_capsule, "dap_chain_t");
+    if (!l_chain) {
+        PyErr_SetString(PyExc_ValueError, "Invalid chain capsule");
+        return NULL;
+    }
+    
+    dap_chain_cell_id_t l_cell_id = {0};
+    if (cf_chain_parse_cell_id(l_cell_id_obj, &l_cell_id) != 0) {
+        return NULL;
+    }
+    
+    int l_result = dap_chain_cell_remove(l_chain, l_cell_id, l_archivate != 0);
+    return PyLong_FromLong(l_result);
+}
+
+PyObject* dap_chain_cell_truncate_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    PyObject *l_chain_capsule = NULL;
+    PyObject *l_cell_id_obj = Py_None;
+    Py_ssize_t l_delta = 0;
+    
+    if (!PyArg_ParseTuple(a_args, "OOn", &l_chain_capsule, &l_cell_id_obj, &l_delta)) {
+        return NULL;
+    }
+    
+    if (l_delta < 0) {
+        PyErr_SetString(PyExc_ValueError, "Delta must be non-negative");
+        return NULL;
+    }
+    
+    if (!PyCapsule_CheckExact(l_chain_capsule)) {
+        PyErr_SetString(PyExc_TypeError, "Expected chain capsule");
+        return NULL;
+    }
+    
+    dap_chain_t *l_chain = (dap_chain_t*)PyCapsule_GetPointer(l_chain_capsule, "dap_chain_t");
+    if (!l_chain) {
+        PyErr_SetString(PyExc_ValueError, "Invalid chain capsule");
+        return NULL;
+    }
+    
+    dap_chain_cell_id_t l_cell_id = {0};
+    if (cf_chain_parse_cell_id(l_cell_id_obj, &l_cell_id) != 0) {
+        return NULL;
+    }
+    
+    int l_result = dap_chain_cell_truncate(l_chain, l_cell_id, (size_t)l_delta);
+    return PyLong_FromLong(l_result);
+}
+
+PyObject* dap_chain_cell_set_load_skip_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    (void)a_args;
+    dap_chain_cell_set_load_skip();
+    Py_RETURN_NONE;
+}
+
+// =========================================
+// CHAIN CH OPERATIONS
+// =========================================
+
+PyObject* dap_chain_ch_init_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    (void)a_args;
+    int l_result = dap_chain_ch_init();
+    return PyLong_FromLong(l_result);
+}
+
+PyObject* dap_chain_ch_deinit_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    (void)a_args;
+    dap_chain_ch_deinit();
+    Py_RETURN_NONE;
+}
+
+PyObject* dap_stream_ch_write_error_unsafe_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    PyObject *l_ch_capsule = NULL;
+    unsigned long long l_net_id = 0;
+    unsigned long long l_chain_id = 0;
+    PyObject *l_cell_id_obj = Py_None;
+    unsigned int l_error_type = 0;
+    
+    if (!PyArg_ParseTuple(a_args, "OKKOI", &l_ch_capsule, &l_net_id, &l_chain_id, &l_cell_id_obj, &l_error_type)) {
+        return NULL;
+    }
+    
+    if (!PyCapsule_CheckExact(l_ch_capsule)) {
+        PyErr_SetString(PyExc_TypeError, "Expected stream channel capsule");
+        return NULL;
+    }
+    
+    dap_stream_ch_t *l_ch = (dap_stream_ch_t*)PyCapsule_GetPointer(l_ch_capsule, "dap_stream_ch_t");
+    if (!l_ch) {
+        PyErr_SetString(PyExc_ValueError, "Invalid stream channel capsule");
+        return NULL;
+    }
+    
+    dap_chain_cell_id_t l_cell_id = {0};
+    if (cf_chain_parse_cell_id(l_cell_id_obj, &l_cell_id) != 0) {
+        return NULL;
+    }
+    
+    dap_chain_net_id_t l_net_id_struct = {.uint64 = l_net_id};
+    dap_chain_id_t l_chain_id_struct = {.uint64 = l_chain_id};
+    dap_stream_ch_write_error_unsafe(l_ch, l_net_id_struct, l_chain_id_struct, l_cell_id,
+                                     (dap_chain_ch_error_type_t)l_error_type);
+    Py_RETURN_NONE;
+}
+
+// =========================================
+// CHAIN CH PACKET OPERATIONS
+// =========================================
+
+PyObject* dap_chain_ch_pkt_get_size_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    PyObject *l_pkt_capsule = NULL;
+    
+    if (!PyArg_ParseTuple(a_args, "O", &l_pkt_capsule)) {
+        return NULL;
+    }
+    
+    if (!PyCapsule_CheckExact(l_pkt_capsule)) {
+        PyErr_SetString(PyExc_TypeError, "Expected chain packet capsule");
+        return NULL;
+    }
+    
+    dap_chain_ch_pkt_t *l_pkt = (dap_chain_ch_pkt_t*)PyCapsule_GetPointer(l_pkt_capsule, "dap_chain_ch_pkt_t");
+    if (!l_pkt) {
+        PyErr_SetString(PyExc_ValueError, "Invalid chain packet capsule");
+        return NULL;
+    }
+    
+    size_t l_size = dap_chain_ch_pkt_get_size(l_pkt);
+    return PyLong_FromSize_t(l_size);
+}
+
+PyObject* dap_chain_ch_pkt_new_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    unsigned long long l_net_id = 0;
+    unsigned long long l_chain_id = 0;
+    PyObject *l_cell_id_obj = Py_None;
+    const char *l_data = NULL;
+    Py_ssize_t l_data_size = 0;
+    unsigned int l_version = DAP_CHAIN_CH_PKT_VERSION_CURRENT;
+    
+    if (!PyArg_ParseTuple(a_args, "KKOy#|I", &l_net_id, &l_chain_id, &l_cell_id_obj, &l_data, &l_data_size, &l_version)) {
+        return NULL;
+    }
+    
+    dap_chain_cell_id_t l_cell_id = {0};
+    if (cf_chain_parse_cell_id(l_cell_id_obj, &l_cell_id) != 0) {
+        return NULL;
+    }
+    
+    dap_chain_net_id_t l_net_id_struct = {.uint64 = l_net_id};
+    dap_chain_id_t l_chain_id_struct = {.uint64 = l_chain_id};
+    dap_chain_ch_pkt_t *l_pkt = dap_chain_ch_pkt_new(l_net_id_struct, l_chain_id_struct, l_cell_id,
+                                                     l_data, (size_t)l_data_size, (uint8_t)l_version);
+    if (!l_pkt) {
+        PyErr_SetString(PyExc_RuntimeError, "Failed to create chain packet");
+        return NULL;
+    }
+    
+    return PyCapsule_New(l_pkt, "dap_chain_ch_pkt_t", NULL);
+}
+
+PyObject* dap_chain_ch_pkt_write_unsafe_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    PyObject *l_ch_capsule = NULL;
+    unsigned int l_type = 0;
+    unsigned long long l_net_id = 0;
+    unsigned long long l_chain_id = 0;
+    PyObject *l_cell_id_obj = Py_None;
+    unsigned int l_data_size_param = 0;
+    const char *l_data = NULL;
+    Py_ssize_t l_data_size = 0;
+    unsigned int l_version = DAP_CHAIN_CH_PKT_VERSION_CURRENT;
+    
+    if (!PyArg_ParseTuple(a_args, "OIKKOIy#|I", &l_ch_capsule, &l_type, &l_net_id, &l_chain_id,
+                          &l_cell_id_obj, &l_data_size_param, &l_data, &l_data_size, &l_version)) {
+        return NULL;
+    }
+    
+    if (!PyCapsule_CheckExact(l_ch_capsule)) {
+        PyErr_SetString(PyExc_TypeError, "Expected stream channel capsule");
+        return NULL;
+    }
+    
+    dap_stream_ch_t *l_ch = (dap_stream_ch_t*)PyCapsule_GetPointer(l_ch_capsule, "dap_stream_ch_t");
+    if (!l_ch) {
+        PyErr_SetString(PyExc_ValueError, "Invalid stream channel capsule");
+        return NULL;
+    }
+    
+    dap_chain_cell_id_t l_cell_id = {0};
+    if (cf_chain_parse_cell_id(l_cell_id_obj, &l_cell_id) != 0) {
+        return NULL;
+    }
+    
+    dap_chain_net_id_t l_net_id_struct = {.uint64 = l_net_id};
+    dap_chain_id_t l_chain_id_struct = {.uint64 = l_chain_id};
+    size_t l_payload_size = (l_data_size_param > 0 && l_data_size_param <= (unsigned int)l_data_size)
+                                ? (size_t)l_data_size_param
+                                : (size_t)l_data_size;
+    size_t l_written = dap_chain_ch_pkt_write_unsafe(l_ch, (uint8_t)l_type, l_net_id_struct, l_chain_id_struct,
+                                                     l_cell_id, l_data, l_payload_size, (uint8_t)l_version);
+    return PyLong_FromSize_t(l_written);
+}
+
+PyObject* dap_chain_ch_pkt_write_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    PyObject *l_worker_capsule = NULL;
+    unsigned int l_ch_uuid = 0;
+    unsigned int l_type = 0;
+    unsigned long long l_net_id = 0;
+    unsigned long long l_chain_id = 0;
+    PyObject *l_cell_id_obj = Py_None;
+    const char *l_data = NULL;
+    Py_ssize_t l_data_size = 0;
+    unsigned int l_version = DAP_CHAIN_CH_PKT_VERSION_CURRENT;
+    
+    if (!PyArg_ParseTuple(a_args, "OIIKKOy#|I", &l_worker_capsule, &l_ch_uuid, &l_type, &l_net_id, &l_chain_id,
+                          &l_cell_id_obj, &l_data, &l_data_size, &l_version)) {
+        return NULL;
+    }
+    
+    if (!PyCapsule_CheckExact(l_worker_capsule)) {
+        PyErr_SetString(PyExc_TypeError, "Expected stream worker capsule");
+        return NULL;
+    }
+    
+    dap_stream_worker_t *l_worker = (dap_stream_worker_t*)PyCapsule_GetPointer(l_worker_capsule, "dap_stream_worker_t");
+    if (!l_worker) {
+        PyErr_SetString(PyExc_ValueError, "Invalid stream worker capsule");
+        return NULL;
+    }
+    
+    dap_chain_cell_id_t l_cell_id = {0};
+    if (cf_chain_parse_cell_id(l_cell_id_obj, &l_cell_id) != 0) {
+        return NULL;
+    }
+    
+    dap_chain_net_id_t l_net_id_struct = {.uint64 = l_net_id};
+    dap_chain_id_t l_chain_id_struct = {.uint64 = l_chain_id};
+    size_t l_written = dap_chain_ch_pkt_write(l_worker, (dap_stream_ch_uuid_t)l_ch_uuid, (uint8_t)l_type,
+                                              l_net_id_struct, l_chain_id_struct, l_cell_id,
+                                              l_data, (size_t)l_data_size, (uint8_t)l_version);
+    return PyLong_FromSize_t(l_written);
+}
+
+PyObject* dap_chain_ch_pkt_type_to_str_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    unsigned int l_type = 0;
+    
+    if (!PyArg_ParseTuple(a_args, "I", &l_type)) {
+        return NULL;
+    }
+    
+    const char *l_str = dap_chain_ch_pkt_type_to_str((uint8_t)l_type);
+    return PyUnicode_FromString(l_str ? l_str : "DAP_CHAIN_CH_PKT_TYPE_UNKNOWN");
+}
+
+// =========================================
+// CHAIN NET UTILS
+// =========================================
+
+PyObject* dap_chain_net_get_default_chain_by_chain_type_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    PyObject *l_net_capsule = NULL;
+    unsigned int l_chain_type = 0;
+    
+    if (!PyArg_ParseTuple(a_args, "OI", &l_net_capsule, &l_chain_type)) {
+        return NULL;
+    }
+    
+    if (!PyCapsule_CheckExact(l_net_capsule)) {
+        PyErr_SetString(PyExc_TypeError, "Expected network capsule");
+        return NULL;
+    }
+    
+    dap_chain_net_t *l_net = (dap_chain_net_t*)PyCapsule_GetPointer(l_net_capsule, "dap_chain_net_t");
+    if (!l_net) {
+        PyErr_SetString(PyExc_ValueError, "Invalid network capsule");
+        return NULL;
+    }
+    
+    dap_chain_t *l_chain = dap_chain_net_get_default_chain_by_chain_type(l_net, (dap_chain_type_t)l_chain_type);
+    if (!l_chain) {
+        Py_RETURN_NONE;
+    }
+    
+    return PyCapsule_New(l_chain, "dap_chain_t", NULL);
+}
+
+// =========================================
+// CHAIN POLICY OPERATIONS
+// =========================================
+
+PyObject* dap_chain_policy_init_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    (void)a_args;
+    int l_result = dap_chain_policy_init();
+    return PyLong_FromLong(l_result);
+}
+
+PyObject* dap_chain_policy_deinit_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    (void)a_args;
+    dap_chain_policy_deinit();
+    Py_RETURN_NONE;
+}
+
+PyObject* dap_chain_policy_create_activate_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    unsigned int l_num = 0;
+    long long l_ts_start = 0;
+    unsigned long long l_block_start = 0;
+    unsigned long long l_chain_id = 0;
+    unsigned int l_generation = 0;
+    
+    if (!PyArg_ParseTuple(a_args, "ILKKI", &l_num, &l_ts_start, &l_block_start, &l_chain_id, &l_generation)) {
+        return NULL;
+    }
+    
+    dap_chain_id_t l_chain_id_struct = {.uint64 = l_chain_id};
+    dap_chain_policy_t *l_policy = dap_chain_policy_create_activate(l_num, l_ts_start, l_block_start, l_chain_id_struct,
+                                                                    (uint16_t)l_generation);
+    if (!l_policy) {
+        PyErr_SetString(PyExc_RuntimeError, "Failed to create activate policy");
+        return NULL;
+    }
+    
+    return PyCapsule_New(l_policy, "dap_chain_policy_t", NULL);
+}
+
+PyObject* dap_chain_policy_create_deactivate_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    PyObject *l_nums_obj = NULL;
+    
+    if (!PyArg_ParseTuple(a_args, "O", &l_nums_obj)) {
+        return NULL;
+    }
+    
+    PyObject *l_seq = PySequence_Fast(l_nums_obj, "Expected a sequence of policy numbers");
+    if (!l_seq) {
+        return NULL;
+    }
+    
+    Py_ssize_t l_count = PySequence_Fast_GET_SIZE(l_seq);
+    if (l_count <= 0) {
+        Py_DECREF(l_seq);
+        PyErr_SetString(PyExc_ValueError, "Policy numbers sequence must not be empty");
+        return NULL;
+    }
+    
+    char **l_nums = DAP_NEW_Z_COUNT(char *, (size_t)l_count);
+    PyObject **l_keepalive = DAP_NEW_Z_COUNT(PyObject *, (size_t)l_count);
+    if (!l_nums || !l_keepalive) {
+        Py_DECREF(l_seq);
+        DAP_DELETE(l_nums);
+        DAP_DELETE(l_keepalive);
+        PyErr_SetString(PyExc_MemoryError, "Failed to allocate policy numbers array");
+        return NULL;
+    }
+    
+    for (Py_ssize_t i = 0; i < l_count; i++) {
+        PyObject *l_item = PySequence_Fast_GET_ITEM(l_seq, i);
+        PyObject *l_str_obj = PyObject_Str(l_item);
+        if (!l_str_obj) {
+            for (Py_ssize_t j = 0; j < i; j++) {
+                Py_XDECREF(l_keepalive[j]);
+            }
+            Py_DECREF(l_seq);
+            DAP_DELETE(l_nums);
+            DAP_DELETE(l_keepalive);
+            return NULL;
+        }
+        l_keepalive[i] = l_str_obj;
+        const char *l_str = PyUnicode_AsUTF8(l_str_obj);
+        if (!l_str) {
+            for (Py_ssize_t j = 0; j <= i; j++) {
+                Py_XDECREF(l_keepalive[j]);
+            }
+            Py_DECREF(l_seq);
+            DAP_DELETE(l_nums);
+            DAP_DELETE(l_keepalive);
+            return NULL;
+        }
+        l_nums[i] = (char *)l_str;
+    }
+    
+    dap_chain_policy_t *l_policy = dap_chain_policy_create_deactivate(l_nums, (uint32_t)l_count);
+    
+    for (Py_ssize_t i = 0; i < l_count; i++) {
+        Py_XDECREF(l_keepalive[i]);
+    }
+    Py_DECREF(l_seq);
+    DAP_DELETE(l_nums);
+    DAP_DELETE(l_keepalive);
+    
+    if (!l_policy) {
+        PyErr_SetString(PyExc_RuntimeError, "Failed to create deactivate policy");
+        return NULL;
+    }
+    
+    return PyCapsule_New(l_policy, "dap_chain_policy_t", NULL);
+}
+
+PyObject* dap_chain_policy_net_add_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    unsigned long long l_net_id = 0;
+    PyObject *l_config_obj = Py_None;
+    
+    if (!PyArg_ParseTuple(a_args, "K|O", &l_net_id, &l_config_obj)) {
+        return NULL;
+    }
+    
+    dap_config_t *l_config = g_config;
+    if (l_config_obj && l_config_obj != Py_None) {
+        if (!PyCapsule_CheckExact(l_config_obj)) {
+            PyErr_SetString(PyExc_TypeError, "Config must be a capsule or None");
+            return NULL;
+        }
+        l_config = (dap_config_t *)PyCapsule_GetPointer(l_config_obj, "dap_config_t");
+        if (!l_config) {
+            PyErr_SetString(PyExc_ValueError, "Invalid config capsule");
+            return NULL;
+        }
+    }
+    
+    dap_chain_net_id_t l_net_id_struct = {.uint64 = l_net_id};
+    int l_result = dap_chain_policy_net_add(l_net_id_struct, l_config);
+    return PyLong_FromLong(l_result);
+}
+
+PyObject* dap_chain_policy_net_purge_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    unsigned long long l_net_id = 0;
+    
+    if (!PyArg_ParseTuple(a_args, "K", &l_net_id)) {
+        return NULL;
+    }
+    
+    dap_chain_net_id_t l_net_id_struct = {.uint64 = l_net_id};
+    dap_chain_policy_net_purge(l_net_id_struct);
+    Py_RETURN_NONE;
+}
+
+PyObject* dap_chain_policy_net_remove_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    unsigned long long l_net_id = 0;
+    
+    if (!PyArg_ParseTuple(a_args, "K", &l_net_id)) {
+        return NULL;
+    }
+    
+    dap_chain_net_id_t l_net_id_struct = {.uint64 = l_net_id};
+    dap_chain_policy_net_remove(l_net_id_struct);
+    Py_RETURN_NONE;
+}
+
+PyObject* dap_chain_policy_apply_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    PyObject *l_policy_capsule = NULL;
+    unsigned long long l_net_id = 0;
+    
+    if (!PyArg_ParseTuple(a_args, "OK", &l_policy_capsule, &l_net_id)) {
+        return NULL;
+    }
+    
+    if (!PyCapsule_CheckExact(l_policy_capsule)) {
+        PyErr_SetString(PyExc_TypeError, "Expected policy capsule");
+        return NULL;
+    }
+    
+    dap_chain_policy_t *l_policy = (dap_chain_policy_t*)PyCapsule_GetPointer(l_policy_capsule, "dap_chain_policy_t");
+    if (!l_policy) {
+        PyErr_SetString(PyExc_ValueError, "Invalid policy capsule");
+        return NULL;
+    }
+    
+    dap_chain_net_id_t l_net_id_struct = {.uint64 = l_net_id};
+    int l_result = dap_chain_policy_apply(l_policy, l_net_id_struct);
+    return PyLong_FromLong(l_result);
+}
+
+PyObject* dap_chain_policy_update_last_num_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    unsigned long long l_net_id = 0;
+    unsigned int l_num = 0;
+    
+    if (!PyArg_ParseTuple(a_args, "KI", &l_net_id, &l_num)) {
+        return NULL;
+    }
+    
+    dap_chain_net_id_t l_net_id_struct = {.uint64 = l_net_id};
+    dap_chain_policy_update_last_num(l_net_id_struct, l_num);
+    Py_RETURN_NONE;
+}
+
+PyObject* dap_chain_policy_get_last_num_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    unsigned long long l_net_id = 0;
+    
+    if (!PyArg_ParseTuple(a_args, "K", &l_net_id)) {
+        return NULL;
+    }
+    
+    dap_chain_net_id_t l_net_id_struct = {.uint64 = l_net_id};
+    uint32_t l_num = dap_chain_policy_get_last_num(l_net_id_struct);
+    return PyLong_FromUnsignedLong(l_num);
+}
+
+PyObject* dap_chain_policy_activate_json_collect_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    unsigned long long l_net_id = 0;
+    unsigned int l_num = 0;
+    
+    if (!PyArg_ParseTuple(a_args, "KI", &l_net_id, &l_num)) {
+        return NULL;
+    }
+    
+    dap_chain_net_id_t l_net_id_struct = {.uint64 = l_net_id};
+    dap_json_t *l_json = dap_chain_policy_activate_json_collect(l_net_id_struct, l_num);
+    if (!l_json) {
+        Py_RETURN_NONE;
+    }
+    
+    return PyCapsule_New(l_json, "dap_json_t", NULL);
+}
+
+PyObject* dap_chain_policy_json_collect_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    PyObject *l_policy_capsule = NULL;
+    
+    if (!PyArg_ParseTuple(a_args, "O", &l_policy_capsule)) {
+        return NULL;
+    }
+    
+    if (!PyCapsule_CheckExact(l_policy_capsule)) {
+        PyErr_SetString(PyExc_TypeError, "Expected policy capsule");
+        return NULL;
+    }
+    
+    dap_chain_policy_t *l_policy = (dap_chain_policy_t*)PyCapsule_GetPointer(l_policy_capsule, "dap_chain_policy_t");
+    if (!l_policy) {
+        PyErr_SetString(PyExc_ValueError, "Invalid policy capsule");
+        return NULL;
+    }
+    
+    dap_json_t *l_json = dap_chain_policy_json_collect(l_policy);
+    if (!l_json) {
+        Py_RETURN_NONE;
+    }
+    
+    return PyCapsule_New(l_json, "dap_json_t", NULL);
+}
+
+PyObject* dap_chain_policy_list_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    unsigned long long l_net_id = 0;
+    int l_version = 0;
+    
+    if (!PyArg_ParseTuple(a_args, "Ki", &l_net_id, &l_version)) {
+        return NULL;
+    }
+    
+    dap_chain_net_id_t l_net_id_struct = {.uint64 = l_net_id};
+    dap_json_t *l_json = dap_chain_policy_list(l_net_id_struct, l_version);
+    if (!l_json) {
+        Py_RETURN_NONE;
+    }
+    
+    return PyCapsule_New(l_json, "dap_json_t", NULL);
+}
+
+PyObject* dap_chain_policy_is_exist_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    unsigned long long l_net_id = 0;
+    unsigned int l_num = 0;
+    
+    if (!PyArg_ParseTuple(a_args, "KI", &l_net_id, &l_num)) {
+        return NULL;
+    }
+    
+    dap_chain_net_id_t l_net_id_struct = {.uint64 = l_net_id};
+    bool l_result = dap_chain_policy_is_exist(l_net_id_struct, l_num);
+    return PyBool_FromLong(l_result ? 1 : 0);
+}
+
+PyObject* dap_chain_policy_is_activated_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    unsigned long long l_net_id = 0;
+    unsigned int l_num = 0;
+    
+    if (!PyArg_ParseTuple(a_args, "KI", &l_net_id, &l_num)) {
+        return NULL;
+    }
+    
+    dap_chain_net_id_t l_net_id_struct = {.uint64 = l_net_id};
+    bool l_result = dap_chain_policy_is_activated(l_net_id_struct, l_num);
+    return PyBool_FromLong(l_result ? 1 : 0);
+}
+
+PyObject* dap_chain_policy_get_size_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    PyObject *l_policy_capsule = NULL;
+    
+    if (!PyArg_ParseTuple(a_args, "O", &l_policy_capsule)) {
+        return NULL;
+    }
+    
+    dap_chain_policy_t *l_policy = NULL;
+    if (l_policy_capsule != Py_None) {
+        if (!PyCapsule_CheckExact(l_policy_capsule)) {
+            PyErr_SetString(PyExc_TypeError, "Expected policy capsule or None");
+            return NULL;
+        }
+        l_policy = (dap_chain_policy_t*)PyCapsule_GetPointer(l_policy_capsule, "dap_chain_policy_t");
+        if (!l_policy) {
+            PyErr_SetString(PyExc_ValueError, "Invalid policy capsule");
+            return NULL;
+        }
+    }
+    
+    size_t l_size = dap_chain_policy_get_size(l_policy);
+    return PyLong_FromSize_t(l_size);
+}
+
+PyObject* dap_chain_policy_to_str_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    PyObject *l_policy_capsule = NULL;
+    
+    if (!PyArg_ParseTuple(a_args, "O", &l_policy_capsule)) {
+        return NULL;
+    }
+    
+    dap_chain_policy_t *l_policy = NULL;
+    if (l_policy_capsule != Py_None) {
+        if (!PyCapsule_CheckExact(l_policy_capsule)) {
+            PyErr_SetString(PyExc_TypeError, "Expected policy capsule or None");
+            return NULL;
+        }
+        l_policy = (dap_chain_policy_t*)PyCapsule_GetPointer(l_policy_capsule, "dap_chain_policy_t");
+        if (!l_policy) {
+            PyErr_SetString(PyExc_ValueError, "Invalid policy capsule");
+            return NULL;
+        }
+    }
+    
+    const char *l_str = dap_chain_policy_to_str(l_policy);
+    return PyUnicode_FromString(l_str ? l_str : "<null>");
+}
+
+// =========================================
+// CHAIN SERVICE OPERATIONS
+// =========================================
+
+PyObject* dap_chain_srv_init_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    (void)a_args;
+    int l_result = dap_chain_srv_init();
+    return PyLong_FromLong(l_result);
+}
+
+PyObject* dap_chain_srv_deinit_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    (void)a_args;
+    dap_chain_srv_deinit();
+    Py_RETURN_NONE;
+}
+
+PyObject* dap_chain_srv_add_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    unsigned long long l_uid = 0;
+    PyObject *l_name_obj = NULL;
+    PyObject *l_callbacks_obj = Py_None;
+    
+    if (!PyArg_ParseTuple(a_args, "KO|O", &l_uid, &l_name_obj, &l_callbacks_obj)) {
+        return NULL;
+    }
+    
+    const char *l_name = NULL;
+    if (l_name_obj && l_name_obj != Py_None) {
+        if (!PyUnicode_Check(l_name_obj)) {
+            PyErr_SetString(PyExc_TypeError, "Service name must be a string or None");
+            return NULL;
+        }
+        l_name = PyUnicode_AsUTF8(l_name_obj);
+        if (!l_name) {
+            return NULL;
+        }
+    }
+    
+    dap_chain_static_srv_callbacks_t *l_callbacks = NULL;
+    if (l_callbacks_obj && l_callbacks_obj != Py_None) {
+        if (!PyCapsule_CheckExact(l_callbacks_obj)) {
+            PyErr_SetString(PyExc_TypeError, "Callbacks must be a capsule or None");
+            return NULL;
+        }
+        l_callbacks = (dap_chain_static_srv_callbacks_t*)PyCapsule_GetPointer(l_callbacks_obj, "dap_chain_static_srv_callbacks_t");
+        if (!l_callbacks) {
+            PyErr_SetString(PyExc_ValueError, "Invalid callbacks capsule");
+            return NULL;
+        }
+    }
+    
+    dap_chain_srv_uid_t l_uid_struct = {.uint64 = l_uid};
+    int l_result = dap_chain_srv_add(l_uid_struct, l_name, l_callbacks);
+    return PyLong_FromLong(l_result);
+}
+
+PyObject* dap_chain_srv_start_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    unsigned long long l_net_id = 0;
+    const char *l_name = NULL;
+    PyObject *l_config_obj = Py_None;
+    
+    if (!PyArg_ParseTuple(a_args, "Ks|O", &l_net_id, &l_name, &l_config_obj)) {
+        return NULL;
+    }
+    
+    dap_config_t *l_config = g_config;
+    if (l_config_obj && l_config_obj != Py_None) {
+        if (!PyCapsule_CheckExact(l_config_obj)) {
+            PyErr_SetString(PyExc_TypeError, "Config must be a capsule or None");
+            return NULL;
+        }
+        l_config = (dap_config_t *)PyCapsule_GetPointer(l_config_obj, "dap_config_t");
+        if (!l_config) {
+            PyErr_SetString(PyExc_ValueError, "Invalid config capsule");
+            return NULL;
+        }
+    }
+    
+    dap_chain_net_id_t l_net_id_struct = {.uint64 = l_net_id};
+    int l_result = dap_chain_srv_start(l_net_id_struct, l_name, l_config);
+    return PyLong_FromLong(l_result);
+}
+
+PyObject* dap_chain_srv_start_all_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    unsigned long long l_net_id = 0;
+    
+    if (!PyArg_ParseTuple(a_args, "K", &l_net_id)) {
+        return NULL;
+    }
+    
+    dap_chain_net_id_t l_net_id_struct = {.uint64 = l_net_id};
+    int l_result = dap_chain_srv_start_all(l_net_id_struct);
+    return PyLong_FromLong(l_result);
+}
+
+PyObject* dap_chain_srv_delete_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    unsigned long long l_uid = 0;
+    
+    if (!PyArg_ParseTuple(a_args, "K", &l_uid)) {
+        return NULL;
+    }
+    
+    dap_chain_srv_uid_t l_uid_struct = {.uint64 = l_uid};
+    int l_result = dap_chain_srv_delete(l_uid_struct);
+    return PyLong_FromLong(l_result);
+}
+
+PyObject* dap_chain_srv_get_internal_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    unsigned long long l_net_id = 0;
+    unsigned long long l_uid = 0;
+    
+    if (!PyArg_ParseTuple(a_args, "KK", &l_net_id, &l_uid)) {
+        return NULL;
+    }
+    
+    dap_chain_net_id_t l_net_id_struct = {.uint64 = l_net_id};
+    dap_chain_srv_uid_t l_uid_struct = {.uint64 = l_uid};
+    void *l_internal = dap_chain_srv_get_internal(l_net_id_struct, l_uid_struct);
+    if (!l_internal) {
+        Py_RETURN_NONE;
+    }
+    
+    return PyCapsule_New(l_internal, "dap_chain_srv_internal_t", NULL);
+}
+
+PyObject* dap_chain_srv_get_uid_by_name_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    const char *l_name = NULL;
+    
+    if (!PyArg_ParseTuple(a_args, "s", &l_name)) {
+        return NULL;
+    }
+    
+    dap_chain_srv_uid_t l_uid = dap_chain_srv_get_uid_by_name(l_name);
+    return PyLong_FromUnsignedLongLong(l_uid.uint64);
+}
+
+PyObject* dap_chain_srv_count_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    unsigned long long l_net_id = 0;
+    
+    if (!PyArg_ParseTuple(a_args, "K", &l_net_id)) {
+        return NULL;
+    }
+    
+    dap_chain_net_id_t l_net_id_struct = {.uint64 = l_net_id};
+    size_t l_count = dap_chain_srv_count(l_net_id_struct);
+    return PyLong_FromSize_t(l_count);
+}
+
+PyObject* dap_chain_srv_list_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    unsigned long long l_net_id = 0;
+    
+    if (!PyArg_ParseTuple(a_args, "K", &l_net_id)) {
+        return NULL;
+    }
+    
+    dap_chain_net_id_t l_net_id_struct = {.uint64 = l_net_id};
+    dap_list_t *l_list = dap_chain_srv_list(l_net_id_struct);
+    if (!l_list) {
+        Py_RETURN_NONE;
+    }
+    
+    return PyCapsule_New(l_list, "dap_list_t", NULL);
+}
+
+PyObject* dap_chain_srv_purge_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    unsigned long long l_net_id = 0;
+    unsigned long long l_uid = 0;
+    
+    if (!PyArg_ParseTuple(a_args, "KK", &l_net_id, &l_uid)) {
+        return NULL;
+    }
+    
+    dap_chain_net_id_t l_net_id_struct = {.uint64 = l_net_id};
+    dap_chain_srv_uid_t l_uid_struct = {.uint64 = l_uid};
+    dap_list_t *l_services = dap_chain_srv_list(l_net_id_struct);
+    bool l_found = false;
+    for (dap_list_t *it = l_services; it; it = it->next) {
+        dap_chain_srv_uid_t *l_item_uid = it->data;
+        if (l_item_uid && l_item_uid->uint64 == l_uid_struct.uint64) {
+            l_found = true;
+            break;
+        }
+    }
+    dap_list_free_full(l_services, NULL);
+    if (!l_found) {
+        return PyLong_FromLong(0);
+    }
+    int l_result = dap_chain_srv_purge(l_net_id_struct, l_uid_struct);
+    return PyLong_FromLong(l_result);
+}
+
+PyObject* dap_chain_srv_purge_all_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    unsigned long long l_net_id = 0;
+    
+    if (!PyArg_ParseTuple(a_args, "K", &l_net_id)) {
+        return NULL;
+    }
+    
+    dap_chain_net_id_t l_net_id_struct = {.uint64 = l_net_id};
+    int l_result = dap_chain_srv_purge_all(l_net_id_struct);
+    return PyLong_FromLong(l_result);
+}
+
+PyObject* dap_chain_srv_hardfork_all_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    unsigned long long l_net_id = 0;
+    
+    if (!PyArg_ParseTuple(a_args, "K", &l_net_id)) {
+        return NULL;
+    }
+    
+    dap_chain_net_id_t l_net_id_struct = {.uint64 = l_net_id};
+    dap_chain_srv_hardfork_state_t *l_state = dap_chain_srv_hardfork_all(l_net_id_struct);
+    if (!l_state) {
+        Py_RETURN_NONE;
+    }
+    
+    return PyCapsule_New(l_state, "dap_chain_srv_hardfork_state_t", NULL);
+}
+
+PyObject* dap_chain_srv_load_state_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    unsigned long long l_net_id = 0;
+    unsigned long long l_uid = 0;
+    const char *l_state = NULL;
+    Py_ssize_t l_state_size = 0;
+    unsigned int l_state_count = 0;
+    
+    if (!PyArg_ParseTuple(a_args, "KKy#I", &l_net_id, &l_uid, &l_state, &l_state_size, &l_state_count)) {
+        return NULL;
+    }
+    
+    dap_chain_net_id_t l_net_id_struct = {.uint64 = l_net_id};
+    dap_chain_srv_uid_t l_uid_struct = {.uint64 = l_uid};
+    int l_result = dap_chain_srv_load_state(l_net_id_struct, l_uid_struct, (byte_t *)l_state,
+                                            (uint64_t)l_state_size, l_state_count);
+    return PyLong_FromLong(l_result);
+}
+
+PyObject* dap_chain_srv_hardfork_complete_all_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    unsigned long long l_net_id = 0;
+    
+    if (!PyArg_ParseTuple(a_args, "K", &l_net_id)) {
+        return NULL;
+    }
+    
+    dap_chain_net_id_t l_net_id_struct = {.uint64 = l_net_id};
+    dap_chain_srv_hardfork_complete_all(l_net_id_struct);
+    Py_RETURN_NONE;
+}
+
+PyObject* dap_chain_srv_event_verify_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    unsigned long long l_net_id = 0;
+    unsigned long long l_uid = 0;
+    const char *l_event_group = NULL;
+    int l_event_type = 0;
+    const char *l_event_data = NULL;
+    Py_ssize_t l_event_data_size = 0;
+    PyObject *l_hash_obj = Py_None;
+    
+    if (!PyArg_ParseTuple(a_args, "KKsiy#O", &l_net_id, &l_uid, &l_event_group, &l_event_type,
+                          &l_event_data, &l_event_data_size, &l_hash_obj)) {
+        return NULL;
+    }
+    
+    dap_hash_fast_t *l_hash = NULL;
+    if (cf_chain_parse_hash(l_hash_obj, &l_hash) != 0) {
+        return NULL;
+    }
+    
+    dap_chain_net_id_t l_net_id_struct = {.uint64 = l_net_id};
+    dap_chain_srv_uid_t l_uid_struct = {.uint64 = l_uid};
+    int l_result = dap_chain_srv_event_verify(l_net_id_struct, l_uid_struct, l_event_group, l_event_type,
+                                              (void *)l_event_data, (size_t)l_event_data_size, l_hash);
+    return PyLong_FromLong(l_result);
+}
+
+PyObject* dap_chain_srv_decree_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    unsigned long long l_net_id = 0;
+    unsigned long long l_uid = 0;
+    int l_apply = 0;
+    PyObject *l_params_obj = Py_None;
+    Py_ssize_t l_params_size = 0;
+    
+    if (!PyArg_ParseTuple(a_args, "KKpOn", &l_net_id, &l_uid, &l_apply, &l_params_obj, &l_params_size)) {
+        return NULL;
+    }
+    
+    dap_tsd_t *l_params = NULL;
+    if (l_params_obj && l_params_obj != Py_None) {
+        if (!PyCapsule_CheckExact(l_params_obj)) {
+            PyErr_SetString(PyExc_TypeError, "Params must be a capsule or None");
+            return NULL;
+        }
+        l_params = (dap_tsd_t *)PyCapsule_GetPointer(l_params_obj, "dap_tsd_t");
+        if (!l_params) {
+            PyErr_SetString(PyExc_ValueError, "Invalid params capsule");
+            return NULL;
+        }
+    }
+    
+    if (l_params_size < 0) {
+        PyErr_SetString(PyExc_ValueError, "Params size must be non-negative");
+        return NULL;
+    }
+    if ((!l_params || l_params_obj == Py_None) && l_params_size > 0) {
+        PyErr_SetString(PyExc_ValueError, "Params size must be 0 when params is None");
+        return NULL;
+    }
+    
+    dap_chain_net_id_t l_net_id_struct = {.uint64 = l_net_id};
+    dap_chain_srv_uid_t l_uid_struct = {.uint64 = l_uid};
+    int l_result = dap_chain_srv_decree(l_net_id_struct, l_uid_struct, l_apply != 0, l_params, (size_t)l_params_size);
+    return PyLong_FromLong(l_result);
+}
+
+PyObject* dap_chain_srv_get_fees_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    unsigned long long l_net_id = 0;
+    
+    if (!PyArg_ParseTuple(a_args, "K", &l_net_id)) {
+        return NULL;
+    }
+    
+    dap_chain_net_id_t l_net_id_struct = {.uint64 = l_net_id};
+    dap_json_t *l_json = dap_chain_srv_get_fees(l_net_id_struct);
+    if (!l_json) {
+        Py_RETURN_NONE;
+    }
+    
+    return PyCapsule_New(l_json, "dap_json_t", NULL);
+}
+
+PyObject* dap_chain_srv_fee_type_to_str_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    unsigned int l_fee_type = 0;
+    
+    if (!PyArg_ParseTuple(a_args, "I", &l_fee_type)) {
+        return NULL;
+    }
+    
+    const char *l_str = dap_chain_srv_fee_type_to_str((dap_chain_srv_fee_type_t)l_fee_type);
+    return PyUnicode_FromString(l_str ? l_str : "UNKNOWN");
+}
+
+// =========================================
 // MODULE INITIALIZATION
 // =========================================
 // This function registers all chain functions with the Python module
@@ -1847,7 +3887,7 @@ int cellframe_chain_init(PyObject *module) {
         {"chain_atom_save", (PyCFunction)dap_chain_atom_save_py, METH_VARARGS,
          "Save atom to chain"},
         {"chain_add_callback_notify", (PyCFunction)dap_chain_add_callback_notify_py, METH_VARARGS,
-         "Add callback notify for chain (not yet fully implemented)"},
+         "Add callback notify for chain"},
         
         // Block operations
         {"dap_chain_block_new", py_dap_chain_block_new, METH_VARARGS,
@@ -1893,13 +3933,215 @@ int cellframe_chain_init(PyObject *module) {
         {"chain_get_atom_last_hash_num_ts", (PyCFunction)dap_chain_get_atom_last_hash_num_ts_py, METH_VARARGS,
          "Get last atom hash, number and timestamp with full details"},
         {"chain_add_callback_datum_index_notify", (PyCFunction)dap_chain_add_callback_datum_index_notify_py, METH_VARARGS,
-         "Add callback for datum index notifications (stub)"},
+         "Add callback for datum index notifications"},
         {"chain_add_callback_datum_removed_from_index_notify", (PyCFunction)dap_chain_add_callback_datum_removed_from_index_notify_py, METH_VARARGS,
-         "Add callback for datum removed from index notifications (stub)"},
+         "Add callback for datum removed from index notifications"},
         {"chain_atom_confirmed_notify_add", (PyCFunction)dap_chain_atom_confirmed_notify_add_py, METH_VARARGS,
-         "Add callback for atom confirmed notifications (stub)"},
+         "Add callback for atom confirmed notifications"},
         {"chain_add_callback_timer", (PyCFunction)dap_chain_add_callback_timer_py, METH_VARARGS,
-         "Add timer callback for blockchain (stub)"},
+         "Add timer callback for blockchain"},
+        
+        // Chain SDK core operations
+        {"dap_chain_init", (PyCFunction)dap_chain_init_py, METH_NOARGS,
+         "Initialize chain subsystem"},
+        {"dap_chain_deinit", (PyCFunction)dap_chain_deinit_py, METH_NOARGS,
+         "Deinitialize chain subsystem"},
+        {"dap_chain_id_parse", (PyCFunction)dap_chain_id_parse_py, METH_VARARGS,
+         "Parse chain ID from string"},
+        {"dap_chain_load_from_cfg", (PyCFunction)dap_chain_load_from_cfg_py, METH_VARARGS,
+         "Load chain from config"},
+        {"dap_chain_info_dump_log", (PyCFunction)dap_chain_info_dump_log_py, METH_VARARGS,
+         "Dump chain info to log"},
+        {"dap_chain_get_path", (PyCFunction)dap_chain_get_path_py, METH_VARARGS,
+         "Get chain storage path"},
+        {"dap_chain_get_cs_type", (PyCFunction)dap_chain_get_cs_type_py, METH_VARARGS,
+         "Get chain consensus type"},
+        {"dap_chain_get_blockhain_time", (PyCFunction)dap_chain_get_blockhain_time_py, METH_VARARGS,
+         "Get blockchain time for chain or cell"},
+        {"dap_chain_get_atom_last_hash", (PyCFunction)dap_chain_get_atom_last_hash_py, METH_VARARGS,
+         "Get last atom hash"},
+        {"dap_chain_generation_next", (PyCFunction)dap_chain_generation_next_py, METH_VARARGS,
+         "Get next chain generation"},
+        {"dap_cert_chain_file_save", (PyCFunction)dap_cert_chain_file_save_py, METH_VARARGS,
+         "Save certificate chain file"},
+        
+        // Chain SDK notify triggers
+        {"dap_chain_atom_notify", (PyCFunction)dap_chain_atom_notify_py, METH_VARARGS,
+         "Notify atom addition"},
+        {"dap_chain_atom_remove_notify", (PyCFunction)dap_chain_atom_remove_notify_py, METH_VARARGS,
+         "Notify atom removal"},
+        {"dap_chain_datum_notify", (PyCFunction)dap_chain_datum_notify_py, METH_VARARGS,
+         "Notify datum addition to index"},
+        {"dap_chain_datum_removed_notify", (PyCFunction)dap_chain_datum_removed_notify_py, METH_VARARGS,
+         "Notify datum removal from index"},
+        
+        // Chain SDK aliases for legacy chain_* names
+        {"dap_chain_get_atom_by_hash", (PyCFunction)dap_chain_get_atom_by_hash_py, METH_VARARGS,
+         "Get atom from chain by hash"},
+        {"dap_chain_get_atom_last_hash_num_ts", (PyCFunction)dap_chain_get_atom_last_hash_num_ts_py, METH_VARARGS,
+         "Get last atom hash, number and timestamp"},
+        {"dap_chain_load_all", (PyCFunction)dap_chain_load_all_py, METH_VARARGS,
+         "Load all chain data from storage"},
+        {"dap_chain_has_file_store", (PyCFunction)dap_chain_has_file_store_py, METH_VARARGS,
+         "Check if chain has file store"},
+        {"dap_chain_purge", (PyCFunction)dap_chain_purge_py, METH_VARARGS,
+         "Purge chain data"},
+        {"dap_chain_atom_save", (PyCFunction)dap_chain_atom_save_py, METH_VARARGS,
+         "Save atom to chain"},
+        {"dap_chain_add_callback_notify", (PyCFunction)dap_chain_add_callback_notify_py, METH_VARARGS,
+         "Add callback notify for chain"},
+        {"dap_chain_create", (PyCFunction)dap_chain_create_py, METH_VARARGS,
+         "Create a new chain"},
+        {"dap_chain_delete", (PyCFunction)dap_chain_delete_py, METH_VARARGS,
+         "Delete a chain"},
+        {"dap_chain_set_cs_type", (PyCFunction)dap_chain_set_cs_type_py, METH_VARARGS,
+         "Set consensus type for chain"},
+        {"dap_chain_set_cs_name", (PyCFunction)dap_chain_set_cs_name_py, METH_VARARGS,
+         "Set consensus name for chain"},
+        {"dap_chain_atom_add_from_threshold", (PyCFunction)dap_chain_atom_add_from_threshold_py, METH_VARARGS,
+         "Add atom from threshold to chain"},
+        {"dap_chain_find_by_id", (PyCFunction)dap_chain_find_by_id_py, METH_VARARGS,
+         "Find chain by network ID and chain ID"},
+        {"dap_chain_datum_type_supported_by_chain", (PyCFunction)dap_chain_datum_type_supported_by_chain_py, METH_VARARGS,
+         "Check if datum type is supported by chain"},
+        {"dap_chain_generation_banned", (PyCFunction)dap_chain_generation_banned_py, METH_VARARGS,
+         "Check if chain generation is banned"},
+        {"dap_chain_generation_ban", (PyCFunction)dap_chain_generation_ban_py, METH_VARARGS,
+         "Ban a chain generation"},
+        {"dap_chain_add_callback_datum_index_notify", (PyCFunction)dap_chain_add_callback_datum_index_notify_py, METH_VARARGS,
+         "Add callback for datum index notifications"},
+        {"dap_chain_add_callback_datum_removed_from_index_notify", (PyCFunction)dap_chain_add_callback_datum_removed_from_index_notify_py, METH_VARARGS,
+         "Add callback for datum removed from index notifications"},
+        {"dap_chain_atom_confirmed_notify_add", (PyCFunction)dap_chain_atom_confirmed_notify_add_py, METH_VARARGS,
+         "Add callback for atom confirmed notifications"},
+        {"dap_chain_add_callback_timer", (PyCFunction)dap_chain_add_callback_timer_py, METH_VARARGS,
+         "Add timer callback for blockchain"},
+        
+        // Chain cell operations
+        {"dap_chain_cell_init", (PyCFunction)dap_chain_cell_init_py, METH_NOARGS,
+         "Initialize chain cells"},
+        {"dap_chain_cell_open", (PyCFunction)dap_chain_cell_open_py, METH_VARARGS,
+         "Open chain cell"},
+        {"dap_chain_cell_create", (PyCFunction)dap_chain_cell_create_py, METH_VARARGS,
+         "Create chain cell"},
+        {"dap_chain_cell_find_by_id", (PyCFunction)dap_chain_cell_find_by_id_py, METH_VARARGS,
+         "Find chain cell by ID"},
+        {"dap_chain_cell_capture_by_id", (PyCFunction)dap_chain_cell_capture_by_id_py, METH_VARARGS,
+         "Capture chain cell by ID"},
+        {"dap_chain_cell_remit", (PyCFunction)dap_chain_cell_remit_py, METH_VARARGS,
+         "Remit chain cell lock"},
+        {"dap_chain_cell_close", (PyCFunction)dap_chain_cell_close_py, METH_VARARGS,
+         "Close chain cell"},
+        {"dap_chain_cell_close_all", (PyCFunction)dap_chain_cell_close_all_py, METH_VARARGS,
+         "Close all chain cells"},
+        {"dap_chain_cell_file_append", (PyCFunction)dap_chain_cell_file_append_py, METH_VARARGS,
+         "Append atom to chain cell file"},
+        {"dap_chain_cell_remove", (PyCFunction)dap_chain_cell_remove_py, METH_VARARGS,
+         "Remove chain cell"},
+        {"dap_chain_cell_truncate", (PyCFunction)dap_chain_cell_truncate_py, METH_VARARGS,
+         "Truncate chain cell file"},
+        {"dap_chain_cell_set_load_skip", (PyCFunction)dap_chain_cell_set_load_skip_py, METH_NOARGS,
+         "Set chain cell load skip"},
+        
+        // Chain ch operations
+        {"dap_chain_ch_init", (PyCFunction)dap_chain_ch_init_py, METH_NOARGS,
+         "Initialize chain channel"},
+        {"dap_chain_ch_deinit", (PyCFunction)dap_chain_ch_deinit_py, METH_NOARGS,
+         "Deinitialize chain channel"},
+        {"dap_stream_ch_write_error_unsafe", (PyCFunction)dap_stream_ch_write_error_unsafe_py, METH_VARARGS,
+         "Write chain channel error (unsafe)"},
+        
+        // Chain ch packet operations
+        {"dap_chain_ch_pkt_get_size", (PyCFunction)dap_chain_ch_pkt_get_size_py, METH_VARARGS,
+         "Get chain channel packet size"},
+        {"dap_chain_ch_pkt_new", (PyCFunction)dap_chain_ch_pkt_new_py, METH_VARARGS,
+         "Create chain channel packet"},
+        {"dap_chain_ch_pkt_type_to_str", (PyCFunction)dap_chain_ch_pkt_type_to_str_py, METH_VARARGS,
+         "Get chain channel packet type string"},
+        {"dap_chain_ch_pkt_write", (PyCFunction)dap_chain_ch_pkt_write_py, METH_VARARGS,
+         "Write chain channel packet"},
+        {"dap_chain_ch_pkt_write_unsafe", (PyCFunction)dap_chain_ch_pkt_write_unsafe_py, METH_VARARGS,
+         "Write chain channel packet (unsafe)"},
+        
+        // Chain net utils
+        {"dap_chain_net_get_default_chain_by_chain_type", (PyCFunction)dap_chain_net_get_default_chain_by_chain_type_py, METH_VARARGS,
+         "Get default chain by type"},
+        
+        // Chain policy operations
+        {"dap_chain_policy_init", (PyCFunction)dap_chain_policy_init_py, METH_NOARGS,
+         "Initialize chain policy subsystem"},
+        {"dap_chain_policy_deinit", (PyCFunction)dap_chain_policy_deinit_py, METH_NOARGS,
+         "Deinitialize chain policy subsystem"},
+        {"dap_chain_policy_create_activate", (PyCFunction)dap_chain_policy_create_activate_py, METH_VARARGS,
+         "Create activate policy"},
+        {"dap_chain_policy_create_deactivate", (PyCFunction)dap_chain_policy_create_deactivate_py, METH_VARARGS,
+         "Create deactivate policy"},
+        {"dap_chain_policy_net_add", (PyCFunction)dap_chain_policy_net_add_py, METH_VARARGS,
+         "Add policy net"},
+        {"dap_chain_policy_net_purge", (PyCFunction)dap_chain_policy_net_purge_py, METH_VARARGS,
+         "Purge policy net"},
+        {"dap_chain_policy_net_remove", (PyCFunction)dap_chain_policy_net_remove_py, METH_VARARGS,
+         "Remove policy net"},
+        {"dap_chain_policy_apply", (PyCFunction)dap_chain_policy_apply_py, METH_VARARGS,
+         "Apply policy"},
+        {"dap_chain_policy_update_last_num", (PyCFunction)dap_chain_policy_update_last_num_py, METH_VARARGS,
+         "Update policy last number"},
+        {"dap_chain_policy_get_last_num", (PyCFunction)dap_chain_policy_get_last_num_py, METH_VARARGS,
+         "Get policy last number"},
+        {"dap_chain_policy_activate_json_collect", (PyCFunction)dap_chain_policy_activate_json_collect_py, METH_VARARGS,
+         "Collect activate policy JSON"},
+        {"dap_chain_policy_json_collect", (PyCFunction)dap_chain_policy_json_collect_py, METH_VARARGS,
+         "Collect policy JSON"},
+        {"dap_chain_policy_list", (PyCFunction)dap_chain_policy_list_py, METH_VARARGS,
+         "List policies as JSON"},
+        {"dap_chain_policy_is_exist", (PyCFunction)dap_chain_policy_is_exist_py, METH_VARARGS,
+         "Check if policy exists"},
+        {"dap_chain_policy_is_activated", (PyCFunction)dap_chain_policy_is_activated_py, METH_VARARGS,
+         "Check if policy is activated"},
+        {"dap_chain_policy_get_size", (PyCFunction)dap_chain_policy_get_size_py, METH_VARARGS,
+         "Get policy size"},
+        {"dap_chain_policy_to_str", (PyCFunction)dap_chain_policy_to_str_py, METH_VARARGS,
+         "Get policy type string"},
+        
+        // Chain service operations
+        {"dap_chain_srv_init", (PyCFunction)dap_chain_srv_init_py, METH_NOARGS,
+         "Initialize chain services"},
+        {"dap_chain_srv_deinit", (PyCFunction)dap_chain_srv_deinit_py, METH_NOARGS,
+         "Deinitialize chain services"},
+        {"dap_chain_srv_add", (PyCFunction)dap_chain_srv_add_py, METH_VARARGS,
+         "Add chain service"},
+        {"dap_chain_srv_start", (PyCFunction)dap_chain_srv_start_py, METH_VARARGS,
+         "Start chain service"},
+        {"dap_chain_srv_start_all", (PyCFunction)dap_chain_srv_start_all_py, METH_VARARGS,
+         "Start all chain services"},
+        {"dap_chain_srv_delete", (PyCFunction)dap_chain_srv_delete_py, METH_VARARGS,
+         "Delete chain service"},
+        {"dap_chain_srv_get_internal", (PyCFunction)dap_chain_srv_get_internal_py, METH_VARARGS,
+         "Get chain service internal pointer"},
+        {"dap_chain_srv_get_uid_by_name", (PyCFunction)dap_chain_srv_get_uid_by_name_py, METH_VARARGS,
+         "Get chain service UID by name"},
+        {"dap_chain_srv_count", (PyCFunction)dap_chain_srv_count_py, METH_VARARGS,
+         "Get chain services count"},
+        {"dap_chain_srv_list", (PyCFunction)dap_chain_srv_list_py, METH_VARARGS,
+         "List chain services"},
+        {"dap_chain_srv_purge", (PyCFunction)dap_chain_srv_purge_py, METH_VARARGS,
+         "Purge chain service"},
+        {"dap_chain_srv_purge_all", (PyCFunction)dap_chain_srv_purge_all_py, METH_VARARGS,
+         "Purge all chain services"},
+        {"dap_chain_srv_hardfork_all", (PyCFunction)dap_chain_srv_hardfork_all_py, METH_VARARGS,
+         "Prepare hardfork state for all services"},
+        {"dap_chain_srv_load_state", (PyCFunction)dap_chain_srv_load_state_py, METH_VARARGS,
+         "Load hardfork state for service"},
+        {"dap_chain_srv_hardfork_complete_all", (PyCFunction)dap_chain_srv_hardfork_complete_all_py, METH_VARARGS,
+         "Complete hardfork for all services"},
+        {"dap_chain_srv_event_verify", (PyCFunction)dap_chain_srv_event_verify_py, METH_VARARGS,
+         "Verify chain service event"},
+        {"dap_chain_srv_decree", (PyCFunction)dap_chain_srv_decree_py, METH_VARARGS,
+         "Apply chain service decree"},
+        {"dap_chain_srv_get_fees", (PyCFunction)dap_chain_srv_get_fees_py, METH_VARARGS,
+         "Get chain services fees"},
+        {"dap_chain_srv_fee_type_to_str", (PyCFunction)dap_chain_srv_fee_type_to_str_py, METH_VARARGS,
+         "Get chain service fee type string"},
         
         {NULL, NULL, 0, NULL}  // Sentinel
     };

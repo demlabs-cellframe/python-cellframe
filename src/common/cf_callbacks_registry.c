@@ -295,14 +295,14 @@ void cf_callbacks_registry_stats(size_t *out_count, size_t *out_by_type)
     // Count by type if requested
     if (out_by_type) {
         // Initialize all counts to 0
-        for (int i = 0; i < CF_CALLBACK_TYPE_LEDGER_TAX + 1; i++) {
+        for (int i = 0; i < CF_CALLBACK_TYPE_LAST; i++) {
             out_by_type[i] = 0;
         }
 
         // Count each type
         cf_callback_entry_t *curr = s_registry.head;
         while (curr) {
-            if (curr->type >= 0 && curr->type <= CF_CALLBACK_TYPE_LEDGER_TAX) {
+            if (curr->type >= 0 && curr->type < CF_CALLBACK_TYPE_LAST) {
                 out_by_type[curr->type]++;
             }
             curr = curr->next;
