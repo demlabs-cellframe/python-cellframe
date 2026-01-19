@@ -9,7 +9,6 @@ slc
 
 # Build directories
 build*/
-test*/
 dist/
 *.egg-info/
 

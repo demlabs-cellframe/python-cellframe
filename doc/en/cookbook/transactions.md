@@ -1,32 +1,30 @@
 # Transactions
 
-Creating and sending transactions.
+Creating transactions with the current API.
 
-## Simple Transfer
+## Simple Transfer (Composer)
+
+The `Composer` module builds and submits transactions using native
+`dap_compose_*` bindings.
 
 ```python
-from CellFrame.chain import TX, Wallet
+from decimal import Decimal
+from CellFrame.chain import Wallet
+from CellFrame.composer import Composer
 
-# 1. Open sender wallet
-sender_wallet = Wallet.open("sender_wallet")
+wallet = Wallet.open("sender_wallet", "/path/to/wallets", password="secret")
+recipient = wallet.get_address_for_network("mainnet")
 
-# 2. Create transaction object
-tx = TX.create()
+with Composer(net_name="mainnet", wallet=wallet) as composer:
+    tx_hash = composer.create_tx(
+        to_address=recipient,
+        amount=Decimal("1.0"),
+        token_ticker="CELL",
+        fee=Decimal("0.01")
+    )
 
-# 3. Add input (from sender)
-# 'value' is amount in datoshi (minimal unit)
-value = 10 * 10**18  # 10.0 tokens
-token_ticker = "CELL"
-tx.add_in(sender_wallet.get_address(), value, token_ticker)
-
-# 4. Add output (to recipient)
-recipient_addr = "..." # Recipient address string
-tx.add_out(recipient_addr, value, token_ticker)
-
-# 5. Sign transaction
-tx.sign(sender_wallet)
-
-# 6. Broadcast to network
-tx.broadcast()
+print(tx_hash)
 ```
 
+Note: the composer requires the native `python_cellframe` extension with
+transaction composition functions exported.

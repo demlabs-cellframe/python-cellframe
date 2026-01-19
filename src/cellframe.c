@@ -1,7 +1,7 @@
 #include "cellframe.h"
 #include "cf_callbacks_registry.h"  // CRITICAL: For memory leak prevention
-#include "cf_ledger_callback_registry.h"  // For ledger callbacks without void *arg
-#include "cf_verificator_registry.h"  // For verificator callbacks by subtype
+#include "ledger/cf_ledger_callback_registry.h"  // For ledger callbacks without void *arg
+#include "ledger/cf_verificator_registry.h"  // For verificator callbacks by subtype
 #include <string.h>
 
 #define LOG_TAG "python_cellframe"
@@ -49,6 +49,7 @@ static void cellframe_module_free(void *m) {
 int cellframe_network_init(PyObject *module);
 int cellframe_wallet_init(PyObject *module);
 int cellframe_chain_init(PyObject *module);
+int cellframe_datum_init(PyObject *module);
 int cellframe_ledger_init(PyObject *module);
 int cellframe_tx_init(PyObject *module);
 int cellframe_consensus_init(PyObject *module);
@@ -321,6 +322,13 @@ PyMODINIT_FUNC PyInit_python_cellframe(void) {
     // Initialize submodules by calling their init functions
     // This replaces the old method of listing all functions in one big array
     
+    // Initialize common module
+    if (cellframe_common_init(module) < 0) {
+        PyErr_SetString(PyExc_ImportError, "Failed to initialize common module");
+        Py_DECREF(module);
+        return NULL;
+    }
+
     // Initialize wallet module
     if (cellframe_wallet_init(module) < 0) {
         Py_DECREF(module);
@@ -329,6 +337,13 @@ PyMODINIT_FUNC PyInit_python_cellframe(void) {
     
     // Initialize chain module  
     if (cellframe_chain_init(module) < 0) {
+        Py_DECREF(module);
+        return NULL;
+    }
+
+    // Initialize datum module
+    if (cellframe_datum_init(module) < 0) {
+        PyErr_SetString(PyExc_ImportError, "Failed to initialize datum module");
         Py_DECREF(module);
         return NULL;
     }

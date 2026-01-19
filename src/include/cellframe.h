@@ -45,6 +45,8 @@ extern PyObject *CellframeNodeError;
 // =========================================
 // Include specialized headers after basic definitions
 #include "cf_node.h"
+#include "cf_common.h"
+#include "cf_datum.h"
 #include "cf_wallet.h"
 #include "cf_chain.h"
 #include "cf_ledger.h"
@@ -82,4 +84,3 @@ PyObject* cellframe_deinitialize(PyObject *self);
 #endif
 
 #endif /* CELLFRAME_H */
-

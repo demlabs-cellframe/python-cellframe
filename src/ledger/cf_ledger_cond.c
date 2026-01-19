@@ -1,6 +1,6 @@
 #include "include/cf_ledger_internal.h"
 #include "../common/cf_callbacks_registry.h"
-#include "../common/cf_verificator_registry.h"
+#include "cf_verificator_registry.h"
 
 /*
  * Cellframe ledger conditional outputs bindings

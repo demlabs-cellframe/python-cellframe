@@ -13,14 +13,35 @@
 
 // External declarations from cf_compose.c
 extern PyObject* dap_chain_tx_compose_register_py(PyObject *a_self, PyObject *a_args);
+extern PyObject* dap_chain_tx_compose_init_py(PyObject *a_self, PyObject *a_args);
+extern PyObject* dap_chain_tx_compose_deinit_py(PyObject *a_self, PyObject *a_args);
 extern PyObject* dap_chain_tx_compose_unregister_py(PyObject *a_self, PyObject *a_args);
 extern PyObject* dap_chain_tx_compose_is_registered_py(PyObject *a_self, PyObject *a_args);
 extern PyObject* dap_chain_tx_compose_create_py(PyObject *a_self, PyObject *a_args);
+extern PyObject* dap_chain_tx_compose_registry_init_py(PyObject *a_self, PyObject *a_args);
+extern PyObject* dap_chain_tx_compose_registry_deinit_py(PyObject *a_self, PyObject *a_args);
+extern PyObject* dap_chain_tx_compose_registry_add_py(PyObject *a_self, PyObject *a_args);
+extern PyObject* dap_chain_tx_compose_registry_remove_py(PyObject *a_self, PyObject *a_args);
+extern PyObject* dap_chain_tx_compose_registry_find_py(PyObject *a_self, PyObject *a_args);
 
 /**
  * @brief Python TX Compose module methods
  */
 static PyMethodDef s_compose_methods[] = {
+    {
+        "dap_chain_tx_compose_init",
+        dap_chain_tx_compose_init_py,
+        METH_VARARGS,
+        "Initialize TX compose API.\n\n"
+        "Returns:\n"
+        "    int: 0 on success, negative on error"
+    },
+    {
+        "dap_chain_tx_compose_deinit",
+        dap_chain_tx_compose_deinit_py,
+        METH_VARARGS,
+        "Deinitialize TX compose API."
+    },
     // TX Builder Registration
     {
         "dap_chain_tx_compose_register",
@@ -80,6 +101,51 @@ static PyMethodDef s_compose_methods[] = {
         "        utxo_list,\n"
         "        {'addr_to': addr, 'value': value, 'fee': fee}\n"
         "    )"
+    },
+
+    {
+        "dap_chain_tx_compose_registry_init",
+        dap_chain_tx_compose_registry_init_py,
+        METH_VARARGS,
+        "Initialize compose registry.\n\n"
+        "Returns:\n"
+        "    int: 0 on success, negative on error"
+    },
+    {
+        "dap_chain_tx_compose_registry_deinit",
+        dap_chain_tx_compose_registry_deinit_py,
+        METH_VARARGS,
+        "Deinitialize compose registry."
+    },
+    {
+        "dap_chain_tx_compose_registry_add",
+        dap_chain_tx_compose_registry_add_py,
+        METH_VARARGS,
+        "Add entry to compose registry.\n\n"
+        "Args:\n"
+        "    tx_type (str): TX type identifier\n"
+        "    callback (callable): Builder function(ledger, utxo_list, user_data) -> datum\n"
+        "    user_data (optional): Optional user data\n\n"
+        "Returns:\n"
+        "    int: 0 on success, negative on error"
+    },
+    {
+        "dap_chain_tx_compose_registry_remove",
+        dap_chain_tx_compose_registry_remove_py,
+        METH_VARARGS,
+        "Remove entry from compose registry.\n\n"
+        "Args:\n"
+        "    tx_type (str): TX type identifier"
+    },
+    {
+        "dap_chain_tx_compose_registry_find",
+        dap_chain_tx_compose_registry_find_py,
+        METH_VARARGS,
+        "Find entry in compose registry.\n\n"
+        "Args:\n"
+        "    tx_type (str): TX type identifier\n\n"
+        "Returns:\n"
+        "    capsule: dap_chain_tx_compose_registry_entry_t or None"
     },
     
     {NULL, NULL, 0, NULL}  // Sentinel

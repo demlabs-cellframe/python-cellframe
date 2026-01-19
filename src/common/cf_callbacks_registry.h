@@ -33,6 +33,9 @@ typedef enum {
     CF_CALLBACK_TYPE_CLI_COMMAND,         ///< CLI command callback
     CF_CALLBACK_TYPE_CHAIN_DATUM_INDEX,   ///< Chain datum index notify
     CF_CALLBACK_TYPE_CHAIN_DATUM_REMOVED, ///< Chain datum removed notify
+    CF_CALLBACK_TYPE_DATUM_DUMP_DECREE,   ///< Datum decree JSON dump callback
+    CF_CALLBACK_TYPE_DATUM_DUMP_ANCHOR,   ///< Datum anchor JSON dump callback
+    CF_CALLBACK_TYPE_DECREE_REGISTRY,    ///< Decree registry handler callback
     CF_CALLBACK_TYPE_CHAIN_ATOM_NOTIFY,   ///< Chain atom notify
     CF_CALLBACK_TYPE_CHAIN_ATOM_CONFIRMED,///< Chain atom confirmed notify
     CF_CALLBACK_TYPE_CHAIN_TIMER,         ///< Chain timer callback
@@ -41,6 +44,12 @@ typedef enum {
     CF_CALLBACK_TYPE_LEDGER_VOTING,       ///< Ledger voting verificator (4 callbacks)
     CF_CALLBACK_TYPE_LEDGER_SERVICE,      ///< Ledger service registration
     CF_CALLBACK_TYPE_LEDGER_TAX,          ///< Ledger tax callback
+    CF_CALLBACK_TYPE_BLOCK_SOVEREIGN_TAX, ///< Block sovereign tax callback
+    CF_CALLBACK_TYPE_RPC_CONSENSUS,       ///< RPC consensus callback
+    CF_CALLBACK_TYPE_RPC_STORAGE,         ///< RPC storage callback
+    CF_CALLBACK_TYPE_RPC_SERVICE,         ///< RPC service callback
+    CF_CALLBACK_TYPE_RPC_WALLET,          ///< RPC wallet callback
+    CF_CALLBACK_TYPE_RPC_TX_NOTIFY,       ///< RPC TX notify callback
     CF_CALLBACK_TYPE_LAST                 ///< Sentinel value for callback counts
 } cf_callback_type_t;
 

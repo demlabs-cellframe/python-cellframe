@@ -1,47 +1,35 @@
 # Core Modules
 
-The SDK is divided into several main modules.
+The SDK is divided into several main modules. The Python layer is a thin wrapper
+around the native `python_cellframe` extension and the `python-dap` bindings.
 
-## CellFrame Module
-
-This is the main entry point for blockchain logic.
-
-*   **CellFrame.init() / deinit()**: Initialization and cleanup.
-*   **CellFrame.set_log_level()**: Logging configuration.
-
-### CellFrame.chain
-Functionality related to the blockchain structure.
-*   `Wallet`: Management of keys and addresses.
-*   `TX`: Transaction creation and parsing.
-*   `Ledger`: Access to the ledger (transactions history, balances).
-*   `Chain`: Block and atom management.
-
-### CellFrame.network
-Networking and node communication.
-*   `Net`: Network configuration.
-*   `Node`: Remote node interaction.
-
-### CellFrame.services
-Services running on the node.
-*   `Service`: Base class for creating custom services.
+## CellFrame Package
 
 ### CellFrame.common
-Common utilities and types.
-*   `Datum`: Base unit of data in the chain.
+- Context system (`ExecutionMode`, `AppContext`, `ContextFactory`).
+- Core exceptions and shared types.
+
+### CellFrame.chain
+- Wallet, ledger, and transaction wrappers.
+- Address and mempool helpers.
+- Re-exports selected wallet/ledger/tx classes for convenience.
+
+### CellFrame.wallet
+- Wallet management: create/open, addresses, balances, key access.
+
+### CellFrame.composer
+- Transaction composition utilities (requires native `dap_compose_*` bindings).
+
+### CellFrame.network
+- Network helpers and data structures (depends on native network bindings).
+
+### CellFrame.services
+- Service wrappers (staking, exchange, voting, orders) backed by native SDK.
+
+### CellFrame.legacy
+- Compatibility layer for legacy API consumers.
 
 ## DAP Module (`python-dap`)
 
-Low-level system access.
-
-### dap.core
-*   `config`: Configuration file parsing.
-*   `log_it`: Logging function.
-
-### dap.crypto
-*   `HashFast`: Hash functions.
-*   `Sign`: Digital signatures.
-*   `CryptoKey`: Key management.
-
-### dap.global_db
-*   Global Database (GDB) access (KeyValue storage distributed across the network).
-
+Low-level system access (networking, cryptography, configuration, Global DB).
+Refer to `python-dap` documentation for the `dap.*` APIs.

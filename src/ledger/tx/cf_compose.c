@@ -18,6 +18,7 @@
 
 #include "cellframe.h"
 #include "dap_chain_tx_compose_api.h"
+#include "dap_chain_tx_compose_registry.h"
 #include "dap_chain_net.h"
 #include "dap_list.h"
 #include "../common/cf_callbacks_registry.h"  // CRITICAL: For memory leak prevention
@@ -41,6 +42,8 @@ typedef struct {
 static python_compose_ctx_t **s_python_compose_callbacks = NULL;
 static size_t s_python_compose_callbacks_count = 0;
 static pthread_mutex_t s_compose_mutex = PTHREAD_MUTEX_INITIALIZER;
+
+void dap_chain_tx_compose_cleanup_callbacks_py(void);
 
 // =============================================================================
 // C WRAPPER FOR PYTHON CALLBACKS
@@ -171,6 +174,35 @@ PyObject* dap_chain_tx_compose_register_py(PyObject *a_self, PyObject *a_args) {
 }
 
 /**
+ * @brief Initialize TX compose API
+ * @param a_self Python self object (unused)
+ * @param a_args Arguments (unused)
+ * @return Integer result code (0 on success)
+ */
+PyObject* dap_chain_tx_compose_init_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    (void)a_args;
+
+    int l_result = dap_chain_tx_compose_init();
+    return PyLong_FromLong(l_result);
+}
+
+/**
+ * @brief Deinitialize TX compose API
+ * @param a_self Python self object (unused)
+ * @param a_args Arguments (unused)
+ * @return None
+ */
+PyObject* dap_chain_tx_compose_deinit_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    (void)a_args;
+
+    dap_chain_tx_compose_cleanup_callbacks_py();
+    dap_chain_tx_compose_deinit();
+    Py_RETURN_NONE;
+}
+
+/**
  * @brief Unregister TX builder
  * @param a_self Python self object (unused)
  * @param a_args Arguments (tx_type)
@@ -183,6 +215,8 @@ PyObject* dap_chain_tx_compose_unregister_py(PyObject *a_self, PyObject *a_args)
     if (!PyArg_ParseTuple(a_args, "s", &l_tx_type)) {
         return NULL;
     }
+
+    dap_chain_tx_compose_unregister(l_tx_type);
     
     // Find and remove from cleanup list
     pthread_mutex_lock(&s_compose_mutex);
@@ -191,10 +225,7 @@ PyObject* dap_chain_tx_compose_unregister_py(PyObject *a_self, PyObject *a_args)
             strcmp(s_python_compose_callbacks[i]->tx_type, l_tx_type) == 0) {
             
             python_compose_ctx_t *l_ctx = s_python_compose_callbacks[i];
-            
-            // Unregister from SDK
-            dap_chain_tx_compose_unregister(l_tx_type);
-            
+
             // Cleanup Python refs
             Py_DECREF(l_ctx->callback);
             Py_DECREF(l_ctx->user_data);
@@ -282,6 +313,157 @@ PyObject* dap_chain_tx_compose_create_py(PyObject *a_self, PyObject *a_args) {
     }
     
     return PyCapsule_New(l_datum, "dap_chain_datum_t", NULL);
+}
+
+/**
+ * @brief Initialize compose registry
+ * @param a_self Python self object (unused)
+ * @param a_args Arguments (unused)
+ * @return Integer result code (0 on success)
+ */
+PyObject* dap_chain_tx_compose_registry_init_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    (void)a_args;
+
+    int l_result = dap_chain_tx_compose_registry_init();
+    return PyLong_FromLong(l_result);
+}
+
+/**
+ * @brief Deinitialize compose registry
+ * @param a_self Python self object (unused)
+ * @param a_args Arguments (unused)
+ * @return None
+ */
+PyObject* dap_chain_tx_compose_registry_deinit_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    (void)a_args;
+
+    dap_chain_tx_compose_cleanup_callbacks_py();
+    dap_chain_tx_compose_registry_deinit();
+    Py_RETURN_NONE;
+}
+
+/**
+ * @brief Add entry to compose registry
+ * @param a_self Python self object (unused)
+ * @param a_args Arguments (tx_type, callback, [user_data])
+ * @return Integer result code (0 on success)
+ */
+PyObject* dap_chain_tx_compose_registry_add_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    const char *l_tx_type;
+    PyObject *l_callback = NULL;
+    PyObject *l_user_data = Py_None;
+
+    if (!PyArg_ParseTuple(a_args, "sO|O", &l_tx_type, &l_callback, &l_user_data)) {
+        PyErr_SetString(PyExc_TypeError, "Expected (tx_type, callback, [user_data])");
+        return NULL;
+    }
+
+    if (!PyCallable_Check(l_callback)) {
+        PyErr_SetString(PyExc_TypeError, "Second argument must be callable");
+        return NULL;
+    }
+
+    python_compose_ctx_t *l_ctx = DAP_NEW_Z(python_compose_ctx_t);
+    if (!l_ctx) {
+        PyErr_SetString(PyExc_MemoryError, "Failed to allocate callback context");
+        return NULL;
+    }
+
+    l_ctx->tx_type = dap_strdup(l_tx_type);
+    l_ctx->callback = l_callback;
+    l_ctx->user_data = l_user_data;
+
+    Py_INCREF(l_callback);
+    Py_INCREF(l_user_data);
+
+    int l_result = dap_chain_tx_compose_registry_add(l_tx_type, s_python_compose_wrapper, l_ctx);
+
+    if (l_result != 0) {
+        log_it(L_ERROR, "Failed to register TX builder for '%s': %d", l_tx_type, l_result);
+        Py_DECREF(l_callback);
+        Py_DECREF(l_user_data);
+        DAP_DELETE(l_ctx->tx_type);
+        DAP_DELETE(l_ctx);
+        PyErr_SetString(PyExc_RuntimeError, "Failed to register TX builder");
+        return NULL;
+    }
+
+    pthread_mutex_lock(&s_compose_mutex);
+    s_python_compose_callbacks = DAP_REALLOC(s_python_compose_callbacks,
+                                             (s_python_compose_callbacks_count + 1) * sizeof(python_compose_ctx_t*));
+    s_python_compose_callbacks[s_python_compose_callbacks_count++] = l_ctx;
+    pthread_mutex_unlock(&s_compose_mutex);
+
+    log_it(L_DEBUG, "Registered Python TX builder for type '%s'", l_tx_type);
+
+    return PyLong_FromLong(l_result);
+}
+
+/**
+ * @brief Remove entry from compose registry
+ * @param a_self Python self object (unused)
+ * @param a_args Arguments (tx_type)
+ * @return None
+ */
+PyObject* dap_chain_tx_compose_registry_remove_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    const char *l_tx_type;
+
+    if (!PyArg_ParseTuple(a_args, "s", &l_tx_type)) {
+        return NULL;
+    }
+
+    dap_chain_tx_compose_registry_remove(l_tx_type);
+
+    pthread_mutex_lock(&s_compose_mutex);
+    for (size_t i = 0; i < s_python_compose_callbacks_count; i++) {
+        if (s_python_compose_callbacks[i] &&
+            strcmp(s_python_compose_callbacks[i]->tx_type, l_tx_type) == 0) {
+
+            python_compose_ctx_t *l_ctx = s_python_compose_callbacks[i];
+
+            Py_DECREF(l_ctx->callback);
+            Py_DECREF(l_ctx->user_data);
+            DAP_DELETE(l_ctx->tx_type);
+            DAP_DELETE(l_ctx);
+
+            for (size_t j = i; j < s_python_compose_callbacks_count - 1; j++) {
+                s_python_compose_callbacks[j] = s_python_compose_callbacks[j + 1];
+            }
+            s_python_compose_callbacks_count--;
+
+            log_it(L_DEBUG, "Unregistered Python TX builder for type '%s'", l_tx_type);
+            break;
+        }
+    }
+    pthread_mutex_unlock(&s_compose_mutex);
+
+    Py_RETURN_NONE;
+}
+
+/**
+ * @brief Find entry in compose registry
+ * @param a_self Python self object (unused)
+ * @param a_args Arguments (tx_type)
+ * @return Registry entry capsule or None
+ */
+PyObject* dap_chain_tx_compose_registry_find_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    const char *l_tx_type;
+
+    if (!PyArg_ParseTuple(a_args, "s", &l_tx_type)) {
+        return NULL;
+    }
+
+    dap_chain_tx_compose_registry_entry_t *l_entry = dap_chain_tx_compose_registry_find(l_tx_type);
+    if (!l_entry) {
+        Py_RETURN_NONE;
+    }
+
+    return PyCapsule_New(l_entry, "dap_chain_tx_compose_registry_entry_t", NULL);
 }
 
 // =============================================================================

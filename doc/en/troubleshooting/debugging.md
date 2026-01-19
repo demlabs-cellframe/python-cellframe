@@ -1,38 +1,42 @@
 # Debugging
 
-How to debug Python applications.
+How to debug Python applications using Python-Cellframe.
 
 ## Logging
 
-Use `dap.log_it` or `CellFrame.logIt` (legacy alias) to write to the application log.
+Use standard Python logging. The SDK configures a logger named `CellFrame`.
 
 ```python
-from CellFrame import logIt
+import logging
 
-logIt.debug("Debug message")
+logger = logging.getLogger("CellFrame")
+logger.info("Info message")
+logger.error("Error message")
+```
+
+If you rely on the legacy API, `logIt` is available from the legacy DAP wrapper:
+
+```python
+from CellFrame.legacy.DAP.Core import logIt
+
 logIt.info("Info message")
 logIt.error("Error message")
 ```
 
-Log location depends on your initialization configuration.
-
 ## Interactive Debugging (pdb)
 
-You can use standard Python debugging tools.
-
-1.  Insert `import pdb; pdb.set_trace()` in your python code.
-2.  Run your script: `python3 my_script.py`.
-3.  Execution will pause at the breakpoint.
+1. Insert `import pdb; pdb.set_trace()` in your Python code.
+2. Run your script: `python3 my_script.py`.
+3. Execution will pause at the breakpoint.
 
 ## Segmentation Faults
 
-If the application crashes (Segfault):
-1.  Enable core dumps: `ulimit -c unlimited`.
-2.  Run application until crash.
-3.  Analyze core dump with `gdb`:
+If the application crashes (segfault):
+1. Enable core dumps: `ulimit -c unlimited`.
+2. Run the application until it crashes.
+3. Analyze the core dump with `gdb`:
     ```bash
     gdb python3 core
     bt
     ```
-4.  Look for the python frame in the backtrace.
-
+4. Look for Python frames in the backtrace.

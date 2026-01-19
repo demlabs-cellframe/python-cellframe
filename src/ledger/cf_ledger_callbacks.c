@@ -1,5 +1,5 @@
 #include "include/cf_ledger_internal.h"
-#include "../common/cf_ledger_callback_registry.h"
+#include "cf_ledger_callback_registry.h"
 
 /*
  * Cellframe ledger callbacks bindings

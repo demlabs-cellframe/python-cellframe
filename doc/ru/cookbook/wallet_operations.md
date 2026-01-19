@@ -1,37 +1,31 @@
 # Операции с кошельком
 
-Этот рецепт описывает основные операции с кошельками.
+Примеры основных операций с кошельком.
 
 ## Создание кошелька
 
 ```python
-from CellFrame.chain import Wallet, WalletType
+from CellFrame.chain import Wallet
 
-# Создание нового кошелька
 wallet_name = "my_wallet"
-wallet_type = WalletType.SIG_DILITHIUM  # Современная квантово-устойчивая подпись
-wallet = Wallet.create(wallet_name, wallet_type)
+wallet_path = "/path/to/wallets"
 
-if wallet:
-    print(f"Кошелек '{wallet_name}' создан.")
-    print(f"Адрес: {wallet.get_address()}")
-else:
-    print("Не удалось создать кошелек.")
+wallet = Wallet.create(wallet_name, wallet_path, password="secret")
+print(f"Кошелек '{wallet_name}' создан")
 ```
 
 ## Открытие кошелька
 
 ```python
-wallet = Wallet.open("my_wallet")
-if wallet:
-    print(f"Открыт кошелек: {wallet.name}")
+wallet = Wallet.open("my_wallet", "/path/to/wallets", password="secret")
+print(f"Открыт кошелек: {wallet.name}")
 ```
 
-## Проверка баланса
+## Адрес и баланс
 
 ```python
-# Получить баланс для конкретного токена (например, "CELL")
-balance = wallet.get_balance("CELL")
-print(f"Баланс: {balance} CELL")
+address = wallet.get_address_for_network("mainnet")
+balance = wallet.get_balance_by_network("mainnet", "CELL")
+print(address)
+print(balance)
 ```
-

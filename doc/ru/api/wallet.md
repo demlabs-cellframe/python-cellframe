@@ -1,356 +1,117 @@
-# Справочник API Кошелька
+# Справочник API: Wallet
 
-Полный справочник API для класса `Wallet` и операций с кошельками.
+Описание класса `Wallet` и связанных операций.
 
 ## Класс: `Wallet`
 
-Высокоуровневое управление кошельками для операций блокчейна CellFrame.
+Высокоуровневое управление кошельками на базе нативных биндингов
+`python_cellframe`.
 
 ### Конструктор
 
 ```python
-Wallet(name: str, wallet_dir: str = None, wallet_handle: Any = None)
+Wallet(name: str, wallet_handle: Any = None, access_type: WalletAccessType = WalletAccessType.LOCAL)
 ```
 
-**Параметры:**
-- `name` (str): Имя кошелька
-- `wallet_dir` (str, опционально): Директория для файлов кошелька. По умолчанию используется системная директория.
-- `wallet_handle` (Any, опционально): Нативный C handle кошелька (внутреннее использование)
-
-**Вызывает:**
-- `WalletError`: Если создание кошелька не удалось
+Обычно используется `Wallet.create()` или `Wallet.open()`.
 
 ### Методы класса
 
-#### `create(name: str, wallet_dir: str = None, wallet_type: WalletType = None) -> Wallet`
+#### `create(name: str, wallet_path: str, password: Optional[str] = None, seed: Optional[bytes] = None, signature_type: int = 0x0102) -> Wallet`
 
 Создать новый кошелек.
 
-**Параметры:**
-- `name` (str): Имя кошелька
-- `wallet_dir` (str, опционально): Директория для файлов кошелька
-- `wallet_type` (WalletType, опционально): Тип подписи (по умолчанию: SIG_DILITHIUM)
-
-**Возвращает:**
-- `Wallet`: Новый экземпляр кошелька
-
-**Вызывает:**
-- `WalletError`: Если создание не удалось
-
-**Пример:**
-```python
-from CellFrame.chain import Wallet, WalletType
-
-wallet = Wallet.create("my_wallet", wallet_type=WalletType.SIG_DILITHIUM)
-```
-
-#### `create_with_seed(name: str, seed: str, wallet_dir: str = None, wallet_type: WalletType = None) -> Wallet`
-
-Создать кошелек из seed фразы.
-
-**Параметры:**
-- `name` (str): Имя кошелька
-- `seed` (str): Seed фраза
-- `wallet_dir` (str, опционально): Директория для файлов кошелька
-- `wallet_type` (WalletType, опционально): Тип подписи
-
-**Возвращает:**
-- `Wallet`: Новый экземпляр кошелька
-
-#### `create_multi(name: str, seed: str, required_signatures: int, wallet_dir: str = None, wallet_type: WalletType = None) -> Wallet`
-
-Создать мультиподписной кошелек.
-
-**Параметры:**
-- `name` (str): Имя кошелька
-- `seed` (str): Seed фраза
-- `required_signatures` (int): Количество требуемых подписей
-- `wallet_dir` (str, опционально): Директория для файлов кошелька
-- `wallet_type` (WalletType, опционально): Тип подписи
-
-**Возвращает:**
-- `Wallet`: Новый экземпляр мультиподписного кошелька
-
-#### `open(name: str, wallet_dir: str = None) -> Wallet`
+#### `open(name: str, wallet_path: str, password: Optional[str] = None) -> Wallet`
 
 Открыть существующий кошелек.
 
-**Параметры:**
-- `name` (str): Имя кошелька
-- `wallet_dir` (str, опционально): Директория для файлов кошелька
+#### `create_with_network(name: str, network_name: str, wallet_path: Optional[str] = None, signature_type: int = 0x0102, seed: Optional[bytes] = None) -> Wallet`
 
-**Возвращает:**
-- `Wallet`: Открытый экземпляр кошелька
-
-**Вызывает:**
-- `WalletError`: Если кошелек не найден или не может быть открыт
+Удобный метод с автоопределением пути через конфигурацию DAP.
 
 ### Методы экземпляра
 
-#### `get_address() -> WalletAddress`
+#### `get_address(net_id: int) -> WalletAddress`
 
-Получить адрес кошелька для сети по умолчанию.
-
-**Возвращает:**
-- `WalletAddress`: Объект адреса кошелька
+Получить адрес по идентификатору сети.
 
 #### `get_address_for_network(network_name: str, key_index: int = 0) -> WalletAddress`
 
-Получить адрес кошелька для конкретной сети.
+Получить адрес по имени сети.
 
-**Параметры:**
-- `network_name` (str): Имя сети (например, "mainnet", "testnet")
-- `key_index` (int): Индекс ключа (по умолчанию: 0)
+#### `get_balance(net_id: int, token_ticker: str) -> Decimal`
 
-**Возвращает:**
-- `WalletAddress`: Адрес кошелька для сети
-
-**Вызывает:**
-- `WalletError`: Если сеть не найдена или адрес не может быть получен
-
-#### `get_balance(token_ticker: str = "CELL") -> Decimal`
-
-Получить баланс кошелька для сети по умолчанию.
-
-**Параметры:**
-- `token_ticker` (str): Тикер токена (по умолчанию: "CELL")
-
-**Возвращает:**
-- `Decimal`: Баланс кошелька
+Получить баланс по идентификатору сети и тикеру.
 
 #### `get_balance_by_network(network_name: str, token_ticker: str = "CELL") -> Decimal`
 
-Получить баланс кошелька для конкретной сети и токена.
+Получить баланс по имени сети.
 
-**Параметры:**
-- `network_name` (str): Имя сети
-- `token_ticker` (str): Тикер токена (по умолчанию: "CELL")
+#### `get_key(key_type: int = 0x0102)` / `get_pkey(key_type: int = 0x0102)`
 
-**Возвращает:**
-- `Decimal`: Баланс кошелька
-
-**Вызывает:**
-- `WalletError`: Если сеть не найдена или баланс не может быть получен
+Вернуть ключ/публичный ключ из нативного SDK.
 
 #### `get_pkey_hash() -> str`
 
-Получить хэш публичного ключа кошелька в виде шестнадцатеричной строки.
-
-**Возвращает:**
-- `str`: Хэш публичного ключа (hex формат с префиксом "0x")
-
-**Вызывает:**
-- `WalletError`: Если операция не удалась
+Вернуть хеш публичного ключа.
 
 #### `get_shared_tx_hashes(pkey_hash: str, network_name: str) -> Optional[Dict[str, Any]]`
 
-Получить хэши транзакций shared кошелька по хэшу публичного ключа.
+Получить хеши shared-транзакций.
 
-**Параметры:**
-- `pkey_hash` (str): Строка хэша публичного ключа
-- `network_name` (str): Имя сети
+#### `hold_shared_tx(tx_handle: Any, network_name: str) -> bool`
 
-**Возвращает:**
-- `Optional[Dict[str, Any]]`: Словарь с хэшами транзакций или None
+Добавить транзакцию в hold (ожидается нативный tx handle).
 
-**Вызывает:**
-- `WalletError`: Если операция не удалась
+#### `activate() -> bool` / `deactivate() -> bool`
 
-#### `hold_shared_tx(tx_hash: str, network_name: str) -> bool`
+Активировать или деактивировать кошелек.
 
-Добавить hold транзакцию в shared кошелек.
+#### `save() -> bool`
 
-**Параметры:**
-- `tx_hash` (str): Хэш транзакции
-- `network_name` (str): Имя сети
+Сохранить кошелек через нативные биндинги.
 
-**Возвращает:**
-- `bool`: True если успешно
-
-**Вызывает:**
-- `WalletError`: Если операция не удалась
-
-#### `activate() -> None`
-
-Активировать кошелек (сделать его доступным для операций).
-
-**Вызывает:**
-- `WalletError`: Если активация не удалась
-
-#### `deactivate() -> None`
-
-Деактивировать кошелек.
-
-**Вызывает:**
-- `WalletError`: Если деактивация не удалась
-
-#### `save() -> None`
-
-Сохранить кошелек в файл.
-
-**Вызывает:**
-- `WalletError`: Если сохранение не удалось
-
-#### `close() -> None`
+#### `close() -> None` / `is_closed() -> bool`
 
 Закрыть кошелек и освободить ресурсы.
 
-#### `is_closed() -> bool`
+### Перечисления
 
-Проверить, закрыт ли кошелек.
+#### `WalletType`
 
-**Возвращает:**
-- `bool`: True если кошелек закрыт
+- `SIMPLE`
+- `MULTISIG`
+- `SHARED`
+- `HARDWARE`
 
-### Свойства
+#### `WalletAccessType`
 
-- `name` (str): Имя кошелька (только чтение)
-- `wallet_dir` (str): Директория кошелька (только чтение)
-- `access_type` (WalletAccessType): Тип доступа (только чтение)
-- `wallet_type` (WalletType): Тип подписи (только чтение)
+- `LOCAL`
+- `REMOTE`
 
-## Класс: `WalletAddress`
+### Исключения
 
-Представляет адрес кошелька.
+- `WalletError`
+- `InsufficientFundsError`
+- `InvalidAddressError`
 
-### Конструктор
+## WalletManager и удобные функции
 
-```python
-WalletAddress(address: str, net_id: int)
-```
+`WalletManager` предоставляет `create`, `open`, `get`, `close`, `list`, `close_all`.
+Модульные функции (`create`, `open`, `get`, `close`, `list`, `close_all`) проксируют
+в глобальный менеджер.
 
-**Параметры:**
-- `address` (str): Строка адреса
-- `net_id` (int): ID сети
-
-### Методы
-
-#### `__str__() -> str`
-
-Вернуть адрес как строку.
-
-#### `__repr__() -> str`
-
-Вернуть представление адреса.
-
-### Свойства
-
-- `address` (str): Строка адреса
-- `net_id` (int): ID сети
-
-## Класс: `WalletManager`
-
-Управляет несколькими кошельками.
-
-### Методы
-
-#### `get_wallet(name: str) -> Optional[Wallet]`
-
-Получить кошелек по имени.
-
-**Параметры:**
-- `name` (str): Имя кошелька
-
-**Возвращает:**
-- `Optional[Wallet]`: Экземпляр кошелька или None
-
-#### `list_wallets() -> List[str]`
-
-Список всех доступных имен кошельков.
-
-**Возвращает:**
-- `List[str]`: Список имен кошельков
-
-## Перечисления
-
-### `WalletType`
-
-Типы алгоритмов подписи:
-- `SIG_DILITHIUM`: Dilithium (квантово-безопасный)
-- `SIG_FALCON`: Falcon (квантово-безопасный)
-- `SIG_ED25519`: Ed25519 (классический)
-
-### `WalletAccessType`
-
-Типы доступа к кошельку:
-- `READ_ONLY`: Только чтение
-- `READ_WRITE`: Чтение и запись
-
-## Исключения
-
-### `WalletError`
-
-Базовое исключение для операций с кошельком.
-
-### `InsufficientFundsError`
-
-Вызывается когда у кошелька недостаточно средств.
-
-### `InvalidAddressError`
-
-Вызывается когда адрес недействителен.
-
-## Примеры
-
-### Базовые операции с кошельком
-
-```python
-from CellFrame.chain import Wallet, WalletType
-from decimal import Decimal
-
-# Создать кошелек
-wallet = Wallet.create("my_wallet", wallet_type=WalletType.SIG_DILITHIUM)
-
-# Получить адрес
-address = wallet.get_address()
-print(f"Адрес: {address}")
-
-# Проверить баланс
-balance = wallet.get_balance("CELL")
-print(f"Баланс: {balance} CELL")
-
-# Сохранить и закрыть
-wallet.save()
-wallet.close()
-```
-
-### Мультиподписной кошелек
+## Пример
 
 ```python
 from CellFrame.chain import Wallet
 
-# Создать мультиподписной кошелек
-seed = "ваша seed фраза здесь"
-wallet = Wallet.create_multi(
-    "multisig_wallet",
-    seed=seed,
-    required_signatures=3
-)
+wallet = Wallet.open("my_wallet", "/path/to/wallets", password="secret")
+address = wallet.get_address_for_network("mainnet")
+balance = wallet.get_balance_by_network("mainnet", "CELL")
+
+print(address)
+print(balance)
+
+wallet.close()
 ```
-
-### Операции для конкретной сети
-
-```python
-# Получить адрес для конкретной сети
-mainnet_address = wallet.get_address_for_network("mainnet")
-testnet_address = wallet.get_address_for_network("testnet")
-
-# Получить баланс для конкретной сети
-mainnet_balance = wallet.get_balance_by_network("mainnet", "CELL")
-```
-
-### Операции с shared кошельком
-
-```python
-# Получить хэш публичного ключа
-pkey_hash = wallet.get_pkey_hash()
-
-# Получить хэши транзакций shared кошелька
-tx_hashes = wallet.get_shared_tx_hashes(pkey_hash, "mainnet")
-
-# Добавить hold транзакцию
-if tx_hashes:
-    tx_hash = list(tx_hashes.keys())[0]
-    wallet.hold_shared_tx(tx_hash, "mainnet")
-```
-

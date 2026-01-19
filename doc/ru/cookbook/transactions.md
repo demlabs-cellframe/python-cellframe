@@ -1,32 +1,29 @@
 # Транзакции
 
-Создание и отправка транзакций.
+Создание транзакций через актуальный API.
 
-## Простой перевод
+## Простой перевод (Composer)
+
+`Composer` использует нативные `dap_compose_*` функции для сборки транзакции.
 
 ```python
-from CellFrame.chain import TX, Wallet
+from decimal import Decimal
+from CellFrame.chain import Wallet
+from CellFrame.composer import Composer
 
-# 1. Открыть кошелек отправителя
-sender_wallet = Wallet.open("sender_wallet")
+wallet = Wallet.open("sender_wallet", "/path/to/wallets", password="secret")
+recipient = wallet.get_address_for_network("mainnet")
 
-# 2. Создать объект транзакции
-tx = TX.create()
+with Composer(net_name="mainnet", wallet=wallet) as composer:
+    tx_hash = composer.create_tx(
+        to_address=recipient,
+        amount=Decimal("1.0"),
+        token_ticker="CELL",
+        fee=Decimal("0.01")
+    )
 
-# 3. Добавить вход (от отправителя)
-# 'value' - сумма в datoshi (минимальная единица)
-value = 10 * 10**18  # 10.0 токенов
-token_ticker = "CELL"
-tx.add_in(sender_wallet.get_address(), value, token_ticker)
-
-# 4. Добавить выход (получателю)
-recipient_addr = "..." # Строка адреса получателя
-tx.add_out(recipient_addr, value, token_ticker)
-
-# 5. Подписать транзакцию
-tx.sign(sender_wallet)
-
-# 6. Отправить в сеть
-tx.broadcast()
+print(tx_hash)
 ```
 
+Примечание: требуется нативное расширение `python_cellframe` с функциями
+компоновки транзакций.

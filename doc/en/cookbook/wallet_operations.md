@@ -1,37 +1,31 @@
 # Wallet Operations
 
-This recipe covers common wallet operations.
+Common wallet operations using the current API.
 
 ## Creating a Wallet
 
 ```python
-from CellFrame.chain import Wallet, WalletType
+from CellFrame.chain import Wallet
 
-# Create a new wallet
 wallet_name = "my_wallet"
-wallet_type = WalletType.SIG_DILITHIUM  # Modern quantum-safe signature
-wallet = Wallet.create(wallet_name, wallet_type)
+wallet_path = "/path/to/wallets"
 
-if wallet:
-    print(f"Wallet '{wallet_name}' created.")
-    print(f"Address: {wallet.get_address()}")
-else:
-    print("Failed to create wallet.")
+wallet = Wallet.create(wallet_name, wallet_path, password="secret")
+print(f"Wallet '{wallet_name}' created")
 ```
 
 ## Opening a Wallet
 
 ```python
-wallet = Wallet.open("my_wallet")
-if wallet:
-    print(f"Opened wallet: {wallet.name}")
+wallet = Wallet.open("my_wallet", "/path/to/wallets", password="secret")
+print(f"Opened wallet: {wallet.name}")
 ```
 
-## Checking Balance
+## Getting an Address and Balance
 
 ```python
-# Get balance for a specific token (e.g., "CELL")
-balance = wallet.get_balance("CELL")
-print(f"Balance: {balance} CELL")
+address = wallet.get_address_for_network("mainnet")
+balance = wallet.get_balance_by_network("mainnet", "CELL")
+print(address)
+print(balance)
 ```
-
