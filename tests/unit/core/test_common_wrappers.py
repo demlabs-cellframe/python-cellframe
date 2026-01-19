@@ -297,7 +297,7 @@ def test_chain_addr_compare(addr_null, addr_filled):
 def test_chain_addr_check_sum(addr_null, addr_filled):
     assert cf.dap_chain_addr_check_sum(addr_null) == 0
     assert cf.dap_chain_addr_check_sum(addr_filled) == 0
-    with pytest.raises(ValueError):
+    with pytest.raises(TypeError):
         cf.dap_chain_addr_check_sum(object())
 
 

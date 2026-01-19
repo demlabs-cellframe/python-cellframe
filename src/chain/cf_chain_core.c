@@ -451,26 +451,6 @@ PyObject* dap_chain_atom_save_py(PyObject *a_self, PyObject *a_args) {
 
 
 /**
- * @brief Python wrapper for dap_chain_addr_from_str
- */
-PyObject* py_dap_chain_addr_from_str(PyObject *self, PyObject *args) {
-    (void)self;
-    const char *addr_str;
-    
-    if (!PyArg_ParseTuple(args, "s", &addr_str)) {
-        return NULL;
-    }
-    
-    dap_chain_addr_t *addr = dap_chain_addr_from_str(addr_str);
-    if (!addr) {
-        PyErr_SetString(PyExc_ValueError, "Invalid address string");
-        return NULL;
-    }
-    
-    return PyCapsule_New(addr, "dap_chain_addr_t", NULL);
-}
-
-/**
  * @brief Python wrapper for dap_chain_addr_get_net_id
  */
 
@@ -517,50 +497,6 @@ PyObject* py_dap_chain_addr_to_str(PyObject *self, PyObject *args) {
     }
     
     return PyUnicode_FromString(addr_str);
-}
-
-/**
- * @brief Python wrapper for dap_chain_addr_is_blank
- */
-
-PyObject* py_dap_chain_addr_is_blank(PyObject *self, PyObject *args) {
-    (void)self;
-    PyObject *addr_capsule;
-    
-    if (!PyArg_ParseTuple(args, "O", &addr_capsule)) {
-        return NULL;
-    }
-    
-    dap_chain_addr_t *addr = (dap_chain_addr_t*)PyCapsule_GetPointer(addr_capsule, "dap_chain_addr_t");
-    if (!addr) {
-        PyErr_SetString(PyExc_ValueError, "Invalid address object");
-        return NULL;
-    }
-    
-    bool is_blank = dap_chain_addr_is_blank(addr);
-    return PyBool_FromLong(is_blank ? 1 : 0);
-}
-
-/**
- * @brief Python wrapper for dap_chain_addr_check_sum
- */
-
-PyObject* py_dap_chain_addr_check_sum(PyObject *self, PyObject *args) {
-    (void)self;
-    PyObject *addr_capsule;
-    
-    if (!PyArg_ParseTuple(args, "O", &addr_capsule)) {
-        return NULL;
-    }
-    
-    dap_chain_addr_t *addr = (dap_chain_addr_t*)PyCapsule_GetPointer(addr_capsule, "dap_chain_addr_t");
-    if (!addr) {
-        PyErr_SetString(PyExc_ValueError, "Invalid address object");
-        return NULL;
-    }
-    
-    int result = dap_chain_addr_check_sum(addr);
-    return PyLong_FromLong(result);
 }
 
 /**

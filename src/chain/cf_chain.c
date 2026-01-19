@@ -8,16 +8,10 @@ int cellframe_chain_init(PyObject *module) {
     // Define chain method definitions
     static PyMethodDef chain_methods[] = {
         // Chain address functions
-        {"dap_chain_addr_from_str", py_dap_chain_addr_from_str, METH_VARARGS,
-         "Create chain address from string"},
         {"dap_chain_addr_get_net_id", py_dap_chain_addr_get_net_id, METH_VARARGS,
          "Get network ID from chain address"},
         {"dap_chain_addr_to_str", py_dap_chain_addr_to_str, METH_VARARGS,
          "Convert chain address to string"},
-        {"dap_chain_addr_is_blank", py_dap_chain_addr_is_blank, METH_VARARGS,
-         "Check if chain address is blank"},
-        {"dap_chain_addr_check_sum", py_dap_chain_addr_check_sum, METH_VARARGS,
-         "Check chain address checksum"},
 
         // Chain operations
         {"dap_chain_atom_create", py_dap_chain_atom_create, METH_VARARGS,
