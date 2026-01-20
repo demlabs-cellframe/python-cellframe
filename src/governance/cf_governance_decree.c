@@ -28,12 +28,7 @@
 // Python DapDecree Type Definition
 // ============================================================================
 
-typedef struct {
-    PyObject_HEAD
-    dap_chain_datum_decree_t *decree;
-    size_t decree_size;
-    bool owned;  // True if we own the decree and should free it
-} PyDapDecreeObject;
+// Type definition moved to cf_governance.h for sharing between modules
 
 static PyTypeObject PyDapDecreeType;
 
@@ -281,8 +276,13 @@ static PyObject *PyDapDecree_get_min_owners(PyDapDecreeObject *self, PyObject *a
         Py_RETURN_NONE;
     }
     
-    // Convert to Python int (assuming it fits in uint64)
-    return Py_BuildValue("K", (unsigned long long)min_owners);
+    // Convert uint256_t to Python int via string representation
+    const char *value_str = dap_uint256_to_char(min_owners, NULL);
+    if (!value_str) {
+        Py_RETURN_NONE;
+    }
+    PyObject *result = PyLong_FromString(value_str, NULL, 10);
+    return result ? result : Py_None;
 }
 
 /**
@@ -577,7 +577,9 @@ static PyObject *PyDapDecree_to_json(PyDapDecreeObject *self, PyObject *args) {
         return NULL;
     }
     
-    dap_chain_datum_decree_dump_json(json_obj, self->decree, self->decree_size, hash_out_type);
+    // Use version from decree (default to 0 if not available)
+    int version = self->decree->decree_version;
+    dap_chain_datum_decree_dump_json(json_obj, self->decree, self->decree_size, hash_out_type, version);
     
     char *json_str = dap_json_to_string_pretty(json_obj);
     dap_json_object_free(json_obj);

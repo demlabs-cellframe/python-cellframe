@@ -24,10 +24,35 @@
 #pragma once
 
 #include <Python.h>
+#include <stddef.h>
+#include <stdbool.h>
+
+// Forward declarations
+typedef struct dap_chain_datum_decree dap_chain_datum_decree_t;
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+/**
+ * @brief Python Decree Object Type
+ * Wraps dap_chain_datum_decree_t for Python access
+ */
+typedef struct {
+    PyObject_HEAD
+    dap_chain_datum_decree_t *decree;
+    size_t decree_size;
+    bool owned;  // True if we own the decree and should free it
+} PyDapDecreeObject;
+
+/**
+ * @brief Create a Python DapDecree object from C decree
+ * @param a_decree C decree pointer (borrowed or owned)
+ * @param a_size Size of decree in bytes
+ * @param a_owned If true, Python object owns and will free the decree
+ * @return New Python DapDecree object or NULL on error
+ */
+PyObject* PyDapDecree_from_decree(dap_chain_datum_decree_t *a_decree, size_t a_size, bool a_owned);
 
 /**
  * @brief Initialize Governance Python bindings module
