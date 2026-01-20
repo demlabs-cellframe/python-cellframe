@@ -220,6 +220,8 @@ target_include_directories(python_cellframe PRIVATE
     # Get include directories from linked libraries (object libraries propagate includes)
     $<TARGET_PROPERTY:dap_sdk,INTERFACE_INCLUDE_DIRECTORIES>
     $<TARGET_PROPERTY:cellframe_sdk,INTERFACE_INCLUDE_DIRECTORIES>
+    # Additional Cellframe SDK includes not auto-exported (datum/tx module)
+    ${CMAKE_CURRENT_SOURCE_DIR}/cellframe-sdk/modules/datum/tx/include
 )
 
 # Link libraries
