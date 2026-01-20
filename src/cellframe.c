@@ -2,6 +2,7 @@
 #include "cf_callbacks_registry.h"  // CRITICAL: For memory leak prevention
 #include "cf_ledger_callback_registry.h"  // For ledger callbacks without void *arg
 #include "cf_verificator_registry.h"  // For verificator callbacks by subtype
+#include "cf_dap_json.h"  // DAP JSON utilities
 #include <string.h>
 
 #define LOG_TAG "python_cellframe"
@@ -15,6 +16,7 @@ PyObject* py_dap_chain_mempool_tx_get_by_hash(PyObject *self, PyObject *args);
 
 // Forward declarations for cleanup functions
 extern void dap_chain_tx_compose_cleanup_callbacks_py(void);
+extern void cellframe_governance_manager_cleanup(void);  // Phase 7: Governance cleanup
 
 // =========================================
 // MODULE CLEANUP
@@ -28,6 +30,9 @@ static void cellframe_module_free(void *m) {
     (void)m;
     
     log_it(L_INFO, "Python-Cellframe module cleanup started");
+    
+    // Cleanup Governance Manager (Python decree handlers)
+    cellframe_governance_manager_cleanup();
     
     // Cleanup TX compose callbacks
     dap_chain_tx_compose_cleanup_callbacks_py();
@@ -59,6 +64,13 @@ int cellframe_node_init(PyObject *module);
 int cellframe_compose_init(PyObject *module);
 int cellframe_net_balancer_init(PyObject *module);
 int cellframe_services_ext_init(PyObject *module);
+// Forward declarations for governance module
+int cellframe_governance_init(PyObject *module);          // Phase 7.1: PyDapDecree type
+int cellframe_governance_manager_init(PyObject *module);  // Phase 7: Handler registration
+void cellframe_governance_manager_cleanup(void);          // Phase 7: Cleanup
+
+// Forward declarations for token manager module
+int cellframe_token_manager_init(PyObject *module);       // Phase A: Token Manager
 
 // =========================================
 // ERROR OBJECTS
@@ -321,6 +333,34 @@ PyMODINIT_FUNC PyInit_python_cellframe(void) {
     // Note: Chain, Network, Wallet, Node types would be added here
     // Initialize submodules by calling their init functions
     // This replaces the old method of listing all functions in one big array
+    
+    // Initialize DapJSON type (Phase 4.5 - NEW)
+    PyObject *dap_json_type = cf_dap_json_init();
+    if (dap_json_type == NULL) {
+        PyErr_SetString(PyExc_ImportError, "Failed to initialize DapJSON type");
+        Py_DECREF(module);
+        return NULL;
+    }
+    PyModule_AddObject(module, "DapJSON", dap_json_type);
+    
+    // Initialize governance module (Phase 7.1 - Decree type + Phase 7 - Handler registration)
+    if (cellframe_governance_init(module) < 0) {
+        PyErr_SetString(PyExc_ImportError, "Failed to initialize governance decree type");
+        Py_DECREF(module);
+        return NULL;
+    }
+    if (cellframe_governance_manager_init(module) < 0) {
+        PyErr_SetString(PyExc_ImportError, "Failed to initialize governance handlers");
+        Py_DECREF(module);
+        return NULL;
+    }
+    
+    // Initialize token manager (Phase A - Token access/query)
+    if (cellframe_token_manager_init(module) < 0) {
+        PyErr_SetString(PyExc_ImportError, "Failed to initialize token manager");
+        Py_DECREF(module);
+        return NULL;
+    }
     
     // Initialize wallet module
     if (cellframe_wallet_init(module) < 0) {

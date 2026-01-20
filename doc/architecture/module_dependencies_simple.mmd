@@ -1,0 +1,126 @@
+%% Упрощенная диаграмма зависимостей - Обзор архитектуры
+%% Показывает только основные компоненты и ключевые зависимости
+
+graph TB
+    %% ============================================
+    %% DAP SDK - УПРОЩЕННАЯ СТРУКТУРА
+    %% ============================================
+    subgraph DAP["DAP SDK - Платформа"]
+        D1["Core<br/>Базовые примитивы"]
+        D2["Crypto<br/>Криптография"]
+        D3["I/O<br/>Асинхронный I/O"]
+        D4["Stream<br/>Потоки данных"]
+        D5["Network<br/>Client/Server"]
+        D6["Global DB<br/>Хранилище"]
+    end
+
+    %% ============================================
+    %% CELLFRAME SDK - УПРОЩЕННАЯ СТРУКТУРА
+    %% ============================================
+    subgraph CF["Cellframe SDK - Блокчейн"]
+        direction TB
+        
+        subgraph CF_BASE["Базовый уровень"]
+            C1["Datum<br/>Структуры данных"]
+            C2["Wallet<br/>Кошельки"]
+            C3["Chain<br/>Чейн + типы<br/>(DAG/Blocks/None)"]
+        end
+
+        subgraph CF_LEDGER["Ledger уровень"]
+            C4["Ledger<br/>Балансы UTXO"]
+            C5["Mempool<br/>Очередь TX"]
+        end
+
+        subgraph CF_CONSENSUS["Консенсус"]
+            C6["Consensus<br/>PoA/PoW/ESBOCS"]
+        end
+
+        subgraph CF_GOV["Управление"]
+            C7["Governance<br/>Decree/Policy"]
+        end
+
+        subgraph CF_NET["Сеть"]
+            C8["Chain Net<br/>Синхронизация"]
+        end
+
+        subgraph CF_SRV["Сервисы"]
+            C9["Services<br/>Stake/XChange<br/>Voting/Bridge"]
+        end
+
+        subgraph CF_TX["Транзакции"]
+            C10["TX Compose<br/>Построение TX"]
+        end
+    end
+
+    %% ============================================
+    %% ОСНОВНЫЕ ЗАВИСИМОСТИ DAP SDK
+    %% ============================================
+    D1 --> D2
+    D1 --> D3
+    D2 --> D3
+    D3 --> D4
+    D4 --> D5
+    D1 --> D6
+
+    %% ============================================
+    %% ЗАВИСИМОСТИ CELLFRAME ОТ DAP SDK
+    %% ============================================
+    D2 --> C1
+    D2 --> C2
+    D6 --> C3
+    D5 --> C8
+
+    %% ============================================
+    %% ВНУТРЕННИЕ ЗАВИСИМОСТИ CELLFRAME
+    %% ============================================
+    C1 --> C3
+    C2 --> C3
+    C3 --> C4
+    C4 --> C5
+    C3 --> C6
+    C6 --> C8
+    C4 --> C7
+    C4 --> C8
+    C5 --> C8
+    C8 --> C9
+    C4 --> C9
+    C2 --> C10
+    C4 --> C10
+    C10 --> C9
+
+    %% ============================================
+    %% СТИЛИЗАЦИЯ
+    %% ============================================
+    classDef dapStyle fill:#e3f2fd,stroke:#1976d2,stroke-width:3px
+    classDef cfBaseStyle fill:#e8f5e9,stroke:#388e3c,stroke-width:3px
+    classDef cfLedgerStyle fill:#fff9c4,stroke:#f57f17,stroke-width:3px
+    classDef cfConsensusStyle fill:#fce4ec,stroke:#c2185b,stroke-width:3px
+    classDef cfNetStyle fill:#f3e5f5,stroke:#7b1fa2,stroke-width:3px
+    classDef cfSrvStyle fill:#fff3e0,stroke:#ff6f00,stroke-width:3px
+
+    class D1,D2,D3,D4,D5,D6 dapStyle
+    class C1,C2,C3 cfBaseStyle
+    class C4,C5 cfLedgerStyle
+    class C6,C7 cfConsensusStyle
+    class C8 cfNetStyle
+    class C9,C10 cfSrvStyle
+
+    %% ============================================
+    %% ЛЕГЕНДА
+    %% ============================================
+    subgraph Legend["Легенда"]
+        direction LR
+        L1["DAP SDK<br/>Низкоуровневая<br/>платформа"]
+        L2["Базовый уровень<br/>Данные, кошельки"]
+        L3["Ledger уровень<br/>Балансы, TX"]
+        L4["Консенсус<br/>Правила блокчейна"]
+        L5["Сетевой уровень<br/>Синхронизация"]
+        L6["Сервисы<br/>Бизнес-логика"]
+    end
+
+    class L1 dapStyle
+    class L2 cfBaseStyle
+    class L3 cfLedgerStyle
+    class L4 cfConsensusStyle
+    class L5 cfNetStyle
+    class L6 cfSrvStyle

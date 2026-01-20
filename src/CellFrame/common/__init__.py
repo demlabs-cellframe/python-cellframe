@@ -8,6 +8,9 @@ All classes require native C implementation - no fallbacks allowed.
 # Import context classes first
 from .context import AppContext, ExecutionMode
 
+# Import DapJSON (Phase 4.5 - NEW)
+from .dap_json import DapJSON
+
 # Import existing types from correct locations
 try:
     from .types import Datum, DatumTx, Address
@@ -83,6 +86,9 @@ from .exceptions import CellframeException, ConfigurationException
 __all__ = [
     # Context classes
     'AppContext', 'ExecutionMode',
+    
+    # JSON utilities (Phase 4.5)
+    'DapJSON',
     
     # Basic types
     'Datum', 'DatumTx', 'Address',
