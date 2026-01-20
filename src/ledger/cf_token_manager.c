@@ -267,13 +267,5 @@ int cellframe_token_manager_init(PyObject *module) {
     PyModule_AddIntConstant(module, "TOKEN_SUBTYPE_NATIVE", DAP_CHAIN_DATUM_TOKEN_SUBTYPE_NATIVE);
     PyModule_AddIntConstant(module, "TOKEN_SUBTYPE_PUBLIC", DAP_CHAIN_DATUM_TOKEN_SUBTYPE_PUBLIC);
     
-    // Legacy API (for backward compatibility with old chains)
-    PyModule_AddIntConstant(module, "TOKEN_TYPE_OLD_SIMPLE", DAP_CHAIN_DATUM_TOKEN_TYPE_OLD_SIMPLE);
-    PyModule_AddIntConstant(module, "TOKEN_TYPE_OLD_PRIVATE_DECL", DAP_CHAIN_DATUM_TOKEN_TYPE_OLD_PRIVATE_DECL);
-    PyModule_AddIntConstant(module, "TOKEN_TYPE_OLD_PRIVATE_UPDATE", DAP_CHAIN_DATUM_TOKEN_TYPE_OLD_PRIVATE_UPDATE);
-    PyModule_AddIntConstant(module, "TOKEN_TYPE_OLD_PUBLIC", DAP_CHAIN_DATUM_TOKEN_TYPE_OLD_PUBLIC);
-    PyModule_AddIntConstant(module, "TOKEN_TYPE_OLD_NATIVE_DECL", DAP_CHAIN_DATUM_TOKEN_TYPE_OLD_NATIVE_DECL);
-    PyModule_AddIntConstant(module, "TOKEN_TYPE_OLD_NATIVE_UPDATE", DAP_CHAIN_DATUM_TOKEN_TYPE_OLD_NATIVE_UPDATE);
-    
     return 0;
 }
