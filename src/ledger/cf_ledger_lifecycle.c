@@ -358,6 +358,12 @@ PyObject* dap_ledger_addr_get_token_ticker_all_depricated_py(PyObject *a_self, P
 // Get method definitions for lifecycle module
 PyMethodDef* cellframe_ledger_lifecycle_get_methods(void) {
     static PyMethodDef lifecycle_methods[] = {
+        {"ledger_new", (PyCFunction)dap_ledger_new_py, METH_VARARGS,
+         "Create new ledger by network name"},
+        {"ledger_open", (PyCFunction)dap_ledger_open_py, METH_VARARGS,
+         "Open existing ledger by network name"},
+        {"ledger_close", (PyCFunction)dap_ledger_close_py, METH_VARARGS,
+         "Close ledger"},
         {"ledger_purge", (PyCFunction)dap_ledger_purge_py, METH_VARARGS,
          "Purge ledger data"},
         {"ledger_count", (PyCFunction)dap_ledger_count_py, METH_VARARGS,

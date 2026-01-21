@@ -8,7 +8,7 @@ Integrated from helpers with enhancements.
 import logging
 from typing import Any, Optional, List, Dict, Iterator, Union
 
-from ..core.exceptions import TransactionException
+from ..common.exceptions import TransactionException
 from ..common import logger
 from ..legacy.pycfhelpers import TxOutCondSubtypeSrvStakeLock
 

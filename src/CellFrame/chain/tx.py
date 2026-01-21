@@ -14,7 +14,7 @@ from enum import Enum
 from typing import Dict, List, Optional, Any
 from decimal import Decimal
 
-from ..core import CellframeException
+from ..common import CellframeException
 
 # Registry for transaction instances
 _tx_registry: Dict[int, 'TX'] = {}

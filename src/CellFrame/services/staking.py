@@ -20,7 +20,7 @@ from datetime import datetime, timedelta
 from enum import Enum
 import time
 
-from ..core.exceptions import CellframeException
+from ..common.exceptions import CellframeException
 
 # Import native cellframe functions
 try:

@@ -10,7 +10,7 @@ from typing import Optional, Dict, Any, List
 from datetime import datetime
 from decimal import Decimal
 
-from ..core.exceptions import CellframeException
+from ..common.exceptions import CellframeException
 from ..common import logger
 from ..types import TSD, DatumTypes
 

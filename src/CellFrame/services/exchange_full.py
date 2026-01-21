@@ -13,7 +13,7 @@ from datetime import datetime, timedelta
 from enum import Enum
 from dataclasses import dataclass
 
-from ..core.exceptions import CellframeException
+from ..common.exceptions import CellframeException
 
 # Import C bindings
 try:

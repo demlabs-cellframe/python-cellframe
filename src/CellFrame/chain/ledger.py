@@ -70,7 +70,7 @@ except ImportError as e:
         "Please ensure python_cellframe native module is properly built and installed."
     ) from e
 
-from ..core.exceptions import CellframeException
+from ..common.exceptions import CellframeException
 
 class CfLedgerError(CellframeException):
     """Ошибки ledger"""
