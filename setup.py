@@ -42,7 +42,7 @@ def find_native_libraries():
     return libraries
 
 # Версия SDK
-VERSION = "1.0.0"
+VERSION = "6.0.0"
 
 setup(
     name="python-cellframe",

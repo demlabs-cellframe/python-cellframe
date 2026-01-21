@@ -548,16 +548,27 @@ static PyObject *PyDapDecree_dump(PyDapDecreeObject *self, PyObject *args) {
         return NULL;
     }
     
-    dap_string_t *str_out = dap_string_new(NULL);
-    if (!str_out) {
-        PyErr_SetString(PyExc_MemoryError, "Failed to allocate string");
+    // Create JSON object
+    dap_json_t *json_obj = dap_json_object_new();
+    if (!json_obj) {
+        PyErr_SetString(PyExc_MemoryError, "Failed to allocate JSON object");
         return NULL;
     }
     
-    dap_chain_datum_decree_dump(str_out, self->decree, self->decree_size, hash_out_type);
+    // Dump decree to JSON
+    dap_chain_datum_decree_dump_json(json_obj, self->decree, self->decree_size, hash_out_type, self->decree->decree_version);
     
-    PyObject *result = Py_BuildValue("s", str_out->str);
-    dap_string_free(str_out, true);
+    // Convert JSON to string
+    char *json_str = dap_json_to_string(json_obj);
+    dap_json_object_free(json_obj);
+    
+    if (!json_str) {
+        PyErr_SetString(PyExc_RuntimeError, "Failed to convert JSON to string");
+        return NULL;
+    }
+    
+    PyObject *result = Py_BuildValue("s", json_str);
+    DAP_DELETE(json_str);
     return result;
 }
 

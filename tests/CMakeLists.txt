@@ -1,48 +1,126 @@
 cmake_minimum_required(VERSION 3.10)
-project(dap_sdk_tests C)
+project(python_cellframe_tests)
 
-# Test configuration
-set(CMAKE_C_STANDARD 11)
-set(CMAKE_C_STANDARD_REQUIRED ON)
+# =========================================
+# Python-Cellframe Tests Configuration
+# =========================================
+# This project uses pytest for testing, NOT C tests
+# Tests are Python-based and located in:
+#   - tests/unit/         (unit tests)
+#   - tests/integration/  (integration tests)
+#   - tests/functional/   (functional tests)
+#   - tests/e2e/          (end-to-end tests)
+#   - tests/governance/   (governance tests)
+#   - tests/security/     (security tests)
+#   - tests/load/         (performance/stress tests)
+#   - tests/regression/   (backward compatibility tests)
 
-# Include directories for DAP SDK
-include_directories(
-    ${CMAKE_CURRENT_SOURCE_DIR}/../module/core/include
-    ${CMAKE_CURRENT_SOURCE_DIR}/../module/crypto/include
-    ${CMAKE_CURRENT_SOURCE_DIR}/../module/test/include
+message(STATUS "=========================================")
+message(STATUS "Python-Cellframe Tests Configuration")
+message(STATUS "=========================================")
+
+# Find Python for running tests
+find_package(Python3 REQUIRED COMPONENTS Interpreter)
+
+# Check if pytest is available
+execute_process(
+    COMMAND ${Python3_EXECUTABLE} -m pytest --version
+    RESULT_VARIABLE PYTEST_AVAILABLE
+    OUTPUT_QUIET
+    ERROR_QUIET
 )
 
-# Link directories
-link_directories(
-    ${CMAKE_CURRENT_BINARY_DIR}/../module/core
-    ${CMAKE_CURRENT_BINARY_DIR}/../module/crypto
-)
-
-message("[+] DAP SDK Tests structure:")
-message("[+] - Unit tests: ${CMAKE_CURRENT_SOURCE_DIR}/unit")
-message("[+] - Integration tests: ${CMAKE_CURRENT_SOURCE_DIR}/integration") 
-message("[+] - Performance tests: ${CMAKE_CURRENT_SOURCE_DIR}/performance")
-message("[+] - Security tests: ${CMAKE_CURRENT_SOURCE_DIR}/security")
-message("[+] - Fixtures: ${CMAKE_CURRENT_SOURCE_DIR}/fixtures")
-
-# Add test subdirectories if they contain CMakeLists.txt
-if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/unit/CMakeLists.txt")
-    add_subdirectory(unit)
+if(PYTEST_AVAILABLE EQUAL 0)
+    message(STATUS "pytest found: ${Python3_EXECUTABLE} -m pytest")
+    
+    # Add custom target to run Python tests
+    add_custom_target(pytest_tests
+        COMMAND ${Python3_EXECUTABLE} -m pytest ${CMAKE_CURRENT_SOURCE_DIR} -v
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+        COMMENT "Running Python-Cellframe pytest tests"
+    )
+    
+    # Add individual test targets for each category
+    add_custom_target(pytest_unit
+        COMMAND ${Python3_EXECUTABLE} -m pytest ${CMAKE_CURRENT_SOURCE_DIR}/unit -v
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+        COMMENT "Running Python-Cellframe unit tests"
+    )
+    
+    add_custom_target(pytest_integration
+        COMMAND ${Python3_EXECUTABLE} -m pytest ${CMAKE_CURRENT_SOURCE_DIR}/integration -v
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+        COMMENT "Running Python-Cellframe integration tests"
+    )
+    
+    add_custom_target(pytest_functional
+        COMMAND ${Python3_EXECUTABLE} -m pytest ${CMAKE_CURRENT_SOURCE_DIR}/functional -v
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+        COMMENT "Running Python-Cellframe functional tests"
+    )
+    
+    add_custom_target(pytest_governance
+        COMMAND ${Python3_EXECUTABLE} -m pytest ${CMAKE_CURRENT_SOURCE_DIR}/governance -v
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+        COMMENT "Running Python-Cellframe governance tests"
+    )
+    
+    # Add to CTest
+    enable_testing()
+    
+    # Set PYTHONPATH to include build directories
+    set(TEST_PYTHONPATH 
+        "${CMAKE_BINARY_DIR}/lib:${CMAKE_BINARY_DIR}/python-dap/lib:${CMAKE_SOURCE_DIR}/src:${CMAKE_SOURCE_DIR}/python-dap/src"
+    )
+    
+    # Set LD_LIBRARY_PATH to include native libraries
+    set(TEST_LD_LIBRARY_PATH
+        "${CMAKE_BINARY_DIR}/dap-sdk:${CMAKE_BINARY_DIR}/cellframe-sdk:${CMAKE_BINARY_DIR}/python-dap/lib"
+    )
+    
+    add_test(
+        NAME python_cellframe_unit_tests
+        COMMAND ${Python3_EXECUTABLE} -m pytest ${CMAKE_CURRENT_SOURCE_DIR}/unit -v
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+    )
+    set_tests_properties(python_cellframe_unit_tests PROPERTIES
+        ENVIRONMENT "PYTHONPATH=${TEST_PYTHONPATH};LD_LIBRARY_PATH=${TEST_LD_LIBRARY_PATH}"
+    )
+    
+    add_test(
+        NAME python_cellframe_integration_tests
+        COMMAND ${Python3_EXECUTABLE} -m pytest ${CMAKE_CURRENT_SOURCE_DIR}/integration -v
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+    )
+    set_tests_properties(python_cellframe_integration_tests PROPERTIES
+        ENVIRONMENT "PYTHONPATH=${TEST_PYTHONPATH};LD_LIBRARY_PATH=${TEST_LD_LIBRARY_PATH}"
+    )
+    
+    add_test(
+        NAME python_cellframe_functional_tests
+        COMMAND ${Python3_EXECUTABLE} -m pytest ${CMAKE_CURRENT_SOURCE_DIR}/functional -v
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+    )
+    set_tests_properties(python_cellframe_functional_tests PROPERTIES
+        ENVIRONMENT "PYTHONPATH=${TEST_PYTHONPATH};LD_LIBRARY_PATH=${TEST_LD_LIBRARY_PATH}"
+    )
+    
+    add_test(
+        NAME python_cellframe_governance_tests
+        COMMAND ${Python3_EXECUTABLE} -m pytest ${CMAKE_CURRENT_SOURCE_DIR}/governance -v
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+    )
+    set_tests_properties(python_cellframe_governance_tests PROPERTIES
+        ENVIRONMENT "PYTHONPATH=${TEST_PYTHONPATH};LD_LIBRARY_PATH=${TEST_LD_LIBRARY_PATH}"
+    )
+    
+    message(STATUS "Python-Cellframe pytest tests configured")
+    message(STATUS "Run with: make pytest_tests")
+    message(STATUS "Or: ctest (runs all registered tests)")
+    
+else()
+    message(WARNING "pytest not found - Python tests will not be available")
+    message(WARNING "Install pytest: pip3 install pytest pytest-asyncio")
 endif()
 
-if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/integration/CMakeLists.txt")
-    add_subdirectory(integration)
-endif()
-
-if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/performance/CMakeLists.txt")
-    add_subdirectory(performance)
-endif()
-
-if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/security/CMakeLists.txt")
-    add_subdirectory(security)
-endif()
-
-# Enable testing
-enable_testing()
-
-message("[+] Tests configuration completed")
+message(STATUS "=========================================")
