@@ -10,9 +10,25 @@ Secure wallet operations:
 # Import from common (previously core)
 from ..common.exceptions import WalletException
 
-# Import wallet class if available
+# Import wallet classes if available
 try:
-    from .wallet import Wallet
-    __all__ = ['WalletException', 'Wallet']
-except ImportError:
+    from .wallet import (
+        Wallet, 
+        WalletManager, 
+        WalletError, 
+        WalletAddress,
+        WalletAccessType,
+        WalletType
+    )
+    __all__ = [
+        'WalletException', 
+        'Wallet', 
+        'WalletManager', 
+        'WalletError', 
+        'WalletAddress',
+        'WalletAccessType',
+        'WalletType'
+    ]
+except ImportError as e:
+    # Fallback if wallet module not available
     __all__ = ['WalletException'] 

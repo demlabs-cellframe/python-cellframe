@@ -69,13 +69,14 @@ if(PYTEST_AVAILABLE EQUAL 0)
     enable_testing()
     
     # Set PYTHONPATH to include build directories
+    # Note: python-dap builds to python-dap/lib/ not build/python-dap/lib/
     set(TEST_PYTHONPATH 
-        "${CMAKE_BINARY_DIR}/lib:${CMAKE_BINARY_DIR}/python-dap/lib:${CMAKE_SOURCE_DIR}/src:${CMAKE_SOURCE_DIR}/python-dap/src"
+        "${CMAKE_SOURCE_DIR}/python-dap/lib:${CMAKE_SOURCE_DIR}/python-dap/src:${CMAKE_BINARY_DIR}/lib:${CMAKE_SOURCE_DIR}/src"
     )
     
     # Set LD_LIBRARY_PATH to include native libraries
     set(TEST_LD_LIBRARY_PATH
-        "${CMAKE_BINARY_DIR}/dap-sdk:${CMAKE_BINARY_DIR}/cellframe-sdk:${CMAKE_BINARY_DIR}/python-dap/lib"
+        "${CMAKE_BINARY_DIR}/dap-sdk:${CMAKE_BINARY_DIR}/cellframe-sdk:${CMAKE_SOURCE_DIR}/python-dap/lib"
     )
     
     add_test(

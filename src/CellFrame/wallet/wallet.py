@@ -84,7 +84,7 @@ except ImportError as e:
         "Please run: cmake .. && make && make install"
     ) from e
 
-from ..core.exceptions import CellframeException
+from ..common.exceptions import CellframeException
 
 logger = logging.getLogger(__name__)
 

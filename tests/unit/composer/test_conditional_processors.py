@@ -11,7 +11,7 @@ from CellFrame.composer.cond.voting import VotingProcessor
 from CellFrame.composer.cond.delegation import DelegationProcessor
 from CellFrame.composer.cond.base import BaseConditionalProcessor
 from CellFrame.composer.exceptions import ConditionalTransactionError
-from CellFrame.types import TransactionType
+from CellFrame.common.types import TransactionType
 
 
 @pytest.mark.unit
