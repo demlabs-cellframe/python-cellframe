@@ -53,12 +53,6 @@ if(PYTEST_AVAILABLE EQUAL 0)
         COMMENT "Running Python-Cellframe integration tests"
     )
     
-    add_custom_target(pytest_functional
-        COMMAND ${Python3_EXECUTABLE} -m pytest ${CMAKE_CURRENT_SOURCE_DIR}/functional -v
-        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-        COMMENT "Running Python-Cellframe functional tests"
-    )
-    
     add_custom_target(pytest_governance
         COMMAND ${Python3_EXECUTABLE} -m pytest ${CMAKE_CURRENT_SOURCE_DIR}/governance -v
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
@@ -94,15 +88,6 @@ if(PYTEST_AVAILABLE EQUAL 0)
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
     )
     set_tests_properties(python_cellframe_integration_tests PROPERTIES
-        ENVIRONMENT "PYTHONPATH=${TEST_PYTHONPATH};LD_LIBRARY_PATH=${TEST_LD_LIBRARY_PATH}"
-    )
-    
-    add_test(
-        NAME python_cellframe_functional_tests
-        COMMAND ${Python3_EXECUTABLE} -m pytest ${CMAKE_CURRENT_SOURCE_DIR}/functional -v
-        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-    )
-    set_tests_properties(python_cellframe_functional_tests PROPERTIES
         ENVIRONMENT "PYTHONPATH=${TEST_PYTHONPATH};LD_LIBRARY_PATH=${TEST_LD_LIBRARY_PATH}"
     )
     

@@ -188,7 +188,7 @@ def estimate_transaction_fee(net_name: str, transaction_type: str,
     """
     from .fee_optimizer import FeeOptimizer
     from .core import ComposeConfig
-    from ..types import TransactionType
+    from ..common.types import TransactionType
     
     amount = Decimal(str(amount))
     config = ComposeConfig(net_name=net_name)

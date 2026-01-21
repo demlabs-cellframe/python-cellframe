@@ -13,8 +13,8 @@ from dataclasses import dataclass
 from typing import Optional, Dict, Any, List, Tuple, Union
 from pathlib import Path
 
-from ..chain.wallet import WalletAddress
-from ..types import TransactionType, TSD, DatumTypes
+from ..wallet.wallet import WalletAddress
+from ..common.types import TransactionType, TSD, DatumTypes
 from .exceptions import InsufficientFundsError
 
 logger = logging.getLogger(__name__)
@@ -283,7 +283,7 @@ class Composer:
         
         # Create WalletAddress object
         try:
-            from ..chain.wallet import WalletAddress
+            from ..wallet.wallet import WalletAddress
             return WalletAddress(fee_addr_str, "fee_collector", self.net_name)
         except ImportError:
             return None

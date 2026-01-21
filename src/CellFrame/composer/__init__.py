@@ -87,7 +87,7 @@ from .utils import (
 )
 
 # Import TSD constants - these belong here since composer creates transactions
-from ..types import TSD, DatumTypes
+from ..common.types import TSD, DatumTypes
 
 __all__ = [
     # Core components

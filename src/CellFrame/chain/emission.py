@@ -12,7 +12,7 @@ from decimal import Decimal
 
 from ..common.exceptions import CellframeException
 from ..common import logger
-from ..types import TSD, DatumTypes
+from ..common.types import TSD, DatumTypes
 
 # Try to import native CellFrame emission components
 try:

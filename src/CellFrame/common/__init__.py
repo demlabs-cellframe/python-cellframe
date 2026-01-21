@@ -5,6 +5,11 @@ Core data structures and types used across CellFrame ecosystem.
 All classes require native C implementation - no fallbacks allowed.
 """
 
+import logging
+
+# Setup logger for common module
+logger = logging.getLogger(__name__)
+
 # Import context classes first
 from .context import AppContext, ExecutionMode
 
@@ -84,6 +89,9 @@ if DatumDecree is None:
 from .exceptions import CellframeException, ConfigurationException
 
 __all__ = [
+    # Logging
+    'logger',
+    
     # Context classes
     'AppContext', 'ExecutionMode',
     

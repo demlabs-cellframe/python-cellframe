@@ -13,7 +13,7 @@ from typing import List, Tuple, Optional, Dict, Any
 
 from .core import ComposeConfig, FeeStructure, TransactionInput
 from .exceptions import FeeCalculationError
-from ..types import TransactionType
+from ..common.types import TransactionType
 
 logger = logging.getLogger(__name__)
 

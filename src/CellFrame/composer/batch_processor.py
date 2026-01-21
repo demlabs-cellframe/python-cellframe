@@ -12,7 +12,7 @@ from typing import List, Dict, Any, Tuple
 from .core import TransactionInput, TransactionOutput, Composer
 from .fee_optimizer import FeeOptimizer
 from .exceptions import BatchProcessingError, InsufficientFundsError
-from ..types import TransactionType
+from ..common.types import TransactionType
 
 logger = logging.getLogger(__name__)
 
