@@ -48,18 +48,11 @@ try:
     # Use DapSign directly from native module when needed
 
 except ImportError as e:
-    # Check for test mode - allow imports in test environment
-    import os
-    if os.getenv('CELLFRAME_TEST_MODE') == '1':
-        print(f"⚠️ WARNING: TX module running in test mode, some functions may not be available: {e}")
-        # Create minimal stubs for testing
-        cf_native = None
-    else:
-        raise ImportError(
-            "❌ CRITICAL: Native python_cellframe module not available!\n"
-            f"Original error: {e}\n"
-            "Please ensure python_cellframe native module is properly built and installed."
-        ) from e
+    raise ImportError(
+        "❌ CRITICAL: Native python_cellframe module not available!\n"
+        f"Original error: {e}\n"
+        "Please ensure python_cellframe native module is properly built and installed."
+    ) from e
 
 
 class TxError(CellframeException):

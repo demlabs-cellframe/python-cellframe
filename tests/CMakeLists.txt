@@ -40,7 +40,19 @@ if(PYTEST_AVAILABLE EQUAL 0)
         COMMENT "Running Python-Cellframe pytest tests"
     )
     
-    # Add individual test target for governance
+    # Add individual test targets for each category
+    add_custom_target(pytest_unit
+        COMMAND ${Python3_EXECUTABLE} -m pytest ${CMAKE_CURRENT_SOURCE_DIR}/unit -v
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+        COMMENT "Running Python-Cellframe unit tests"
+    )
+    
+    add_custom_target(pytest_integration
+        COMMAND ${Python3_EXECUTABLE} -m pytest ${CMAKE_CURRENT_SOURCE_DIR}/integration -v
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+        COMMENT "Running Python-Cellframe integration tests"
+    )
+    
     add_custom_target(pytest_governance
         COMMAND ${Python3_EXECUTABLE} -m pytest ${CMAKE_CURRENT_SOURCE_DIR}/governance -v
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
@@ -61,6 +73,24 @@ if(PYTEST_AVAILABLE EQUAL 0)
         "${CMAKE_BINARY_DIR}/dap-sdk:${CMAKE_BINARY_DIR}/cellframe-sdk:${CMAKE_SOURCE_DIR}/python-dap/lib"
     )
     
+    
+    add_test(
+        NAME python_cellframe_unit_tests
+        COMMAND ${Python3_EXECUTABLE} -m pytest ${CMAKE_CURRENT_SOURCE_DIR}/unit -v
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+    )
+    set_tests_properties(python_cellframe_unit_tests PROPERTIES
+        ENVIRONMENT "PYTHONPATH=${TEST_PYTHONPATH};LD_LIBRARY_PATH=${TEST_LD_LIBRARY_PATH}"
+    )
+    
+    add_test(
+        NAME python_cellframe_integration_tests
+        COMMAND ${Python3_EXECUTABLE} -m pytest ${CMAKE_CURRENT_SOURCE_DIR}/integration -v
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+    )
+    set_tests_properties(python_cellframe_integration_tests PROPERTIES
+        ENVIRONMENT "PYTHONPATH=${TEST_PYTHONPATH};LD_LIBRARY_PATH=${TEST_LD_LIBRARY_PATH}"
+    )
     
     add_test(
         NAME python_cellframe_governance_tests

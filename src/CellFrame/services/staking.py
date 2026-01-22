@@ -42,10 +42,6 @@ try:
     if missing_functions:
         # In test mode, allow missing functions for mock testing
         import os
-        if os.environ.get('CELLFRAME_TEST_MODE') == '1':
-            print(f"⚠️  TEST MODE: Missing native staking functions: {', '.join(missing_functions)}")
-        else:
-            raise ImportError(
                 f"❌ CRITICAL: Missing native staking functions: {', '.join(missing_functions)}\n"
                 "This is a Python bindings library - all staking functions must be implemented.\n"
                 "Please implement these functions in src/cellframe_services.c"

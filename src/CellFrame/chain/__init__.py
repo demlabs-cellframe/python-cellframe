@@ -38,16 +38,11 @@ try:
     
     missing_functions = [func for func in required_functions if not hasattr(cf_native, func)]
     if missing_functions:
-        # In test mode, allow missing functions for mock testing
-        import os
-        if os.environ.get('CELLFRAME_TEST_MODE') == '1':
-            print(f"⚠️  TEST MODE: Missing native functions: {', '.join(missing_functions)}")
-        else:
-            raise NotImplementedError(
-                f"❌ CRITICAL: Missing native functions: {', '.join(missing_functions)}\n"
-                "This is a Python bindings library - all chain functions must be implemented.\n"
-                "Please implement these functions in src/cellframe_chain.c"
-            )
+        raise NotImplementedError(
+            f"❌ CRITICAL: Missing native functions: {', '.join(missing_functions)}\n"
+            "This is a Python bindings library - all chain functions must be implemented.\n"
+            "Please implement these functions in src/cellframe_chain.c"
+        )
     
     class ChainAtomPtr:
         """Chain atom pointer - wrapper for native C implementation"""
@@ -226,28 +221,6 @@ from .emission import (
     create_emission, parse_emission_from_datum
 )
 
-# Re-export composer module components for convenience
-from ..composer import (
-    Composer,
-    FeeOptimizer,
-    BatchProcessor,
-    TransactionTemplates,
-    ConditionalProcessor,
-    ComposeConfig,
-    FeeStructure,
-    TransactionInput,
-    TransactionOutput,
-    ComposeError,
-    FeeCalculationError,
-    InputSelectionError,
-    OutputCreationError,
-    TemplateError,
-    BatchProcessingError,
-    ConditionalTransactionError,
-    composer_context,
-    quick_transfer
-)
-
 __all__ = [
     # Native types
     'ChainAtomPtr',
@@ -300,25 +273,5 @@ __all__ = [
     
     # Emission functionality (integrated from helpers)
     'CellframeEmission', 'EmissionManager', 'EmissionError',
-    'create_emission', 'parse_emission_from_datum',
-    
-    # Advanced composition (from composer module)
-    'Composer',
-    'FeeOptimizer',
-    'BatchProcessor',
-    'TransactionTemplates',
-    'ConditionalProcessor',
-    'ComposeConfig',
-    'FeeStructure',
-    'TransactionInput',
-    'TransactionOutput',
-    'ComposeError',
-    'FeeCalculationError',
-    'InputSelectionError',
-    'OutputCreationError',
-    'TemplateError',
-    'BatchProcessingError',
-    'ConditionalTransactionError',
-    'composer_context',
-    'quick_transfer'
+    'create_emission', 'parse_emission_from_datum'
 ] 

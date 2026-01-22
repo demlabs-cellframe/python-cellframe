@@ -8,6 +8,7 @@
 #include "../../include/cf_tx.h"
 #include "dap_chain_datum_tx.h"
 #include "dap_chain_mempool.h"
+#include "dap_chain_ledger.h"
 #include "cellframe.h"
 
 #define LOG_TAG "python_cellframe_tx"
