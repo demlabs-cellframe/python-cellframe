@@ -306,7 +306,7 @@ class TestVotingProcessor:
         # we test the transaction type instead
         tx_type = voting_processor.get_transaction_type()
         
-        from CellFrame.types import TransactionType
+        from CellFrame.common.types import TransactionType
         assert tx_type == TransactionType.SRV_VOTING
 
 
@@ -355,7 +355,7 @@ class TestDelegationProcessor:
         # Test that delegation processor has correct transaction type
         tx_type = delegation_processor.get_transaction_type()
         
-        from CellFrame.types import TransactionType
+        from CellFrame.common.types import TransactionType
         assert tx_type == TransactionType.SRV_STAKE_POS_DELEGATE
         
         # Mock result for undelegation

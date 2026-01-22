@@ -10,15 +10,21 @@ import python_dap as dap  # Use python_dap for crypto functions
 from dap.crypto import DapCert, DapKey
 from dap.config import DapConfig
 # Math and other DAP functions available through python_dap
-from CellFrame.network import Net, NetID
 # Native types imported directly when needed - avoid circular imports
 
-from .consensus import CfEvent, CfBlock
-from .datums import CfDatum, CfSubDatum, CfDatumTX, CfDatumEmission
-from .types import CfNetState, ledger_cache_rc, datum_hash, TSD, CfSignType
-from .tx_items import CfTxOutCond
-from .exceptions import InsufficientFundsError
-from ..common.types import DatumTypes, ItemTypes, ItemTypesValues
+# Lazy imports to avoid FAIL-FAST errors in unit tests
+# These classes are only imported when methods that use them are called
+# from ..chain.consensus import CfEvent, CfBlock
+# from ..chain.datums import CfDatum, CfSubDatum, CfDatumTX, CfDatumEmission
+# from ..chain.tx_items import CfTxOutCond
+    
+from ..node.types import CfNetState, CfSignType
+from ..common.types import DatumTypes, ItemTypes, ItemTypesValues, TSD
+from ..common.exceptions import InsufficientFundsError
+
+# Type aliases for network operations
+datum_hash = str  # Hash of a datum
+ledger_cache_rc = dict  # Ledger cache record
 
 
 try:
@@ -555,6 +561,9 @@ class CFChain:
         Raises:
             TypeError: If Chain type neither 'esbocs' nor 'dag_poa'
         """
+        # Lazy import to avoid FAIL-FAST in unit tests
+        from ..chain.consensus import CfBlock, CfEvent
+        
         iterator = self._origin_chain.createAtomIter(False)
         ptr = self._origin_chain.atomIterGetFirst(iterator)
 
@@ -648,6 +657,9 @@ class CFChain:
         Args:
             callback: The callback function.
         """
+        # Lazy import
+        from ..chain.consensus import CfBlock, CfEvent
+        
         def callback_wrapper(atom: ChainAtomPtr, size, *other):
             try:
                 if self.type == "esbocs":
@@ -672,6 +684,9 @@ class CFChain:
             *args: Additional positional arguments to pass to the callback.
             **kwargs: Additional keyword arguments to pass to the callback.
         """
+        # Lazy import
+        from ..chain.consensus import CfBlock, CfEvent
+        
         def callback_wrapper(atom: ChainAtomPtr, size, *other):
             try:
                 if self.type == "esbocs":

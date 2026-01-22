@@ -208,7 +208,7 @@ add_library(python_cellframe MODULE ${PYTHON_CELLFRAME_SOURCES})
 set_target_properties(python_cellframe PROPERTIES
     PREFIX ""
     OUTPUT_NAME "python_cellframe"
-    SUFFIX "${Python3_SOABI}.so"
+    SUFFIX ".${Python3_SOABI}.so"
     LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/lib"
 )
 

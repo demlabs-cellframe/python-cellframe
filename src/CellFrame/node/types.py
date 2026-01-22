@@ -1,7 +1,7 @@
 from typing import NewType
 from enum import Enum
 
-from CellFrame.common import TxTSD
+from CellFrame.common.types import TSD as TxTSD
 # Import transaction types from legacy
 from CellFrame.legacy.pycfhelpers import TxIn, TxInCond, TxOut, TxOutCond, TxPkey, TxSig, TxToken, TxReceipt, TxOutExt, TxOutCondSubtypeSrvStakeLock, TxOutStd
 

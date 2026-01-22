@@ -11,6 +11,7 @@ import json
 import pytest
 import tempfile
 import shutil
+import warnings
 from pathlib import Path
 from unittest.mock import Mock, MagicMock
 from decimal import Decimal
@@ -29,8 +30,18 @@ PYTHON_DAP_PATH = str(PLUGIN_ROOT / "python-dap")
 if PYTHON_DAP_PATH not in sys.path:
     sys.path.insert(0, PYTHON_DAP_PATH)
 
-# Test configuration
-pytest_plugins = ["pytest_asyncio", "pytest_mock", "pytest_benchmark"]
+# Test configuration  
+pytest_plugins = ["pytest_mock"]
+
+
+def pytest_addoption(parser):
+    """Add custom command line options and ini options"""
+    # Register asyncio_default_fixture_loop_scope ini option BEFORE pytest-asyncio tries to read it
+    parser.addini(
+        "asyncio_default_fixture_loop_scope",
+        default="function",
+        help="Default fixture loop scope for pytest-asyncio"
+    )
 
 
 @pytest.fixture(scope="session")

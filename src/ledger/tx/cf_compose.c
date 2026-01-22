@@ -287,28 +287,48 @@ PyObject* dap_chain_tx_compose_create_py(PyObject *a_self, PyObject *a_args) {
 /**
  * @brief Create compose config
  * @param a_self Python self object (unused)
- * @param a_args Arguments (net_name, [url_str], [port], [cert_path], [enc])
- * @return ComposeConfig capsule or None
+ * @param a_args Positional arguments
+ * @param a_kwargs Keyword arguments (net_name, url, port, cert_path, enc)
+ * @return ComposeConfig dict or None
  */
-PyObject* dap_compose_config_create_py(PyObject *a_self, PyObject *a_args) {
+PyObject* dap_compose_config_create_py(PyObject *a_self, PyObject *a_args, PyObject *a_kwargs) {
     (void)a_self;
-    const char *net_name;
-    const char *url_str = NULL;
+    const char *net_name = NULL;
+    PyObject *url_obj = Py_None;
+    PyObject *cert_path_obj = Py_None;
     int port = 0;
-    const char *cert_path = NULL;
     int enc = 0;
     
-    if (!PyArg_ParseTuple(a_args, "s|sisi", &net_name, &url_str, &port, &cert_path, &enc)) {
-        PyErr_SetString(PyExc_TypeError, "Expected (net_name, [url_str], [port], [cert_path], [enc])");
+    static char *kwlist[] = {"net_name", "url", "port", "cert_path", "enc", NULL};
+    
+    // Allow None for optional string parameters
+    if (!PyArg_ParseTupleAndKeywords(a_args, a_kwargs, "s|OiOi", kwlist,
+                                     &net_name, &url_obj, &port, &cert_path_obj, &enc)) {
         return NULL;
     }
     
+    // Convert PyObject to C strings (handle None)
+    const char *url = (url_obj != Py_None && PyUnicode_Check(url_obj)) 
+                     ? PyUnicode_AsUTF8(url_obj) : NULL;
+    const char *cert_path = (cert_path_obj != Py_None && PyUnicode_Check(cert_path_obj))
+                           ? PyUnicode_AsUTF8(cert_path_obj) : NULL;
+    
     // Create config dict (Python will handle this)
     PyObject *config_dict = PyDict_New();
+    if (!config_dict) {
+        return NULL;
+    }
+    
     PyDict_SetItemString(config_dict, "net_name", PyUnicode_FromString(net_name));
-    if (url_str) PyDict_SetItemString(config_dict, "url_str", PyUnicode_FromString(url_str));
-    if (port > 0) PyDict_SetItemString(config_dict, "port", PyLong_FromLong(port));
-    if (cert_path) PyDict_SetItemString(config_dict, "cert_path", PyUnicode_FromString(cert_path));
+    if (url) {
+        PyDict_SetItemString(config_dict, "url", PyUnicode_FromString(url));
+    }
+    if (port > 0) {
+        PyDict_SetItemString(config_dict, "port", PyLong_FromLong(port));
+    }
+    if (cert_path) {
+        PyDict_SetItemString(config_dict, "cert_path", PyUnicode_FromString(cert_path));
+    }
     PyDict_SetItemString(config_dict, "enc", PyBool_FromLong(enc));
     
     return config_dict;

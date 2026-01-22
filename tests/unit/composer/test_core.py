@@ -238,7 +238,7 @@ class TestTxComposer:
     def test_transaction_types_support(self, composer):
         """Test support for different transaction types"""
         # Import the actual TransactionType enum
-        from CellFrame.types import TransactionType
+        from CellFrame.common.types import TransactionType
         
         supported_types = [
             TransactionType.TRANSFER,

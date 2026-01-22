@@ -8,16 +8,9 @@
 
 #include "cellframe.h"
 #include "dap_chain_tx_compose_api.h"
+#include "cf_compose.h"
 
 #define LOG_TAG "python_cellframe_compose_init"
-
-// External declarations from cf_compose.c
-extern PyObject* dap_chain_tx_compose_register_py(PyObject *a_self, PyObject *a_args);
-extern PyObject* dap_chain_tx_compose_unregister_py(PyObject *a_self, PyObject *a_args);
-extern PyObject* dap_chain_tx_compose_is_registered_py(PyObject *a_self, PyObject *a_args);
-extern PyObject* dap_chain_tx_compose_create_py(PyObject *a_self, PyObject *a_args);
-extern PyObject* dap_compose_config_create_py(PyObject *a_self, PyObject *a_args);
-extern PyObject* dap_compose_tx_create_py(PyObject *a_self, PyObject *a_args);
 
 /**
  * @brief Python TX Compose module methods
@@ -87,12 +80,12 @@ static PyMethodDef s_compose_methods[] = {
     // High-level Compose API
     {
         "dap_compose_config_create",
-        dap_compose_config_create_py,
-        METH_VARARGS,
+        (PyCFunction)(void(*)(void))dap_compose_config_create_py,
+        METH_VARARGS | METH_KEYWORDS,
         "Create compose configuration.\n\n"
         "Args:\n"
         "    net_name (str): Network name\n"
-        "    url_str (str, optional): URL string\n"
+        "    url (str, optional): URL string\n"
         "    port (int, optional): Port\n"
         "    cert_path (str, optional): Certificate path\n"
         "    enc (bool, optional): Enable encryption\n\n"

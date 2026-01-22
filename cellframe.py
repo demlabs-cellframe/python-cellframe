@@ -10,13 +10,11 @@ from CellFrame import *
 import sys
 sys.modules['cellframe'] = sys.modules['CellFrame']
 
-# For submodules
+# For submodules - only import what exists
 import CellFrame.chain
 import CellFrame.composer  
-import CellFrame.core
-import CellFrame.helpers
+import CellFrame.common
 import CellFrame.legacy
-import CellFrame.migration
 import CellFrame.network
 import CellFrame.node
 import CellFrame.schemas
@@ -25,10 +23,8 @@ import CellFrame.wallet
 
 sys.modules['cellframe.chain'] = CellFrame.chain
 sys.modules['cellframe.composer'] = CellFrame.composer
-sys.modules['cellframe.core'] = CellFrame.core
-sys.modules['cellframe.helpers'] = CellFrame.helpers
+sys.modules['cellframe.common'] = CellFrame.common
 sys.modules['cellframe.legacy'] = CellFrame.legacy
-sys.modules['cellframe.migration'] = CellFrame.migration
 sys.modules['cellframe.network'] = CellFrame.network
 sys.modules['cellframe.node'] = CellFrame.node
 sys.modules['cellframe.schemas'] = CellFrame.schemas
