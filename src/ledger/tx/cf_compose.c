@@ -284,6 +284,97 @@ PyObject* dap_chain_tx_compose_create_py(PyObject *a_self, PyObject *a_args) {
     return PyCapsule_New(l_datum, "dap_chain_datum_t", NULL);
 }
 
+/**
+ * @brief Create compose config
+ * @param a_self Python self object (unused)
+ * @param a_args Arguments (net_name, [url_str], [port], [cert_path], [enc])
+ * @return ComposeConfig capsule or None
+ */
+PyObject* dap_compose_config_create_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    const char *net_name;
+    const char *url_str = NULL;
+    int port = 0;
+    const char *cert_path = NULL;
+    int enc = 0;
+    
+    if (!PyArg_ParseTuple(a_args, "s|sisi", &net_name, &url_str, &port, &cert_path, &enc)) {
+        PyErr_SetString(PyExc_TypeError, "Expected (net_name, [url_str], [port], [cert_path], [enc])");
+        return NULL;
+    }
+    
+    // Create config dict (Python will handle this)
+    PyObject *config_dict = PyDict_New();
+    PyDict_SetItemString(config_dict, "net_name", PyUnicode_FromString(net_name));
+    if (url_str) PyDict_SetItemString(config_dict, "url_str", PyUnicode_FromString(url_str));
+    if (port > 0) PyDict_SetItemString(config_dict, "port", PyLong_FromLong(port));
+    if (cert_path) PyDict_SetItemString(config_dict, "cert_path", PyUnicode_FromString(cert_path));
+    PyDict_SetItemString(config_dict, "enc", PyBool_FromLong(enc));
+    
+    return config_dict;
+}
+
+/**
+ * @brief Create transaction using compose system
+ * @param a_self Python self object (unused)
+ * @param a_args Arguments (config, tx_type, params_dict)
+ * @return TX capsule or None
+ */
+PyObject* dap_compose_tx_create_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    PyObject *config_dict;
+    const char *tx_type;
+    PyObject *params_dict;
+    
+    if (!PyArg_ParseTuple(a_args, "OsO", &config_dict, &tx_type, &params_dict)) {
+        PyErr_SetString(PyExc_TypeError, "Expected (config_dict, tx_type, params_dict)");
+        return NULL;
+    }
+    
+    if (!PyDict_Check(config_dict) || !PyDict_Check(params_dict)) {
+        PyErr_SetString(PyExc_TypeError, "config and params must be dictionaries");
+        return NULL;
+    }
+    
+    // Extract network name from config
+    PyObject *net_name_obj = PyDict_GetItemString(config_dict, "net_name");
+    if (!net_name_obj) {
+        PyErr_SetString(PyExc_ValueError, "config must contain 'net_name'");
+        return NULL;
+    }
+    
+    const char *net_name = PyUnicode_AsUTF8(net_name_obj);
+    if (!net_name) {
+        return NULL;
+    }
+    
+    // Get network and ledger
+    dap_chain_net_t *net = dap_chain_net_by_name(net_name);
+    if (!net) {
+        PyErr_Format(PyExc_ValueError, "Network '%s' not found", net_name);
+        return NULL;
+    }
+    
+    dap_ledger_t *ledger = net->pub.ledger;
+    if (!ledger) {
+        PyErr_SetString(PyExc_RuntimeError, "Ledger not available for network");
+        return NULL;
+    }
+    
+    // For now, create empty UTXO list (Python layer will populate)
+    dap_list_t *utxo_list = NULL;
+    
+    // Call compose dispatcher
+    dap_chain_datum_t *datum = dap_chain_tx_compose_create(tx_type, ledger, utxo_list, params_dict);
+    
+    if (!datum) {
+        log_it(L_WARNING, "Failed to compose TX of type '%s'", tx_type);
+        Py_RETURN_NONE;
+    }
+    
+    return PyCapsule_New(datum, "dap_chain_datum_t", NULL);
+}
+
 // =============================================================================
 // CLEANUP
 // =============================================================================

@@ -16,6 +16,8 @@ extern PyObject* dap_chain_tx_compose_register_py(PyObject *a_self, PyObject *a_
 extern PyObject* dap_chain_tx_compose_unregister_py(PyObject *a_self, PyObject *a_args);
 extern PyObject* dap_chain_tx_compose_is_registered_py(PyObject *a_self, PyObject *a_args);
 extern PyObject* dap_chain_tx_compose_create_py(PyObject *a_self, PyObject *a_args);
+extern PyObject* dap_compose_config_create_py(PyObject *a_self, PyObject *a_args);
+extern PyObject* dap_compose_tx_create_py(PyObject *a_self, PyObject *a_args);
 
 /**
  * @brief Python TX Compose module methods
@@ -80,6 +82,35 @@ static PyMethodDef s_compose_methods[] = {
         "        utxo_list,\n"
         "        {'addr_to': addr, 'value': value, 'fee': fee}\n"
         "    )"
+    },
+    
+    // High-level Compose API
+    {
+        "dap_compose_config_create",
+        dap_compose_config_create_py,
+        METH_VARARGS,
+        "Create compose configuration.\n\n"
+        "Args:\n"
+        "    net_name (str): Network name\n"
+        "    url_str (str, optional): URL string\n"
+        "    port (int, optional): Port\n"
+        "    cert_path (str, optional): Certificate path\n"
+        "    enc (bool, optional): Enable encryption\n\n"
+        "Returns:\n"
+        "    dict: Configuration dictionary"
+    },
+    
+    {
+        "dap_compose_tx_create",
+        dap_compose_tx_create_py,
+        METH_VARARGS,
+        "Create transaction using compose system.\n\n"
+        "Args:\n"
+        "    config_dict (dict): Configuration dictionary\n"
+        "    tx_type (str): Transaction type\n"
+        "    params_dict (dict): Parameters dictionary\n\n"
+        "Returns:\n"
+        "    capsule: Transaction datum capsule or None"
     },
     
     {NULL, NULL, 0, NULL}  // Sentinel

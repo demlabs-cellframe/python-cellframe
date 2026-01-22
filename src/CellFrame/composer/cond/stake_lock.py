@@ -13,7 +13,7 @@ from typing import Dict, Any, List, Optional
 from .base import BaseConditionalProcessor
 from ..core import TransactionOutput
 from ..exceptions import ConditionalTransactionError
-from ...types import TransactionType
+from ...common.types import TransactionType
 
 logger = logging.getLogger(__name__)
 

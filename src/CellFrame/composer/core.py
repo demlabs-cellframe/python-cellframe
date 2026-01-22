@@ -104,7 +104,7 @@ class Composer:
     - Fallback implementations for development
     
     Usage:
-        from cellframe.chain.wallet import Wallet
+        from cellframe.wallet.wallet import Wallet
         
         wallet = Wallet.open("/path/to/wallet", password)
         with Composer(net_name="mainnet", wallet=wallet) as composer:

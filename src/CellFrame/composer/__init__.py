@@ -21,7 +21,7 @@ Specialized Conditional Processors:
 
 Usage:
     from cellframe.composer import Composer, TransactionTemplates
-    from cellframe.chain.wallet import Wallet
+    from cellframe.wallet.wallet import Wallet
     
     # Open wallet and create transaction
     wallet = Wallet.open("/path/to/wallet", password="your_password")

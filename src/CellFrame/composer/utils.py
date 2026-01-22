@@ -10,7 +10,7 @@ from decimal import Decimal
 from typing import Union, Any, Optional
 
 from .core import Composer
-from ..chain.wallet import WalletAddress
+from ..wallet.wallet import WalletAddress
 
 logger = logging.getLogger(__name__)
 
@@ -26,7 +26,7 @@ def composer_context(net_name: str, wallet: Any, **kwargs):
         **kwargs: Additional composer configuration
         
     Usage:
-        from cellframe.chain.wallet import Wallet
+        from cellframe.wallet.wallet import Wallet
         
         wallet = Wallet.open("/path/to/wallet", password="pass")
         with composer_context("mainnet", wallet) as composer:
@@ -58,7 +58,7 @@ def quick_transfer(net_name: str, wallet: Any, to_address: WalletAddress,
         str: Transaction hash
         
     Usage:
-        from cellframe.chain.wallet import Wallet
+        from cellframe.wallet.wallet import Wallet
         
         wallet = Wallet.open("/path/to/wallet", password="pass")
         tx_hash = quick_transfer("mainnet", wallet, dest_addr, 
