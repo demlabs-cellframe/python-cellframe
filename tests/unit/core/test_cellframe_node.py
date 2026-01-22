@@ -11,8 +11,8 @@ from typing import Dict, Any
 # Import the classes under test
 try:
     from CellFrame.core import CellframeNode, CellframeComponent, ExecutionMode
-    from CellFrame.core.context import AppContext, PluginContext, LibContext
-    from CellFrame.core.exceptions import CellframeException, ConfigurationException
+    from CellFrame.common.context import AppContext, PluginContext, LibContext
+    from CellFrame.common.exceptions import CellframeException, ConfigurationException
 except ImportError as e:
     pytest.skip(f"CellFrame modules not available: {e}", allow_module_level=True)
 

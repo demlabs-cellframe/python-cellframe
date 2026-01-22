@@ -72,25 +72,13 @@ def temp_dir() -> Generator[Path, None, None]:
 
 @pytest.fixture
 def mock_cellframe_sdk():
-    """Mock CellFrame SDK for isolated testing"""
-    with pytest.MonkeyPatch().context() as m:
-        # Mock the main SDK modules and functions that exist
-        mock_sdk = MagicMock()
-        
-        # Mock wallet functions from chain module
-        m.setattr("CellFrame.chain.wallet.create_wallet", Mock(return_value=mock_sdk))
-        m.setattr("CellFrame.chain.wallet.open_wallet", Mock(return_value=mock_sdk))
-        m.setattr("CellFrame.chain.wallet.get_all_wallets", Mock(return_value=[]))
-        
-        # Mock ledger functions from chain module  
-        m.setattr("CellFrame.chain.ledger.create_ledger", Mock(return_value=mock_sdk))
-        m.setattr("CellFrame.chain.ledger.open_ledger", Mock(return_value=mock_sdk))
-        
-        # Mock context functions that exist
-        m.setattr("CellFrame.core.context.get_context", Mock(return_value=mock_sdk))
-        m.setattr("CellFrame.core.context.initialize_context", Mock(return_value=mock_sdk))
-        
-        yield mock_sdk
+    """
+    Mock CellFrame SDK for isolated testing.
+    NOTE: This fixture is DISABLED as it breaks native module imports.
+    Tests should create their own mocks using pytest-mock or unittest.mock.
+    """
+    # Return a simple mock object that tests can use if needed
+    return MagicMock()
 
 
 @pytest.fixture
@@ -218,15 +206,26 @@ def standalone_library_mock():
     return mock_lib
 
 
-@pytest.fixture(autouse=True)
+@pytest.fixture
 def reset_imports():
-    """Reset module imports between tests"""
+    """
+    Reset module imports between tests.
+    NOTE: NOT autouse! Only use when specifically needed for a test.
+    Native C modules (python_cellframe, python_dap) should NOT be reset.
+    """
+    # Store original modules
+    original_modules = dict(sys.modules)
+    
+    yield
+    
+    # Only remove Python-only cellframe/dap modules, NOT native ones
     modules_to_remove = [
         mod for mod in sys.modules.keys() 
-        if mod.startswith(('cellframe', 'dap'))
+        if mod.startswith(('CellFrame', 'dap.'))  # Only Python wrappers
+        and not mod.startswith(('python_cellframe', 'python_dap'))  # Keep native
     ]
     for mod in modules_to_remove:
-        if mod in sys.modules:
+        if mod in sys.modules and mod not in original_modules:
             del sys.modules[mod]
 
 

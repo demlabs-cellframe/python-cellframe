@@ -56,9 +56,9 @@ def setup_dap_sdk_for_tests():
 
 # Import types for proper mocking (after DAP SDK is initialized)
 # FAIL-FAST: Either CellFrame modules are available or tests fail
-from CellFrame.core.context import AppContext, LibContext, PluginContext, ExecutionMode
+from CellFrame.common.context import AppContext, LibContext, PluginContext, ExecutionMode
 from CellFrame.chain import Wallet, TX, CfLedger, WalletType, TxType
-from CellFrame.core.exceptions import CellframeException
+from CellFrame.common.exceptions import CellframeException
 
 
 # =========================================

@@ -34,7 +34,7 @@ class TestTxComposer:
         """Create TxComposer instance for testing"""
         # Import the actual class from our module
         from CellFrame.composer.core import Composer
-        from CellFrame.chain.wallet import Wallet
+        from CellFrame.wallet.wallet import Wallet
         
         # Create mock wallet
         mock_wallet = Mock(spec=Wallet)
@@ -65,7 +65,7 @@ class TestTxComposer:
     def test_composer_initialization_without_config(self, mock_cellframe_sdk):
         """Test TxComposer initialization with default config"""
         from CellFrame.composer.core import Composer
-        from CellFrame.chain.wallet import Wallet
+        from CellFrame.wallet.wallet import Wallet
         
         # Create mock wallet
         mock_wallet = Mock(spec=Wallet)
@@ -83,7 +83,7 @@ class TestTxComposer:
         """Test TxComposer initialization with invalid network"""
         from CellFrame.composer.core import Composer
         from CellFrame.composer.exceptions import ComposeError
-        from CellFrame.chain.wallet import Wallet
+        from CellFrame.wallet.wallet import Wallet
         
         # Create mock wallet that will fail
         mock_wallet = Mock(spec=Wallet)
@@ -99,7 +99,7 @@ class TestTxComposer:
     @pytest.mark.mock_only
     def test_create_simple_transaction(self, composer, sample_transaction_data):
         """Test creating a simple transaction"""
-        from CellFrame.chain.wallet import WalletAddress
+        from CellFrame.wallet.wallet import WalletAddress
         from decimal import Decimal
         
         # Create mock address
@@ -256,7 +256,7 @@ class TestTxComposer:
     def test_composer_context_manager(self, mock_cellframe_sdk, composer_config):
         """Test TxComposer as context manager"""
         from CellFrame.composer.core import Composer
-        from CellFrame.chain.wallet import Wallet
+        from CellFrame.wallet.wallet import Wallet
         
         # Create mock wallet
         mock_wallet = Mock(spec=Wallet)
@@ -271,7 +271,7 @@ class TestTxComposer:
         """Test error handling in composer"""
         with patch.object(composer, '_compose_transaction', side_effect=Exception("Network error")):
             with pytest.raises(Exception):  # Composer may not have specific error class
-                from CellFrame.chain.wallet import WalletAddress
+                from CellFrame.wallet.wallet import WalletAddress
                 from decimal import Decimal
                 
                 mock_addr = Mock(spec=WalletAddress)
@@ -286,7 +286,7 @@ class TestTxComposer:
     def test_composer_performance(self, composer, sample_transaction_data, benchmark):
         """Test composer performance for transaction creation"""
         from decimal import Decimal
-        from CellFrame.chain.wallet import WalletAddress
+        from CellFrame.wallet.wallet import WalletAddress
         
         with patch.object(composer, 'select_inputs', return_value=([], Decimal("1000"))), \
              patch.object(composer, '_compose_transaction', return_value="perf_test_hash"):

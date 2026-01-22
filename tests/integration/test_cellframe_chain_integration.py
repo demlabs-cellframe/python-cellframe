@@ -12,10 +12,10 @@ from typing import Dict, Any, List
 try:
     from CellFrame.core import CellframeNode, CellframeChain
     from CellFrame.chain import Wallet, TX, DapLedger, WalletType, TxType
-    from CellFrame.chain.wallet import WalletManager
+    from CellFrame.wallet.wallet import WalletManager
     from CellFrame.chain.ledger import DapLedgerManager
-    from CellFrame.core.context import LibContext
-    from CellFrame.core.exceptions import CellframeException
+    from CellFrame.common.context import LibContext
+    from CellFrame.common.exceptions import CellframeException
 except ImportError as e:
     pytest.skip(f"CellFrame modules not available: {e}", allow_module_level=True)
 
