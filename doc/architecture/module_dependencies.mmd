@@ -1,0 +1,270 @@
+%% Диаграмма зависимостей модулей DAP SDK и Cellframe SDK
+%% Дата: 2026-01-14
+%% Версия: DAP SDK 3.0-0, Cellframe SDK 4.0.0
+
+graph TB
+    %% ============================================
+    %% DAP SDK LAYER 0: CORE FOUNDATION
+    %% ============================================
+    subgraph DAP_SDK["DAP SDK 3.0-0"]
+        subgraph LAYER0["LAYER 0: CORE FOUNDATION"]
+            dap_core["dap_core<br/>Базовые примитивы<br/>События, потоки"]
+            third_party["3rdparty<br/>uthash, json-c<br/>shishua, secp256k1<br/>mdbx"]
+        end
+
+        %% ============================================
+        %% DAP SDK LAYER 1: CRYPTO & PLUGIN
+        %% ============================================
+        subgraph LAYER1["LAYER 1: CRYPTO & PLUGIN"]
+            dap_crypto["dap_crypto<br/>Криптография<br/>ECDSA, Dilithium<br/>Kyber512, SPHINCS+"]
+            dap_plugin["dap_plugin<br/>Система плагинов"]
+        end
+
+        %% ============================================
+        %% DAP SDK LAYER 2: I/O & NETWORKING
+        %% ============================================
+        subgraph LAYER2["LAYER 2: I/O & NETWORKING"]
+            dap_io["dap_io<br/>Асинхронный I/O<br/>epoll/kqueue/wepoll"]
+            dap_net_common["dap_net_common<br/>HTTP коды<br/>Общие типы"]
+        end
+
+        %% ============================================
+        %% DAP SDK LAYER 3: STREAM & SESSION
+        %% ============================================
+        subgraph LAYER3["LAYER 3: STREAM & SESSION"]
+            dap_stream["dap_stream<br/>Потоковая передача<br/>Worker, Cluster"]
+            dap_stream_ch["dap_stream_ch<br/>Каналы<br/>gossip, pkt, proc"]
+            dap_stream_event["dap_stream_event<br/>События потоков"]
+            dap_stream_session["dap_stream_session<br/>Сессии клиентов"]
+        end
+
+        %% ============================================
+        %% DAP SDK LAYER 4: CLIENT & SERVER
+        %% ============================================
+        subgraph LAYER4["LAYER 4: CLIENT & SERVER"]
+            dap_client["dap_client<br/>Клиент"]
+            dap_server["dap_server<br/>enc, http<br/>json_rpc, cli<br/>dns, notify"]
+        end
+
+        %% ============================================
+        %% DAP SDK LAYER 5-7: HIGH LEVEL
+        %% ============================================
+        subgraph LAYER5["LAYER 5: HTTP CLIENT"]
+            dap_client_http["dap_client_http<br/>HTTP клиент"]
+        end
+
+        subgraph LAYER6["LAYER 6: LINK MANAGER"]
+            dap_link_manager["dap_link_manager<br/>Управление<br/>соединениями"]
+        end
+
+        subgraph LAYER7["LAYER 7: GLOBAL DB"]
+            dap_global_db["dap_global_db<br/>MDBX/SQLite<br/>PostgreSQL"]
+        end
+
+        subgraph LAYER8["LAYER 8: APP CLI"]
+            dap_app_cli["dap_app_cli<br/>CLI интерфейс"]
+        end
+    end
+
+    %% ============================================
+    %% CELLFRAME SDK
+    %% ============================================
+    subgraph CELLFRAME_SDK["Cellframe SDK 4.0.0"]
+        subgraph CF_LAYER0["LAYER 0: COMMON TYPES"]
+            cf_common["common<br/>Базовые типы<br/>uint256_t, hash_t"]
+        end
+
+        subgraph CF_LAYER1["LAYER 1: DATUM"]
+            cf_datum["datum<br/>Структуры данных<br/>token, decree<br/>anchor, emission"]
+            cf_datum_tx["datum_tx<br/>Транзакции"]
+        end
+
+        subgraph CF_LAYER2["LAYER 2: WALLET"]
+            cf_wallet["wallet<br/>Кошельки<br/>Ключи, подписи"]
+        end
+
+        subgraph CF_LAYER3["LAYER 3: CHAIN BASE"]
+            cf_chain["chain<br/>Базовый чейн<br/>Атомы, цепи"]
+            cf_chain_dag["chain_type_dag<br/>DAG структура<br/>Events"]
+            cf_chain_blocks["chain_type_blocks<br/>Block структура<br/>Block cache"]
+            cf_chain_none["chain_type_none<br/>Без консенсуса"]
+        end
+
+        subgraph CF_LAYER4["LAYER 4: LEDGER"]
+            cf_ledger["ledger<br/>UTXO ledger<br/>Балансы, валидация"]
+        end
+
+        subgraph CF_LAYER5["LAYER 5: WALLET EXTENSIONS"]
+            cf_wallet_cache["wallet_cache<br/>Кеш адресов"]
+            cf_wallet_shared["wallet_shared<br/>Кеш общих TX"]
+        end
+
+        subgraph CF_LAYER6["LAYER 6: MEMPOOL"]
+            cf_mempool["mempool<br/>Пул транзакций<br/>Очередь, валидация"]
+        end
+
+        subgraph CF_LAYER7["LAYER 7: CONSENSUS"]
+            cf_cs["dap_chain_cs<br/>Регистр консенсусов<br/>Callbacks, Validator"]
+            cf_cs_dag_poa["cs_dag_poa<br/>DAG + PoA"]
+            cf_cs_esbocs["cs_esbocs<br/>ESBOCS"]
+            cf_cs_block_pow["cs_block_pow<br/>PoW"]
+        end
+
+        subgraph CF_LAYER8["LAYER 8: GOVERNANCE"]
+            cf_decree["decree<br/>Указы<br/>Callbacks"]
+            cf_policy["policy<br/>Политики<br/>Anchors"]
+        end
+
+        subgraph CF_LAYER9["LAYER 9: NETWORKING"]
+            cf_chain_net["chain_net<br/>Сетевой слой<br/>Синхронизация<br/>Gossip"]
+            cf_chain_net_tx["chain_net_tx<br/>TX broadcast"]
+            cf_chain_net_decree["chain_net_decree<br/>Сетевые указы"]
+            cf_chain_net_srv["chain_net_srv<br/>Базовый класс<br/>сервисов"]
+        end
+
+        subgraph CF_LAYER10["LAYER 10: SERVICES"]
+            cf_srv_stake["srv_stake<br/>Стейкинг<br/>PoS"]
+            cf_srv_xchange["srv_xchange<br/>Обмен токенов"]
+            cf_srv_voting["srv_voting<br/>Голосование"]
+            cf_srv_bridge["srv_bridge<br/>Кросс-чейн мост"]
+            cf_srv_datum["srv_datum<br/>Публикация данных"]
+            cf_srv_app["srv_app<br/>Приложения"]
+            cf_srv_app_db["srv_app_db<br/>БД приложений"]
+            cf_srv_stake_ext["srv_stake_ext<br/>Расширенный<br/>стейкинг"]
+        end
+
+        subgraph CF_LAYER11["LAYER 11: TX COMPOSE"]
+            cf_tx_compose["tx_compose<br/>Построение TX<br/>Подпись, Receipt"]
+        end
+    end
+
+    %% ============================================
+    %% DAP SDK DEPENDENCIES
+    %% ============================================
+    third_party --> dap_core
+    dap_core --> dap_crypto
+    dap_core --> dap_plugin
+    dap_core --> dap_net_common
+    dap_crypto --> dap_io
+    dap_net_common --> dap_io
+    dap_core --> dap_io
+    
+    dap_io --> dap_stream
+    dap_crypto --> dap_stream
+    dap_stream --> dap_stream_ch
+    dap_stream --> dap_stream_event
+    dap_stream --> dap_stream_session
+    
+    dap_stream --> dap_client
+    dap_stream --> dap_server
+    
+    dap_net_common --> dap_client_http
+    
+    dap_client --> dap_link_manager
+    dap_server --> dap_link_manager
+    
+    dap_core --> dap_global_db
+    
+    dap_server --> dap_app_cli
+
+    %% ============================================
+    %% CELLFRAME DEPENDENCIES FROM DAP SDK
+    %% ============================================
+    dap_crypto --> cf_datum
+    dap_crypto --> cf_wallet
+    dap_global_db --> cf_chain
+    dap_stream --> cf_chain_net
+    dap_server --> cf_chain_net
+    dap_stream_ch --> cf_chain_net_srv
+    dap_global_db --> cf_srv_app_db
+
+    %% ============================================
+    %% CELLFRAME INTERNAL DEPENDENCIES
+    %% ============================================
+    cf_common --> cf_datum
+    cf_datum --> cf_datum_tx
+    cf_datum --> cf_wallet
+    
+    cf_datum --> cf_chain
+    cf_chain --> cf_chain_dag
+    cf_chain --> cf_chain_blocks
+    cf_chain --> cf_chain_none
+    
+    cf_chain --> cf_ledger
+    cf_wallet --> cf_ledger
+    cf_datum_tx --> cf_ledger
+    
+    cf_ledger --> cf_wallet_cache
+    cf_wallet --> cf_wallet_cache
+    
+    cf_ledger --> cf_mempool
+    cf_datum_tx --> cf_mempool
+    
+    cf_ledger --> cf_wallet_shared
+    cf_mempool --> cf_wallet_shared
+    cf_wallet --> cf_wallet_shared
+    
+    cf_chain --> cf_cs
+    cf_chain_dag --> cf_cs_dag_poa
+    cf_cs --> cf_cs_dag_poa
+    cf_chain_blocks --> cf_cs_esbocs
+    cf_cs --> cf_cs_esbocs
+    cf_chain_blocks --> cf_cs_block_pow
+    cf_cs --> cf_cs_block_pow
+    
+    cf_ledger --> cf_decree
+    cf_datum --> cf_decree
+    cf_ledger --> cf_policy
+    cf_decree --> cf_policy
+    
+    cf_chain --> cf_chain_net
+    cf_ledger --> cf_chain_net
+    cf_chain_net --> cf_chain_net_tx
+    cf_mempool --> cf_chain_net_tx
+    cf_chain_net --> cf_chain_net_decree
+    cf_decree --> cf_chain_net_decree
+    cf_chain_net --> cf_chain_net_srv
+    
+    cf_chain_net_srv --> cf_srv_stake
+    cf_ledger --> cf_srv_stake
+    cf_cs_esbocs --> cf_srv_stake
+    
+    cf_chain_net_srv --> cf_srv_xchange
+    cf_ledger --> cf_srv_xchange
+    cf_tx_compose --> cf_srv_xchange
+    
+    cf_chain_net_srv --> cf_srv_voting
+    cf_ledger --> cf_srv_voting
+    
+    cf_chain_net_srv --> cf_srv_bridge
+    cf_ledger --> cf_srv_bridge
+    
+    cf_chain_net_srv --> cf_srv_datum
+    cf_datum --> cf_srv_datum
+    
+    cf_chain_net_srv --> cf_srv_app
+    cf_srv_app --> cf_srv_app_db
+    
+    cf_srv_stake --> cf_srv_stake_ext
+    cf_ledger --> cf_srv_stake_ext
+    
+    cf_datum_tx --> cf_tx_compose
+    cf_wallet --> cf_tx_compose
+    cf_ledger --> cf_tx_compose
+
+    %% ============================================
+    %% STYLING
+    %% ============================================
+    classDef dapCore fill:#e1f5ff,stroke:#0288d1,stroke-width:2px
+    classDef dapCrypto fill:#fff3e0,stroke:#ff6f00,stroke-width:2px
+    classDef dapNet fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px
+    classDef cfChain fill:#e8f5e9,stroke:#388e3c,stroke-width:2px
+    classDef cfConsensus fill:#fff9c4,stroke:#f57f17,stroke-width:2px
+    classDef cfService fill:#fce4ec,stroke:#c2185b,stroke-width:2px
+
+    class dap_core,dap_plugin,dap_app_cli dapCore
+    class dap_crypto dapCrypto
+    class dap_io,dap_stream,dap_stream_ch,dap_stream_event,dap_stream_session,dap_client,dap_server,dap_net_common,dap_client_http,dap_link_manager dapNet
+    class cf_chain,cf_chain_dag,cf_chain_blocks,cf_chain_none,cf_ledger,cf_datum,cf_datum_tx,cf_wallet cfChain
+    class cf_cs,cf_cs_dag_poa,cf_cs_esbocs,cf_cs_block_pow cfConsensus
+    class cf_srv_stake,cf_srv_xchange,cf_srv_voting,cf_srv_bridge,cf_srv_datum,cf_srv_app,cf_srv_app_db,cf_srv_stake_ext cfService

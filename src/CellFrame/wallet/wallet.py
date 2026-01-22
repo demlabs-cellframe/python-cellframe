@@ -1,0 +1,839 @@
+"""
+💰 Cellframe Wallet Module
+
+Core wallet management functionality focused on wallet operations only.
+Transaction creation is handled by the composer module.
+
+Key Features:
+- Wallet creation, opening, and management
+- Balance queries and address generation
+- Secure key management
+- Thread-safe operations with proper locking
+- Memory management with cleanup
+
+For transaction creation, use the composer module:
+    from cellframe.composer import Composer
+    
+    with Composer("mainnet", wallet.get_address()) as composer:
+        tx = composer.create_transfer(dest_addr, amount, "CELL", fee)
+
+💼 Cellframe Wallet Module
+
+Pure wallet management functionality focused on wallet operations,
+key management, and balance queries. For transaction creation, 
+use the Composer module.
+
+Usage:
+    from cellframe.chain.wallet import Wallet
+    from cellframe.composer import Composer
+    
+    # Open wallet and get balance
+    wallet = Wallet.open("/path/to/wallet", password="your_password") 
+    balance = wallet.get_balance("CELL")
+    
+    # Create transaction using composer
+    with Composer(net_name="mainnet", wallet=wallet) as composer:
+        tx = composer.create_tx(dest_addr, amount, "CELL", fee)
+"""
+
+import logging
+import threading
+from typing import Optional, Dict, Any, List, Union, Tuple
+from enum import Enum
+from pathlib import Path
+from decimal import Decimal
+
+# Import cellframe functions - always required
+try:
+    # FAIL-FAST: Native modules are required - no fallbacks allowed
+    import python_dap
+    
+    # First try the main python_cellframe module
+    import python_cellframe as cf_native
+    if hasattr(cf_native, 'is_sdk_available') and not cf_native.is_sdk_available():
+        raise RuntimeError("Native SDK not properly initialized")
+    
+    # Try to import wallet functions - they might be in a submodule
+    try:
+        from python_cellframe import (
+            dap_chain_wallet_create, dap_chain_wallet_create_with_seed,
+            dap_chain_wallet_create_with_seed_multi, dap_chain_wallet_open,
+            dap_chain_wallet_open_ext, dap_chain_wallet_close, dap_chain_wallet_save,
+            dap_chain_wallet_get_addr, dap_chain_wallet_get_balance,
+            dap_chain_wallet_get_key, dap_chain_wallet_get_pkey,
+            dap_chain_wallet_activate, dap_chain_wallet_deactivate,
+            dap_chain_wallet_shared_get_tx_hashes_json,
+            dap_chain_wallet_shared_hold_tx_add,
+            DAP_CHAIN_TICKER_SIZE_MAX,
+        )
+    except ImportError:
+        # Wallet functions not yet implemented in native module
+        raise ImportError(
+            "❌ CRITICAL: Wallet functions not available in python_cellframe!\n"
+            "This is a Python bindings library - fallback implementations are not allowed.\n"
+            "Required: dap_chain_wallet_* functions must be implemented in native C extension.\n"
+            "Please implement wallet bindings in src/cellframe_wallet.c"
+        )
+
+except ImportError as e:
+    raise ImportError(
+        "❌ CRITICAL: Native python_cellframe module not available!\n"
+        "This is a Python bindings library - fallback implementations are not allowed.\n"
+        "Required: python_cellframe native C extension must be properly built and installed.\n"
+        f"Original error: {e}\n"
+        "Please run: cmake .. && make && make install"
+    ) from e
+
+from ..common.exceptions import CellframeException
+
+logger = logging.getLogger(__name__)
+
+
+class WalletError(CellframeException):
+    """Base wallet exception."""
+    pass
+
+
+class InsufficientFundsError(WalletError):
+    """Insufficient funds for transaction."""
+    pass
+
+
+class InvalidAddressError(WalletError):
+    """Invalid wallet address."""
+    pass
+
+
+class WalletAccessType(Enum):
+    """Types of wallet access."""
+    LOCAL = "local"             # Local wallet
+    REMOTE = "remote"           # Remote wallet access
+
+
+class WalletType(Enum):
+    """Types of wallets."""
+    SIMPLE = "simple"           # Regular wallet
+    MULTISIG = "multisig"       # Multi-signature
+    SHARED = "shared"           # Shared wallet
+    HARDWARE = "hardware"       # Hardware wallet
+
+
+class WalletAddress:
+    """Wallet address representation."""
+    
+    def __init__(self, address_str: str, net_id: int):
+        """Initialize wallet address."""
+        self.address = address_str
+        self.net_id = net_id
+    
+    def __str__(self) -> str:
+        return self.address
+    
+    def __repr__(self) -> str:
+        return f"WalletAddress('{self.address}', net_id={self.net_id})"
+
+
+class Wallet:
+    """
+    Core Cellframe wallet management.
+    
+    Handles wallet creation, opening, key management, and balance queries.
+    For transaction creation, use the composer module.
+    """
+    
+    def __init__(self, name: str, wallet_handle: Any = None, 
+                 access_type: WalletAccessType = WalletAccessType.LOCAL):
+        """Initialize wallet instance."""
+        self.name = name
+        self._wallet_handle = wallet_handle
+        self.access_type = access_type
+        self._lock = threading.RLock()
+        self._is_closed = False
+        self.wallet_type = WalletType.SIMPLE
+        
+        logger.info("Wallet %s initialized with access_type=%s", name, access_type)
+    
+    def __enter__(self):
+        """Context manager entry."""
+        return self
+    
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        """Context manager exit."""
+        self.close()
+    
+    @classmethod
+    def create(cls, name: str, wallet_path: str, password: Optional[str] = None,
+               seed: Optional[bytes] = None, signature_type: int = 0x0102) -> 'Wallet':
+        """
+        Create new wallet.
+        
+        Args:
+            name: Wallet name
+            wallet_path: Path to wallet directory
+            password: Wallet password
+            seed: Optional seed for recovery
+            signature_type: Signature algorithm type
+            
+        Returns:
+            Wallet: Created wallet instance
+            
+        Raises:
+            WalletError: If wallet creation fails
+        """
+        try:
+            if seed:
+                wallet_handle = dap_chain_wallet_create_with_seed(
+                    name, wallet_path, signature_type, seed, len(seed), password
+                )
+            else:
+                wallet_handle = dap_chain_wallet_create(
+                    name, wallet_path, signature_type, password
+                )
+            
+            if not wallet_handle:
+                raise WalletError(f"Failed to create wallet {name}")
+                
+            return cls(name, wallet_handle, WalletAccessType.LOCAL)
+                
+        except Exception as e:
+            logger.error("Failed to create wallet %s: %s", name, e)
+            raise WalletError(f"Failed to create wallet {name}: {e}")
+    
+    @classmethod
+    def open(cls, name: str, wallet_path: str, password: Optional[str] = None) -> 'Wallet':
+        """
+        Open existing wallet.
+        
+        Args:
+            name: Wallet name
+            wallet_path: Path to wallet directory
+            password: Wallet password
+            
+        Returns:
+            Wallet: Opened wallet instance
+            
+        Raises:
+            WalletError: If wallet opening fails
+        """
+        try:
+            wallet_handle = dap_chain_wallet_open(name, wallet_path, password)
+            if not wallet_handle:
+                raise WalletError(f"Failed to open wallet {name}")
+                
+            return cls(name, wallet_handle, WalletAccessType.LOCAL)
+                
+        except Exception as e:
+            logger.error("Failed to open wallet %s: %s", name, e)
+            raise WalletError(f"Failed to open wallet {name}: {e}")
+    
+    def get_address(self, net_id: int) -> WalletAddress:
+        """
+        Get wallet address for network.
+        
+        Args:
+            net_id: Network identifier
+            
+        Returns:
+            WalletAddress: Wallet address object
+            
+        Raises:
+            WalletError: If address retrieval fails
+        """
+        with self._lock:
+            try:
+                addr_ptr = dap_chain_wallet_get_addr(self._wallet_handle, net_id)
+                if not addr_ptr:
+                    raise WalletError("Failed to get address")
+                return WalletAddress(str(addr_ptr), net_id)
+                    
+            except Exception as e:
+                logger.error("Failed to get address for %s: %s", self.name, e)
+                raise WalletError(f"Failed to get address: {e}")
+    
+    def get_balance(self, net_id: int, token_ticker: str) -> Decimal:
+        """
+        Get wallet balance for token.
+        
+        Args:
+            net_id: Network identifier
+            token_ticker: Token ticker symbol
+            
+        Returns:
+            Decimal: Current balance
+            
+        Raises:
+            WalletError: If balance retrieval fails
+        """
+        with self._lock:
+            try:
+                balance = dap_chain_wallet_get_balance(
+                    self._wallet_handle, net_id, token_ticker
+                )
+                return Decimal(str(balance))
+                    
+            except Exception as e:
+                logger.error("Failed to get balance for %s: %s", self.name, e)
+                raise WalletError(f"Failed to get balance: {e}")
+    
+    def get_key(self, key_type: int = 0x0102):
+        """
+        Get wallet private key.
+        
+        Args:
+            key_type: Key type identifier
+            
+        Returns:
+            Key object
+            
+        Raises:
+            WalletError: If key retrieval fails
+        """
+        with self._lock:
+            try:
+                key = dap_chain_wallet_get_key(self._wallet_handle, key_type)
+                if not key:
+                    raise WalletError("Failed to get private key")
+                return key
+                    
+            except Exception as e:
+                logger.error("Failed to get key for %s: %s", self.name, e)
+                raise WalletError(f"Failed to get key: {e}")
+    
+    def get_public_key(self, key_type: int = 0x0102):
+        """
+        Get wallet public key.
+        
+        Args:
+            key_type: Key type identifier
+            
+        Returns:
+            Public key object
+            
+        Raises:
+            WalletError: If public key retrieval fails
+        """
+        with self._lock:
+            try:
+                pkey = dap_chain_wallet_get_pkey(self._wallet_handle, key_type)
+                if not pkey:
+                    raise WalletError("Failed to get public key")
+                return pkey
+                    
+            except Exception as e:
+                logger.error("Failed to get public key for %s: %s", self.name, e)
+                raise WalletError(f"Failed to get public key: {e}")
+    
+    def get_pkey_hash(self) -> str:
+        """
+        Get public key hash from wallet.
+        
+        Uses native C API dap_chain_wallet_get_pkey_hash.
+        
+        Returns:
+            str: Public key hash as hex string (0x...)
+            
+        Raises:
+            WalletError: If hash retrieval fails
+        """
+        with self._lock:
+            if self._is_closed:
+                raise WalletError("Wallet is closed")
+            
+            if not self._wallet_handle:
+                raise WalletError("No wallet handle available")
+            
+            try:
+                if not hasattr(cf_native, 'dap_chain_wallet_get_pkey_hash'):
+                    raise ImportError(
+                        "❌ CRITICAL: dap_chain_wallet_get_pkey_hash not available in python_cellframe!\n"
+                        "Please ensure this function is exported in src/cellframe_wallet.c"
+                    )
+                
+                pkey_hash_str = cf_native.dap_chain_wallet_get_pkey_hash(self._wallet_handle)
+                if not pkey_hash_str:
+                    raise WalletError("Failed to get public key hash")
+                
+                return str(pkey_hash_str)
+                    
+            except Exception as e:
+                logger.error("Failed to get public key hash for %s: %s", self.name, e)
+                raise WalletError(f"Failed to get public key hash: {e}")
+    
+    def activate(self) -> bool:
+        """
+        Activate wallet.
+        
+        Returns:
+            bool: True if activated successfully
+            
+        Raises:
+            WalletError: If activation fails
+        """
+        with self._lock:
+            try:
+                result = dap_chain_wallet_activate(self._wallet_handle)
+                return result == 0
+                    
+            except Exception as e:
+                logger.error("Failed to activate wallet %s: %s", self.name, e)
+                raise WalletError(f"Failed to activate wallet: {e}")
+    
+    def deactivate(self) -> bool:
+        """
+        Deactivate wallet.
+        
+        Returns:
+            bool: True if deactivated successfully
+            
+        Raises:
+            WalletError: If deactivation fails
+        """
+        with self._lock:
+            try:
+                result = dap_chain_wallet_deactivate(self._wallet_handle)
+                return result == 0
+                    
+            except Exception as e:
+                logger.error("Failed to deactivate wallet %s: %s", self.name, e)
+                raise WalletError(f"Failed to deactivate wallet: {e}")
+    
+    def validate_address(self, address: str, net_id: int) -> bool:
+        """
+        Validate wallet address format.
+        
+        Args:
+            address: Address to validate
+            net_id: Network identifier
+            
+        Returns:
+            True if address is valid
+        """
+        try:
+            # Basic validation using address format
+            return len(address) > 20 and address.startswith('mC')
+                
+        except Exception as e:
+            logger.error("Failed to validate address: %s", e)
+            return False
+    
+    def save(self, password: Optional[str] = None) -> bool:
+        """
+        Save wallet to disk.
+        
+        Args:
+            password: Optional password for encryption
+            
+        Returns:
+            bool: True if saved successfully
+            
+        Raises:
+            WalletError: If save fails
+        """
+        with self._lock:
+            try:
+                result = dap_chain_wallet_save(self._wallet_handle, password)
+                return result == 0
+                    
+            except Exception as e:
+                logger.error("Failed to save wallet %s: %s", self.name, e)
+                raise WalletError(f"Failed to save wallet: {e}")
+    
+    def close(self):
+        """Close wallet and release resources."""
+        with self._lock:
+            if not self._is_closed:
+                try:
+                    dap_chain_wallet_close(self._wallet_handle)
+                    self._wallet_handle = None
+                    self._is_closed = True
+                    
+                    logger.info("Wallet %s closed", self.name)
+                    
+                except Exception as e:
+                    logger.error("Error closing wallet %s: %s", self.name, e)
+    
+    def __del__(self):
+        """Destructor - ensure wallet is closed."""
+        if not self._is_closed:
+            self.close()
+    
+    # ========== SHARED WALLET METHODS ==========
+    
+    def get_shared_tx_hashes(self, pkey_hash: str, network_name: str) -> Optional[Dict[str, Any]]:
+        """
+        Get shared wallet transaction hashes by public key hash.
+        
+        Args:
+            pkey_hash: Public key hash string
+            network_name: Network name
+            
+        Returns:
+            Dictionary with transaction hashes or None if not found
+            
+        Raises:
+            WalletError: If operation fails
+        """
+        with self._lock:
+            if self._is_closed:
+                raise WalletError("Wallet is closed")
+            
+            try:
+                import json
+                
+                if not hasattr(cf_native, 'dap_chain_wallet_shared_get_tx_hashes_json'):
+                    raise ImportError(
+                        "❌ CRITICAL: Shared wallet functions not available in python_cellframe!\n"
+                        "Required: dap_chain_wallet_shared_get_tx_hashes_json\n"
+                        "Please ensure shared wallet functions are exported in src/cellframe_wallet.c"
+                    )
+                
+                json_str = cf_native.dap_chain_wallet_shared_get_tx_hashes_json(pkey_hash, network_name)
+                if not json_str:
+                    return None
+                
+                return json.loads(json_str)
+                
+            except Exception as e:
+                logger.error("Failed to get shared tx hashes: %s", e)
+                raise WalletError(f"Failed to get shared tx hashes: {e}")
+    
+    def hold_shared_tx(self, tx_handle: Any, network_name: str) -> bool:
+        """
+        Add transaction to shared wallet hold list.
+        
+        Args:
+            tx_handle: Transaction handle (capsule)
+            network_name: Network name
+            
+        Returns:
+            True if successful
+            
+        Raises:
+            WalletError: If operation fails
+        """
+        with self._lock:
+            if self._is_closed:
+                raise WalletError("Wallet is closed")
+            
+            try:
+                if not hasattr(cf_native, 'dap_chain_wallet_shared_hold_tx_add'):
+                    raise ImportError(
+                        "❌ CRITICAL: Shared wallet functions not available in python_cellframe!\n"
+                        "Required: dap_chain_wallet_shared_hold_tx_add\n"
+                        "Please ensure shared wallet functions are exported in src/cellframe_wallet.c"
+                    )
+                
+                cf_native.dap_chain_wallet_shared_hold_tx_add(tx_handle, network_name)
+                return True
+                
+            except Exception as e:
+                logger.error("Failed to hold shared tx: %s", e)
+                raise WalletError(f"Failed to hold shared tx: {e}")
+    
+    # ========== ENHANCED METHODS (integrated from CFWallet) ==========
+    
+    def get_address_for_network(self, network_name: str, key_index: int = 0) -> WalletAddress:
+        """
+        Get wallet address for specific network.
+        
+        Uses functional C API dap_chain_wallet_get_addr.
+        
+        Args:
+            network_name: Network name
+            key_index: Key index (default 0, currently not used in C API)
+            
+        Returns:
+            WalletAddress for the network
+            
+        Raises:
+            WalletError: If wallet is closed or address retrieval fails
+        """
+        with self._lock:
+            if self._is_closed:
+                raise WalletError("Wallet is closed")
+            
+            if not self._wallet_handle:
+                raise WalletError("No wallet handle available")
+            
+            try:
+                # Use functional C API - dap_chain_wallet_get_addr accepts wallet handle and net_name
+                addr_str = dap_chain_wallet_get_addr(self._wallet_handle, network_name)
+                if not addr_str:
+                    raise WalletError(f"Could not get address for network {network_name}")
+                
+                # Extract net_id from address string using native API
+                if not hasattr(cf_native, 'dap_chain_addr_from_str') or not hasattr(cf_native, 'dap_chain_addr_get_net_id'):
+                    raise ImportError(
+                        "❌ CRITICAL: Address parsing functions not available in python_cellframe!\n"
+                        "Required: dap_chain_addr_from_str, dap_chain_addr_get_net_id\n"
+                        "Please ensure these functions are exported in src/cellframe_chain.c"
+                    )
+                
+                # Parse address string to get address object
+                addr_capsule = cf_native.dap_chain_addr_from_str(str(addr_str))
+                if not addr_capsule:
+                    raise WalletError(f"Failed to parse address string: {addr_str}")
+                
+                # Extract net_id from address
+                net_id = cf_native.dap_chain_addr_get_net_id(addr_capsule)
+                if net_id is None or net_id == 0:
+                    raise WalletError(f"Failed to extract net_id from address: {addr_str}")
+                
+                return WalletAddress(str(addr_str), int(net_id))
+                
+            except Exception as e:
+                logger.error("Failed to get address for network %s: %s", network_name, e)
+                raise WalletError(f"Failed to get address: {e}")
+    
+    def get_balance_by_network(self, network_name: str, token_ticker: str = "CELL") -> Decimal:
+        """
+        Get wallet balance by network name (convenience method).
+        
+        Uses functional C API dap_chain_wallet_get_balance.
+        
+        Args:
+            network_name: Network name
+            token_ticker: Token ticker symbol
+            
+        Returns:
+            Decimal: Current balance
+            
+        Raises:
+            WalletError: If balance retrieval fails
+        """
+        with self._lock:
+            if self._is_closed:
+                raise WalletError("Wallet is closed")
+            
+            if not self._wallet_handle:
+                raise WalletError("No wallet handle available")
+            
+            try:
+                # Resolve network_name to net_id using native API
+                try:
+                    # Use net_id_by_name function - it returns uint64
+                    if not hasattr(cf_native, 'net_id_by_name'):
+                        raise ImportError(
+                            "❌ CRITICAL: net_id_by_name function not available in python_cellframe!\n"
+                            "This is a Python bindings library - all network functions must be implemented.\n"
+                            "Please ensure net_id_by_name is exported in src/cellframe_network.c"
+                        )
+                    
+                    net_id = cf_native.net_id_by_name(network_name)
+                    if net_id is None or net_id == 0:
+                        raise WalletError(f"Network '{network_name}' not found")
+                    
+                    return self.get_balance(net_id, token_ticker)
+                        
+                except ImportError as e:
+                    # FAIL-FAST: No fallbacks allowed
+                    raise ImportError(
+                        "❌ CRITICAL: Native CellFrame API not available for network lookup!\n"
+                        "This is a Python bindings library - fallback implementations are not allowed.\n"
+                        f"Original error: {e}\n"
+                        "Please ensure python_cellframe native module is properly built and installed."
+                    ) from e
+                
+            except Exception as e:
+                logger.error("Failed to get balance for network %s: %s", network_name, e)
+                raise WalletError(f"Failed to get balance: {e}")
+    
+    @classmethod
+    def create_with_network(cls, name: str, network_name: str, wallet_path: Optional[str] = None,
+                           signature_type: int = 0x0102, seed: Optional[bytes] = None) -> 'Wallet':
+        """
+        Create wallet for specific network (convenience method).
+        
+        Integrated from CFWallet functionality.
+        
+        Args:
+            name: Wallet name
+            network_name: Network name
+            wallet_path: Path to wallet directory (auto-detect if None)
+            signature_type: Signature algorithm type
+            seed: Optional seed for recovery
+            
+        Returns:
+            Wallet: Created wallet instance
+        """
+        try:
+            # Auto-detect wallet path if not provided
+            if not wallet_path:
+                try:
+                    from dap.config import DapConfig
+                    import os
+                    
+                    path = DapConfig().get("resources", "wallets_path")
+                    if not os.path.isabs(path):
+                        path = os.path.join(DapConfig().storage_path(), "etc", path)
+                    wallet_path = path
+                except Exception as e:
+                    # FAIL-FAST: No fallbacks for critical path resolution
+                    raise WalletError(f"Failed to determine wallet path: {e}") from e
+            
+            # Create wallet
+            wallet = cls.create(name, wallet_path, seed=seed, signature_type=signature_type)
+            
+            logger.info("Wallet %s created for network %s", name, network_name)
+            return wallet
+            
+        except Exception as e:
+            logger.error("Failed to create wallet for network %s: %s", network_name, e)
+            raise WalletError(f"Failed to create wallet: {e}")
+
+
+class WalletManager:
+    """
+    Manages multiple wallets in a centralized way.
+    """
+    
+    def __init__(self):
+        """Initialize wallet manager."""
+        self._wallets: Dict[str, Wallet] = {}
+        self._lock = threading.RLock()
+        
+        logger.info("WalletManager initialized")
+    
+    def create(self, name: str, wallet_path: str, password: Optional[str] = None,
+               seed: Optional[bytes] = None, signature_type: int = 0x0102) -> Wallet:
+        """
+        Create and register new wallet.
+        
+        Args:
+            name: Wallet name
+            wallet_path: Path to wallet directory
+            password: Wallet password
+            seed: Optional seed for recovery
+            signature_type: Signature algorithm type
+            
+        Returns:
+            Wallet: Created wallet instance
+            
+        Raises:
+            WalletError: If wallet creation fails
+        """
+        with self._lock:
+            try:
+                if name in self._wallets:
+                    raise WalletError(f"Wallet {name} already exists")
+                
+                wallet = Wallet.create(name, wallet_path, password, seed, signature_type)
+                self._wallets[name] = wallet
+                
+                logger.info("Wallet %s created and registered", name)
+                return wallet
+                
+            except Exception as e:
+                logger.error("Failed to create wallet %s: %s", name, e)
+                raise
+    
+    def open(self, name: str, wallet_path: str, password: Optional[str] = None) -> Wallet:
+        """
+        Open and register existing wallet.
+        
+        Args:
+            name: Wallet name
+            wallet_path: Path to wallet directory
+            password: Wallet password
+            
+        Returns:
+            Wallet: Opened wallet instance
+            
+        Raises:
+            WalletError: If wallet opening fails
+        """
+        with self._lock:
+            try:
+                if name in self._wallets:
+                    logger.warning("Wallet %s already open, returning existing instance", name)
+                    return self._wallets[name]
+                
+                wallet = Wallet.open(name, wallet_path, password)
+                self._wallets[name] = wallet
+                
+                logger.info("Wallet %s opened and registered", name)
+                return wallet
+                
+            except Exception as e:
+                logger.error("Failed to open wallet %s: %s", name, e)
+                raise
+    
+    def get(self, name: str) -> Optional[Wallet]:
+        """
+        Get registered wallet by name.
+        
+        Args:
+            name: Wallet name
+            
+        Returns:
+            Wallet instance or None if not found
+        """
+        with self._lock:
+            return self._wallets.get(name)
+    
+    def close(self, name: str):
+        """
+        Close and unregister wallet.
+        
+        Args:
+            name: Wallet name
+        """
+        with self._lock:
+            if name in self._wallets:
+                self._wallets[name].close()
+                del self._wallets[name]
+                logger.info("Wallet %s closed and unregistered", name)
+    
+    def list(self) -> Dict[str, Wallet]:
+        """
+        Get all registered wallets.
+        
+        Returns:
+            Dict mapping wallet names to wallet instances
+        """
+        with self._lock:
+            return self._wallets.copy()
+    
+    def close_all(self):
+        """Close all registered wallets."""
+        with self._lock:
+            for name in list(self._wallets.keys()):
+                self.close(name)
+            
+            logger.info("All wallets closed")
+
+
+# Global wallet manager instance
+_global_wallet_manager = WalletManager()
+
+
+# Convenience functions using global manager
+def create(name: str, wallet_path: str, password: Optional[str] = None,
+           seed: Optional[bytes] = None) -> Wallet:
+    """Create wallet using global manager."""
+    return _global_wallet_manager.create(name, wallet_path, password, seed)
+
+
+def open(name: str, wallet_path: str, password: Optional[str] = None) -> Wallet:
+    """Open wallet using global manager."""
+    return _global_wallet_manager.open(name, wallet_path, password)
+
+
+def get(name: str) -> Optional[Wallet]:
+    """Get wallet using global manager."""
+    return _global_wallet_manager.get(name)
+
+
+def close(name: str):
+    """Close wallet using global manager."""
+    _global_wallet_manager.close(name)
+
+
+def list() -> Dict[str, Wallet]:
+    """Get all wallets using global manager."""
+    return _global_wallet_manager.list()
+
+
+def close_all():
+    """Close all wallets using global manager."""
+    _global_wallet_manager.close_all() 

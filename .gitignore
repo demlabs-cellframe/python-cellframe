@@ -1,16 +1,70 @@
-build/*
-example/tmp
-example/var
-*.text
-_skbuild/
-.pybuild/
+# Python cache files
+__pycache__/
+*.py[cod]
+*$py.class
+.context
+.slc
+slc
+.cursorrules
+
+# Build directories
+build*/
+test*/
 dist/
-CellFrame.egg-info/
-debian/*.log
-debian/*.debhelper
-debian/*.substvars
-debian/python3-cellframe-doc/
-debian/python3-cellframe/
-debian/files
-*.text
-CMakeLists.txt.user*
+*.egg-info/
+
+# Test coverage
+htmlcov/
+.coverage
+.pytest_cache/
+coverage.xml
+
+# Virtual environments
+venv/
+env/
+.env
+venv_test/
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Compiled C extensions
+*.so
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+*.temp
+
+# Local configuration
+local_config.json
+
+# CMake build files
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+CPackConfig.cmake
+CPackSourceConfig.cmake
+CTestCustom.cmake
+CTestCustom.cmake.in
+Makefile
+Testing/
+arch.c
+python_cellframe_build/
+dap-sdk-build/
+cellframe-sdk-embedded/
+
+# Test files
+test_*.py
+test_*.c
+valgrind_test.py 
