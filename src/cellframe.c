@@ -57,9 +57,12 @@ int cellframe_stake_init(PyObject *module);
 int cellframe_mempool_init(PyObject *module);
 int cellframe_services_init(PyObject *module);
 int cellframe_node_init(PyObject *module);
+int cellframe_rpc_init(PyObject *module);
 int cellframe_compose_init(PyObject *module);
 int cellframe_net_balancer_init(PyObject *module);
 int cellframe_services_ext_init(PyObject *module);
+int cellframe_governance_init(PyObject *module);
+int cellframe_type_init(PyObject *module);
 
 // =========================================
 // ERROR OBJECTS
@@ -341,6 +344,13 @@ PyMODINIT_FUNC PyInit_python_cellframe(void) {
         return NULL;
     }
 
+    // Initialize type module
+    if (cellframe_type_init(module) < 0) {
+        PyErr_SetString(PyExc_ImportError, "Failed to initialize type module");
+        Py_DECREF(module);
+        return NULL;
+    }
+
     // Initialize datum module
     if (cellframe_datum_init(module) < 0) {
         PyErr_SetString(PyExc_ImportError, "Failed to initialize datum module");
@@ -351,6 +361,12 @@ PyMODINIT_FUNC PyInit_python_cellframe(void) {
     // Initialize ledger module
     if (cellframe_ledger_init(module) < 0) {
         PyErr_SetString(PyExc_ImportError, "Failed to initialize ledger module");
+        Py_DECREF(module);
+        return NULL;
+    }
+
+    if (cellframe_governance_init(module) < 0) {
+        PyErr_SetString(PyExc_ImportError, "Failed to initialize governance module");
         Py_DECREF(module);
         return NULL;
     }
@@ -399,6 +415,13 @@ PyMODINIT_FUNC PyInit_python_cellframe(void) {
     // Initialize node CLI module
     if (cellframe_node_init(module) < 0) {
         PyErr_SetString(PyExc_ImportError, "Failed to initialize node CLI module");
+        Py_DECREF(module);
+        return NULL;
+    }
+
+    // Initialize RPC module
+    if (cellframe_rpc_init(module) < 0) {
+        PyErr_SetString(PyExc_ImportError, "Failed to initialize RPC module");
         Py_DECREF(module);
         return NULL;
     }

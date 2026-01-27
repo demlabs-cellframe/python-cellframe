@@ -54,7 +54,7 @@ PyObject* py_dap_chain_block_new(PyObject *a_self, PyObject *a_args) {
  * @brief Add datum to block (Python binding)
  * @param a_self Python self object (unused)
  * @param a_args Python arguments tuple (block capsule, datum capsule)
- * @return New block size or None on error
+ * @return Dict {"block": <capsule>, "size": <int>} or None on error
  */
 
 PyObject* py_dap_chain_block_datum_add(PyObject *a_self, PyObject *a_args) {
@@ -83,13 +83,29 @@ PyObject* py_dap_chain_block_datum_add(PyObject *a_self, PyObject *a_args) {
     uint64_t l_datum_size = dap_chain_datum_size(l_datum);
     
     size_t l_new_size = dap_chain_block_datum_add(&l_block, l_block_size, l_datum, (size_t)l_datum_size);
-    if (l_new_size == 0) {
+    if (l_new_size == 0 || l_new_size <= l_block_size) {
         PyErr_SetString(PyExc_RuntimeError, "Failed to add datum to block");
         return NULL;
     }
-    
+
+    PyObject *l_new_capsule = PyCapsule_New(l_block, "dap_chain_block_t", NULL);
+    if (!l_new_capsule) {
+        // Keep original capsule in sync to avoid UAF if it is reused
+        if (PyCapsule_SetPointer(l_block_obj, l_block) != 0) {
+            PyErr_Clear();
+        }
+        return NULL;
+    }
+    // Invalidate old capsule name to prevent accidental reuse
+    if (PyCapsule_SetPointer(l_block_obj, l_block) != 0) {
+        PyErr_Clear();
+    }
+    if (PyCapsule_SetName(l_block_obj, "dap_chain_block_t.invalid") != 0) {
+        PyErr_Clear();
+    }
+
     log_it(L_DEBUG, "Added datum to block (new_size=%zu)", l_new_size);
-    return PyLong_FromSize_t(l_new_size);
+    return Py_BuildValue("{s:N,s:n}", "block", l_new_capsule, "size", (Py_ssize_t)l_new_size);
 }
 
 /**
@@ -152,7 +168,7 @@ PyObject* py_dap_chain_block_get_datums(PyObject *a_self, PyObject *a_args) {
  * @brief Add metadata to block (Python binding)
  * @param a_self Python self object (unused)
  * @param a_args Python arguments tuple (block capsule, meta_type, data bytes)
- * @return New block size or None on error
+ * @return Dict {"block": <capsule>, "size": <int>} or None on error
  */
 
 PyObject* py_dap_chain_block_meta_add(PyObject *a_self, PyObject *a_args) {
@@ -180,20 +196,36 @@ PyObject* py_dap_chain_block_meta_add(PyObject *a_self, PyObject *a_args) {
     size_t l_block_size = dap_chain_block_get_size(l_block);
     
     size_t l_new_size = dap_chain_block_meta_add(&l_block, l_block_size, (uint8_t)l_meta_type, l_data_bytes, l_data_size);
-    if (l_new_size == 0) {
+    if (l_new_size == 0 || l_new_size <= l_block_size) {
         PyErr_SetString(PyExc_RuntimeError, "Failed to add metadata to block");
         return NULL;
     }
-    
+
+    PyObject *l_new_capsule = PyCapsule_New(l_block, "dap_chain_block_t", NULL);
+    if (!l_new_capsule) {
+        // Keep original capsule in sync to avoid UAF if it is reused
+        if (PyCapsule_SetPointer(l_block_obj, l_block) != 0) {
+            PyErr_Clear();
+        }
+        return NULL;
+    }
+    // Invalidate old capsule name to prevent accidental reuse
+    if (PyCapsule_SetPointer(l_block_obj, l_block) != 0) {
+        PyErr_Clear();
+    }
+    if (PyCapsule_SetName(l_block_obj, "dap_chain_block_t.invalid") != 0) {
+        PyErr_Clear();
+    }
+
     log_it(L_DEBUG, "Added metadata (type=%u) to block (new_size=%zu)", l_meta_type, l_new_size);
-    return PyLong_FromSize_t(l_new_size);
+    return Py_BuildValue("{s:N,s:n}", "block", l_new_capsule, "size", (Py_ssize_t)l_new_size);
 }
 
 /**
  * @brief Add signature to block (Python binding)
  * @param a_self Python self object (unused)
  * @param a_args Python arguments tuple (block capsule, key capsule)
- * @return New block size or None on error
+ * @return Dict {"block": <capsule>, "size": <int>} or None on error
  */
 
 PyObject* py_dap_chain_block_sign_add(PyObject *a_self, PyObject *a_args) {
@@ -221,13 +253,29 @@ PyObject* py_dap_chain_block_sign_add(PyObject *a_self, PyObject *a_args) {
     size_t l_block_size = dap_chain_block_get_size(l_block);
     
     size_t l_new_size = dap_chain_block_sign_add(&l_block, l_block_size, l_key);
-    if (l_new_size == 0) {
+    if (l_new_size == 0 || l_new_size <= l_block_size) {
         PyErr_SetString(PyExc_RuntimeError, "Failed to add signature to block");
         return NULL;
     }
-    
+
+    PyObject *l_new_capsule = PyCapsule_New(l_block, "dap_chain_block_t", NULL);
+    if (!l_new_capsule) {
+        // Keep original capsule in sync to avoid UAF if it is reused
+        if (PyCapsule_SetPointer(l_block_obj, l_block) != 0) {
+            PyErr_Clear();
+        }
+        return NULL;
+    }
+    // Invalidate old capsule name to prevent accidental reuse
+    if (PyCapsule_SetPointer(l_block_obj, l_block) != 0) {
+        PyErr_Clear();
+    }
+    if (PyCapsule_SetName(l_block_obj, "dap_chain_block_t.invalid") != 0) {
+        PyErr_Clear();
+    }
+
     log_it(L_DEBUG, "Added signature to block (new_size=%zu)", l_new_size);
-    return PyLong_FromSize_t(l_new_size);
+    return Py_BuildValue("{s:N,s:n}", "block", l_new_capsule, "size", (Py_ssize_t)l_new_size);
 }
 
 // =========================================

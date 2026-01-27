@@ -8,29 +8,8 @@
 extern "C" {
 #endif
 
-// =========================================
-// NODE TYPE DEFINITION
-// =========================================
-
-typedef struct {
-    PyObject_HEAD
-    void *node_ptr;
-    char *node_addr;
-    int node_port;
-    bool is_initialized;
-} PyCellframeNode;
-
-// =========================================
-// NODE FUNCTION DECLARATIONS
-// =========================================
-
-extern PyTypeObject PyCellframeNodeType;
-PyObject* PyCellframeNode_new(PyTypeObject *type, PyObject *args, PyObject *kwds);
-int PyCellframeNode_init(PyCellframeNode *self, PyObject *args, PyObject *kwds);
-void PyCellframeNode_dealloc(PyCellframeNode *self);
-PyObject* PyCellframeNode_start(PyCellframeNode *self, PyObject *args);
-PyObject* PyCellframeNode_stop(PyCellframeNode *self, PyObject *args);
-PyObject* PyCellframeNode_get_status(PyCellframeNode *self, PyObject *args);
+PyMethodDef* cellframe_node_get_methods(void);
+int cellframe_node_init(PyObject *module);
 
 #ifdef __cplusplus
 }

@@ -64,6 +64,7 @@ try:
             dap_chain_wallet_activate, dap_chain_wallet_deactivate,
             dap_chain_wallet_shared_get_tx_hashes_json,
             dap_chain_wallet_shared_hold_tx_add,
+            dap_chain_addr_to_str, dap_chain_addr_get_net_id,
             DAP_CHAIN_TICKER_SIZE_MAX,
         )
     except ImportError:
@@ -183,7 +184,7 @@ class Wallet:
         try:
             if seed:
                 wallet_handle = dap_chain_wallet_create_with_seed(
-                    name, wallet_path, signature_type, seed, len(seed), password
+                    name, wallet_path, signature_type, seed, password
                 )
             else:
                 wallet_handle = dap_chain_wallet_create(
@@ -244,7 +245,10 @@ class Wallet:
                 addr_ptr = dap_chain_wallet_get_addr(self._wallet_handle, net_id)
                 if not addr_ptr:
                     raise WalletError("Failed to get address")
-                return WalletAddress(str(addr_ptr), net_id)
+                addr_str = dap_chain_addr_to_str(addr_ptr)
+                if not addr_str:
+                    raise WalletError("Failed to convert address to string")
+                return WalletAddress(str(addr_str), net_id)
                     
             except Exception as e:
                 logger.error("Failed to get address for %s: %s", self.name, e)
@@ -359,9 +363,14 @@ class Wallet:
                 logger.error("Failed to get public key hash for %s: %s", self.name, e)
                 raise WalletError(f"Failed to get public key hash: {e}")
     
-    def activate(self) -> bool:
+    def activate(self, password: str, path: Optional[str] = None, ttl: int = 0) -> bool:
         """
         Activate wallet.
+
+        Args:
+            password: Wallet password
+            path: Optional wallets directory path
+            ttl: Password cache TTL in minutes
         
         Returns:
             bool: True if activated successfully
@@ -371,7 +380,9 @@ class Wallet:
         """
         with self._lock:
             try:
-                result = dap_chain_wallet_activate(self._wallet_handle)
+                if not password:
+                    raise WalletError("Password is required to activate wallet")
+                result = dap_chain_wallet_activate(self.name, password, path, ttl)
                 return result == 0
                     
             except Exception as e:
@@ -390,7 +401,7 @@ class Wallet:
         """
         with self._lock:
             try:
-                result = dap_chain_wallet_deactivate(self._wallet_handle)
+                result = dap_chain_wallet_deactivate(self.name)
                 return result == 0
                     
             except Exception as e:
@@ -557,25 +568,15 @@ class Wallet:
             
             try:
                 # Use functional C API - dap_chain_wallet_get_addr accepts wallet handle and net_name
-                addr_str = dap_chain_wallet_get_addr(self._wallet_handle, network_name)
-                if not addr_str:
+                addr_ptr = dap_chain_wallet_get_addr(self._wallet_handle, network_name)
+                if not addr_ptr:
                     raise WalletError(f"Could not get address for network {network_name}")
-                
-                # Extract net_id from address string using native API
-                if not hasattr(cf_native, 'dap_chain_addr_from_str') or not hasattr(cf_native, 'dap_chain_addr_get_net_id'):
-                    raise ImportError(
-                        "❌ CRITICAL: Address parsing functions not available in python_cellframe!\n"
-                        "Required: dap_chain_addr_from_str, dap_chain_addr_get_net_id\n"
-                        "Please ensure these functions are exported in src/cellframe_chain.c"
-                    )
-                
-                # Parse address string to get address object
-                addr_capsule = cf_native.dap_chain_addr_from_str(str(addr_str))
-                if not addr_capsule:
-                    raise WalletError(f"Failed to parse address string: {addr_str}")
-                
-                # Extract net_id from address
-                net_id = cf_native.dap_chain_addr_get_net_id(addr_capsule)
+
+                addr_str = dap_chain_addr_to_str(addr_ptr)
+                if not addr_str:
+                    raise WalletError("Failed to convert address to string")
+
+                net_id = dap_chain_addr_get_net_id(addr_ptr)
                 if net_id is None or net_id == 0:
                     raise WalletError(f"Failed to extract net_id from address: {addr_str}")
                 

@@ -44,16 +44,16 @@ int cellframe_chain_init(PyObject *module) {
          "Add callback notify for chain"},
 
         // Block operations
-        {"dap_chain_block_new", py_dap_chain_block_new, METH_VARARGS,
-         "Create new block"},
-        {"dap_chain_block_datum_add", py_dap_chain_block_datum_add, METH_VARARGS,
-         "Add datum to block"},
-        {"dap_chain_block_get_datums", py_dap_chain_block_get_datums, METH_VARARGS,
-         "Get datums from block"},
-        {"dap_chain_block_meta_add", py_dap_chain_block_meta_add, METH_VARARGS,
-         "Add metadata to block"},
-        {"dap_chain_block_sign_add", py_dap_chain_block_sign_add, METH_VARARGS,
-         "Add signature to block"},
+        {"chain_block_new", py_dap_chain_block_new, METH_VARARGS,
+         "Create new block (capsule-based)"},
+        {"chain_block_datum_add", py_dap_chain_block_datum_add, METH_VARARGS,
+         "Add datum to block (capsule-based). Returns {'block': capsule, 'size': int}"},
+        {"chain_block_get_datums", py_dap_chain_block_get_datums, METH_VARARGS,
+         "Get datums from block (capsule-based)"},
+        {"chain_block_meta_add", py_dap_chain_block_meta_add, METH_VARARGS,
+         "Add metadata to block (capsule-based). Returns {'block': capsule, 'size': int}"},
+        {"chain_block_sign_add", py_dap_chain_block_sign_add, METH_VARARGS,
+         "Add signature to block (capsule-based). Returns {'block': capsule, 'size': int}"},
 
         // Chain lifecycle operations
         {"chain_create", (PyCFunction)dap_chain_create_py, METH_VARARGS,

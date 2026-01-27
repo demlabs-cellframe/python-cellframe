@@ -45,11 +45,14 @@ typedef enum {
     CF_CALLBACK_TYPE_LEDGER_SERVICE,      ///< Ledger service registration
     CF_CALLBACK_TYPE_LEDGER_TAX,          ///< Ledger tax callback
     CF_CALLBACK_TYPE_BLOCK_SOVEREIGN_TAX, ///< Block sovereign tax callback
+    CF_CALLBACK_TYPE_BLOCK_FORK_RESOLVED, ///< Block fork resolved notify
     CF_CALLBACK_TYPE_RPC_CONSENSUS,       ///< RPC consensus callback
     CF_CALLBACK_TYPE_RPC_STORAGE,         ///< RPC storage callback
     CF_CALLBACK_TYPE_RPC_SERVICE,         ///< RPC service callback
     CF_CALLBACK_TYPE_RPC_WALLET,          ///< RPC wallet callback
     CF_CALLBACK_TYPE_RPC_TX_NOTIFY,       ///< RPC TX notify callback
+    CF_CALLBACK_TYPE_WALLET_OPENED,       ///< Wallet opened notify callback
+    CF_CALLBACK_TYPE_WALLET_CREATED,      ///< Wallet created notify callback
     CF_CALLBACK_TYPE_LAST                 ///< Sentinel value for callback counts
 } cf_callback_type_t;
 

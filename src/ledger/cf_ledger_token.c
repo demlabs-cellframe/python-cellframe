@@ -1030,6 +1030,91 @@ PyObject* dap_ledger_is_used_reward_py(PyObject *a_self, PyObject *a_args) {
     return PyBool_FromLong(l_result);
 }
 
+extern void dap_ledger_addr_get_token_ticker_all_deprecated(dap_ledger_t *a_ledger, dap_chain_addr_t *a_addr,
+                                                            char ***a_tickers, size_t *a_tickers_size) __attribute__((weak));
+
+static PyObject* dap_ledger_addr_get_token_ticker_all_common(PyObject *a_self, PyObject *a_args, bool a_deprecated) {
+    (void)a_self;
+    PyObject *l_ledger_obj = NULL;
+    PyObject *l_addr_obj = Py_None;
+
+    if (!PyArg_ParseTuple(a_args, "O|O", &l_ledger_obj, &l_addr_obj)) {
+        return NULL;
+    }
+
+    if (!PyCapsule_CheckExact(l_ledger_obj)) {
+        PyErr_SetString(PyExc_TypeError, "First argument must be a ledger capsule");
+        return NULL;
+    }
+
+    dap_ledger_t *l_ledger = (dap_ledger_t *)PyCapsule_GetPointer(l_ledger_obj, "dap_ledger_t");
+    if (!l_ledger) {
+        PyErr_SetString(PyExc_ValueError, "Invalid ledger capsule");
+        return NULL;
+    }
+
+    dap_chain_addr_t *l_addr = NULL;
+    dap_chain_addr_t l_addr_tmp;
+    if (l_addr_obj && l_addr_obj != Py_None) {
+        if (PyCapsule_CheckExact(l_addr_obj)) {
+            l_addr = (dap_chain_addr_t *)PyCapsule_GetPointer(l_addr_obj, "dap_chain_addr_t");
+            if (!l_addr) {
+                PyErr_SetString(PyExc_ValueError, "Invalid address capsule");
+                return NULL;
+            }
+        } else if (PyBytes_Check(l_addr_obj)) {
+            if ((size_t)PyBytes_Size(l_addr_obj) != sizeof(dap_chain_addr_t)) {
+                PyErr_Format(PyExc_ValueError, "Address must be exactly %zu bytes", sizeof(dap_chain_addr_t));
+                return NULL;
+            }
+            memcpy(&l_addr_tmp, PyBytes_AsString(l_addr_obj), sizeof(dap_chain_addr_t));
+            l_addr = &l_addr_tmp;
+        } else {
+            PyErr_SetString(PyExc_TypeError, "Address must be a capsule, bytes, or None");
+            return NULL;
+        }
+    }
+
+    char **l_tickers = NULL;
+    size_t l_tickers_size = 0;
+
+    if (a_deprecated && dap_ledger_addr_get_token_ticker_all_deprecated) {
+        dap_ledger_addr_get_token_ticker_all_deprecated(l_ledger, l_addr, &l_tickers, &l_tickers_size);
+    } else {
+        dap_ledger_addr_get_token_ticker_all(l_ledger, l_addr, &l_tickers, &l_tickers_size);
+    }
+
+    if (!l_tickers || l_tickers_size == 0) {
+        Py_RETURN_NONE;
+    }
+
+    PyObject *l_list = PyList_New((Py_ssize_t)l_tickers_size);
+    if (!l_list) {
+        for (size_t i = 0; i < l_tickers_size; i++) {
+            DAP_DELETE(l_tickers[i]);
+        }
+        DAP_DELETE(l_tickers);
+        return NULL;
+    }
+
+    for (size_t i = 0; i < l_tickers_size; i++) {
+        PyObject *l_item = PyUnicode_FromString(l_tickers[i] ? l_tickers[i] : "");
+        PyList_SET_ITEM(l_list, (Py_ssize_t)i, l_item);
+        DAP_DELETE(l_tickers[i]);
+    }
+    DAP_DELETE(l_tickers);
+
+    return l_list;
+}
+
+PyObject* dap_ledger_addr_get_token_ticker_all_py(PyObject *a_self, PyObject *a_args) {
+    return dap_ledger_addr_get_token_ticker_all_common(a_self, a_args, false);
+}
+
+PyObject* dap_ledger_addr_get_token_ticker_all_deprecated_py(PyObject *a_self, PyObject *a_args) {
+    return dap_ledger_addr_get_token_ticker_all_common(a_self, a_args, true);
+}
+
 
 // Get method definitions for token module
 PyMethodDef* cellframe_ledger_token_get_methods(void) {
@@ -1082,6 +1167,12 @@ PyMethodDef* cellframe_ledger_token_get_methods(void) {
          "Get locked values for address"},
         {"ledger_is_used_reward", (PyCFunction)dap_ledger_is_used_reward_py, METH_VARARGS,
          "Check if reward is used"},
+        {"ledger_addr_get_token_ticker_all", (PyCFunction)dap_ledger_addr_get_token_ticker_all_py, METH_VARARGS,
+         "Get all token tickers for an address"},
+        {"ledger_addr_get_token_ticker_all_deprecated", (PyCFunction)dap_ledger_addr_get_token_ticker_all_deprecated_py, METH_VARARGS,
+         "Get all token tickers for an address (deprecated)"},
+        {"ledger_addr_get_token_ticker_all_depricated", (PyCFunction)dap_ledger_addr_get_token_ticker_all_deprecated_py, METH_VARARGS,
+         "Get all token tickers for an address (deprecated, legacy spelling)"},
         {NULL, NULL, 0, NULL}  // Sentinel
     };
     return token_methods;

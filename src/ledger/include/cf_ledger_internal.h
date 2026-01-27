@@ -57,10 +57,18 @@ PyMethodDef* cellframe_ledger_decree_get_methods(void);
 PyMethodDef* cellframe_ledger_anchor_get_methods(void);
 PyMethodDef* cellframe_ledger_event_get_methods(void);
 PyMethodDef* cellframe_ledger_utils_get_methods(void);
+PyMethodDef* cellframe_ledger_json_get_methods(void);
+PyMethodDef* cellframe_ledger_cli_error_codes_get_methods(void);
+PyMethodDef* cellframe_ledger_cli_cmd_registry_get_methods(void);
+PyMethodDef* cellframe_ledger_cli_internal_get_methods(void);
+PyMethodDef* cellframe_ledger_cli_tx_get_methods(void);
+PyMethodDef* cellframe_ledger_cli_dispatcher_get_methods(void);
+PyMethodDef* cellframe_ledger_cli_get_methods(void);
+PyMethodDef* cellframe_ledger_pvt_get_methods(void);
+PyMethodDef* cellframe_ledger_cli_legacy_get_methods(void);
 
 #ifdef __cplusplus
 }
 #endif
 
 #endif /* CELLFRAME_LEDGER_INTERNAL_H */
-
