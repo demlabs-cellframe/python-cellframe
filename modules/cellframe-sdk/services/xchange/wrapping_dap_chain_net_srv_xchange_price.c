@@ -24,12 +24,6 @@ PyGetSetDef DapChainNetSrvXchangePriceGetSetDef[] = {
 
 PyMethodDef DapChainNetSrvXchangePriceMethods[] = {
         {
-                "purchase",
-                wrapping_dap_chain_net_srv_xchange_price_purchase,
-                METH_VARARGS,
-                "Function for partial or full purchase of an order."
-        },
-        {
                 "invalidate",
                 wrapping_dap_chain_net_srv_xchange_price_invalidate,
                 METH_VARARGS,
@@ -218,6 +212,7 @@ PyTypeObject PyDapChainNetSrvXchangeOrderObjectType = DAP_PY_TYPE_OBJECT(
         .tp_methods = DapChainNetSrvXchangePriceMethods);
 
 
+#if 0
 PyObject *wrapping_dap_chain_net_srv_xchange_price_purchase(PyObject *self, PyObject *argv){
     PyObject *obj_wallet, *obj_fee, *obj_value;
     if (!PyArg_ParseTuple(argv, "OOO", &obj_value, &obj_fee, &obj_wallet)) {
@@ -254,3 +249,4 @@ PyObject *wrapping_dap_chain_net_srv_xchange_price_purchase(PyObject *self, PyOb
         }
     }
 }
+#endif
