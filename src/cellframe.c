@@ -1,8 +1,7 @@
 #include "cellframe.h"
 #include "cf_callbacks_registry.h"  // CRITICAL: For memory leak prevention
-#include "cf_ledger_callback_registry.h"  // For ledger callbacks without void *arg
-#include "cf_verificator_registry.h"  // For verificator callbacks by subtype
-#include "cf_dap_json.h"  // DAP JSON utilities
+#include "ledger/cf_ledger_callback_registry.h"  // For ledger callbacks without void *arg
+#include "ledger/cf_verificator_registry.h"  // For verificator callbacks by subtype
 #include <string.h>
 
 #define LOG_TAG "python_cellframe"
@@ -11,12 +10,10 @@
 PyObject* py_dap_chain_addr_from_str(PyObject *self, PyObject *args);
 PyObject* py_dap_chain_addr_get_net_id(PyObject *self, PyObject *args);
 PyObject* py_dap_chain_atom_create(PyObject *self, PyObject *args);
-PyObject* py_dap_chain_mempool_by_chain_name(PyObject *self, PyObject *args);
 PyObject* py_dap_chain_mempool_tx_get_by_hash(PyObject *self, PyObject *args);
 
 // Forward declarations for cleanup functions
 extern void dap_chain_tx_compose_cleanup_callbacks_py(void);
-extern void cellframe_governance_manager_cleanup(void);  // Phase 7: Governance cleanup
 
 // =========================================
 // MODULE CLEANUP
@@ -30,9 +27,6 @@ static void cellframe_module_free(void *m) {
     (void)m;
     
     log_it(L_INFO, "Python-Cellframe module cleanup started");
-    
-    // Cleanup Governance Manager (Python decree handlers)
-    cellframe_governance_manager_cleanup();
     
     // Cleanup TX compose callbacks
     dap_chain_tx_compose_cleanup_callbacks_py();
@@ -54,6 +48,7 @@ static void cellframe_module_free(void *m) {
 int cellframe_network_init(PyObject *module);
 int cellframe_wallet_init(PyObject *module);
 int cellframe_chain_init(PyObject *module);
+int cellframe_datum_init(PyObject *module);
 int cellframe_ledger_init(PyObject *module);
 int cellframe_tx_init(PyObject *module);
 int cellframe_consensus_init(PyObject *module);
@@ -61,16 +56,12 @@ int cellframe_stake_init(PyObject *module);
 int cellframe_mempool_init(PyObject *module);
 int cellframe_services_init(PyObject *module);
 int cellframe_node_init(PyObject *module);
+int cellframe_rpc_init(PyObject *module);
 int cellframe_compose_init(PyObject *module);
 int cellframe_net_balancer_init(PyObject *module);
 int cellframe_services_ext_init(PyObject *module);
-// Forward declarations for governance module
-int cellframe_governance_init(PyObject *module);          // Phase 7.1: PyDapDecree type
-int cellframe_governance_manager_init(PyObject *module);  // Phase 7: Handler registration
-void cellframe_governance_manager_cleanup(void);          // Phase 7: Cleanup
-
-// Forward declarations for token manager module
-int cellframe_token_manager_init(PyObject *module);       // Phase A: Token Manager
+int cellframe_governance_init(PyObject *module);
+int cellframe_type_init(PyObject *module);
 
 // =========================================
 // ERROR OBJECTS
@@ -154,22 +145,21 @@ PyObject* cellframe_initialize(PyObject *self, PyObject *args, PyObject *kwds) {
         return NULL;
     }
     
-    // Call dap_sdk_init with parameters
-    PyObject* init_args = PyTuple_New(8);
+    // Call dap_sdk_init with compatible parameters (python-dap expects up to 6 args)
+    PyObject* init_args = PyTuple_New(6);
     if (!init_args) {
         Py_DECREF(init_func);
         return NULL;
     }
     
-    // Set tuple items, using empty strings for NULL strings
+    // Map to python-dap signature: app_name, modules, log_level, temp_dir, log_file, enable_debug
+    // Unused params (working_dir, config_dir, events_threads, events_timeout) are ignored here.
     PyTuple_SET_ITEM(init_args, 0, PyUnicode_FromString(app_name ? app_name : "cellframe"));
-    PyTuple_SET_ITEM(init_args, 1, PyUnicode_FromString(working_dir ? working_dir : ""));
-    PyTuple_SET_ITEM(init_args, 2, PyUnicode_FromString(config_dir ? config_dir : ""));
+    PyTuple_SET_ITEM(init_args, 1, PyLong_FromUnsignedLong(0));  // DAP_SDK_MODULE_ALL
+    PyTuple_SET_ITEM(init_args, 2, PyLong_FromLong(L_INFO));
     PyTuple_SET_ITEM(init_args, 3, PyUnicode_FromString(temp_dir ? temp_dir : ""));
     PyTuple_SET_ITEM(init_args, 4, PyUnicode_FromString(log_file ? log_file : ""));
-    PyTuple_SET_ITEM(init_args, 5, PyLong_FromLong(events_threads));
-    PyTuple_SET_ITEM(init_args, 6, PyLong_FromLong(events_timeout));
-    PyTuple_SET_ITEM(init_args, 7, PyBool_FromLong(debug_mode));
+    PyTuple_SET_ITEM(init_args, 5, PyBool_FromLong(debug_mode));
     
     PyObject* result = PyObject_CallObject(init_func, init_args);
     Py_DECREF(init_func);
@@ -334,34 +324,13 @@ PyMODINIT_FUNC PyInit_python_cellframe(void) {
     // Initialize submodules by calling their init functions
     // This replaces the old method of listing all functions in one big array
     
-    // Initialize DapJSON type (Phase 4.5 - NEW)
-    PyObject *dap_json_type = cf_dap_json_init();
-    if (dap_json_type == NULL) {
-        PyErr_SetString(PyExc_ImportError, "Failed to initialize DapJSON type");
+    // Initialize common module
+    if (cellframe_common_init(module) < 0) {
+        PyErr_SetString(PyExc_ImportError, "Failed to initialize common module");
         Py_DECREF(module);
         return NULL;
     }
-    PyModule_AddObject(module, "DapJSON", dap_json_type);
-    
-    // Initialize governance module (Phase 7.1 - Decree type + Phase 7 - Handler registration)
-    if (cellframe_governance_init(module) < 0) {
-        PyErr_SetString(PyExc_ImportError, "Failed to initialize governance decree type");
-        Py_DECREF(module);
-        return NULL;
-    }
-    if (cellframe_governance_manager_init(module) < 0) {
-        PyErr_SetString(PyExc_ImportError, "Failed to initialize governance handlers");
-        Py_DECREF(module);
-        return NULL;
-    }
-    
-    // Initialize token manager (Phase A - Token access/query)
-    if (cellframe_token_manager_init(module) < 0) {
-        PyErr_SetString(PyExc_ImportError, "Failed to initialize token manager");
-        Py_DECREF(module);
-        return NULL;
-    }
-    
+
     // Initialize wallet module
     if (cellframe_wallet_init(module) < 0) {
         Py_DECREF(module);
@@ -373,10 +342,30 @@ PyMODINIT_FUNC PyInit_python_cellframe(void) {
         Py_DECREF(module);
         return NULL;
     }
+
+    // Initialize type module
+    if (cellframe_type_init(module) < 0) {
+        PyErr_SetString(PyExc_ImportError, "Failed to initialize type module");
+        Py_DECREF(module);
+        return NULL;
+    }
+
+    // Initialize datum module
+    if (cellframe_datum_init(module) < 0) {
+        PyErr_SetString(PyExc_ImportError, "Failed to initialize datum module");
+        Py_DECREF(module);
+        return NULL;
+    }
     
     // Initialize ledger module
     if (cellframe_ledger_init(module) < 0) {
         PyErr_SetString(PyExc_ImportError, "Failed to initialize ledger module");
+        Py_DECREF(module);
+        return NULL;
+    }
+
+    if (cellframe_governance_init(module) < 0) {
+        PyErr_SetString(PyExc_ImportError, "Failed to initialize governance module");
         Py_DECREF(module);
         return NULL;
     }
@@ -425,6 +414,13 @@ PyMODINIT_FUNC PyInit_python_cellframe(void) {
     // Initialize node CLI module
     if (cellframe_node_init(module) < 0) {
         PyErr_SetString(PyExc_ImportError, "Failed to initialize node CLI module");
+        Py_DECREF(module);
+        return NULL;
+    }
+
+    // Initialize RPC module
+    if (cellframe_rpc_init(module) < 0) {
+        PyErr_SetString(PyExc_ImportError, "Failed to initialize RPC module");
         Py_DECREF(module);
         return NULL;
     }

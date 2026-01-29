@@ -1,5 +1,13 @@
 #include "include/cf_ledger_internal.h"
-#include "../common/cf_ledger_callback_registry.h"
+#include "cf_ledger_callback_registry.h"
+#include <limits.h>
+#include <stdint.h>
+
+void dap_ledger_set_load_mode(dap_ledger_t *a_ledger, bool a_mode);
+void dap_ledger_set_check_ds(dap_ledger_t *a_ledger, bool a_check);
+void dap_ledger_set_hal_hrl(dap_ledger_t *a_ledger, dap_chain_t *a_chain,
+                            const char **a_whitelist, uint16_t a_whitelist_size,
+                            const char **a_blacklist, uint16_t a_blacklist_size);
 
 /*
  * Cellframe ledger utilities bindings
@@ -50,6 +58,94 @@ static bool s_ledger_cache_tx_check_wrapper(dap_ledger_t *a_ledger, dap_hash_fas
     
     PyGILState_Release(l_gstate);
     return l_ret;
+}
+
+static int cf_ledger_parse_str_list(PyObject *a_obj, const char ***a_list_out,
+                                    uint16_t *a_count_out, PyObject ***a_keepalive_out) {
+    if (!a_list_out || !a_count_out || !a_keepalive_out) {
+        PyErr_SetString(PyExc_RuntimeError, "Invalid output pointers for string list parser");
+        return -1;
+    }
+
+    *a_list_out = NULL;
+    *a_count_out = 0;
+    *a_keepalive_out = NULL;
+
+    if (!a_obj || a_obj == Py_None) {
+        return 0;
+    }
+
+    PyObject *l_seq = PySequence_Fast(a_obj, "Expected a sequence of strings");
+    if (!l_seq) {
+        return -1;
+    }
+
+    Py_ssize_t l_count = PySequence_Fast_GET_SIZE(l_seq);
+    if (l_count <= 0) {
+        Py_DECREF(l_seq);
+        return 0;
+    }
+
+    if (l_count > (Py_ssize_t)UINT16_MAX) {
+        Py_DECREF(l_seq);
+        PyErr_SetString(PyExc_ValueError, "String list too large");
+        return -1;
+    }
+
+    const char **l_list = DAP_NEW_Z_COUNT(const char *, (size_t)l_count);
+    PyObject **l_keepalive = DAP_NEW_Z_COUNT(PyObject *, (size_t)l_count);
+    if (!l_list || !l_keepalive) {
+        Py_DECREF(l_seq);
+        DAP_DELETE(l_list);
+        DAP_DELETE(l_keepalive);
+        PyErr_SetString(PyExc_MemoryError, "Failed to allocate string list");
+        return -1;
+    }
+
+    for (Py_ssize_t i = 0; i < l_count; i++) {
+        PyObject *l_item = PySequence_Fast_GET_ITEM(l_seq, i);
+        PyObject *l_str_obj = PyObject_Str(l_item);
+        if (!l_str_obj) {
+            for (Py_ssize_t j = 0; j < i; j++) {
+                Py_XDECREF(l_keepalive[j]);
+            }
+            Py_DECREF(l_seq);
+            DAP_DELETE(l_list);
+            DAP_DELETE(l_keepalive);
+            return -1;
+        }
+
+        const char *l_str = PyUnicode_AsUTF8(l_str_obj);
+        if (!l_str) {
+            Py_DECREF(l_str_obj);
+            for (Py_ssize_t j = 0; j < i; j++) {
+                Py_XDECREF(l_keepalive[j]);
+            }
+            Py_DECREF(l_seq);
+            DAP_DELETE(l_list);
+            DAP_DELETE(l_keepalive);
+            return -1;
+        }
+
+        l_keepalive[i] = l_str_obj;
+        l_list[i] = l_str;
+    }
+
+    Py_DECREF(l_seq);
+    *a_list_out = l_list;
+    *a_count_out = (uint16_t)l_count;
+    *a_keepalive_out = l_keepalive;
+    return 0;
+}
+
+static void cf_ledger_free_str_list(const char **a_list, PyObject **a_keepalive, uint16_t a_count) {
+    if (a_keepalive) {
+        for (uint16_t i = 0; i < a_count; i++) {
+            Py_XDECREF(a_keepalive[i]);
+        }
+        DAP_DELETE(a_keepalive);
+    }
+    DAP_DELETE(a_list);
 }
 
 
@@ -465,6 +561,184 @@ PyObject* dap_ledger_load_end_py(PyObject *a_self, PyObject *a_args) {
     Py_RETURN_NONE;
 }
 
+/**
+ * @brief Set ledger load mode
+ * @param a_self Python self object (unused)
+ * @param a_args Arguments (ledger capsule, mode bool)
+ * @return None
+ */
+PyObject* dap_ledger_set_load_mode_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    PyObject *l_ledger_obj = NULL;
+    int l_mode = 0;
+
+    if (!PyArg_ParseTuple(a_args, "Op", &l_ledger_obj, &l_mode)) {
+        return NULL;
+    }
+
+    if (!PyCapsule_CheckExact(l_ledger_obj)) {
+        PyErr_SetString(PyExc_TypeError, "First argument must be a ledger capsule");
+        return NULL;
+    }
+
+    dap_ledger_t *l_ledger = (dap_ledger_t *)PyCapsule_GetPointer(l_ledger_obj, "dap_ledger_t");
+    if (!l_ledger) {
+        PyErr_SetString(PyExc_ValueError, "Invalid ledger capsule");
+        return NULL;
+    }
+
+    dap_ledger_set_load_mode(l_ledger, (bool)l_mode);
+
+    log_it(L_DEBUG, "Ledger load mode set to %s", l_mode ? "true" : "false");
+    Py_RETURN_NONE;
+}
+
+/**
+ * @brief Set ledger datastore check mode
+ * @param a_self Python self object (unused)
+ * @param a_args Arguments (ledger capsule, check bool)
+ * @return None
+ */
+PyObject* dap_ledger_set_check_ds_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    PyObject *l_ledger_obj = NULL;
+    int l_check = 0;
+
+    if (!PyArg_ParseTuple(a_args, "Op", &l_ledger_obj, &l_check)) {
+        return NULL;
+    }
+
+    if (!PyCapsule_CheckExact(l_ledger_obj)) {
+        PyErr_SetString(PyExc_TypeError, "First argument must be a ledger capsule");
+        return NULL;
+    }
+
+    dap_ledger_t *l_ledger = (dap_ledger_t *)PyCapsule_GetPointer(l_ledger_obj, "dap_ledger_t");
+    if (!l_ledger) {
+        PyErr_SetString(PyExc_ValueError, "Invalid ledger capsule");
+        return NULL;
+    }
+
+    dap_ledger_set_check_ds(l_ledger, (bool)l_check);
+
+    log_it(L_DEBUG, "Ledger check_ds set to %s", l_check ? "true" : "false");
+    Py_RETURN_NONE;
+}
+
+/**
+ * @brief Set ledger HAL/HRL lists
+ * @param a_self Python self object (unused)
+ * @param a_args Arguments (ledger capsule, chain capsule, whitelist list, blacklist list)
+ * @return None
+ */
+PyObject* dap_ledger_set_hal_hrl_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    PyObject *l_ledger_obj = NULL;
+    PyObject *l_chain_obj = NULL;
+    PyObject *l_whitelist_obj = Py_None;
+    PyObject *l_blacklist_obj = Py_None;
+
+    if (!PyArg_ParseTuple(a_args, "OO|OO", &l_ledger_obj, &l_chain_obj, &l_whitelist_obj, &l_blacklist_obj)) {
+        return NULL;
+    }
+
+    if (!PyCapsule_CheckExact(l_ledger_obj)) {
+        PyErr_SetString(PyExc_TypeError, "First argument must be a ledger capsule");
+        return NULL;
+    }
+
+    if (!PyCapsule_CheckExact(l_chain_obj)) {
+        PyErr_SetString(PyExc_TypeError, "Second argument must be a chain capsule");
+        return NULL;
+    }
+
+    dap_ledger_t *l_ledger = (dap_ledger_t *)PyCapsule_GetPointer(l_ledger_obj, "dap_ledger_t");
+    if (!l_ledger) {
+        PyErr_SetString(PyExc_ValueError, "Invalid ledger capsule");
+        return NULL;
+    }
+
+    dap_chain_t *l_chain = (dap_chain_t *)PyCapsule_GetPointer(l_chain_obj, "dap_chain_t");
+    if (!l_chain) {
+        PyErr_SetString(PyExc_ValueError, "Invalid chain capsule");
+        return NULL;
+    }
+
+    const char **l_whitelist = NULL;
+    const char **l_blacklist = NULL;
+    PyObject **l_whitelist_keepalive = NULL;
+    PyObject **l_blacklist_keepalive = NULL;
+    uint16_t l_whitelist_count = 0;
+    uint16_t l_blacklist_count = 0;
+
+    if (cf_ledger_parse_str_list(l_whitelist_obj, &l_whitelist, &l_whitelist_count,
+                                 &l_whitelist_keepalive) != 0) {
+        return NULL;
+    }
+
+    if (cf_ledger_parse_str_list(l_blacklist_obj, &l_blacklist, &l_blacklist_count,
+                                 &l_blacklist_keepalive) != 0) {
+        cf_ledger_free_str_list(l_whitelist, l_whitelist_keepalive, l_whitelist_count);
+        return NULL;
+    }
+
+    dap_ledger_set_hal_hrl(l_ledger, l_chain, l_whitelist, l_whitelist_count, l_blacklist, l_blacklist_count);
+
+    cf_ledger_free_str_list(l_whitelist, l_whitelist_keepalive, l_whitelist_count);
+    cf_ledger_free_str_list(l_blacklist, l_blacklist_keepalive, l_blacklist_count);
+
+    log_it(L_DEBUG, "Ledger HAL/HRL set (whitelist=%u, blacklist=%u)", l_whitelist_count, l_blacklist_count);
+    Py_RETURN_NONE;
+}
+
+/**
+ * @brief Get ledger check error string
+ * @param a_self Python self object (unused)
+ * @param a_args Arguments (error code int)
+ * @return Error string
+ */
+PyObject* dap_ledger_check_error_str_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    int l_error = 0;
+
+    if (!PyArg_ParseTuple(a_args, "i", &l_error)) {
+        return NULL;
+    }
+
+    const char *l_str = dap_ledger_check_error_str((dap_ledger_check_error_t)l_error);
+    if (!l_str) {
+        Py_RETURN_NONE;
+    }
+
+    log_it(L_DEBUG, "Ledger check error %d -> '%s'", l_error, l_str);
+    return PyUnicode_FromString(l_str);
+}
+
+/**
+ * @brief Get ledger GDB group name
+ * @param a_self Python self object (unused)
+ * @param a_args Arguments (net_name string, suffix string)
+ * @return Group name string or None
+ */
+PyObject* dap_ledger_get_gdb_group_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    const char *l_net_name = NULL;
+    const char *l_suffix = NULL;
+
+    if (!PyArg_ParseTuple(a_args, "zz", &l_net_name, &l_suffix)) {
+        return NULL;
+    }
+
+    char *l_group = dap_ledger_get_gdb_group(l_net_name, l_suffix);
+    if (!l_group) {
+        Py_RETURN_NONE;
+    }
+
+    PyObject *l_str = PyUnicode_FromString(l_group);
+    DAP_DELETE(l_group);
+    return l_str;
+}
+
 // =============================================================================
 // UTILITY & SERVICE FUNCTIONS
 // =============================================================================
@@ -682,57 +956,6 @@ PyObject* dap_ledger_tx_calculate_main_ticker_py(PyObject *a_self, PyObject *a_a
     
     log_it(L_DEBUG, "Calculated main ticker: '%s', rc: %d", l_ticker.s, l_rc);
     return l_tuple;
-}
-
-/**
- * @brief Get list of TX outputs from JSON
- * @param a_self Python self object (unused)
- * @param a_args Arguments (json capsule, outputs_count, value_need bytes, need_all_outputs bool)
- * @return PyCapsule wrapping dap_list_t* or None
- */
-PyObject* dap_ledger_get_list_tx_outs_from_json_py(PyObject *a_self, PyObject *a_args) {
-    (void)a_self;
-    PyObject *l_json_obj;
-    int l_outputs_count;
-    const char *l_value_need_bytes;
-    Py_ssize_t l_value_need_size;
-    int l_need_all_outputs;
-    
-    // Note: value_transfer is output parameter, for simplicity we skip it in Python binding
-    if (!PyArg_ParseTuple(a_args, "Ois#p", &l_json_obj, &l_outputs_count, 
-                          &l_value_need_bytes, &l_value_need_size, &l_need_all_outputs)) {
-        return NULL;
-    }
-    
-    if (!PyCapsule_CheckExact(l_json_obj)) {
-        PyErr_SetString(PyExc_TypeError, "First argument must be a JSON capsule");
-        return NULL;
-    }
-    
-    if ((size_t)l_value_need_size != sizeof(uint256_t)) {
-        PyErr_Format(PyExc_ValueError, "value_need must be exactly %zu bytes", sizeof(uint256_t));
-        return NULL;
-    }
-    
-    dap_json_t *l_json = (dap_json_t *)PyCapsule_GetPointer(l_json_obj, "dap_json_t");
-    if (!l_json) {
-        PyErr_SetString(PyExc_ValueError, "Invalid JSON capsule");
-        return NULL;
-    }
-    
-    uint256_t l_value_need = *(uint256_t *)l_value_need_bytes;
-    uint256_t l_value_transfer = uint256_0;
-    
-    dap_list_t *l_list = dap_ledger_get_list_tx_outs_from_json(l_json, l_outputs_count,
-                                                                 l_value_need, &l_value_transfer,
-                                                                 (bool)l_need_all_outputs);
-    if (!l_list) {
-        log_it(L_DEBUG, "No TX outs from JSON");
-        Py_RETURN_NONE;
-    }
-    
-    log_it(L_DEBUG, "Got TX outs list from JSON (need_all=%d)", l_need_all_outputs);
-    return PyCapsule_New(l_list, "dap_list_t", NULL);
 }
 
 // =============================================================================
@@ -1085,9 +1308,19 @@ PyMethodDef* cellframe_ledger_utils_get_methods(void) {
         {"ledger_cache_enabled", (PyCFunction)dap_ledger_cache_enabled_py, METH_VARARGS,
          "Check if ledger cache is enabled"},
         {"ledger_set_cache_tx_check_callback", (PyCFunction)dap_ledger_set_cache_tx_check_callback_py, METH_VARARGS,
-         "Set cache TX check callback (stub)"},
+         "Set cache TX check callback"},
         {"ledger_load_end", (PyCFunction)dap_ledger_load_end_py, METH_VARARGS,
          "Signal that ledger loading is complete"},
+        {"ledger_set_load_mode", (PyCFunction)dap_ledger_set_load_mode_py, METH_VARARGS,
+         "Set ledger load mode"},
+        {"ledger_set_check_ds", (PyCFunction)dap_ledger_set_check_ds_py, METH_VARARGS,
+         "Set ledger datastore check mode"},
+        {"ledger_set_hal_hrl", (PyCFunction)dap_ledger_set_hal_hrl_py, METH_VARARGS,
+         "Set ledger HAL/HRL lists"},
+        {"ledger_check_error_str", (PyCFunction)dap_ledger_check_error_str_py, METH_VARARGS,
+         "Get ledger check error string"},
+        {"ledger_get_gdb_group", (PyCFunction)dap_ledger_get_gdb_group_py, METH_VARARGS,
+         "Get ledger GDB group name"},
         {"ledger_datum_is_enforced", (PyCFunction)dap_ledger_datum_is_enforced_py, METH_VARARGS,
          "Check if datum is enforced"},
         {"ledger_get_blockchain_time", (PyCFunction)dap_ledger_get_blockchain_time_py, METH_VARARGS,
@@ -1100,8 +1333,6 @@ PyMethodDef* cellframe_ledger_utils_get_methods(void) {
          "Get tag string by service UID"},
         {"ledger_tx_calculate_main_ticker", (PyCFunction)dap_ledger_tx_calculate_main_ticker_py, METH_VARARGS,
          "Calculate main ticker for transaction"},
-        {"ledger_get_list_tx_outs_from_json", (PyCFunction)dap_ledger_get_list_tx_outs_from_json_py, METH_VARARGS,
-         "Get list of TX outputs from JSON"},
         {"ledger_coin_get_uncoloured_value", (PyCFunction)dap_ledger_coin_get_uncoloured_value_py, METH_VARARGS,
          "Get uncoloured value of a coin"},
         {"ledger_tx_get_trackers", (PyCFunction)dap_ledger_tx_get_trackers_py, METH_VARARGS,

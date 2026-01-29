@@ -243,6 +243,71 @@ PyObject* dap_ledger_event_get_list_ex_py(PyObject *a_self, PyObject *a_args) {
     return PyCapsule_New(l_list, "dap_list_t", NULL);
 }
 
+/**
+ * @brief Get list of events
+ * @param a_self Python self object (unused)
+ * @param a_args Arguments (ledger capsule, group_name string)
+ * @return PyCapsule wrapping dap_list_t* or None
+ */
+PyObject* dap_ledger_event_get_list_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    PyObject *l_ledger_obj;
+    const char *l_group_name;
+
+    if (!PyArg_ParseTuple(a_args, "Os", &l_ledger_obj, &l_group_name)) {
+        return NULL;
+    }
+
+    if (!PyCapsule_CheckExact(l_ledger_obj)) {
+        PyErr_SetString(PyExc_TypeError, "First argument must be a ledger capsule");
+        return NULL;
+    }
+
+    dap_ledger_t *l_ledger = (dap_ledger_t *)PyCapsule_GetPointer(l_ledger_obj, "dap_ledger_t");
+    if (!l_ledger) {
+        PyErr_SetString(PyExc_ValueError, "Invalid ledger capsule");
+        return NULL;
+    }
+
+    dap_list_t *l_list = dap_ledger_event_get_list(l_ledger, l_group_name);
+    if (!l_list) {
+        log_it(L_DEBUG, "No events found for group '%s'", l_group_name);
+        Py_RETURN_NONE;
+    }
+
+    log_it(L_DEBUG, "Got events list for group '%s'", l_group_name);
+    return PyCapsule_New(l_list, "dap_list_t", NULL);
+}
+
+/**
+ * @brief Purge all events
+ * @param a_self Python self object (unused)
+ * @param a_args Arguments (ledger capsule)
+ * @return None
+ */
+PyObject* dap_ledger_event_purge_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    PyObject *l_ledger_obj;
+
+    if (!PyArg_ParseTuple(a_args, "O", &l_ledger_obj)) {
+        return NULL;
+    }
+
+    if (!PyCapsule_CheckExact(l_ledger_obj)) {
+        PyErr_SetString(PyExc_TypeError, "First argument must be a ledger capsule");
+        return NULL;
+    }
+
+    dap_ledger_t *l_ledger = (dap_ledger_t *)PyCapsule_GetPointer(l_ledger_obj, "dap_ledger_t");
+    if (!l_ledger) {
+        PyErr_SetString(PyExc_ValueError, "Invalid ledger capsule");
+        return NULL;
+    }
+
+    dap_ledger_event_purge(l_ledger);
+    Py_RETURN_NONE;
+}
+
 // Get method definitions for event module
 PyMethodDef* cellframe_ledger_event_get_methods(void) {
     static PyMethodDef event_methods[] = {
@@ -256,8 +321,12 @@ PyMethodDef* cellframe_ledger_event_get_methods(void) {
          "Get list of event public keys"},
         {"ledger_event_find", (PyCFunction)dap_ledger_event_find_py, METH_VARARGS,
          "Find event by transaction hash"},
+        {"ledger_event_get_list", (PyCFunction)dap_ledger_event_get_list_py, METH_VARARGS,
+         "Get list of events"},
         {"ledger_event_get_list_ex", (PyCFunction)dap_ledger_event_get_list_ex_py, METH_VARARGS,
          "Get list of events with extended options"},
+        {"ledger_event_purge", (PyCFunction)dap_ledger_event_purge_py, METH_VARARGS,
+         "Purge all events"},
         {NULL, NULL, 0, NULL}  // Sentinel
     };
     return event_methods;

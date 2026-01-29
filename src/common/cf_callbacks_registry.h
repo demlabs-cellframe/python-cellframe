@@ -33,14 +33,33 @@ typedef enum {
     CF_CALLBACK_TYPE_CLI_COMMAND,         ///< CLI command callback
     CF_CALLBACK_TYPE_CHAIN_DATUM_INDEX,   ///< Chain datum index notify
     CF_CALLBACK_TYPE_CHAIN_DATUM_REMOVED, ///< Chain datum removed notify
+    CF_CALLBACK_TYPE_DATUM_DUMP_DECREE,   ///< Datum decree JSON dump callback
+    CF_CALLBACK_TYPE_DATUM_DUMP_ANCHOR,   ///< Datum anchor JSON dump callback
+    CF_CALLBACK_TYPE_DECREE_REGISTRY,    ///< Decree registry handler callback
+    CF_CALLBACK_TYPE_CHAIN_ATOM_NOTIFY,   ///< Chain atom notify
     CF_CALLBACK_TYPE_CHAIN_ATOM_CONFIRMED,///< Chain atom confirmed notify
     CF_CALLBACK_TYPE_CHAIN_TIMER,         ///< Chain timer callback
     CF_CALLBACK_TYPE_LEDGER_CACHE_CHECK,  ///< Ledger cache TX check
     CF_CALLBACK_TYPE_LEDGER_VERIFICATOR,  ///< Ledger verificator (6 callbacks)
     CF_CALLBACK_TYPE_LEDGER_VOTING,       ///< Ledger voting verificator (4 callbacks)
     CF_CALLBACK_TYPE_LEDGER_SERVICE,      ///< Ledger service registration
-    CF_CALLBACK_TYPE_LEDGER_TAX           ///< Ledger tax callback
+    CF_CALLBACK_TYPE_LEDGER_TAX,          ///< Ledger tax callback
+    CF_CALLBACK_TYPE_BLOCK_SOVEREIGN_TAX, ///< Block sovereign tax callback
+    CF_CALLBACK_TYPE_BLOCK_FORK_RESOLVED, ///< Block fork resolved notify
+    CF_CALLBACK_TYPE_RPC_CONSENSUS,       ///< RPC consensus callback
+    CF_CALLBACK_TYPE_RPC_STORAGE,         ///< RPC storage callback
+    CF_CALLBACK_TYPE_RPC_SERVICE,         ///< RPC service callback
+    CF_CALLBACK_TYPE_RPC_WALLET,          ///< RPC wallet callback
+    CF_CALLBACK_TYPE_RPC_TX_NOTIFY,       ///< RPC TX notify callback
+    CF_CALLBACK_TYPE_WALLET_OPENED,       ///< Wallet opened notify callback
+    CF_CALLBACK_TYPE_WALLET_CREATED,      ///< Wallet created notify callback
+    CF_CALLBACK_TYPE_LAST                 ///< Sentinel value for callback counts
 } cf_callback_type_t;
+
+/**
+ * @brief Optional SDK context cleanup callback
+ */
+typedef void (*cf_sdk_context_free_t)(void *ctx);
 
 /**
  * @brief Python callback context entry
@@ -50,6 +69,7 @@ typedef struct cf_callback_entry {
     PyObject *py_callback;                ///< Python callable object (INCREF'd)
     PyObject *py_arg;                     ///< Optional Python argument (INCREF'd if not NULL)
     void *sdk_context;                    ///< SDK callback context (for unregistration)
+    cf_sdk_context_free_t sdk_context_free; ///< Optional SDK context cleanup
     char *identifier;                     ///< Unique identifier (e.g., chain ID, net name)
     struct cf_callback_entry *next;       ///< Next entry in linked list
 } cf_callback_entry_t;
@@ -80,6 +100,20 @@ int cf_callbacks_registry_init(void);
  */
 int cf_callbacks_registry_add(cf_callback_type_t type, PyObject *py_callback, PyObject *py_arg, 
                                void *sdk_context, const char *identifier);
+
+/**
+ * @brief Register a Python callback in the global registry with SDK context cleanup
+ * @param type Callback type
+ * @param py_callback Python callable object (will be INCREF'd)
+ * @param py_arg Optional Python argument (will be INCREF'd if not NULL)
+ * @param sdk_context SDK callback context pointer
+ * @param identifier Optional unique identifier (e.g., chain ID, net name)
+ * @param sdk_context_free Optional SDK context cleanup callback
+ * @return 0 on success, negative error code on failure
+ */
+int cf_callbacks_registry_add_ex(cf_callback_type_t type, PyObject *py_callback, PyObject *py_arg,
+                                 void *sdk_context, const char *identifier,
+                                 cf_sdk_context_free_t sdk_context_free);
 
 /**
  * @brief Unregister and cleanup a specific callback
@@ -116,7 +150,7 @@ void cf_callbacks_registry_deinit(void);
 /**
  * @brief Get registry statistics
  * @param out_count Output: total callbacks count
- * @param out_by_type Output: array of counts by type (must have CF_CALLBACK_TYPE_* slots)
+ * @param out_by_type Output: array of counts by type (must have CF_CALLBACK_TYPE_LAST slots)
  */
 void cf_callbacks_registry_stats(size_t *out_count, size_t *out_by_type);
 

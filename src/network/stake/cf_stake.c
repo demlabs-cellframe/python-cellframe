@@ -14,7 +14,7 @@
  * @param a_args Arguments (chain capsule, pkey_hash bytes)
  * @return Tuple (result_code, sovereign_tax bytes, sovereign_addr capsule) or None
  */
-PyObject* dap_chain_cs_stake_check_pkey_hash_py(PyObject *a_self, PyObject *a_args) {
+static PyObject* dap_chain_cs_stake_check_pkey_hash_py(PyObject *a_self, PyObject *a_args) {
     (void)a_self;
     PyObject *l_chain_obj;
     const char *l_pkey_hash_bytes;
@@ -70,7 +70,7 @@ PyObject* dap_chain_cs_stake_check_pkey_hash_py(PyObject *a_self, PyObject *a_ar
  * @param a_args Arguments (chain capsule, decree_hash bytes)
  * @return Integer result code (0 on success)
  */
-PyObject* dap_chain_cs_stake_hardfork_data_import_py(PyObject *a_self, PyObject *a_args) {
+static PyObject* dap_chain_cs_stake_hardfork_data_import_py(PyObject *a_self, PyObject *a_args) {
     (void)a_self;
     PyObject *l_chain_obj;
     const char *l_decree_hash_bytes;
@@ -110,7 +110,7 @@ PyObject* dap_chain_cs_stake_hardfork_data_import_py(PyObject *a_self, PyObject 
  * @param a_args Arguments (chain capsule, to_sandbox bool)
  * @return Integer result code (0 on success)
  */
-PyObject* dap_chain_cs_stake_switch_table_py(PyObject *a_self, PyObject *a_args) {
+static PyObject* dap_chain_cs_stake_switch_table_py(PyObject *a_self, PyObject *a_args) {
     (void)a_self;
     PyObject *l_chain_obj;
     int l_to_sandbox;
@@ -155,4 +155,3 @@ PyMethodDef* cellframe_stake_get_methods(void) {
     };
     return stake_methods;
 }
-

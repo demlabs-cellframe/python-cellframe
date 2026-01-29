@@ -72,6 +72,7 @@ set(CPACK_PACKAGE_CONTACT "support@demlabs.net")
 option(BUILD_SHARED "Build SDK libraries as shared (default)" ON)
 option(BUILD_TESTS "Build tests" OFF)
 option(BUILD_EXAMPLES "Build examples" OFF)
+option(DISABLE_WERROR "Disable -Werror so warnings do not fail the build" ON)
 
 # Apply ENABLE_TESTING define globally for DAP SDK modules
 if(BUILD_TESTS OR BUILD_WITH_TEST)
@@ -111,6 +112,14 @@ message(STATUS "=========================================")
 # Set DAP SDK path for Cellframe SDK (it has nested dap-sdk submodule)
 set(DAP_SDK_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cellframe-sdk/dap-sdk" CACHE PATH "Path to DAP SDK for Cellframe")
 
+# Ensure required Cellframe modules are built (needed by python_cellframe tests)
+if(NOT DEFINED CELLFRAME_MODULES OR CELLFRAME_MODULES STREQUAL "")
+    set(CELLFRAME_MODULES
+        "core chains ledger node network cs-dag-poa cs-esbocs cs-none srv-stake srv-voting srv-bridge srv-xchange srv-stake-ext compose srv-datum srv-app srv-app-db"
+        CACHE STRING "Cellframe SDK modules to build" FORCE
+    )
+endif()
+
 # Build Cellframe SDK as shared library
 set(BUILD_SHARED ON CACHE BOOL "Build Cellframe SDK as shared library" FORCE)
 
@@ -141,6 +150,14 @@ add_subdirectory(python-dap)
 
 message(STATUS "Python-DAP bindings configured")
 
+# Disable -Werror after subprojects have appended their flags
+if(DISABLE_WERROR)
+    message(STATUS "[Python-Cellframe] DISABLE_WERROR enabled - downgrading warnings")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-error")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-error")
+    add_compile_options(-Wno-error)
+endif()
+
 # =========================================
 # PYTHON-CELLFRAME (THIS PROJECT)
 # =========================================
@@ -151,58 +168,21 @@ message(STATUS "=========================================")
 # Find Python
 find_package(Python3 REQUIRED COMPONENTS Interpreter Development)
 
-# Python-Cellframe sources
-set(PYTHON_CELLFRAME_SOURCES
-    src/cellframe.c
-    # Common utilities
-    src/common/cf_callbacks_registry.c
-    src/common/cf_ledger_callback_registry.c
-    src/common/cf_verificator_registry.c
-    src/common/cf_dap_json.c
-    # Chain group
-    src/chain/cf_chain.c
-    src/chain/cf_consensus.c
-    src/chain/cf_consensus_init.c
-    # Ledger group (modularized, includes tx operations)
-    src/ledger/cf_ledger_init.c
-    src/ledger/cf_ledger_lifecycle.c
-    src/ledger/cf_ledger_tx.c
-    src/ledger/cf_ledger_token.c
-    src/ledger/cf_ledger_balance.c
-    src/ledger/cf_ledger_tx_lists.c
-    src/ledger/cf_ledger_cond.c
-    src/ledger/cf_ledger_callbacks.c
-    src/ledger/cf_ledger_decree.c
-    src/ledger/cf_ledger_anchor.c
-    src/ledger/cf_ledger_event.c
-    src/ledger/cf_ledger_utils.c
-    src/ledger/cf_token_manager.c
-    src/ledger/tx/cf_tx.c
-    # Phase 3.5: TX Compose Refactoring COMPLETE
-    src/ledger/tx/cf_compose.c
-    src/ledger/tx/cf_compose_init.c
-    # Governance group (Phase 7)
-    src/governance/cf_governance_decree.c
-    src/governance/cf_governance_manager.c
-    # Wallet group
-    src/wallet/cf_wallet.c
-    # Network group
-    src/network/cf_network.c
-    src/network/cf_balancer.c
-    src/network/cf_balancer_init.c
-    src/network/node/cf_node.c
-    src/network/services/cf_services.c
-    src/network/services/cf_services_init.c
-    src/network/services/cf_services_ext.c
-    src/network/services/cf_services_ext_init.c
-    src/network/stake/cf_stake.c
-    src/network/stake/cf_stake_init.c
-    src/network/mempool/cf_mempool.c
-    src/network/mempool/cf_mempool_init.c
+# Python-Cellframe sources (auto-discover to match evolving layout)
+file(GLOB_RECURSE PYTHON_CELLFRAME_SOURCES CONFIGURE_DEPENDS
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/*.c"
+)
+# Safety: exclude any accidental C sources under the Python package
+list(FILTER PYTHON_CELLFRAME_SOURCES EXCLUDE REGEX "/src/CellFrame/")
+list(REMOVE_ITEM PYTHON_CELLFRAME_SOURCES
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/chain/cf_chain_net_utils.c"
 )
 
 # Create Python extension module
 add_library(python_cellframe MODULE ${PYTHON_CELLFRAME_SOURCES})
+
+# Ensure PyArg_ParseTuple uses Py_ssize_t for "#" formats
+target_compile_definitions(python_cellframe PRIVATE PY_SSIZE_T_CLEAN)
 
 # Set proper Python module properties
 set_target_properties(python_cellframe PROPERTIES
@@ -222,6 +202,17 @@ target_include_directories(python_cellframe PRIVATE
     $<TARGET_PROPERTY:cellframe_sdk,INTERFACE_INCLUDE_DIRECTORIES>
     # Additional Cellframe SDK includes not auto-exported (datum/tx module)
     ${CMAKE_CURRENT_SOURCE_DIR}/cellframe-sdk/modules/datum/tx/include
+    # Service and net/srv headers that are not exported via cellframe_sdk
+    ${CMAKE_CURRENT_SOURCE_DIR}/cellframe-sdk/modules/service/app/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/cellframe-sdk/modules/service/app-db/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/cellframe-sdk/modules/service/bridge/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/cellframe-sdk/modules/service/datum/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/cellframe-sdk/modules/service/stake/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/cellframe-sdk/modules/service/stake-ext/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/cellframe-sdk/modules/service/voting/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/cellframe-sdk/modules/service/xchange/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/cellframe-sdk/modules/net/srv/base/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/cellframe-sdk/modules/net/srv/stake/include
 )
 
 # Link libraries

@@ -9,7 +9,6 @@ slc
 
 # Build directories
 build*/
-test*/
 dist/
 *.egg-info/
 
@@ -65,6 +64,3 @@ dap-sdk-build/
 cellframe-sdk-embedded/
 
 # Test files
-test_*.py
-test_*.c
-valgrind_test.py 

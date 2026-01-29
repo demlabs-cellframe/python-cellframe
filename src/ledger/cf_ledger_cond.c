@@ -1,6 +1,10 @@
 #include "include/cf_ledger_internal.h"
 #include "../common/cf_callbacks_registry.h"
-#include "../common/cf_verificator_registry.h"
+#include "cf_verificator_registry.h"
+
+extern dap_chain_tx_used_out_item_t *dap_ledger_get_tx_cond_out(dap_ledger_t *a_ledger,
+                                                                const dap_chain_addr_t *a_addr_from,
+                                                                dap_chain_tx_out_cond_subtype_t a_subtype) __attribute__((weak));
 
 /*
  * Cellframe ledger conditional outputs bindings
@@ -103,6 +107,86 @@ PyObject* dap_ledger_out_cond_unspent_find_by_addr_py(PyObject *a_self, PyObject
 }
 
 /**
+ * @brief Get first conditional output by subtype
+ * @param a_self Python self object (unused)
+ * @param a_args Arguments (ledger, addr capsule, subtype)
+ * @return PyCapsule wrapping dap_chain_tx_used_out_item_t* or None
+ */
+PyObject* dap_ledger_get_tx_cond_out_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    PyObject *l_ledger_obj = NULL;
+    PyObject *l_addr_obj = NULL;
+    int l_subtype = 0;
+
+    if (!PyArg_ParseTuple(a_args, "OOi", &l_ledger_obj, &l_addr_obj, &l_subtype)) {
+        return NULL;
+    }
+
+    if (!PyCapsule_CheckExact(l_ledger_obj) || !PyCapsule_CheckExact(l_addr_obj)) {
+        PyErr_SetString(PyExc_TypeError, "ledger and addr must be capsules");
+        return NULL;
+    }
+
+    dap_ledger_t *l_ledger = (dap_ledger_t *)PyCapsule_GetPointer(l_ledger_obj, "dap_ledger_t");
+    dap_chain_addr_t *l_addr = (dap_chain_addr_t *)PyCapsule_GetPointer(l_addr_obj, "dap_chain_addr_t");
+    if (!l_ledger || !l_addr) {
+        PyErr_SetString(PyExc_ValueError, "Invalid ledger or addr capsule");
+        return NULL;
+    }
+
+    if (!dap_ledger_get_tx_cond_out) {
+        PyErr_SetString(PyExc_RuntimeError, "dap_ledger_get_tx_cond_out is not available in this SDK build");
+        return NULL;
+    }
+
+    dap_chain_tx_used_out_item_t *l_item = dap_ledger_get_tx_cond_out(
+        l_ledger, l_addr, (dap_chain_tx_out_cond_subtype_t)l_subtype
+    );
+    if (!l_item) {
+        Py_RETURN_NONE;
+    }
+
+    return PyCapsule_New(l_item, "dap_chain_tx_used_out_item_t", NULL);
+}
+
+/**
+ * @brief Get linked output condition for input condition
+ * @param a_self Python self object (unused)
+ * @param a_args Arguments (ledger, tx_in_cond capsule)
+ * @return PyCapsule wrapping dap_chain_tx_out_cond_t* or None
+ */
+PyObject* dap_chain_ledger_get_tx_out_cond_linked_to_tx_in_cond_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    PyObject *l_ledger_obj = NULL;
+    PyObject *l_in_cond_obj = NULL;
+
+    if (!PyArg_ParseTuple(a_args, "OO", &l_ledger_obj, &l_in_cond_obj)) {
+        return NULL;
+    }
+
+    if (!PyCapsule_CheckExact(l_ledger_obj) || !PyCapsule_CheckExact(l_in_cond_obj)) {
+        PyErr_SetString(PyExc_TypeError, "ledger and tx_in_cond must be capsules");
+        return NULL;
+    }
+
+    dap_ledger_t *l_ledger = (dap_ledger_t *)PyCapsule_GetPointer(l_ledger_obj, "dap_ledger_t");
+    dap_chain_tx_in_cond_t *l_in_cond = (dap_chain_tx_in_cond_t *)PyCapsule_GetPointer(
+        l_in_cond_obj, "dap_chain_tx_in_cond_t"
+    );
+    if (!l_ledger || !l_in_cond) {
+        PyErr_SetString(PyExc_ValueError, "Invalid ledger or tx_in_cond capsule");
+        return NULL;
+    }
+
+    dap_chain_tx_out_cond_t *l_out_cond = dap_chain_ledger_get_tx_out_cond_linked_to_tx_in_cond(l_ledger, l_in_cond);
+    if (!l_out_cond) {
+        Py_RETURN_NONE;
+    }
+
+    return PyCapsule_New(l_out_cond, "dap_chain_tx_out_cond_t", NULL);
+}
+
+/**
  * @brief Get list of conditional outputs
  * @param a_self Python self object (unused)
  * @param a_args Arguments (ledger, subtype, token_ticker, addr_from)
@@ -149,6 +233,58 @@ PyObject* dap_ledger_get_list_tx_cond_outs_py(PyObject *a_self, PyObject *a_args
     
     log_it(L_DEBUG, "Retrieved list of conditional outputs for token %s", l_token_ticker);
     return PyCapsule_New(l_list, "dap_list_t", NULL);
+}
+
+/**
+ * @brief Get UTXO list for value
+ * @param a_self Python self object (unused)
+ * @param a_args Arguments (ledger, token_ticker, addr, value_need bytes)
+ * @return Tuple (list capsule or None, value_found bytes)
+ */
+PyObject* dap_ledger_get_utxo_for_value_py(PyObject *a_self, PyObject *a_args) {
+    (void)a_self;
+    PyObject *l_ledger_obj = NULL;
+    PyObject *l_addr_obj = NULL;
+    const char *l_token = NULL;
+    const char *l_value_bytes = NULL;
+    Py_ssize_t l_value_size = 0;
+
+    if (!PyArg_ParseTuple(a_args, "OsOs#", &l_ledger_obj, &l_token, &l_addr_obj, &l_value_bytes, &l_value_size)) {
+        return NULL;
+    }
+
+    if (!PyCapsule_CheckExact(l_ledger_obj) || !PyCapsule_CheckExact(l_addr_obj)) {
+        PyErr_SetString(PyExc_TypeError, "ledger and addr must be capsules");
+        return NULL;
+    }
+
+    if ((size_t)l_value_size != sizeof(uint256_t)) {
+        PyErr_Format(PyExc_ValueError, "value_need must be exactly %zu bytes", sizeof(uint256_t));
+        return NULL;
+    }
+
+    dap_ledger_t *l_ledger = (dap_ledger_t *)PyCapsule_GetPointer(l_ledger_obj, "dap_ledger_t");
+    dap_chain_addr_t *l_addr = (dap_chain_addr_t *)PyCapsule_GetPointer(l_addr_obj, "dap_chain_addr_t");
+    if (!l_ledger || !l_addr) {
+        PyErr_SetString(PyExc_ValueError, "Invalid ledger or addr capsule");
+        return NULL;
+    }
+
+    uint256_t l_value_need = *(uint256_t *)l_value_bytes;
+    uint256_t l_value_found = uint256_0;
+
+    dap_list_t *l_list = dap_ledger_get_utxo_for_value(l_ledger, l_token, l_addr, l_value_need, &l_value_found);
+
+    PyObject *l_list_obj = l_list ? PyCapsule_New(l_list, "dap_list_t", NULL) : Py_None;
+    if (!l_list) {
+        Py_INCREF(Py_None);
+    }
+
+    PyObject *l_value_obj = PyBytes_FromStringAndSize((const char *)&l_value_found, sizeof(uint256_t));
+    PyObject *l_tuple = PyTuple_New(2);
+    PyTuple_SetItem(l_tuple, 0, l_list_obj);
+    PyTuple_SetItem(l_tuple, 1, l_value_obj);
+    return l_tuple;
 }
 
 /**
@@ -517,6 +653,151 @@ static void s_verificator_out_delete_wrapper(dap_ledger_t *a_ledger, dap_chain_d
     PyGILState_Release(l_gstate);
 }
 
+// =========================================
+// VOTING VERIFICATOR CALLBACK WRAPPERS (4 callbacks)
+// =========================================
+
+static int s_voting_callback_wrapper(dap_ledger_t *a_ledger, dap_chain_datum_tx_t *a_tx,
+                                     dap_hash_fast_t *a_tx_hash, bool a_apply) {
+    python_voting_ctx_t *l_ctx = cf_voting_verificator_get();
+    if (!l_ctx || !l_ctx->voting_callback) {
+        return 0;
+    }
+
+    PyGILState_STATE l_gstate = PyGILState_Ensure();
+
+    PyObject *l_ledger = PyCapsule_New(a_ledger, "dap_ledger_t", NULL);
+    PyObject *l_tx = PyCapsule_New(a_tx, "dap_chain_datum_tx_t", NULL);
+    PyObject *l_tx_hash = a_tx_hash ? PyBytes_FromStringAndSize((const char*)a_tx_hash, sizeof(dap_hash_fast_t)) : Py_None;
+    PyObject *l_apply = PyBool_FromLong(a_apply);
+
+    PyObject *l_result = PyObject_CallFunctionObjArgs(
+        l_ctx->voting_callback, l_ledger, l_tx, l_tx_hash, l_apply, l_ctx->user_data, NULL
+    );
+
+    int l_ret = 0;
+    if (!l_result) {
+        log_it(L_ERROR, "Python voting callback raised an exception");
+        PyErr_Print();
+    } else {
+        l_ret = PyLong_AsLong(l_result);
+        Py_DECREF(l_result);
+    }
+
+    Py_DECREF(l_ledger);
+    Py_DECREF(l_tx);
+    Py_XDECREF(l_tx_hash);
+    Py_DECREF(l_apply);
+
+    PyGILState_Release(l_gstate);
+    return l_ret;
+}
+
+static int s_vote_callback_wrapper(dap_ledger_t *a_ledger, dap_chain_datum_tx_t *a_tx,
+                                   dap_hash_fast_t *a_tx_hash, dap_hash_fast_t *a_pkey_hash, bool a_apply) {
+    python_voting_ctx_t *l_ctx = cf_voting_verificator_get();
+    if (!l_ctx || !l_ctx->vote_callback) {
+        return 0;
+    }
+
+    PyGILState_STATE l_gstate = PyGILState_Ensure();
+
+    PyObject *l_ledger = PyCapsule_New(a_ledger, "dap_ledger_t", NULL);
+    PyObject *l_tx = PyCapsule_New(a_tx, "dap_chain_datum_tx_t", NULL);
+    PyObject *l_tx_hash = a_tx_hash ? PyBytes_FromStringAndSize((const char*)a_tx_hash, sizeof(dap_hash_fast_t)) : Py_None;
+    PyObject *l_pkey_hash = a_pkey_hash ? PyBytes_FromStringAndSize((const char*)a_pkey_hash, sizeof(dap_hash_fast_t)) : Py_None;
+    PyObject *l_apply = PyBool_FromLong(a_apply);
+
+    PyObject *l_result = PyObject_CallFunctionObjArgs(
+        l_ctx->vote_callback, l_ledger, l_tx, l_tx_hash, l_pkey_hash, l_apply, l_ctx->user_data, NULL
+    );
+
+    int l_ret = 0;
+    if (!l_result) {
+        log_it(L_ERROR, "Python vote callback raised an exception");
+        PyErr_Print();
+    } else {
+        l_ret = PyLong_AsLong(l_result);
+        Py_DECREF(l_result);
+    }
+
+    Py_DECREF(l_ledger);
+    Py_DECREF(l_tx);
+    Py_XDECREF(l_tx_hash);
+    Py_XDECREF(l_pkey_hash);
+    Py_DECREF(l_apply);
+
+    PyGILState_Release(l_gstate);
+    return l_ret;
+}
+
+static bool s_voting_delete_wrapper(dap_ledger_t *a_ledger, dap_chain_tx_item_type_t a_type,
+                                    dap_chain_datum_tx_t *a_tx, dap_hash_fast_t *a_tx_hash) {
+    python_voting_ctx_t *l_ctx = cf_voting_verificator_get();
+    if (!l_ctx || !l_ctx->delete_callback) {
+        return false;
+    }
+
+    PyGILState_STATE l_gstate = PyGILState_Ensure();
+
+    PyObject *l_ledger = PyCapsule_New(a_ledger, "dap_ledger_t", NULL);
+    PyObject *l_type = PyLong_FromLong((long)a_type);
+    PyObject *l_tx = PyCapsule_New(a_tx, "dap_chain_datum_tx_t", NULL);
+    PyObject *l_tx_hash = a_tx_hash ? PyBytes_FromStringAndSize((const char*)a_tx_hash, sizeof(dap_hash_fast_t)) : Py_None;
+
+    PyObject *l_result = PyObject_CallFunctionObjArgs(
+        l_ctx->delete_callback, l_ledger, l_type, l_tx, l_tx_hash, l_ctx->user_data, NULL
+    );
+
+    bool l_ret = false;
+    if (!l_result) {
+        log_it(L_ERROR, "Python voting delete callback raised an exception");
+        PyErr_Print();
+    } else {
+        l_ret = PyObject_IsTrue(l_result);
+        Py_DECREF(l_result);
+    }
+
+    Py_DECREF(l_ledger);
+    Py_DECREF(l_type);
+    Py_DECREF(l_tx);
+    Py_XDECREF(l_tx_hash);
+
+    PyGILState_Release(l_gstate);
+    return l_ret;
+}
+
+static dap_time_t s_voting_expire_wrapper(dap_ledger_t *a_ledger, dap_hash_fast_t *a_voting_hash) {
+    python_voting_ctx_t *l_ctx = cf_voting_verificator_get();
+    if (!l_ctx || !l_ctx->expire_callback) {
+        return 0;
+    }
+
+    PyGILState_STATE l_gstate = PyGILState_Ensure();
+
+    PyObject *l_ledger = PyCapsule_New(a_ledger, "dap_ledger_t", NULL);
+    PyObject *l_voting_hash = a_voting_hash ? PyBytes_FromStringAndSize((const char*)a_voting_hash, sizeof(dap_hash_fast_t)) : Py_None;
+
+    PyObject *l_result = PyObject_CallFunctionObjArgs(
+        l_ctx->expire_callback, l_ledger, l_voting_hash, l_ctx->user_data, NULL
+    );
+
+    dap_time_t l_ret = 0;
+    if (!l_result) {
+        log_it(L_ERROR, "Python voting expire callback raised an exception");
+        PyErr_Print();
+    } else {
+        l_ret = (dap_time_t)PyLong_AsUnsignedLongLong(l_result);
+        Py_DECREF(l_result);
+    }
+
+    Py_DECREF(l_ledger);
+    Py_XDECREF(l_voting_hash);
+
+    PyGILState_Release(l_gstate);
+    return l_ret;
+}
+
 /**
  * @brief Add verificator callbacks for conditional outputs
  * @param a_self Python self object (unused)
@@ -602,36 +883,60 @@ PyObject* dap_ledger_verificator_add_py(PyObject *a_self, PyObject *a_args) {
 
 /**
  * @brief Add voting verificator callbacks
- * @note Callback functionality requires complex implementation - stub
  * @param a_self Python self object (unused)
- * @param a_args Arguments ()
+ * @param a_args Arguments (voting, vote, delete, expire, user_data)
  * @return Integer result code
  */
 PyObject* dap_ledger_voting_verificator_add_py(PyObject *a_self, PyObject *a_args) {
     (void)a_self;
-    
-    if (!PyArg_ParseTuple(a_args, "")) {
+    PyObject *l_voting = Py_None;
+    PyObject *l_vote = Py_None;
+    PyObject *l_delete = Py_None;
+    PyObject *l_expire = Py_None;
+    PyObject *l_user_data = Py_None;
+
+    if (!PyArg_ParseTuple(a_args, "OOOO|O", &l_voting, &l_vote, &l_delete, &l_expire, &l_user_data)) {
+        PyErr_SetString(PyExc_TypeError, "Expected (voting, vote, delete, expire, [user_data])");
         return NULL;
     }
-    
-    // PHASE 10.3: Full Python callback wrapper with GIL management
-    // Requires implementation of 4 callback functions for voting operations:
-    //   1. dap_ledger_voting_callback_t a_voting_callback
-    //   2. dap_ledger_vote_callback_t a_vote_callback
-    //   3. dap_ledger_voting_delete_callback_t a_callback_delete
-    //   4. dap_ledger_voting_expire_callback_t a_callback_expire
-    //
-    // Each callback must:
-    //   - Acquire GIL before calling Python
-    //   - Handle Python exceptions
-    //   - Convert C types to Python types
-    //   - Release GIL after return
-    //
-    // Implementation tracked in: .context/tasks/python_cellframe_api_update_20250111.json
-    // Phase 10.3: Voting Callbacks
-    log_it(L_WARNING, "dap_ledger_voting_verificator_add: Phase 10.3 pending implementation");
-    PyErr_SetString(PyExc_NotImplementedError, "Voting verificator callbacks not yet implemented (Phase 10.3)");
-    return NULL;
+
+    if (l_voting != Py_None && !PyCallable_Check(l_voting)) {
+        PyErr_SetString(PyExc_TypeError, "voting must be callable or None");
+        return NULL;
+    }
+    if (l_vote != Py_None && !PyCallable_Check(l_vote)) {
+        PyErr_SetString(PyExc_TypeError, "vote must be callable or None");
+        return NULL;
+    }
+    if (l_delete != Py_None && !PyCallable_Check(l_delete)) {
+        PyErr_SetString(PyExc_TypeError, "delete must be callable or None");
+        return NULL;
+    }
+    if (l_expire != Py_None && !PyCallable_Check(l_expire)) {
+        PyErr_SetString(PyExc_TypeError, "expire must be callable or None");
+        return NULL;
+    }
+
+    PyObject *l_voting_real = (l_voting == Py_None) ? NULL : l_voting;
+    PyObject *l_vote_real = (l_vote == Py_None) ? NULL : l_vote;
+    PyObject *l_delete_real = (l_delete == Py_None) ? NULL : l_delete;
+    PyObject *l_expire_real = (l_expire == Py_None) ? NULL : l_expire;
+    PyObject *l_user_data_real = (l_user_data == Py_None) ? NULL : l_user_data;
+
+    if (cf_voting_verificator_register(l_voting_real, l_vote_real, l_delete_real, l_expire_real, l_user_data_real) != 0) {
+        PyErr_SetString(PyExc_RuntimeError, "Failed to register voting verificator callbacks");
+        return NULL;
+    }
+
+    int l_result = dap_ledger_voting_verificator_add(
+        l_voting_real ? s_voting_callback_wrapper : NULL,
+        l_vote_real ? s_vote_callback_wrapper : NULL,
+        l_delete_real ? s_voting_delete_wrapper : NULL,
+        l_expire_real ? s_voting_expire_wrapper : NULL
+    );
+
+    log_it(L_DEBUG, "Registered voting verificator callbacks, result=%d", l_result);
+    return PyLong_FromLong(l_result);
 }
 
 
@@ -640,16 +945,22 @@ PyMethodDef* cellframe_ledger_cond_get_methods(void) {
     static PyMethodDef cond_methods[] = {
         {"ledger_out_cond_unspent_find_by_addr", (PyCFunction)dap_ledger_out_cond_unspent_find_by_addr_py, METH_VARARGS,
          "Find unspent conditional output by address"},
+        {"ledger_get_tx_cond_out", (PyCFunction)dap_ledger_get_tx_cond_out_py, METH_VARARGS,
+         "Get first conditional output by subtype"},
+        {"ledger_get_tx_out_cond_linked_to_tx_in_cond", (PyCFunction)dap_chain_ledger_get_tx_out_cond_linked_to_tx_in_cond_py, METH_VARARGS,
+         "Get linked output condition for input condition"},
         {"ledger_get_list_tx_cond_outs", (PyCFunction)dap_ledger_get_list_tx_cond_outs_py, METH_VARARGS,
          "Get list of conditional outputs"},
+        {"ledger_get_utxo_for_value", (PyCFunction)dap_ledger_get_utxo_for_value_py, METH_VARARGS,
+         "Get UTXO list for value"},
         {"ledger_tx_cache_find_out_cond_all", (PyCFunction)dap_ledger_tx_cache_find_out_cond_all_py, METH_VARARGS,
          "Find all conditional outputs from TX cache by service UID"},
         {"ledger_check_condition_owner", (PyCFunction)dap_ledger_check_condition_owner_py, METH_VARARGS,
          "Check condition owner"},
         {"ledger_verificator_add", (PyCFunction)dap_ledger_verificator_add_py, METH_VARARGS,
-         "Add verificator callbacks for conditional outputs (stub)"},
+         "Add verificator callbacks for conditional outputs"},
         {"ledger_voting_verificator_add", (PyCFunction)dap_ledger_voting_verificator_add_py, METH_VARARGS,
-         "Add voting verificator callbacks (stub)"},
+         "Add voting verificator callbacks"},
         {NULL, NULL, 0, NULL}  // Sentinel
     };
     return cond_methods;

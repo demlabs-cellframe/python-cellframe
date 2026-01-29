@@ -40,15 +40,15 @@ typedef struct dap_chain_datum dap_chain_datum_t;
 // Missing functions that Python requires
 uint64_t dap_chain_addr_get_net_id(dap_chain_addr_t *a_addr);
 void* dap_chain_atom_create(size_t a_size);
-dap_chain_t* dap_chain_mempool_by_chain_name(const char *a_chain_name);
+// Returns TX chain (dap_chain_t*) by chain name for mempool operations
+dap_chain_t* dap_chain_tx_chain_by_name(const char *a_chain_name);
 dap_chain_datum_t* dap_chain_mempool_tx_get_by_hash(dap_chain_t *a_chain, const char *a_tx_hash);
 
 // Python wrapper functions for chain
-PyObject* py_dap_chain_addr_from_str(PyObject *self, PyObject *args);
 PyObject* py_dap_chain_addr_get_net_id(PyObject *self, PyObject *args);
 PyObject* py_dap_chain_atom_create(PyObject *self, PyObject *args);
 PyObject* py_dap_chain_atom_get_data(PyObject *self, PyObject *args);
-PyObject* py_dap_chain_mempool_by_chain_name(PyObject *self, PyObject *args);
+PyObject* py_dap_chain_tx_chain_by_name(PyObject *self, PyObject *args);
 PyObject* py_dap_chain_mempool_tx_get_by_hash(PyObject *self, PyObject *args);
 
 
