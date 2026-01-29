@@ -29,5 +29,7 @@ typedef struct {
 int cf_chain_parse_cell_id(PyObject *obj, dap_chain_cell_id_t *out);
 bool cf_chain_cell_is_configured(dap_chain_t *a_chain);
 int cf_chain_parse_hash(PyObject *obj, dap_hash_fast_t **out_hash);
+size_t cf_chain_release_cell_captures(dap_chain_t *a_chain);
+size_t cf_chain_cleanup_callbacks(dap_chain_t *a_chain);
 
 #endif  // CF_CHAIN_INTERNAL_H

@@ -18,7 +18,7 @@ PyObject* py_dap_chain_addr_get_net_id(PyObject *self, PyObject *args);
 PyObject* py_dap_chain_addr_to_str(PyObject *self, PyObject *args);
 PyObject* py_dap_chain_atom_create(PyObject *self, PyObject *args);
 PyObject* py_dap_chain_atom_get_data(PyObject *self, PyObject *args);
-PyObject* py_dap_chain_mempool_by_chain_name(PyObject *self, PyObject *args);
+PyObject* py_dap_chain_tx_chain_by_name(PyObject *self, PyObject *args);
 PyObject* py_dap_chain_mempool_tx_get_by_hash(PyObject *self, PyObject *args);
 PyObject* dap_chain_create_py(PyObject *self, PyObject *args);
 PyObject* dap_chain_delete_py(PyObject *self, PyObject *args);

@@ -57,6 +57,11 @@ typedef enum {
 } cf_callback_type_t;
 
 /**
+ * @brief Optional SDK context cleanup callback
+ */
+typedef void (*cf_sdk_context_free_t)(void *ctx);
+
+/**
  * @brief Python callback context entry
  */
 typedef struct cf_callback_entry {
@@ -64,6 +69,7 @@ typedef struct cf_callback_entry {
     PyObject *py_callback;                ///< Python callable object (INCREF'd)
     PyObject *py_arg;                     ///< Optional Python argument (INCREF'd if not NULL)
     void *sdk_context;                    ///< SDK callback context (for unregistration)
+    cf_sdk_context_free_t sdk_context_free; ///< Optional SDK context cleanup
     char *identifier;                     ///< Unique identifier (e.g., chain ID, net name)
     struct cf_callback_entry *next;       ///< Next entry in linked list
 } cf_callback_entry_t;
@@ -94,6 +100,20 @@ int cf_callbacks_registry_init(void);
  */
 int cf_callbacks_registry_add(cf_callback_type_t type, PyObject *py_callback, PyObject *py_arg, 
                                void *sdk_context, const char *identifier);
+
+/**
+ * @brief Register a Python callback in the global registry with SDK context cleanup
+ * @param type Callback type
+ * @param py_callback Python callable object (will be INCREF'd)
+ * @param py_arg Optional Python argument (will be INCREF'd if not NULL)
+ * @param sdk_context SDK callback context pointer
+ * @param identifier Optional unique identifier (e.g., chain ID, net name)
+ * @param sdk_context_free Optional SDK context cleanup callback
+ * @return 0 on success, negative error code on failure
+ */
+int cf_callbacks_registry_add_ex(cf_callback_type_t type, PyObject *py_callback, PyObject *py_arg,
+                                 void *sdk_context, const char *identifier,
+                                 cf_sdk_context_free_t sdk_context_free);
 
 /**
  * @brief Unregister and cleanup a specific callback

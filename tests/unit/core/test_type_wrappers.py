@@ -141,7 +141,7 @@ def datum_hash_bytes(datum_capsule):
 
 @pytest.fixture
 def block_bytes(block_module):
-    return cf.dap_chain_block_new()
+    return cf.dap_chain_block_new_bytes()
 
 
 @pytest.fixture
@@ -199,88 +199,88 @@ def test_dap_chain_block_deinit_safe(sdk_initialized):
 
 
 def test_dap_chain_block_new_returns_bytes(block_module):
-    block = cf.dap_chain_block_new()
+    block = cf.dap_chain_block_new_bytes()
     assert isinstance(block, (bytes, bytearray))
     assert len(block) > 0
 
 
 def test_dap_chain_block_new_accepts_prev_hash(block_module):
-    block = cf.dap_chain_block_new(HASH_BYTES)
+    block = cf.dap_chain_block_new_bytes(HASH_BYTES)
     assert isinstance(block, (bytes, bytearray))
     assert len(block) > 0
 
 
 def test_dap_chain_block_new_rejects_bad_hash(block_module):
     with pytest.raises(ValueError):
-        cf.dap_chain_block_new(BAD_HASH)
+        cf.dap_chain_block_new_bytes(BAD_HASH)
 
 
 def test_dap_chain_block_get_size_accepts_bytes_and_dict(block_bytes):
-    size = cf.dap_chain_block_get_size(block_bytes)
+    size = cf.dap_chain_block_get_size_bytes(block_bytes)
     assert size == len(block_bytes)
-    size_dict = cf.dap_chain_block_get_size({"block": block_bytes})
+    size_dict = cf.dap_chain_block_get_size_bytes({"block": block_bytes})
     assert size_dict == len(block_bytes)
 
 
 def test_dap_chain_block_get_size_rejects_short_bytes():
     with pytest.raises(ValueError):
-        cf.dap_chain_block_get_size(b"\x00")
+        cf.dap_chain_block_get_size_bytes(b"\x00")
 
 
 def test_dap_chain_block_get_size_rejects_missing_dict_key(block_bytes):
     with pytest.raises(TypeError):
-        cf.dap_chain_block_get_size({"bad": block_bytes})
+        cf.dap_chain_block_get_size_bytes({"bad": block_bytes})
 
 
 def test_dap_chain_block_meta_add_adds_meta(block_bytes):
-    new_block = cf.dap_chain_block_meta_add(block_bytes, META_PREV, HASH_BYTES)
+    new_block = cf.dap_chain_block_meta_add_bytes(block_bytes, META_PREV, HASH_BYTES)
     assert len(new_block) > len(block_bytes)
 
 
 def test_dap_chain_block_meta_add_allows_empty_data(block_bytes):
-    new_block = cf.dap_chain_block_meta_add(block_bytes, META_GENESIS, None)
+    new_block = cf.dap_chain_block_meta_add_bytes(block_bytes, META_GENESIS, None)
     assert len(new_block) > len(block_bytes)
 
 
 def test_dap_chain_block_meta_add_rejects_non_bytes(block_bytes):
     with pytest.raises(TypeError):
-        cf.dap_chain_block_meta_add(block_bytes, META_PREV, object())
+        cf.dap_chain_block_meta_add_bytes(block_bytes, META_PREV, object())
 
 
 def test_dap_chain_block_meta_add_rejects_bad_block():
     with pytest.raises(ValueError):
-        cf.dap_chain_block_meta_add(b"\x00", META_PREV, HASH_BYTES)
+        cf.dap_chain_block_meta_add_bytes(b"\x00", META_PREV, HASH_BYTES)
 
 
 def test_dap_chain_block_meta_get_returns_expected_types(block_module):
-    genesis_block = cf.dap_chain_block_new()
+    genesis_block = cf.dap_chain_block_new_bytes()
     assert cf.dap_chain_block_meta_get(genesis_block, META_GENESIS) is True
 
-    prev_block = cf.dap_chain_block_new(HASH_BYTES)
+    prev_block = cf.dap_chain_block_new_bytes(HASH_BYTES)
     prev = cf.dap_chain_block_meta_get(prev_block, META_PREV)
     assert prev == HASH_BYTES
 
-    nonce_block = cf.dap_chain_block_meta_add(genesis_block, META_NONCE, struct.pack("<Q", 42))
+    nonce_block = cf.dap_chain_block_meta_add_bytes(genesis_block, META_NONCE, struct.pack("<Q", 42))
     assert cf.dap_chain_block_meta_get(nonce_block, META_NONCE) == 42
 
-    gen_block = cf.dap_chain_block_meta_add(genesis_block, META_GENERATION, struct.pack("<H", 7))
+    gen_block = cf.dap_chain_block_meta_add_bytes(genesis_block, META_GENERATION, struct.pack("<H", 7))
     assert cf.dap_chain_block_meta_get(gen_block, META_GENERATION) == 7
 
-    round_block = cf.dap_chain_block_meta_add(genesis_block, META_ROUND_ATTEMPT, struct.pack("<B", 1))
+    round_block = cf.dap_chain_block_meta_add_bytes(genesis_block, META_ROUND_ATTEMPT, struct.pack("<B", 1))
     assert cf.dap_chain_block_meta_get(round_block, META_ROUND_ATTEMPT) == 1
 
-    evm_block = cf.dap_chain_block_meta_add(genesis_block, META_EVM_DATA, b"evm")
+    evm_block = cf.dap_chain_block_meta_add_bytes(genesis_block, META_EVM_DATA, b"evm")
     assert cf.dap_chain_block_meta_get(evm_block, META_EVM_DATA) == b"evm"
 
     excluded = struct.pack("<HHH", 2, 5, 7)
-    excluded_block = cf.dap_chain_block_meta_add(genesis_block, META_EXCLUDED_KEYS, excluded)
+    excluded_block = cf.dap_chain_block_meta_add_bytes(genesis_block, META_EXCLUDED_KEYS, excluded)
     assert cf.dap_chain_block_meta_get(excluded_block, META_EXCLUDED_KEYS) == [5, 7]
 
     assert cf.dap_chain_block_meta_get(genesis_block, 0x99) is None
 
 
 def test_dap_chain_block_meta_extract_reports_prev_hash(block_module):
-    block = cf.dap_chain_block_new(HASH_BYTES)
+    block = cf.dap_chain_block_new_bytes(HASH_BYTES)
     info = cf.dap_chain_block_meta_extract(block)
     assert isinstance(info, dict)
     assert info["prev_hash"] == HASH_BYTES
@@ -289,10 +289,10 @@ def test_dap_chain_block_meta_extract_reports_prev_hash(block_module):
 
 
 def test_dap_chain_block_get_prev_hash_handles_genesis_and_prev(block_module):
-    genesis = cf.dap_chain_block_new()
+    genesis = cf.dap_chain_block_new_bytes()
     assert cf.dap_chain_block_get_prev_hash(genesis) is None
 
-    prev_block = cf.dap_chain_block_new(HASH_BYTES)
+    prev_block = cf.dap_chain_block_new_bytes(HASH_BYTES)
     assert cf.dap_chain_block_get_prev_hash(prev_block) == HASH_BYTES
 
 
@@ -302,12 +302,12 @@ def test_dap_chain_block_get_prev_hash_rejects_bad_block():
 
 
 def test_dap_chain_block_get_datums_empty(block_bytes):
-    assert cf.dap_chain_block_get_datums(block_bytes) == []
+    assert cf.dap_chain_block_get_datums_bytes(block_bytes) == []
 
 
 def test_dap_chain_block_datum_add_and_get_datums(block_bytes, datum_bytes):
-    new_block = cf.dap_chain_block_datum_add(block_bytes, datum_bytes)
-    datums = cf.dap_chain_block_get_datums(new_block)
+    new_block = cf.dap_chain_block_datum_add_bytes(block_bytes, datum_bytes)
+    datums = cf.dap_chain_block_get_datums_bytes(new_block)
     assert isinstance(datums, list)
     assert len(datums) == 1
     assert datums[0] == datum_bytes
@@ -315,23 +315,23 @@ def test_dap_chain_block_datum_add_and_get_datums(block_bytes, datum_bytes):
 
 def test_dap_chain_block_datum_add_rejects_bad_datum(block_bytes):
     with pytest.raises(ValueError):
-        cf.dap_chain_block_datum_add(block_bytes, b"\x00")
+        cf.dap_chain_block_datum_add_bytes(block_bytes, b"\x00")
 
 
 def test_dap_chain_block_datum_add_rejects_bad_block(datum_bytes):
     with pytest.raises(ValueError):
-        cf.dap_chain_block_datum_add(b"\x00", datum_bytes)
+        cf.dap_chain_block_datum_add_bytes(b"\x00", datum_bytes)
 
 
 def test_dap_chain_block_datum_del_by_hash_removes(block_bytes, datum_bytes, datum_hash_bytes):
-    new_block = cf.dap_chain_block_datum_add(block_bytes, datum_bytes)
+    new_block = cf.dap_chain_block_datum_add_bytes(block_bytes, datum_bytes)
     cleared = cf.dap_chain_block_datum_del_by_hash(new_block, datum_hash_bytes)
-    datums = cf.dap_chain_block_get_datums(cleared)
+    datums = cf.dap_chain_block_get_datums_bytes(cleared)
     assert datums == []
 
 
 def test_dap_chain_block_datum_del_by_hash_rejects_bad_hash(block_bytes, datum_bytes):
-    new_block = cf.dap_chain_block_datum_add(block_bytes, datum_bytes)
+    new_block = cf.dap_chain_block_datum_add_bytes(block_bytes, datum_bytes)
     with pytest.raises(ValueError):
         cf.dap_chain_block_datum_del_by_hash(new_block, BAD_HASH)
 
@@ -344,7 +344,7 @@ def test_dap_chain_block_datum_del_by_hash_rejects_bad_block(datum_hash_bytes):
 def test_dap_chain_block_datum_del_by_hash_missing_keeps_block(block_bytes, datum_hash_bytes):
     updated = cf.dap_chain_block_datum_del_by_hash(block_bytes, datum_hash_bytes)
     assert len(updated) == len(block_bytes)
-    assert cf.dap_chain_block_get_datums(updated) == []
+    assert cf.dap_chain_block_get_datums_bytes(updated) == []
 
 
 def test_dap_chain_block_sign_get_none_for_unsigned(block_bytes):
@@ -353,7 +353,7 @@ def test_dap_chain_block_sign_get_none_for_unsigned(block_bytes):
 
 def test_dap_chain_block_sign_add_and_get_signs(block_bytes, key_bundle):
     key_capsule = key_bundle["key_capsule"]
-    signed = cf.dap_chain_block_sign_add(block_bytes, key_capsule)
+    signed = cf.dap_chain_block_sign_add_bytes(block_bytes, key_capsule)
     assert len(signed) > len(block_bytes)
     assert cf.dap_chain_block_get_signs_count(signed) == 1
 
@@ -371,20 +371,20 @@ def test_dap_chain_block_get_signs_count_zero(block_bytes):
 def test_dap_chain_block_sign_match_pkey(block_bytes, key_bundle):
     key_capsule = key_bundle["key_capsule"]
     pkey_capsule = key_bundle["pkey_capsule"]
-    signed = cf.dap_chain_block_sign_add(block_bytes, key_capsule)
+    signed = cf.dap_chain_block_sign_add_bytes(block_bytes, key_capsule)
     assert cf.dap_chain_block_sign_match_pkey(signed, pkey_capsule) is True
 
 
 def test_dap_chain_block_sign_match_pkey_rejects_bad_pkey(block_bytes, key_bundle):
     key_capsule = key_bundle["key_capsule"]
-    signed = cf.dap_chain_block_sign_add(block_bytes, key_capsule)
+    signed = cf.dap_chain_block_sign_add_bytes(block_bytes, key_capsule)
     with pytest.raises(TypeError):
         cf.dap_chain_block_sign_match_pkey(signed, object())
 
 
 def test_dap_chain_block_sign_match_pkey_accepts_bytes(block_bytes, key_bundle):
     key_capsule = key_bundle["key_capsule"]
-    signed = cf.dap_chain_block_sign_add(block_bytes, key_capsule)
+    signed = cf.dap_chain_block_sign_add_bytes(block_bytes, key_capsule)
     assert cf.dap_chain_block_sign_match_pkey(signed, key_bundle["pkey_bytes"]) is True
 
 
@@ -393,18 +393,18 @@ def test_dap_chain_block_sign_match_pkey_accepts_str(block_bytes, key_bundle):
     if not pkey_str:
         pytest.skip("pkey string not available")
     key_capsule = key_bundle["key_capsule"]
-    signed = cf.dap_chain_block_sign_add(block_bytes, key_capsule)
+    signed = cf.dap_chain_block_sign_add_bytes(block_bytes, key_capsule)
     assert cf.dap_chain_block_sign_match_pkey(signed, pkey_str) is True
 
 
 def test_dap_chain_block_sign_add_rejects_bad_key(block_bytes):
     with pytest.raises(TypeError):
-        cf.dap_chain_block_sign_add(block_bytes, object())
+        cf.dap_chain_block_sign_add_bytes(block_bytes, object())
 
 
 def test_dap_chain_block_sign_add_rejects_bad_block(key_bundle):
     with pytest.raises(ValueError):
-        cf.dap_chain_block_sign_add(b"\x00", key_bundle["key_capsule"])
+        cf.dap_chain_block_sign_add_bytes(b"\x00", key_bundle["key_capsule"])
 
 
 def test_dap_chain_block_get_sign_offset_returns_int(block_bytes):

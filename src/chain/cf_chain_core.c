@@ -28,6 +28,15 @@ void PyCellframeChain_dealloc(PyCellframeChain *self) {
     (void)self;
 }
 
+static void s_chain_datum_capsule_destructor(PyObject *capsule) {
+    dap_chain_datum_t *datum = (dap_chain_datum_t *)PyCapsule_GetPointer(capsule, "dap_chain_datum_t");
+    if (!datum) {
+        PyErr_Clear();
+        return;
+    }
+    DAP_DELETE(datum);
+}
+
 
 
 PyObject* PyCellframeChain_create(PyObject *self, PyObject *args) {
@@ -74,25 +83,25 @@ void* dap_chain_atom_create(size_t a_size) {
 }
 
 /**
- * @brief Get mempool by chain name
+ * @brief Get TX chain by chain name (for mempool operations)
  * @param a_chain_name Chain name
  * @return Pointer to chain or NULL if not found
  */
-
-dap_chain_t* dap_chain_mempool_by_chain_name(const char *a_chain_name) {
+dap_chain_t* dap_chain_tx_chain_by_name(const char *a_chain_name) {
     if (!a_chain_name) {
         return NULL;
     }
-    
+
     // Find network by chain name
     dap_chain_net_t *l_net = dap_chain_net_by_name(a_chain_name);
     if (!l_net) {
         return NULL;
     }
-    
+
     // Get default chain for transactions
     return dap_chain_net_get_default_chain_by_chain_type(l_net, CHAIN_TYPE_TX);
 }
+
 
 /**
  * @brief Get transaction from mempool by hash
@@ -194,13 +203,22 @@ PyObject* dap_chain_get_atom_by_hash_py(PyObject *a_self, PyObject *a_args) {
         Py_RETURN_NONE;
     }
     
+    bool l_should_free_atom = l_chain->callback_load_from_gdb != NULL;
+
     // Return atom as bytes
     PyObject *l_result = PyBytes_FromStringAndSize((const char*)l_atom, l_atom_size);
     if (!l_result) {
         log_it(L_ERROR, "Failed to create bytes object for atom");
+        if (l_should_free_atom) {
+            DAP_DELETE(l_atom);
+        }
         Py_RETURN_NONE;
     }
-    
+
+    if (l_should_free_atom) {
+        DAP_DELETE(l_atom);
+    }
+
     return l_result;
 }
 
@@ -424,10 +442,6 @@ PyObject* dap_chain_atom_save_py(PyObject *a_self, PyObject *a_args) {
         log_it(L_INFO, "Atom saved successfully to chain '%s'", l_chain->name);
     }
     
-    if (l_atom_map) {
-        DAP_DELETE(l_atom_map);
-    }
-    
     // Return dict with result code and atom hash
     PyObject *l_hash_bytes = PyBytes_FromStringAndSize((const char*)&l_new_atom_hash, sizeof(dap_hash_fast_t));
     if (!l_hash_bytes) {
@@ -566,23 +580,23 @@ PyObject* py_dap_chain_atom_get_data(PyObject *self, PyObject *args) {
 }
 
 /**
- * @brief Python wrapper for dap_chain_mempool_by_chain_name
+ * @brief Python wrapper for dap_chain_tx_chain_by_name
  */
 
-PyObject* py_dap_chain_mempool_by_chain_name(PyObject *self, PyObject *args) {
+PyObject* py_dap_chain_tx_chain_by_name(PyObject *self, PyObject *args) {
     (void)self;
     const char *chain_name;
-    
+
     if (!PyArg_ParseTuple(args, "s", &chain_name)) {
         return NULL;
     }
-    
-    dap_chain_t *chain = dap_chain_mempool_by_chain_name(chain_name);
+
+    dap_chain_t *chain = dap_chain_tx_chain_by_name(chain_name);
     if (!chain) {
         PyErr_SetString(PyExc_ValueError, "Chain not found");
         return NULL;
     }
-    
+
     return PyCapsule_New(chain, "dap_chain_t", NULL);
 }
 
@@ -610,7 +624,7 @@ PyObject* py_dap_chain_mempool_tx_get_by_hash(PyObject *self, PyObject *args) {
         Py_RETURN_NONE;
     }
     
-    return PyCapsule_New(datum, "dap_chain_datum_t", NULL);
+    return PyCapsule_New(datum, "dap_chain_datum_t", s_chain_datum_capsule_destructor);
 }
 
 /**
@@ -682,6 +696,16 @@ PyObject* dap_chain_delete_py(PyObject *a_self, PyObject *a_args) {
     
     const char *l_chain_name = l_chain->name ? l_chain->name : "unknown";
     log_it(L_INFO, "Deleting chain '%s'", l_chain_name);
+
+    size_t l_released = cf_chain_release_cell_captures(l_chain);
+    if (l_released) {
+        log_it(L_DEBUG, "Released %zu active cell capture(s) for chain '%s' before delete", l_released, l_chain_name);
+    }
+
+    size_t l_cb_removed = cf_chain_cleanup_callbacks(l_chain);
+    if (l_cb_removed) {
+        log_it(L_DEBUG, "Cleaned up %zu chain callback(s) for chain '%s' before delete", l_cb_removed, l_chain_name);
+    }
 
     dap_chain_pvt_t *l_chain_pvt = DAP_CHAIN_PVT(l_chain);
     if (l_chain_pvt) {

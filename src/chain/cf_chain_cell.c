@@ -3,6 +3,79 @@
 
 #define LOG_TAG "python_cellframe_chain"
 
+typedef struct cf_chain_cell_capture_ctx {
+    dap_chain_t *chain;
+    bool released;
+    struct cf_chain_cell_capture_ctx *next;
+} cf_chain_cell_capture_ctx_t;
+
+static pthread_mutex_t s_cell_capture_lock = PTHREAD_MUTEX_INITIALIZER;
+static cf_chain_cell_capture_ctx_t *s_cell_capture_ctxs = NULL;
+
+static void s_cell_capture_ctx_add(cf_chain_cell_capture_ctx_t *ctx) {
+    pthread_mutex_lock(&s_cell_capture_lock);
+    ctx->next = s_cell_capture_ctxs;
+    s_cell_capture_ctxs = ctx;
+    pthread_mutex_unlock(&s_cell_capture_lock);
+}
+
+static void s_cell_capture_ctx_remove(cf_chain_cell_capture_ctx_t *ctx) {
+    pthread_mutex_lock(&s_cell_capture_lock);
+    cf_chain_cell_capture_ctx_t *prev = NULL;
+    cf_chain_cell_capture_ctx_t *cur = s_cell_capture_ctxs;
+    while (cur) {
+        if (cur == ctx) {
+            if (prev) {
+                prev->next = cur->next;
+            } else {
+                s_cell_capture_ctxs = cur->next;
+            }
+            break;
+        }
+        prev = cur;
+        cur = cur->next;
+    }
+    pthread_mutex_unlock(&s_cell_capture_lock);
+}
+
+static size_t s_cell_capture_ctx_mark_released(dap_chain_t *chain) {
+    size_t count = 0;
+    pthread_mutex_lock(&s_cell_capture_lock);
+    for (cf_chain_cell_capture_ctx_t *cur = s_cell_capture_ctxs; cur; cur = cur->next) {
+        if (cur->chain == chain && !cur->released) {
+            cur->released = true;
+            count++;
+        }
+    }
+    pthread_mutex_unlock(&s_cell_capture_lock);
+    return count;
+}
+
+size_t cf_chain_release_cell_captures(dap_chain_t *a_chain) {
+    if (!a_chain) {
+        return 0;
+    }
+    size_t l_count = s_cell_capture_ctx_mark_released(a_chain);
+    for (size_t i = 0; i < l_count; ++i) {
+        dap_chain_cell_remit(a_chain);
+    }
+    return l_count;
+}
+
+static void s_chain_cell_capsule_destructor(PyObject *capsule) {
+    cf_chain_cell_capture_ctx_t *ctx = (cf_chain_cell_capture_ctx_t *)PyCapsule_GetContext(capsule);
+    if (!ctx) {
+        return;
+    }
+    if (!ctx->released) {
+        dap_chain_cell_remit(ctx->chain);
+        ctx->released = true;
+    }
+    s_cell_capture_ctx_remove(ctx);
+    DAP_DELETE(ctx);
+    PyCapsule_SetContext(capsule, NULL);
+}
+
 // =========================================
 // CHAIN CELL OPERATIONS
 // =========================================
@@ -157,10 +230,29 @@ PyObject* dap_chain_cell_capture_by_id_py(PyObject *a_self, PyObject *a_args) {
         dap_chain_cell_remit(l_chain);
         Py_RETURN_NONE;
     }
-    
-    PyObject *l_capsule = PyCapsule_New(l_cell, "dap_chain_cell_t", NULL);
-    if (!l_capsule) {
+
+    cf_chain_cell_capture_ctx_t *l_ctx = DAP_NEW_Z(cf_chain_cell_capture_ctx_t);
+    if (!l_ctx) {
         dap_chain_cell_remit(l_chain);
+        PyErr_SetString(PyExc_MemoryError, "Failed to allocate cell capture context");
+        return NULL;
+    }
+    l_ctx->chain = l_chain;
+    l_ctx->released = false;
+    s_cell_capture_ctx_add(l_ctx);
+    
+    PyObject *l_capsule = PyCapsule_New(l_cell, "dap_chain_cell_t", s_chain_cell_capsule_destructor);
+    if (!l_capsule) {
+        s_cell_capture_ctx_remove(l_ctx);
+        DAP_DELETE(l_ctx);
+        dap_chain_cell_remit(l_chain);
+        return NULL;
+    }
+    if (PyCapsule_SetContext(l_capsule, l_ctx) != 0) {
+        s_cell_capture_ctx_remove(l_ctx);
+        DAP_DELETE(l_ctx);
+        dap_chain_cell_remit(l_chain);
+        Py_DECREF(l_capsule);
         return NULL;
     }
     
@@ -171,24 +263,47 @@ PyObject* dap_chain_cell_capture_by_id_py(PyObject *a_self, PyObject *a_args) {
 
 PyObject* dap_chain_cell_remit_py(PyObject *a_self, PyObject *a_args) {
     (void)a_self;
-    PyObject *l_chain_capsule = NULL;
+    PyObject *l_obj = NULL;
     
-    if (!PyArg_ParseTuple(a_args, "O", &l_chain_capsule)) {
+    if (!PyArg_ParseTuple(a_args, "O", &l_obj)) {
         return NULL;
     }
     
-    if (!PyCapsule_CheckExact(l_chain_capsule)) {
-        PyErr_SetString(PyExc_TypeError, "Expected chain capsule");
+    if (!PyCapsule_CheckExact(l_obj)) {
+        PyErr_SetString(PyExc_TypeError, "Expected chain or cell capsule");
+        return NULL;
+    }
+
+    if (PyCapsule_IsValid(l_obj, "dap_chain_cell_t")) {
+        cf_chain_cell_capture_ctx_t *l_ctx = (cf_chain_cell_capture_ctx_t *)PyCapsule_GetContext(l_obj);
+        if (!l_ctx) {
+            Py_RETURN_NONE;
+        }
+        if (!l_ctx->released) {
+            dap_chain_cell_remit(l_ctx->chain);
+            l_ctx->released = true;
+        }
+        s_cell_capture_ctx_remove(l_ctx);
+        DAP_DELETE(l_ctx);
+        PyCapsule_SetContext(l_obj, NULL);
+        Py_RETURN_NONE;
+    }
+
+    if (!PyCapsule_IsValid(l_obj, "dap_chain_t")) {
+        PyErr_SetString(PyExc_TypeError, "Expected chain or cell capsule");
         return NULL;
     }
     
-    dap_chain_t *l_chain = (dap_chain_t*)PyCapsule_GetPointer(l_chain_capsule, "dap_chain_t");
+    dap_chain_t *l_chain = (dap_chain_t*)PyCapsule_GetPointer(l_obj, "dap_chain_t");
     if (!l_chain) {
         PyErr_SetString(PyExc_ValueError, "Invalid chain capsule");
         return NULL;
     }
     
-    dap_chain_cell_remit(l_chain);
+    size_t l_count = s_cell_capture_ctx_mark_released(l_chain);
+    for (size_t i = 0; i < l_count; ++i) {
+        dap_chain_cell_remit(l_chain);
+    }
     Py_RETURN_NONE;
 }
 
@@ -279,9 +394,6 @@ PyObject* dap_chain_cell_file_append_py(PyObject *a_self, PyObject *a_args) {
     
     char *l_atom_map = NULL;
     int l_result = dap_chain_cell_file_append(l_chain, l_cell_id, l_atom_bytes, (size_t)l_atom_size, &l_atom_map);
-    if (l_atom_map) {
-        DAP_DELETE(l_atom_map);
-    }
     
     return PyLong_FromLong(l_result);
 }

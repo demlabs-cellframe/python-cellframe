@@ -1,8 +1,107 @@
 #include "cf_chain_internal.h"
 #include "dap_chain_datum.h"
 #include "dap_chain_srv.h"
+#include "dap_proc_thread.h"
 
 #define LOG_TAG "python_cellframe_chain"
+
+typedef struct cf_chain_callback_entry {
+    dap_chain_t *chain;
+    cf_callback_type_t type;
+    python_chain_callback_ctx_t *ctx;
+    struct cf_chain_callback_entry *next;
+} cf_chain_callback_entry_t;
+
+static pthread_mutex_t s_chain_cb_lock = PTHREAD_MUTEX_INITIALIZER;
+static cf_chain_callback_entry_t *s_chain_cb_entries = NULL;
+
+static void s_chain_cb_track(dap_chain_t *chain, cf_callback_type_t type, python_chain_callback_ctx_t *ctx) {
+    if (!chain || !ctx) {
+        return;
+    }
+    cf_chain_callback_entry_t *entry = DAP_NEW_Z(cf_chain_callback_entry_t);
+    if (!entry) {
+        log_it(L_WARNING, "Failed to track chain callback context for cleanup");
+        return;
+    }
+    entry->chain = chain;
+    entry->type = type;
+    entry->ctx = ctx;
+    pthread_mutex_lock(&s_chain_cb_lock);
+    entry->next = s_chain_cb_entries;
+    s_chain_cb_entries = entry;
+    pthread_mutex_unlock(&s_chain_cb_lock);
+}
+
+static size_t s_chain_cb_snapshot(dap_chain_t *chain, cf_callback_type_t type, python_chain_callback_ctx_t ***out_items) {
+    if (!out_items || !chain) {
+        return 0;
+    }
+    *out_items = NULL;
+    pthread_mutex_lock(&s_chain_cb_lock);
+    size_t count = 0;
+    for (cf_chain_callback_entry_t *cur = s_chain_cb_entries; cur; cur = cur->next) {
+        if (cur->chain == chain && cur->type == type && cur->ctx) {
+            count++;
+        }
+    }
+    if (!count) {
+        pthread_mutex_unlock(&s_chain_cb_lock);
+        return 0;
+    }
+    python_chain_callback_ctx_t **items = DAP_NEW_Z_COUNT(python_chain_callback_ctx_t *, count);
+    if (!items) {
+        pthread_mutex_unlock(&s_chain_cb_lock);
+        log_it(L_WARNING, "Failed to allocate callback snapshot");
+        return 0;
+    }
+    size_t idx = 0;
+    for (cf_chain_callback_entry_t *cur = s_chain_cb_entries; cur && idx < count; cur = cur->next) {
+        if (cur->chain == chain && cur->type == type && cur->ctx) {
+            items[idx++] = cur->ctx;
+        }
+    }
+    pthread_mutex_unlock(&s_chain_cb_lock);
+    *out_items = items;
+    return idx;
+}
+
+size_t cf_chain_cleanup_callbacks(dap_chain_t *a_chain) {
+    if (!a_chain) {
+        return 0;
+    }
+
+    cf_chain_callback_entry_t *detached = NULL;
+    pthread_mutex_lock(&s_chain_cb_lock);
+    cf_chain_callback_entry_t *prev = NULL;
+    cf_chain_callback_entry_t *cur = s_chain_cb_entries;
+    while (cur) {
+        cf_chain_callback_entry_t *next = cur->next;
+        if (cur->chain == a_chain) {
+            if (prev) {
+                prev->next = next;
+            } else {
+                s_chain_cb_entries = next;
+            }
+            cur->next = detached;
+            detached = cur;
+        } else {
+            prev = cur;
+        }
+        cur = next;
+    }
+    pthread_mutex_unlock(&s_chain_cb_lock);
+
+    size_t removed = 0;
+    while (detached) {
+        cf_chain_callback_entry_t *next = detached->next;
+        cf_callbacks_registry_remove(detached->ctx);
+        DAP_DELETE(detached);
+        removed++;
+        detached = next;
+    }
+    return removed;
+}
 
 static void s_chain_atom_notify_callback_wrapper(void *a_arg, dap_chain_t *a_chain,
                                                   dap_chain_cell_id_t a_id,
@@ -17,6 +116,13 @@ static void s_chain_datum_removed_notify_callback_wrapper(void *a_arg, dap_chain
                                                           dap_chain_datum_t *a_datum);
 static void s_chain_timer_callback_wrapper(dap_chain_t *a_chain, dap_time_t a_time,
                                            void *a_arg, bool a_reverse);
+
+static void s_chain_callback_ctx_free(void *ctx) {
+    if (!ctx) {
+        return;
+    }
+    DAP_DELETE(ctx);
+}
 
 /**
  * @brief Add callback notify for chain (Python binding)
@@ -62,14 +168,17 @@ PyObject* dap_chain_add_callback_notify_py(PyObject *a_self, PyObject *a_args) {
     l_ctx->callback = l_callback;
     l_ctx->user_data = l_user_data;
 
-    Py_INCREF(l_callback);
-    Py_INCREF(l_user_data);
-
-    dap_chain_add_callback_notify(l_chain, s_chain_atom_notify_callback_wrapper, NULL, l_ctx);
-
     char l_callback_id[128];
     snprintf(l_callback_id, sizeof(l_callback_id), "chain_atom_notify_%s_%p", l_chain->name, l_callback);
-    cf_callbacks_registry_add(CF_CALLBACK_TYPE_CHAIN_ATOM_NOTIFY, l_callback, l_user_data, l_ctx, l_callback_id);
+    if (cf_callbacks_registry_add_ex(CF_CALLBACK_TYPE_CHAIN_ATOM_NOTIFY, l_callback, l_user_data,
+                                     l_ctx, l_callback_id, s_chain_callback_ctx_free) != 0) {
+        DAP_DELETE(l_ctx);
+        PyErr_SetString(PyExc_RuntimeError, "Failed to register chain atom notify callback");
+        return NULL;
+    }
+
+    dap_chain_add_callback_notify(l_chain, s_chain_atom_notify_callback_wrapper, NULL, l_ctx);
+    s_chain_cb_track(l_chain, CF_CALLBACK_TYPE_CHAIN_ATOM_NOTIFY, l_ctx);
 
     log_it(L_DEBUG, "Registered atom notify callback for chain '%s' (ID: %s)", l_chain->name, l_callback_id);
     Py_RETURN_NONE;
@@ -129,15 +238,17 @@ PyObject* dap_chain_atom_notify_py(PyObject *a_self, PyObject *a_args) {
     l_atom_size = (size_t)PyBytes_Size(l_atom_obj);
 
     if (!cf_chain_cell_is_configured(l_chain)) {
-        pthread_rwlock_rdlock(&l_chain->rwlock);
-        for (dap_list_t *it = l_chain->atom_notifiers; it; it = it->next) {
-            dap_chain_atom_notifier_t *l_notifier = (dap_chain_atom_notifier_t *)it->data;
-            if (l_notifier && l_notifier->callback) {
-                l_notifier->callback(l_notifier->arg, l_chain, l_cell_id, l_hash,
-                                     (void *)l_atom_bytes, l_atom_size, (dap_time_t)l_atom_time);
-            }
+        if (dap_proc_thread_get_count() > 0) {
+            dap_chain_atom_notify(l_chain, l_cell_id, l_hash, l_atom_bytes, l_atom_size, (dap_time_t)l_atom_time);
+            Py_RETURN_NONE;
         }
-        pthread_rwlock_unlock(&l_chain->rwlock);
+        python_chain_callback_ctx_t **l_items = NULL;
+        size_t l_count = s_chain_cb_snapshot(l_chain, CF_CALLBACK_TYPE_CHAIN_ATOM_NOTIFY, &l_items);
+        for (size_t i = 0; i < l_count; ++i) {
+            s_chain_atom_notify_callback_wrapper(l_items[i], l_chain, l_cell_id, l_hash,
+                                                 (void *)l_atom_bytes, l_atom_size, (dap_time_t)l_atom_time);
+        }
+        DAP_DELETE(l_items);
         Py_RETURN_NONE;
     }
     
@@ -239,15 +350,18 @@ PyObject* dap_chain_datum_notify_py(PyObject *a_self, PyObject *a_args) {
     dap_chain_srv_uid_t l_uid_struct = {.uint64 = l_uid};
 
     if (!cf_chain_cell_is_configured(l_chain)) {
-        pthread_rwlock_rdlock(&l_chain->rwlock);
-        for (dap_list_t *it = l_chain->datum_notifiers; it; it = it->next) {
-            cf_chain_datum_notifier_t *l_notifier = (cf_chain_datum_notifier_t *)it->data;
-            if (l_notifier && l_notifier->callback) {
-                l_notifier->callback(l_notifier->arg, l_hash, l_atom_hash, (void *)l_datum_bytes,
-                                     l_datum_size, l_ret_code, l_action, l_uid_struct);
-            }
+        if (dap_proc_thread_get_count() > 0) {
+            dap_chain_datum_notify(l_chain, l_cell_id, l_hash, l_atom_hash, l_datum_bytes, l_datum_size,
+                                   l_ret_code, l_action, l_uid_struct);
+            Py_RETURN_NONE;
         }
-        pthread_rwlock_unlock(&l_chain->rwlock);
+        python_chain_callback_ctx_t **l_items = NULL;
+        size_t l_count = s_chain_cb_snapshot(l_chain, CF_CALLBACK_TYPE_CHAIN_DATUM_INDEX, &l_items);
+        for (size_t i = 0; i < l_count; ++i) {
+            s_chain_datum_notify_callback_wrapper(l_items[i], l_hash, l_atom_hash, (void *)l_datum_bytes,
+                                                  l_datum_size, l_ret_code, l_action, l_uid_struct);
+        }
+        DAP_DELETE(l_items);
         Py_RETURN_NONE;
     }
     
@@ -310,14 +424,16 @@ PyObject* dap_chain_datum_removed_notify_py(PyObject *a_self, PyObject *a_args) 
     }
 
     if (!cf_chain_cell_is_configured(l_chain)) {
-        pthread_rwlock_rdlock(&l_chain->rwlock);
-        for (dap_list_t *it = l_chain->datum_removed_notifiers; it; it = it->next) {
-            cf_chain_datum_removed_notifier_t *l_notifier = (cf_chain_datum_removed_notifier_t *)it->data;
-            if (l_notifier && l_notifier->callback) {
-                l_notifier->callback(l_notifier->arg, l_hash, l_datum);
-            }
+        if (dap_proc_thread_get_count() > 0) {
+            dap_chain_datum_removed_notify(l_chain, l_cell_id, l_hash, l_datum);
+            Py_RETURN_NONE;
         }
-        pthread_rwlock_unlock(&l_chain->rwlock);
+        python_chain_callback_ctx_t **l_items = NULL;
+        size_t l_count = s_chain_cb_snapshot(l_chain, CF_CALLBACK_TYPE_CHAIN_DATUM_REMOVED, &l_items);
+        for (size_t i = 0; i < l_count; ++i) {
+            s_chain_datum_removed_notify_callback_wrapper(l_items[i], l_hash, l_datum);
+        }
+        DAP_DELETE(l_items);
         Py_RETURN_NONE;
     }
     
@@ -652,17 +768,19 @@ PyObject* dap_chain_add_callback_datum_index_notify_py(PyObject *a_self, PyObjec
     l_ctx->callback = l_callback;
     l_ctx->user_data = l_user_data;
     
-    // Increment reference counts (will be decremented on cleanup)
-    Py_INCREF(l_callback);
-    Py_INCREF(l_user_data);
+    // Register in cleanup registry (owns ctx)
+    char l_callback_id[128];
+    snprintf(l_callback_id, sizeof(l_callback_id), "chain_datum_notify_%s_%p", l_chain->name, l_callback);
+    if (cf_callbacks_registry_add_ex(CF_CALLBACK_TYPE_CHAIN_DATUM_INDEX, l_callback, l_user_data,
+                                     l_ctx, l_callback_id, s_chain_callback_ctx_free) != 0) {
+        DAP_DELETE(l_ctx);
+        PyErr_SetString(PyExc_RuntimeError, "Failed to register chain datum index callback");
+        return NULL;
+    }
     
     // Register C callback with SDK
     dap_chain_add_callback_datum_index_notify(l_chain, s_chain_datum_notify_callback_wrapper, NULL, l_ctx);
-    
-    // Register in cleanup registry
-    char l_callback_id[128];
-    snprintf(l_callback_id, sizeof(l_callback_id), "chain_datum_notify_%s_%p", l_chain->name, l_callback);
-    cf_callbacks_registry_add(CF_CALLBACK_TYPE_CHAIN_DATUM_INDEX, l_callback, l_user_data, l_ctx, l_callback_id);
+    s_chain_cb_track(l_chain, CF_CALLBACK_TYPE_CHAIN_DATUM_INDEX, l_ctx);
     
     log_it(L_DEBUG, "Registered datum index notify callback for chain '%s' (ID: %s)", l_chain->name, l_callback_id);
     
@@ -713,17 +831,19 @@ PyObject* dap_chain_add_callback_datum_removed_from_index_notify_py(PyObject *a_
     l_ctx->callback = l_callback;
     l_ctx->user_data = l_user_data;
     
-    // Increment reference counts (will be decremented on cleanup)
-    Py_INCREF(l_callback);
-    Py_INCREF(l_user_data);
+    // Register in cleanup registry (owns ctx)
+    char l_callback_id[128];
+    snprintf(l_callback_id, sizeof(l_callback_id), "chain_datum_removed_%s_%p", l_chain->name, l_callback);
+    if (cf_callbacks_registry_add_ex(CF_CALLBACK_TYPE_CHAIN_DATUM_REMOVED, l_callback, l_user_data,
+                                     l_ctx, l_callback_id, s_chain_callback_ctx_free) != 0) {
+        DAP_DELETE(l_ctx);
+        PyErr_SetString(PyExc_RuntimeError, "Failed to register chain datum removed callback");
+        return NULL;
+    }
     
     // Register C callback with SDK
     dap_chain_add_callback_datum_removed_from_index_notify(l_chain, s_chain_datum_removed_notify_callback_wrapper, NULL, l_ctx);
-    
-    // Register in cleanup registry
-    char l_callback_id[128];
-    snprintf(l_callback_id, sizeof(l_callback_id), "chain_datum_removed_%s_%p", l_chain->name, l_callback);
-    cf_callbacks_registry_add(CF_CALLBACK_TYPE_CHAIN_DATUM_REMOVED, l_callback, l_user_data, l_ctx, l_callback_id);
+    s_chain_cb_track(l_chain, CF_CALLBACK_TYPE_CHAIN_DATUM_REMOVED, l_ctx);
     
     log_it(L_DEBUG, "Registered datum removed notify callback for chain '%s' (ID: %s)", l_chain->name, l_callback_id);
     
@@ -775,17 +895,19 @@ PyObject* dap_chain_atom_confirmed_notify_add_py(PyObject *a_self, PyObject *a_a
     l_ctx->callback = l_callback;
     l_ctx->user_data = l_user_data;
     
-    // Increment reference counts (will be decremented on cleanup)
-    Py_INCREF(l_callback);
-    Py_INCREF(l_user_data);
+    // Register in cleanup registry (owns ctx)
+    char l_callback_id[128];
+    snprintf(l_callback_id, sizeof(l_callback_id), "chain_atom_confirmed_%s_%p", l_chain->name, l_callback);
+    if (cf_callbacks_registry_add_ex(CF_CALLBACK_TYPE_CHAIN_ATOM_CONFIRMED, l_callback, l_user_data,
+                                     l_ctx, l_callback_id, s_chain_callback_ctx_free) != 0) {
+        DAP_DELETE(l_ctx);
+        PyErr_SetString(PyExc_RuntimeError, "Failed to register chain atom confirmed callback");
+        return NULL;
+    }
     
     // Register C callback with SDK
     dap_chain_atom_confirmed_notify_add(l_chain, s_chain_atom_notify_callback_wrapper, l_ctx, l_conf_cnt);
-    
-    // Register in cleanup registry
-    char l_callback_id[128];
-    snprintf(l_callback_id, sizeof(l_callback_id), "chain_atom_confirmed_%s_%p", l_chain->name, l_callback);
-    cf_callbacks_registry_add(CF_CALLBACK_TYPE_CHAIN_ATOM_CONFIRMED, l_callback, l_user_data, l_ctx, l_callback_id);
+    s_chain_cb_track(l_chain, CF_CALLBACK_TYPE_CHAIN_ATOM_CONFIRMED, l_ctx);
     
     log_it(L_DEBUG, "Registered atom confirmed notify callback for chain '%s' (conf_cnt=%llu, ID: %s)", 
            l_chain->name, l_conf_cnt, l_callback_id);
@@ -837,24 +959,24 @@ PyObject* dap_chain_add_callback_timer_py(PyObject *a_self, PyObject *a_args) {
     l_ctx->callback = l_callback;
     l_ctx->user_data = l_user_data;
     
-    // Increment reference counts (will be decremented on cleanup)
-    Py_INCREF(l_callback);
-    Py_INCREF(l_user_data);
+    // Register in cleanup registry (owns ctx)
+    char l_callback_id[128];
+    snprintf(l_callback_id, sizeof(l_callback_id), "chain_timer_%s_%p", l_chain->name, l_callback);
+    if (cf_callbacks_registry_add_ex(CF_CALLBACK_TYPE_CHAIN_TIMER, l_callback, l_user_data,
+                                     l_ctx, l_callback_id, s_chain_callback_ctx_free) != 0) {
+        DAP_DELETE(l_ctx);
+        PyErr_SetString(PyExc_RuntimeError, "Failed to register chain timer callback");
+        return NULL;
+    }
     
     // Register C callback with SDK
     int l_result = dap_chain_add_callback_timer(l_chain, s_chain_timer_callback_wrapper, l_ctx);
     if (l_result != 0) {
-        Py_DECREF(l_callback);
-        Py_DECREF(l_user_data);
-        DAP_DELETE(l_ctx);
+        cf_callbacks_registry_remove(l_ctx);
         PyErr_Format(PyExc_RuntimeError, "Failed to register timer callback: %d", l_result);
         return NULL;
     }
-    
-    // Register in cleanup registry
-    char l_callback_id[128];
-    snprintf(l_callback_id, sizeof(l_callback_id), "chain_timer_%s_%p", l_chain->name, l_callback);
-    cf_callbacks_registry_add(CF_CALLBACK_TYPE_CHAIN_TIMER, l_callback, l_user_data, l_ctx, l_callback_id);
+    s_chain_cb_track(l_chain, CF_CALLBACK_TYPE_CHAIN_TIMER, l_ctx);
     
     log_it(L_DEBUG, "Registered timer callback for chain '%s' (ID: %s)", l_chain->name, l_callback_id);
     

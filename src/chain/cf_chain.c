@@ -20,80 +20,10 @@ int cellframe_chain_init(PyObject *module) {
          "Get atom data from atom pointer"},
 
         // Mempool operations
-        {"dap_chain_mempool_by_chain_name", py_dap_chain_mempool_by_chain_name, METH_VARARGS,
-         "Get mempool by chain name"},
+        {"dap_chain_tx_chain_by_name", py_dap_chain_tx_chain_by_name, METH_VARARGS,
+         "Get tx chain by chain name (for mempool operations)"},
         {"dap_chain_mempool_tx_get_by_hash", py_dap_chain_mempool_tx_get_by_hash, METH_VARARGS,
          "Get transaction from mempool by hash"},
-
-        // Chain atom operations
-        {"chain_get_atom_by_hash", (PyCFunction)dap_chain_get_atom_by_hash_py, METH_VARARGS,
-         "Get atom from chain by hash"},
-        {"chain_get_atom_last", (PyCFunction)dap_chain_get_atom_last_py, METH_VARARGS,
-         "Get last atom hash, number and timestamp"},
-
-        // Chain management operations
-        {"chain_load_all", (PyCFunction)dap_chain_load_all_py, METH_VARARGS,
-         "Load all chain data from storage"},
-        {"chain_has_file_store", (PyCFunction)dap_chain_has_file_store_py, METH_VARARGS,
-         "Check if chain has file store"},
-        {"chain_purge", (PyCFunction)dap_chain_purge_py, METH_VARARGS,
-         "Purge chain data"},
-        {"chain_atom_save", (PyCFunction)dap_chain_atom_save_py, METH_VARARGS,
-         "Save atom to chain"},
-        {"chain_add_callback_notify", (PyCFunction)dap_chain_add_callback_notify_py, METH_VARARGS,
-         "Add callback notify for chain"},
-
-        // Block operations
-        {"chain_block_new", py_dap_chain_block_new, METH_VARARGS,
-         "Create new block (capsule-based)"},
-        {"chain_block_datum_add", py_dap_chain_block_datum_add, METH_VARARGS,
-         "Add datum to block (capsule-based). Returns {'block': capsule, 'size': int}"},
-        {"chain_block_get_datums", py_dap_chain_block_get_datums, METH_VARARGS,
-         "Get datums from block (capsule-based)"},
-        {"chain_block_meta_add", py_dap_chain_block_meta_add, METH_VARARGS,
-         "Add metadata to block (capsule-based). Returns {'block': capsule, 'size': int}"},
-        {"chain_block_sign_add", py_dap_chain_block_sign_add, METH_VARARGS,
-         "Add signature to block (capsule-based). Returns {'block': capsule, 'size': int}"},
-
-        // Chain lifecycle operations
-        {"chain_create", (PyCFunction)dap_chain_create_py, METH_VARARGS,
-         "Create a new chain"},
-        {"chain_delete", (PyCFunction)dap_chain_delete_py, METH_VARARGS,
-         "Delete a chain"},
-
-        // Chain configuration
-        {"chain_set_cs_type", (PyCFunction)dap_chain_set_cs_type_py, METH_VARARGS,
-         "Set consensus type for chain"},
-        {"chain_set_cs_name", (PyCFunction)dap_chain_set_cs_name_py, METH_VARARGS,
-         "Set consensus name for chain"},
-
-        // Chain advanced operations
-        {"chain_atom_add_from_threshold", (PyCFunction)dap_chain_atom_add_from_threshold_py, METH_VARARGS,
-         "Add atom from threshold to chain"},
-
-        // Chain lookup and utility
-        {"chain_find_by_id", (PyCFunction)dap_chain_find_by_id_py, METH_VARARGS,
-         "Find chain by network ID and chain ID"},
-        {"chain_datum_type_supported_by_chain", (PyCFunction)dap_chain_datum_type_supported_by_chain_py, METH_VARARGS,
-         "Check if datum type is supported by chain"},
-
-        // Chain generation management
-        {"chain_generation_banned", (PyCFunction)dap_chain_generation_banned_py, METH_VARARGS,
-         "Check if chain generation is banned"},
-        {"chain_generation_ban", (PyCFunction)dap_chain_generation_ban_py, METH_VARARGS,
-         "Ban a chain generation"},
-
-        // Chain extended operations
-        {"chain_get_atom_last_hash_num_ts", (PyCFunction)dap_chain_get_atom_last_hash_num_ts_py, METH_VARARGS,
-         "Get last atom hash, number and timestamp with full details"},
-        {"chain_add_callback_datum_index_notify", (PyCFunction)dap_chain_add_callback_datum_index_notify_py, METH_VARARGS,
-         "Add callback for datum index notifications"},
-        {"chain_add_callback_datum_removed_from_index_notify", (PyCFunction)dap_chain_add_callback_datum_removed_from_index_notify_py, METH_VARARGS,
-         "Add callback for datum removed from index notifications"},
-        {"chain_atom_confirmed_notify_add", (PyCFunction)dap_chain_atom_confirmed_notify_add_py, METH_VARARGS,
-         "Add callback for atom confirmed notifications"},
-        {"chain_add_callback_timer", (PyCFunction)dap_chain_add_callback_timer_py, METH_VARARGS,
-         "Add timer callback for blockchain"},
 
         // Chain SDK core operations
         {"dap_chain_init", (PyCFunction)dap_chain_init_py, METH_NOARGS,
@@ -129,9 +59,11 @@ int cellframe_chain_init(PyObject *module) {
         {"dap_chain_datum_removed_notify", (PyCFunction)dap_chain_datum_removed_notify_py, METH_VARARGS,
          "Notify datum removal from index"},
 
-        // Chain SDK aliases for legacy chain_* names
+        // Chain SDK operations (canonical names)
         {"dap_chain_get_atom_by_hash", (PyCFunction)dap_chain_get_atom_by_hash_py, METH_VARARGS,
          "Get atom from chain by hash"},
+        {"dap_chain_get_atom_last", (PyCFunction)dap_chain_get_atom_last_py, METH_VARARGS,
+         "Get last atom hash, number and timestamp"},
         {"dap_chain_get_atom_last_hash_num_ts", (PyCFunction)dap_chain_get_atom_last_hash_num_ts_py, METH_VARARGS,
          "Get last atom hash, number and timestamp"},
         {"dap_chain_load_all", (PyCFunction)dap_chain_load_all_py, METH_VARARGS,
@@ -170,6 +102,18 @@ int cellframe_chain_init(PyObject *module) {
          "Add callback for atom confirmed notifications"},
         {"dap_chain_add_callback_timer", (PyCFunction)dap_chain_add_callback_timer_py, METH_VARARGS,
          "Add timer callback for blockchain"},
+
+        // Block operations (capsule-based)
+        {"dap_chain_block_new", py_dap_chain_block_new, METH_VARARGS,
+         "Create new block (capsule-based)"},
+        {"dap_chain_block_datum_add", py_dap_chain_block_datum_add, METH_VARARGS,
+         "Add datum to block (capsule-based). Returns {'block': capsule, 'size': int}"},
+        {"dap_chain_block_get_datums", py_dap_chain_block_get_datums, METH_VARARGS,
+         "Get datums from block (capsule-based)"},
+        {"dap_chain_block_meta_add", py_dap_chain_block_meta_add, METH_VARARGS,
+         "Add metadata to block (capsule-based). Returns {'block': capsule, 'size': int}"},
+        {"dap_chain_block_sign_add", py_dap_chain_block_sign_add, METH_VARARGS,
+         "Add signature to block (capsule-based). Returns {'block': capsule, 'size': int}"},
 
         // Chain cell operations
         {"dap_chain_cell_init", (PyCFunction)dap_chain_cell_init_py, METH_NOARGS,

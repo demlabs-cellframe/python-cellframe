@@ -21,6 +21,10 @@ static cf_callbacks_registry_t s_registry = {
 
 static bool s_registry_initialized = false;
 
+int cf_callbacks_registry_add_ex(cf_callback_type_t type, PyObject *py_callback, PyObject *py_arg,
+                                  void *sdk_context, const char *identifier,
+                                  cf_sdk_context_free_t sdk_context_free);
+
 /**
  * @brief Initialize the global callback registry
  */
@@ -46,6 +50,16 @@ int cf_callbacks_registry_init(void)
 int cf_callbacks_registry_add(cf_callback_type_t type, PyObject *py_callback, PyObject *py_arg,
                                void *sdk_context, const char *identifier)
 {
+    return cf_callbacks_registry_add_ex(type, py_callback, py_arg, sdk_context, identifier, NULL);
+}
+
+/**
+ * @brief Register a Python callback with optional SDK context cleanup
+ */
+int cf_callbacks_registry_add_ex(cf_callback_type_t type, PyObject *py_callback, PyObject *py_arg,
+                                  void *sdk_context, const char *identifier,
+                                  cf_sdk_context_free_t sdk_context_free)
+{
     if (!s_registry_initialized) {
         log_it(L_ERROR, "Callback registry not initialized");
         return -1;
@@ -67,6 +81,7 @@ int cf_callbacks_registry_add(cf_callback_type_t type, PyObject *py_callback, Py
     entry->py_callback = py_callback;
     entry->py_arg = py_arg;
     entry->sdk_context = sdk_context;
+    entry->sdk_context_free = sdk_context_free;
     entry->identifier = identifier ? strdup(identifier) : NULL;
 
     // Increment ref counts for Python objects
@@ -100,6 +115,11 @@ static void s_callback_entry_free(cf_callback_entry_t *entry)
     }
     if (entry->py_arg) {
         Py_DECREF(entry->py_arg);
+    }
+
+    if (entry->sdk_context_free && entry->sdk_context) {
+        entry->sdk_context_free(entry->sdk_context);
+        entry->sdk_context = NULL;
     }
 
     // Free identifier string

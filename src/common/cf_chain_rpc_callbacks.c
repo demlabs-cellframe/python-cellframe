@@ -9,6 +9,31 @@ static python_callback_ctx_t *s_rpc_service_ctx = NULL;
 static python_callback_ctx_t *s_rpc_wallet_ctx = NULL;
 static python_callback_ctx_t *s_rpc_tx_notify_ctx = NULL;
 
+static int s_parse_custom_capsule(PyObject *obj, void **out) {
+    if (!out) {
+        PyErr_SetString(PyExc_RuntimeError, "custom_data output pointer is NULL");
+        return -1;
+    }
+    *out = NULL;
+    if (!obj || obj == Py_None) {
+        return 0;
+    }
+    if (!PyCapsule_CheckExact(obj)) {
+        PyErr_SetString(PyExc_TypeError, "custom_data must be a capsule or None");
+        return -1;
+    }
+    const char *name = PyCapsule_GetName(obj);
+    if (PyErr_Occurred()) {
+        return -1;
+    }
+    void *ptr = PyCapsule_GetPointer(obj, name ? name : NULL);
+    if (!ptr) {
+        return -1;
+    }
+    *out = ptr;
+    return 0;
+}
+
 static int s_rpc_consensus_wrapper(dap_chain_rpc_consensus_params_t *params, void *user_data) {
     python_callback_ctx_t *l_ctx = (python_callback_ctx_t *)user_data;
     if (!params || !l_ctx || !l_ctx->callback) {
@@ -299,12 +324,8 @@ PyObject *dap_chain_rpc_callbacks_notify_consensus_py(PyObject *a_self, PyObject
     }
 
     void *l_custom = NULL;
-    if (l_custom_obj != Py_None) {
-        if (!PyCapsule_CheckExact(l_custom_obj)) {
-            PyErr_SetString(PyExc_TypeError, "custom_data must be a capsule or None");
-            return NULL;
-        }
-        l_custom = PyCapsule_GetPointer(l_custom_obj, NULL);
+    if (s_parse_custom_capsule(l_custom_obj, &l_custom) != 0) {
+        return NULL;
     }
 
     dap_chain_rpc_consensus_params_t l_params = {.chain = l_chain, .net = l_net, .custom_data = l_custom};
@@ -338,12 +359,8 @@ PyObject *dap_chain_rpc_callbacks_notify_service_py(PyObject *a_self, PyObject *
     }
 
     void *l_custom = NULL;
-    if (l_custom_obj != Py_None) {
-        if (!PyCapsule_CheckExact(l_custom_obj)) {
-            PyErr_SetString(PyExc_TypeError, "custom_data must be a capsule or None");
-            return NULL;
-        }
-        l_custom = PyCapsule_GetPointer(l_custom_obj, NULL);
+    if (s_parse_custom_capsule(l_custom_obj, &l_custom) != 0) {
+        return NULL;
     }
 
     dap_chain_rpc_service_params_t l_params = {
@@ -384,12 +401,8 @@ PyObject *dap_chain_rpc_callbacks_notify_storage_py(PyObject *a_self, PyObject *
     }
 
     void *l_custom = NULL;
-    if (l_custom_obj != Py_None) {
-        if (!PyCapsule_CheckExact(l_custom_obj)) {
-            PyErr_SetString(PyExc_TypeError, "custom_data must be a capsule or None");
-            return NULL;
-        }
-        l_custom = PyCapsule_GetPointer(l_custom_obj, NULL);
+    if (s_parse_custom_capsule(l_custom_obj, &l_custom) != 0) {
+        return NULL;
     }
 
     dap_chain_rpc_storage_params_t l_params = {
@@ -439,12 +452,8 @@ PyObject *dap_chain_rpc_callbacks_notify_tx_py(PyObject *a_self, PyObject *a_arg
     }
 
     void *l_custom = NULL;
-    if (l_custom_obj != Py_None) {
-        if (!PyCapsule_CheckExact(l_custom_obj)) {
-            PyErr_SetString(PyExc_TypeError, "custom_data must be a capsule or None");
-            return NULL;
-        }
-        l_custom = PyCapsule_GetPointer(l_custom_obj, NULL);
+    if (s_parse_custom_capsule(l_custom_obj, &l_custom) != 0) {
+        return NULL;
     }
 
     dap_chain_rpc_tx_notify_params_t l_params = {
@@ -482,12 +491,8 @@ PyObject *dap_chain_rpc_callbacks_notify_wallet_py(PyObject *a_self, PyObject *a
     }
 
     void *l_custom = NULL;
-    if (l_custom_obj != Py_None) {
-        if (!PyCapsule_CheckExact(l_custom_obj)) {
-            PyErr_SetString(PyExc_TypeError, "custom_data must be a capsule or None");
-            return NULL;
-        }
-        l_custom = PyCapsule_GetPointer(l_custom_obj, NULL);
+    if (s_parse_custom_capsule(l_custom_obj, &l_custom) != 0) {
+        return NULL;
     }
 
     dap_chain_rpc_wallet_params_t l_params = {

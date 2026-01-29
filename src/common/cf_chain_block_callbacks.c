@@ -1,9 +1,77 @@
 #include "cf_common_utils.h"
 #include "dap_chain_block_callbacks.h"
+#include <pthread.h>
 
 #define LOG_TAG "python_cellframe_common"
 
 static python_callback_ctx_t *s_block_tax_ctx = NULL;
+
+typedef struct cf_tax_info_node {
+    dap_chain_sovereign_tax_info_t *info;
+    struct cf_tax_info_node *next;
+} cf_tax_info_node_t;
+
+static pthread_mutex_t s_tax_info_lock = PTHREAD_MUTEX_INITIALIZER;
+static cf_tax_info_node_t *s_tax_info_head = NULL;
+
+static void s_tax_info_track(dap_chain_sovereign_tax_info_t *info) {
+    if (!info) {
+        return;
+    }
+    cf_tax_info_node_t *node = DAP_NEW_Z(cf_tax_info_node_t);
+    if (!node) {
+        log_it(L_WARNING, "Failed to track sovereign tax info");
+        return;
+    }
+    node->info = info;
+    pthread_mutex_lock(&s_tax_info_lock);
+    node->next = s_tax_info_head;
+    s_tax_info_head = node;
+    pthread_mutex_unlock(&s_tax_info_lock);
+}
+
+static bool s_tax_info_untrack_and_free(dap_chain_sovereign_tax_info_t *info) {
+    if (!info) {
+        return false;
+    }
+    cf_tax_info_node_t *found = NULL;
+    pthread_mutex_lock(&s_tax_info_lock);
+    cf_tax_info_node_t *prev = NULL;
+    cf_tax_info_node_t *cur = s_tax_info_head;
+    while (cur) {
+        if (cur->info == info) {
+            if (prev) {
+                prev->next = cur->next;
+            } else {
+                s_tax_info_head = cur->next;
+            }
+            found = cur;
+            break;
+        }
+        prev = cur;
+        cur = cur->next;
+    }
+    pthread_mutex_unlock(&s_tax_info_lock);
+    if (found) {
+        DAP_DELETE(found->info);
+        DAP_DELETE(found);
+        return true;
+    }
+    return false;
+}
+
+static void s_tax_info_cleanup_all(void) {
+    pthread_mutex_lock(&s_tax_info_lock);
+    cf_tax_info_node_t *cur = s_tax_info_head;
+    s_tax_info_head = NULL;
+    pthread_mutex_unlock(&s_tax_info_lock);
+    while (cur) {
+        cf_tax_info_node_t *next = cur->next;
+        DAP_DELETE(cur->info);
+        DAP_DELETE(cur);
+        cur = next;
+    }
+}
 
 static dap_chain_sovereign_tax_info_t *s_block_sovereign_tax_wrapper(dap_chain_net_id_t a_net_id,
                                                                      dap_hash_fast_t *a_pkey_hash) {
@@ -122,6 +190,7 @@ static dap_chain_sovereign_tax_info_t *s_block_sovereign_tax_wrapper(dap_chain_n
         l_tax_info = NULL;
     } else {
         l_tax_info->has_tax = true;
+        s_tax_info_track(l_tax_info);
     }
 
     if (l_addr_new_ref) {
@@ -153,6 +222,7 @@ PyObject *dap_chain_block_callbacks_deinit_py(PyObject *a_self, PyObject *a_args
     (void)a_self;
     (void)a_args;
     dap_chain_block_callbacks_deinit();
+    s_tax_info_cleanup_all();
     cf_common_clear_ctx(&s_block_tax_ctx);
     Py_RETURN_NONE;
 }
@@ -214,7 +284,7 @@ PyObject *dap_chain_block_callbacks_get_sovereign_tax_py(PyObject *a_self, PyObj
 
     PyObject *l_dict = PyDict_New();
     if (!l_dict) {
-        DAP_DELETE(l_info);
+        s_tax_info_untrack_and_free(l_info);
         return NULL;
     }
 
@@ -232,7 +302,7 @@ PyObject *dap_chain_block_callbacks_get_sovereign_tax_py(PyObject *a_self, PyObj
             DAP_DELETE(l_addr_copy);
         }
         Py_DECREF(l_dict);
-        DAP_DELETE(l_info);
+        s_tax_info_untrack_and_free(l_info);
         return NULL;
     }
 
@@ -242,7 +312,7 @@ PyObject *dap_chain_block_callbacks_get_sovereign_tax_py(PyObject *a_self, PyObj
         Py_DECREF(l_has_tax);
         Py_DECREF(l_tax_bytes);
         Py_DECREF(l_dict);
-        DAP_DELETE(l_info);
+        s_tax_info_untrack_and_free(l_info);
         return NULL;
     }
 
@@ -254,7 +324,7 @@ PyObject *dap_chain_block_callbacks_get_sovereign_tax_py(PyObject *a_self, PyObj
     Py_DECREF(l_addr_capsule);
     Py_DECREF(l_tax_bytes);
 
-    DAP_DELETE(l_info);
+    s_tax_info_untrack_and_free(l_info);
     return l_dict;
 }
 
