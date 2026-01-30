@@ -15,7 +15,7 @@ stages:
   - deploy
 
 .python_cellframe_base:
-  image: demlabs/debian/amd64:qt5
+  image: demlabs/debian/amd64:qt6
   tags:
     - ci-polygon
   before_script:
