@@ -793,13 +793,36 @@ PyObject *dap_chain_mempool_datum_extract_py(PyObject *self, PyObject *args)
                                               "first argument.");
         return NULL;
     }
-    void *l_bytes = PyBytes_AsString(obj_bytes);
-    size_t l_bytes_size = PyBytes_Size(obj_bytes);
-    
-    dap_chain_datum_t * l_datum =  DAP_NEW_SIZE(dap_chain_datum_t, l_bytes_size);
+    char *l_bytes = PyBytes_AsString(obj_bytes);
+    Py_ssize_t l_bytes_size_signed = PyBytes_Size(obj_bytes);
+    if (l_bytes_size_signed < 0)
+        return NULL;
+    size_t l_bytes_size = (size_t)l_bytes_size_signed;
+    size_t l_header_size = sizeof(((dap_chain_datum_t *)0)->header);
+    if (!l_bytes || l_bytes_size < l_header_size) {
+        log_it(L_WARNING, "datumExtract: invalid datum bytes size %zu (min %zu)", l_bytes_size, l_header_size);
+        Py_RETURN_NONE;
+    }
+
+    dap_chain_datum_t *l_datum = DAP_NEW_SIZE(dap_chain_datum_t, l_bytes_size);
+    if (!l_datum) {
+        log_it(L_WARNING, "datumExtract: failed to allocate %zu bytes", l_bytes_size);
+        Py_RETURN_NONE;
+    }
     memcpy(l_datum, l_bytes, l_bytes_size);
 
+    if (l_datum->header.data_size > l_bytes_size - l_header_size) {
+        log_it(L_WARNING, "datumExtract: truncated datum bytes size %zu < header+data %zu",
+               l_bytes_size, l_header_size + (size_t)l_datum->header.data_size);
+        DAP_DELETE(l_datum);
+        Py_RETURN_NONE;
+    }
+
     PyDapChainDatumObject *obj_datum = PyObject_New(PyDapChainDatumObject, &DapChainDatumObjectType);
+    if (!obj_datum) {
+        DAP_DELETE(l_datum);
+        return NULL;
+    }
     obj_datum->datum = l_datum;
     obj_datum->origin = true;
     
