@@ -121,6 +121,8 @@ void sigfunc(int sig);
 #include "wrapping_dap_chain_net_srv_stake_pos_delegate.h"
 #include "wrapping_dap_chain_net_srv_xchange.h"
 #include "wrapping_dap_chain_net_srv_xchange_price.h"
+#include "wrapping_dap_chain_net_srv_dex.h"
+#include "wrapping_dap_chain_net_srv_dex_order.h"
 #include "wrapping_dap_chain_net_srv_vote.h"
 #include "wrapping_dap_chain_net_srv_vote_info.h"
 #include "wrapping_dap_chain_net_srv_stake_ext.h"
