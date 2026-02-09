@@ -31,7 +31,7 @@ static PyMethodDef DapChainLedgerMethods[] = {
         {"tokenAuthSignsValid", (PyCFunction)dap_chain_ledger_token_auth_signs_valid_py, METH_VARARGS, ""},
         {"tokenAuthPkeysHashes", (PyCFunction)dap_chain_ledger_token_auth_pkeys_hashes_py, METH_VARARGS, ""},
         {"txGetMainTickerAndLedgerRc", (PyCFunction)dap_chain_ledger_tx_get_main_ticker_py, METH_VARARGS, ""},
-        {"addressHistoryPage", (PyCFunction)dap_chain_ledger_address_history_page_py, METH_VARARGS | METH_KEYWORDS, ""},
+        {"addressHistoryPage", (PyCFunction)(void(*)(void))dap_chain_ledger_address_history_page_py, METH_VARARGS | METH_KEYWORDS, ""},
         {"txGetTokenTickerByHash", (PyCFunction)dap_chain_ledger_tx_get_token_ticker_by_hash_py, METH_VARARGS, ""},
         {"addrGetTokenTickerAll", (PyCFunction)dap_chain_ledger_addr_get_token_ticker_all_py, METH_VARARGS, ""},
         //{"txAddCheck", (PyCFunction)dap_chain_ledger_tx_add_check_py, METH_VARARGS, ""},
