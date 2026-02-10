@@ -340,9 +340,9 @@ PyObject *wrapping_dap_chain_net_srv_dex_get_pairs(PyObject *self, PyObject *arg
         if (!l_existing) {
             pair_entry_t *l_new = DAP_NEW_Z(pair_entry_t);
             if (l_new) {
-                strncpy(l_new->key, l_key, sizeof(l_new->key) - 1);
-                strncpy(l_new->base, l_base, DAP_CHAIN_TICKER_SIZE_MAX - 1);
-                strncpy(l_new->quote, l_quote, DAP_CHAIN_TICKER_SIZE_MAX - 1);
+                dap_strncpy(l_new->key, l_key, sizeof(l_new->key) - 1);
+                dap_strncpy(l_new->base, l_base, DAP_CHAIN_TICKER_SIZE_MAX - 1);
+                dap_strncpy(l_new->quote, l_quote, DAP_CHAIN_TICKER_SIZE_MAX - 1);
                 HASH_ADD_STR(l_pairs_set, key, l_new);
             }
         }
