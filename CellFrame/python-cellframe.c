@@ -637,6 +637,8 @@ PyMODINIT_FUNC PyInit_libCellFrame(void)
         PyType_Ready( &PyDapStreamChChainValidatorTestObjectType ) < 0 ||
         PyType_Ready( &DapChainNetSrvXchangeObjectType ) < 0 ||
         PyType_Ready( &PyDapChainNetSrvXchangeOrderObjectType ) < 0 ||
+        PyType_Ready( &DapChainNetSrvDexObjectType ) < 0 ||
+        PyType_Ready( &PyDapChainNetSrvDexOrderObjectType ) < 0 ||
         PyType_Ready( &PyDapChainNetSrvVoteObjectType ) < 0 ||
         PyType_Ready( &DapChainNetSrvVoteInfoObjectType ) < 0 ||
         PyType_Ready( &DapChainNetSrvVoteInfoOptionObjectType ) < 0 ||
@@ -722,6 +724,8 @@ PyMODINIT_FUNC PyInit_libCellFrame(void)
     PyObject *servicesModule = PyModule_Create(&CellframeServicesPythonModule);
     PyModule_AddObject(servicesModule, "StakePosDelegate", (PyObject*)&PyDapChainNetSrvStakePosDelegateObjectType);
     PyModule_AddObject(servicesModule, "Xchange", (PyObject*)&DapChainNetSrvXchangeObjectType);
+    PyModule_AddObject(servicesModule, "Dex", (PyObject*)&DapChainNetSrvDexObjectType);
+    PyModule_AddObject(servicesModule, "DexOrder", (PyObject*)&PyDapChainNetSrvDexOrderObjectType);
     PyModule_AddObject(servicesModule, "StreamChChainValidatorTest", (PyObject*)&PyDapStreamChChainValidatorTestObjectType);
     PyModule_AddObject(servicesModule, "Vote", (PyObject*)&PyDapChainNetSrvVoteObjectType);
     PyModule_AddObject(servicesModule, "StakeExt", (PyObject*)&PyDapChainNetSrvStakeExtObjectType);
