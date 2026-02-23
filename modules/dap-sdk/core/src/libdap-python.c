@@ -65,18 +65,19 @@ PyObject *dap_set_log_level(PyObject *self, PyObject *args){
 }
 
 PyObject* dap_log_it(PyObject* self, PyObject* args){
-    short int log_level;
+    int log_level;
     const char* string_output;
     const char* string_name_plugin = NULL;
-    if (!PyArg_ParseTuple(args, "hs|s", &log_level, &string_output, &string_name_plugin))
+    if (!PyArg_ParseTuple(args, "is|s", &log_level, &string_output, &string_name_plugin))
         return NULL;
     if (log_level < 0 || log_level > 10 ) {
         return PyLong_FromLong(-1);
     } else {
+        enum dap_log_level ll = (enum dap_log_level)log_level;
         if (string_name_plugin){
-            log_it(log_level, "[plugin: %s] %s", string_name_plugin, string_output);
+            log_it(ll, "[plugin: %s] %s", string_name_plugin, string_output);
         } else {
-            log_it(log_level, "%s", string_output);
+            log_it(ll, "%s", string_output);
         }
         return PyLong_FromLong(0);
     }

@@ -31,7 +31,7 @@ static PyMethodDef DapChainLedgerMethods[] = {
         {"tokenAuthSignsValid", (PyCFunction)dap_chain_ledger_token_auth_signs_valid_py, METH_VARARGS, ""},
         {"tokenAuthPkeysHashes", (PyCFunction)dap_chain_ledger_token_auth_pkeys_hashes_py, METH_VARARGS, ""},
         {"txGetMainTickerAndLedgerRc", (PyCFunction)dap_chain_ledger_tx_get_main_ticker_py, METH_VARARGS, ""},
-        {"addressHistoryPage", (PyCFunction)dap_chain_ledger_address_history_page_py, METH_VARARGS | METH_KEYWORDS, ""},
+        {"addressHistoryPage", (PyCFunction)(void(*)(void))dap_chain_ledger_address_history_page_py, METH_VARARGS | METH_KEYWORDS, ""},
         {"txGetTokenTickerByHash", (PyCFunction)dap_chain_ledger_tx_get_token_ticker_by_hash_py, METH_VARARGS, ""},
         {"addrGetTokenTickerAll", (PyCFunction)dap_chain_ledger_addr_get_token_ticker_all_py, METH_VARARGS, ""},
         //{"txAddCheck", (PyCFunction)dap_chain_ledger_tx_add_check_py, METH_VARARGS, ""},
@@ -576,7 +576,7 @@ PyObject *dap_chain_ledger_tx_find_by_addr_py(PyObject *self, PyObject *args){
 
 static char*** ListStringToArrayStringFormatChar(PyObject *list){
     Py_ssize_t size = PyList_Size(list);
-    char ***data = calloc(sizeof(char**), (size_t)size);
+    char ***data = calloc((size_t)size, sizeof(char**));
     if(!data) {
         log_it(L_CRITICAL, "Memory allocation error");
         return NULL;
@@ -584,7 +584,7 @@ static char*** ListStringToArrayStringFormatChar(PyObject *list){
     for (Py_ssize_t i = 0; i < size; i++){
         PyObject *obj_two = PyList_GetItem(list,i);
         Py_ssize_t size_seentenses = PyList_Size(obj_two);
-        char **sentences = calloc(sizeof(char**), (size_t)size_seentenses);
+        char **sentences = calloc((size_t)size_seentenses, sizeof(char*));
         if(!sentences) {
         log_it(L_CRITICAL, "Memory allocation error");
             DAP_DELETE(data);
@@ -602,7 +602,7 @@ static char*** ListStringToArrayStringFormatChar(PyObject *list){
 
 static size_t *ListIntToSizeT(PyObject *list){
     Py_ssize_t size = PyList_Size(list);
-    size_t *res_size_t = calloc(sizeof(size_t), (size_t)size);
+    size_t *res_size_t = calloc((size_t)size, sizeof(size_t));
     if(!res_size_t) {
         log_it(L_CRITICAL, "Memory allocation error");
         return NULL;
@@ -693,7 +693,9 @@ static bool s_ledger_tx_proc_notifier(void *a_arg)
 }
 
 static void pvt_wrapping_dap_chain_ledger_tx_add_notify(void *a_arg, dap_ledger_t *a_ledger, dap_chain_datum_tx_t *a_tx, 
-                                                        dap_hash_fast_t *a_tx_hash, dap_chan_ledger_notify_opcodes_t a_opcode){
+                                                        dap_hash_fast_t *a_tx_hash, dap_chan_ledger_notify_opcodes_t a_opcode,
+                                                        dap_hash_fast_t *a_atom_hash){
+    UNUSED(a_atom_hash);
     if (!a_arg)
         return;
         
