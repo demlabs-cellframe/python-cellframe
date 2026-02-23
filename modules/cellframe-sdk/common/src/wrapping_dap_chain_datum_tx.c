@@ -380,6 +380,10 @@ PyObject *wrapping_dap_chain_datum_tx_get_items(PyObject *self, PyObject *args) 
                     case DAP_CHAIN_TX_OUT_COND_SUBTYPE_SRV_XCHANGE:
                         obj_tx_item = (PyObject*)PyObject_New(PyDapChainTxOutCondObject, &DapChainTxOutCondSubTypeSrvXchangeObjectType);
                         break;
+                    case DAP_CHAIN_TX_OUT_COND_SUBTYPE_SRV_DEX:
+                    case DAP_CHAIN_TX_OUT_COND_SUBTYPE_FEE:
+                    case DAP_CHAIN_TX_OUT_COND_SUBTYPE_WALLET_SHARED:
+                    case DAP_CHAIN_TX_OUT_COND_SUBTYPE_SRV_STAKE_EXT_LOCK:
                     default:
                         obj_tx_item = (PyObject*)PyObject_New(PyDapChainTxOutCondObject, &DapChainTxOutCondObjectType);
                 }

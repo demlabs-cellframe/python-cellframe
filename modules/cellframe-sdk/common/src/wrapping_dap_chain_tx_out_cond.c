@@ -74,7 +74,9 @@ PyObject *wrapping_dap_chain_tx_out_cond_get_type_subtype(PyObject *self, void *
 }
 PyObject *wrapping_dap_chain_tx_out_cond_get_subtype(PyObject *self, void *closure){
     (void)closure;
-    Py_RETURN_NONE;
+    return Py_BuildValue("s",
+        dap_chain_tx_out_cond_subtype_to_str(
+            ((PyDapChainTxOutCondObject*)self)->out_cond->header.subtype));
 }
 
 PyObject *PyDapChainTxOutCondSubType_str(PyObject *self){

@@ -74,11 +74,10 @@ PyObject* dap_log_it(PyObject* self, PyObject* args){
         return PyLong_FromLong(-1);
     } else {
         enum dap_log_level ll = (enum dap_log_level)log_level;
-        if (string_name_plugin){
+        if (string_name_plugin)
             log_it(ll, "[plugin: %s] %s", string_name_plugin, string_output);
-        } else {
+        else
             log_it(ll, "%s", string_output);
-        }
         return PyLong_FromLong(0);
     }
 }
