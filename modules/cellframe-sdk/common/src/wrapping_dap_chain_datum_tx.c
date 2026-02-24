@@ -2,7 +2,7 @@
 #include "dap_chain_datum_tx_sig.h"
 #include "dap_chain_net_tx.h"
 #include "libdap_crypto_key_python.h"
-#include "dap_pkey.h"
+#include "wrapping_dap_pkey.h"
 
 #define LOG_TAG "wrapping_datum_tx"
 
@@ -185,11 +185,13 @@ PyObject *dap_chain_datum_tx_add_out_cond_item_py(PyObject *self, PyObject *args
                           &obj_srv_price_unit_uid, &obj_cond_bytes, &cond_size))
         return NULL;
     void *cond = (void*)PyBytes_AsString(obj_cond_bytes);
-    dap_pkey_t *l_pkey = ((PyDapPkeyObject*)obj_key)->pkey;
-    dap_hash_fast_t l_pkey_hash = {};
-    dap_pkey_get_hash(l_pkey, &l_pkey_hash);
+    dap_hash_fast_t l_cond_key_hash = {};
+    if (!((PyDapPkeyObject*)obj_key)->pkey || !dap_pkey_get_hash(((PyDapPkeyObject*)obj_key)->pkey, &l_cond_key_hash)) {
+        PyErr_SetString(PyExc_RuntimeError, "Failed to calculate hash for conditioned public key.");
+        return NULL;
+    }
     int res = dap_chain_datum_tx_add_out_cond_item(&(((PyDapChainDatumTxObject*)self)->datum_tx),
-                                                   &l_pkey_hash,
+                                                   &l_cond_key_hash,
                                                    ((PyDapChainNetSrvUIDObject*)obj_srv_uid)->net_srv_uid,
                                                    value, value_max_per_unit,
                                                    ((PyDapChainNetSrvPriceUnitUIDObject*)obj_srv_price_unit_uid)->price_unit_uid,
@@ -378,6 +380,10 @@ PyObject *wrapping_dap_chain_datum_tx_get_items(PyObject *self, PyObject *args) 
                     case DAP_CHAIN_TX_OUT_COND_SUBTYPE_SRV_XCHANGE:
                         obj_tx_item = (PyObject*)PyObject_New(PyDapChainTxOutCondObject, &DapChainTxOutCondSubTypeSrvXchangeObjectType);
                         break;
+                    case DAP_CHAIN_TX_OUT_COND_SUBTYPE_SRV_DEX:
+                    case DAP_CHAIN_TX_OUT_COND_SUBTYPE_FEE:
+                    case DAP_CHAIN_TX_OUT_COND_SUBTYPE_WALLET_SHARED:
+                    case DAP_CHAIN_TX_OUT_COND_SUBTYPE_SRV_STAKE_EXT_LOCK:
                     default:
                         obj_tx_item = (PyObject*)PyObject_New(PyDapChainTxOutCondObject, &DapChainTxOutCondObjectType);
                 }
@@ -455,6 +461,15 @@ PyObject *wrapping_dap_chain_datum_tx_get_items(PyObject *self, PyObject *args) 
                     Py_DECREF(obj_list);
                     return NULL;
                 }
+                break;
+            case TX_ITEM_TYPE_EVENT:
+                obj_tx_item = (PyObject *)PyObject_New(PyDapChainTxEventObject, &DapChainTxEventObjectType);
+                if (!obj_tx_item) {
+                    log_it(L_CRITICAL, "Failed to create TX EVENT object");
+                    Py_DECREF(obj_list);
+                    return NULL;
+                }
+                ((PyDapChainTxEventObject *)obj_tx_item)->tx_event = (dap_chain_tx_item_event_t *)item;
                 break;
             default:
                 obj_tx_item = Py_None;

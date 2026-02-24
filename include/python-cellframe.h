@@ -105,11 +105,16 @@
 #include "dap_server.h"
 #include "wrapping_json_rpc_request.h"
 #include "wrapping_json_rpc_response.h"
+
+#include "wrapping_dap_chain_cs_dag_round.h"
 #ifdef _WIN32
-#include "Windows.h"
+#include <windows.h>
 BOOL WINAPI consoleHandler(DWORD);
 #else
 #include "signal.h"
+void sigfunc(int sig);
+#endif // _WIN32
+
 #include "wrapping_http_status_code.h"
 #include "wrapping_dap_http_simple.h"
 #include "wrapping_dap_http_header.h"
@@ -118,13 +123,14 @@ BOOL WINAPI consoleHandler(DWORD);
 #include "wrapping_dap_chain_net_srv_stake_pos_delegate.h"
 #include "wrapping_dap_chain_net_srv_xchange.h"
 #include "wrapping_dap_chain_net_srv_xchange_price.h"
+#include "wrapping_dap_chain_net_srv_dex.h"
+#include "wrapping_dap_chain_net_srv_dex_order.h"
 #include "wrapping_dap_chain_net_srv_vote.h"
 #include "wrapping_dap_chain_net_srv_vote_info.h"
+#include "wrapping_dap_chain_net_srv_stake_ext.h"
 #ifdef DAP_SUPPORT_PYTHON_PLUGINS
     #include "../modules/plugins/include/dap_plugins_python_app_context.h"
 #endif // DAP_SUPPORT_PYTHON_PLUGINS
-void sigfunc(int sig);
-#endif // _WIN32
 
 PyObject *python_dap_init(PyObject *self, PyObject *args);
 PyObject *python_cellframe_init(PyObject *self, PyObject *args);

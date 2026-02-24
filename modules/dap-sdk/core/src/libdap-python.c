@@ -73,11 +73,10 @@ PyObject* dap_log_it(PyObject* self, PyObject* args){
     if (log_level < 0 || log_level > 10 ) {
         return PyLong_FromLong(-1);
     } else {
-        if (string_name_plugin){
-            _log_it(log_level, "[" LOG_TAG "] [plugin: %s] %s", string_name_plugin, string_output);
-        } else {
-            _log_it(log_level, "[" LOG_TAG "] %s", string_output);
-        }
+        if (string_name_plugin)
+            _log_it((dap_log_level_t)log_level, "[plugin: %s] %s", string_name_plugin, string_output);
+        else
+            _log_it((dap_log_level_t)log_level, "%s", string_output);
         return PyLong_FromLong(0);
     }
 }

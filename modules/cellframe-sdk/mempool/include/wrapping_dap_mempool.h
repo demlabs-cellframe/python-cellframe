@@ -14,6 +14,7 @@
 #include "dap_cert.h"
 #include "wrapping_dap_chain_datum_decree.h"
 #include "wrapping_dap_chain_datum_anchor.h"
+#include "wrapping_dap_chain_tx_event.h"
 
 typedef struct PyDapMempool{
     PyObject_HEAD
@@ -37,6 +38,14 @@ PyObject *dap_chain_mempool_tx_create_multisign_withdraw_py(PyObject *self, PyOb
 
 PyObject *dap_chain_mempool_datum_extract_py(PyObject *self, PyObject *args);
 PyObject *dap_chain_mempool_datum_get_py(PyObject *self, PyObject *args);
+
+/**
+ * @brief Python wrapper for dap_chain_mempool_tx_create_event
+ * @param[in] self Python object
+ * @param[in] args Python arguments: chain, key_from, service_key, group_name, event_type, event_data, fee_value, hash_out_type
+ * @return Transaction hash string on success, None on error
+ */
+PyObject *dap_chain_mempool_tx_create_event_py(PyObject *self, PyObject *args);
 
 extern PyTypeObject DapChainMempoolObjectType;
 

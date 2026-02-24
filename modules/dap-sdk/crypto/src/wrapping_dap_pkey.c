@@ -2,6 +2,15 @@
 #include "dap_enc.h"
 
 
+static PyObject *PyDapPkeyType_to_str(PyObject *self){
+    return Py_BuildValue("s", dap_pkey_type_to_str(((PyDapPkeyTypeObject*)self)->pkey_type));
+}
+/* Pkey type*/
+PyTypeObject DapCryproPkeyTypeObjectType = DAP_PY_TYPE_OBJECT(
+    "DAP.Crypto.PkeyType", sizeof(PyDapPkeyTypeObject),
+    "Pkey type object",
+    .tp_str = PyDapPkeyType_to_str);
+
 static PyGetSetDef PyDapPkeyGetsSetsDef[] = {
         {"hash", (getter)wrapping_dap_pkey_get_hash, NULL, NULL, NULL},
         {"type", (getter)wrapping_dap_pkey_get_type, NULL, NULL, NULL},

@@ -14,20 +14,26 @@ PyTypeObject DapChainTxTSDObjectType = DAP_PY_TYPE_OBJECT(
 PyObject *wrapping_dap_chain_tx_get_tsd_data(PyObject *self, void *closure) {
     (void)closure;
     dap_chain_tx_tsd_t *l_item = ((PyDapChainTxTSDObject*)self)->tsd;
-    int l_type;
-    size_t l_size;
-    byte_t *l_data = dap_chain_datum_tx_item_get_data(l_item, &l_type, &l_size);
-    if (!l_data || !l_type || !l_size)
+    if (!l_item)
         Py_RETURN_NONE;
-    return PyBytes_FromStringAndSize((char*)l_data, l_size);
+    
+    dap_tsd_t *l_tsd = (dap_tsd_t *)l_item->tsd;
+    if (!l_tsd || l_tsd->size == 0)
+        Py_RETURN_NONE;
+    
+    return PyBytes_FromStringAndSize((char*)l_tsd->data, l_tsd->size);
 }
 
 PyObject *wrapping_dap_chain_tx_get_tsd_type(PyObject *self, void *closure) {
     (void)closure;
     dap_chain_tx_tsd_t *l_item = ((PyDapChainTxTSDObject*)self)->tsd;
-    int l_type;
-    size_t l_size;
-    dap_chain_datum_tx_item_get_data(l_item, &l_type, &l_size);
-    return Py_BuildValue("i", l_type);
+    if (!l_item)
+        return Py_BuildValue("i", 0);
+    
+    dap_tsd_t *l_tsd = (dap_tsd_t *)l_item->tsd;
+    if (!l_tsd)
+        return Py_BuildValue("i", 0);
+    
+    return Py_BuildValue("i", l_tsd->type);
 }
 
