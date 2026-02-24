@@ -1,4 +1,5 @@
 #include "wrapping_dap_chain_tx_pkey.h"
+#include "dap_pkey.h"
 
 static PyGetSetDef DapChainTxPkeyGetsSetsDef[] = {
         {"sigType", (getter)wrapping_dap_chain_tx_pkey_sig_type, NULL, NULL, NULL},
@@ -16,15 +17,16 @@ PyTypeObject DapChainTxPkeyObjectType = DAP_PY_TYPE_OBJECT(
 PyObject *wrapping_dap_chain_tx_pkey_sig_type(PyObject *self, void *closure){
     (void)closure;
     PyDapSignTypeObject *obj_sign_type = PyObject_New(PyDapSignTypeObject, &DapCryproSignTypeObjectType);
-    obj_sign_type->sign_type= ((PyDapChainTXPkeyObject*)self)->tx_pkey->header.sig_type;
+    obj_sign_type->sign_type = dap_pkey_type_to_sign_type(((PyDapChainTXPkeyObject*)self)->tx_pkey->header.type);
     return (PyObject*)obj_sign_type;
 }
 PyObject *wrapping_dap_chain_tx_pkey_sig_size(PyObject *self, void *closure){
     (void)closure;
-    return Py_BuildValue("I", ((PyDapChainTXPkeyObject*)self)->tx_pkey->header.sig_size);
+    return Py_BuildValue("I", ((PyDapChainTXPkeyObject*)self)->tx_pkey->header.size);
 }
 PyObject *wrapping_dap_chain_tx_pkey_seq_no(PyObject *self, void *closure){
-    return Py_BuildValue("I", ((PyDapChainTXPkeyObject*)self)->tx_pkey->seq_no);
+    (void)closure;
+    return Py_BuildValue("I", 0);
 }
 PyObject *wrapping_dap_chain_tx_pkey_get_pkey(PyObject *self, void *closure){
     (void)closure;

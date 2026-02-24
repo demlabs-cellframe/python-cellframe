@@ -90,7 +90,7 @@ PyObject *wrapping_dap_chain_net_srv_xchange_create(PyObject *self, PyObject *ar
     dap_chain_wallet_t *l_wallet = ((PyDapChainWalletObject*)obj_wallet)->wallet;
     char *l_hash_ret = NULL;
     int l_ret_code = dap_chain_net_srv_xchange_create(l_net, l_token_buy, l_token_sell, l_value_sell, l_rate, l_fee,
-                                                      l_wallet, &l_hash_ret);
+                                                      l_wallet, &l_hash_ret, NULL);
     switch (l_ret_code) {
         case XCHANGE_CREATE_ERROR_OK:{
             PyObject *l_obj_ret = Py_BuildValue("s", l_hash_ret);

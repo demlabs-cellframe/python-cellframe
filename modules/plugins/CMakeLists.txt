@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.10)
 project(dap_plugins_python C)
 
 set(CMAKE_VERBOSE_MAKEFILE ON)
@@ -24,5 +24,6 @@ target_link_libraries(${PROJECT_NAME})
 
 target_link_libraries(${PROJECT_NAME} dap_core CellFrame)
 
-target_include_directories(${PROJECT_NAME} PUBLIC include/ )
+target_include_directories(${PROJECT_NAME} PUBLIC include/)
+target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../../../../dap-sdk/plugin/include)
 

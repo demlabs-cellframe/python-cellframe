@@ -658,7 +658,9 @@ static bool s_ledger_tx_proc_notifier(void *a_arg)
 }
 
 static void pvt_wrapping_dap_chain_ledger_tx_add_notify(void *a_arg, dap_ledger_t *a_ledger, dap_chain_datum_tx_t *a_tx, 
-                                                        dap_hash_fast_t *a_tx_hash, dap_chan_ledger_notify_opcodes_t a_opcode){
+                                                        dap_hash_fast_t *a_tx_hash, dap_chan_ledger_notify_opcodes_t a_opcode,
+                                                        dap_hash_fast_t *a_atom_hash){
+    UNUSED(a_atom_hash);
     if (!a_arg)
         return;
         

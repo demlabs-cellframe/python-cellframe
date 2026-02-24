@@ -74,9 +74,9 @@ PyObject* dap_log_it(PyObject* self, PyObject* args){
         return PyLong_FromLong(-1);
     } else {
         if (string_name_plugin){
-            log_it(log_level, "[plugin: %s] %s", string_name_plugin, string_output);
+            _log_it(log_level, "[" LOG_TAG "] [plugin: %s] %s", string_name_plugin, string_output);
         } else {
-            log_it(log_level, "%s", string_output);
+            _log_it(log_level, "[" LOG_TAG "] %s", string_output);
         }
         return PyLong_FromLong(0);
     }
