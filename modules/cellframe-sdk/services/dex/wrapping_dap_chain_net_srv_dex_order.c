@@ -376,6 +376,133 @@ PyObject *wrapping_dap_chain_net_srv_dex_order_update(PyObject *self, PyObject *
     }
 }
 
+/**
+ * @brief Execute trade against this order (purchase)
+ * 
+ * Python signature: purchase(value, fee, wallet, is_budget_buy=False, 
+ *                            create_leftover_order=False, leftover_rate=None, leftover_min_fill=0,
+ *                            recipient_addr=None) -> str (tx_hash)
+ */
+PyObject *wrapping_dap_chain_net_srv_dex_order_purchase(PyObject *self, PyObject *args, PyObject *kwargs)
+{
+    PyObject *obj_value = NULL;
+    PyObject *obj_fee = NULL;
+    PyObject *obj_wallet = NULL;
+    int is_budget_buy = 0;
+    int create_leftover_order = 0;
+    PyObject *obj_leftover_rate = NULL;
+    int leftover_min_fill = 0;
+    PyObject *obj_recipient_addr = NULL;
+    
+    static char *kwlist[] = {"value", "fee", "wallet", "is_budget_buy", 
+                             "create_leftover_order", "leftover_rate", "leftover_min_fill", "recipient_addr", NULL};
+    
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "OOO|ppOiO", kwlist,
+                                      &obj_value, &obj_fee, &obj_wallet,
+                                      &is_budget_buy, &create_leftover_order,
+                                      &obj_leftover_rate, &leftover_min_fill, &obj_recipient_addr)) {
+        return NULL;
+    }
+    
+    if (!DapMathObject_Check(obj_value)) {
+        PyErr_SetString(PyExc_TypeError, "First argument 'value' must be a Math object");
+        return NULL;
+    }
+    
+    if (!DapMathObject_Check(obj_fee)) {
+        PyErr_SetString(PyExc_TypeError, "Second argument 'fee' must be a Math object");
+        return NULL;
+    }
+    
+    if (!PyDapChainWalletObject_Check(obj_wallet)) {
+        PyErr_SetString(PyExc_TypeError, "Third argument 'wallet' must be a Wallet object");
+        return NULL;
+    }
+    
+    dap_chain_net_t *l_net = ORDER(self)->net;
+    if (!l_net) {
+        PyErr_SetString(PyExc_ValueError, "Order has no associated network");
+        return NULL;
+    }
+    
+    uint256_t l_value = ((DapMathObject *)obj_value)->value;
+    uint256_t l_fee = ((DapMathObject *)obj_fee)->value;
+    dap_chain_wallet_t *l_wallet = ((PyDapChainWalletObject *)obj_wallet)->wallet;
+    
+    uint256_t l_leftover_rate = {0};
+    if (obj_leftover_rate && obj_leftover_rate != Py_None) {
+        if (!DapMathObject_Check(obj_leftover_rate)) {
+            PyErr_SetString(PyExc_TypeError, "Argument 'leftover_rate' must be a Math object or None");
+            return NULL;
+        }
+        l_leftover_rate = ((DapMathObject *)obj_leftover_rate)->value;
+    }
+    
+    // Use recipient_addr if provided, otherwise use wallet address
+    const dap_chain_addr_t *l_buyer_addr = NULL;
+    if (obj_recipient_addr && obj_recipient_addr != Py_None) {
+        if (!PyDapChainAddrObject_Check((PyDapChainAddrObject *)obj_recipient_addr)) {
+            PyErr_SetString(PyExc_TypeError, "Argument 'recipient_addr' must be a ChainAddr object or None");
+            return NULL;
+        }
+        l_buyer_addr = ((PyDapChainAddrObject *)obj_recipient_addr)->addr;
+    } else {
+        l_buyer_addr = dap_chain_wallet_get_addr(l_wallet, l_net->pub.id);
+    }
+    
+    dap_chain_datum_tx_t *l_tx = NULL;
+    dap_hash_fast_t l_order_hash = ORDER(self)->tail_hash;
+    
+    int l_ret = dap_chain_net_srv_dex_purchase(l_net, &l_order_hash, l_value, 
+                                                (bool)is_budget_buy, l_fee, l_wallet, l_buyer_addr,
+                                                (bool)create_leftover_order, l_leftover_rate, 
+                                                (uint8_t)leftover_min_fill, &l_tx);
+    
+    switch (l_ret) {
+        case DEX_PURCHASE_ERROR_OK: {
+            // Put transaction to mempool
+            size_t l_tx_size = dap_chain_datum_tx_get_size(l_tx);
+            dap_chain_datum_t *l_datum = dap_chain_datum_create(DAP_CHAIN_DATUM_TX, l_tx, l_tx_size);
+            DAP_DELETE(l_tx);
+            
+            if (!l_datum) {
+                PyErr_SetString(PyExc_RuntimeError, "Failed to create datum");
+                return NULL;
+            }
+            
+            dap_chain_t *l_chain = dap_chain_net_get_default_chain_by_chain_type(l_net, CHAIN_TYPE_TX);
+            char *l_hash_str = NULL;
+            if (l_chain) {
+                l_hash_str = dap_chain_mempool_datum_add(l_datum, l_chain, "hex");
+            }
+            DAP_DELETE(l_datum);
+            
+            if (l_hash_str) {
+                PyObject *l_result = Py_BuildValue("s", l_hash_str);
+                DAP_DELETE(l_hash_str);
+                return l_result;
+            }
+            PyErr_SetString(PyExc_RuntimeError, "Failed to add transaction to mempool");
+            return NULL;
+        }
+        case DEX_PURCHASE_ERROR_INVALID_ARGUMENT:
+            PyErr_SetString(PyExc_ValueError, "Invalid argument");
+            return NULL;
+        case DEX_PURCHASE_ERROR_ORDER_NOT_FOUND:
+            PyErr_SetString(PyExc_ValueError, "Order not found");
+            return NULL;
+        case DEX_PURCHASE_ERROR_ORDER_SPENT:
+            PyErr_SetString(PyExc_ValueError, "Order already spent or expired");
+            return NULL;
+        case DEX_PURCHASE_ERROR_COMPOSE_TX:
+            PyErr_SetString(PyExc_RuntimeError, "Failed to compose transaction");
+            return NULL;
+        default:
+            PyErr_Format(PyExc_RuntimeError, "Purchase error code: %d", l_ret);
+            return NULL;
+    }
+}
+
 /* ============================================================================
  * Type Definition
  * ============================================================================ */
@@ -426,6 +553,24 @@ PyMethodDef DapChainNetSrvDexOrderMethods[] = {
         "    new_value: New sell value (Math)\n"
         "    fee: Validator fee (Math)\n"
         "    wallet: Owner wallet\n\n"
+        "Returns:\n"
+        "    Transaction hash string"
+    },
+    {
+        "purchase",
+        (PyCFunction)(void(*)(void))wrapping_dap_chain_net_srv_dex_order_purchase,
+        METH_VARARGS | METH_KEYWORDS,
+        "Execute trade against this order.\n\n"
+        "Args:\n"
+        "    value: Trade amount (Math)\n"
+        "    fee: Validator fee (Math)\n"
+        "    wallet: Buyer wallet (source of funds)\n"
+        "    is_budget_buy: If True, value is max budget in BUY tokens (default: False)\n"
+        "    create_leftover_order: If True, create order from unspent funds (default: False)\n"
+        "    leftover_rate: Rate for leftover order (Math, optional)\n"
+        "    leftover_min_fill: Min fill policy for leftover order (default: 0)\n"
+        "    recipient_addr: Address to receive purchased tokens (ChainAddr, optional).\n"
+        "                    If None, tokens go to wallet address.\n\n"
         "Returns:\n"
         "    Transaction hash string"
     },

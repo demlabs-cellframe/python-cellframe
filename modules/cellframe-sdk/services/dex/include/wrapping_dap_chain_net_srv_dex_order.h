@@ -71,5 +71,6 @@ PyObject *wrapping_dap_chain_net_srv_dex_order_get_net(PyObject *self, void *clo
 // Methods
 PyObject *wrapping_dap_chain_net_srv_dex_order_invalidate(PyObject *self, PyObject *args);
 PyObject *wrapping_dap_chain_net_srv_dex_order_update(PyObject *self, PyObject *args);
+PyObject *wrapping_dap_chain_net_srv_dex_order_purchase(PyObject *self, PyObject *args, PyObject *kwargs);
 
 extern PyTypeObject PyDapChainNetSrvDexOrderObjectType;

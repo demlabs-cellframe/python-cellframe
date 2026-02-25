@@ -19,5 +19,8 @@ typedef struct PyDapChainNetSrvDex {
 // Static methods
 PyObject *wrapping_dap_chain_net_srv_dex_get_orders(PyObject *self, PyObject *args, PyObject *kwargs);
 PyObject *wrapping_dap_chain_net_srv_dex_get_pairs(PyObject *self, PyObject *args);
+PyObject *wrapping_dap_chain_net_srv_dex_create(PyObject *self, PyObject *args, PyObject *kwargs);
+PyObject *wrapping_dap_chain_net_srv_dex_purchase(PyObject *self, PyObject *args, PyObject *kwargs);
+PyObject *wrapping_dap_chain_net_srv_dex_purchase_auto(PyObject *self, PyObject *args, PyObject *kwargs);
 
 extern PyTypeObject DapChainNetSrvDexObjectType;
