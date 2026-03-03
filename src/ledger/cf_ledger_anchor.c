@@ -81,14 +81,14 @@ PyObject* dap_ledger_anchor_load_py(PyObject *a_self, PyObject *a_args) {
         return NULL;
     }
     
-    if ((size_t)l_hash_size != sizeof(dap_hash_fast_t)) {
-        PyErr_Format(PyExc_ValueError, "Hash must be exactly %zu bytes", sizeof(dap_hash_fast_t));
+    if ((size_t)l_hash_size != sizeof(dap_hash_sha3_256_t)) {
+        PyErr_Format(PyExc_ValueError, "Hash must be exactly %zu bytes", sizeof(dap_hash_sha3_256_t));
         return NULL;
     }
     
     dap_chain_datum_anchor_t *l_anchor = (dap_chain_datum_anchor_t *)PyCapsule_GetPointer(l_anchor_obj, "dap_chain_datum_anchor_t");
     dap_chain_t *l_chain = (dap_chain_t *)PyCapsule_GetPointer(l_chain_obj, "dap_chain_t");
-    dap_hash_fast_t *l_hash = (dap_hash_fast_t *)l_hash_bytes;
+    dap_hash_sha3_256_t *l_hash = (dap_hash_sha3_256_t *)l_hash_bytes;
     
     if (!l_anchor || !l_chain) {
         PyErr_SetString(PyExc_ValueError, "Invalid anchor or chain capsule");
@@ -137,14 +137,14 @@ PyObject* dap_ledger_anchor_unload_py(PyObject *a_self, PyObject *a_args) {
         return NULL;
     }
     
-    if ((size_t)l_hash_size != sizeof(dap_hash_fast_t)) {
-        PyErr_Format(PyExc_ValueError, "Hash must be exactly %zu bytes", sizeof(dap_hash_fast_t));
+    if ((size_t)l_hash_size != sizeof(dap_hash_sha3_256_t)) {
+        PyErr_Format(PyExc_ValueError, "Hash must be exactly %zu bytes", sizeof(dap_hash_sha3_256_t));
         return NULL;
     }
     
     dap_chain_datum_anchor_t *l_anchor = (dap_chain_datum_anchor_t *)PyCapsule_GetPointer(l_anchor_obj, "dap_chain_datum_anchor_t");
     dap_chain_t *l_chain = (dap_chain_t *)PyCapsule_GetPointer(l_chain_obj, "dap_chain_t");
-    dap_hash_fast_t *l_hash = (dap_hash_fast_t *)l_hash_bytes;
+    dap_hash_sha3_256_t *l_hash = (dap_hash_sha3_256_t *)l_hash_bytes;
     
     if (!l_anchor || !l_chain) {
         PyErr_SetString(PyExc_ValueError, "Invalid anchor or chain capsule");
@@ -188,8 +188,8 @@ PyObject* dap_ledger_anchor_find_py(PyObject *a_self, PyObject *a_args) {
         return NULL;
     }
     
-    if ((size_t)l_hash_size != sizeof(dap_hash_fast_t)) {
-        PyErr_Format(PyExc_ValueError, "Hash must be exactly %zu bytes", sizeof(dap_hash_fast_t));
+    if ((size_t)l_hash_size != sizeof(dap_hash_sha3_256_t)) {
+        PyErr_Format(PyExc_ValueError, "Hash must be exactly %zu bytes", sizeof(dap_hash_sha3_256_t));
         return NULL;
     }
     
@@ -199,7 +199,7 @@ PyObject* dap_ledger_anchor_find_py(PyObject *a_self, PyObject *a_args) {
         return NULL;
     }
     
-    dap_hash_fast_t *l_hash = (dap_hash_fast_t *)l_hash_bytes;
+    dap_hash_sha3_256_t *l_hash = (dap_hash_sha3_256_t *)l_hash_bytes;
     
     dap_chain_datum_anchor_t *l_anchor = dap_ledger_anchor_find(l_ledger, l_hash);
     if (!l_anchor) {

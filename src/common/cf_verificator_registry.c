@@ -5,7 +5,7 @@
 
 #include "cf_verificator_registry.h"
 #include "dap_common.h"
-#include "uthash.h"
+#include "dap_ht.h"
 
 #define LOG_TAG "cf_verificator_registry"
 
@@ -13,7 +13,7 @@
 typedef struct {
     dap_chain_tx_out_cond_subtype_t subtype;  // Key
     python_verificator_ctx_t *context;        // Value
-    UT_hash_handle hh;
+    dap_ht_handle_t hh;
 } verificator_entry_t;
 
 // Global state
@@ -55,8 +55,8 @@ void cf_verificator_registry_cleanup_all(void) {
     
     // Cleanup verificators
     verificator_entry_t *entry, *tmp;
-    HASH_ITER(hh, s_verificators, entry, tmp) {
-        HASH_DEL(s_verificators, entry);
+    dap_ht_foreach(s_verificators, entry, tmp) {
+        dap_ht_del(s_verificators, entry);
         if (entry->context) {
             Py_XDECREF(entry->context->in_verify_callback);
             Py_XDECREF(entry->context->out_verify_callback);
@@ -118,7 +118,7 @@ int cf_verificator_register(dap_chain_tx_out_cond_subtype_t a_subtype,
     
     // Check if already exists
     verificator_entry_t *existing = NULL;
-    HASH_FIND(hh, s_verificators, &a_subtype, sizeof(dap_chain_tx_out_cond_subtype_t), existing);
+    dap_ht_find(s_verificators, &a_subtype, sizeof(dap_chain_tx_out_cond_subtype_t), existing);
     if (existing) {
         // Replace existing
         Py_XDECREF(existing->context->in_verify_callback);
@@ -182,7 +182,7 @@ int cf_verificator_register(dap_chain_tx_out_cond_subtype_t a_subtype,
     Py_XINCREF(a_out_delete);
     Py_XINCREF(a_user_data);
     
-    HASH_ADD(hh, s_verificators, subtype, sizeof(dap_chain_tx_out_cond_subtype_t), entry);
+    dap_ht_add(s_verificators, subtype, entry);
     
     pthread_mutex_unlock(&s_registry_mutex);
     log_it(L_DEBUG, "Registered verificator for subtype %d", a_subtype);
@@ -196,7 +196,7 @@ python_verificator_ctx_t* cf_verificator_get(dap_chain_tx_out_cond_subtype_t a_s
     pthread_mutex_lock(&s_registry_mutex);
     
     verificator_entry_t *entry = NULL;
-    HASH_FIND(hh, s_verificators, &a_subtype, sizeof(dap_chain_tx_out_cond_subtype_t), entry);
+    dap_ht_find(s_verificators, &a_subtype, sizeof(dap_chain_tx_out_cond_subtype_t), entry);
     
     python_verificator_ctx_t *result = entry ? entry->context : NULL;
     
@@ -211,10 +211,10 @@ void cf_verificator_unregister(dap_chain_tx_out_cond_subtype_t a_subtype) {
     pthread_mutex_lock(&s_registry_mutex);
     
     verificator_entry_t *entry = NULL;
-    HASH_FIND(hh, s_verificators, &a_subtype, sizeof(dap_chain_tx_out_cond_subtype_t), entry);
+    dap_ht_find(s_verificators, &a_subtype, sizeof(dap_chain_tx_out_cond_subtype_t), entry);
     
     if (entry) {
-        HASH_DEL(s_verificators, entry);
+        dap_ht_del(s_verificators, entry);
         if (entry->context) {
             Py_XDECREF(entry->context->in_verify_callback);
             Py_XDECREF(entry->context->out_verify_callback);

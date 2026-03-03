@@ -30,28 +30,44 @@ endif()
 #   └── src/              (python-cellframe bindings source)
 
 # =========================================
+# RESOLVE SDK SOURCE DIRECTORIES
+# =========================================
+# When built from parent project, dap_sdk/cellframe_sdk targets already exist.
+# Resolve source dirs from existing targets or fall back to local submodules.
+if(TARGET dap_sdk)
+    get_target_property(DAP_SDK_SOURCE_DIR dap_sdk SOURCE_DIR)
+    message(STATUS "[Python-Cellframe] DAP SDK source dir (from target): ${DAP_SDK_SOURCE_DIR}")
+else()
+    set(DAP_SDK_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/dap-sdk")
+    message(STATUS "[Python-Cellframe] DAP SDK source dir (local): ${DAP_SDK_SOURCE_DIR}")
+endif()
+
+if(TARGET cellframe_sdk)
+    get_target_property(CELLFRAME_SDK_SOURCE_DIR cellframe_sdk SOURCE_DIR)
+    message(STATUS "[Python-Cellframe] Cellframe SDK source dir (from target): ${CELLFRAME_SDK_SOURCE_DIR}")
+else()
+    set(CELLFRAME_SDK_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/cellframe-sdk")
+    message(STATUS "[Python-Cellframe] Cellframe SDK source dir (local): ${CELLFRAME_SDK_SOURCE_DIR}")
+endif()
+
+# =========================================
 # CMAKE HELPERS FROM DAP-SDK
 # =========================================
-# Use dap-sdk/cmake helpers for consistent build system
-# NOTE: We do NOT use ObjectLibraryHelpers.cmake as it causes recursion issues
-# DAP SDK and Cellframe SDK handle their own internal module management
-include(dap-sdk/cmake/OS_Detection.cmake)
-include(dap-sdk/cmake/PackageComponents.cmake)
-include(dap-sdk/cmake/PackageDetection.cmake)
-# Do NOT include ObjectLibraryHelpers.cmake - it's broken and causes recursion
-# include(dap-sdk/cmake/ObjectLibraryHelpers.cmake)  # BROKEN - DO NOT USE
+include(${DAP_SDK_SOURCE_DIR}/cmake/OS_Detection.cmake)
+include(${DAP_SDK_SOURCE_DIR}/cmake/PackageComponents.cmake)
+include(${DAP_SDK_SOURCE_DIR}/cmake/PackageDetection.cmake)
 
 # =========================================
 # DAP_TPL (TEMPLATE ENGINE)
 # =========================================
-# dap_tpl is used by dap_mock for test code generation
-# Located in cellframe-sdk/tools/dap_tpl (centralized)
-set(DAP_TPL_DIR "${CMAKE_CURRENT_SOURCE_DIR}/cellframe-sdk/tools/dap_tpl" CACHE PATH "Path to dap_tpl template engine")
+if(NOT DEFINED DAP_TPL_DIR OR NOT EXISTS "${DAP_TPL_DIR}/dap_tpl.sh")
+    set(DAP_TPL_DIR "${CELLFRAME_SDK_SOURCE_DIR}/tools/dap_tpl" CACHE PATH "Path to dap_tpl template engine" FORCE)
+endif()
 
 if(NOT EXISTS "${DAP_TPL_DIR}/dap_tpl.sh")
     message(WARNING "dap_tpl not found at ${DAP_TPL_DIR} - tests may not work correctly")
 else()
-    message(STATUS "[Python-Cellframe] Using centralized dap_tpl from: ${DAP_TPL_DIR}")
+    message(STATUS "[Python-Cellframe] Using dap_tpl from: ${DAP_TPL_DIR}")
 endif()
 
 # =========================================
@@ -80,66 +96,63 @@ if(BUILD_TESTS OR BUILD_WITH_TEST)
 endif()
 
 # =========================================
-# DAP SDK (SUBMODULE)
+# DAP SDK — conditional (skip if parent already built it)
 # =========================================
-message(STATUS "=========================================")
-message(STATUS "Configuring DAP SDK (submodule)")
-message(STATUS "=========================================")
+if(NOT TARGET dap_sdk)
+    message(STATUS "=========================================")
+    message(STATUS "Configuring DAP SDK (local submodule)")
+    message(STATUS "=========================================")
 
-# Set modules for dap-sdk build
-set(DAPSDK_MODULES "crypto plugin io network-core network-server network-client network-link_manager global-db" CACHE STRING "DAP SDK modules to build")
+    set(DAPSDK_MODULES "crypto plugin io network-core network-server network-client network-link_manager global-db" CACHE STRING "DAP SDK modules to build")
+    set(BUILD_SHARED ON CACHE BOOL "Build DAP SDK as shared library" FORCE)
 
-# Build DAP SDK as shared library
-set(BUILD_SHARED ON CACHE BOOL "Build DAP SDK as shared library" FORCE)
+    if(BUILD_TESTS)
+        set(BUILD_DAP_SDK_TESTS ON CACHE BOOL "Build DAP SDK tests" FORCE)
+    endif()
 
-# Disable DAP SDK tests by default (use BUILD_TESTS to enable)
-if(BUILD_TESTS)
-    set(BUILD_DAP_SDK_TESTS ON CACHE BOOL "Build DAP SDK tests" FORCE)
+    add_subdirectory(dap-sdk)
+    message(STATUS "DAP SDK configured: libdap_sdk.so (local)")
+else()
+    message(STATUS "[Python-Cellframe] Using external DAP SDK (target dap_sdk already exists)")
 endif()
 
-add_subdirectory(dap-sdk)
-
-message(STATUS "DAP SDK configured: libdap_sdk.so")
-
 # =========================================
-# CELLFRAME SDK (SUBMODULE)
+# CELLFRAME SDK — conditional (skip if parent already built it)
 # =========================================
-message(STATUS "=========================================")
-message(STATUS "Configuring Cellframe SDK (submodule)")
-message(STATUS "=========================================")
+if(NOT TARGET cellframe_sdk)
+    message(STATUS "=========================================")
+    message(STATUS "Configuring Cellframe SDK (local submodule)")
+    message(STATUS "=========================================")
 
-# Set DAP SDK path for Cellframe SDK (it has nested dap-sdk submodule)
-set(DAP_SDK_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cellframe-sdk/dap-sdk" CACHE PATH "Path to DAP SDK for Cellframe")
+    set(BUILD_SHARED ON CACHE BOOL "Build Cellframe SDK as shared library" FORCE)
 
-# Build Cellframe SDK as shared library
-set(BUILD_SHARED ON CACHE BOOL "Build Cellframe SDK as shared library" FORCE)
+    if(BUILD_TESTS)
+        set(BUILD_CELLFRAME_SDK_TESTS ON CACHE BOOL "Build Cellframe SDK tests" FORCE)
+    endif()
 
-# Disable Cellframe SDK tests by default (use BUILD_TESTS to enable)
-if(BUILD_TESTS)
-    set(BUILD_CELLFRAME_SDK_TESTS ON CACHE BOOL "Build Cellframe SDK tests" FORCE)
+    add_subdirectory(cellframe-sdk)
+    message(STATUS "Cellframe SDK configured: libcellframe_sdk.so (local)")
+else()
+    message(STATUS "[Python-Cellframe] Using external Cellframe SDK (target cellframe_sdk already exists)")
 endif()
 
-add_subdirectory(cellframe-sdk)
-
-message(STATUS "Cellframe SDK configured: libcellframe_sdk.so")
-
 # =========================================
-# PYTHON-DAP (SUBMODULE)
+# PYTHON-DAP — conditional (skip if parent already built it)
 # =========================================
-message(STATUS "=========================================")
-message(STATUS "Configuring Python-DAP bindings (submodule)")
-message(STATUS "=========================================")
+if(NOT TARGET python_dap)
+    message(STATUS "=========================================")
+    message(STATUS "Configuring Python-DAP bindings (local submodule)")
+    message(STATUS "=========================================")
 
-# Set DAP SDK information for Python-DAP
-set(DAP_SDK_PATH "${CMAKE_CURRENT_SOURCE_DIR}/dap-sdk" CACHE PATH "Path to DAP SDK")
-set(DAP_SDK_TARGET_NAME "dap_sdk" CACHE STRING "DAP SDK target name")
+    set(DAP_SDK_PATH "${DAP_SDK_SOURCE_DIR}" CACHE PATH "Path to DAP SDK" FORCE)
+    set(DAP_SDK_TARGET_NAME "dap_sdk" CACHE STRING "DAP SDK target name" FORCE)
+    set(LINK_DAP_SDK_STATIC OFF CACHE BOOL "Link DAP SDK dynamically" FORCE)
 
-# Build Python-DAP as MODULE (Python extension)
-set(LINK_DAP_SDK_STATIC OFF CACHE BOOL "Link DAP SDK dynamically" FORCE)
-
-add_subdirectory(python-dap)
-
-message(STATUS "Python-DAP bindings configured")
+    add_subdirectory(python-dap)
+    message(STATUS "Python-DAP configured (local)")
+else()
+    message(STATUS "[Python-Cellframe] Using external python-dap (target python_dap already exists)")
+endif()
 
 # =========================================
 # PYTHON-CELLFRAME (THIS PROJECT)
@@ -221,7 +234,7 @@ target_include_directories(python_cellframe PRIVATE
     $<TARGET_PROPERTY:dap_sdk,INTERFACE_INCLUDE_DIRECTORIES>
     $<TARGET_PROPERTY:cellframe_sdk,INTERFACE_INCLUDE_DIRECTORIES>
     # Additional Cellframe SDK includes not auto-exported (datum/tx module)
-    ${CMAKE_CURRENT_SOURCE_DIR}/cellframe-sdk/modules/datum/tx/include
+    ${CELLFRAME_SDK_SOURCE_DIR}/modules/datum/tx/include
 )
 
 # Link libraries

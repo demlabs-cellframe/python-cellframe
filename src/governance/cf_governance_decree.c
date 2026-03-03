@@ -196,15 +196,13 @@ static PyObject *PyDapDecree_get_fee(PyDapDecreeObject *self, PyObject *args) {
     }
     
     // Convert uint256 to Python integer
-    char *fee_str = dap_uint256_to_char(fee, NULL);
+    const char *fee_str = dap_uint256_to_const_char(fee, NULL);
     if (!fee_str) {
         PyErr_SetString(PyExc_RuntimeError, "Failed to convert fee to string");
         return NULL;
     }
     
-    PyObject *result = PyLong_FromString(fee_str, NULL, 10);
-    DAP_DELETE(fee_str);
-    return result;
+    return PyLong_FromString(fee_str, NULL, 10);
 }
 
 /**
@@ -277,7 +275,7 @@ static PyObject *PyDapDecree_get_min_owners(PyDapDecreeObject *self, PyObject *a
     }
     
     // Convert uint256_t to Python int via string representation
-    const char *value_str = dap_uint256_to_char(min_owners, NULL);
+    const char *value_str = dap_uint256_to_const_char(min_owners, NULL);
     if (!value_str) {
         Py_RETURN_NONE;
     }
@@ -290,13 +288,13 @@ static PyObject *PyDapDecree_get_min_owners(PyDapDecreeObject *self, PyObject *a
  * @return bytes - Transaction hash (32 bytes) or None if not present
  */
 static PyObject *PyDapDecree_get_hash(PyDapDecreeObject *self, PyObject *args) {
-    dap_hash_fast_t hash;
+    dap_hash_sha3_256_t hash;
     
     if (dap_chain_datum_decree_get_hash(self->decree, &hash) != 0) {
         Py_RETURN_NONE;
     }
     
-    return PyBytes_FromStringAndSize((char *)&hash, sizeof(dap_hash_fast_t));
+    return PyBytes_FromStringAndSize((char *)&hash, sizeof(dap_hash_sha3_256_t));
 }
 
 /**
@@ -310,15 +308,13 @@ static PyObject *PyDapDecree_get_stake_value(PyDapDecreeObject *self, PyObject *
         Py_RETURN_NONE;
     }
     
-    char *value_str = dap_uint256_to_char(stake_value, NULL);
+    const char *value_str = dap_uint256_to_const_char(stake_value, NULL);
     if (!value_str) {
         PyErr_SetString(PyExc_RuntimeError, "Failed to convert stake value to string");
         return NULL;
     }
     
-    PyObject *result = PyLong_FromString(value_str, NULL, 10);
-    DAP_DELETE(value_str);
-    return result;
+    return PyLong_FromString(value_str, NULL, 10);
 }
 
 /**
@@ -404,14 +400,13 @@ static PyObject *PyDapDecree_get_stake_min_value(PyDapDecreeObject *self, PyObje
         Py_RETURN_NONE;
     }
     
-    char *value_str = dap_uint256_to_char(min_value, NULL);
+    const char *value_str = dap_uint256_to_const_char(min_value, NULL);
     if (!value_str) {
         PyErr_SetString(PyExc_RuntimeError, "Failed to convert min stake value to string");
         return NULL;
     }
     
     PyObject *result = PyLong_FromString(value_str, NULL, 10);
-    DAP_DELETE(value_str);
     return result;
 }
 
@@ -426,15 +421,13 @@ static PyObject *PyDapDecree_get_stake_min_signers_count(PyDapDecreeObject *self
         Py_RETURN_NONE;
     }
     
-    char *value_str = dap_uint256_to_char(min_signers, NULL);
+    const char *value_str = dap_uint256_to_const_char(min_signers, NULL);
     if (!value_str) {
         PyErr_SetString(PyExc_RuntimeError, "Failed to convert min signers count to string");
         return NULL;
     }
     
-    PyObject *result = PyLong_FromString(value_str, NULL, 10);
-    DAP_DELETE(value_str);
-    return result;
+    return PyLong_FromString(value_str, NULL, 10);
 }
 
 /**

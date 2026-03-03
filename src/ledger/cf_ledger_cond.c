@@ -75,13 +75,13 @@ PyObject* dap_ledger_out_cond_unspent_find_by_addr_py(PyObject *a_self, PyObject
         return NULL;
     }
     
-    dap_chain_hash_fast_t *l_hash = NULL;
+    dap_hash_sha3_256_t *l_hash = NULL;
     if (l_hash_obj && l_hash_obj != Py_None) {
         if (!PyCapsule_CheckExact(l_hash_obj)) {
             PyErr_SetString(PyExc_TypeError, "tx_first_hash must be a hash capsule");
             return NULL;
         }
-        l_hash = (dap_chain_hash_fast_t *)PyCapsule_GetPointer(l_hash_obj, "dap_hash_fast_t");
+        l_hash = (dap_hash_sha3_256_t *)PyCapsule_GetPointer(l_hash_obj, "dap_hash_sha3_256_t");
     }
     
     int l_out_idx = 0;
@@ -212,8 +212,8 @@ PyObject* dap_ledger_check_condition_owner_py(PyObject *a_self, PyObject *a_args
         return NULL;
     }
     
-    if ((size_t)l_hash_size != sizeof(dap_hash_fast_t)) {
-        PyErr_Format(PyExc_ValueError, "Hash must be exactly %zu bytes", sizeof(dap_hash_fast_t));
+    if ((size_t)l_hash_size != sizeof(dap_hash_sha3_256_t)) {
+        PyErr_Format(PyExc_ValueError, "Hash must be exactly %zu bytes", sizeof(dap_hash_sha3_256_t));
         return NULL;
     }
     
@@ -228,7 +228,7 @@ PyObject* dap_ledger_check_condition_owner_py(PyObject *a_self, PyObject *a_args
         return NULL;
     }
     
-    dap_hash_fast_t *l_hash = (dap_hash_fast_t *)l_hash_bytes;
+    dap_hash_sha3_256_t *l_hash = (dap_hash_sha3_256_t *)l_hash_bytes;
     dap_sign_t *l_sign = (dap_sign_t *)PyCapsule_GetPointer(l_sign_obj, "dap_sign_t");
     if (!l_sign) {
         PyErr_SetString(PyExc_ValueError, "Invalid signature capsule");
@@ -250,11 +250,11 @@ PyObject* dap_ledger_check_condition_owner_py(PyObject *a_self, PyObject *a_args
 /**
  * @brief C wrapper for cond_in_verify callback - calls Python callback
  * Signature: int (*dap_ledger_cond_in_verify_callback_t)(dap_ledger_t *a_ledger, dap_chain_datum_tx_t *a_tx_in,  
- *                                                          dap_hash_fast_t *a_tx_in_hash,  dap_chain_tx_out_cond_t *a_prev_cond, 
+ *                                                          dap_hash_sha3_256_t *a_tx_in_hash,  dap_chain_tx_out_cond_t *a_prev_cond, 
  *                                                          bool a_owner, bool a_from_mempool)
  */
 static int s_verificator_in_verify_wrapper(dap_ledger_t *a_ledger, dap_chain_datum_tx_t *a_tx_in,  
-                                            dap_hash_fast_t *a_tx_in_hash, dap_chain_tx_out_cond_t *a_prev_cond, 
+                                            dap_hash_sha3_256_t *a_tx_in_hash, dap_chain_tx_out_cond_t *a_prev_cond, 
                                             bool a_owner, bool a_from_mempool) {
     if (!a_prev_cond) {
         return 0;
@@ -270,7 +270,7 @@ static int s_verificator_in_verify_wrapper(dap_ledger_t *a_ledger, dap_chain_dat
     
     PyObject *l_ledger = PyCapsule_New(a_ledger, "dap_ledger_t", NULL);
     PyObject *l_tx = PyCapsule_New(a_tx_in, "dap_chain_datum_tx_t", NULL);
-    PyObject *l_tx_hash = a_tx_in_hash ? PyBytes_FromStringAndSize((const char*)a_tx_in_hash, sizeof(dap_hash_fast_t)) : Py_None;
+    PyObject *l_tx_hash = a_tx_in_hash ? PyBytes_FromStringAndSize((const char*)a_tx_in_hash, sizeof(dap_hash_sha3_256_t)) : Py_None;
     PyObject *l_cond = PyCapsule_New(a_prev_cond, "dap_chain_tx_out_cond_t", NULL);
     PyObject *l_owner = PyBool_FromLong(a_owner);
     PyObject *l_from_mempool = PyBool_FromLong(a_from_mempool);
@@ -302,10 +302,10 @@ static int s_verificator_in_verify_wrapper(dap_ledger_t *a_ledger, dap_chain_dat
 /**
  * @brief C wrapper for cond_out_verify callback - calls Python callback
  * Signature: int (*dap_ledger_cond_out_verify_callback_t)(dap_ledger_t *a_ledger, dap_chain_datum_tx_t *a_tx_out, 
- *                                                           dap_hash_fast_t *a_tx_out_hash, dap_chain_tx_out_cond_t *a_cond)
+ *                                                           dap_hash_sha3_256_t *a_tx_out_hash, dap_chain_tx_out_cond_t *a_cond)
  */
 static int s_verificator_out_verify_wrapper(dap_ledger_t *a_ledger, dap_chain_datum_tx_t *a_tx_out, 
-                                             dap_hash_fast_t *a_tx_out_hash, dap_chain_tx_out_cond_t *a_cond) {
+                                             dap_hash_sha3_256_t *a_tx_out_hash, dap_chain_tx_out_cond_t *a_cond) {
     if (!a_cond) {
         return 0;
     }
@@ -320,7 +320,7 @@ static int s_verificator_out_verify_wrapper(dap_ledger_t *a_ledger, dap_chain_da
     
     PyObject *l_ledger = PyCapsule_New(a_ledger, "dap_ledger_t", NULL);
     PyObject *l_tx = PyCapsule_New(a_tx_out, "dap_chain_datum_tx_t", NULL);
-    PyObject *l_tx_hash = a_tx_out_hash ? PyBytes_FromStringAndSize((const char*)a_tx_out_hash, sizeof(dap_hash_fast_t)) : Py_None;
+    PyObject *l_tx_hash = a_tx_out_hash ? PyBytes_FromStringAndSize((const char*)a_tx_out_hash, sizeof(dap_hash_sha3_256_t)) : Py_None;
     PyObject *l_cond = PyCapsule_New(a_cond, "dap_chain_tx_out_cond_t", NULL);
     
     PyObject *l_result = PyObject_CallFunctionObjArgs(
@@ -348,10 +348,10 @@ static int s_verificator_out_verify_wrapper(dap_ledger_t *a_ledger, dap_chain_da
 /**
  * @brief C wrapper for cond_in_add callback - calls Python callback
  * Signature: void (*dap_ledger_cond_in_add_callback_t)(dap_ledger_t *a_ledger, dap_chain_datum_tx_t *a_tx_in,  
- *                                                        dap_hash_fast_t *a_tx_in_hash, dap_chain_tx_out_cond_t *a_prev_cond)
+ *                                                        dap_hash_sha3_256_t *a_tx_in_hash, dap_chain_tx_out_cond_t *a_prev_cond)
  */
 static void s_verificator_in_add_wrapper(dap_ledger_t *a_ledger, dap_chain_datum_tx_t *a_tx_in,  
-                                         dap_hash_fast_t *a_tx_in_hash, dap_chain_tx_out_cond_t *a_prev_cond) {
+                                         dap_hash_sha3_256_t *a_tx_in_hash, dap_chain_tx_out_cond_t *a_prev_cond) {
     if (!a_prev_cond) {
         return;
     }
@@ -366,7 +366,7 @@ static void s_verificator_in_add_wrapper(dap_ledger_t *a_ledger, dap_chain_datum
     
     PyObject *l_ledger = PyCapsule_New(a_ledger, "dap_ledger_t", NULL);
     PyObject *l_tx = PyCapsule_New(a_tx_in, "dap_chain_datum_tx_t", NULL);
-    PyObject *l_tx_hash = a_tx_in_hash ? PyBytes_FromStringAndSize((const char*)a_tx_in_hash, sizeof(dap_hash_fast_t)) : Py_None;
+    PyObject *l_tx_hash = a_tx_in_hash ? PyBytes_FromStringAndSize((const char*)a_tx_in_hash, sizeof(dap_hash_sha3_256_t)) : Py_None;
     PyObject *l_cond = PyCapsule_New(a_prev_cond, "dap_chain_tx_out_cond_t", NULL);
     
     PyObject *l_result = PyObject_CallFunctionObjArgs(
@@ -391,10 +391,10 @@ static void s_verificator_in_add_wrapper(dap_ledger_t *a_ledger, dap_chain_datum
 /**
  * @brief C wrapper for cond_out_add callback - calls Python callback
  * Signature: void (*dap_ledger_cond_out_add_callback_t)(dap_ledger_t *a_ledger, dap_chain_datum_tx_t *a_tx_out, 
- *                                                         dap_hash_fast_t *a_tx_out_hash, dap_chain_tx_out_cond_t *a_cond)
+ *                                                         dap_hash_sha3_256_t *a_tx_out_hash, dap_chain_tx_out_cond_t *a_cond)
  */
 static void s_verificator_out_add_wrapper(dap_ledger_t *a_ledger, dap_chain_datum_tx_t *a_tx_out, 
-                                          dap_hash_fast_t *a_tx_out_hash, dap_chain_tx_out_cond_t *a_cond) {
+                                          dap_hash_sha3_256_t *a_tx_out_hash, dap_chain_tx_out_cond_t *a_cond) {
     if (!a_cond) {
         return;
     }
@@ -409,7 +409,7 @@ static void s_verificator_out_add_wrapper(dap_ledger_t *a_ledger, dap_chain_datu
     
     PyObject *l_ledger = PyCapsule_New(a_ledger, "dap_ledger_t", NULL);
     PyObject *l_tx = PyCapsule_New(a_tx_out, "dap_chain_datum_tx_t", NULL);
-    PyObject *l_tx_hash = a_tx_out_hash ? PyBytes_FromStringAndSize((const char*)a_tx_out_hash, sizeof(dap_hash_fast_t)) : Py_None;
+    PyObject *l_tx_hash = a_tx_out_hash ? PyBytes_FromStringAndSize((const char*)a_tx_out_hash, sizeof(dap_hash_sha3_256_t)) : Py_None;
     PyObject *l_cond = PyCapsule_New(a_cond, "dap_chain_tx_out_cond_t", NULL);
     
     PyObject *l_result = PyObject_CallFunctionObjArgs(
@@ -434,10 +434,10 @@ static void s_verificator_out_add_wrapper(dap_ledger_t *a_ledger, dap_chain_datu
 /**
  * @brief C wrapper for cond_in_delete callback - calls Python callback
  * Signature: void (*dap_ledger_cond_in_delete_callback_t)(dap_ledger_t *a_ledger, dap_chain_datum_tx_t *a_tx_in,  
- *                                                           dap_hash_fast_t *a_tx_in_hash, dap_chain_tx_out_cond_t *a_prev_cond)
+ *                                                           dap_hash_sha3_256_t *a_tx_in_hash, dap_chain_tx_out_cond_t *a_prev_cond)
  */
 static void s_verificator_in_delete_wrapper(dap_ledger_t *a_ledger, dap_chain_datum_tx_t *a_tx_in,  
-                                            dap_hash_fast_t *a_tx_in_hash, dap_chain_tx_out_cond_t *a_prev_cond) {
+                                            dap_hash_sha3_256_t *a_tx_in_hash, dap_chain_tx_out_cond_t *a_prev_cond) {
     if (!a_prev_cond) {
         return;
     }
@@ -452,7 +452,7 @@ static void s_verificator_in_delete_wrapper(dap_ledger_t *a_ledger, dap_chain_da
     
     PyObject *l_ledger = PyCapsule_New(a_ledger, "dap_ledger_t", NULL);
     PyObject *l_tx = PyCapsule_New(a_tx_in, "dap_chain_datum_tx_t", NULL);
-    PyObject *l_tx_hash = a_tx_in_hash ? PyBytes_FromStringAndSize((const char*)a_tx_in_hash, sizeof(dap_hash_fast_t)) : Py_None;
+    PyObject *l_tx_hash = a_tx_in_hash ? PyBytes_FromStringAndSize((const char*)a_tx_in_hash, sizeof(dap_hash_sha3_256_t)) : Py_None;
     PyObject *l_cond = PyCapsule_New(a_prev_cond, "dap_chain_tx_out_cond_t", NULL);
     
     PyObject *l_result = PyObject_CallFunctionObjArgs(
@@ -477,10 +477,10 @@ static void s_verificator_in_delete_wrapper(dap_ledger_t *a_ledger, dap_chain_da
 /**
  * @brief C wrapper for cond_out_delete callback - calls Python callback
  * Signature: void (*dap_ledger_cond_out_delete_callback_t)(dap_ledger_t *a_ledger, dap_chain_datum_tx_t *a_tx_out, 
- *                                                            dap_hash_fast_t *a_tx_out_hash, dap_chain_tx_out_cond_t *a_cond)
+ *                                                            dap_hash_sha3_256_t *a_tx_out_hash, dap_chain_tx_out_cond_t *a_cond)
  */
 static void s_verificator_out_delete_wrapper(dap_ledger_t *a_ledger, dap_chain_datum_tx_t *a_tx_out, 
-                                             dap_hash_fast_t *a_tx_out_hash, dap_chain_tx_out_cond_t *a_cond) {
+                                             dap_hash_sha3_256_t *a_tx_out_hash, dap_chain_tx_out_cond_t *a_cond) {
     if (!a_cond) {
         return;
     }
@@ -495,7 +495,7 @@ static void s_verificator_out_delete_wrapper(dap_ledger_t *a_ledger, dap_chain_d
     
     PyObject *l_ledger = PyCapsule_New(a_ledger, "dap_ledger_t", NULL);
     PyObject *l_tx = PyCapsule_New(a_tx_out, "dap_chain_datum_tx_t", NULL);
-    PyObject *l_tx_hash = a_tx_out_hash ? PyBytes_FromStringAndSize((const char*)a_tx_out_hash, sizeof(dap_hash_fast_t)) : Py_None;
+    PyObject *l_tx_hash = a_tx_out_hash ? PyBytes_FromStringAndSize((const char*)a_tx_out_hash, sizeof(dap_hash_sha3_256_t)) : Py_None;
     PyObject *l_cond = PyCapsule_New(a_cond, "dap_chain_tx_out_cond_t", NULL);
     
     PyObject *l_result = PyObject_CallFunctionObjArgs(

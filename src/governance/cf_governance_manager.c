@@ -18,7 +18,7 @@ Thin wrappers around C governance API:
 #include "dap_chain_decree_callbacks.h"
 #include "dap_chain_ledger.h"
 #include "dap_chain.h"
-#include "uthash.h"
+#include "dap_ht.h"
 #include <Python.h>
 #include <pthread.h>
 
@@ -36,7 +36,7 @@ typedef struct {
     uint32_t key;  // (type << 16) | subtype
     PyObject *callback;
     PyObject *user_data;
-    UT_hash_handle hh;
+    dap_ht_handle_t hh;
 } py_decree_handler_t;
 
 static py_decree_handler_t *s_py_handlers = NULL;
@@ -56,7 +56,7 @@ static int s_py_decree_handler_wrapper(dap_chain_datum_decree_t *a_decree,
     // Find Python handler
     py_decree_handler_t *handler = NULL;
     pthread_mutex_lock(&s_handlers_mutex);
-    HASH_FIND_INT(s_py_handlers, &key, handler);
+    dap_ht_find_int(s_py_handlers, key, handler);
     pthread_mutex_unlock(&s_handlers_mutex);
     
     if (!handler || !handler->callback) {
@@ -144,7 +144,7 @@ static PyObject* py_decree_handler_register(PyObject *self, PyObject *args, PyOb
     
     // Check if already registered
     py_decree_handler_t *existing = NULL;
-    HASH_FIND_INT(s_py_handlers, &key, existing);
+    dap_ht_find_int(s_py_handlers, key, existing);
     if (existing) {
         pthread_mutex_unlock(&s_handlers_mutex);
         PyErr_Format(PyExc_ValueError, "Handler already registered for type=0x%04x subtype=0x%04x", type, subtype);
@@ -161,7 +161,7 @@ static PyObject* py_decree_handler_register(PyObject *self, PyObject *args, PyOb
         Py_INCREF(user_data);
     }
     
-    HASH_ADD_INT(s_py_handlers, key, handler);
+    dap_ht_add_int(s_py_handlers, key, handler);
     pthread_mutex_unlock(&s_handlers_mutex);
     
     // Register C wrapper with governance system
@@ -169,7 +169,7 @@ static PyObject* py_decree_handler_register(PyObject *self, PyObject *args, PyOb
     if (ret != 0) {
         // Rollback Python registry
         pthread_mutex_lock(&s_handlers_mutex);
-        HASH_DEL(s_py_handlers, handler);
+        dap_ht_del(s_py_handlers, handler);
         pthread_mutex_unlock(&s_handlers_mutex);
         
         Py_DECREF(callback);
@@ -205,9 +205,9 @@ static PyObject* py_decree_handler_unregister(PyObject *self, PyObject *args) {
     pthread_mutex_lock(&s_handlers_mutex);
     
     py_decree_handler_t *handler = NULL;
-    HASH_FIND_INT(s_py_handlers, &key, handler);
+    dap_ht_find_int(s_py_handlers, key, handler);
     if (handler) {
-        HASH_DEL(s_py_handlers, handler);
+        dap_ht_del(s_py_handlers, handler);
         Py_XDECREF(handler->callback);
         Py_XDECREF(handler->user_data);
         DAP_DELETE(handler);
@@ -270,11 +270,11 @@ static PyObject* py_decree_handler_call(PyObject *self, PyObject *args, PyObject
 // ============================================================================
 
 static PyMethodDef governance_methods[] = {
-    {"register_handler", (PyCFunction)py_decree_handler_register, METH_VARARGS | METH_KEYWORDS,
+    {"register_handler", (PyCFunction)(void(*)(void))py_decree_handler_register, METH_VARARGS | METH_KEYWORDS,
      "Register decree handler: register_handler(type, subtype, callback, user_data=None)"},
     {"unregister_handler", py_decree_handler_unregister, METH_VARARGS,
      "Unregister decree handler: unregister_handler(type, subtype)"},
-    {"call_handler", (PyCFunction)py_decree_handler_call, METH_VARARGS | METH_KEYWORDS,
+    {"call_handler", (PyCFunction)(void(*)(void))py_decree_handler_call, METH_VARARGS | METH_KEYWORDS,
      "Call decree handler: call_handler(type, subtype, decree, ledger, chain, apply)"},
     {NULL, NULL, 0, NULL}
 };
@@ -320,8 +320,8 @@ void cellframe_governance_manager_cleanup(void) {
     pthread_mutex_lock(&s_handlers_mutex);
     
     py_decree_handler_t *handler, *tmp;
-    HASH_ITER(hh, s_py_handlers, handler, tmp) {
-        HASH_DEL(s_py_handlers, handler);
+    dap_ht_foreach(s_py_handlers, handler, tmp) {
+        dap_ht_del(s_py_handlers, handler);
         Py_XDECREF(handler->callback);
         Py_XDECREF(handler->user_data);
         DAP_DELETE(handler);

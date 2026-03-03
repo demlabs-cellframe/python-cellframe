@@ -121,8 +121,8 @@ PyObject* dap_ledger_tx_hash_is_used_out_item_py(PyObject *a_self, PyObject *a_a
         return NULL;
     }
     
-    if ((size_t)l_hash_size != sizeof(dap_chain_hash_fast_t)) {
-        PyErr_Format(PyExc_ValueError, "Hash must be exactly %zu bytes", sizeof(dap_chain_hash_fast_t));
+    if ((size_t)l_hash_size != sizeof(dap_hash_sha3_256_t)) {
+        PyErr_Format(PyExc_ValueError, "Hash must be exactly %zu bytes", sizeof(dap_hash_sha3_256_t));
         return NULL;
     }
     
@@ -132,8 +132,8 @@ PyObject* dap_ledger_tx_hash_is_used_out_item_py(PyObject *a_self, PyObject *a_a
         return NULL;
     }
     
-    dap_chain_hash_fast_t *l_hash = (dap_chain_hash_fast_t *)l_hash_bytes;
-    dap_hash_fast_t *l_out_spender = l_spender_bytes ? (dap_hash_fast_t *)l_spender_bytes : NULL;
+    dap_hash_sha3_256_t *l_hash = (dap_hash_sha3_256_t *)l_hash_bytes;
+    dap_hash_sha3_256_t *l_out_spender = l_spender_bytes ? (dap_hash_sha3_256_t *)l_spender_bytes : NULL;
     
     bool l_result = dap_ledger_tx_hash_is_used_out_item(l_ledger, l_hash, l_idx_out, l_out_spender);
     
@@ -164,8 +164,8 @@ PyObject* dap_ledger_get_final_chain_tx_hash_py(PyObject *a_self, PyObject *a_ar
         return NULL;
     }
     
-    if ((size_t)l_hash_size != sizeof(dap_chain_hash_fast_t)) {
-        PyErr_Format(PyExc_ValueError, "Hash must be exactly %zu bytes", sizeof(dap_chain_hash_fast_t));
+    if ((size_t)l_hash_size != sizeof(dap_hash_sha3_256_t)) {
+        PyErr_Format(PyExc_ValueError, "Hash must be exactly %zu bytes", sizeof(dap_hash_sha3_256_t));
         return NULL;
     }
     
@@ -175,14 +175,14 @@ PyObject* dap_ledger_get_final_chain_tx_hash_py(PyObject *a_self, PyObject *a_ar
         return NULL;
     }
     
-    dap_chain_hash_fast_t *l_tx_hash = (dap_chain_hash_fast_t *)l_hash_bytes;
+    dap_hash_sha3_256_t *l_tx_hash = (dap_hash_sha3_256_t *)l_hash_bytes;
     
-    dap_hash_fast_t l_result = dap_ledger_get_final_chain_tx_hash(l_ledger, 
+    dap_hash_sha3_256_t l_result = dap_ledger_get_final_chain_tx_hash(l_ledger, 
                                                                     (dap_chain_tx_out_cond_subtype_t)l_cond_type,
                                                                     l_tx_hash, (bool)l_unspent_only);
     
     log_it(L_DEBUG, "Retrieved final chain TX hash");
-    return PyBytes_FromStringAndSize((const char *)&l_result, sizeof(dap_hash_fast_t));
+    return PyBytes_FromStringAndSize((const char *)&l_result, sizeof(dap_hash_sha3_256_t));
 }
 
 /**
@@ -207,8 +207,8 @@ PyObject* dap_ledger_get_first_chain_tx_hash_py(PyObject *a_self, PyObject *a_ar
         return NULL;
     }
     
-    if ((size_t)l_hash_size != sizeof(dap_chain_hash_fast_t)) {
-        PyErr_Format(PyExc_ValueError, "Hash must be exactly %zu bytes", sizeof(dap_chain_hash_fast_t));
+    if ((size_t)l_hash_size != sizeof(dap_hash_sha3_256_t)) {
+        PyErr_Format(PyExc_ValueError, "Hash must be exactly %zu bytes", sizeof(dap_hash_sha3_256_t));
         return NULL;
     }
     
@@ -218,14 +218,14 @@ PyObject* dap_ledger_get_first_chain_tx_hash_py(PyObject *a_self, PyObject *a_ar
         return NULL;
     }
     
-    dap_chain_hash_fast_t *l_tx_hash = (dap_chain_hash_fast_t *)l_hash_bytes;
+    dap_hash_sha3_256_t *l_tx_hash = (dap_hash_sha3_256_t *)l_hash_bytes;
     
-    dap_hash_fast_t l_result = dap_ledger_get_first_chain_tx_hash(l_ledger, 
+    dap_hash_sha3_256_t l_result = dap_ledger_get_first_chain_tx_hash(l_ledger, 
                                                                     (dap_chain_tx_out_cond_subtype_t)l_cond_type,
                                                                     l_tx_hash);
     
     log_it(L_DEBUG, "Retrieved first chain TX hash");
-    return PyBytes_FromStringAndSize((const char *)&l_result, sizeof(dap_hash_fast_t));
+    return PyBytes_FromStringAndSize((const char *)&l_result, sizeof(dap_hash_sha3_256_t));
 }
 
 /**
@@ -254,8 +254,8 @@ PyObject* dap_ledger_tx_check_recipient_py(PyObject *a_self, PyObject *a_args) {
         return NULL;
     }
     
-    if ((size_t)l_hash_size != sizeof(dap_chain_hash_fast_t)) {
-        PyErr_Format(PyExc_ValueError, "Hash must be exactly %zu bytes", sizeof(dap_chain_hash_fast_t));
+    if ((size_t)l_hash_size != sizeof(dap_hash_sha3_256_t)) {
+        PyErr_Format(PyExc_ValueError, "Hash must be exactly %zu bytes", sizeof(dap_hash_sha3_256_t));
         return NULL;
     }
     
@@ -271,7 +271,7 @@ PyObject* dap_ledger_tx_check_recipient_py(PyObject *a_self, PyObject *a_args) {
         return NULL;
     }
     
-    dap_chain_hash_fast_t *l_hash = (dap_chain_hash_fast_t *)l_hash_bytes;
+    dap_hash_sha3_256_t *l_hash = (dap_hash_sha3_256_t *)l_hash_bytes;
     
     bool l_result = dap_ledger_tx_check_recipient(l_ledger, l_hash, l_addr);
     
@@ -343,8 +343,8 @@ PyObject* dap_ledger_tx_service_info_py(PyObject *a_self, PyObject *a_args) {
         return NULL;
     }
     
-    if ((size_t)l_hash_size != sizeof(dap_hash_fast_t)) {
-        PyErr_Format(PyExc_ValueError, "Hash must be exactly %zu bytes", sizeof(dap_hash_fast_t));
+    if ((size_t)l_hash_size != sizeof(dap_hash_sha3_256_t)) {
+        PyErr_Format(PyExc_ValueError, "Hash must be exactly %zu bytes", sizeof(dap_hash_sha3_256_t));
         return NULL;
     }
     
@@ -354,7 +354,7 @@ PyObject* dap_ledger_tx_service_info_py(PyObject *a_self, PyObject *a_args) {
         return NULL;
     }
     
-    dap_hash_fast_t *l_hash = (dap_hash_fast_t *)l_hash_bytes;
+    dap_hash_sha3_256_t *l_hash = (dap_hash_sha3_256_t *)l_hash_bytes;
     dap_chain_srv_uid_t l_uid = {0};
     char *l_service_name = NULL;
     dap_chain_tx_tag_action_type_t l_action = 0;
@@ -450,8 +450,8 @@ PyObject* dap_ledger_tx_get_token_ticker_by_hash_py(PyObject *a_self, PyObject *
         return NULL;
     }
     
-    if ((size_t)l_hash_size != sizeof(dap_chain_hash_fast_t)) {
-        PyErr_Format(PyExc_ValueError, "Hash must be exactly %zu bytes", sizeof(dap_chain_hash_fast_t));
+    if ((size_t)l_hash_size != sizeof(dap_hash_sha3_256_t)) {
+        PyErr_Format(PyExc_ValueError, "Hash must be exactly %zu bytes", sizeof(dap_hash_sha3_256_t));
         return NULL;
     }
     
@@ -461,7 +461,7 @@ PyObject* dap_ledger_tx_get_token_ticker_by_hash_py(PyObject *a_self, PyObject *
         return NULL;
     }
     
-    dap_chain_hash_fast_t *l_hash = (dap_chain_hash_fast_t *)l_hash_bytes;
+    dap_hash_sha3_256_t *l_hash = (dap_hash_sha3_256_t *)l_hash_bytes;
     
     const char *l_ticker = dap_ledger_tx_get_token_ticker_by_hash(l_ledger, l_hash);
     if (!l_ticker) {

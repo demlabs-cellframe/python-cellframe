@@ -27,7 +27,7 @@ PyObject* py_chain_tx_event_to_dict(dap_chain_tx_event_t *a_event);
 // C callback wrappers (implemented in callbacks module)
 void py_ledger_event_notify_callback(void *a_arg, dap_ledger_t *a_ledger, 
                                     dap_chain_tx_event_t *a_event, 
-                                    dap_hash_fast_t *a_tx_hash,
+                                    dap_hash_sha3_256_t *a_tx_hash,
                                     dap_ledger_notify_opcodes_t a_opcode);
 
 void py_ledger_tx_add_notify_callback(void *a_arg, dap_ledger_t *a_ledger, 
@@ -36,7 +36,7 @@ void py_ledger_tx_add_notify_callback(void *a_arg, dap_ledger_t *a_ledger,
 
 void py_ledger_bridged_tx_notify_callback(dap_ledger_t *a_ledger, 
                                          dap_chain_datum_tx_t *a_tx,
-                                         dap_hash_fast_t *a_tx_hash,
+                                         dap_hash_sha3_256_t *a_tx_hash,
                                          void *a_arg,
                                          dap_ledger_notify_opcodes_t a_opcode);
 

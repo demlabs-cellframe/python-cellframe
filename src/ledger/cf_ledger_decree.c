@@ -156,13 +156,13 @@ PyObject* dap_ledger_decree_apply_py(PyObject *a_self, PyObject *a_args) {
         return NULL;
     }
     
-    if ((size_t)l_decree_hash_size != sizeof(dap_hash_fast_t)) {
-        PyErr_Format(PyExc_ValueError, "Decree hash must be exactly %zu bytes", sizeof(dap_hash_fast_t));
+    if ((size_t)l_decree_hash_size != sizeof(dap_hash_sha3_256_t)) {
+        PyErr_Format(PyExc_ValueError, "Decree hash must be exactly %zu bytes", sizeof(dap_hash_sha3_256_t));
         return NULL;
     }
     
-    if ((size_t)l_anchor_hash_size != sizeof(dap_hash_fast_t)) {
-        PyErr_Format(PyExc_ValueError, "Anchor hash must be exactly %zu bytes", sizeof(dap_hash_fast_t));
+    if ((size_t)l_anchor_hash_size != sizeof(dap_hash_sha3_256_t)) {
+        PyErr_Format(PyExc_ValueError, "Anchor hash must be exactly %zu bytes", sizeof(dap_hash_sha3_256_t));
         return NULL;
     }
     
@@ -176,8 +176,8 @@ PyObject* dap_ledger_decree_apply_py(PyObject *a_self, PyObject *a_args) {
         return NULL;
     }
     
-    dap_hash_fast_t *l_decree_hash = (dap_hash_fast_t *)l_decree_hash_bytes;
-    dap_hash_fast_t *l_anchor_hash = (dap_hash_fast_t *)l_anchor_hash_bytes;
+    dap_hash_sha3_256_t *l_decree_hash = (dap_hash_sha3_256_t *)l_decree_hash_bytes;
+    dap_hash_sha3_256_t *l_anchor_hash = (dap_hash_sha3_256_t *)l_anchor_hash_bytes;
     dap_chain_datum_decree_t *l_decree = (dap_chain_datum_decree_t *)PyCapsule_GetPointer(l_decree_obj, "dap_chain_datum_decree_t");
     dap_chain_t *l_chain = (dap_chain_t *)PyCapsule_GetPointer(l_chain_obj, "dap_chain_t");
     
@@ -231,14 +231,14 @@ PyObject* dap_ledger_decree_verify_py(PyObject *a_self, PyObject *a_args) {
         return NULL;
     }
     
-    if ((size_t)l_hash_size != sizeof(dap_chain_hash_fast_t)) {
-        PyErr_Format(PyExc_ValueError, "Hash must be exactly %zu bytes", sizeof(dap_chain_hash_fast_t));
+    if ((size_t)l_hash_size != sizeof(dap_hash_sha3_256_t)) {
+        PyErr_Format(PyExc_ValueError, "Hash must be exactly %zu bytes", sizeof(dap_hash_sha3_256_t));
         return NULL;
     }
     
     dap_chain_net_t *l_net = (dap_chain_net_t *)PyCapsule_GetPointer(l_net_obj, "dap_chain_net_t");
     dap_chain_datum_decree_t *l_decree = (dap_chain_datum_decree_t *)PyCapsule_GetPointer(l_decree_obj, "dap_chain_datum_decree_t");
-    dap_chain_hash_fast_t *l_hash = (dap_chain_hash_fast_t *)l_hash_bytes;
+    dap_hash_sha3_256_t *l_hash = (dap_hash_sha3_256_t *)l_hash_bytes;
     
     if (!l_net || !l_decree) {
         PyErr_SetString(PyExc_ValueError, "Invalid net or decree capsule");
@@ -283,14 +283,14 @@ PyObject* dap_ledger_decree_load_py(PyObject *a_self, PyObject *a_args) {
         return NULL;
     }
     
-    if ((size_t)l_hash_size != sizeof(dap_chain_hash_fast_t)) {
-        PyErr_Format(PyExc_ValueError, "Hash must be exactly %zu bytes", sizeof(dap_chain_hash_fast_t));
+    if ((size_t)l_hash_size != sizeof(dap_hash_sha3_256_t)) {
+        PyErr_Format(PyExc_ValueError, "Hash must be exactly %zu bytes", sizeof(dap_hash_sha3_256_t));
         return NULL;
     }
     
     dap_chain_datum_decree_t *l_decree = (dap_chain_datum_decree_t *)PyCapsule_GetPointer(l_decree_obj, "dap_chain_datum_decree_t");
     dap_chain_t *l_chain = (dap_chain_t *)PyCapsule_GetPointer(l_chain_obj, "dap_chain_t");
-    dap_chain_hash_fast_t *l_hash = (dap_chain_hash_fast_t *)l_hash_bytes;
+    dap_hash_sha3_256_t *l_hash = (dap_hash_sha3_256_t *)l_hash_bytes;
     
     if (!l_decree || !l_chain) {
         PyErr_SetString(PyExc_ValueError, "Invalid decree or chain capsule");
@@ -334,8 +334,8 @@ PyObject* dap_ledger_decree_get_by_hash_py(PyObject *a_self, PyObject *a_args) {
         return NULL;
     }
     
-    if ((size_t)l_hash_size != sizeof(dap_hash_fast_t)) {
-        PyErr_Format(PyExc_ValueError, "Hash must be exactly %zu bytes", sizeof(dap_hash_fast_t));
+    if ((size_t)l_hash_size != sizeof(dap_hash_sha3_256_t)) {
+        PyErr_Format(PyExc_ValueError, "Hash must be exactly %zu bytes", sizeof(dap_hash_sha3_256_t));
         return NULL;
     }
     
@@ -351,7 +351,7 @@ PyObject* dap_ledger_decree_get_by_hash_py(PyObject *a_self, PyObject *a_args) {
         return NULL;
     }
     
-    dap_hash_fast_t *l_hash = (dap_hash_fast_t *)l_hash_bytes;
+    dap_hash_sha3_256_t *l_hash = (dap_hash_sha3_256_t *)l_hash_bytes;
     bool l_is_applied = false;
     
     dap_chain_datum_decree_t *l_decree = dap_ledger_decree_get_by_hash(l_net->pub.ledger, l_hash, &l_is_applied);
@@ -389,8 +389,8 @@ PyObject* dap_ledger_decree_reset_applied_py(PyObject *a_self, PyObject *a_args)
         return NULL;
     }
     
-    if ((size_t)l_hash_size != sizeof(dap_chain_hash_fast_t)) {
-        PyErr_Format(PyExc_ValueError, "Hash must be exactly %zu bytes", sizeof(dap_chain_hash_fast_t));
+    if ((size_t)l_hash_size != sizeof(dap_hash_sha3_256_t)) {
+        PyErr_Format(PyExc_ValueError, "Hash must be exactly %zu bytes", sizeof(dap_hash_sha3_256_t));
         return NULL;
     }
     
@@ -406,7 +406,7 @@ PyObject* dap_ledger_decree_reset_applied_py(PyObject *a_self, PyObject *a_args)
         return NULL;
     }
     
-    dap_chain_hash_fast_t *l_hash = (dap_chain_hash_fast_t *)l_hash_bytes;
+    dap_hash_sha3_256_t *l_hash = (dap_hash_sha3_256_t *)l_hash_bytes;
     
     int l_result = dap_ledger_decree_reset_applied(l_net->pub.ledger, l_hash);
     

@@ -19,6 +19,7 @@ Thin wrappers around ledger token API:
 #include "dap_chain_ledger.h"
 #include "dap_json.h"
 
+#undef LOG_TAG
 #define LOG_TAG "cf_token_manager"
 
 // ============================================================================
@@ -148,9 +149,9 @@ static PyObject* py_ledger_token_emission_get(PyObject *self, PyObject *args) {
         return NULL;
     }
     
-    if (hash_size != sizeof(dap_chain_hash_fast_t)) {
+    if (hash_size != sizeof(dap_hash_sha3_256_t)) {
         PyErr_Format(PyExc_ValueError, "Invalid hash size: %zd (expected %zu)", 
-                     hash_size, sizeof(dap_chain_hash_fast_t));
+                     hash_size, sizeof(dap_hash_sha3_256_t));
         return NULL;
     }
     
@@ -160,7 +161,7 @@ static PyObject* py_ledger_token_emission_get(PyObject *self, PyObject *args) {
         return NULL;
     }
     
-    dap_chain_hash_fast_t *hash = (dap_chain_hash_fast_t *)hash_bytes;
+    dap_hash_sha3_256_t *hash = (dap_hash_sha3_256_t *)hash_bytes;
     dap_chain_datum_token_emission_t *emission = dap_ledger_token_emission_find(ledger, hash);
     
     if (!emission) {

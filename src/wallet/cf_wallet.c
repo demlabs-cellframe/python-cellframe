@@ -480,7 +480,7 @@ PyObject* py_dap_chain_wallet_get_balance(PyObject *self, PyObject *args) {
     
     // Convert uint256_t to string for Python
     const char *balance_coins = NULL;
-    const char *balance_datoshi = dap_uint256_to_char(balance, &balance_coins);
+    const char *balance_datoshi = dap_uint256_to_const_char(balance, &balance_coins);
     
     if (!balance_datoshi) {
         PyErr_SetString(CellframeWalletError, "Failed to convert balance");
@@ -555,7 +555,7 @@ PyObject* py_dap_chain_wallet_get_pkey_hash(PyObject *self, PyObject *args) {
         return NULL;
     }
     
-    dap_hash_fast_t pkey_hash = {};
+    dap_hash_sha3_256_t pkey_hash = {};
     int result = dap_chain_wallet_get_pkey_hash(wallet, &pkey_hash);
     if (result != 0) {
         char error_msg[256];
@@ -564,9 +564,9 @@ PyObject* py_dap_chain_wallet_get_pkey_hash(PyObject *self, PyObject *args) {
         return NULL;
     }
     
-    // Convert dap_hash_fast_t to hex string (0x...)
-    char hash_str[DAP_CHAIN_HASH_FAST_STR_SIZE];
-    dap_chain_hash_fast_to_str(&pkey_hash, hash_str, sizeof(hash_str));
+    // Convert dap_hash_sha3_256_t to hex string (0x...)
+    char hash_str[DAP_HASH_SHA3_256_STR_SIZE];
+    dap_hash_sha3_256_to_str(&pkey_hash, hash_str, sizeof(hash_str));
     
     return PyUnicode_FromString(hash_str);
 }
@@ -585,9 +585,9 @@ PyObject* py_dap_chain_wallet_shared_get_tx_hashes_json(PyObject *self, PyObject
         return NULL;
     }
     
-    // Convert pkey_hash string to dap_hash_fast_t
-    dap_hash_fast_t pkey_hash = {};
-    if (dap_chain_hash_fast_from_str(pkey_hash_str, &pkey_hash) != 0) {
+    // Convert pkey_hash string to dap_hash_sha3_256_t
+    dap_hash_sha3_256_t pkey_hash = {};
+    if (dap_hash_sha3_256_from_str(pkey_hash_str, &pkey_hash) != 0) {
         PyErr_SetString(CellframeWalletError, "Invalid public key hash format");
         return NULL;
     }

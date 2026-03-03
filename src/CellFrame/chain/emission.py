@@ -264,10 +264,10 @@ class CellframeEmission:
                     "Please ensure this function is exported in src/cellframe_ledger.c"
                 )
             
-            # Convert hash string to dap_hash_fast_t
+            # Convert hash string to dap_hash_sha3_256_t
             # Parse hash string
             emission_hash_bytes = bytes.fromhex(emission_hash.replace('0x', ''))
-            if len(emission_hash_bytes) != 32:  # sizeof(dap_hash_fast_t)
+            if len(emission_hash_bytes) != 32:  # sizeof(dap_hash_sha3_256_t)
                 raise ValueError(f"Invalid emission hash length: {len(emission_hash_bytes)}")
             
             # Find emission in ledger

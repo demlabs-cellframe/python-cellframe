@@ -160,9 +160,9 @@ PyObject* dap_ledger_threshold_info_py(PyObject *a_self, PyObject *a_args) {
         return NULL;
     }
     
-    dap_hash_fast_t *l_threshold_hash = NULL;
+    dap_hash_sha3_256_t *l_threshold_hash = NULL;
     if (l_hash_capsule && l_hash_capsule != Py_None) {
-        l_threshold_hash = (dap_hash_fast_t*)PyCapsule_GetPointer(l_hash_capsule, "dap_hash_fast_t");
+        l_threshold_hash = (dap_hash_sha3_256_t*)PyCapsule_GetPointer(l_hash_capsule, "dap_hash_sha3_256_t");
     }
     
     dap_json_t *l_json = dap_ledger_threshold_info(l_ledger, l_limit, l_offset, l_threshold_hash, (bool)l_head, l_version);
@@ -286,8 +286,8 @@ PyObject* dap_ledger_tx_find_by_hash_py(PyObject *a_self, PyObject *a_args) {
         return NULL;
     }
     
-    if ((size_t)l_hash_size != sizeof(dap_chain_hash_fast_t)) {
-        PyErr_Format(PyExc_ValueError, "Hash must be exactly %zu bytes", sizeof(dap_chain_hash_fast_t));
+    if ((size_t)l_hash_size != sizeof(dap_hash_sha3_256_t)) {
+        PyErr_Format(PyExc_ValueError, "Hash must be exactly %zu bytes", sizeof(dap_hash_sha3_256_t));
         return NULL;
     }
     
@@ -297,7 +297,7 @@ PyObject* dap_ledger_tx_find_by_hash_py(PyObject *a_self, PyObject *a_args) {
     return NULL;
 }
 
-    dap_chain_hash_fast_t *l_hash = (dap_chain_hash_fast_t *)l_hash_bytes;
+    dap_hash_sha3_256_t *l_hash = (dap_hash_sha3_256_t *)l_hash_bytes;
     
     dap_chain_datum_tx_t *l_tx = dap_ledger_tx_find_by_hash(l_ledger, l_hash);
     if (!l_tx) {
@@ -330,8 +330,8 @@ PyObject* dap_ledger_tx_unspent_find_by_hash_py(PyObject *a_self, PyObject *a_ar
         return NULL;
     }
     
-    if ((size_t)l_hash_size != sizeof(dap_chain_hash_fast_t)) {
-        PyErr_Format(PyExc_ValueError, "Hash must be exactly %zu bytes", sizeof(dap_chain_hash_fast_t));
+    if ((size_t)l_hash_size != sizeof(dap_hash_sha3_256_t)) {
+        PyErr_Format(PyExc_ValueError, "Hash must be exactly %zu bytes", sizeof(dap_hash_sha3_256_t));
         return NULL;
     }
     
@@ -341,7 +341,7 @@ PyObject* dap_ledger_tx_unspent_find_by_hash_py(PyObject *a_self, PyObject *a_ar
     return NULL;
 }
 
-    dap_chain_hash_fast_t *l_hash = (dap_chain_hash_fast_t *)l_hash_bytes;
+    dap_hash_sha3_256_t *l_hash = (dap_hash_sha3_256_t *)l_hash_bytes;
     
     dap_chain_datum_tx_t *l_tx = dap_ledger_tx_unspent_find_by_hash(l_ledger, l_hash);
     if (!l_tx) {
@@ -392,13 +392,13 @@ PyObject* dap_ledger_tx_find_by_addr_py(PyObject *a_self, PyObject *a_args) {
     return NULL;
 }
 
-    dap_chain_hash_fast_t *l_first_hash = NULL;
+    dap_hash_sha3_256_t *l_first_hash = NULL;
     if (l_first_hash_obj && l_first_hash_obj != Py_None) {
         if (!PyCapsule_CheckExact(l_first_hash_obj)) {
             PyErr_SetString(PyExc_TypeError, "tx_first_hash must be a hash capsule");
             return NULL;
         }
-        l_first_hash = (dap_chain_hash_fast_t *)PyCapsule_GetPointer(l_first_hash_obj, "dap_hash_fast_t");
+        l_first_hash = (dap_hash_sha3_256_t *)PyCapsule_GetPointer(l_first_hash_obj, "dap_hash_sha3_256_t");
     }
     
     dap_chain_datum_tx_t *l_tx = dap_ledger_tx_find_by_addr(l_ledger, l_token, l_addr, 

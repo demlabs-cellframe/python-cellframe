@@ -5,7 +5,7 @@
 
 #include "cf_ledger_callback_registry.h"
 #include "dap_common.h"
-#include "uthash.h"
+#include "dap_ht.h"
 
 #define LOG_TAG "cf_ledger_callback_registry"
 
@@ -13,14 +13,14 @@
 typedef struct {
     dap_ledger_t *ledger;               // Key
     python_ledger_cache_ctx_t *context; // Value
-    UT_hash_handle hh;
+    dap_ht_handle_t hh;
 } cache_callback_entry_t;
 
 // Registry entry for service callbacks (keyed by service UID)
 typedef struct {
     dap_chain_srv_uid_t uid;            // Key
     python_service_tag_ctx_t *context;  // Value
-    UT_hash_handle hh;
+    dap_ht_handle_t hh;
 } service_callback_entry_t;
 
 // Global state
@@ -64,8 +64,8 @@ void cf_ledger_callback_registry_cleanup_all(void) {
     
     // Cleanup cache callbacks
     cache_callback_entry_t *cache_entry, *cache_tmp;
-    HASH_ITER(hh, s_cache_callbacks, cache_entry, cache_tmp) {
-        HASH_DEL(s_cache_callbacks, cache_entry);
+    dap_ht_foreach(s_cache_callbacks, cache_entry, cache_tmp) {
+        dap_ht_del(s_cache_callbacks, cache_entry);
         if (cache_entry->context) {
             Py_XDECREF(cache_entry->context->callback);
             Py_XDECREF(cache_entry->context->user_data);
@@ -76,8 +76,8 @@ void cf_ledger_callback_registry_cleanup_all(void) {
     
     // Cleanup service callbacks
     service_callback_entry_t *service_entry, *service_tmp;
-    HASH_ITER(hh, s_service_callbacks, service_entry, service_tmp) {
-        HASH_DEL(s_service_callbacks, service_entry);
+    dap_ht_foreach(s_service_callbacks, service_entry, service_tmp) {
+        dap_ht_del(s_service_callbacks, service_entry);
         if (service_entry->context) {
             Py_XDECREF(service_entry->context->callback);
             Py_XDECREF(service_entry->context->user_data);
@@ -134,7 +134,7 @@ int cf_ledger_cache_callback_register(dap_ledger_t *a_ledger, PyObject *a_callba
     
     // Check if already exists
     cache_callback_entry_t *existing = NULL;
-    HASH_FIND_PTR(s_cache_callbacks, &a_ledger, existing);
+    dap_ht_find_ptr(s_cache_callbacks, &a_ledger, existing);
     if (existing) {
         // Replace existing
         Py_XDECREF(existing->context->callback);
@@ -170,7 +170,7 @@ int cf_ledger_cache_callback_register(dap_ledger_t *a_ledger, PyObject *a_callba
     Py_INCREF(a_callback);
     Py_INCREF(a_user_data);
     
-    HASH_ADD_PTR(s_cache_callbacks, ledger, entry);
+    dap_ht_add_ptr(s_cache_callbacks, ledger, entry);
     
     pthread_mutex_unlock(&s_registry_mutex);
     log_it(L_DEBUG, "Registered cache callback for ledger %p", a_ledger);
@@ -188,7 +188,7 @@ python_ledger_cache_ctx_t* cf_ledger_cache_callback_get(dap_ledger_t *a_ledger) 
     pthread_mutex_lock(&s_registry_mutex);
     
     cache_callback_entry_t *entry = NULL;
-    HASH_FIND_PTR(s_cache_callbacks, &a_ledger, entry);
+    dap_ht_find_ptr(s_cache_callbacks, &a_ledger, entry);
     
     python_ledger_cache_ctx_t *result = entry ? entry->context : NULL;
     
@@ -207,10 +207,10 @@ void cf_ledger_cache_callback_unregister(dap_ledger_t *a_ledger) {
     pthread_mutex_lock(&s_registry_mutex);
     
     cache_callback_entry_t *entry = NULL;
-    HASH_FIND_PTR(s_cache_callbacks, &a_ledger, entry);
+    dap_ht_find_ptr(s_cache_callbacks, &a_ledger, entry);
     
     if (entry) {
-        HASH_DEL(s_cache_callbacks, entry);
+        dap_ht_del(s_cache_callbacks, entry);
         if (entry->context) {
             Py_XDECREF(entry->context->callback);
             Py_XDECREF(entry->context->user_data);
@@ -243,7 +243,7 @@ int cf_ledger_service_callback_register(dap_chain_srv_uid_t a_uid, const char *a
     
     // Check if already exists
     service_callback_entry_t *existing = NULL;
-    HASH_FIND(hh, s_service_callbacks, &a_uid, sizeof(dap_chain_srv_uid_t), existing);
+    dap_ht_find(s_service_callbacks, &a_uid, sizeof(dap_chain_srv_uid_t), existing);
     if (existing) {
         // Replace existing
         Py_XDECREF(existing->context->callback);
@@ -258,7 +258,7 @@ int cf_ledger_service_callback_register(dap_chain_srv_uid_t a_uid, const char *a
         Py_INCREF(a_user_data);
         
         pthread_mutex_unlock(&s_registry_mutex);
-        log_it(L_DEBUG, "Replaced service callback for UID 0x%llx", a_uid.uint64);
+        log_it(L_DEBUG, "Replaced service callback for UID 0x%llx", (unsigned long long)a_uid.uint64);
         return 0;
     }
     
@@ -285,10 +285,10 @@ int cf_ledger_service_callback_register(dap_chain_srv_uid_t a_uid, const char *a
     Py_INCREF(a_callback);
     Py_INCREF(a_user_data);
     
-    HASH_ADD(hh, s_service_callbacks, uid, sizeof(dap_chain_srv_uid_t), entry);
+    dap_ht_add(s_service_callbacks, uid, entry);
     
     pthread_mutex_unlock(&s_registry_mutex);
-    log_it(L_DEBUG, "Registered service callback for UID 0x%llx, tag '%s'", a_uid.uint64, a_tag_str);
+    log_it(L_DEBUG, "Registered service callback for UID 0x%llx, tag '%s'", (unsigned long long)a_uid.uint64, a_tag_str);
     return 0;
 }
 
@@ -299,7 +299,7 @@ python_service_tag_ctx_t* cf_ledger_service_callback_get(dap_chain_srv_uid_t a_u
     pthread_mutex_lock(&s_registry_mutex);
     
     service_callback_entry_t *entry = NULL;
-    HASH_FIND(hh, s_service_callbacks, &a_uid, sizeof(dap_chain_srv_uid_t), entry);
+    dap_ht_find(s_service_callbacks, &a_uid, sizeof(dap_chain_srv_uid_t), entry);
     
     python_service_tag_ctx_t *result = entry ? entry->context : NULL;
     
@@ -314,10 +314,10 @@ void cf_ledger_service_callback_unregister(dap_chain_srv_uid_t a_uid) {
     pthread_mutex_lock(&s_registry_mutex);
     
     service_callback_entry_t *entry = NULL;
-    HASH_FIND(hh, s_service_callbacks, &a_uid, sizeof(dap_chain_srv_uid_t), entry);
+    dap_ht_find(s_service_callbacks, &a_uid, sizeof(dap_chain_srv_uid_t), entry);
     
     if (entry) {
-        HASH_DEL(s_service_callbacks, entry);
+        dap_ht_del(s_service_callbacks, entry);
         if (entry->context) {
             Py_XDECREF(entry->context->callback);
             Py_XDECREF(entry->context->user_data);
@@ -325,7 +325,7 @@ void cf_ledger_service_callback_unregister(dap_chain_srv_uid_t a_uid) {
             DAP_DELETE(entry->context);
         }
         DAP_DELETE(entry);
-        log_it(L_DEBUG, "Unregistered service callback for UID 0x%llx", a_uid.uint64);
+        log_it(L_DEBUG, "Unregistered service callback for UID 0x%llx", (unsigned long long)a_uid.uint64);
     }
     
     pthread_mutex_unlock(&s_registry_mutex);

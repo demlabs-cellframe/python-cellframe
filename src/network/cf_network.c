@@ -4,6 +4,7 @@
 #include "dap_chain_common.h"
 #include "dap_chain_datum.h"
 #include "dap_common.h"
+#include "dap_global_db.h"
 #include "dap_global_db_cluster.h"
 #include "cf_callbacks_registry.h"  // CRITICAL: For memory leak prevention
 
@@ -1168,7 +1169,7 @@ PyObject* dap_chain_net_tx_get_fee_py(PyObject *a_self, PyObject *a_args) {
     
     // Convert uint256_t to string (coins and datoshi)
     const char *l_fee_coins_str = NULL;
-    const char *l_fee_datoshi_str = dap_uint256_to_char(l_fee, &l_fee_coins_str);
+    const char *l_fee_datoshi_str = dap_uint256_to_const_char(l_fee, &l_fee_coins_str);
     
     if (!l_fee_datoshi_str) {
         log_it(L_ERROR, "Failed to convert fee to string");
@@ -1371,9 +1372,9 @@ PyObject* dap_chain_net_verify_datum_for_add_py(PyObject *a_self, PyObject *a_ar
     }
     
     // Validate hash size
-    if (l_hash_size != sizeof(dap_hash_fast_t)) {
-        log_it(L_ERROR, "Invalid hash size: %zd, expected %zu", l_hash_size, sizeof(dap_hash_fast_t));
-        PyErr_Format(PyExc_ValueError, "Hash size must be %zu bytes", sizeof(dap_hash_fast_t));
+    if (l_hash_size != sizeof(dap_hash_sha3_256_t)) {
+        log_it(L_ERROR, "Invalid hash size: %zd, expected %zu", l_hash_size, sizeof(dap_hash_sha3_256_t));
+        PyErr_Format(PyExc_ValueError, "Hash size must be %zu bytes", sizeof(dap_hash_sha3_256_t));
         return NULL;
     }
     
@@ -1391,7 +1392,7 @@ PyObject* dap_chain_net_verify_datum_for_add_py(PyObject *a_self, PyObject *a_ar
     }
     
     dap_chain_datum_t *l_datum = (dap_chain_datum_t*)l_datum_bytes;
-    dap_hash_fast_t *l_datum_hash = (dap_hash_fast_t*)l_hash_bytes;
+    dap_hash_sha3_256_t *l_datum_hash = (dap_hash_sha3_256_t*)l_hash_bytes;
     
     // Verify datum
     int l_result = dap_chain_net_verify_datum_for_add(l_chain, l_datum, l_datum_hash);
@@ -1421,7 +1422,7 @@ typedef struct {
  * @param a_store_obj Store object
  * @param a_arg User data (python_callback_ctx_t*)
  */
-static void s_python_callback_wrapper(dap_store_obj_t *a_store_obj, void *a_arg) {
+static void s_python_callback_wrapper(dap_global_db_store_obj_t *a_store_obj, void *a_arg) {
     python_callback_ctx_t *l_ctx = (python_callback_ctx_t*)a_arg;
     if (!l_ctx || !l_ctx->callback) {
         log_it(L_ERROR, "Invalid callback context");
@@ -1432,7 +1433,7 @@ static void s_python_callback_wrapper(dap_store_obj_t *a_store_obj, void *a_arg)
     PyGILState_STATE l_gstate = PyGILState_Ensure();
     
     // Call Python callback with capsule and user data
-    PyObject *l_arg_capsule = PyCapsule_New(a_store_obj, "dap_store_obj_t", NULL);
+    PyObject *l_arg_capsule = PyCapsule_New(a_store_obj, "dap_global_db_store_obj_t", NULL);
     if (!l_arg_capsule) {
         log_it(L_ERROR, "Failed to create capsule for callback argument");
         PyGILState_Release(l_gstate);

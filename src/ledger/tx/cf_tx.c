@@ -39,7 +39,7 @@ PyObject* py_dap_chain_datum_tx_add_in_item(PyObject *self, PyObject *args) {
     }
     
     dap_chain_datum_tx_t **tx = (dap_chain_datum_tx_t**)PyCapsule_GetPointer(tx_capsule, "dap_chain_datum_tx_t");
-    dap_chain_hash_fast_t *prev_hash = (dap_chain_hash_fast_t*)PyCapsule_GetPointer(prev_hash_capsule, "dap_chain_hash_fast_t");
+    dap_hash_sha3_256_t *prev_hash = (dap_hash_sha3_256_t*)PyCapsule_GetPointer(prev_hash_capsule, "dap_hash_sha3_256_t");
     
     if (!tx || !prev_hash) {
         PyErr_SetString(CellframeNetworkError, "Invalid transaction or hash object");

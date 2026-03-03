@@ -12,7 +12,7 @@ extern PyObject *CellframeError;
 // NOTE: dap_chain_node_cli.h removed in refactoring
 #include "dap_cli_server.h"
 #include "dap_common.h"
-#include "json.h"
+#include "dap_json.h"
 
 #define LOG_TAG "python_cellframe_node"
 
@@ -181,8 +181,10 @@ typedef struct {
 /**
  * @brief C callback wrapper that calls Python function
  */
-static int python_cli_callback_wrapper(int a_argc, char **a_argv, dap_json_t *a_json_arr_reply, int a_version, void *a_arg) {
-    python_cli_callback_ctx_t *ctx = (python_cli_callback_ctx_t *)a_arg;
+static int python_cli_callback_wrapper(int a_argc, char **a_argv, dap_json_t *a_json_arr_reply, int a_version) {
+    (void)a_version;
+    python_cli_callback_ctx_t *ctx = NULL;
+    // TODO: resolve ctx from global registry by command name
     if (!ctx || !ctx->callback) {
         return -1;
     }
@@ -371,58 +373,20 @@ PyObject* dap_cli_server_cmd_exec_py(PyObject *a_self, PyObject *a_args) {
     // dap_cli_cmd_t struct has 'func' which is dap_cli_server_cmd_callback_t
     
     // Let's try passing a json array
-    struct json_object *l_json_reply = json_object_new_array();
+    dap_json_t *l_json_reply = dap_json_array_new();
     
-    // Call the function
-    // We cast to the node-cli-cmd signature which seems to be the standard now for cellframe
-    typedef int (*node_cli_func_t)(int, char**, void*, int); // Simplified signature matching what we see
-    // Wait, dap_cli_server_cmd_callback_t is:
-    // typedef int (*dap_cli_server_cmd_callback_t)(int argc, char **argv, void *arg_func, char **str_reply);
-    
-    // BUT in cellframe_node.c we cast our wrapper to dap_cli_server_cmd_callback_t.
-    // And our wrapper is:
-    // static int python_cli_callback_wrapper(int a_argc, char **a_argv, dap_json_t *a_json_arr_reply, int a_version, void *a_arg)
-    
-    // This implies that dap_cli_server_cmd_callback_t has CHANGED in the SDK to match this 5-argument signature?
-    // Let's double check dap_cli_server.h
-    
-    // Since I cannot read dap_cli_server.h right now, I will assume the signature matches what I used in the wrapper.
-    // int (*func)(int argc, char **argv, void *arg_func, char **str_reply) -- NO, wrapper has 5 args.
-    
-    // Let's look at the wrapper cast again:
-    // (dap_cli_server_cmd_callback_t)python_cli_callback_wrapper
-    // And compiler warning:
-    // warning: cast between incompatible function types from ‘int (*)(int,  char **, dap_json_t *, int,  void *)’ to ‘int (*)(int,  char **, dap_json_t *, int)’
-    
-    // This warning suggests the target type is ‘int (*)(int,  char **, dap_json_t *, int)’
-    // i.e. 4 arguments: argc, argv, json_reply, arg_func (maybe?)
-    
-    // Wait, the warning says "to ‘int (*)(int,  char **, struct dap_json *, int)’". 
-    // It seems the callback type expects 4 args.
-    // But my wrapper has 5 args (void *a_arg at the end).
-    // And com_* functions in node-cli-cmd.h have 4 args: (int a_argc,  char **a_argv, dap_json_t *a_json_arr_reply, int a_version).
-    
-    // So the signature seems to be: func(argc, argv, json_reply, something_else_maybe_version_or_arg)
-    
-    // Let's try to call it with the 4 arguments pattern from com_* functions, as most commands are likely com_* functions.
-    // int com_func(int argc, char **argv, dap_json_t *reply, int version)
-    
-    // Cast func to this type
-    typedef int (*com_func_t)(int, char**, struct json_object*, int);
-    com_func_t l_func = (com_func_t)l_cmd->func;
-    
-    int l_ret = l_func(l_argc, l_argv, l_json_reply, 1); // version 1?
-    
-    // Clean up argv (if we strdup-ed strings, we should free them, but for PyUnicode_AsUTF8 we don't own them)
-    // Only free l_argv array itself
+    int l_ret = l_cmd->func(l_argc, l_argv, l_json_reply, 1);
+
     DAP_DELETE(l_argv);
-    
-    // Convert json reply to string
-    const char *l_json_str = json_object_to_json_string(l_json_reply);
-    PyObject *l_py_str = PyUnicode_FromString(l_json_str);
-    
-    // Free json object
-    json_object_put(l_json_reply);
+
+    char *l_json_str = dap_json_to_string(l_json_reply);
+    dap_json_object_free(l_json_reply);
+
+    PyObject *l_py_str = l_json_str
+        ? PyUnicode_FromString(l_json_str)
+        : PyUnicode_FromString("[]");
+    DAP_DELETE(l_json_str);
+
     
     return l_py_str;
 }

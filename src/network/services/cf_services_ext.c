@@ -63,8 +63,8 @@ PyObject* dap_chain_net_srv_stake_ext_find_py(PyObject *a_self, PyObject *a_args
         PyErr_SetString(PyExc_ValueError, "Invalid network capsule");
         return NULL;
     }
-    dap_chain_hash_fast_t l_hash;
-    dap_chain_hash_fast_from_str(a_hash_str, &l_hash);
+    dap_hash_sha3_256_t l_hash;
+    dap_hash_sha3_256_from_str(a_hash_str, &l_hash);
     
     dap_chain_net_srv_stake_ext_t *l_item = dap_chain_net_srv_stake_ext_find(l_net, &l_hash);
     if (!l_item) Py_RETURN_NONE;
@@ -156,8 +156,8 @@ PyObject* dap_chain_net_srv_stake_ext_lock_create_py(PyObject *a_self, PyObject 
     
     dap_chain_net_t *l_net = (dap_chain_net_t *)PyCapsule_GetPointer(a_net_obj, "dap_chain_net_t");
     dap_enc_key_t *l_key = (dap_enc_key_t *)PyCapsule_GetPointer(a_key_obj, "dap_enc_key_t");
-    dap_chain_hash_fast_t l_stake_hash;
-    dap_chain_hash_fast_from_str(a_stake_hash_str, &l_stake_hash);
+    dap_hash_sha3_256_t l_stake_hash;
+    dap_hash_sha3_256_from_str(a_stake_hash_str, &l_stake_hash);
     
     uint256_t l_amount = py_obj_to_uint256(a_amount_obj);
     uint256_t l_fee = py_obj_to_uint256(a_fee_obj);
@@ -188,8 +188,8 @@ PyObject* dap_chain_net_srv_stake_ext_unlock_create_py(PyObject *a_self, PyObjec
     
     dap_chain_net_t *l_net = (dap_chain_net_t *)PyCapsule_GetPointer(a_net_obj, "dap_chain_net_t");
     dap_enc_key_t *l_key = (dap_enc_key_t *)PyCapsule_GetPointer(a_key_obj, "dap_enc_key_t");
-    dap_chain_hash_fast_t l_lock_hash;
-    dap_chain_hash_fast_from_str(a_lock_hash_str, &l_lock_hash);
+    dap_hash_sha3_256_t l_lock_hash;
+    dap_hash_sha3_256_from_str(a_lock_hash_str, &l_lock_hash);
     
     uint256_t l_fee = py_obj_to_uint256(a_fee_obj);
     uint256_t l_value = {0};
@@ -269,8 +269,8 @@ PyObject* dap_chain_net_srv_xchange_remove_py(PyObject *a_self, PyObject *a_args
     
     dap_chain_net_t *l_net = (dap_chain_net_t *)PyCapsule_GetPointer(a_net_obj, "dap_chain_net_t");
     dap_chain_wallet_t *l_wallet = (dap_chain_wallet_t *)PyCapsule_GetPointer(a_wallet_obj, "dap_chain_wallet_t");
-    dap_chain_hash_fast_t l_hash;
-    dap_chain_hash_fast_from_str(a_hash_str, &l_hash);
+    dap_hash_sha3_256_t l_hash;
+    dap_hash_sha3_256_from_str(a_hash_str, &l_hash);
     uint256_t l_fee = py_obj_to_uint256(a_fee_obj);
     
     char *l_out_hash = NULL;
@@ -299,8 +299,8 @@ PyObject* dap_chain_net_srv_xchange_get_order_status_py(PyObject *a_self, PyObje
         PyErr_SetString(PyExc_ValueError, "Invalid network capsule");
         return NULL;
     }
-    dap_chain_hash_fast_t l_hash;
-    dap_chain_hash_fast_from_str(a_hash_str, &l_hash);
+    dap_hash_sha3_256_t l_hash;
+    dap_hash_sha3_256_from_str(a_hash_str, &l_hash);
     
     dap_chain_net_srv_xchange_order_status_t l_status = dap_chain_net_srv_xchange_get_order_status(l_net, l_hash);
     return PyLong_FromLong(l_status);
@@ -426,8 +426,8 @@ PyObject* dap_chain_net_srv_vote_create_py(PyObject *a_self, PyObject *a_args) {
     dap_chain_net_t *l_net = (dap_chain_net_t *)PyCapsule_GetPointer(a_net_obj, "dap_chain_net_t");
     uint256_t l_fee = py_obj_to_uint256(a_fee_obj);
     
-    dap_chain_hash_fast_t l_voting_hash;
-    dap_chain_hash_fast_from_str(a_voting_hash_str, &l_voting_hash);
+    dap_hash_sha3_256_t l_voting_hash;
+    dap_hash_sha3_256_from_str(a_voting_hash_str, &l_voting_hash);
 
     char *l_hash_tx_out = NULL;
     int l_ret = dap_chain_net_srv_vote_create(
@@ -466,7 +466,7 @@ PyObject* dap_chain_net_voting_list_py(PyObject *a_self, PyObject *a_args) {
         dap_chain_net_voting_info_t *l_info = (dap_chain_net_voting_info_t*)l_ptr->data;
         PyObject *l_dict = PyDict_New();
         
-        char *l_hash_str = dap_chain_hash_fast_to_str_new(&l_info->hash);
+        char *l_hash_str = dap_hash_sha3_256_to_str_new(&l_info->hash);
         PyDict_SetItemString(l_dict, "hash", PyUnicode_FromString(l_hash_str));
         DAP_DELETE(l_hash_str);
         
@@ -502,8 +502,8 @@ PyObject* dap_chain_net_voting_extract_info_py(PyObject *a_self, PyObject *a_arg
         PyErr_SetString(PyExc_ValueError, "Invalid network capsule");
         return NULL;
     }
-    dap_chain_hash_fast_t l_hash;
-    dap_chain_hash_fast_from_str(a_hash_str, &l_hash);
+    dap_hash_sha3_256_t l_hash;
+    dap_hash_sha3_256_from_str(a_hash_str, &l_hash);
     dap_chain_net_voting_info_t *l_info = dap_chain_net_voting_extract_info(l_net, &l_hash);
     if (!l_info) Py_RETURN_NONE;
     

@@ -174,9 +174,9 @@ PyObject* dap_chain_get_atom_by_hash_py(PyObject *a_self, PyObject *a_args) {
         return NULL;
     }
     
-    if (l_hash_size != sizeof(dap_hash_fast_t)) {
-        log_it(L_ERROR, "Invalid hash size: %zd, expected %zu", l_hash_size, sizeof(dap_hash_fast_t));
-        PyErr_Format(PyExc_ValueError, "Hash size must be %zu bytes", sizeof(dap_hash_fast_t));
+    if (l_hash_size != sizeof(dap_hash_sha3_256_t)) {
+        log_it(L_ERROR, "Invalid hash size: %zd, expected %zu", l_hash_size, sizeof(dap_hash_sha3_256_t));
+        PyErr_Format(PyExc_ValueError, "Hash size must be %zu bytes", sizeof(dap_hash_sha3_256_t));
         return NULL;
     }
     
@@ -186,7 +186,7 @@ PyObject* dap_chain_get_atom_by_hash_py(PyObject *a_self, PyObject *a_args) {
         return NULL;
     }
     
-    dap_hash_fast_t *l_atom_hash = (dap_hash_fast_t*)l_hash_bytes;
+    dap_hash_sha3_256_t *l_atom_hash = (dap_hash_sha3_256_t*)l_hash_bytes;
     size_t l_atom_size = 0;
     
     dap_chain_atom_ptr_t l_atom = dap_chain_get_atom_by_hash(l_chain, l_atom_hash, &l_atom_size);
@@ -242,7 +242,7 @@ PyObject* dap_chain_get_atom_last_py(PyObject *a_self, PyObject *a_args) {
         }
     }
     
-    dap_hash_fast_t l_atom_hash = {0};
+    dap_hash_sha3_256_t l_atom_hash = {0};
     uint64_t l_atom_num = 0;
     dap_time_t l_atom_timestamp = 0;
     
@@ -253,7 +253,7 @@ PyObject* dap_chain_get_atom_last_py(PyObject *a_self, PyObject *a_args) {
     }
     
     // Return dict with hash, num, timestamp
-    PyObject *l_hash_bytes = PyBytes_FromStringAndSize((const char*)&l_atom_hash, sizeof(dap_hash_fast_t));
+    PyObject *l_hash_bytes = PyBytes_FromStringAndSize((const char*)&l_atom_hash, sizeof(dap_hash_sha3_256_t));
     if (!l_hash_bytes) {
         log_it(L_ERROR, "Failed to create bytes object for hash");
         Py_RETURN_NONE;
@@ -413,7 +413,7 @@ PyObject* dap_chain_atom_save_py(PyObject *a_self, PyObject *a_args) {
         }
     }
     
-    dap_hash_fast_t l_new_atom_hash = {0};
+    dap_hash_sha3_256_t l_new_atom_hash = {0};
     char *l_atom_map = NULL;
     
     int l_result = dap_chain_atom_save(l_chain, l_cell_id, (const uint8_t*)l_atom_bytes, l_atom_size, &l_new_atom_hash, &l_atom_map);
@@ -429,7 +429,7 @@ PyObject* dap_chain_atom_save_py(PyObject *a_self, PyObject *a_args) {
     }
     
     // Return dict with result code and atom hash
-    PyObject *l_hash_bytes = PyBytes_FromStringAndSize((const char*)&l_new_atom_hash, sizeof(dap_hash_fast_t));
+    PyObject *l_hash_bytes = PyBytes_FromStringAndSize((const char*)&l_new_atom_hash, sizeof(dap_hash_sha3_256_t));
     if (!l_hash_bytes) {
         return Py_BuildValue("i", l_result);
     }
@@ -1069,7 +1069,7 @@ PyObject* dap_chain_get_atom_last_hash_num_ts_py(PyObject *a_self, PyObject *a_a
         return NULL;
     }
     
-    dap_hash_fast_t l_atom_hash = {0};
+    dap_hash_sha3_256_t l_atom_hash = {0};
     uint64_t l_atom_num = 0;
     dap_time_t l_atom_timestamp = 0;
     
@@ -1083,7 +1083,7 @@ PyObject* dap_chain_get_atom_last_hash_num_ts_py(PyObject *a_self, PyObject *a_a
     }
     
     PyObject *l_dict = PyDict_New();
-    PyDict_SetItemString(l_dict, "atom_hash", PyBytes_FromStringAndSize((const char *)&l_atom_hash, sizeof(dap_hash_fast_t)));
+    PyDict_SetItemString(l_dict, "atom_hash", PyBytes_FromStringAndSize((const char *)&l_atom_hash, sizeof(dap_hash_sha3_256_t)));
     PyDict_SetItemString(l_dict, "atom_num", PyLong_FromUnsignedLongLong(l_atom_num));
     PyDict_SetItemString(l_dict, "atom_timestamp", PyLong_FromUnsignedLongLong(l_atom_timestamp));
     
@@ -1100,13 +1100,13 @@ PyObject* dap_chain_get_atom_last_hash_num_ts_py(PyObject *a_self, PyObject *a_a
  * @note Called from C SDK when atom is added to chain
  * Signature: void (*dap_chain_callback_notify_t)(void *a_arg, dap_chain_t *a_chain, 
  *                                                  dap_chain_cell_id_t a_id, 
- *                                                  dap_chain_hash_fast_t *a_atom_hash, 
+ *                                                  dap_hash_sha3_256_t *a_atom_hash, 
  *                                                  void *a_atom, size_t a_atom_size, 
  *                                                  dap_time_t a_atom_time)
  */
 static void s_chain_atom_notify_callback_wrapper(void *a_arg, dap_chain_t *a_chain, 
                                                    dap_chain_cell_id_t a_id,
-                                                   dap_chain_hash_fast_t *a_atom_hash, 
+                                                   dap_hash_sha3_256_t *a_atom_hash, 
                                                    void *a_atom, size_t a_atom_size, 
                                                    dap_time_t a_atom_time) {
     python_chain_callback_ctx_t *l_ctx = (python_chain_callback_ctx_t*)a_arg;
@@ -1121,7 +1121,7 @@ static void s_chain_atom_notify_callback_wrapper(void *a_arg, dap_chain_t *a_cha
     // Build Python arguments
     PyObject *l_chain_capsule = PyCapsule_New(a_chain, "dap_chain_t", NULL);
     PyObject *l_cell_id = PyLong_FromUnsignedLongLong(a_id.uint64);
-    PyObject *l_atom_hash = a_atom_hash ? PyBytes_FromStringAndSize((const char*)a_atom_hash, sizeof(dap_hash_fast_t)) : Py_None;
+    PyObject *l_atom_hash = a_atom_hash ? PyBytes_FromStringAndSize((const char*)a_atom_hash, sizeof(dap_hash_sha3_256_t)) : Py_None;
     PyObject *l_atom = a_atom ? PyBytes_FromStringAndSize((const char*)a_atom, a_atom_size) : Py_None;
     PyObject *l_atom_size = PyLong_FromSize_t(a_atom_size);
     PyObject *l_atom_time = PyLong_FromUnsignedLongLong(a_atom_time);
@@ -1164,13 +1164,13 @@ static void s_chain_atom_notify_callback_wrapper(void *a_arg, dap_chain_t *a_cha
 /**
  * @brief C callback wrapper for datum notify - calls Python callback
  * @note Called from C SDK when datum is added to chain index
- * Signature: void (*dap_chain_callback_datum_notify_t)(void *a_arg, dap_chain_hash_fast_t *a_datum_hash, 
- *                                                        dap_chain_hash_fast_t *a_atom_hash, void *a_datum, 
+ * Signature: void (*dap_chain_callback_datum_notify_t)(void *a_arg, dap_hash_sha3_256_t *a_datum_hash, 
+ *                                                        dap_hash_sha3_256_t *a_atom_hash, void *a_datum, 
  *                                                        size_t a_datum_size, int a_ret_code, 
  *                                                        uint32_t a_action, dap_chain_srv_uid_t a_uid)
  */
-static void s_chain_datum_notify_callback_wrapper(void *a_arg, dap_chain_hash_fast_t *a_datum_hash, 
-                                                    dap_chain_hash_fast_t *a_atom_hash, void *a_datum, 
+static void s_chain_datum_notify_callback_wrapper(void *a_arg, dap_hash_sha3_256_t *a_datum_hash, 
+                                                    dap_hash_sha3_256_t *a_atom_hash, void *a_datum, 
                                                     size_t a_datum_size, int a_ret_code, 
                                                     uint32_t a_action, dap_chain_srv_uid_t a_uid) {
     python_chain_callback_ctx_t *l_ctx = (python_chain_callback_ctx_t*)a_arg;
@@ -1183,8 +1183,8 @@ static void s_chain_datum_notify_callback_wrapper(void *a_arg, dap_chain_hash_fa
     PyGILState_STATE l_gstate = PyGILState_Ensure();
     
     // Build Python arguments
-    PyObject *l_datum_hash = a_datum_hash ? PyBytes_FromStringAndSize((const char*)a_datum_hash, sizeof(dap_hash_fast_t)) : Py_None;
-    PyObject *l_atom_hash = a_atom_hash ? PyBytes_FromStringAndSize((const char*)a_atom_hash, sizeof(dap_hash_fast_t)) : Py_None;
+    PyObject *l_datum_hash = a_datum_hash ? PyBytes_FromStringAndSize((const char*)a_datum_hash, sizeof(dap_hash_sha3_256_t)) : Py_None;
+    PyObject *l_atom_hash = a_atom_hash ? PyBytes_FromStringAndSize((const char*)a_atom_hash, sizeof(dap_hash_sha3_256_t)) : Py_None;
     PyObject *l_datum = a_datum ? PyBytes_FromStringAndSize((const char*)a_datum, a_datum_size) : Py_None;
     PyObject *l_datum_size = PyLong_FromSize_t(a_datum_size);
     PyObject *l_ret_code = PyLong_FromLong(a_ret_code);
@@ -1232,10 +1232,10 @@ static void s_chain_datum_notify_callback_wrapper(void *a_arg, dap_chain_hash_fa
  * @brief C callback wrapper for datum removed notify - calls Python callback
  * @note Called from C SDK when datum is removed from chain index
  * Signature: void (*dap_chain_callback_datum_removed_notify_t)(void *a_arg, 
- *                                                                dap_chain_hash_fast_t *a_datum_hash, 
+ *                                                                dap_hash_sha3_256_t *a_datum_hash, 
  *                                                                dap_chain_datum_t *a_datum)
  */
-static void s_chain_datum_removed_notify_callback_wrapper(void *a_arg, dap_chain_hash_fast_t *a_datum_hash, 
+static void s_chain_datum_removed_notify_callback_wrapper(void *a_arg, dap_hash_sha3_256_t *a_datum_hash, 
                                                            dap_chain_datum_t *a_datum) {
     python_chain_callback_ctx_t *l_ctx = (python_chain_callback_ctx_t*)a_arg;
     if (!l_ctx || !l_ctx->callback) {
@@ -1247,7 +1247,7 @@ static void s_chain_datum_removed_notify_callback_wrapper(void *a_arg, dap_chain
     PyGILState_STATE l_gstate = PyGILState_Ensure();
     
     // Build Python arguments
-    PyObject *l_datum_hash = a_datum_hash ? PyBytes_FromStringAndSize((const char*)a_datum_hash, sizeof(dap_hash_fast_t)) : Py_None;
+    PyObject *l_datum_hash = a_datum_hash ? PyBytes_FromStringAndSize((const char*)a_datum_hash, sizeof(dap_hash_sha3_256_t)) : Py_None;
     PyObject *l_datum_capsule = a_datum ? PyCapsule_New(a_datum, "dap_chain_datum_t", NULL) : Py_None;
     
     if (!l_datum_hash || !l_datum_capsule) {
@@ -1598,19 +1598,19 @@ PyObject* py_dap_chain_block_new(PyObject *a_self, PyObject *a_args) {
         return NULL;
     }
     
-    dap_chain_hash_fast_t *l_prev_hash = NULL;
+    dap_hash_sha3_256_t *l_prev_hash = NULL;
     if (l_prev_hash_obj && l_prev_hash_obj != Py_None) {
         if (!PyArg_Parse(l_prev_hash_obj, "y#", &l_prev_hash_bytes, &l_prev_hash_size)) {
             PyErr_SetString(PyExc_TypeError, "prev_hash must be bytes or None");
             return NULL;
         }
         
-        if (l_prev_hash_size != sizeof(dap_chain_hash_fast_t)) {
-            PyErr_Format(PyExc_ValueError, "prev_hash must be exactly %zu bytes", sizeof(dap_chain_hash_fast_t));
+        if (l_prev_hash_size != sizeof(dap_hash_sha3_256_t)) {
+            PyErr_Format(PyExc_ValueError, "prev_hash must be exactly %zu bytes", sizeof(dap_hash_sha3_256_t));
             return NULL;
         }
         
-        l_prev_hash = (dap_chain_hash_fast_t*)l_prev_hash_bytes;
+        l_prev_hash = (dap_hash_sha3_256_t*)l_prev_hash_bytes;
     }
     
     size_t l_block_size = 0;

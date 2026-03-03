@@ -29,8 +29,8 @@ PyObject* dap_chain_cs_stake_check_pkey_hash_py(PyObject *a_self, PyObject *a_ar
         return NULL;
     }
     
-    if ((size_t)l_pkey_hash_size != sizeof(dap_hash_fast_t)) {
-        PyErr_Format(PyExc_ValueError, "Pkey hash must be exactly %zu bytes", sizeof(dap_hash_fast_t));
+    if ((size_t)l_pkey_hash_size != sizeof(dap_hash_sha3_256_t)) {
+        PyErr_Format(PyExc_ValueError, "Pkey hash must be exactly %zu bytes", sizeof(dap_hash_sha3_256_t));
         return NULL;
     }
     
@@ -40,7 +40,7 @@ PyObject* dap_chain_cs_stake_check_pkey_hash_py(PyObject *a_self, PyObject *a_ar
         return NULL;
     }
     
-    dap_hash_fast_t *l_pkey_hash = (dap_hash_fast_t *)l_pkey_hash_bytes;
+    dap_hash_sha3_256_t *l_pkey_hash = (dap_hash_sha3_256_t *)l_pkey_hash_bytes;
     uint256_t l_sovereign_tax = uint256_0;
     dap_chain_addr_t l_sovereign_addr = {0};
     
@@ -85,8 +85,8 @@ PyObject* dap_chain_cs_stake_hardfork_data_import_py(PyObject *a_self, PyObject 
         return NULL;
     }
     
-    if ((size_t)l_decree_hash_size != sizeof(dap_hash_fast_t)) {
-        PyErr_Format(PyExc_ValueError, "Decree hash must be exactly %zu bytes", sizeof(dap_hash_fast_t));
+    if ((size_t)l_decree_hash_size != sizeof(dap_hash_sha3_256_t)) {
+        PyErr_Format(PyExc_ValueError, "Decree hash must be exactly %zu bytes", sizeof(dap_hash_sha3_256_t));
         return NULL;
     }
     
@@ -96,7 +96,7 @@ PyObject* dap_chain_cs_stake_hardfork_data_import_py(PyObject *a_self, PyObject 
         return NULL;
     }
     
-    dap_hash_fast_t *l_decree_hash = (dap_hash_fast_t *)l_decree_hash_bytes;
+    dap_hash_sha3_256_t *l_decree_hash = (dap_hash_sha3_256_t *)l_decree_hash_bytes;
     
     int l_result = dap_chain_cs_stake_hardfork_data_import(l_chain, l_decree_hash);
     

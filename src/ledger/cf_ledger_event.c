@@ -31,8 +31,8 @@ PyObject* dap_ledger_event_pkey_check_py(PyObject *a_self, PyObject *a_args) {
         return NULL;
     }
     
-    if ((size_t)l_pkey_hash_size != sizeof(dap_hash_fast_t)) {
-        PyErr_Format(PyExc_ValueError, "Pkey hash must be exactly %zu bytes", sizeof(dap_hash_fast_t));
+    if ((size_t)l_pkey_hash_size != sizeof(dap_hash_sha3_256_t)) {
+        PyErr_Format(PyExc_ValueError, "Pkey hash must be exactly %zu bytes", sizeof(dap_hash_sha3_256_t));
         return NULL;
     }
     
@@ -42,7 +42,7 @@ PyObject* dap_ledger_event_pkey_check_py(PyObject *a_self, PyObject *a_args) {
         return NULL;
     }
     
-    dap_hash_fast_t *l_pkey_hash = (dap_hash_fast_t *)l_pkey_hash_bytes;
+    dap_hash_sha3_256_t *l_pkey_hash = (dap_hash_sha3_256_t *)l_pkey_hash_bytes;
     int l_result = dap_ledger_event_pkey_check(l_ledger, l_pkey_hash);
     
     log_it(L_DEBUG, "Event pkey check result: %d", l_result);
@@ -70,8 +70,8 @@ PyObject* dap_ledger_event_pkey_add_py(PyObject *a_self, PyObject *a_args) {
         return NULL;
     }
     
-    if ((size_t)l_pkey_hash_size != sizeof(dap_hash_fast_t)) {
-        PyErr_Format(PyExc_ValueError, "Pkey hash must be exactly %zu bytes", sizeof(dap_hash_fast_t));
+    if ((size_t)l_pkey_hash_size != sizeof(dap_hash_sha3_256_t)) {
+        PyErr_Format(PyExc_ValueError, "Pkey hash must be exactly %zu bytes", sizeof(dap_hash_sha3_256_t));
         return NULL;
     }
     
@@ -81,7 +81,7 @@ PyObject* dap_ledger_event_pkey_add_py(PyObject *a_self, PyObject *a_args) {
         return NULL;
     }
     
-    dap_hash_fast_t *l_pkey_hash = (dap_hash_fast_t *)l_pkey_hash_bytes;
+    dap_hash_sha3_256_t *l_pkey_hash = (dap_hash_sha3_256_t *)l_pkey_hash_bytes;
     int l_result = dap_ledger_event_pkey_add(l_ledger, l_pkey_hash);
     
     log_it(L_DEBUG, "Event pkey add result: %d", l_result);
@@ -109,8 +109,8 @@ PyObject* dap_ledger_event_pkey_rm_py(PyObject *a_self, PyObject *a_args) {
         return NULL;
     }
     
-    if ((size_t)l_pkey_hash_size != sizeof(dap_hash_fast_t)) {
-        PyErr_Format(PyExc_ValueError, "Pkey hash must be exactly %zu bytes", sizeof(dap_hash_fast_t));
+    if ((size_t)l_pkey_hash_size != sizeof(dap_hash_sha3_256_t)) {
+        PyErr_Format(PyExc_ValueError, "Pkey hash must be exactly %zu bytes", sizeof(dap_hash_sha3_256_t));
         return NULL;
     }
     
@@ -120,7 +120,7 @@ PyObject* dap_ledger_event_pkey_rm_py(PyObject *a_self, PyObject *a_args) {
         return NULL;
     }
     
-    dap_hash_fast_t *l_pkey_hash = (dap_hash_fast_t *)l_pkey_hash_bytes;
+    dap_hash_sha3_256_t *l_pkey_hash = (dap_hash_sha3_256_t *)l_pkey_hash_bytes;
     int l_result = dap_ledger_event_pkey_rm(l_ledger, l_pkey_hash);
     
     log_it(L_DEBUG, "Event pkey remove result: %d", l_result);
@@ -183,8 +183,8 @@ PyObject* dap_ledger_event_find_py(PyObject *a_self, PyObject *a_args) {
         return NULL;
     }
     
-    if ((size_t)l_tx_hash_size != sizeof(dap_hash_fast_t)) {
-        PyErr_Format(PyExc_ValueError, "TX hash must be exactly %zu bytes", sizeof(dap_hash_fast_t));
+    if ((size_t)l_tx_hash_size != sizeof(dap_hash_sha3_256_t)) {
+        PyErr_Format(PyExc_ValueError, "TX hash must be exactly %zu bytes", sizeof(dap_hash_sha3_256_t));
         return NULL;
     }
     
@@ -194,7 +194,7 @@ PyObject* dap_ledger_event_find_py(PyObject *a_self, PyObject *a_args) {
         return NULL;
     }
     
-    dap_hash_fast_t *l_tx_hash = (dap_hash_fast_t *)l_tx_hash_bytes;
+    dap_hash_sha3_256_t *l_tx_hash = (dap_hash_sha3_256_t *)l_tx_hash_bytes;
     dap_chain_tx_event_t *l_event = dap_ledger_event_find(l_ledger, l_tx_hash);
     
     if (!l_event) {

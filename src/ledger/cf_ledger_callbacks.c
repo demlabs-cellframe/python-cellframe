@@ -42,10 +42,10 @@ static bool s_ledger_service_tag_check_wrapper(dap_ledger_t *a_ledger, dap_chain
 
 /**
  * @brief C wrapper for tax callback - calls Python callback
- * Signature: bool (*dap_ledger_tax_callback_t)(dap_chain_net_id_t a_net_id, dap_hash_fast_t *a_signer_pkey_hash, 
+ * Signature: bool (*dap_ledger_tax_callback_t)(dap_chain_net_id_t a_net_id, dap_hash_sha3_256_t *a_signer_pkey_hash, 
  *                                                dap_chain_addr_t *a_tax_addr, uint256_t *a_tax_value)
  */
-static bool s_ledger_tax_callback_wrapper(dap_chain_net_id_t a_net_id, dap_hash_fast_t *a_signer_pkey_hash,
+static bool s_ledger_tax_callback_wrapper(dap_chain_net_id_t a_net_id, dap_hash_sha3_256_t *a_signer_pkey_hash,
                                           dap_chain_addr_t *a_tax_addr, uint256_t *a_tax_value) {
     python_tax_ctx_t *l_ctx = cf_ledger_tax_callback_get();
     if (!l_ctx || !l_ctx->callback) {
@@ -55,7 +55,7 @@ static bool s_ledger_tax_callback_wrapper(dap_chain_net_id_t a_net_id, dap_hash_
     PyGILState_STATE l_gstate = PyGILState_Ensure();
     
     PyObject *l_net_id = PyLong_FromUnsignedLongLong(a_net_id.uint64);
-    PyObject *l_pkey_hash = a_signer_pkey_hash ? PyBytes_FromStringAndSize((const char*)a_signer_pkey_hash, sizeof(dap_hash_fast_t)) : Py_None;
+    PyObject *l_pkey_hash = a_signer_pkey_hash ? PyBytes_FromStringAndSize((const char*)a_signer_pkey_hash, sizeof(dap_hash_sha3_256_t)) : Py_None;
     PyObject *l_tax_addr = a_tax_addr ? PyCapsule_New(a_tax_addr, "dap_chain_addr_t", NULL) : Py_None;
     PyObject *l_tax_value = a_tax_value ? PyCapsule_New(a_tax_value, "uint256_t", NULL) : Py_None;
     
@@ -131,14 +131,14 @@ PyObject* py_chain_tx_event_to_dict(dap_chain_tx_event_t *a_event) {
     }
     
     // tx_hash
-    PyObject *l_tx_hash = PyBytes_FromStringAndSize((const char*)a_event->tx_hash.raw, sizeof(dap_hash_fast_t));
+    PyObject *l_tx_hash = PyBytes_FromStringAndSize((const char*)a_event->tx_hash.raw, sizeof(dap_hash_sha3_256_t));
     if (l_tx_hash) {
         PyDict_SetItemString(l_dict, "tx_hash", l_tx_hash);
         Py_DECREF(l_tx_hash);
     }
     
     // pkey_hash
-    PyObject *l_pkey_hash = PyBytes_FromStringAndSize((const char*)a_event->pkey_hash.raw, sizeof(dap_hash_fast_t));
+    PyObject *l_pkey_hash = PyBytes_FromStringAndSize((const char*)a_event->pkey_hash.raw, sizeof(dap_hash_sha3_256_t));
     if (l_pkey_hash) {
         PyDict_SetItemString(l_dict, "pkey_hash", l_pkey_hash);
         Py_DECREF(l_pkey_hash);
@@ -168,7 +168,7 @@ PyObject* py_chain_tx_event_to_dict(dap_chain_tx_event_t *a_event) {
  */
 void py_ledger_event_notify_callback(void *a_arg, dap_ledger_t *a_ledger, 
                                             dap_chain_tx_event_t *a_event, 
-                                            dap_hash_fast_t *a_tx_hash,
+                                            dap_hash_sha3_256_t *a_tx_hash,
                                             dap_ledger_notify_opcodes_t a_opcode) {
     py_ledger_callback_data_t *l_data = (py_ledger_callback_data_t*)a_arg;
     if (!l_data || !l_data->callback) {
@@ -186,7 +186,7 @@ void py_ledger_event_notify_callback(void *a_arg, dap_ledger_t *a_ledger,
     }
     
     // Convert tx_hash to bytes
-    PyObject *l_tx_hash_bytes = PyBytes_FromStringAndSize((const char*)a_tx_hash->raw, sizeof(dap_hash_fast_t));
+    PyObject *l_tx_hash_bytes = PyBytes_FromStringAndSize((const char*)a_tx_hash->raw, sizeof(dap_hash_sha3_256_t));
     if (!l_tx_hash_bytes) {
         Py_DECREF(l_event_dict);
         PyGILState_Release(l_gil_state);
@@ -282,7 +282,7 @@ void py_ledger_tx_add_notify_callback(void *a_arg, dap_ledger_t *a_ledger,
  */
 void py_ledger_bridged_tx_notify_callback(dap_ledger_t *a_ledger, 
                                                  dap_chain_datum_tx_t *a_tx,
-                                                 dap_hash_fast_t *a_tx_hash,
+                                                 dap_hash_sha3_256_t *a_tx_hash,
                                                  void *a_arg,
                                                  dap_ledger_notify_opcodes_t a_opcode) {
     py_ledger_callback_data_t *l_data = (py_ledger_callback_data_t*)a_arg;
@@ -301,7 +301,7 @@ void py_ledger_bridged_tx_notify_callback(dap_ledger_t *a_ledger,
     }
     
     // Convert tx_hash to bytes
-    PyObject *l_tx_hash_bytes = PyBytes_FromStringAndSize((const char*)a_tx_hash->raw, sizeof(dap_hash_fast_t));
+    PyObject *l_tx_hash_bytes = PyBytes_FromStringAndSize((const char*)a_tx_hash->raw, sizeof(dap_hash_sha3_256_t));
     if (!l_tx_hash_bytes) {
         Py_DECREF(l_tx_capsule);
         PyGILState_Release(l_gil_state);

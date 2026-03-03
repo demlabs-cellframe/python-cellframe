@@ -13,9 +13,9 @@
 /**
  * @brief C wrapper for cache TX check callback - calls Python callback
  * @note Called from SDK to check if TX should be cached
- * Signature: bool (*dap_ledger_cache_tx_check_callback_t)(dap_ledger_t *a_ledger, dap_hash_fast_t *a_tx_hash)
+ * Signature: bool (*dap_ledger_cache_tx_check_callback_t)(dap_ledger_t *a_ledger, dap_hash_sha3_256_t *a_tx_hash)
  */
-static bool s_ledger_cache_tx_check_wrapper(dap_ledger_t *a_ledger, dap_hash_fast_t *a_tx_hash) {
+static bool s_ledger_cache_tx_check_wrapper(dap_ledger_t *a_ledger, dap_hash_sha3_256_t *a_tx_hash) {
     python_ledger_cache_ctx_t *l_ctx = cf_ledger_cache_callback_get(a_ledger);
     if (!l_ctx || !l_ctx->callback) {
         return true; // Default: allow caching
@@ -24,7 +24,7 @@ static bool s_ledger_cache_tx_check_wrapper(dap_ledger_t *a_ledger, dap_hash_fas
     PyGILState_STATE l_gstate = PyGILState_Ensure();
     
     PyObject *l_ledger = PyCapsule_New(a_ledger, "dap_ledger_t", NULL);
-    PyObject *l_tx_hash = a_tx_hash ? PyBytes_FromStringAndSize((const char*)a_tx_hash, sizeof(dap_hash_fast_t)) : Py_None;
+    PyObject *l_tx_hash = a_tx_hash ? PyBytes_FromStringAndSize((const char*)a_tx_hash, sizeof(dap_hash_sha3_256_t)) : Py_None;
     
     if (!l_ledger || !l_tx_hash) {
         log_it(L_ERROR, "Failed to create Python objects for cache TX check callback");
@@ -523,8 +523,8 @@ PyObject* dap_ledger_datum_is_enforced_py(PyObject *a_self, PyObject *a_args) {
         return NULL;
     }
     
-    if ((size_t)l_hash_size != sizeof(dap_hash_fast_t)) {
-        PyErr_Format(PyExc_ValueError, "Hash must be exactly %zu bytes", sizeof(dap_hash_fast_t));
+    if ((size_t)l_hash_size != sizeof(dap_hash_sha3_256_t)) {
+        PyErr_Format(PyExc_ValueError, "Hash must be exactly %zu bytes", sizeof(dap_hash_sha3_256_t));
         return NULL;
     }
     
@@ -534,7 +534,7 @@ PyObject* dap_ledger_datum_is_enforced_py(PyObject *a_self, PyObject *a_args) {
         return NULL;
     }
     
-    dap_hash_fast_t *l_hash = (dap_hash_fast_t *)l_hash_bytes;
+    dap_hash_sha3_256_t *l_hash = (dap_hash_sha3_256_t *)l_hash_bytes;
     bool l_result = dap_ledger_datum_is_enforced(l_ledger, l_hash, (bool)l_accept);
     
     log_it(L_DEBUG, "Datum is_enforced: %s", l_result ? "true" : "false");
@@ -765,10 +765,10 @@ PyObject* dap_ledger_coin_get_uncoloured_value_py(PyObject *a_self, PyObject *a_
         return NULL;
     }
     
-    if ((size_t)l_voting_hash_size != sizeof(dap_hash_fast_t) ||
-        (size_t)l_tx_hash_size != sizeof(dap_hash_fast_t) ||
-        (size_t)l_pkey_hash_size != sizeof(dap_hash_fast_t)) {
-        PyErr_Format(PyExc_ValueError, "All hashes must be exactly %zu bytes", sizeof(dap_hash_fast_t));
+    if ((size_t)l_voting_hash_size != sizeof(dap_hash_sha3_256_t) ||
+        (size_t)l_tx_hash_size != sizeof(dap_hash_sha3_256_t) ||
+        (size_t)l_pkey_hash_size != sizeof(dap_hash_sha3_256_t)) {
+        PyErr_Format(PyExc_ValueError, "All hashes must be exactly %zu bytes", sizeof(dap_hash_sha3_256_t));
         return NULL;
     }
     
@@ -778,9 +778,9 @@ PyObject* dap_ledger_coin_get_uncoloured_value_py(PyObject *a_self, PyObject *a_
         return NULL;
     }
     
-    dap_hash_fast_t *l_voting_hash = (dap_hash_fast_t *)l_voting_hash_bytes;
-    dap_hash_fast_t *l_tx_hash = (dap_hash_fast_t *)l_tx_hash_bytes;
-    dap_hash_fast_t *l_pkey_hash = (dap_hash_fast_t *)l_pkey_hash_bytes;
+    dap_hash_sha3_256_t *l_voting_hash = (dap_hash_sha3_256_t *)l_voting_hash_bytes;
+    dap_hash_sha3_256_t *l_tx_hash = (dap_hash_sha3_256_t *)l_tx_hash_bytes;
+    dap_hash_sha3_256_t *l_pkey_hash = (dap_hash_sha3_256_t *)l_pkey_hash_bytes;
     
     uint256_t l_value = dap_ledger_coin_get_uncoloured_value(l_ledger, l_voting_hash, 
                                                               l_tx_hash, l_out_idx, l_pkey_hash);
@@ -811,8 +811,8 @@ PyObject* dap_ledger_tx_get_trackers_py(PyObject *a_self, PyObject *a_args) {
         return NULL;
     }
     
-    if ((size_t)l_tx_hash_size != sizeof(dap_chain_hash_fast_t)) {
-        PyErr_Format(PyExc_ValueError, "TX hash must be exactly %zu bytes", sizeof(dap_chain_hash_fast_t));
+    if ((size_t)l_tx_hash_size != sizeof(dap_hash_sha3_256_t)) {
+        PyErr_Format(PyExc_ValueError, "TX hash must be exactly %zu bytes", sizeof(dap_hash_sha3_256_t));
         return NULL;
     }
     
@@ -822,7 +822,7 @@ PyObject* dap_ledger_tx_get_trackers_py(PyObject *a_self, PyObject *a_args) {
         return NULL;
     }
     
-    dap_chain_hash_fast_t *l_tx_hash = (dap_chain_hash_fast_t *)l_tx_hash_bytes;
+    dap_hash_sha3_256_t *l_tx_hash = (dap_hash_sha3_256_t *)l_tx_hash_bytes;
     
     dap_list_t *l_list = dap_ledger_tx_get_trackers(l_ledger, l_tx_hash, (uint32_t)l_out_idx);
     if (!l_list) {
@@ -855,8 +855,8 @@ PyObject* dap_ledger_tx_clear_colour_py(PyObject *a_self, PyObject *a_args) {
         return NULL;
     }
     
-    if ((size_t)l_tx_hash_size != sizeof(dap_hash_fast_t)) {
-        PyErr_Format(PyExc_ValueError, "TX hash must be exactly %zu bytes", sizeof(dap_hash_fast_t));
+    if ((size_t)l_tx_hash_size != sizeof(dap_hash_sha3_256_t)) {
+        PyErr_Format(PyExc_ValueError, "TX hash must be exactly %zu bytes", sizeof(dap_hash_sha3_256_t));
         return NULL;
     }
     
@@ -866,7 +866,7 @@ PyObject* dap_ledger_tx_clear_colour_py(PyObject *a_self, PyObject *a_args) {
         return NULL;
     }
     
-    dap_hash_fast_t *l_tx_hash = (dap_hash_fast_t *)l_tx_hash_bytes;
+    dap_hash_sha3_256_t *l_tx_hash = (dap_hash_sha3_256_t *)l_tx_hash_bytes;
     
     dap_ledger_tx_clear_colour(l_ledger, l_tx_hash);
     
