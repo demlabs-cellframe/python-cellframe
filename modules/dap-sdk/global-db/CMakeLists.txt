@@ -35,10 +35,10 @@ if(NOT (${SUBMODULES_NO_BUILD} MATCHES ON))
             "-fpic"
        )
    endif()
-   if (NOT (TARGET dap_chain_crypto))
+   if (NOT (TARGET))
        add_subdirectory(libdap-chain-crypto)
        target_compile_options(
-            dap_chain_crypto PRIVATE
+            PRIVATE
             "-fpic"
        )
    endif()
@@ -192,8 +192,8 @@ target_include_directories(${PROJECT_NAME} PUBLIC include/ )
 #)
 
 
-target_link_libraries(${PROJECT_NAME} dap_core dap_crypto dap_chain dap_chain_crypto dap_io dap_chain_net dap_global_db dap_chain_common_python_module)
-#target_link_libraries(${PROJECT_NAME} dap_core dap_crypto dap_chain dap_global_db dap_chain_crypto dap_chain_mempool
+target_link_libraries(${PROJECT_NAME} dap_core dap_crypto dap_chain dap_io dap_chain_net dap_global_db dap_chain_common_python_module)
+#target_link_libraries(${PROJECT_NAME} dap_core dap_crypto dap_chain dap_global_db dap_chain_mempool
 #                         
 #                     ) #dap_chain_crypto dap_chain_mempool dap_global_db )
 #target_link_libraries(${PROJECT_NAME} dap_core dap_crypto)
