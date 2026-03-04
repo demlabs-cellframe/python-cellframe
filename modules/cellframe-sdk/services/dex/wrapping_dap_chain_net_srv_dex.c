@@ -34,6 +34,21 @@
 
 #define LOG_TAG "wrapping_dap_chain_net_srv_dex"
 
+/**
+ * @brief Safely copy a token ticker, bounded to DAP_CHAIN_TICKER_SIZE_MAX.
+ *
+ * Uses strnlen+memcpy instead of strncpy/snprintf so that GCC can prove
+ * the copy length is within [0, DAP_CHAIN_TICKER_SIZE_MAX-1] and does not
+ * emit -Wstringop-truncation or -Wformat-truncation regardless of the
+ * static source-string size seen in the caller's translation unit.
+ */
+static inline void s_ticker_copy(char *a_dst, const char *a_src)
+{
+    size_t l_n = strnlen(a_src, DAP_CHAIN_TICKER_SIZE_MAX - 1);
+    memcpy(a_dst, a_src, l_n);
+    a_dst[l_n] = '\0';
+}
+
 /* Forward declarations for internal DEX functions we need */
 // These are declared in dap_chain_net_srv_dex.c as static, so we need to access cache differently
 // For now we'll use ledger iteration which is always available
@@ -46,13 +61,13 @@ static void s_pair_normalize(const char *a_sell_token, const char *a_buy_token,
 {
     if (strcmp(a_sell_token, a_buy_token) < 0) {
         // sell < buy lexicographically: BASE=sell, QUOTE=buy → ASK
-        snprintf(a_base_out,  DAP_CHAIN_TICKER_SIZE_MAX, "%s", a_sell_token);
-        snprintf(a_quote_out, DAP_CHAIN_TICKER_SIZE_MAX, "%s", a_buy_token);
+        s_ticker_copy(a_base_out,  a_sell_token);
+        s_ticker_copy(a_quote_out, a_buy_token);
         if (a_side_out) *a_side_out = 0; // ASK
     } else {
         // sell >= buy: BASE=buy, QUOTE=sell → BID
-        snprintf(a_base_out,  DAP_CHAIN_TICKER_SIZE_MAX, "%s", a_buy_token);
-        snprintf(a_quote_out, DAP_CHAIN_TICKER_SIZE_MAX, "%s", a_sell_token);
+        s_ticker_copy(a_base_out,  a_buy_token);
+        s_ticker_copy(a_quote_out, a_sell_token);
         if (a_side_out) *a_side_out = 1; // BID
     }
 }
@@ -108,11 +123,11 @@ PyObject *wrapping_dap_chain_net_srv_dex_get_orders(PyObject *self, PyObject *ar
         
         // Normalize to canonical order
         if (strcmp(l_pair_storage, l_slash) < 0) {
-            snprintf(l_ticker_base,  DAP_CHAIN_TICKER_SIZE_MAX, "%s", l_pair_storage);
-            snprintf(l_ticker_quote, DAP_CHAIN_TICKER_SIZE_MAX, "%s", l_slash);
+            s_ticker_copy(l_ticker_base,  l_pair_storage);
+            s_ticker_copy(l_ticker_quote, l_slash);
         } else {
-            snprintf(l_ticker_base,  DAP_CHAIN_TICKER_SIZE_MAX, "%s", l_slash);
-            snprintf(l_ticker_quote, DAP_CHAIN_TICKER_SIZE_MAX, "%s", l_pair_storage);
+            s_ticker_copy(l_ticker_base,  l_slash);
+            s_ticker_copy(l_ticker_quote, l_pair_storage);
         }
         l_has_pair = true;
     }
@@ -219,8 +234,8 @@ PyObject *wrapping_dap_chain_net_srv_dex_get_orders(PyObject *self, PyObject *ar
         snprintf(l_order->pair, sizeof(l_order->pair), "%s/%s", l_base, l_quote);
         
         // Tokens
-        snprintf(l_order->token_sell, DAP_CHAIN_TICKER_SIZE_MAX, "%s", l_sell_tok);
-        snprintf(l_order->token_buy,  DAP_CHAIN_TICKER_SIZE_MAX, "%s", l_out_cond->subtype.srv_dex.buy_token);
+        s_ticker_copy(l_order->token_sell, l_sell_tok);
+        s_ticker_copy(l_order->token_buy,  l_out_cond->subtype.srv_dex.buy_token);
         
         // Values
         l_order->value_sell = l_out_cond->header.value;
