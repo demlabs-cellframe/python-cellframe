@@ -161,8 +161,11 @@ message(STATUS "=========================================")
 message(STATUS "Configuring Python-Cellframe bindings")
 message(STATUS "=========================================")
 
-# Find Python
-find_package(Python3 REQUIRED COMPONENTS Interpreter Development)
+# When built as part of cellframe-node-plugin-python, Python3_* variables are
+# already set by cmake/BuildCPython.cmake (static build from source).
+if(NOT Python3_INCLUDE_DIRS)
+    find_package(Python3 REQUIRED COMPONENTS Interpreter Development)
+endif()
 
 # Python-Cellframe sources
 set(PYTHON_CELLFRAME_SOURCES
