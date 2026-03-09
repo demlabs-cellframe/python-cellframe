@@ -28,6 +28,8 @@ typedef struct _dap_chain_plugins_module{
 _dap_chain_plugins_module_t *_s_modules = NULL;
 
 static int s_dap_chain_plugins_load(dap_plugin_manifest_t * a_manifest, void ** a_pvt_data, char ** a_error_str );
+static int s_dap_chain_plugins_preinit(dap_plugin_manifest_t * a_manifest, void * a_pvt_data, char ** a_error_str );
+static int s_dap_chain_plugins_init(dap_plugin_manifest_t * a_manifest, void * a_pvt_data, char ** a_error_str );
 static int s_dap_chain_plugins_unload(dap_plugin_manifest_t * a_manifest, void * a_pvt_data, char ** a_error_str );
 static void s_plugins_load_plugin_initialization(void* a_module);
 static void s_plugins_load_plugin_uninitialization(void* a_module);
@@ -57,16 +59,23 @@ int dap_chain_plugins_init(dap_config_t *a_config)
 
     dap_plugin_type_callbacks_t l_callbacks={};
     l_callbacks.load = s_dap_chain_plugins_load;
+    l_callbacks.preinit = s_dap_chain_plugins_preinit;
+    l_callbacks.init = s_dap_chain_plugins_init;
     l_callbacks.unload = s_dap_chain_plugins_unload;
     dap_plugin_type_create("python",&l_callbacks);
 
     s_debug_more = dap_config_get_item_bool_default(a_config, "plugins", "debug_more", s_debug_more);
 
-    const char *l_default_path_plugins = dap_strjoin(NULL, g_sys_dir_path, "/var/lib/plugins/", NULL);
-    const char *l_plugins_root_path = dap_config_get_item_str_path_default(a_config, "plugins", "py_path",
-                                                        l_default_path_plugins);
-    s_plugins_root_path = dap_strjoin("", l_plugins_root_path, "/", NULL);
-    DAP_DELETE(l_default_path_plugins);
+    const char *l_plugins_root_path = dap_plugin_root_path();
+    if (!l_plugins_root_path) {
+        const char *l_default_path_plugins = dap_strjoin(NULL, g_sys_dir_path, "/var/lib/plugins/", NULL);
+        l_plugins_root_path = dap_config_get_item_str_path_default(a_config, "plugins", "py_path",
+                                                            l_default_path_plugins);
+        s_plugins_root_path = dap_strjoin("", l_plugins_root_path, "/", NULL);
+        DAP_DELETE(l_default_path_plugins);
+    } else {
+        s_plugins_root_path = dap_strjoin("", l_plugins_root_path, "/", NULL);
+    }
 
     log_it(L_INFO, "Start initialization of python (%s) plugins. Path plugins: %s", PYTHON_VERSION, s_plugins_root_path);
     
@@ -371,10 +380,65 @@ static int s_dap_chain_plugins_load(dap_plugin_manifest_t * a_manifest, void ** 
     }
 
     *a_pvt_data = l_pvt_data;
-    s_plugins_load_plugin_initialization(l_pvt_data);
     PyGILState_Release(l_gil_state);
     return 0;
 
+}
+
+/**
+ * @brief s_dap_chain_plugins_preinit
+ * Call preinit() on the Python module if it exists, skip silently otherwise
+ */
+static int s_dap_chain_plugins_preinit(dap_plugin_manifest_t * a_manifest, void * a_pvt_data, char ** a_error_str)
+{
+    (void)a_error_str;
+    if (!a_pvt_data || !Py_IsInitialized())
+        return 0;
+    _dap_chain_plugins_module_t *l_container = (_dap_chain_plugins_module_t *)a_pvt_data;
+    PyGILState_STATE l_gil_state = PyGILState_Ensure();
+    PyErr_Clear();
+    PyObject *l_func_preinit = PyObject_GetAttrString(l_container->module, "preinit");
+    if (l_func_preinit && PyCallable_Check(l_func_preinit)) {
+        PyObject *l_args = PyTuple_New(0);
+        PyObject *l_res = PyObject_CallObject(l_func_preinit, l_args);
+        int l_ret = 0;
+        if (l_res && PyLong_Check(l_res)) {
+            l_ret = _PyLong_AsInt(l_res);
+            if (l_ret != 0) {
+                python_error_in_log_it(LOG_TAG);
+                log_it(L_ERROR, "Preinit of \"%s\" plugin returned error code: %i", l_container->name, l_ret);
+            }
+        } else if (!l_res) {
+            python_error_in_log_it(LOG_TAG);
+            log_it(L_ERROR, "The 'preinit' function of \"%s\" plugin raised an exception", l_container->name);
+            l_ret = -1;
+        }
+        Py_XDECREF(l_res);
+        Py_XDECREF(l_args);
+        Py_XDECREF(l_func_preinit);
+        PyGILState_Release(l_gil_state);
+        return l_ret;
+    }
+    PyErr_Clear();
+    Py_XDECREF(l_func_preinit);
+    PyGILState_Release(l_gil_state);
+    log_it(L_DEBUG, "No 'preinit' function in \"%s\" plugin, skipping", a_manifest->name);
+    return 0;
+}
+
+/**
+ * @brief s_dap_chain_plugins_init
+ * Call init() on the Python module (existing initialization logic)
+ */
+static int s_dap_chain_plugins_init(dap_plugin_manifest_t * a_manifest, void * a_pvt_data, char ** a_error_str)
+{
+    (void)a_error_str;
+    if (!a_pvt_data || !Py_IsInitialized())
+        return 0;
+    PyGILState_STATE l_gil_state = PyGILState_Ensure();
+    s_plugins_load_plugin_initialization(a_pvt_data);
+    PyGILState_Release(l_gil_state);
+    return 0;
 }
 
 static int s_dap_chain_plugins_unload(dap_plugin_manifest_t * a_manifest, void * a_pvt_data, char ** a_error_str )
