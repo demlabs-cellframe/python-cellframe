@@ -77,16 +77,20 @@ PyObject *dap_events_socket_write_f_py(PyDapEventsSocketObject *self, PyObject *
     if (self->t_events_socket == NULL){
         return NULL;
     }
-    const char *format;
-    PyTupleObject *pto;
-    if (!PyArg_ParseTuple(args, "s|O", &format, &pto)){
-        return  NULL;
-    }
-    va_list ap;
-    if (!PyArg_VaParse(args, format, ap)){
+    PyObject *py_format = NULL, *fmt_args = NULL;
+    if (!PyArg_ParseTuple(args, "U|O", &py_format, &fmt_args)){
         return NULL;
     }
-    size_t res_size = dap_events_socket_write_f_unsafe(self->t_events_socket, format, ap);
+    PyObject *formatted = fmt_args ? PyUnicode_Format(py_format, fmt_args) : (Py_INCREF(py_format), py_format);
+    if (!formatted)
+        return NULL;
+    const char *data = PyUnicode_AsUTF8(formatted);
+    if (!data) {
+        Py_DECREF(formatted);
+        return NULL;
+    }
+    size_t res_size = dap_events_socket_write_unsafe(self->t_events_socket, data, strlen(data));
+    Py_DECREF(formatted);
     return Py_BuildValue("n", res_size);
 }
 PyObject *dap_events_socket_read_py(PyDapEventsSocketObject *self, PyObject *args){
