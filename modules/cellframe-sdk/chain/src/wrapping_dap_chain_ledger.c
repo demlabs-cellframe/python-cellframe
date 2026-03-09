@@ -758,7 +758,7 @@ static bool s_python_obj_notifier(void *a_arg)
     PyGILState_STATE state = PyGILState_Ensure();
     PyObject *obj_argv = Py_BuildValue("OOO", obj_ledger, obj_tx, l_notify_arg);
     Py_INCREF(l_notifier->func);
-    PyObject *result = PyEval_CallObject(l_notifier->func, obj_argv);
+    PyObject *result = PyObject_CallObject(l_notifier->func, obj_argv);
     Py_XDECREF(l_notifier->func);
     Py_DECREF(obj_argv);
     Py_DECREF(obj_ledger);
