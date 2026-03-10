@@ -744,7 +744,7 @@ PyObject *dap_chain_add_datum_index_notify_py(PyObject *self, PyObject *args)
                 PyObject *item = PyList_GetItem(obj_datum_types, i);
                 if (PyLong_Check(item)) {
                     l_callback->datum_types_filter[i] = (uint16_t)PyLong_AsLong(item);
-                    log_it(L_DEBUG, "Added datum type filter[%ld]: 0x%04x", i, l_callback->datum_types_filter[i]);
+                    log_it(L_DEBUG, "Added datum type filter[%zd]: 0x%04x", i, l_callback->datum_types_filter[i]);
                 } else {
                     PyErr_SetString(PyExc_TypeError, "Datum types must be integers (use DatumTypesValues enum)");
                     DAP_DELETE(l_callback->datum_types_filter);

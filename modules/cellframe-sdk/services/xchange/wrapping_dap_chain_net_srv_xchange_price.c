@@ -29,7 +29,7 @@ PyMethodDef DapChainNetSrvXchangePriceMethods[] = {
                 METH_VARARGS,
                 "Function for order invalidation."
         },
-        {NULL}
+        {NULL, NULL, 0, NULL}
 };
 
 void DapChainNetSrvXchangePrice_free(PyDapChainNetSrvXchangeOrderObject *self){
