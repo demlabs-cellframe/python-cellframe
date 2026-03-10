@@ -576,7 +576,7 @@ PyObject *dap_chain_ledger_tx_find_by_addr_py(PyObject *self, PyObject *args){
 
 static char*** ListStringToArrayStringFormatChar(PyObject *list){
     Py_ssize_t size = PyList_Size(list);
-    char ***data = calloc(sizeof(char**), (size_t)size);
+    char ***data = calloc((size_t)size, sizeof(char**));
     if(!data) {
         log_it(L_CRITICAL, "Memory allocation error");
         return NULL;
@@ -584,7 +584,7 @@ static char*** ListStringToArrayStringFormatChar(PyObject *list){
     for (Py_ssize_t i = 0; i < size; i++){
         PyObject *obj_two = PyList_GetItem(list,i);
         Py_ssize_t size_seentenses = PyList_Size(obj_two);
-        char **sentences = calloc(sizeof(char**), (size_t)size_seentenses);
+        char **sentences = calloc((size_t)size_seentenses, sizeof(char*));
         if(!sentences) {
         log_it(L_CRITICAL, "Memory allocation error");
             DAP_DELETE(data);
@@ -602,7 +602,7 @@ static char*** ListStringToArrayStringFormatChar(PyObject *list){
 
 static size_t *ListIntToSizeT(PyObject *list){
     Py_ssize_t size = PyList_Size(list);
-    size_t *res_size_t = calloc(sizeof(size_t), (size_t)size);
+    size_t *res_size_t = calloc((size_t)size, sizeof(size_t));
     if(!res_size_t) {
         log_it(L_CRITICAL, "Memory allocation error");
         return NULL;
