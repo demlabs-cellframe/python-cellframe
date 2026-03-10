@@ -4,7 +4,7 @@
 #define LOG_TAG "libdap-python"
 
 static PyMethodDef DapCoreMethods[] = {
-        {NULL, NULL, 0, NULL}
+        {0}
 };
 
 PyTypeObject DapCoreObjectType = DAP_PY_TYPE_OBJECT(

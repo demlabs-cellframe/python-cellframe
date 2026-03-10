@@ -4,7 +4,7 @@
 
 static PyMethodDef PyDapChainTxOutCondMethods[] = {
         {"getTsdByType", wrapping_dap_chain_tx_out_cond_get_tsd_by_type, METH_VARARGS, "Get TSD data by type"},
-        {NULL, NULL, 0, NULL}
+        {0}
 };
 
 static PyGetSetDef PyDapChainTxOutCondGetsSetsDef[] = {

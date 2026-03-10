@@ -28,7 +28,7 @@ static PyMethodDef DapChainDatumMethods[] = {
         {"getTypeStr", dap_chain_datum_get_type_str_py, METH_NOARGS, ""},
         {"getTypeId", wrapping_dap_chain_datum_get_type_id_py, METH_NOARGS, ""},
         {"fromBytes", wrapping_dap_chain_datum_create_from_bytes, METH_VARARGS | METH_STATIC, ""},
-        {NULL, NULL, 0, NULL}
+        {0}
 };
 
 static PyGetSetDef  DapChainDatumGetSet[] = {
@@ -37,7 +37,7 @@ static PyGetSetDef  DapChainDatumGetSet[] = {
         {"tsCreated", (getter)dap_chain_datum_get_ts_created_py, NULL, NULL, NULL},
         {"raw", (getter)wrapping_dap_chain_datum_get_raw_py, NULL, NULL, NULL},
         {"dataRaw", (getter)wrapping_dap_chain_datum_get_data_raw_py, NULL, NULL, NULL},
-        {NULL, NULL, NULL, NULL}
+        {0}
 };
 
 PyTypeObject DapChainDatumObjectType = {

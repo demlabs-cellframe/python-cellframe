@@ -8,7 +8,7 @@ static PyGetSetDef DapChainTxInCondGetsSetsDef[] = {
 };
 
 static PyMethodDef  DapChainTxInCondMethodsDef[] = {
-        {NULL, NULL, 0, NULL}
+        {0}
 };
 
 PyTypeObject DapChainTxInCondObjectType = DAP_PY_TYPE_OBJECT(

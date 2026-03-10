@@ -412,7 +412,7 @@ PyMethodDef DapChainNetSrvDexMethods[] = {
         "Returns:\n"
         "    List of dicts with pair, base_token, quote_token"
     },
-    {NULL, NULL, 0, NULL}
+    {0}
 };
 
 /* Type definition */

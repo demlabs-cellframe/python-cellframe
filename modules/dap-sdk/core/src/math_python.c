@@ -15,7 +15,7 @@ PyNumberMethods DapMathNumberMethods = {
 static PyGetSetDef DapMathGetsSets[] = {
         {"coins", (getter)wrapping_dap_math_get_coins, NULL, NULL, NULL},
         {"balance", (getter)wrapping_dap_math_get_balance, NULL, NULL, NULL},
-        {NULL, NULL, NULL, NULL, NULL}
+        {0}
 };
 
 static PyMethodDef DapMathMethods[] = {
@@ -23,7 +23,7 @@ static PyMethodDef DapMathMethods[] = {
          METH_VARARGS | METH_STATIC, "The function calculates the number of coins from the number of datoshi."},
         {"percent", math_python_calc_percent,
          METH_VARARGS, "The function calculates the specified percentage of a number."},
-        {NULL, NULL, 0, NULL}
+        {0}
 };
 
 PyTypeObject DapMathObjectType = {

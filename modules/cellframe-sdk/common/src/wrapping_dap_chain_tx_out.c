@@ -8,7 +8,7 @@ static PyGetSetDef DapChainTxOutGetsSetsDef[] = {
 };
 
 static PyMethodDef PyDapChainTxOutObjectMethods[] ={
-        {NULL, NULL, 0, NULL}
+        {0}
 };
 
 PyTypeObject DapChainTxOutObjectType = DAP_PY_TYPE_OBJECT(
