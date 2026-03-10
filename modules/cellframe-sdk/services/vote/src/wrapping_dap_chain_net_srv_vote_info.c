@@ -13,7 +13,7 @@ static PyGetSetDef DapChainNetSrvVoteInfoGetSet[] = {
         {"expire", wrapping_dap_chain_net_srv_vote_get_expire_datetime, NULL, NULL, NULL},
         {"isDelegateKeyRequired", wrapping_dap_chain_net_srv_vote_get_is_delegate_key_required, NULL, NULL, NULL},
         {"isVoteChangingAllowed", wrapping_dap_chain_net_srv_vote_get_is_vote_changing_allowed, NULL, NULL, NULL},
-        {}
+        {0}
 };
 
 void DapChainNetSrvVoteInfo_dealloc(PyDapChainNetSrvVoteInfoObject *self) {
@@ -108,7 +108,7 @@ static PyGetSetDef DapChainNetSrvVoteInfoOptionGetSet[] = {
         {"votes", wrapping_dap_chain_net_srv_vote_option_get_votes, NULL, NULL, NULL},
         {"weights", wrapping_dap_chain_net_srv_vote_option_get_weights, NULL, NULL, NULL},
         {"hashTxs", wrapping_dap_chain_net_srv_vote_option_txs, NULL, NULL, NULL},
-        {}
+        {0}
 };
 
 PyObject *wrapping_dap_chain_net_srv_vote_option_get_description(PyObject *self, void *closure) {

@@ -7,7 +7,7 @@ static PyMethodDef PyDapEncServerMethods[] = {
         {"reply", enc_http_reply_py, METH_VARARGS, ""},
         {"replyEncode", enc_http_reply_encode_py, METH_VARARGS, ""},
         {"addProc", enc_http_add_proc_py, METH_VARARGS | METH_STATIC, ""},
-        {}
+        {0}
 };
 
 static PyGetSetDef PyDapEncServerGetSet[] = {
@@ -15,7 +15,7 @@ static PyGetSetDef PyDapEncServerGetSet[] = {
         {"request", (getter)enc_http_get_request_py, NULL, "Return request in view bytes", NULL},
         {"urlPath", (getter)enc_http_get_url_path_py, NULL, "Return request in view bytes", NULL},
         {"query", (getter)enc_http_get_in_query_py, NULL, "Return request in view bytes", NULL},
-        {}
+        {0}
 };
 
 PyTypeObject DapEncServerObjectType = DAP_PY_TYPE_OBJECT(

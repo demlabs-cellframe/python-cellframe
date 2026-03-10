@@ -4,7 +4,7 @@ static PyGetSetDef DapChainTxInCondGetsSetsDef[] = {
         {"receiptPrevIdx",(getter)wrapping_dap_chain_tx_in_cond_get_receipt_prev_idx, NULL, NULL, NULL},
         {"prevHash", (getter)wrapping_dap_chain_tx_in_cond_get_prev_hash, NULL, NULL, NULL},
         {"outPrevIdx", (getter)wrapping_dap_chain_tx_in_cond_get_out_prev_idx, NULL, NULL, NULL},
-        {NULL}
+        {0}
 };
 
 static PyMethodDef  DapChainTxInCondMethodsDef[] = {

@@ -12,7 +12,7 @@ static PyGetSetDef DapChainTxEventGetsSetsDef[] = {
     {"event_type", (getter)wrapping_dap_chain_tx_event_get_event_type, NULL, NULL, NULL},
     {"timestamp", (getter)wrapping_dap_chain_tx_event_get_timestamp, NULL, NULL, NULL},
     {"srv_uid", (getter)wrapping_dap_chain_tx_event_get_srv_uid, NULL, NULL, NULL},
-    {}
+    {0}
 };
 
 static PyMethodDef PyDapChainTxEventObjectMethods[] ={
@@ -20,7 +20,7 @@ static PyMethodDef PyDapChainTxEventObjectMethods[] ={
     {"STAKE_EXT_BID_PLACED", (PyCFunction)TX_EVENT_TYPE_STAKE_EXT_BID_PLACED_PY, METH_NOARGS | METH_STATIC, ""},
     {"STAKE_EXT_ENDED", (PyCFunction)TX_EVENT_TYPE_STAKE_EXT_ENDED_PY, METH_NOARGS | METH_STATIC, ""},
     {"STAKE_EXT_CANCELLED", (PyCFunction)TX_EVENT_TYPE_STAKE_EXT_CANCELLED_PY, METH_NOARGS | METH_STATIC, ""},
-    {}
+    {0}
 };
 
 PyTypeObject DapChainTxEventObjectType = DAP_PY_TYPE_OBJECT(

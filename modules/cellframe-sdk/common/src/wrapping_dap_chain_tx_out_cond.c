@@ -17,7 +17,7 @@ static PyGetSetDef PyDapChainTxOutCondGetsSetsDef[] = {
             "Return TSD tag if present, else None", NULL},
         {"tsd", (getter)wrapping_dap_chain_tx_out_cond_get_tsd, NULL,
             "Return TSD data as bytes", NULL},
-        {}
+        {0}
 };
 
 PyTypeObject DapChainTxOutCondObjectType = DAP_PY_TYPE_OBJECT(

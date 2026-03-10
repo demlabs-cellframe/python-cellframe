@@ -3,7 +3,7 @@
 
 static PyMethodDef DapHttpMethods[] = {
         {"new", dap_http_new_py, METH_VARARGS | METH_STATIC, ""},
-        {}
+        {0}
 };
 
 PyTypeObject DapHttpObjectType = DAP_PY_TYPE_OBJECT(

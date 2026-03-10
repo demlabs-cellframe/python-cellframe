@@ -12,7 +12,7 @@ static PyMethodDef PyDapEventsObjectSocket_methods[] = {
         {"read", (PyCFunction)dap_events_socket_read_py, METH_VARARGS, ""},
         {"delete", (PyCFunction)dap_events_socket_delete_py, METH_VARARGS, ""},
         {"shringBufIn", (PyCFunction)dap_events_socket_shrink_buf_in_py, METH_VARARGS, ""},
-        {}  /* Sentinel */
+        {0}  /* Sentinel */
 };
 
 PyTypeObject DapEventsSocketObjectType = DAP_PY_TYPE_OBJECT(

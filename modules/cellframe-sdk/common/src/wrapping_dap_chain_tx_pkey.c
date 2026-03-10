@@ -4,7 +4,7 @@ static PyGetSetDef DapChainTxPkeyGetsSetsDef[] = {
         {"pkeyType", (getter)wrapping_dap_chain_tx_pkey_get_type, NULL, NULL, NULL},
         {"pkeySize", (getter)wrapping_dap_chain_tx_pkey_get_size, NULL, NULL, NULL},
         {"pkey", (getter)wrapping_dap_chain_tx_pkey_get_pkey, NULL, NULL, NULL},
-        {}
+        {0}
 };
 
 PyTypeObject DapChainTxPkeyObjectType = DAP_PY_TYPE_OBJECT(

@@ -55,7 +55,7 @@ static PyMethodDef DapChainLedgerMethods[] = {
         {"eventGetList", (PyCFunction)dap_chain_ledger_event_get_list_py, METH_VARARGS, "Get list of events by group name"},
         {"eventPkeyList", (PyCFunction)dap_chain_ledger_event_pkey_list_py, METH_VARARGS, "Get list of allowed public keys for events"},
         {"eventNotifyAdd", (PyCFunction)dap_chain_ledger_event_notify_add_py, METH_VARARGS, "Add notification callback for events"},
-        {}
+        {0}
 };
 
 static PyMethodDef DapChainLedgerEventMethods[] = {
@@ -65,7 +65,7 @@ static PyMethodDef DapChainLedgerEventMethods[] = {
         {"getTimestamp", (PyCFunction)dap_chain_ledger_event_get_timestamp_py, METH_NOARGS, "Get event timestamp"},
         {"getPkeyHash", (PyCFunction)dap_chain_ledger_event_get_pkey_hash_py, METH_NOARGS, "Get event pkey hash"},
         {"getTxHash", (PyCFunction)dap_chain_ledger_event_get_tx_hash_py, METH_NOARGS, "Get event tx hash"},
-        {}
+        {0}
 };
 
 static int s_py_ledger_history_append(PyObject *a_list, dap_chain_datum_tx_t *a_tx)

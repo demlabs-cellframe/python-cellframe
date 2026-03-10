@@ -28,7 +28,7 @@ static PyMethodDef DapChainDatumMethods[] = {
         {"getTypeStr", dap_chain_datum_get_type_str_py, METH_NOARGS, ""},
         {"getTypeId", wrapping_dap_chain_datum_get_type_id_py, METH_NOARGS, ""},
         {"fromBytes", wrapping_dap_chain_datum_create_from_bytes, METH_VARARGS | METH_STATIC, ""},
-        {NULL}
+        {NULL, NULL, 0, NULL}
 };
 
 static PyGetSetDef  DapChainDatumGetSet[] = {
@@ -37,7 +37,7 @@ static PyGetSetDef  DapChainDatumGetSet[] = {
         {"tsCreated", (getter)dap_chain_datum_get_ts_created_py, NULL, NULL, NULL},
         {"raw", (getter)wrapping_dap_chain_datum_get_raw_py, NULL, NULL, NULL},
         {"dataRaw", (getter)wrapping_dap_chain_datum_get_data_raw_py, NULL, NULL, NULL},
-        {NULL}
+        {NULL, NULL, NULL, NULL}
 };
 
 PyTypeObject DapChainDatumObjectType = {
@@ -169,8 +169,8 @@ PyObject *wrapping_dap_chain_datum_get_datum_token_emission(PyObject *self, PyOb
             DAP_DELETE(l_strerr);
             DAP_DELETE(l_token_emission);
             return NULL;*/
-            log_it(L_ERROR, "Malformed datum type '%d', TSD sections are out-of-buf (%lu > %lu)",
-                   l_token_emission->hdr.type, l_token_emission->data.type_auth.tsd_total_size,
+            log_it(L_ERROR, "Malformed datum type '%d', TSD sections are out-of-buf (%" DAP_UINT64_FORMAT_U " > %zu)",
+                   l_token_emission->hdr.type, (uint64_t)l_token_emission->data.type_auth.tsd_total_size,
                    l_token_emission_size);
             
             DAP_DELETE(l_token_emission);

@@ -6,7 +6,7 @@
 
 static PyMethodDef AppCliMethods[] = {
         {"main", dap_app_cli_main_py, METH_VARARGS | METH_STATIC, "Main CLI function"},
-        {}
+        {0}
 };
 
 PyTypeObject DapAppCliObjectType = DAP_PY_TYPE_OBJECT(

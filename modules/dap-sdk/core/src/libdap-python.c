@@ -14,7 +14,7 @@ PyTypeObject DapCoreObjectType = DAP_PY_TYPE_OBJECT(
 
 static PyMethodDef DapCommonMethods[] = {
         {"execWithRes", (PyCFunction)dap_exec_with_ret, METH_VARARGS | METH_STATIC, ""},
-        {}
+        {0}
 };
 
 PyTypeObject DapCommonObjectType = DAP_PY_TYPE_OBJECT(
@@ -44,7 +44,7 @@ static PyMethodDef DapLogitMethods[] = {
     {"att", (PyCFunction)dap_log_it_att, METH_VARARGS | METH_STATIC, "Log a message with the ATT level."},
     {"error", (PyCFunction)dap_log_it_error, METH_VARARGS | METH_STATIC, "Log a message with the ERROR level."},
     {"critical", (PyCFunction)dap_log_it_critical, METH_VARARGS | METH_STATIC, "Log a message with the CRITICAL level."},
-    {}
+    {0}
 };
 
 PyTypeObject DapLogitObjectType = DAP_PY_TYPE_OBJECT(
