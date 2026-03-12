@@ -5,7 +5,7 @@
 #define _PyDapChainNetSrvClient(a) ((PyDapChainNetSrvClient*)a)
 
 static PyMethodDef DapChainNetSrvClientRemoteMethods[] = {
-        {}
+        {0}
 };
 
 static PyGetSetDef DapChaiNetSrvClientRemoteGetsSets[] = {
@@ -16,7 +16,7 @@ static PyGetSetDef DapChaiNetSrvClientRemoteGetsSets[] = {
         {"sessionId", (getter)wrapping_dap_chain_net_srv_client_remote_get_session_id, NULL, NULL, NULL},
         {"bytesReceived", (getter)wrapping_dap_chain_net_srv_client_remote_get_bytes_received, NULL, NULL, NULL},
         {"bytesSend", (getter)wrapping_dap_chain_net_srv_client_remote_get_bytes_send, NULL, NULL, NULL},
-        {}
+        {0}
 };
 
 PyTypeObject DapChainNetSrvClientRemoteObject_DapChainNetSrvClientRemoteObjectType = DAP_PY_TYPE_OBJECT(

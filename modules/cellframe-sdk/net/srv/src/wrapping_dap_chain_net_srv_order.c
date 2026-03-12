@@ -12,7 +12,7 @@ static PyMethodDef DapChainNetSrvOrderMethods[]={
         {"save", (PyCFunction)wrapping_dap_chain_net_srv_order_save, METH_VARARGS, ""},
         {"getGdbGroup", (PyCFunction)wrapping_dap_chain_net_srv_order_get_gdb_group, METH_VARARGS | METH_STATIC, ""},
         {"addNotify", (PyCFunction)wrapping_dap_chain_net_srv_order_add_notify_callback, METH_VARARGS | METH_STATIC, ""},
-        {}
+        {0}
 };
 
 static PyGetSetDef DapChaiNetSrvOrderGetsSets[] = {
@@ -28,7 +28,7 @@ static PyGetSetDef DapChaiNetSrvOrderGetsSets[] = {
         {"srvPriceTicker", (getter)wrapping_dap_chain_net_srv_order_get_srv_price_ticker, NULL, NULL, NULL},
         {"extSize", (getter)wrapping_dap_chain_net_srv_order_get_srv_ext_size, NULL, NULL, NULL},
         {"extSign", (getter)wrapping_dap_chain_net_srv_order_get_srv_ext_n_sign, NULL, NULL, NULL},
-        {}
+        {0}
 };
 
 PyTypeObject DapChainNetSrvOrderObjectType = DAP_PY_TYPE_OBJECT(

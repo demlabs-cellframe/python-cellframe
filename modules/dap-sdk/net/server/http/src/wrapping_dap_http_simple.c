@@ -15,7 +15,7 @@ static PyMethodDef PyDapHttpSimpleMethods[] = {
         {"replyAdd", dap_http_simple_reply_py, METH_VARARGS, "Reply for request"},
         {"setResponseHeader", dap_http_simple_set_response_headers, METH_VARARGS, "Set header for response"},
         {"getResponseHeader", dap_http_simple_get_response_headers, METH_NOARGS, "Get header for response"},
-        {}
+        {0}
 };
 
 static PyGetSetDef PyDapHttpSimpleGetSetDef[] = {
@@ -25,7 +25,7 @@ static PyGetSetDef PyDapHttpSimpleGetSetDef[] = {
         {"query", (getter)dap_http_simple_query_py, NULL, "Return request in view bytes", NULL},
         {"ipClient", (getter)dap_http_simple_ip_client_py, NULL, "", NULL},
         {"requestHeader", (getter)dap_http_simple_http_headers_request, NULL, "", NULL},
-        {}
+        {0}
 };
 
 PyTypeObject DapHttpSimpleObjectType = DAP_PY_TYPE_OBJECT(

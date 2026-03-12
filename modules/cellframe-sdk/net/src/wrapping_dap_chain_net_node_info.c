@@ -4,7 +4,7 @@
 static PyMethodDef DapChainNetNodeInfoMethods[] = {
         {"save", dap_chain_node_info_save_py, METH_VARARGS, ""},
         {"read", dap_chain_node_info_read_py, METH_VARARGS | METH_STATIC, ""},
-        {NULL, NULL, 0, NULL}
+        {0}
 };
 
 PyTypeObject DapChainNodeInfoObjectType = DAP_PY_TYPE_OBJECT(

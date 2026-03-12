@@ -4,7 +4,7 @@
 static PyMethodDef PyCryptoGUUID_Methods[] = {
     {"generate", wrapping_guuid_generate, METH_NOARGS | METH_STATIC, ""},
     {"compose", wrapping_guuid_compose, METH_VARARGS | METH_STATIC, ""},
-    {NULL, NULL, 0, NULL}
+    {0}
 };
 
 int PyCryptoGUUID_init(PyCryptoGUUIDObject *self, PyObject *argv, PyObject *kwds){

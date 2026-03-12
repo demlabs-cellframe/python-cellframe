@@ -13,7 +13,7 @@ PyMethodDef DapChainNetSrvVoteMethods[] = {
         {"create", (PyCFunction)wrapping_dap_chain_net_srv_vote_create, METH_VARARGS | METH_STATIC, ""},
         {"vote", (PyCFunction)wrapping_dap_chain_net_srv_vote, METH_VARARGS | METH_STATIC, ""},
         {"list", (PyCFunction)wrapping_dap_chain_net_srv_vote_list, METH_VARARGS | METH_STATIC, ""},
-        {NULL, NULL, 0, NULL}
+        {0}
 };
 
 PyObject *wrapping_dap_chain_net_srv_vote_create(PyObject *self, PyObject *args) {

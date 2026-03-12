@@ -11,7 +11,7 @@ static PyGetSetDef DapChainNetSrvPrice_GetsSetsDef[] = {
         {"token", (getter)wrapping_dap_chain_net_srv_get_token, NULL, NULL, NULL},
         {"units", (getter)wrapping_dap_chain_net_srv_get_units, NULL, NULL, NULL},
         {"unitsUid", (getter)wrapping_dap_chain_net_srv_get_units_uid, NULL, NULL, NULL},
-        {}
+        {0}
 };
 
 PyTypeObject DapChainNetSrvPriceObjectType = DAP_PY_TYPE_OBJECT(
@@ -57,7 +57,7 @@ static PyMethodDef DapChainNetSrvOrderDirection_Methods[] = {
         {"getDirBuy", (PyCFunction)wrapping_dap_chain_net_srv_order_direction_get_serv_dir_buy, METH_NOARGS | METH_STATIC, ""},
         {"getDirSell", (PyCFunction)wrapping_dap_chain_net_srv_order_direction_get_serv_dir_sell, METH_NOARGS | METH_STATIC, ""},
         {"getDirUndefined", (PyCFunction)wrapping_dap_chain_net_srv_order_direction_get_serv_dir_undefined, METH_NOARGS | METH_STATIC, ""},
-        {}
+        {0}
 };
 
 PyTypeObject DapChainNetSrvOrderDirectionObjectType = DAP_PY_TYPE_OBJECT(

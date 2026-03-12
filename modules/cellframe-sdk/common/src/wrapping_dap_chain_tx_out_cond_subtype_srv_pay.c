@@ -6,7 +6,7 @@ static PyGetSetDef DapChainTxOutCondSubtypeStvPayGetsSetsDef[]={
         {"pkeyHash", (getter)wrapping_dap_chain_tx_out_cond_subtype_srv_pay_get_pkey,NULL, "", NULL},
         {"maxPrice", (getter)wrapping_dap_chain_tx_out_cond_subtype_srv_pay_get_map_price,NULL, "", NULL},
         {"usedBy", (getter)wrapping_dap_chain_tx_out_cound_used_by, NULL, "", NULL},
-        {}
+        {0}
 };
 
 PyTypeObject DapChainTxOutCondSubTypeSrvPayObjectType = {

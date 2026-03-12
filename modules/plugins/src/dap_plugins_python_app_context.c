@@ -8,7 +8,7 @@ dap_plugins_python_app_context_t *s_app_context = NULL;
 static PyMethodDef DapAppContextMethods[] = {
     {"getServer", (PyCFunction)dap_plugins_python_app_context_get_server, METH_VARARGS | METH_STATIC, "Get main server from node"},
     {"getHttp", (PyCFunction)dap_plugins_python_app_context_get_http, METH_NOARGS | METH_STATIC, "Get main server from node"},
-    {}
+    {0}
 };
 
 

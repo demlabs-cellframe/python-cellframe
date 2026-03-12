@@ -3,7 +3,7 @@
 static PyGetSetDef DapChainTxGetsSetsDef[] = {
         {"prevHash", (getter)wrapping_dap_chain_tx_in_get_prev_hash, NULL, NULL, NULL},
         {"prevIdx", (getter)wrapping_dap_chain_tx_in_get_out_prev_idx, NULL, NULL, NULL},
-        {}
+        {0}
 };
 
 PyTypeObject DapChainTxInObjectType = DAP_PY_TYPE_OBJECT(

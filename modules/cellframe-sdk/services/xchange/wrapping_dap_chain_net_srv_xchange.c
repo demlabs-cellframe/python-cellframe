@@ -11,7 +11,7 @@ PyMethodDef DapChainNetSrvXchangeMethods[] = {
                 wrapping_dap_chain_net_srv_xchange_get_orders,
                 METH_VARARGS | METH_STATIC,
                         "The function receives a list of prices for exchange; if there are no prices, then an empty list is returned."},
-        {NULL, NULL, 0, NULL}
+        {0}
 };
 
 PyObject *wrapping_dap_chain_net_srv_xchange_get_orders(PyObject *self, PyObject *argv){

@@ -5,7 +5,7 @@
 static PyGetSetDef DapChaiNetSrvGetsSets[] = {
         {"uid", (getter)wrapping_dap_chain_net_srv_get_uid, NULL, NULL, NULL},
         {"gracePeriod", (getter)wrapping_dap_chain_net_srv_get_grace_period, NULL, NULL, NULL},
-        {}
+        {0}
 };
 
 PyTypeObject DapChainNetSrvObjectType = DAP_PY_TYPE_OBJECT(

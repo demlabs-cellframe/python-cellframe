@@ -15,7 +15,7 @@ static PyMethodDef PyCryptoDataTypeObjectMethods[] = {
         {"DAP_ENC_DATA_TYPE_RAW", (PyCFunction)get_ENC_DATA_TYPE_RAW, METH_NOARGS | METH_STATIC, ""},
         {"DAP_ENC_DATA_TYPE_B64", (PyCFunction)get_ENC_DATA_TYPE_B64, METH_NOARGS | METH_STATIC, ""},
         {"DAP_ENC_DATA_TYPE_B64_URLSAFE", (PyCFunction)get_ENC_DATA_TYPE_B64_URLSAFE, METH_NOARGS | METH_STATIC, ""},
-        {}
+        {0}
 };
 
 PyTypeObject DapCryptoDataTypeObjectType = DAP_PY_TYPE_OBJECT(
