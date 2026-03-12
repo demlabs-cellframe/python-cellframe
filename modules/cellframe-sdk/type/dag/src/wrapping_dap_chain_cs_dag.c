@@ -5,7 +5,7 @@
 static PyMethodDef DapChainCsDagMethods[] = {
         {"findByHash", (PyCFunction)dap_chain_cs_dag_find_event_by_hash_py, METH_VARARGS, ""},
         {"getCurrentRound", dap_chain_cs_dag_get_current_round_py, METH_NOARGS, ""},
-        {}
+        {0}
 };
 
 PyTypeObject DapChainCsDagType = DAP_PY_TYPE_OBJECT(

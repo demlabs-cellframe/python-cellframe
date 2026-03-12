@@ -231,7 +231,7 @@ PyObject *wrapping_dap_chain_net_srv_stake_get_validators_list(PyObject *self, P
 static PyGetSetDef PyDapChainNetSrvStakePosDelegateGetsSets[] = {
         {"CountValidators", (getter)wrapping_dap_chain_net_srv_stake_get_count_validator, NULL, "", NULL},
         {"TotalWeight", (getter) wrapping_dap_chain_net_srv_stake_get_total_weight, NULL, "", NULL},
-        {}
+        {0}
 };
 
 static PyMethodDef PyDapChainNetSrvStakePosDelegateMethods[] = {
@@ -253,7 +253,7 @@ static PyMethodDef PyDapChainNetSrvStakePosDelegateMethods[] = {
             METH_VARARGS,
             "Get list of all validators with full information"
         },
-        {}
+        {0}
 };
 
 PyTypeObject PyDapChainNetSrvStakePosDelegateObjectType = DAP_PY_TYPE_OBJECT(

@@ -144,7 +144,7 @@ static PyGetSetDef DapChainDatumAnchorGetSet[] = {
         {"TSD", (getter)wrapping_dap_chain_datum_anchor_get_tsd, NULL, NULL, NULL},
         {"signs", (getter)wrapping_dap_chain_datum_anchor_get_sign, NULL, NULL, NULL},
         {"decreeHash", (getter)wrapping_dap_chain_datum_anchor_get_decree_hash, NULL, NULL, NULL},
-        {}
+        {0}
 };
 
 static PyMethodDef DapChainDatumAnchorMethods[] = {{}};

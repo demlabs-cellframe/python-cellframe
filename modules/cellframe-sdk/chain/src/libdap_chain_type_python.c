@@ -11,7 +11,7 @@ static PyMethodDef DapChainTypeMethods[] = {
         {"CHAIN_TYPE_SIGNER", (PyCFunction) CHAIN_TYPE_SIGNER_PY, METH_NOARGS|METH_STATIC, ""},
         {"CHAIN_TYPE_DECREE", (PyCFunction)CHAIN_TYPE_DECREE_PY, METH_NOARGS|METH_STATIC, ""},
         {"CHAIN_TYPE_ANCHOR", (PyCFunction)CHAIN_TYPE_ANCHOR_PY, METH_NOARGS|METH_STATIC, ""},
-        {}
+        {0}
 };
 
 PyTypeObject DapChainTypeObjectType = DAP_PY_TYPE_OBJECT(

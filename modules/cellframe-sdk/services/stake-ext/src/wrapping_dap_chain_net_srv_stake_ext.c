@@ -532,7 +532,7 @@ static PyMethodDef PyDapChainNetSrvStakeExtMethods[] = {
             METH_VARARGS,
             "Create stake_ext ended tx event"
         },
-        {NULL, NULL, 0, NULL}
+        {0}
 };
 
 PyTypeObject PyDapChainNetSrvStakeExtObjectType = {

@@ -15,14 +15,14 @@ static PyGetSetDef PyDapPkeyGetsSetsDef[] = {
         {"hash", (getter)wrapping_dap_pkey_get_hash, NULL, NULL, NULL},
         {"type", (getter)wrapping_dap_pkey_get_type, NULL, NULL, NULL},
         {"size", (getter)wrapping_dap_pkey_get_size, NULL, NULL, NULL},
-        {}
+        {0}
 };
 
 static PyMethodDef PyDapPkeyMethodsDef[] = {
         {"toBytes", (PyCFunction)wrapping_dap_pkey_to_bytes, METH_NOARGS, ""},
         {"fromBytes", (PyCFunction)wrapping_dap_pkey_from_bytes, METH_VARARGS | METH_STATIC, ""},
         {"encrypt", (PyCFunction)wrapping_dap_pkey_encrypt, METH_VARARGS, ""},
-        {}
+        {0}
 };
 
 void PyDapPkeyObject_free(PyDapPkeyObject *self) {

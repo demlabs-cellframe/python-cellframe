@@ -55,7 +55,7 @@ static PyMethodDef DapChainLedgerMethods[] = {
         {"eventGetList", (PyCFunction)dap_chain_ledger_event_get_list_py, METH_VARARGS, "Get list of events by group name"},
         {"eventPkeyList", (PyCFunction)dap_chain_ledger_event_pkey_list_py, METH_VARARGS, "Get list of allowed public keys for events"},
         {"eventNotifyAdd", (PyCFunction)dap_chain_ledger_event_notify_add_py, METH_VARARGS, "Add notification callback for events"},
-        {}
+        {0}
 };
 
 static PyMethodDef DapChainLedgerEventMethods[] = {
@@ -65,7 +65,7 @@ static PyMethodDef DapChainLedgerEventMethods[] = {
         {"getTimestamp", (PyCFunction)dap_chain_ledger_event_get_timestamp_py, METH_NOARGS, "Get event timestamp"},
         {"getPkeyHash", (PyCFunction)dap_chain_ledger_event_get_pkey_hash_py, METH_NOARGS, "Get event pkey hash"},
         {"getTxHash", (PyCFunction)dap_chain_ledger_event_get_tx_hash_py, METH_NOARGS, "Get event tx hash"},
-        {}
+        {0}
 };
 
 static int s_py_ledger_history_append(PyObject *a_list, dap_chain_datum_tx_t *a_tx)
@@ -576,7 +576,7 @@ PyObject *dap_chain_ledger_tx_find_by_addr_py(PyObject *self, PyObject *args){
 
 static char*** ListStringToArrayStringFormatChar(PyObject *list){
     Py_ssize_t size = PyList_Size(list);
-    char ***data = calloc(sizeof(char**), (size_t)size);
+    char ***data = calloc((size_t)size, sizeof(char**));
     if(!data) {
         log_it(L_CRITICAL, "Memory allocation error");
         return NULL;
@@ -584,7 +584,7 @@ static char*** ListStringToArrayStringFormatChar(PyObject *list){
     for (Py_ssize_t i = 0; i < size; i++){
         PyObject *obj_two = PyList_GetItem(list,i);
         Py_ssize_t size_seentenses = PyList_Size(obj_two);
-        char **sentences = calloc(sizeof(char**), (size_t)size_seentenses);
+        char **sentences = calloc((size_t)size_seentenses, sizeof(char*));
         if(!sentences) {
         log_it(L_CRITICAL, "Memory allocation error");
             DAP_DELETE(data);
@@ -602,7 +602,7 @@ static char*** ListStringToArrayStringFormatChar(PyObject *list){
 
 static size_t *ListIntToSizeT(PyObject *list){
     Py_ssize_t size = PyList_Size(list);
-    size_t *res_size_t = calloc(sizeof(size_t), (size_t)size);
+    size_t *res_size_t = calloc((size_t)size, sizeof(size_t));
     if(!res_size_t) {
         log_it(L_CRITICAL, "Memory allocation error");
         return NULL;
@@ -758,7 +758,7 @@ static bool s_python_obj_notifier(void *a_arg)
     PyGILState_STATE state = PyGILState_Ensure();
     PyObject *obj_argv = Py_BuildValue("OOO", obj_ledger, obj_tx, l_notify_arg);
     Py_INCREF(l_notifier->func);
-    PyObject *result = PyEval_CallObject(l_notifier->func, obj_argv);
+    PyObject *result = PyObject_CallObject(l_notifier->func, obj_argv);
     Py_XDECREF(l_notifier->func);
     Py_DECREF(obj_argv);
     Py_DECREF(obj_ledger);

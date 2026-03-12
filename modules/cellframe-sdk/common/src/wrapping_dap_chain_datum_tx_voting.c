@@ -15,7 +15,7 @@ PyGetSetDef PyDapChainTxVotingGetSetDef[] = {
         {"expire", wrapping_dap_chain_tx_voting_get_expire, NULL, NULL, NULL},
         {"isDelegateKeyRequired", wrapping_dap_chain_tx_voting_get_is_delegate_key_required, NULL, NULL, NULL},
         {"isVoteChangingAllowed", wrapping_dap_chain_tx_voting_get_is_vote_changing_allowed, NULL, NULL, NULL},
-        {}
+        {0}
 };
 
 PyObject *wrapping_dap_chain_tx_voting_get_question(PyObject *self, void *closure){
@@ -99,7 +99,7 @@ PyTypeObject PyDapChainTxVotingObjectType = DAP_PY_TYPE_OBJECT(
 PyGetSetDef PyDapChainTxVoteGetSetDef[] = {
         {"hash", (getter) wrapping_dap_chain_tx_vote_get_hash, NULL, NULL, NULL},
         {"answerIdx", (getter) wrapping_dap_chain_tx_vote_get_answer_idx, NULL, NULL, NULL},
-        {}
+        {0}
 };
 
 PyObject *wrapping_dap_chain_tx_vote_get_hash(PyObject *self, void *closure){

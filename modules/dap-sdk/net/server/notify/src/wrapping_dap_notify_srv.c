@@ -7,7 +7,7 @@
 static PyMethodDef PyDapNotifySrvMethods[] = {
     {"send", (PyCFunction)wrapping_dap_notify_srv_send, METH_VARARGS | METH_STATIC, "Send string to notify socket"},
     {"sendf", (PyCFunction)wrapping_dap_notify_srv_sendf, METH_VARARGS | METH_STATIC, "Send formatted string to notify socket"},
-    {}
+    {0}
 };
 
 PyTypeObject DapNotifySrvObjectType = DAP_PY_TYPE_OBJECT(

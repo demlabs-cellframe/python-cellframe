@@ -402,7 +402,7 @@ PyGetSetDef DapChainNetSrvDexOrderGetSetDef[] = {
     {"tsCreated", wrapping_dap_chain_net_srv_dex_order_get_ts_created, NULL, "Creation datetime", NULL},
     {"tsExpires", wrapping_dap_chain_net_srv_dex_order_get_ts_expires, NULL, "Expiration datetime (or None)", NULL},
     {"net", wrapping_dap_chain_net_srv_dex_order_get_net, NULL, "Network object", NULL},
-    {NULL, NULL, NULL, NULL, NULL}
+    {0}
 };
 
 PyMethodDef DapChainNetSrvDexOrderMethods[] = {
@@ -429,7 +429,7 @@ PyMethodDef DapChainNetSrvDexOrderMethods[] = {
         "Returns:\n"
         "    Transaction hash string"
     },
-    {NULL, NULL, 0, NULL}
+    {0}
 };
 
 PyTypeObject PyDapChainNetSrvDexOrderObjectType = DAP_PY_TYPE_OBJECT(
