@@ -7,7 +7,7 @@ static PyMethodDef PyDapChainNetStateMethods[] = {
         {"NET_STATE_LINKS_CONNECTING", (PyCFunction)NET_STATE_LINKS_CONNECTING_PY, METH_NOARGS | METH_STATIC, ""},
         {"NET_STATE_LINKS_ESTABLISHED", (PyCFunction)NET_STATE_LINKS_ESTABLISHED_PY, METH_NOARGS | METH_STATIC, ""},
         {"NET_STATE_SYNC_CHAINS", (PyCFunction)NET_STATE_SYNC_CHAINS_PY, METH_NOARGS | METH_STATIC, ""},
-        {NULL, NULL, 0, NULL}
+        {0}
 };
 
 PyTypeObject DapChainNetStateObjectType = DAP_PY_TYPE_OBJECT(

@@ -4,11 +4,11 @@ static PyGetSetDef DapChainTxOutGetsSetsDef[] = {
         {"addr", (getter)wrapping_dap_chain_tx_out_get_addr, NULL, "", NULL},
         {"value", (getter)wrapping_dap_chain_tx_out_get_value, NULL, "", NULL},
         {"usedBy", (getter)wrapping_dap_chain_tx_out_get_used_by, NULL, "", NULL},
-        {NULL}
+        {0}
 };
 
 static PyMethodDef PyDapChainTxOutObjectMethods[] ={
-        {NULL, NULL, 0, NULL}
+        {0}
 };
 
 PyTypeObject DapChainTxOutObjectType = DAP_PY_TYPE_OBJECT(

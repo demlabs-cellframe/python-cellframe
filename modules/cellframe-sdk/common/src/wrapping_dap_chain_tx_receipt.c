@@ -14,12 +14,12 @@ static PyGetSetDef DapChainTxReceiptGetSetDefs[] = {
         {"value", (getter)wrapping_dap_chain_tx_receipt_get_value, NULL, NULL, NULL},
         {"provider", (getter)wrapping_dap_chain_tx_receipt_get_sig_provider, NULL, NULL, NULL},
         {"client", (getter)wrapping_dap_chain_tx_receipt_get_sig_client, NULL, NULL, NULL},
-        {}
+        {0}
 };
 
 static PyMethodDef DapChainTxReceiptMethods[] = {
         {"sign", (PyCFunction)wrapping_dap_chain_tx_receipt_sign, METH_VARARGS, ""},
-        {}
+        {0}
 };
 
 PyTypeObject DapChainTxReceiptObjectType = DAP_PY_TYPE_OBJECT(

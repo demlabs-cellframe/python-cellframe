@@ -54,7 +54,7 @@ static PyMethodDef PyDapCryptoMethods[] = {
         {"decodeSizeOAES", dap_enc_oaes_calc_decode_size_py, METH_VARARGS | METH_STATIC, ""},
         {"encryptOAESFast", dap_enc_oaes_encrypt_fast_py, METH_VARARGS | METH_STATIC, ""},
         {"decryptOAESFast", dap_enc_oaes_decrypt_fast_py, METH_VARARGS | METH_STATIC, ""},
-        {}
+        {0}
 };
 
 PyTypeObject DapCryptoAlgoObjectType = DAP_PY_TYPE_OBJECT(

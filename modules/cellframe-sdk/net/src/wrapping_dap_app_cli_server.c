@@ -9,7 +9,7 @@ static PyMethodDef DapChainNodeCliMethods[] = {
         {"cmdItemDelete", dap_chain_node_cli_cmd_item_delete_py, METH_VARARGS| METH_STATIC, ""},
         {"setReplyText", dap_chain_node_cli_set_reply_text_py, METH_VARARGS| METH_STATIC, ""},
         {"cli_exec_str", dap_chain_node_cli_cmd_exec_str, METH_VARARGS| METH_STATIC, ""},
-        {}
+        {0}
 };
 
 PyTypeObject DapChainNodeCliObjectType = {

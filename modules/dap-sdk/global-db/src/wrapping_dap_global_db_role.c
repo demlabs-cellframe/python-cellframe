@@ -36,7 +36,7 @@ static PyGetSetDef DapGlobalDBRolesGetsSets[] = {
     {"ROOT", (getter)ROLE_ROOT, NULL, "", NULL},
     {"DEFAULT", (getter)ROLE_DEFAULT, NULL, "", NULL},
     {"INVALID", (getter)ROLE_INVALID, NULL, "", NULL},
-    {}
+    {0}
 };
 
 PyObject *ROLE_NOBODY(PyObject *self, void *closure){

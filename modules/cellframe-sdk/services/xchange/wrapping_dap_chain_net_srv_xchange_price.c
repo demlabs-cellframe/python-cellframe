@@ -19,7 +19,7 @@ PyGetSetDef DapChainNetSrvXchangePriceGetSetDef[] = {
         {"status", (getter)wrapping_dap_chain_net_srv_xchange_price_get_status, NULL, NULL, NULL},
         {"creator_addr", (getter)wrapping_dap_chain_net_srv_xchange_price_get_order_creator_address, NULL, NULL, NULL},
         {"creation_date", (getter)wrapping_dap_chain_net_srv_xchange_price_get_order_creation_date, NULL, NULL, NULL},
-        {}
+        {0}
 };
 
 PyMethodDef DapChainNetSrvXchangePriceMethods[] = {
@@ -29,7 +29,7 @@ PyMethodDef DapChainNetSrvXchangePriceMethods[] = {
                 METH_VARARGS,
                 "Function for order invalidation."
         },
-        {NULL}
+        {0}
 };
 
 void DapChainNetSrvXchangePrice_free(PyDapChainNetSrvXchangeOrderObject *self){

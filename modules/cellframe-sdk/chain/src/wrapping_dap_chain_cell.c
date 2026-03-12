@@ -6,7 +6,7 @@ static PyMethodDef PyDapChainCellObjectMethods[] ={
         {"load", dap_chain_cell_load_py, METH_VARARGS | METH_STATIC, ""},
         {"update", dap_chain_cell_file_update_py, METH_VARARGS, ""},
         {"append", dap_chain_cell_file_append_py, METH_VARARGS, ""},
-        {}
+        {0}
 };
 
 PyTypeObject DapChainCellObjectType = DAP_PY_TYPE_OBJECT(
