@@ -101,8 +101,7 @@ PyObject *dap_chain_addr_to_str_py(PyObject *self, PyObject *args){
     if (!PyArg_ParseTuple(args, "O", &obj_chain_addr))
         return NULL;
     const dap_chain_addr_t *addr = ((PyDapChainAddrObject*)obj_chain_addr)->addr;
-    const char *res = dap_chain_addr_to_str_static(addr);
-    PyObject *l_obj_res =  Py_BuildValue("s", res);
+    PyObject *l_obj_res =  Py_BuildValue("s", dap_chain_addr_to_str_static(addr));
     return l_obj_res;
 }
 
@@ -168,8 +167,7 @@ PyObject *dap_chain_addr_check_sum_py(PyObject *self, PyObject *args){
 }
 
 PyObject *obj_addr_str(PyObject *self){
-    const char *l_addr = dap_chain_addr_to_str_static(((PyDapChainAddrObject*)self)->addr);
-    PyObject* l_obj_res = Py_BuildValue("s", l_addr);
+    PyObject* l_obj_res = Py_BuildValue("s", dap_chain_addr_to_str_static(((PyDapChainAddrObject*)self)->addr));
     return l_obj_res;
 }
 

@@ -46,8 +46,7 @@ PyObject *wrapping_guuid_generate(PyObject *self, PyObject *argv){
 }
 
 PyObject *PyCryptoGUUID_toStr(PyCryptoGUUIDObject *self){
-    const char *l_str = dap_guuid_to_hex_str(self->guuid);
-    return Py_BuildValue("s", l_str);
+    return Py_BuildValue("s", dap_guuid_to_hex_str(self->guuid));
 }
 
 PyObject *PyCryptoGUUID_compare(PyCryptoGUUIDObject *self, PyObject *other, int op) {
