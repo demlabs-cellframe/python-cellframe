@@ -6,7 +6,7 @@
 /* Chain hash slow  */
 static PyMethodDef DapChainHashSlowMethod[] = {
         {"toStr", (PyCFunction)dap_chain_hash_slow_to_str_py, METH_VARARGS | METH_STATIC, ""},
-        {}
+        {0}
 };
 
 PyTypeObject DapChainHashSlowObjectType = DAP_PY_TYPE_OBJECT(
@@ -27,7 +27,7 @@ static PyMethodDef DapChainAddrMethods[] = {
         {"fillFromKey", (PyCFunction)dap_chain_addr_fill_from_key_py, METH_VARARGS | METH_STATIC, ""},
         {"checkSum", (PyCFunction)dap_chain_addr_check_sum_py, METH_VARARGS, ""},
         {"getNetId", (PyCFunction)dap_chain_addr_get_net_id_py, METH_NOARGS, ""},
-        {NULL}
+        {0}
 };
 
 void PyDapChainAddrObject_free(PyDapChainAddrObject *self) {
@@ -46,7 +46,7 @@ PyTypeObject DapChainAddrObjectType = DAP_PY_TYPE_OBJECT(
 static PyMethodDef DapChainNetIdObjectMethods[] = {
         {"fromStr", (PyCFunction)dap_chain_net_id_from_str_py, METH_VARARGS | METH_STATIC, ""},
         {"long", (PyCFunction)dap_chain_net_id_get_long, METH_VARARGS, ""},
-        {NULL}
+        {0}
 };
 
 PyTypeObject DapChainNetIdObjectType = DAP_PY_TYPE_OBJECT(
@@ -101,8 +101,7 @@ PyObject *dap_chain_addr_to_str_py(PyObject *self, PyObject *args){
     if (!PyArg_ParseTuple(args, "O", &obj_chain_addr))
         return NULL;
     const dap_chain_addr_t *addr = ((PyDapChainAddrObject*)obj_chain_addr)->addr;
-    const char *res = dap_chain_addr_to_str_static(addr);
-    PyObject *l_obj_res =  Py_BuildValue("s", res);
+    PyObject *l_obj_res =  Py_BuildValue("s", dap_chain_addr_to_str_static(addr));
     return l_obj_res;
 }
 
@@ -168,8 +167,7 @@ PyObject *dap_chain_addr_check_sum_py(PyObject *self, PyObject *args){
 }
 
 PyObject *obj_addr_str(PyObject *self){
-    const char *l_addr = dap_chain_addr_to_str_static(((PyDapChainAddrObject*)self)->addr);
-    PyObject* l_obj_res = Py_BuildValue("s", l_addr);
+    PyObject* l_obj_res = Py_BuildValue("s", dap_chain_addr_to_str_static(((PyDapChainAddrObject*)self)->addr));
     return l_obj_res;
 }
 
@@ -206,7 +204,7 @@ static PyMethodDef PyDapChainNetSrvPriceUnitUID_Methods[] = {
         {"undefined", (PyCFunction)wrapping_dap_chain_net_srv_price_unit_uid_get_undefined, METH_NOARGS | METH_STATIC, ""},
         {"sec", (PyCFunction)wrapping_dap_chain_net_srv_price_unit_uid_get_sec, METH_NOARGS | METH_STATIC, ""},
         {"b", (PyCFunction)wrapping_dap_chain_net_srv_price_unit_uid_get_b, METH_NOARGS | METH_STATIC, ""},
-        {}
+        {0}
 };
 
 PyTypeObject DapChainNetSrvPriceUnitUidObjectType = DAP_PY_TYPE_OBJECT(

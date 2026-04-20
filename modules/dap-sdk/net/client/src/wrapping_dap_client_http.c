@@ -5,7 +5,7 @@
 
 static PyMethodDef DapClientHttp_Methods[] = {
     {"getTimeout", (PyCFunction)wrapping_dap_client_http_get_connect_timeout_ms, METH_NOARGS | METH_STATIC, ""},
-    {NULL, NULL, 0, NULL}
+    {0}
 };
 
 void PyDapClientHttp_deinit(PyDapClientHttpObject *self) {}

@@ -3,7 +3,7 @@
 static PyGetSetDef DapChainTxSigGetsSetsDef[] = {
         {"sign", (getter)wrapping_dap_chain_tx_sig_get_sign, NULL, NULL, NULL},
         {"sigSize", (getter)wrapping_dap_chain_tx_sig_get_sig_size, NULL, NULL, NULL},
-        {}
+        {0}
 };
 
 PyTypeObject DapChainTxSigObjectType = DAP_PY_TYPE_OBJECT(

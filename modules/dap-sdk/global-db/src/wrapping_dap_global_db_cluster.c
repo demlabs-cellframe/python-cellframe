@@ -13,7 +13,7 @@ static PyMethodDef DapGlobalDBClusterMethods[] = {
     {"memberDelete", (PyCFunction)wrapping_dap_global_db_cluster_member_delete, METH_VARARGS, ""},
     {"notifyAdd", (PyCFunction)wrapping_dap_global_db_cluster_notify_add, METH_VARARGS, ""},
     {"AddNetAssociate", (PyCFunction)wrapping_dap_global_db_cluster_add_net_associate, METH_VARARGS, ""},
-    {NULL, NULL, 0, NULL}
+    {0}
 };
 
 int DapGlobalDBCluster_init(PyGlobalDBClusterObject *self, PyObject *argv, PyObject *kwds){

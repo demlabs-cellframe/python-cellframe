@@ -5,7 +5,7 @@
 static PyMethodDef DapHashTypeMethods[] = {
         {"DAP_HASH_TYPE_KECCAK", (PyCFunction)DAP_HASH_TYPE_KECCAK_PY, METH_NOARGS | METH_STATIC, ""},
         {"DAP_HASH_TYPE_SLOW_0", (PyCFunction)DAP_HASH_TYPE_SLOW_0_PY, METH_NOARGS | METH_STATIC, ""},
-        {}
+        {0}
 };
 
 PyTypeObject DapHashFastObjectType = DAP_PY_TYPE_OBJECT(
@@ -33,7 +33,7 @@ static PyMethodDef DapHashFastMethods[] = {
         {"toStr", dap_chain_hash_fast_to_str_py, METH_VARARGS, ""},
         {"toStrNew", dap_chain_hash_fast_to_str_new_py, METH_VARARGS, ""},
         {"__str__", wrapping_dap_hash_to_str_implicit, METH_VARARGS, ""},
-        {}
+        {0}
 };
 
 PyTypeObject DapChainHashFastObjectType = DAP_PY_TYPE_OBJECT(

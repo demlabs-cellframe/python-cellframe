@@ -4,7 +4,7 @@ static PyGetSetDef PyDapChainTxTokenGetsSetsDef[] = {
         {"ticker", (getter)wrapping_dap_chain_tx_token_get_ticker, NULL, NULL, NULL},
         {"tokenEmissionHash", (getter)wrapping_dap_chain_tx_token_get_token_emission_hash, NULL, NULL, NULL},
         {"tokenEmissionChainId", (getter)wrapping_dap_chain_tx_token_get_token_emission_chain_id, NULL, NULL, NULL},
-        {}
+        {0}
 };
 
 PyTypeObject DapChainTxTokenObjectType  = DAP_PY_TYPE_OBJECT(

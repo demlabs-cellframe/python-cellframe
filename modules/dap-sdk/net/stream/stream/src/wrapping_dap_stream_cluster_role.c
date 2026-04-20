@@ -35,7 +35,7 @@ static PyGetSetDef DapClusterRolesGetsSets[] = {
     {"AUTONOMIC", (getter)WR_CLUSTER_ROLE_AUTONOMIC, NULL, "", NULL},
     {"ISOLATED", (getter)WR_CLUSTER_ROLE_ISOLATED, NULL, "", NULL},
     {"VIRTUAL", (getter)WR_CLUSTER_ROLE_VIRTUAL, NULL, "", NULL},
-    {}
+    {0}
 };
 
 PyObject *WR_CLUSTER_ROLE_INVALID(PyObject *self, void *closure){

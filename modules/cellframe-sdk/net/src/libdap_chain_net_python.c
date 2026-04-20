@@ -30,7 +30,7 @@ static PyMethodDef DapChainNetMethods[] = {
         {"addNotify", (PyCFunction)dap_chain_net_add_notify_py, METH_VARARGS, ""},
         {"verifyCodeToStr", (PyCFunction)dap_chain_net_convert_verify_code_to_str, METH_VARARGS | METH_STATIC, ""},
         {"configGetItem", (PyCFunction)dap_chain_net_get_config_by_item, METH_VARARGS, ""},
-        {}
+        {0}
 };
 
 static PyGetSetDef DapChainNetGetsSetsDef[] = {
@@ -45,7 +45,7 @@ static PyGetSetDef DapChainNetGetsSetsDef[] = {
         {"autoproc", (getter)dap_chain_net_get_mempool_autoproc_py, NULL, NULL, NULL},
         {"gdb_group_alias", (getter)dap_chain_net_get_gdb_alias_py, NULL, NULL, NULL},
 
-        {}
+        {0}
 };
 
 PyTypeObject DapChainNetObjectType = DAP_PY_TYPE_OBJECT(

@@ -4,7 +4,7 @@
 static PyMethodDef PyCryptoGUUID_Methods[] = {
     {"generate", wrapping_guuid_generate, METH_NOARGS | METH_STATIC, ""},
     {"compose", wrapping_guuid_compose, METH_VARARGS | METH_STATIC, ""},
-    {NULL, NULL, 0, NULL}
+    {0}
 };
 
 int PyCryptoGUUID_init(PyCryptoGUUIDObject *self, PyObject *argv, PyObject *kwds){
@@ -46,8 +46,7 @@ PyObject *wrapping_guuid_generate(PyObject *self, PyObject *argv){
 }
 
 PyObject *PyCryptoGUUID_toStr(PyCryptoGUUIDObject *self){
-    const char *l_str = dap_guuid_to_hex_str(self->guuid);
-    return Py_BuildValue("s", l_str);
+    return Py_BuildValue("s", dap_guuid_to_hex_str(self->guuid));
 }
 
 PyObject *PyCryptoGUUID_compare(PyCryptoGUUIDObject *self, PyObject *other, int op) {

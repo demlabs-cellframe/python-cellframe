@@ -14,7 +14,7 @@ static PyMethodDef DapChainNodeClientMethods[] = {
         {"sendChPkt", (PyCFunction)dap_chain_node_client_send_ch_pkt_py, METH_VARARGS, ""},
         {"wait", (PyCFunction)dap_chain_node_client_wait_py, METH_VARARGS, ""},
         //{"setCallbacks", (PyCFunction)dap_chain_node_client_set_notify_callbacks_py, METH_VARARGS | METH_STATIC, ""},
-        {NULL, NULL, 0, NULL}
+        {0}
 };
 
 PyTypeObject DapChainNodeClientObjectType = DAP_PY_TYPE_OBJECT(

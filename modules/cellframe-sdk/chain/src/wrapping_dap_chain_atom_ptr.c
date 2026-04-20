@@ -2,7 +2,7 @@
 #include "wrapping_dap_chain_atom_ptr.h"
 
 static PyMethodDef DapChainAtomPtrMethods[] = {
-        {}
+        {0}
 };
 
 PyTypeObject DapChainAtomPtrObjectType = DAP_PY_TYPE_OBJECT(

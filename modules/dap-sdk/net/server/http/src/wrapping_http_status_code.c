@@ -7,7 +7,7 @@ static PyMethodDef PyDapHttpCodeMethods[] = {
         {"set", wrapping_http_status_code_set_py, METH_VARARGS, "Set status code Http response"},
         {"OK", wrapping_http_code_set_ok, METH_NOARGS, "Set status code OK for this object"},
         {"BadRequest", wrapping_http_code_set_bad_request, METH_NOARGS, "Set status code Bad request for this object"},
-        {}
+        {0}
 };
 
 PyTypeObject DapHttpCodeObjectType = DAP_PY_TYPE_OBJECT(
