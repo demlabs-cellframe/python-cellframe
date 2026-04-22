@@ -823,8 +823,8 @@ PyObject *dap_chain_ledger_tx_get_main_ticker_py(PyObject *self, PyObject *args)
     PyDapChainDatumTxObject *obj_tx = (PyDapChainDatumTxObject *)l_obj_tx;
 
     int l_ledger_rc = DAP_LEDGER_CHECK_INVALID_ARGS;
-    const char * ticker = dap_ledger_tx_calculate_main_ticker(((PyDapChainLedgerObject*)self)->ledger, obj_tx->datum_tx, &l_ledger_rc);
-    return Py_BuildValue("(s,i)", ticker ? ticker : "UNKWNOWN", l_ledger_rc);
+    dap_chain_token_ticker_str_t l_ticker = dap_ledger_tx_calculate_main_ticker_(((PyDapChainLedgerObject*)self)->ledger, obj_tx->datum_tx, &l_ledger_rc);
+    return Py_BuildValue("(s,i)", l_ticker.s[0] ? l_ticker.s : "UNKWNOWN", l_ledger_rc);
 }
 
 PyObject *dap_chain_ledger_tx_hash_is_used_out_item_hash_py(PyObject *self, PyObject *args){
