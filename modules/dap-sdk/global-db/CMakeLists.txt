@@ -192,7 +192,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC include/ )
 #)
 
 
-target_link_libraries(${PROJECT_NAME} dap_core dap_crypto dap_chain dap_chain_crypto dap_io dap_chain_net dap_global_db dap_chain_common_python_module)
+target_link_libraries(${PROJECT_NAME} dap_core dap_crypto dap_chain dap_io dap_chain_net dap_global_db dap_chain_common_python_module)
 #target_link_libraries(${PROJECT_NAME} dap_core dap_crypto dap_chain dap_global_db dap_chain_crypto dap_chain_mempool
 #                         
 #                     ) #dap_chain_crypto dap_chain_mempool dap_global_db )
