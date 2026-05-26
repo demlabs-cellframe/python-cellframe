@@ -5,7 +5,7 @@ static PyMethodDef DapChainCSMethods[] = {
         {"csCreate", (PyCFunction)dap_chain_cs_create_py, METH_VARARGS, ""},
         {"classAdd", (PyCFunction)dap_chain_class_add_py, METH_VARARGS, ""},
         {"classCreate", (PyCFunction)dap_chain_class_create_py, METH_VARARGS, ""},
-        {NULL, NULL, 0, NULL}
+        {0}
 };
 
 PyTypeObject DapChainCsObjectType = {

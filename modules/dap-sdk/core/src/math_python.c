@@ -15,7 +15,7 @@ PyNumberMethods DapMathNumberMethods = {
 static PyGetSetDef DapMathGetsSets[] = {
         {"coins", (getter)wrapping_dap_math_get_coins, NULL, NULL, NULL},
         {"balance", (getter)wrapping_dap_math_get_balance, NULL, NULL, NULL},
-        {NULL, NULL, NULL, NULL, NULL}
+        {0}
 };
 
 static PyMethodDef DapMathMethods[] = {
@@ -23,7 +23,7 @@ static PyMethodDef DapMathMethods[] = {
          METH_VARARGS | METH_STATIC, "The function calculates the number of coins from the number of datoshi."},
         {"percent", math_python_calc_percent,
          METH_VARARGS, "The function calculates the specified percentage of a number."},
-        {NULL, NULL, 0, NULL}
+        {0}
 };
 
 PyTypeObject DapMathObjectType = {
@@ -383,8 +383,8 @@ PyObject *wrapping_dap_chain_balance_to_coins(PyObject *self, PyObject *args){
 //    dap_chain_uint256_to()
     uint256_t l_balance_256 = dap_chain_uint256_from(l_balance);
     char *l_balance_str = dap_chain_balance_to_coins(l_balance_256);
-    PyObject *l_obj_balance = Py_BuildValue("s", l_balance);
-    DAP_DELETE(l_balance);
+    PyObject *l_obj_balance = Py_BuildValue("s", l_balance_str);
+    DAP_DELETE(l_balance_str);
     return l_obj_balance;
 }
 

@@ -8,7 +8,7 @@ static PyGetSetDef PyDapJSONRPCResponseGetsSets[] = {
         {"ID", (getter)wrapping_json_rpc_response_get_id, NULL, "ID request", NULL},
         // {"Error", (getter)wrapping_json_rpc_response_get_error, (setter)wrapping_json_rpc_response_set_error, "", NULL },
         {"Result", (getter)wrapping_json_rpc_response_get_result, (setter)wrapping_json_rpc_response_set_result, "", NULL},
-        {}
+        {0}
 };
 
 PyTypeObject DapJsonRpcResponseobjectType = DAP_PY_TYPE_OBJECT(

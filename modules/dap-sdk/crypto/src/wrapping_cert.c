@@ -47,12 +47,12 @@ PyMethodDef PyCryptoCertMethods[] = {
         {"compare", dap_cert_compare_py, METH_VARARGS, ""},
         {"save", dap_cert_save_py, METH_VARARGS , "Save to the first directory in cert folders list"},
         {"delete", dap_cert_delete_py, METH_VARARGS, ""},
-        {}
+        {0}
 };
 
 static PyGetSetDef PyCryptoCertGetSets[] = {
         {"key", (getter)wrapping_cert_get_enc_key, NULL, NULL, NULL},
-        {}
+        {0}
 };
 
 PyTypeObject DapCryptoCertObjectType = DAP_PY_TYPE_OBJECT(

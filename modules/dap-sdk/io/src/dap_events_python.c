@@ -12,7 +12,7 @@ static PyMethodDef PyDapEventsObject_methods[] = {
         {"wait", (PyCFunction)dap_events_wait_py, METH_NOARGS, ""},
         {"killSocket", (PyCFunction)dap_events_socket_kill_socket_py, METH_VARARGS, ""},
         {"removeAndDeleteSocket", (PyCFunction)dap_events_socket_remove_and_delete_py, METH_VARARGS, ""},
-        {}  /* Sentinel */
+        {0}  /* Sentinel */
 };
 
 PyTypeObject DapEventsObjectType = DAP_PY_TYPE_OBJECT(

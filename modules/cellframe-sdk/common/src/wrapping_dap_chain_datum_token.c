@@ -8,7 +8,7 @@ static PyGetSetDef  PyDapChainDatumTokenGetsSetsDef[]={
         {"typeStr", (getter)wrapping_dap_chain_datum_token_get_type_str, NULL, NULL, NULL},
         {"data", (getter)wrapping_dap_chain_datum_token_get_data, NULL, NULL, NULL},
         {"signs", (getter)wrapping_dap_chain_datum_token_emission_get_signs, NULL, NULL, NULL},
-        {}
+        {0}
 };
 
 void PyDapChainDatumTokenObject_dealloc(PyObject *self)
@@ -140,7 +140,7 @@ static PyGetSetDef PyDapChainDatumTokenEmissionGetsSetsDef[]={
         {"data", (getter)wrapping_dap_chain_datum_token_emission_get_data, NULL, NULL, NULL},
         {"signCount", (getter)wrapping_dap_chain_datum_token_emission_get_sign_count, NULL, NULL, NULL},
         {"signs", (getter)wrapping_dap_chain_datum_token_emission_get_signs, NULL, NULL, NULL},
-        {}
+        {0}
 };
 
 static PyMethodDef PyDapChainDatumTokenEmissionMethods[]={
@@ -148,7 +148,7 @@ static PyMethodDef PyDapChainDatumTokenEmissionMethods[]={
         {"appendSign", (PyCFunction)wrapping_dap_chain_datum_emission_append_sign, METH_VARARGS, ""},
         {"addTSD", (PyCFunction)wrapping_dap_chain_datum_emission_add_tsd, METH_VARARGS, ""},
         {"getTSD", (PyCFunction)wrapping_dap_chain_datum_emission_get_tsd, METH_VARARGS, ""},
-        {}
+        {0}
 };
 
 PyTypeObject DapChainDatumTokenEmissionObjectType = DAP_PY_TYPE_OBJECT(

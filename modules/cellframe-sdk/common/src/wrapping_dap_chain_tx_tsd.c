@@ -3,7 +3,7 @@
 PyGetSetDef PyDapChainTxTSDGetsSetsDef[] = {
     {"data", (getter)wrapping_dap_chain_tx_get_tsd_data, NULL, NULL, NULL},
     {"type", (getter)wrapping_dap_chain_tx_get_tsd_type, NULL, NULL, NULL},
-    {}
+    {0}
 };
 
 PyTypeObject DapChainTxTSDObjectType = DAP_PY_TYPE_OBJECT(

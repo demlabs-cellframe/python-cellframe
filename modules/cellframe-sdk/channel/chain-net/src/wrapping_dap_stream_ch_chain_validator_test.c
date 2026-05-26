@@ -108,7 +108,7 @@ PyGetSetDef PyDapStreamChChainValidatorTestGetsSets[] = {
             NULL,
             NULL
         },
-        {}
+        {0}
 };
 
 void PyDapStreamChChainValidatorTestObject_free(PyDapStreamChChainValidatorTestObject *self){

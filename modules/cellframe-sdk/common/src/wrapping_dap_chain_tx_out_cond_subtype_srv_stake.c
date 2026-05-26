@@ -5,7 +5,7 @@ static PyGetSetDef DapChainTxOutCondSubtypeSrvStakePosDelegateGetsSetsDef[]={
         {"addr", (getter)wrapping_dap_chain_tx_out_cond_subtype_srv_stake_get_addr,NULL, "", NULL},
         {"value", (getter)wrapping_dap_chain_tx_out_cond_subtype_srv_stake_get_value, NULL, "", NULL},
         {"usedBy", (getter)wrapping_dap_chain_tx_out_cound_used_by, NULL, "", NULL},
-        {NULL}
+        {0}
 };
 
 PyTypeObject DapChainTxOutCondSubTypeSrvStakePosDelegateObjectType = {

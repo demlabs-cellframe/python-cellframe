@@ -19,7 +19,7 @@ static PyMethodDef PyDapChainTxItemTypeObjectMethods[] ={
         {"TX_ITEM_TYPE_RECEIPT", (PyCFunction)TX_ITEM_TYPE_RECEIPT_PY, METH_NOARGS | METH_STATIC, ""},
         {"TX_ITEM_TYPE_RECEIPT_OLD", (PyCFunction)TX_ITEM_TYPE_RECEIPT_OLD_PY, METH_NOARGS | METH_STATIC, ""},
         {"TX_ITEM_TYPE_TSD", (PyCFunction)TX_ITEM_TYPE_TSD_PY, METH_NOARGS | METH_STATIC, ""},
-        {}
+        {0}
 };
 
 PyTypeObject DapChainTxItemTypeObjectType = DAP_PY_TYPE_OBJECT(
@@ -74,7 +74,7 @@ PyObject *TX_ITEM_TYPE_TSD_PY(__attribute__((unused)) PyObject *self, __attribut
 static PyGetSetDef PyDaoChainDatumTxObjectGetsSets[] = {
         {"hash", (getter) wrapping_dap_chain_datum_tx_get_hash, NULL, NULL, NULL},
         {"dateCreated", (getter) wrapping_dap_chain_datum_tx_get_tsCreated, NULL, NULL, NULL},
-        {}
+        {0}
 };
 
 static PyMethodDef PyDapChainDatumTxObjectMethods[] ={
@@ -95,7 +95,7 @@ static PyMethodDef PyDapChainDatumTxObjectMethods[] ={
         {"fromJSON", (PyCFunction)wrapping_dap_chain_datum_tx_from_json_py, METH_VARARGS | METH_STATIC, ""},
         {"toJSON", (PyCFunction)wrapping_dap_chain_datum_tx_to_json_py, METH_VARARGS, ""},
         {"delete", (PyCFunction)wrapping_dap_chain_datum_tx_delete_py, METH_VARARGS, ""},
-        {}
+        {0}
 };
 
 PyTypeObject DapChainDatumTxObjectType = {

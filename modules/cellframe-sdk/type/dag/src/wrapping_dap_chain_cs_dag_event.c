@@ -3,7 +3,7 @@
 
 static PyMethodDef PyDapChainCsDagEventMethodsDef[] = {
         {"fromAtom", (PyCFunction)wrapping_dap_chain_cs_dag_event_from_atom, METH_VARARGS | METH_STATIC, ""},
-        {}
+        {0}
 };
 
 static PyGetSetDef PyDapChainCsDagEventGetsSetsDef[] = {
@@ -18,7 +18,7 @@ static PyGetSetDef PyDapChainCsDagEventGetsSetsDef[] = {
         {"links", (getter)wrapping_dap_chain_cs_dag_event_get_links, NULL, NULL, NULL},
         {"datum", (getter)wrapping_dap_chain_cs_dag_event_get_datum, NULL, NULL, NULL},
         {"signs", (getter)wrapping_dap_chain_cs_dag_event_get_signs, NULL, NULL, NULL},
-        {}
+        {0}
 };
 
 PyTypeObject DapChainCsDagEventType = DAP_PY_TYPE_OBJECT(

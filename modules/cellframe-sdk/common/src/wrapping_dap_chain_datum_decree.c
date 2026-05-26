@@ -99,7 +99,7 @@ PyGetSetDef  DapChainDatumDecreeGetSet[] = {
         {"subtypeStr", (getter)wrapping_dap_chain_datum_decree_get_subtype_str, NULL, NULL, NULL},
         {"signs", (getter)wrapping_dap_chain_datum_decree_get_signs, NULL, NULL, NULL},
         {"TSD", (getter)wrapping_dap_chain_datum_decree_get_tsd, NULL, NULL, NULL},
-        {}
+        {0}
 };
 
 PyObject *wrapping_dap_chain_datum_decree_add_sign(PyObject *self, PyObject *args) {
@@ -340,7 +340,7 @@ PyMethodDef DapChainDatumDecreeMethods[] = {
             METH_NOARGS,
             ""
             },
-        {}
+        {0}
 };
 
 PyObject *PyDapChainDatumDecreeObject_new(PyTypeObject *type_object, PyObject *args, PyObject *kwds) {

@@ -13,7 +13,7 @@ static PyObject *py_server_listen(PyObject *self, PyObject *args);
 
 static PyMethodDef DapServerPythonMethods[] = {
         {"listen", py_server_listen, METH_VARARGS | METH_STATIC, ""},
-        {}
+        {0}
 };
 
 PyTypeObject DapServerObjectType = DAP_PY_TYPE_OBJECT(

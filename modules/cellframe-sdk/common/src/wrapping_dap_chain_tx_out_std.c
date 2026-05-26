@@ -30,7 +30,7 @@ static PyGetSetDef DapChainTxOutStdGetsSetsDef[] = {
         {"version", (getter)wrapping_dap_chain_tx_out_std_get_version, NULL, "", NULL},
         {"timeLock", (getter)wrapping_dap_chain_tx_out_std_get_timelock, NULL, "", NULL},
         {"usedBy", (getter)wrapping_dap_chain_tx_out_std_get_used_by, NULL, "", NULL},
-        {}
+        {0}
 };
 
 PyTypeObject DapChainTxOutStdObjectType = DAP_PY_TYPE_OBJECT(

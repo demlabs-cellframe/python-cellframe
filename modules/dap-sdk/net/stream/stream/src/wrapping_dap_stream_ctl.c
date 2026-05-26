@@ -5,7 +5,7 @@
 
 static PyMethodDef DapStreamCtlMethods[] = {
     {"addProcHttp", dap_stream_ctl_add_proc_py, METH_VARARGS | METH_STATIC, ""},
-    {}
+    {0}
 };
 
 PyTypeObject DapStreamCtlObjectType = DAP_PY_TYPE_OBJECT(

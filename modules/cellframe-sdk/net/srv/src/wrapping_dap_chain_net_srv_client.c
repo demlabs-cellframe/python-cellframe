@@ -8,7 +8,7 @@ static PyMethodDef DapChainNetSrvClientMethods[]={
         {"request", (PyCFunction)wrapping_dap_chain_net_srv_client_request, METH_VARARGS, ""},
         {"write", (PyCFunction)wrapping_dap_chain_net_srv_client_write, METH_VARARGS, ""},
         {"close", (PyCFunction)wrapping_dap_chain_net_srv_client_close, METH_VARARGS, ""},
-        {NULL, NULL, 0, NULL}
+        {0}
 };
 
 

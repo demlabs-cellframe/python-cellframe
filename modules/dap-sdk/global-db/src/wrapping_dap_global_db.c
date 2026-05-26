@@ -12,7 +12,7 @@ static PyMethodDef DapGlobalDBMethods[] = {
         {"unpin", (PyCFunction)wrapping_dap_global_db_gr_unpin, METH_VARARGS | METH_STATIC, ""},
         {"grLoad", (PyCFunction)wrapping_dap_global_db_gr_load, METH_VARARGS | METH_STATIC, ""},
         {"clear", (PyCFunction)wrapping_dap_global_db_clear_table, METH_VARARGS | METH_STATIC, ""},
-        {NULL, NULL, 0, NULL}
+        {0}
 };
 
 PyTypeObject DapGlobalDBObjectType = DAP_PY_TYPE_OBJECT(

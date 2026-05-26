@@ -37,7 +37,7 @@ static PyGetSetDef PyCryptoKeyTypesObjectGetSetDef [] = {
         {"PQLR_KEM_NEWHOPE", ENC_KEY_TYPE_PQLR_KEM_NEWHOPE, NULL, NULL, "Get type is KEM NEWHOPE"},
 #endif
         {"LAST", ENC_KEY_TYPE_LAST, NULL, NULL, "Get type is LAST"},
-        {}
+        {0}
 };
 
 PyTypeObject DapCryptoKeyTypesObjectType = DAP_PY_TYPE_OBJECT(

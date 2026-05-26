@@ -8,7 +8,7 @@ static PyMethodDef DapClientStageMethods[] = {
         {"STAGE_STREAM_SESSION", (PyCFunction)STAGE_STREAM_SESSION_PY, METH_NOARGS | METH_STATIC, ""},
         {"STAGE_STREAM_CONNECTED", (PyCFunction)STAGE_STREAM_CONNECTED_PY, METH_NOARGS | METH_STATIC, ""},
         {"STAGE_STREAM_STREAMING", (PyCFunction)STAGE_STREAM_STREAMING_PY, METH_NOARGS | METH_STATIC, ""},
-        {}
+        {0}
 };
 
 PyTypeObject dapClientStageObject_dapClientStageType = DAP_PY_TYPE_OBJECT(

@@ -7,7 +7,7 @@ static PyGetSetDef PyDapChainTxTokenExtGetsSetsDef[] = {
         {"netId", (getter)wrapping_dap_chain_tx_token_get_net_id, NULL,NULL, NULL},
         {"txHash", (getter)wrapping_dap_chain_tx_token_get_tx_hash, NULL, NULL, NULL},
         {"txOutIdx", (getter)wrapping_dap_chain_tx_token_get_tx_out_idx, NULL, NULL, NULL},
-        {}
+        {0}
 };
 
 PyTypeObject DapChainTxTokenExtType = DAP_PY_TYPE_OBJECT(

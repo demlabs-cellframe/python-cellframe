@@ -4,7 +4,7 @@
 
 static PyMethodDef DapChainCsDagPoaMethods[] = {
         {"setPresign", (PyCFunction)wrapping_dap_chain_cs_dag_poa_presign_callback_set, METH_VARARGS | METH_STATIC, ""},
-        {}
+        {0}
 };
 
 PyTypeObject DapChainCsDagPoaObjectType = DAP_PY_TYPE_OBJECT(

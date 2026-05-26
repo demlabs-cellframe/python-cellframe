@@ -3,7 +3,7 @@
 
 static PyMethodDef DapHttpFolderMethods[] = {
         {"add", (PyCFunction)dap_http_folder_add_py, METH_VARARGS | METH_STATIC, ""},
-        {}
+        {0}
 };
 
 PyTypeObject DapHttpFolder_DapHttpFolderType = DAP_PY_TYPE_OBJECT(

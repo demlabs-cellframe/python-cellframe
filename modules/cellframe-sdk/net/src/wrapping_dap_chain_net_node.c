@@ -5,7 +5,7 @@ static PyMethodDef DapChainNetNodeMethods[] = {
         {"aliasFind", dap_chain_node_alias_find_py, METH_VARARGS | METH_STATIC, ""},
         {"aliasRegister", dap_chain_node_alias_register_py, METH_VARARGS | METH_STATIC, ""},
         {"aliasDelete", dap_chain_node_alias_delete_py, METH_VARARGS | METH_STATIC, ""},
-        {NULL, NULL, 0, NULL}
+        {0}
 };
 
 PyTypeObject DapChainNodeObjectType = DAP_PY_TYPE_OBJECT(

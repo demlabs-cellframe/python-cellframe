@@ -6,12 +6,12 @@
 static PyGetSetDef DapHttpHeaderGetSetDef[] = {
         {"name", (getter)wrapping_dap_http_header_get_name, NULL,  NULL, NULL},
         {"value", (getter)wrapping_dap_http_header_get_value, NULL, NULL, NULL},
-        {}
+        {0}
 };
 
 static PyMethodDef DapHttpHeaderMethods[] = {
         {"append", wrapping_dap_http_header_append, METH_VARARGS, ""},
-        {}
+        {0}
 };
 
 PyTypeObject  DapHttpHeaderObjectType = {

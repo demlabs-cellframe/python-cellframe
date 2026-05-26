@@ -19,7 +19,7 @@ static PyGetSetDef DapSignObjectGetsSetsDef[] = {
         {"pkey", (getter)wrapping_dap_sign_get_pkey, NULL, NULL, NULL},
         {"pkeyHash", (getter)wrapping_dap_sign_get_pkey_hash, NULL, NULL, NULL},
         {"size", (getter)wrapping_dap_sign_get_size, NULL, NULL, NULL},
-        {}
+        {0}
 };
 
 static PyMethodDef DapSignObjectMethods[]= {
@@ -29,7 +29,7 @@ static PyMethodDef DapSignObjectMethods[]= {
         {"fromBase64", wrapping_dap_sign_from_b64, METH_VARARGS | METH_STATIC, ""},
         {"toBase64", wrapping_dap_sign_to_b64, METH_NOARGS, ""},
         {"getAddr", wrapping_dap_sign_get_addr, METH_VARARGS, ""},
-        {}
+        {0}
 };
 
 PyTypeObject DapCryptoSignObjectType = DAP_PY_TYPE_OBJECT(

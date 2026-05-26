@@ -4,7 +4,7 @@
 static PyGetSetDef DapGlobalDBContainerGetSet[] = {
         {"key", (getter)wrapping_dap_global_db_obj_get_key, NULL, NULL, NULL},
         {"value", (getter)wrapping_dap_global_db_obj_get_value, NULL, NULL, NULL},
-        {NULL}
+        {0}
 };
 
 void PyDapGlobalDBObject_dealloc(PyObject *self) {

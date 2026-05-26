@@ -14,7 +14,7 @@ static PyGetSetDef DapChainCsBlockGetsSetsDef[] = {
         {"datums", (getter)wrapping_dap_chain_block_get_datums, NULL, NULL, NULL},
         {"signs", (getter)wrapping_dap_chain_block_get_signs, NULL, NULL, NULL},
 //        {"blockCache", (getter)wrapping_dap_chain_block_get_block_cache, NULL, NULL, NULL},
-        {}
+        {0}
 };
 
 static PyMethodDef DapChainCsBlockMethods[] = {
@@ -23,7 +23,7 @@ static PyMethodDef DapChainCsBlockMethods[] = {
         {"byTxHash", wrapping_dap_chain_block_get_block_from_hash, METH_VARARGS | METH_STATIC, ""},
         {"getBlockSignersRewards", wrapping_dap_chain_cs_block_get_block_signers_rewards, METH_VARARGS, ""},
         {"getNumber", wrapping_dap_chain_block_get_number, METH_VARARGS, ""},
-        {}
+        {0}
 };
 
 PyTypeObject DapChainCsBlockType = DAP_PY_TYPE_OBJECT(

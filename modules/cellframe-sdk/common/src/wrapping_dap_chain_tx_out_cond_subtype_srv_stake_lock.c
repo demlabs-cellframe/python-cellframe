@@ -11,7 +11,7 @@ PyGetSetDef DapChainTxOutCondSubtypeSrvStakeLockGetsSetsDef[]={
         {"reinvestPercent", (getter)wrapping_dap_chain_net_srv_stake_lock_get_reinvest_percent, NULL, "", NULL},
         {"hashTokenDelegate", (getter)wrapping_dap_chain_net_srv_stake_lock_get_token_delegated, NULL, "", NULL},
         {"usedBy", (getter)wrapping_dap_chain_tx_out_cound_used_by, NULL, "", NULL},
-        {}
+        {0}
 };
 
 PyTypeObject DapChainTxOutCondSubTypeSrvStakeLockObjectType = {

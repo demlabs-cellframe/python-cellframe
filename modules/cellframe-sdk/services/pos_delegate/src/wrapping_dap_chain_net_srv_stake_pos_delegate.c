@@ -169,8 +169,7 @@ PyObject *wrapping_dap_chain_net_srv_stake_get_validators_list(PyObject *self, P
         }
         
         // tx_hash
-        const char *tx_hash_str = dap_hash_fast_to_str_static(&stake->tx_hash);
-        PyObject *py_tx_hash = PyUnicode_FromString(tx_hash_str);
+        PyObject *py_tx_hash = PyUnicode_FromString(dap_hash_fast_to_str_static(&stake->tx_hash));
         if (py_tx_hash) {
             PyDict_SetItemString(validator_dict, "tx_hash", py_tx_hash);
             Py_DECREF(py_tx_hash);
@@ -186,9 +185,8 @@ PyObject *wrapping_dap_chain_net_srv_stake_get_validators_list(PyObject *self, P
         }
         
         // sovereign_addr
-        const char *sov_addr_str = dap_chain_addr_is_blank(&stake->sovereign_addr) ?
-                    "null" : dap_chain_addr_to_str_static(&stake->sovereign_addr);
-        PyObject *py_sov_addr = PyUnicode_FromString(sov_addr_str);
+        PyObject *py_sov_addr = PyUnicode_FromString(
+            dap_chain_addr_is_blank(&stake->sovereign_addr) ? "null" : dap_chain_addr_to_str_static(&stake->sovereign_addr));
         if (py_sov_addr) {
             PyDict_SetItemString(validator_dict, "sovereign_addr", py_sov_addr);
             Py_DECREF(py_sov_addr);
@@ -231,7 +229,7 @@ PyObject *wrapping_dap_chain_net_srv_stake_get_validators_list(PyObject *self, P
 static PyGetSetDef PyDapChainNetSrvStakePosDelegateGetsSets[] = {
         {"CountValidators", (getter)wrapping_dap_chain_net_srv_stake_get_count_validator, NULL, "", NULL},
         {"TotalWeight", (getter) wrapping_dap_chain_net_srv_stake_get_total_weight, NULL, "", NULL},
-        {}
+        {0}
 };
 
 static PyMethodDef PyDapChainNetSrvStakePosDelegateMethods[] = {
@@ -253,7 +251,7 @@ static PyMethodDef PyDapChainNetSrvStakePosDelegateMethods[] = {
             METH_VARARGS,
             "Get list of all validators with full information"
         },
-        {}
+        {0}
 };
 
 PyTypeObject PyDapChainNetSrvStakePosDelegateObjectType = DAP_PY_TYPE_OBJECT(

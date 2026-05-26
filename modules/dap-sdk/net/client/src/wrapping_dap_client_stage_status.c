@@ -8,7 +8,7 @@ static PyMethodDef DapClientStageStatusMethods[] = {
         {"STAGE_STATUS_COMPLETE", STAGE_STATUS_COMPLETE_PY, METH_NOARGS | METH_STATIC, ""},
         {"STAGE_STATUS_ERROR", STAGE_STATUS_ERROR_PY, METH_NOARGS | METH_STATIC, ""},
         {"STAGE_STATUS_DONE", STAGE_STATUS_DONE_PY, METH_NOARGS | METH_STATIC, ""},
-        {}
+        {0}
 };
 
 PyTypeObject dapClientStageStatusObject_dapClientStageStatusType = DAP_PY_TYPE_OBJECT(

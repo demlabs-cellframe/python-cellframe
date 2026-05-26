@@ -4,7 +4,7 @@
 
 static PyMethodDef PyDapJSONRPCRequestMethods[] = {
         {"registrationHandler", (PyCFunction)dap_json_rpc_request_reg_handler_py, METH_VARARGS | METH_STATIC, ""},
-        {}
+        {0}
 };
 
 PyTypeObject DapJsonRpcRequestObjectType = DAP_PY_TYPE_OBJECT(

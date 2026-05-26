@@ -46,7 +46,7 @@ PyGetSetDef DapChainCsDagRoundGetSetDef[] = {
         {"info", (getter) wrapping_dap_chain_cs_dag_round_get_info, NULL, "", NULL},
         {"event", (getter) wrapping_dap_chain_cs_dag_round_get_event, NULL, "", NULL},
         {"signs", (getter) wrapping_dap_chain_cs_dag_round_get_signs, NULL, "", NULL},
-        {}
+        {0}
 };
 
 PyTypeObject DapChainCsDagRoundType = DAP_PY_TYPE_OBJECT(
@@ -80,7 +80,7 @@ PyGetSetDef DapChainCsDagRoundInfoGetSetDef[] = {
         {"reject_count", (getter) wrapping_dap_chain_cs_dag_round_info_get_reject_count, NULL, "", NULL},
         {"ts_update", (getter) wrapping_dap_chain_cs_dag_round_info_get_ts_update, NULL, "", NULL},
         {"datum_hash", (getter) wrapping_dap_chain_cs_dag_round_info_get_datum_hash, NULL, "", NULL},
-        {}
+        {0}
 };
 
 PyTypeObject DapChainCsDagRoundInfoType = DAP_PY_TYPE_OBJECT(

@@ -4,7 +4,7 @@
 #define LOG_TAG "chain_atom_iter"
 
 static PyMethodDef DapChainAtomIterMethods[] = {
-        {}
+        {0}
 };
 
 void PyDapChainAtomIter_dealloc(PyChainAtomIterObject *self) {

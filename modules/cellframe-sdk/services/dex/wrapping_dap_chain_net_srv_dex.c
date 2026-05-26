@@ -46,13 +46,13 @@ static void s_pair_normalize(const char *a_sell_token, const char *a_buy_token,
 {
     if (strcmp(a_sell_token, a_buy_token) < 0) {
         // sell < buy lexicographically: BASE=sell, QUOTE=buy → ASK
-        strncpy(a_base_out, a_sell_token, DAP_CHAIN_TICKER_SIZE_MAX - 1);
-        strncpy(a_quote_out, a_buy_token, DAP_CHAIN_TICKER_SIZE_MAX - 1);
+        dap_strncpy(a_base_out,  a_sell_token, DAP_CHAIN_TICKER_SIZE_MAX - 1);
+        dap_strncpy(a_quote_out, a_buy_token,  DAP_CHAIN_TICKER_SIZE_MAX - 1);
         if (a_side_out) *a_side_out = 0; // ASK
     } else {
         // sell >= buy: BASE=buy, QUOTE=sell → BID
-        strncpy(a_base_out, a_buy_token, DAP_CHAIN_TICKER_SIZE_MAX - 1);
-        strncpy(a_quote_out, a_sell_token, DAP_CHAIN_TICKER_SIZE_MAX - 1);
+        dap_strncpy(a_base_out,  a_buy_token,  DAP_CHAIN_TICKER_SIZE_MAX - 1);
+        dap_strncpy(a_quote_out, a_sell_token, DAP_CHAIN_TICKER_SIZE_MAX - 1);
         if (a_side_out) *a_side_out = 1; // BID
     }
 }
@@ -108,11 +108,11 @@ PyObject *wrapping_dap_chain_net_srv_dex_get_orders(PyObject *self, PyObject *ar
         
         // Normalize to canonical order
         if (strcmp(l_pair_storage, l_slash) < 0) {
-            strncpy(l_ticker_base, l_pair_storage, DAP_CHAIN_TICKER_SIZE_MAX - 1);
-            strncpy(l_ticker_quote, l_slash, DAP_CHAIN_TICKER_SIZE_MAX - 1);
+            dap_strncpy(l_ticker_base,  l_pair_storage, DAP_CHAIN_TICKER_SIZE_MAX - 1);
+            dap_strncpy(l_ticker_quote, l_slash,        DAP_CHAIN_TICKER_SIZE_MAX - 1);
         } else {
-            strncpy(l_ticker_base, l_slash, DAP_CHAIN_TICKER_SIZE_MAX - 1);
-            strncpy(l_ticker_quote, l_pair_storage, DAP_CHAIN_TICKER_SIZE_MAX - 1);
+            dap_strncpy(l_ticker_base,  l_slash,        DAP_CHAIN_TICKER_SIZE_MAX - 1);
+            dap_strncpy(l_ticker_quote, l_pair_storage, DAP_CHAIN_TICKER_SIZE_MAX - 1);
         }
         l_has_pair = true;
     }
@@ -219,8 +219,8 @@ PyObject *wrapping_dap_chain_net_srv_dex_get_orders(PyObject *self, PyObject *ar
         snprintf(l_order->pair, sizeof(l_order->pair), "%s/%s", l_base, l_quote);
         
         // Tokens
-        strncpy(l_order->token_sell, l_sell_tok, DAP_CHAIN_TICKER_SIZE_MAX - 1);
-        strncpy(l_order->token_buy, l_out_cond->subtype.srv_dex.buy_token, DAP_CHAIN_TICKER_SIZE_MAX - 1);
+        dap_strncpy(l_order->token_sell, l_sell_tok,                           DAP_CHAIN_TICKER_SIZE_MAX - 1);
+        dap_strncpy(l_order->token_buy,  l_out_cond->subtype.srv_dex.buy_token, DAP_CHAIN_TICKER_SIZE_MAX - 1);
         
         // Values
         l_order->value_sell = l_out_cond->header.value;
@@ -412,7 +412,7 @@ PyMethodDef DapChainNetSrvDexMethods[] = {
         "Returns:\n"
         "    List of dicts with pair, base_token, quote_token"
     },
-    {NULL, NULL, 0, NULL}
+    {0}
 };
 
 /* Type definition */
