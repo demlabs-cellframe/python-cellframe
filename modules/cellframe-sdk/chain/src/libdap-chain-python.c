@@ -464,9 +464,11 @@ static void _wrapping_dap_chain_fork_resolved_notify_handler(dap_chain_t *a_chai
     PyGILState_Release(state);    
 }
 
-static void _wrapping_dap_chain_datum_index_notify_handler(void *a_arg, 
+static void _wrapping_dap_chain_datum_index_notify_handler(void *a_arg,
                                                           dap_chain_hash_fast_t *a_datum_hash,
                                                           dap_chain_hash_fast_t *a_atom_hash,
+                                                          const void *a_atom,
+                                                          size_t a_atom_size,
                                                           void *a_datum,
                                                           size_t a_datum_size,
                                                           int a_ret_code,
@@ -496,7 +498,7 @@ static void _wrapping_dap_chain_datum_index_notify_handler(void *a_arg,
     }
 
     PyGILState_STATE state = PyGILState_Ensure();
-    
+
     PyDapChainDatumObject *obj_datum = NULL;
     if (a_datum) {
         obj_datum = PyObject_New(PyDapChainDatumObject, &DapChainDatumObjectType);
@@ -508,23 +510,16 @@ static void _wrapping_dap_chain_datum_index_notify_handler(void *a_arg,
         obj_datum->datum = (dap_chain_datum_t *)a_datum;
         obj_datum->origin = false;
     }
-    
+
     PyChainAtomObject *obj_atom = NULL;
-    if (a_atom_hash && l_callback->chain) {
-        size_t atom_size = 0;
-        dap_chain_atom_ptr_t atom_ptr = dap_chain_get_atom_by_hash(l_callback->chain, a_atom_hash, &atom_size);
-        
-        if (atom_ptr && atom_size > 0) {
-            obj_atom = PyObject_New(PyChainAtomObject, &DapChainAtomPtrObjectType);
-            if (!obj_atom) {
-                log_it(L_ERROR, "Failed to create PyChainAtomObject in datum index notifier");
-            } else {
-                obj_atom->atom = atom_ptr;
-                obj_atom->atom_size = atom_size;
-                log_it(L_DEBUG, "Created PyChainAtomObject: atom=%p, size=%zu", atom_ptr, atom_size);
-            }
+    if (a_atom && a_atom_size > 0) {
+        obj_atom = PyObject_New(PyChainAtomObject, &DapChainAtomPtrObjectType);
+        if (!obj_atom) {
+            log_it(L_ERROR, "Failed to create PyChainAtomObject in datum index notifier");
         } else {
-            log_it(L_DEBUG, "Atom not found by hash in datum index notifier (may be normal for some datum types)");
+            obj_atom->atom = (dap_chain_atom_ptr_t) a_atom;
+            obj_atom->atom_size = a_atom_size;
+            log_it(L_DEBUG, "Created PyChainAtomObject: atom=%p, size=%zu", a_atom, a_atom_size);
         }
     }
     
