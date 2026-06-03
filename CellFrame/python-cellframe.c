@@ -613,6 +613,7 @@ PyMODINIT_FUNC PyInit_libCellFrame(void)
         PyType_Ready( &PyDapChainTXVoteObjectType) < 0 ||
         PyType_Ready( &PyDapChainTxVotingObjectType ) < 0 ||
         PyType_Ready( &DapChainTxEventObjectType ) < 0 ||
+        PyType_Ready( &DapChainTxInRewardObjectType ) < 0 ||
         PyType_Ready( &DapChainTxOutStdObjectType ) < 0 ||
                 // === Chain net ===
         /// Node
@@ -701,6 +702,7 @@ PyMODINIT_FUNC PyInit_libCellFrame(void)
     PyModule_AddObject(commonModule, "TxVote", (PyObject*)&PyDapChainTXVoteObjectType);
     PyModule_AddObject(commonModule, "TxVoting", (PyObject*)&PyDapChainTxVotingObjectType);
     PyModule_AddObject(commonModule, "TxEvent", (PyObject*)&DapChainTxEventObjectType);
+    PyModule_AddObject(commonModule, "TxInReward", (PyObject*)&DapChainTxInRewardObjectType);
     PyModule_AddObject(commonModule, "TxOutStd", (PyObject*)&DapChainTxOutStdObjectType);
 
     PyObject *netModule = PyModule_Create(&CellframeNetworkPythonModule);
