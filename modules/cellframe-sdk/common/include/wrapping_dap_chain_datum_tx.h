@@ -52,6 +52,7 @@
 #include "wrapping_dap_chain_tx_tsd.h"
 #include "wrapping_dap_chain_datum_tx_voting.h"
 #include "wrapping_dap_chain_tx_event.h"
+#include "wrapping_dap_chain_tx_in_reward.h"
 
 #ifdef __cplusplus
 extern "C" {

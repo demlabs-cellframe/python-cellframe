@@ -321,6 +321,15 @@ PyObject *wrapping_dap_chain_datum_tx_get_items(PyObject *self, PyObject *args) 
                 ((PyDapChainTXOutObject*)obj_tx_item)->idx = l_out_idx;
                 l_out_idx++;
                 break;
+            case TX_ITEM_TYPE_IN_REWARD:
+                obj_tx_item = (PyObject *)PyObject_New(PyDapChainTxInRewardObject, &DapChainTxInRewardObjectType);
+                if (!obj_tx_item) {
+                    log_it(L_CRITICAL, "Failed to create TX IN_REWARD object");
+                    Py_DECREF(obj_list);
+                    return NULL;
+                }
+                ((PyDapChainTxInRewardObject *)obj_tx_item)->tx_in_reward = (dap_chain_tx_in_reward_t *)item;
+                break;
             case TX_ITEM_TYPE_IN_EMS:
                 obj_tx_item = (PyObject*)PyObject_New(PyDapChainTxTokenObject, &DapChainTxTokenObjectType);
                 if (!obj_tx_item) {
