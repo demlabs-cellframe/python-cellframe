@@ -7,6 +7,7 @@
 #include "wrapping_dap_chain_net_srv_common.h"
 #include "datetime.h"
 #include "libdap_crypto_key_python.h"
+#include "math_python.h"
 
 typedef struct PyDapChainNetSrvOrder{
     PyObject_HEAD

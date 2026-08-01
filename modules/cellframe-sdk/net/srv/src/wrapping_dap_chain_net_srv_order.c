@@ -205,11 +205,13 @@ PyObject *wrapping_dap_chain_net_srv_order_get_srv_ts_expires(PyObject *self, vo
 }
 PyObject *wrapping_dap_chain_net_srv_order_get_srv_price(PyObject *self, void *closure){
     (void)closure;
-    if(WRAPPING_DAP_CHAIN_NET_SRV_ORDER(self)->order == NULL){
-        return Py_BuildValue("k", 0);
-    }else{
-        return Py_BuildValue("k", WRAPPING_DAP_CHAIN_NET_SRV_ORDER(self)->order->price);
-    }
+    DapMathObject *l_price = PyObject_New(DapMathObject, &DapMathObjectType);
+    if (!l_price)
+        return PyErr_NoMemory();
+    l_price->value = WRAPPING_DAP_CHAIN_NET_SRV_ORDER(self)->order
+        ? WRAPPING_DAP_CHAIN_NET_SRV_ORDER(self)->order->price
+        : uint256_0;
+    return (PyObject *)l_price;
 }
 PyObject *wrapping_dap_chain_net_srv_order_get_srv_price_ticker(PyObject *self, void *closure){
     (void)closure;
